@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Vibe-Coding Survey | Venice 2025</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --terminal-bg: #0a0a0a;
+            --terminal-text: #00ff00;
+            --terminal-dim: #008800;
+            --terminal-bright: #00ff88;
+            --venice-blue: #0099cc;
+            --venice-gold: #ffcc00;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Space Mono', 'Courier New', monospace;
+            background: var(--terminal-bg);
+            color: var(--terminal-text);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .container { max-width: 800px; margin: 0 auto; }
+
+        .ascii-header {
+            font-family: 'VT323', monospace;
+            font-size: 0.6rem;
+            line-height: 1.1;
+            white-space: pre;
+            color: var(--terminal-bright);
+            text-align: center;
+            margin: 2rem 0;
+            text-shadow: 0 0 10px var(--terminal-text);
+        }
+
+        .survey-intro {
+            background: rgba(0, 255, 0, 0.05);
+            border: 2px solid var(--terminal-text);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+        }
+
+        .survey-intro h2 { color: var(--terminal-bright); margin-bottom: 1rem; }
+
+        .question-block {
+            background: rgba(0, 255, 0, 0.03);
+            border-left: 4px solid var(--terminal-dim);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .question-number {
+            color: var(--terminal-bright);
+            font-weight: bold;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        .question-text { color: var(--terminal-text); font-size: 1rem; margin-bottom: 1rem; }
+
+        .section-header {
+            color: var(--venice-blue);
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 2rem 0 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px dashed var(--terminal-dim);
+        }
+
+        input[type="radio"], input[type="checkbox"] {
+            margin-right: 0.5rem;
+            accent-color: var(--terminal-text);
+        }
+
+        label { display: block; padding: 0.5rem 0; cursor: pointer; color: var(--terminal-text); }
+        label:hover { color: var(--terminal-bright); }
+
+        textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--terminal-dim);
+            color: var(--terminal-text);
+            padding: 0.75rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            border-radius: 4px;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--terminal-text);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+        }
+
+        .scale-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .scale-label { color: var(--terminal-dim); font-size: 0.9rem; margin: 0.5rem; }
+        .scale-options { display: flex; gap: 1rem; margin: 0.5rem; }
+        .scale-options label { display: inline-block; padding: 0; }
+
+        .submit-button {
+            background: var(--terminal-dim);
+            color: var(--terminal-bg);
+            border: 2px solid var(--terminal-text);
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-family: 'Space Mono', monospace;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            margin: 2rem auto;
+            transition: all 0.3s;
+            display: block;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .submit-button:hover {
+            background: var(--terminal-text);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .submit-button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .required { color: var(--venice-gold); }
+
+        .success-message {
+            background: rgba(0, 255, 0, 0.1);
+            border: 2px solid var(--terminal-text);
+            padding: 2rem;
+            text-align: center;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .success-message h2 { color: var(--terminal-bright); margin-bottom: 1rem; }
+        .checkbox-group label { padding: 0.3rem 0; }
+        .error-message { color: var(--venice-gold); font-size: 0.9rem; margin-top: 0.5rem; display: none; }
+
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .ascii-header { font-size: 0.4rem; }
+            .scale-container { flex-direction: column; align-items: flex-start; }
+            .scale-options { width: 100%; justify-content: space-between; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <pre class="ascii-header">
+╔══════════════════════════════════════════════════════════════════╗
+║  VIBE-CODING FEEDBACK SURVEY                                    ║
+║  Venice 2025 | Your Voice Shapes Future HR Tech Education       ║
+╚══════════════════════════════════════════════════════════════════╝
+        </pre>
+
+        <div class="survey-intro">
+            <h2>📊 Help Us Improve</h2>
+            <p>Time to complete: ~5-7 minutes</p>
+            <p style="margin-top: 0.5rem;">This survey is completely anonymous. Your honest feedback will help improve future courses for human rights professionals learning to code.</p>
+        </div>
+
+        <form id="surveyForm">
+            <div class="section-header">Part 1: Background (3 questions)</div>
+
+            <div class="question-block">
+                <div class="question-text">
+                    <span class="question-number">Q1.</span>
+                    <span class="required">*</span> Before this course, how would you describe your programming experience?
+                </div>
+                <label><input type="radio" name="q1" value="absolute_beginner" required> Absolute beginner (never written code)</label>
+                <label><input type="radio" name="q1" value="dabbled"> Dabbled a bit (tried tutorials, copied code)</label>
+                <label><input type="radio" name="q1" value="some_experience"> Some experience (can read/modify code)</label>
+                <label><input type="radio" name="q1" value="comfortable"> Comfortable coder (can build small projects)</label>
+                <div class="error-message" id="error-q1">Please select an option</div>
+            </div>
+
+            <div class="question-block">
+                <div class="question-text">
+                    <span class="question-number">Q2.</span>
+                    What was your primary motivation for taking this course? (Select all that apply)
+                </div>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="q2" value="build_tools"> Build tools for my human rights work</label>
+                    <label><input type="checkbox" name="q2" value="understand_ai"> Understand how AI/NLP can help research</label>
+                    <label><input type="checkbox" name="q2" value="stay_current"> Stay current with technology trends</label>
+                    <label><input type="checkbox" name="q2" value="curiosity"> Pure curiosity</label>
+                    <label><input type="checkbox" name="q2" value="required"> Required/recommended by institution</label>
+                    <label><input type="checkbox" name="q2" value="other"> Other</label>
+                </div>
+            </div>
+
+            <div class="question-block">
+                <div class="question-text">
+                    <span class="question-number">Q3.</span>
+                    <span class="required">*</span> Before Day 1, how intimidating did "programming" feel?
+                </div>
+                <div class="scale-container">
+                    <span class="scale-label">Not at all</span>
+                    <div class="scale-options">
+                        <label><input type="radio" name="q3" value="1" required> 1</label>
+                        <label><input type="radio" name="q3" value="2"> 2</label>
+                        <label><input type="radio" name="q3" value="3"> 3</label>
+                        <label><input type="radio" name="q3" value="4"> 4</label>
+                        <label><input type="radio" name="q3" value="5"> 5</label>
+                    </div>
+                    <span class="scale-label">Extremely</span>
+                </div>
+                <div class="error-message" id="error-q3">Please select a rating</div>
+            </div>
+
+            <div class="section-header">Part 2: Accessibility (4 questions)</div>
+
+            <div class="question-block">
+                <div class="question-text">
+                    <span class="question-number">Q4.</span>
+                    <span class="required">*</span> The "vibe-coding" approach (programming through natural language) was:
+                </div>
+                <label><input type="radio" name="q4" value="more_accessible" required> More accessible than I expected</label>
+                <label><input type="radio" name="q4" value="as_expected"> About as accessible as I expected</label>
+                <label><input type="radio" name="q4" value="less_accessible"> Less accessible than I expected</label>
+                <label><input type="radio" name="q4" value="still_traditional"> Still felt like traditional programming</label>
+                <div class="error-message" id="error-q4">Please select an option</div>
+            </div>
+
+            <div class="question-block">
+                <div class="question-text">
+                    <span class="question-number">Q5.</span>
+                    Which concept was the MOST confusing or frustrating?
+                </div>
+                <textarea name="q5" placeholder="E.g., 'JSON transformation felt abstract...' or 'Nothing was particularly confusing'"></textarea>
+            </div>
+
+            <div class="question-block">
+                <div class="question-text">
+                    <span class="question-number">Q6.</span>
+                    Which concept clicked the BEST for you?
+                </div>
+                <textarea name="q6" placeholder="E.g., 'Seeing the search function work was amazing...'"></textarea>
+            </div>
+
+            <div class="question-block">
+                <div class="question-text">
+                    <span class="question-number">Q7.</span>
+                    <span class="required">*</span> The pace of the course was:
+                </div>
+                <label><input type="radio" name="q7" value="too_slow" required> Too slow (I was bored)</label>
+                <label><input type="radio" name="q7" value="just_right"> Just right (I could follow along)</label>
+                <label><input type="radio" name="q7" value="too_fast"> Too fast (I felt lost)</label>
+                <label><input type="radio" name="q7" value="varied"> Varied (some parts too fast, others too slow)</label>
+                <div class="error-message" id="error-q7">Please select an option</div>
+            </div>
+
+            <div class="section-header">Part 3: Practical Value (3 questions)</div>
+
+            <div class="question-block">
+                <div class="question-text">
+                    <span class="question-number">Q8.</span>
+                    <span class="required">*</span> How likely are you to actually USE what you learned in the next 6 months?
+                </div>
+                <div class="scale-container">
+                    <span class="scale-label">Not at all</span>
+                    <div class="scale-options">
+                        <label><input type="radio" name="q8" value="1" required> 1</label>
+                        <label><input type="radio" name="q8" value="2"> 2</label>
+                        <label><input type="radio" name="q8" value="3"> 3</label>
+                        <label><input type="radio" name="q8" value="4"> 4</label>
+                        <label><input type="radio" name="q8" value="5"> 5</label>
+                    </div>
+                    <span class="scale-label">Definitely</span>
+                </div>
+                <div class="error-message" id="error-q8">Please select a rating</div>
+            </div>
+
+            <div class="question-block">
+                <div class="question-text">
+                    <span class="question-number">Q9.</span>
+                    What's the biggest barrier to using these skills? (Select up to 2)
+                </div>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="q9" value="time"> Lack of time</label>
+                    <label><input type="checkbox" name="q9" value="confidence"> Lack of confidence</label>
+                    <label><input type="checkbox" name="q9" value="no_use_case"> No immediate use case at work</label>
+                    <label><input type="checkbox" name="q9" value="tech_support"> Need more technical support</label>
+                    <label><input type="checkbox" name="q9" value="organizational"> Lack of organizational buy-in</label>
+                    <label><input type="checkbox" name="q9" value="too_complex"> Still too complex</label>
+                    <label><input type="checkbox" name="q9" value="no_barrier"> No significant barrier</label>
+                </div>
+            </div>
+
+            <div class="question-block">
+                <div class="question-text">
+                    <span class="question-number">Q10.</span>
+                    The most valuable thing I learned was:
+                </div>
+                <textarea name="q10" placeholder="What's the one skill or insight you'll take away?"></textarea>
+            </div>
+
+            <div class="section-header">Part 4: Confidence (2 questions)</div>
+
+            <div class="question-block">
+                <div class="question-text">
+                    <span class="question-number">Q11.</span>
+                    <span class="required">*</span> After this course, I feel:
+                </div>
+                <label><input type="radio" name="q11" value="empowered" required> Empowered to try building simple tools on my own</label>
+                <label><input type="radio" name="q11" value="comfortable_talking"> More comfortable talking with technical colleagues</label>
+                <label><input type="radio" name="q11" value="understand_better"> Like I understand AI/NLP better, but wouldn't code alone</label>
+                <label><input type="radio" name="q11" value="still_lost"> Still completely lost</label>
+                <div class="error-message" id="error-q11">Please select an option</div>
+            </div>
+
+            <div class="question-block">
+                <div class="question-text">
+                    <span class="question-number">Q12.</span>
+                    Complete this sentence: "Before this course, I thought programming was ____________. Now I think it's ____________."
+                </div>
+                <textarea name="q12" placeholder="E.g., 'impossible for me / something I can learn with practice'"></textarea>
+            </div>
+
+            <div class="section-header">Part 5: Improvements (3 questions)</div>
+
+            <div class="question-block">
+                <div class="question-text">
+                    <span class="question-number">Q13.</span>
+                    What ONE thing would make this course better?
+                </div>
+                <textarea name="q13" placeholder="Be specific! E.g., 'More time for hands-on practice on Day 1' or 'A cheat sheet of common errors'"></textarea>
+            </div>
+
+            <div class="question-block">
+                <div class="question-text">
+                    <span class="question-number">Q14.</span>
+                    <span class="required">*</span> Would you recommend this course to colleagues?
+                </div>
+                <div class="scale-container">
+                    <span class="scale-label">Definitely not</span>
+                    <div class="scale-options">
+                        <label><input type="radio" name="q14" value="1" required> 1</label>
+                        <label><input type="radio" name="q14" value="2"> 2</label>
+                        <label><input type="radio" name="q14" value="3"> 3</label>
+                        <label><input type="radio" name="q14" value="4"> 4</label>
+                        <label><input type="radio" name="q14" value="5"> 5</label>
+                    </div>
+                    <span class="scale-label">Absolutely</span>
+                </div>
+                <div class="error-message" id="error-q14">Please select a rating</div>
+                <div style="margin-top: 1rem;">
+                    <div class="question-text">Why or why not?</div>
+                    <textarea name="q14_why" placeholder="Optional: Tell us why you gave this rating"></textarea>
+                </div>
+            </div>
+
+            <div class="question-block">
+                <div class="question-text">
+                    <span class="question-number">Q15.</span>
+                    Any final thoughts? What surprised you most?
+                </div>
+                <textarea name="q15" placeholder="Anything else you'd like to share..."></textarea>
+            </div>
+
+            <div class="section-header">Optional: Professional Background</div>
+
+            <div class="question-block">
+                <div class="question-text">
+                    <span class="question-number">Q16.</span>
+                    Your professional background (optional):
+                </div>
+                <label><input type="radio" name="q16" value="legal"> Legal / judicial</label>
+                <label><input type="radio" name="q16" value="ngo"> NGO / advocacy</label>
+                <label><input type="radio" name="q16" value="academic"> Academic / research</label>
+                <label><input type="radio" name="q16" value="government"> Government / policy</label>
+                <label><input type="radio" name="q16" value="student"> Student</label>
+                <label><input type="radio" name="q16" value="other"> Other</label>
+                <label><input type="radio" name="q16" value="prefer_not"> Prefer not to say</label>
+            </div>
+
+            <button type="submit" class="submit-button">SUBMIT SURVEY →</button>
+        </form>
+
+        <div class="success-message" id="successMessage">
+            <h2>✅ Thank You!</h2>
+            <p>Your feedback has been recorded successfully.</p>
+            <p style="margin-top: 2rem; color: var(--terminal-dim); font-size: 0.9rem;">
+                System message: Survey complete<br>
+                Your feedback powers the next generation of human rights tech education<br>
+                Status: SUBMITTED █
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('surveyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const requiredFields = ['q1', 'q3', 'q4', 'q7', 'q8', 'q11', 'q14'];
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                const input = document.querySelector(`input[name="${field}"]:checked`);
+                const errorDiv = document.getElementById(`error-${field}`);
+                
+                if (!input) {
+                    if (errorDiv) errorDiv.style.display = 'block';
+                    isValid = false;
+                } else {
+                    if (errorDiv) errorDiv.style.display = 'none';
+                }
+            });
+
+            if (!isValid) {
+                alert('Please answer all required questions (marked with *)');
+                return;
+            }
+
+            const formData = new FormData(this);
+            const surveyData = {
+                timestamp: new Date().toISOString(),
+                responses: {}
+            };
+
+            for (let [key, value] of formData.entries()) {
+                if (key.startsWith('q')) {
+                    if (surveyData.responses[key]) {
+                        if (!Array.isArray(surveyData.responses[key])) {
+                            surveyData.responses[key] = [surveyData.responses[key]];
+                        }
+                        surveyData.responses[key].push(value);
+                    } else {
+                        surveyData.responses[key] = value;
+                    }
+                }
+            }
+
+            const submitBtn = document.querySelector('.submit-button');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'SUBMITTING...';
+
+            try {
+                const response = await fetch('/api/submit_survey', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(surveyData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('surveyForm').style.display = 'none';
+                    document.getElementById('successMessage').style.display = 'block';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    alert('Error submitting survey: ' + result.message);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'SUBMIT SURVEY →';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error submitting survey. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'SUBMIT SURVEY →';
+            }
+        });
+
+        const q9Checkboxes = document.querySelectorAll('input[name="q9"]');
+        q9Checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const checked = document.querySelectorAll('input[name="q9"]:checked');
+                if (checked.length > 2) {
+                    this.checked = false;
+                    alert('Please select a maximum of 2 barriers');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

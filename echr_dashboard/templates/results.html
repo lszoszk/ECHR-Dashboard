@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% block title %}Results: {{ query }} — ECHR Search{% endblock %}
+
+{% block content %}
+<div class="results-layout">
+    <!-- Main Results -->
+    <div class="results-main">
+        <!-- Search bar (sticky) -->
+        <div class="results-header">
+            <form action="/search" method="GET" class="inline-search">
+                <input type="text" name="q" value="{{ query }}" class="search-input compact"
+                       placeholder="Search paragraphs…">
+                <button type="submit" class="search-btn compact">Search</button>
+            </form>
+            <div class="results-meta">
+                <span class="meta-count">
+                    <strong>{{ total_hits }}</strong> paragraphs in
+                    <strong>{{ total_cases }}</strong> cases
+                </span>
+                <span class="meta-time">({{ "%.3f"|format(search_time) }}s)</span>
+                {% if total_hits > 0 %}
+                <a href="/export?q={{ query }}{% for s in sections_filter %}&sections={{ s }}{% endfor %}{% for a in articles_filter %}&articles={{ a }}{% endfor %}{% for c in countries_filter %}&countries={{ c }}{% endfor %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}"
+                   class="export-btn" title="Export results to CSV">
+                    📥 Export CSV
+                </a>
+                {% endif %}
+            </div>
+            {% if sections_filter or articles_filter or countries_filter or date_from or date_to %}
+            <div class="active-filters">
+                {% for s in sections_filter %}
+                <span class="filter-chip">{{ section_labels.get(s, s) }}</span>
+                {% endfor %}
+                {% for a in articles_filter %}
+                <span class="filter-chip">Art. {{ a }}</span>
+                {% endfor %}
+                {% for c in countries_filter %}
+                <span class="filter-chip">{{ country_names.get(c, c) }}</span>
+                {% endfor %}
+                {% if date_from %}<span class="filter-chip">From: {{ date_from }}</span>{% endif %}
+                {% if date_to %}<span class="filter-chip">To: {{ date_to }}</span>{% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        {% if total_hits == 0 %}
+        <div class="no-results">
+            <div class="no-results-icon">🔍</div>
+            <h2>No results found</h2>
+            <p>Try different search terms, broader filters, or check your spelling.</p>
+            <a href="/" class="back-link">← Back to search</a>
+        </div>
+        {% else %}
+        <!-- Case Accordion -->
+        <div class="cases-list">
+            {% for case_id, data in results.items() %}
+            <div class="case-card" id="case-{{ case_id }}">
+                <div class="case-header" onclick="toggleCase('{{ case_id }}')">
+                    <div class="case-info">
+                        <h2 class="case-title">{{ data.case.title }}</h2>
+                        <div class="case-meta">
+                            <span class="meta-item">📋 {{ data.case.case_no }}</span>
+                            <span class="meta-item">📅 {{ data.case.judgment_date }}</span>
+                            <span class="meta-item">🏳️ {{ data.case.defendants | join(', ') }}</span>
+                            <span class="meta-item">📜 {{ data.case.article_no }}</span>
+                        </div>
+                    </div>
+                    <div class="case-badge">
+                        <span class="hit-count">{{ data.hit_count }}</span>
+                        <span class="hit-label">{{ 'hit' if data.hit_count == 1 else 'hits' }}</span>
+                        <span class="toggle-icon" id="icon-{{ case_id }}">▶</span>
+                    </div>
+                </div>
+                <div class="case-body" id="body-{{ case_id }}">
+                    {% for para in data.paragraphs %}
+                    <div class="paragraph-item">
+                        <div class="para-header">
+                            <span class="para-section">{{ para.section_label }}</span>
+                            <span class="para-num">¶ {{ para.para_idx + 1 }}</span>
+                            <button class="copy-btn" onclick="copyParagraph(this)" data-text="{{ para.raw_text | e }}">
+                                Copy
+                            </button>
+                        </div>
+                        <p class="para-text">{{ para.text | safe }}</p>
+                    </div>
+                    {% endfor %}
+                    <div class="case-footer">
+                        <a href="/case/{{ case_id }}" class="view-full">View full judgment →</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Analytics Sidebar -->
+    {% if analytics %}
+    <aside class="results-sidebar" id="sidebar">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">◀</button>
+        <h3 class="sidebar-title">Search Analytics</h3>
+
+        {% if analytics.articles %}
+        <div class="sidebar-section">
+            <h4>Convention Articles</h4>
+            <div class="bar-list">
+                {% for art, count in analytics.articles[:10] %}
+                <div class="bar-item">
+                    <span class="bar-label">Art. {{ art }}</span>
+                    <div class="bar-track">
+                        <div class="bar-fill" style="width: {{ (count / analytics.articles[0][1] * 100) | int }}%"></div>
+                    </div>
+                    <span class="bar-value">{{ count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if analytics.countries %}
+        <div class="sidebar-section">
+            <h4>Respondent States</h4>
+            <div class="bar-list">
+                {% for code, count in analytics.countries[:10] %}
+                <div class="bar-item">
+                    <span class="bar-label">{{ country_names.get(code, code) }}</span>
+                    <div class="bar-track">
+                        <div class="bar-fill country" style="width: {{ (count / analytics.countries[0][1] * 100) | int }}%"></div>
+                    </div>
+                    <span class="bar-value">{{ count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if analytics.sections %}
+        <div class="sidebar-section">
+            <h4>Sections</h4>
+            <div class="bar-list">
+                {% for sec, count in analytics.sections %}
+                <div class="bar-item">
+                    <span class="bar-label">{{ sec }}</span>
+                    <div class="bar-track">
+                        <div class="bar-fill section" style="width: {{ (count / analytics.sections[0][1] * 100) | int }}%"></div>
+                    </div>
+                    <span class="bar-value">{{ count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if analytics.words %}
+        <div class="sidebar-section">
+            <h4>Frequent Terms</h4>
+            <div class="word-cloud">
+                {% for word, count in analytics.words %}
+                <span class="word-tag" style="font-size: {{ 0.75 + (count / analytics.words[0][1]) * 0.75 }}rem; opacity: {{ 0.5 + (count / analytics.words[0][1]) * 0.5 }}">
+                    {{ word }}
+                </span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </aside>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleCase(caseId) {
+    const body = document.getElementById('body-' + caseId);
+    const icon = document.getElementById('icon-' + caseId);
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open');
+    icon.textContent = isOpen ? '▶' : '▼';
+}
+
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('collapsed');
+}
+
+function copyParagraph(btn) {
+    const text = btn.getAttribute('data-text');
+    navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+            btn.textContent = orig;
+            btn.classList.remove('copied');
+        }, 2000);
+    });
+}
+
+// Auto-expand first case
+document.addEventListener('DOMContentLoaded', () => {
+    const firstCase = document.querySelector('.case-card');
+    if (firstCase) {
+        const id = firstCase.id.replace('case-', '');
+        toggleCase(id);
+    }
+});
+</script>
+{% endblock %}

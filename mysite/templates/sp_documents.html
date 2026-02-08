@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>UN Special Procedures Database - Browse Full Texts</title>
+
+    <!-- Favicon & Analytics -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <script src="/static/js/cookies.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VFCDZ89GWR"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-VFCDZ89GWR', { 'cookie_domain': 'auto' });
+    </script>
+
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('uds-theme');
+      var mode = (saved === 'dark') ? 'dark' : 'light'; // default: light
+      var html = document.documentElement;
+      html.setAttribute('data-theme', mode);
+      html.dataset.mode = mode;
+    } catch (e) {
+      // if storage blocked, stay light
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.documentElement.dataset.mode = 'light';
+    }
+  })();
+</script>
+
+    <!-- Bootstrap, Icons & Fonts -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Unified Design System -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/unified-design-system.css') }}?v=1">
+
+<style>
+    .document-search-container {
+        margin-top: 50px;
+    }
+</style>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    {% include 'navbar_universal.html' %}
+
+    <!-- Progress bar for scrolling -->
+    <div id="scroll-progress-bar" class="scroll-progress-bar"></div>
+
+    <!-- Enhanced Sidebar -->
+    <aside class="enhanced-sidebar" id="enhancedSidebar">
+        <div class="enhanced-sidebar__header">
+            <h2 class="enhanced-sidebar__title">
+                <i class="fas fa-gavel"></i>
+                Special Procedure
+            </h2>
+            <div class="mandate-selector">
+                <select id="mandateSelect" onchange="loadDocuments(this.value)">
+                    <option value="">Select a Special Procedure</option>
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+            </div>
+        </div>
+        <div class="documents-section">
+            <h3 class="documents-section__title">
+                <i class="fas fa-file-alt"></i>
+                Documents
+            </h3>
+            <ul class="document-list" id="documentList">
+                <!-- Document list will be populated here -->
+            </ul>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="enhanced-main" id="enhancedMain">
+        <!-- Document Search Container -->
+        <div class="document-search-container">
+            <div class="search-header">
+                <i class="fas fa-search text-primary"></i>
+                <h3>Search within Document</h3>
+            </div>
+            <div class="search-input-wrapper">
+                <input type="text"
+                       id="documentSearchInput"
+                       placeholder="Type at least 3 characters to search within the selected document..."
+                       class="form-control">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+        </div>
+
+        <!-- Document Viewer -->
+        <div class="document-viewer empty" id="documentViewer">
+            <div class="text-center">
+                <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                <p>Select a Special Procedure and document to start browsing</p>
+            </div>
+        </div>
+    </main>
+
+<!-- Mobile Documents FAB (same as corpus_viewer.html) -->
+<button class="documents-fab" id="mobileDocumentsFab" title="Browse Documents">
+  <i class="fas fa-file-alt fab-icon"></i>
+  <div class="fab-text">
+    <span class="fab-treaty-body" id="fabTreatyBody">Select Special Procedure</span>
+    <span class="fab-count" id="fabDocumentCount">0 documents</span>
+  </div>
+</button>
+
+<!-- Mobile Documents Panel (same as corpus_viewer.html) -->
+<div class="mobile-documents-panel" id="mobileDocumentsPanel">
+  <div class="mobile-documents-content">
+    <div class="mobile-panel-header">
+      <h3 class="mobile-panel-title">
+        <i class="fas fa-file-alt mr-2"></i>
+        Document Selection
+      </h3>
+      <button class="mobile-panel-close" id="closeMobilePanel" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="mobile-committee-selector">
+      <label for="mobile-committee-select" class="form-label font-weight-medium mb-2">
+        <i class="fas fa-gavel text-primary mr-2"></i>
+        Select Special Procedure
+      </label>
+      <select id="mobile-committee-select" class="form-control">
+        <option value="">Choose a Special Procedure...</option>
+        <!-- Options populated by JS -->
+      </select>
+    </div>
+
+    <div class="mobile-documents-section">
+      <h4 class="mobile-documents-title">
+        <i class="fas fa-list text-primary"></i>
+        Available Documents
+      </h4>
+      <ul class="mobile-document-list" id="mobileDocumentList">
+        <!-- Document list populated by JS -->
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+    <!-- Scroll to top button -->
+    <button class="scroll-to-top" id="scrollToTopBtn" title="Go to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+  /* =========================================================
+     UN Special Procedures Viewer — FAB-enabled mobile UX
+     Parity with corpus_viewer.html (same IDs/classes/behavior)
+     ========================================================= */
+
+  class EnhancedSPViewer {
+    constructor() {
+      this.currentDocumentId = null;
+      this.documentsData = [];
+      this.mandates = [];
+      this.init();
+    }
+
+    init() {
+      this.setupEventListeners();
+      syncNavbarHeightVar();
+      window.addEventListener('resize', syncNavbarHeightVar);
+      this.setupScrollProgress();
+      this.setupScrollToTop();
+      this.loadMandatesAndDocuments();
+      this.setupModalSearch();
+      this.setupMobileDocuments();  // NEW: FAB + overlay panel
+    }
+
+    /* ============================
+       SEARCH UTILITIES
+       ============================ */
+    escapeRegex(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    getTextContentExcludingFootnotes(element) {
+      const clone = element.cloneNode(true);
+      clone.querySelectorAll('.footnote-ref, sup[data-footnote]').forEach(n => n.remove());
+      return clone.textContent || clone.innerText || '';
+    }
+
+    highlightInParagraph(paragraph, regex) {
+      const walker = document.createTreeWalker(
+        paragraph,
+        NodeFilter.SHOW_TEXT,
+        {
+          acceptNode(node) {
+            const p = node.parentElement;
+            if (p && (p.classList.contains('footnote-ref') || p.hasAttribute('data-footnote'))) {
+              return NodeFilter.FILTER_REJECT;
+            }
+            return NodeFilter.FILTER_ACCEPT;
+          }
+        }
+      );
+
+      const textNodes = [];
+      let node;
+      while ((node = walker.nextNode())) textNodes.push(node);
+
+      textNodes.forEach(textNode => {
+        const text = textNode.textContent;
+        regex.lastIndex = 0; // reset before test
+        if (!regex.test(text)) return;
+
+        regex.lastIndex = 0;
+        const highlightedHTML = text.replace(regex, '<span class="highlight">$&</span>');
+        const wrapper = document.createElement('span');
+        wrapper.innerHTML = highlightedHTML;
+
+        const parent = textNode.parentNode;
+        while (wrapper.firstChild) parent.insertBefore(wrapper.firstChild, textNode);
+        parent.removeChild(textNode);
+      });
+    }
+
+    highlightTextNodes(element, regex) {
+      const walker = document.createTreeWalker(
+        element,
+        NodeFilter.SHOW_TEXT,
+        {
+          acceptNode(node) {
+            const p = node.parentElement;
+            if (p && (p.classList.contains('footnote-ref') || p.hasAttribute('data-footnote'))) {
+              return NodeFilter.FILTER_REJECT;
+            }
+            return NodeFilter.FILTER_ACCEPT;
+          }
+        }
+      );
+
+      const nodes = [];
+      let n;
+      while ((n = walker.nextNode())) nodes.push(n);
+
+      nodes.forEach(node => {
+        const t = node.textContent;
+        regex.lastIndex = 0; // reset before test
+        if (!regex.test(t)) return;
+
+        regex.lastIndex = 0;
+        const html = t.replace(regex, '<mark>$&</mark>');
+        const span = document.createElement('span');
+        span.innerHTML = html;
+
+        const parent = node.parentNode;
+        while (span.firstChild) parent.insertBefore(span.firstChild, node);
+        parent.removeChild(node);
+      });
+    }
+
+    documentSearch(query) {
+      const viewerDiv = document.getElementById('documentViewer');
+      if (!viewerDiv || viewerDiv.classList.contains('empty')) return;
+
+      const original = viewerDiv.getAttribute('data-original') || viewerDiv.innerHTML;
+
+      if (!query || query.trim().length < 3) {
+        viewerDiv.innerHTML = original;
+        return;
+      }
+
+      viewerDiv.innerHTML = original;
+
+      const q = query.trim();
+      const regex = new RegExp(this.escapeRegex(q), 'gi');
+
+      const blocks = viewerDiv.querySelectorAll(
+        '.document-content p, .document-content li, .document-content div, .document-content blockquote'
+      );
+
+      let foundAny = false;
+      blocks.forEach(el => {
+        if (!el.firstChild) return;
+
+        const text = this.getTextContentExcludingFootnotes(el);
+        regex.lastIndex = 0;
+
+        if (!regex.test(text)) {
+          el.style.display = 'none';
+          return;
+        }
+
+        el.style.display = '';
+        this.highlightInParagraph(el, new RegExp(this.escapeRegex(q), 'gi'));
+        foundAny = true;
+      });
+
+      if (foundAny) {
+        const first = viewerDiv.querySelector('.highlight, mark');
+        if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    /* ============================
+       BASIC UI WIRING
+       ============================ */
+    setupEventListeners() {
+      // Search input
+      const searchInput = document.getElementById('documentSearchInput');
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          this.documentSearch(e.target.value);
+        });
+      }
+
+      // Close mobile panel by clicking the backdrop or pressing ESC
+      document.addEventListener('click', (e) => {
+        const panel = document.getElementById('mobileDocumentsPanel');
+        if (panel && e.target === panel) this.closeMobilePanel();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        const panel = document.getElementById('mobileDocumentsPanel');
+        if (e.key === 'Escape' && panel && panel.style.display === 'block') {
+          this.closeMobilePanel();
+        }
+      });
+    }
+
+    setupScrollProgress() {
+      const bar = document.getElementById('scroll-progress-bar');
+      if (!bar) return;
+
+      let ticking = false;
+
+      function update() {
+        ticking = false;
+        const el = document.scrollingElement || document.documentElement;
+        const max = el.scrollHeight - el.clientHeight;
+        const scrolled = max > 0 ? (el.scrollTop / max) * 100 : 0;
+        bar.style.width = scrolled + '%';
+      }
+
+      function onScrollOrResize() {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(update);
+        }
+      }
+
+      update();
+      window.addEventListener('scroll', onScrollOrResize, { passive: true });
+      window.addEventListener('resize', onScrollOrResize);
+    }
+
+    setupScrollToTop() {
+      const scrollBtn = document.getElementById('scrollToTopBtn');
+      if (!scrollBtn) return;
+
+      window.addEventListener('scroll', () => {
+        if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+          scrollBtn.style.display = 'flex';
+        } else {
+          scrollBtn.style.display = 'none';
+        }
+      });
+
+      scrollBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    setupModalSearch() {
+      // Ctrl+F overlay search when a doc is visible
+      document.addEventListener('keydown', (e) => {
+        const viewer = document.getElementById('documentViewer');
+        if (viewer && !viewer.classList.contains('empty') && e.ctrlKey && e.key.toLowerCase() === 'f') {
+          e.preventDefault();
+          this.showModalSearch();
+        }
+      });
+    }
+
+    showModalSearch() {
+      let searchBar = document.getElementById('modalSearchInput');
+      if (searchBar) {
+        searchBar.focus();
+        return;
+      }
+
+      const bar = document.createElement('div');
+      bar.className = 'modal-search-bar';
+      bar.innerHTML = '<input id="modalSearchInput" class="modal-search-input" placeholder="Search in document...">';
+
+      const viewer = document.getElementById('documentViewer');
+      viewer.insertBefore(bar, viewer.firstChild);
+
+      searchBar = document.getElementById('modalSearchInput');
+      searchBar.focus();
+      searchBar.addEventListener('input', (e) => {
+        const content = document.querySelector('#documentViewer .document-content');
+        if (!content) return;
+
+        // remove old <mark>
+        content.innerHTML = content.innerHTML.replace(/<mark[^>]*>(.*?)<\/mark>/gi, '$1');
+
+        const q = e.target.value.trim();
+        if (q.length < 2) return;
+
+        const regex = new RegExp('(' + this.escapeRegex(q) + ')', 'gi');
+        this.highlightTextNodes(content, regex);
+      });
+    }
+
+    /* ============================
+       DATA
+       ============================ */
+    async loadMandatesAndDocuments() {
+      try {
+        const response = await fetch('/api/sp_documents');
+        this.documentsData = await response.json();
+
+        // Unique mandates
+        this.mandates = [...new Set(this.documentsData.map(doc => doc.Committee))].sort();
+
+        // Desktop selector
+        const mandateSelect = document.getElementById('mandateSelect');
+        this.mandates.forEach(mandate => {
+          const option = document.createElement('option');
+          option.value = mandate;
+          option.textContent = mandate;
+          mandateSelect.appendChild(option);
+        });
+
+        // Mobile selector
+        const mobileSelect = document.getElementById('mobile-committee-select');
+        if (mobileSelect) {
+          this.mandates.forEach(mandate => {
+            const o = document.createElement('option');
+            o.value = mandate;
+            o.textContent = mandate;
+            mobileSelect.appendChild(o);
+          });
+        }
+      } catch (error) {
+        console.error('Error loading Special Procedures data:', error);
+      }
+    }
+
+    sortDocuments(documents) {
+      return documents.sort((a, b) => {
+        const yearA = parseInt(a['Adoption year']) || 0;
+        const yearB = parseInt(b['Adoption year']) || 0;
+        if (yearB !== yearA) return yearB - yearA;
+        return (a['Simplified Name'] || '').localeCompare(b['Simplified Name'] || '');
+      });
+    }
+
+    /* ============================
+       FAB + MOBILE PANEL (EXACT PARITY)
+       ============================ */
+    setupMobileDocuments() {
+      const fab = document.getElementById('mobileDocumentsFab');
+      const panel = document.getElementById('mobileDocumentsPanel');
+      const closeBtn = document.getElementById('closeMobilePanel');
+      const mobileSelect = document.getElementById('mobile-committee-select');
+
+      if (!fab || !panel || !closeBtn || !mobileSelect) return;
+
+      // Open panel
+      fab.addEventListener('click', () => {
+        panel.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+      });
+
+      // Close actions
+      closeBtn.addEventListener('click', () => this.closeMobilePanel());
+      panel.addEventListener('click', (e) => { if (e.target === panel) this.closeMobilePanel(); });
+
+      // Mandate selection inside panel
+      mobileSelect.addEventListener('change', (e) => {
+        this.loadMobileDocuments(e.target.value);
+      });
+    }
+
+    closeMobilePanel() {
+      const panel = document.getElementById('mobileDocumentsPanel');
+      if (panel) {
+        panel.style.display = 'none';
+        document.body.style.overflow = '';
+      }
+    }
+
+    loadMobileDocuments(mandate) {
+      if (!mandate) {
+        this.updateMobileDocumentList([]);
+        this.updateFabDisplay('Select Special Procedure', 0);
+        return;
+      }
+
+      const docs = this.documentsData.filter(d => d.Committee === mandate);
+      const sorted = this.sortDocuments(docs);
+      this.updateMobileDocumentList(sorted);
+      this.updateFabDisplay(mandate, sorted.length);
+    }
+
+    updateMobileDocumentList(documents) {
+      const mobileList = document.getElementById('mobileDocumentList');
+      if (!mobileList) return;
+
+      mobileList.innerHTML = '';
+
+      if (documents.length === 0) {
+        const emptyItem = document.createElement('li');
+        emptyItem.innerHTML = '<p class="text-muted p-3">No documents available</p>';
+        mobileList.appendChild(emptyItem);
+        return;
+      }
+
+      documents.forEach(doc => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = '#';
+
+        const title = doc['Simplified Name'] || doc.Name;
+        const year = doc['Adoption year'];
+        a.textContent = year ? `${title} (${year})` : title;
+
+        a.onclick = (e) => {
+          e.preventDefault();
+          viewDocument(doc);
+
+          // Active state (mobile list)
+          document.querySelectorAll('.mobile-document-list a').forEach(n => n.classList.remove('active'));
+          a.classList.add('active');
+
+          // Mirror active state (desktop list)
+          document.querySelectorAll('.document-list a').forEach(n => n.classList.remove('active'));
+          const match = Array.from(document.querySelectorAll('.document-list a'))
+            .find(n => n.textContent.trim() === a.textContent.trim());
+          if (match) match.classList.add('active');
+
+          this.closeMobilePanel();
+        };
+
+        li.appendChild(a);
+        mobileList.appendChild(li);
+      });
+    }
+
+    updateFabDisplay(label, count) {
+      const fabTreatyBody = document.getElementById('fabTreatyBody');
+      const fabCount = document.getElementById('fabDocumentCount');
+      if (fabTreatyBody) fabTreatyBody.textContent = label;
+      if (fabCount) fabCount.textContent = `${count} document${count !== 1 ? 's' : ''}`;
+    }
+  }
+
+  /* ============================
+     Global functions (desktop)
+     ============================ */
+  function loadDocuments(mandate, viewFirstDocument = false) {
+    if (!mandate) return;
+
+    const mandateDocuments = spViewer.documentsData.filter(doc => doc.Committee === mandate);
+    const sortedDocuments = spViewer.sortDocuments(mandateDocuments);
+
+    const docList = document.getElementById('documentList');
+    docList.innerHTML = '';
+
+    sortedDocuments.forEach(doc => {
+      const listItem = document.createElement('li');
+      const docLink = document.createElement('a');
+      docLink.href = '#';
+
+      const docTitle = doc['Simplified Name'] || doc.Name;
+      const adoptionYear = doc['Adoption year'];
+      const displayText = adoptionYear ? `${docTitle} (${adoptionYear})` : docTitle;
+
+      docLink.textContent = displayText;
+      docLink.onclick = (e) => {
+        e.preventDefault();
+        viewDocument(doc);
+
+        document.querySelectorAll('.document-list a').forEach(a => a.classList.remove('active'));
+        docLink.classList.add('active');
+      };
+
+      listItem.appendChild(docLink);
+      docList.appendChild(listItem);
+    });
+
+    // Keep FAB + mobile panel synced
+    spViewer.updateMobileDocumentList(sortedDocuments);
+    spViewer.updateFabDisplay(mandate, sortedDocuments.length);
+    const mobileSelect = document.getElementById('mobile-committee-select');
+    if (mobileSelect) mobileSelect.value = mandate;
+
+    if (viewFirstDocument && sortedDocuments.length > 0) {
+      viewDocument(sortedDocuments[0]);
+      const firstLink = document.querySelector('.document-list a');
+      if (firstLink) firstLink.classList.add('active');
+    }
+  }
+
+  async function viewDocument(documentData) {
+    spViewer.currentDocumentId = documentData['File PATH'];
+    const viewerDiv = document.getElementById('documentViewer');
+
+    viewerDiv.innerHTML = `
+      <div class="text-center py-5">
+        <div class="enhanced-spinner enhanced-spinner--lg mb-3"></div>
+        <p class="text-muted">Loading document...</p>
+      </div>
+    `;
+    viewerDiv.classList.remove('empty');
+
+    try {
+      const documentId = documentData['File PATH'].split('/').pop().replace('.json', '');
+      const response = await fetch(`/api/sp_documents/${encodeURIComponent(documentId)}`);
+      const data = await response.json();
+
+      let content = `
+        <h2>${documentData.Name}</h2>
+        <div class="document-actions">
+          <button class="action-btn" onclick="copyCitation('${documentData.Committee}', '${documentData.Name}', '${documentData['Adoption Date']}', '${documentData.Signature}')" title="Copy citation">
+            <i class="fas fa-quote-left"></i>
+            Copy Citation
+          </button>
+          ${documentData.Link ? `<a href="${documentData.Link}" class="action-btn secondary" target="_blank" rel="noopener" title="View source document">
+            <i class="fas fa-external-link-alt"></i>
+            Source Document
+          </a>` : ''}
+        </div>
+        <div class="document-meta">
+          <div class="copy-feedback" id="copyFeedback"></div>
+          <p><strong>Signature:</strong> ${documentData.Signature}</p>
+          <p><strong>Adoption Date:</strong> ${documentData['Adoption Date']}</p>
+          <p><strong>Special Procedure:</strong> ${documentData.Committee}</p>
+          <p><strong>Mandate Holder:</strong> ${documentData['Mandate holder']}</p>
+          <p><strong>Presented To:</strong> ${documentData.Presented}</p>
+        </div>
+        <div class="document-content">
+      `;
+
+      content += enhanceContent(data.html);
+      content += '</div>';
+
+      viewerDiv.innerHTML = content;
+      viewerDiv.setAttribute('data-original', content);
+
+      viewerDiv.scrollTop = 0;
+      document.getElementById('enhancedMain').scrollTop = 0;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      const searchInput = document.getElementById('documentSearchInput');
+      if (searchInput) searchInput.value = '';
+
+      viewerDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    } catch (error) {
+      console.error('Error loading document:', error);
+      viewerDiv.innerHTML = `
+        <div class="text-center py-5 text-danger">
+          <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+          <p>Error loading document. Please try again.</p>
+        </div>
+      `;
+    }
+  }
+
+  /* ============================
+     Footnotes & TOC helpers
+     ============================ */
+  function enhanceContent(rawHtml) {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = rawHtml;
+
+    const footnotes = {};
+
+    // <li id="fn1">…</li>
+    wrapper.querySelectorAll('li[id^="fn"]').forEach(li => {
+      const num = li.id.replace(/^fn/, '');
+      footnotes[num] = stripHtml(li.innerHTML);
+      li.remove();
+    });
+
+    // <p><sup>1</sup> text…</p>
+    wrapper.querySelectorAll('p').forEach(p => {
+      const sup = p.querySelector('sup');
+      if (!sup) return;
+
+      const firstIsSup = p.firstChild === sup && /^\d+$/.test(sup.textContent.trim());
+      if (firstIsSup) {
+        const num = sup.textContent.trim();
+        footnotes[num] = stripHtml(p.innerHTML.replace(sup.outerHTML, '').trim());
+        p.remove();
+      }
+    });
+
+    // Paragraphs starting with a number: "1 some text"
+    wrapper.querySelectorAll('p').forEach(p => {
+      const text = p.textContent.trim();
+      const match = text.match(/^(\d+)\s+(.+)$/);
+      if (match && match[1] && match[2] && !footnotes[match[1]]) {
+        footnotes[match[1]] = match[2];
+        p.remove();
+      }
+    });
+
+    // Convert <sup>n</sup> to tooltip refs
+    wrapper.querySelectorAll('sup').forEach(sup => {
+      const num = sup.textContent.trim();
+      if (!/^\d+$/.test(num)) return;
+
+      const tooltipSup = document.createElement('sup');
+      tooltipSup.className = 'footnote-ref';
+      tooltipSup.tabIndex = 0;
+      tooltipSup.textContent = num;
+      tooltipSup.dataset.footnote = footnotes[num] || `Footnote ${num} content not found`;
+      sup.replaceWith(tooltipSup);
+    });
+
+    // Numbered paragraph styling
+    wrapper.innerHTML = wrapper.innerHTML.replace(
+      /<p>(\d+)\.\s+/g,
+      '<p class="numbered-paragraph"><span class="paragraph-number">$1.</span> '
+    );
+
+    const toc = buildTOC(wrapper.innerHTML);
+    return toc + `<div class="content-body">${wrapper.innerHTML}</div>`;
+  }
+
+  function setupFootnoteTooltips() {
+    let currentTooltip = null;
+    let tooltipTimeout = null;
+
+    function createTooltip() {
+      if (currentTooltip) document.body.removeChild(currentTooltip);
+      const tooltip = document.createElement('div');
+      tooltip.className = 'footnote-tooltip';
+      tooltip.style.position = 'fixed';
+      tooltip.style.display = 'none';
+      tooltip.style.zIndex = '1002';
+      document.body.appendChild(tooltip);
+      currentTooltip = tooltip;
+      return tooltip;
+    }
+
+    function positionTooltip(tooltip, footnoteRef) {
+      const refRect = footnoteRef.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+
+      tooltip.className = 'footnote-tooltip show';
+      tooltip.style.visibility = 'hidden';
+      tooltip.style.display = 'block';
+
+      const tooltipRect = tooltip.getBoundingClientRect();
+
+      let position = 'top';
+      let left = refRect.left + (refRect.width / 2) - (tooltipRect.width / 2);
+      let top = refRect.top - tooltipRect.height - 8;
+
+      if (top < 10) {
+        position = 'bottom';
+        top = refRect.bottom + 8;
+      }
+
+      if (left < 10) {
+        position = 'right';
+        left = refRect.right + 8;
+        top = refRect.top + (refRect.height / 2) - (tooltipRect.height / 2);
+      } else if (left + tooltipRect.width > viewportWidth - 10) {
+        position = 'left';
+        left = refRect.left - tooltipRect.width - 8;
+        top = refRect.top + (refRect.height / 2) - (tooltipRect.height / 2);
+      }
+
+      left = Math.max(10, Math.min(left, viewportWidth - tooltipRect.width - 10));
+      top = Math.max(10, Math.min(top, viewportHeight - tooltipRect.height - 10));
+
+      tooltip.style.left = left + 'px';
+      tooltip.style.top = top + 'px';
+      tooltip.style.visibility = 'visible';
+      tooltip.classList.add('position-' + position);
+    }
+
+    function showTooltip(footnoteRef) {
+      if (tooltipTimeout) {
+        clearTimeout(tooltipTimeout);
+        tooltipTimeout = null;
+      }
+
+      const footnoteText = footnoteRef.dataset.footnote;
+      if (!footnoteText) return;
+
+      const tooltip = createTooltip();
+      tooltip.textContent = footnoteText;
+
+      requestAnimationFrame(() => {
+        positionTooltip(tooltip, footnoteRef);
+      });
+    }
+
+    function hideTooltip() {
+      if (tooltipTimeout) clearTimeout(tooltipTimeout);
+      tooltipTimeout = setTimeout(() => {
+        if (currentTooltip) {
+          currentTooltip.style.display = 'none';
+          currentTooltip.classList.remove('show');
+        }
+      }, 100);
+    }
+
+    document.addEventListener('mouseover', (e) => {
+      if (e.target.classList.contains('footnote-ref')) showTooltip(e.target);
+    });
+
+    document.addEventListener('mouseout', (e) => {
+      if (e.target.classList.contains('footnote-ref')) hideTooltip();
+    });
+
+    document.addEventListener('focusin', (e) => {
+      if (e.target.classList.contains('footnote-ref')) showTooltip(e.target);
+    });
+
+    document.addEventListener('focusout', (e) => {
+      if (e.target.classList.contains('footnote-ref')) hideTooltip();
+    });
+
+    window.addEventListener('scroll', () => {
+      if (currentTooltip && currentTooltip.style.display !== 'none') hideTooltip();
+    });
+
+    window.addEventListener('resize', () => {
+      if (currentTooltip && currentTooltip.style.display !== 'none') hideTooltip();
+    });
+  }
+
+  function stripHtml(html) {
+    return html.replace(/<[^>]+?>/g, '').trim();
+  }
+
+  function buildTOC(html) {
+    const matches = [...html.matchAll(/<h([1-4]) id="([^"]+)">([^<]+)<\/h[1-4]>/g)];
+    if (!matches.length) return '';
+    return '<div class="toc-container"><h3 class="toc-title">Table of Contents</h3><ul class="toc-list">' +
+           matches.map(([,level,,id,text]) =>
+               `<li class="toc-item"><a href="#${id}" class="toc-link toc-h${level}">${text}</a></li>`
+           ).join('') +
+           '</ul></div>';
+  }
+
+  /* ============================
+     Copy citation
+     ============================ */
+  function copyCitation(specialProcedure, title, adoptionDate, signature) {
+    const citation = `${specialProcedure}. "${title}" (${adoptionDate}), ${signature}.`;
+    navigator.clipboard.writeText(citation).then(() => {
+      showCopyFeedback();
+    }).catch(() => {
+      const textArea = document.createElement('textarea');
+      textArea.value = citation;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showCopyFeedback();
+    });
+  }
+
+  function showCopyFeedback() {
+    const feedback = document.getElementById('copyFeedback');
+    const button = document.querySelector('.action-btn');
+
+    if (feedback) {
+      feedback.classList.add('show');
+      if (button) {
+        button.classList.add('copy-success-animation');
+        setTimeout(() => button.classList.remove('copy-success-animation'), 600);
+      }
+      setTimeout(() => feedback.classList.remove('show'), 2500);
+    }
+  }
+
+  /* ============================
+     Navbar height CSS var
+     ============================ */
+  function syncNavbarHeightVar() {
+    const nav = document.querySelector('.navbar');
+    if (!nav) return;
+    const h = Math.round(nav.getBoundingClientRect().height);
+    document.documentElement.style.setProperty('--navbar-height', h + 'px');
+  }
+
+  // Initialize viewer + footnotes
+  let spViewer;
+  document.addEventListener('DOMContentLoaded', function() {
+    spViewer = new EnhancedSPViewer();
+    setupFootnoteTooltips();
+  });
+
+  /* ============================
+     THEME TOGGLE (LIGHT ↔ DARK)
+     (unchanged from your working version)
+     ============================ */
+  (function () {
+    var STORAGE_KEY = 'uds-theme';
+    var html = document.documentElement;
+    var BTN_SELECTOR = '#dark-mode-toggle';
+
+    function applyTheme(mode) {
+      var effective = (mode === 'dark') ? 'dark' : 'light';
+      html.setAttribute('data-theme', effective);
+      html.dataset.mode = effective;
+
+      if (document.body) {
+        document.body.classList.toggle('dark-mode', effective === 'dark');
+      }
+
+      var btn = document.querySelector(BTN_SELECTOR);
+      if (btn) {
+        var icon = btn.querySelector('i');
+        if (icon) {
+          icon.className = (effective === 'dark') ? 'fas fa-sun' : 'fas fa-moon';
+        }
+        var target = (effective === 'dark') ? 'light' : 'dark';
+        btn.setAttribute('aria-label', 'Switch to ' + target + ' mode');
+        btn.setAttribute('title', 'Switch to ' + target + ' mode');
+      }
+    }
+
+    try {
+      var saved = localStorage.getItem(STORAGE_KEY);
+      applyTheme(saved === 'dark' ? 'dark' : 'light');
+    } catch (e) {
+      applyTheme('light');
+    }
+
+    document.addEventListener('click', function (ev) {
+      var btn = ev.target.closest(BTN_SELECTOR);
+      if (!btn) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      var next = (html.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
+      try { localStorage.setItem(STORAGE_KEY, next); } catch (e) {}
+      applyTheme(next);
+    }, { capture: false, passive: false });
+
+    var mo = new MutationObserver(function () {
+      applyTheme(html.dataset.mode || 'light');
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+  })();
+</script>
+
+
+
+</body>
+</html>

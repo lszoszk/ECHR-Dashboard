@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+{% block title %}Statistics — ECHR Search{% endblock %}
+
+{% block content %}
+<div class="stats-page">
+    <h1 class="page-title">Database Statistics</h1>
+    <p class="page-subtitle">Overview of {{ total_cases }} ECHR cases and {{ "{:,}".format(total_paragraphs) }} indexed paragraphs</p>
+    <p class="page-subtitle stats-range">
+        Judgment dates: {{ date_range_label }} · {{ dated_cases }} dated cases{% if undated_cases %}, {{ undated_cases }} without parsed date{% endif %}
+    </p>
+
+    <div class="kpi-row">
+        <div class="kpi-card">
+            <div class="kpi-label">Total Cases</div>
+            <div class="kpi-value">{{ total_cases }}</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Total Paragraphs</div>
+            <div class="kpi-value">{{ "{:,}".format(total_paragraphs) }}</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Respondent States</div>
+            <div class="kpi-value">{{ unique_countries }}</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Distinct Articles</div>
+            <div class="kpi-value">{{ unique_articles }}</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Avg Paragraphs / Case</div>
+            <div class="kpi-value">{{ "%.1f"|format(avg_paragraphs_per_case) }}</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Median Paragraphs / Case</div>
+            <div class="kpi-value">{{ "%.0f"|format(median_paragraphs_per_case) }}</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">P90 Paragraphs / Case</div>
+            <div class="kpi-value">{{ "%.0f"|format(p90_paragraphs_per_case) }}</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Grand Chamber Share</div>
+            <div class="kpi-value">{{ "%.1f"|format(grand_chamber_share) }}%</div>
+            <div class="kpi-note">{{ grand_chamber_cases }} / {{ total_cases }}</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Cases with Violation</div>
+            <div class="kpi-value">{{ violation_cases }}</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Cases with Non-violation</div>
+            <div class="kpi-value">{{ non_violation_cases }}</div>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-container">
+            <h3 class="chart-title">Cases by Month</h3>
+            <canvas id="monthChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <h3 class="chart-title">Cases by Year</h3>
+            <canvas id="yearChart"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-container">
+            <h3 class="chart-title">Top Respondent States</h3>
+            <canvas id="countryChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <h3 class="chart-title">Most Cited Convention Articles</h3>
+            <canvas id="articleChart"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-container full-width">
+            <h3 class="chart-title">Paragraph Distribution by Section (Option B)</h3>
+            <canvas id="sectionChart"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-container">
+            <h3 class="chart-title">Indexed Paragraph Volume by Month</h3>
+            <canvas id="paragraphMonthChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <h3 class="chart-title">Chamber vs Grand Chamber</h3>
+            <canvas id="chamberChart"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-container full-width">
+            <h3 class="chart-title">Case Length Distribution Snapshot</h3>
+            <canvas id="caseLengthChart"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const COLORS = ['#4C72B0','#DD8452','#55A868','#C44E52','#8172B3','#937860',
+                '#DA8BC3','#8C8C8C','#CCB974','#64B5CD','#4C72B0','#DD8452',
+                '#55A868','#C44E52','#8172B3','#937860','#DA8BC3','#8C8C8C',
+                '#CCB974','#64B5CD'];
+const countryNames = {{ country_names | tojson }};
+const monthData = {{ date_counts | tojson }};
+const yearData = {{ year_counts | tojson }};
+const countryData = {{ country_counts | tojson }};
+const articleData = {{ article_counts | tojson }};
+const sectionData = {{ section_counts | tojson }};
+const sectionLabels = {{ section_labels | tojson }};
+const sectionColors = {{ section_colors | tojson }};
+const paragraphMonthData = {{ paragraph_month_counts | tojson }};
+const chamberData = {{ chamber_breakdown | tojson }};
+
+// Month chart
+new Chart(document.getElementById('monthChart'), {
+    type: 'bar',
+    data: {
+        labels: monthData.map(d => d[0]),
+        datasets: [{
+            label: 'Cases',
+            data: monthData.map(d => d[1]),
+            backgroundColor: '#4C72B0CC',
+            borderColor: '#4C72B0',
+            borderWidth: 1,
+            borderRadius: 4,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { grid: { display: false } },
+            y: { beginAtZero: true, ticks: { stepSize: 1 } }
+        }
+    }
+});
+
+// Year chart
+new Chart(document.getElementById('yearChart'), {
+    type: 'line',
+    data: {
+        labels: yearData.map(d => d[0]),
+        datasets: [{
+            label: 'Cases',
+            data: yearData.map(d => d[1]),
+            borderColor: '#DD8452',
+            backgroundColor: '#DD845233',
+            fill: true,
+            tension: 0.2,
+            pointRadius: 3,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { grid: { display: false } },
+            y: { beginAtZero: true }
+        }
+    }
+});
+
+// Country chart
+new Chart(document.getElementById('countryChart'), {
+    type: 'bar',
+    data: {
+        labels: countryData.map(d => countryNames[d[0]] || d[0]),
+        datasets: [{
+            label: 'Cases',
+            data: countryData.map(d => d[1]),
+            backgroundColor: COLORS.map(c => c + 'CC'),
+            borderColor: COLORS,
+            borderWidth: 1,
+            borderRadius: 4,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { beginAtZero: true, ticks: { stepSize: 1 } },
+            y: { grid: { display: false } }
+        }
+    }
+});
+
+// Article chart
+new Chart(document.getElementById('articleChart'), {
+    type: 'bar',
+    data: {
+        labels: articleData.map(d => 'Art. ' + d[0]),
+        datasets: [{
+            label: 'Citations',
+            data: articleData.map(d => d[1]),
+            backgroundColor: '#55A868CC',
+            borderColor: '#55A868',
+            borderWidth: 1,
+            borderRadius: 4,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { beginAtZero: true },
+            y: { grid: { display: false } }
+        }
+    }
+});
+
+// Section distribution chart (Option B)
+new Chart(document.getElementById('sectionChart'), {
+    type: 'bar',
+    data: {
+        labels: sectionData.map(d => sectionLabels[d[0]] || d[0]),
+        datasets: [{
+            label: 'Paragraphs',
+            data: sectionData.map(d => d[1]),
+            backgroundColor: sectionData.map(d => (sectionColors[d[0]] || '#718096') + 'CC'),
+            borderColor: sectionData.map(d => sectionColors[d[0]] || '#718096'),
+            borderWidth: 1,
+            borderRadius: 4,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { beginAtZero: true },
+            y: { grid: { display: false } }
+        }
+    }
+});
+
+// Indexed paragraph volume per month
+new Chart(document.getElementById('paragraphMonthChart'), {
+    type: 'line',
+    data: {
+        labels: paragraphMonthData.map(d => d[0]),
+        datasets: [{
+            label: 'Indexed paragraphs',
+            data: paragraphMonthData.map(d => d[1]),
+            borderColor: '#8172B3',
+            backgroundColor: '#8172B333',
+            fill: true,
+            tension: 0.2,
+            pointRadius: 3,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { grid: { display: false } },
+            y: { beginAtZero: true }
+        }
+    }
+});
+
+// Chamber split
+new Chart(document.getElementById('chamberChart'), {
+    type: 'doughnut',
+    data: {
+        labels: chamberData.map(d => d[0]),
+        datasets: [{
+            data: chamberData.map(d => d[1]),
+            backgroundColor: ['#4C72B0CC', '#55A868CC', '#8C8C8CCC'],
+            borderColor: ['#4C72B0', '#55A868', '#8C8C8C'],
+            borderWidth: 1,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } }
+    }
+});
+
+// Case length snapshot
+new Chart(document.getElementById('caseLengthChart'), {
+    type: 'bar',
+    data: {
+        labels: ['Min', 'Median', 'P90', 'Max'],
+        datasets: [{
+            label: 'Paragraphs per case',
+            data: [
+                {{ min_paragraphs_per_case | int }},
+                {{ median_paragraphs_per_case | round(0, 'floor') | int }},
+                {{ p90_paragraphs_per_case | round(0, 'floor') | int }},
+                {{ max_paragraphs_per_case | int }}
+            ],
+            backgroundColor: ['#64B5CDCC', '#4C72B0CC', '#DD8452CC', '#C44E52CC'],
+            borderColor: ['#64B5CD', '#4C72B0', '#DD8452', '#C44E52'],
+            borderWidth: 1,
+            borderRadius: 6,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { grid: { display: false } },
+            y: { beginAtZero: true }
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,145 @@
+Distr. GENERAL
+
+E/CN.4/1994/33 26 January 1994
+
+Original: ENGLISH
+
+COMMISSION ON HUMAN RIGHTS Fiftieth session Agenda item 10 of the provisional agenda
+
+# QUESTION OF THE HUMAN RIGHTS OF ALL PERSONS SUBJECTED TO ANY FORM OF DETENTION OR IMPRISONMENT
+
+# Promotion and protection of the right to freedom of opinion and expression
+
+# Report of the Special Rapporteur, Mr. Abid Hussain, pursuant to Commission on Human Rights resolution 1993/45
+
+### CONTENTS
+
+| | | Paragraphs | Page |
+|------|----------------------------|---------------|------|
+| | Introduction | 1<br>-<br>7 | 2 |
+| I. | TERMS<br>OF<br>REFERENCE | 8<br>-<br>23 | 3 |
+| II. | METHODS<br>OF<br>WORK | 24<br>-<br>33 | 5 |
+| III. | RESOURCES | 34<br>-<br>37 | 7 |
+| IV. | CONCLUDING<br>OBSERVATIONS | 38<br>-<br>44 | 7 |
+
+GE.94-10351 (E)
+
+# Introduction
+
+1. At its forty-ninth session, the Commission on Human Rights requested its Chairman, in resolution 1993/45 of 5 March 1993, to appoint, for a period of
+
+three years, a special rapporteur on the promotion and protection of the right to freedom of opinion and expression.
+
+2. In the same resolution the Commission on Human Rights requested the Special Rapporteur: to gather all relevant information, wherever it might occur, of discrimination against, threats or use of violence and harassment, including persecution and intimidation, directed at persons seeking to exercise or to promote the exercise of the right to freedom of opinion and expression as affirmed in the Universal Declaration of Human Rights and, where applicable, the International Covenant on Civil and Political Rights, taking into account the work being conducted by other mechanisms of the Commission and Sub-Commission which touched on that right, with a view to avoiding duplication of work; as a matter of high priority, to gather all relevant information, wherever it might occur, of discrimination against, threats or use of violence and harassment, including persecution and intimidation, against professionals in the field of information seeking to exercise or to promote the exercise of the right to freedom of opinion and expression; to seek and receive credible and reliable information from governments and nongovernmental organizations and any other parties who have knowledge of these cases; and to submit to the Commission, beginning at its fiftieth session, a report covering the activities relating to his or her mandate, containing recommendations to the Commission and providing suggestions on ways and means to better promote and protect the right to freedom of opinion and expression in all its manifestations.
+
+3. The Commission on Human Rights urged all Governments to cooperate with and assist the Special Rapporteur in the performance of his or her tasks and to furnish all information requested, and requested the Secretary-General to provide the Special Rapporteur with all necessary assistance, in particular the staff and resources deemed necessary, within existing overall United Nations resources, to fulfil his mandate.
+
+4. On 2 April 1993 the Chairman of the Commission on Human Rights, following consultations with the Bureau of the forty-ninth session, appointed Mr. Abid Hussain (India) as Special Rapporteur on the promotion and protection of the right to freedom of opinion and expression.
+
+5. The Economic and Social Council, in its decision 1993/268, of 28 July 1993 approved the Commission's decision to appoint a special rapporteur and its request to the Secretary-General to provide him with all necessary assistance. However, resources were made available to the Centre for Human Rights for the mandate only in November 1993. Therefore, the Special Rapporteur could initiate his work only at the end of 1993.
+
+6. The present report thus contains only preliminary considerations that will be revised, refined or developed in subsequent reports. To that end the Special Rapporteur hopes that the necessary resources will be made available.
+
+7. In section I of the present report the Special Rapporteur presents considerations on the terms of reference that constitute the legal framework within which he will carry out his mandate. Section II sets out the methods of work that he envisages using in the fulfilment of his mandate. In
+
+section III the Special Rapporteur reflects upon the issue of resources. Finally, section IV contains his concluding observations.
+
+# I. TERMS OF REFERENCE
+
+8. The Special Rapporteur considers that the effective promotion of the human rights of persons who exercise or seek to exercise the right to freedom of opinion and expression is of fundamental importance to the safeguarding of human dignity. The Special Rapporteur also notes that the right to freedom of opinion and expression is interrelated with and enhances the exercise of all other human rights.
+
+9. The Special Rapporteur, in promoting and protecting the right to freedom of opinion and expression, will be guided by the Universal Declaration of Human Rights, which affirms, in article 19, the right to freedom of opinion and expression; this right includes freedom to hold opinions without interference and to seek, receive and impart information and ideas through any media and regardless of frontiers.
+
+10. The Special Rapporteur will take into consideration, where applicable, the International Covenant on Civil and Political Rights, which reaffirms, in article 19, the right of everyone to hold opinions without interference, as well as the right to freedom of expression, and states that the exercise of the right to freedom of expression carries with it special duties and responsibilities and may therefore be subject to certain restrictions, but that these shall only be such as are provided by law and are necessary for respect of the rights or reputations of others, or for the protection of national security or of public order (ordre public), or of public health and morals.
+
+11. The Special Rapporteur, in taking into consideration article 19 of the International Covenant on Civil and Political Rights, will bear in mind General Comment 10 [19] (Article 19) of the Human Rights Committee (CCPR/C/21/Rev.1 of 19 May 1989), which states, inter alia, that the Covenant permits no exception or restriction to the right to hold opinions without interference. When, subject to conditions, certain restrictions on the exercise of freedom of expression are imposed, these may not put in jeopardy the right itself.
+
+12. The Special Rapporteur will bear in mind article 20 of the International Covenant on Civil and Political Rights, which states that any propaganda for war or any advocacy of national, racial or religious hatred that constitutes incitement to discrimination, hostility or violence shall be prohibited by law.
+
+13. The Special Rapporteur will also bear in mind General Comment 11 [19] (Article 20) of the Human Rights Committee (CCPR/C/21/Rev.1 of 19 May 1989), which states, inter alia, that the required prohibitions are fully compatible with the right to freedom of expression as contained in article 19, the exercise of which carries with it special duties and responsibilities.
+
+14. The Special Rapporteur takes note of resolution 1983/32 of 6 September 1983 of the Sub-Commission on Prevention of Discrimination and
+
+Protection of Minorities and of Commission on Human Rights resolutions 1984/26 of 12 March 1986, 1985/17 of 11 March 1985, 1986/46 of 12 March 1986, 1987/32 of 10 March 1987, 1988/37 and 1988/39 of 8 March 1988, 1989/31 of 6 March 1989, 1989/56 of 7 March 1989, 1990/32 of 2 March 1990, 1991/32 of 5 March 1991 and 1992/22 of 28 February 1992.
+
+15. The Special Rapporteur also takes note of several resolutions of the Commission on Human Rights in which special rapporteurs are asked to pay particular attention to a number of issues within the framework of their mandates or which refer to the right to freedom of opinion and expression. These include in particular the following: resolutions 1993/24, entitled "Rights of persons belonging to national or ethnic, religious and linguistic minorities", 1993/30, entitled "International Year of the World's Indigenous People, 1993", 1993/36, entitled "Question of arbitrary detention", 1993/39, entitled "Staff members of the United Nations and of the specialized agencies in detention", 1993/41, entitled "Human rights in the administration of justice", 1993/46, entitled "Integrating the rights of women into the human rights mechanisms of the United Nations", 1993/47, entitled "Human rights and thematic procedures", 1993/48, entitled "Consequences for the enjoyment of human rights of acts of violence committed by armed groups that spread terror among the population and by drug traffickers", 1993/59, entitled "Strengthening of United Nations action in the field of human rights through the promotion of international cooperation, and the importance of nonselectivity, impartiality and objectivity", and 1993/64, entitled "Cooperation with representatives of United Nations human rights bodies". The Special Rapporteur will strive, in the discharge of his mandate, to comply with the requests contained therein, whenever they are applicable to his mandate.
+
+16. In addition, the Special Rapporteur takes note of the preliminary report on the freedom of opinion and expression (E/CN.4/Sub.2/1990/11) and the updated preliminary report (E/CN.4/Sub.2/1991/9) submitted to the Sub-Commission at its forty-second and forty-third sessions, respectively, by the Special Rapporteurs, Mr. Louis Joinet and Mr. Danilo Türk.
+
+17. Furthermore, the Special Rapporteur takes note of the final report on the right to freedom of opinion and expression (E/CN.4/Sub.2/1992/9) and the conclusions and recommendations (E/CN.4/Sub.2/1992/9/Add.1) submitted by the Special Rapporteurs to the Sub-Commission at its forty-fourth session.
+
+18. The Special Rapporteur takes note of the reports of the Working Group on Arbitrary Detention to the extent that they address concerns that are common to the two mandates. Particular attention will be paid to the criteria adopted by the Working Group to assess whether cases of detention would be considered arbitrary - the "Principles applicable in the consideration of cases submitted to the Working Group" (contained in Annex I to the first report of the Working Group to the Commission (E/CN.4/1992/20)), and in
+
+particular to category II of these Principles, in accordance with which are considered to be arbitrary:
+
+"Cases of deprivation of freedom when the facts giving rise to the prosecution or conviction concern the exercise of the rights and freedoms protected by articles 7, 13, 14, 18, 19, 20 and 21 of the Universal
+
+Declaration of Human Rights and articles 12, 18, 19, 21, 22, 25, 26 and 27 of the International Covenant of Civil and Political Rights."
+
+The Special Rapporteur also takes note of the pertinent conclusions reached by the Working Group in its second report to the Commission (E/CN.4/1993/24, paras. 35 and 36), and of the Working Group's decisions by which certain cases of detention are declared arbitrary as they fall within the above-mentioned category II dealing with violations of the right to freedom of expression.
+
+19. The Special Rapporteur is deeply concerned by numerous reports of detention of, as well as discrimination, threats and acts of violence and harassment, including persecution and intimidation, against professionals in the field of information, including journalists, editors, writers and authors, publishers and printers. Accordingly, a major concern of the Special Rapporteur is the protection of the rights and freedoms of professionals in the field of information.
+
+20. The protection of professionals in the field of information is a matter of high priority, but it does not exclude the protection of other persons referred to in paragraph 12 of Commission on Human Rights resolution 1993/45.
+
+21. The Special Rapporteur is aware that the concerns he is addressing are also of interest to other special rapporteurs and working groups, in particular as regards violations that fall within the purview of other thematic and country-specific mandates.
+
+22. The Special Rapporteur looks forward to periodic meetings with other special rapporteurs and representatives with experts and with members and chairmen of working groups that will enable them to harmonize and rationalize their work, as called for in the Joint Declaration of the Independent Experts Responsible for the Special Procedures for the Protection of Human Rights (A/CONF.157/9 of 18 June 1993).
+
+23. Within this context it is important to recall that the right to freedom of opinion and expression should not be seen in isolation, but in the context of other human rights to which the right to freedom of opinion and expression is intrinsically linked.
+
+### II. METHODS OF WORK
+
+24. In adopting methods of work the Special Rapporteur will draw upon the practice established and experience acquired through the various thematic mechanisms of the Commission on Human Rights, particularly those on enforced or involuntary disappearances, extrajudicial, arbitrary or summary executions, torture, religious intolerance, and arbitrary detention. He will adopt the methods and modalities that he deems most appropriate for his specific tasks.
+
+25. The Special Rapporteur is mandated to promote and protect the freedom of opinion and expression. This implies a combined approach that considers the general situation as well as concrete incidents and individual cases. Therefore, the work of the Special Rapporteur will involve both the study of
+
+phenomena related to the freedom of opinion and expression, and action on concrete incidents and cases.
+
+26. To that end the Commission on Human Rights has requested the Special Rapporteur to seek and receive credible and reliable information from governments, non-governmental organizations and any other parties who have knowledge of pertinent situations and cases.
+
+27. A wide and unrestricted range of sources is needed for operating effectively. Therefore, by a circular letter, the Special Rapporteur has contacted governments, specialized agencies, and non-governmental organizations which are concerned with the promotion and protection of the right to freedom of opinion and expression, and has sought pertinent information.
+
+28. Upon the receipt of prima facie credible and reliable information, the Special Rapporteur will transmit the information to the government concerned and request it to provide comments and observations. In resolution 1993/47, the Commission on Human Rights encouraged governments to respond expeditiously to such requests so that the thematic special rapporteurs concerned might carry out their mandates effectively.
+
+29. The Special Rapporteur intends to adopt the urgent action procedure for cases that are of a life-threatening nature, used in several other special thematic procedures.
+
+30. As of January 1994 the Special Rapporteur, owing to the large number of communications he has already received providing details of incidents and cases of violations of the right to freedom of opinion and expression, has begun to transmit summaries of these cases to the governments concerned.
+
+31. The dialogue established with governments by the Special Rapporteur and the transmission of allegations concerning their countries in no way implies any kind of accusation or value judgment on the part of the Special Rapporteur, but rather a request for clarification with a view to trying to ensure, along with the government concerned, the protection of the right to freedom of opinion and expression.
+
+32. The Special Rapporteur views on-site visits as an essential component of his mandate. With respect to such visits the consent of the government concerned is required. Furthermore, the Special Rapporteur wishes to stress the importance of the proposals for joint missions of independent experts made in the Joint Declaration of the Independent Experts Responsible for the Special Procedures for the Protection of Human Rights (A/CONF.157/9).
+
+33. The Special Rapporteur will endeavour to respond effectively to credible and reliable information coming before him, and to carry out his work with discretion and independence.
+
+# III. RESOURCES
+
+34. Although this first report merely contains preliminary considerations, the Special Rapporteur is deeply concerned at the considerable number of
+
+communications he has already received that allege serious violations of the right to freedom of opinion and expression throughout the world.
+
+35. The cases contained in these communications give evidence of the urgent need for the effective promotion and protection of the right to freedom of opinion and expression.
+
+36. In view of the wealth and complexity of information pertaining to his mandate, as well as the fact that violations occur in almost all countries of the world, an objective and even-handed approach requires appropriate financial and human resources to fulfil his mandate. At a minimum, there should be one Professional in the Centre for Human Rights who is able to assist the Special Rapporteur on a full-time basis.
+
+37. If these resources are not made available to the Special Rapporteur, he will not be able to carry out his work thoroughly and with the necessary degree of efficiency.
+
+# IV. CONCLUDING OBSERVATIONS
+
+38. The Commission on Human Rights, in resolution 1993/45, requested the Special Rapporteur to promote the right to freedom of opinion and expression, and he will do so through the conclusions and recommendations of subsequent reports.
+
+39. The conclusions and recommendations will be action-oriented. The Special Rapporteur's experiences in practice will form their basis. Their object will be the better protection of the right to freedom of opinion and expression, and their purpose the elimination of violations of this right.
+
+40. At the same time, however, it seems to be unavoidable to touch on certain more theoretical questions in determining the nature and the scope of the right as a prerequisite for action. The Special Rapporteur will elaborate upon this component of his work in subsequent reports.
+
+41. The Special Rapporteur intends to adopt a flexible and dynamic approach in which he considers different situations on their merits. Thus, attention will be paid to the question of admissible restrictions or derogations in an action-oriented manner that focuses on individual cases and specific circumstances. In general terms, however, it is to be recalled that such restrictions must meet certain criteria. They are: legitimacy, legality, proportionality and democratic necessity.
+
+42. Although such restrictions or derogations may also limit the freedom of the press, it is to be noted that there should be independent and democratic, that is to say pluralist, media, also in situations of conflict and tension. The Special Rapporteur will dwell on this issue in subsequent reports.
+
+43. The Special Rapporteur notes the urgent need for close cooperation with related mandates. In particular, with respect to the mandate of the Special Rapporteur on religious intolerance, there is a need for a clear conceptual distinction to be made between the freedom of thought, conscience and religion, and the freedom of opinion and expression. Special attention will
+
+be paid to this distinction in order to avoid unnecessary duplication of work and inconsistencies in the approach taken.
+
+44. The Special Rapporteur emphasizes once more that effective action under his mandate to promote and protect the right to freedom of opinion and expression can only be ensured with the adequate support of the Centre for Human Rights and the full cooperation of governments and non-governmental organizations.
+
+-----

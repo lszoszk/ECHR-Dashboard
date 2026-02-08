@@ -1,0 +1,522 @@
+[
+    {
+        "ID": 1,
+        "Text": "1. The present report is submitted to the General Assembly by the Special Rapporteur on the promotion and protection of the right to freedom of opinion and expression pursuant to Human Rights Council resolutions 7/36 and 16/4. In particular, in resolution 7/36, the Council requested the Special Rapporteur \"to continue to provide his/her views, when appropriate, on the advantages and challenges of new information and communications technologies, including the Internet and mobile technologies, for the exercise of the right to freedom of opinion and expression, including the right to seek, receive and impart information and the relevance of a wide diversity of sources, as well as access to the information society for all\".1 On that basis, the report expands upon the last report submitted to the Council by the Special Rapporteur on key trends and challenges to the right of all individuals to seek, receive and impart information and ideas of all kinds through the Internet (A/HRC/17/27).",
+        "Labels": []
+    },
+    {
+        "ID": 2,
+        "Text": "2. The report addresses the issue through two equally important dimensions of Internet access: access to content online (sect. III), and access to Internet connection (sect. IV). While there are countries where Internet access is widely available, online content may be heavily restricted. In other countries, even though individuals may have access to online content free of censorship, Internet access may not be widely available for the majority of the population. The Special Rapporteur thus emphasizes that both aspects of access should be effectively ensured by all States as part of their existing obligation to respect, protect and fulfil the right to freedom of opinion and expression.",
+        "Labels": []
+    },
+    {
+        "ID": 3,
+        "Text": "3. On 6 and 7 April 2011, the Special Rapporteur participated as an expert in the second regional workshop on the prohibition of incitement to national, racial or religious hatred in Nairobi, organized by the Office of the United Nations High Commissioner for Human Rights (OHCHR).",
+        "Labels": []
+    },
+    {
+        "ID": 4,
+        "Text": "4. Between 1 and 3 May 2011, the Special Rapporteur took part in a number of events and conferences for the World Press Freedom Day in Washington, D.C. On 16 and 17 May, the Special Rapporteur participated as a panellist in a conference on \"Civil protest and peaceful change: Upholding human rights\", organized by the Geneva Academy of International Humanitarian Law and Human Rights. On 30 and 31 May, the Special Rapporteur participated in a conference with the Ministry of Foreign Affairs and the Parliament of the Netherlands, and in a conference at the University of Leiden.",
+        "Labels": []
+    },
+    {
+        "ID": 5,
+        "Text": "5. On 1 and 2 June 2011, the Special Rapporteur undertook a visit to Hungary, at the invitation of the Government, to meet with members of the Parliament and civil society representatives concerning media legislation. On 3 June, the Special Rapporteur presented his annual report to the Human Rights Council in Geneva. On 5 June, the Special Rapporteur participated in a panel on freedom of expression and Human Rights Council resolution 7/36, para. 4 (f). youth violence prevention at the General Assembly of the Organization of American States.",
+        "Labels": [
+            "Adolescents"
+        ]
+    },
+    {
+        "ID": 6,
+        "Text": "6. On 6 and 7 July 2011, the Special Rapporteur participated as an expert in the third of the regional workshops on the prohibition of incitement to national, racial or religious hatred in Bangkok, organized by OHCHR. From 8 to 16 July, the Special Rapporteur participated in a series of academic events organized by civil society organizations in Thailand, Cambodia, Malaysia and Indonesia.",
+        "Labels": []
+    },
+    {
+        "ID": 7,
+        "Text": "7. From 10 to 17 April 2011, the Special Rapporteur undertook a mission to Algeria. The mission report will be presented at a future session of the Human Rights Council in 2012. The press release with his initial conclusions and recommendations can be found on the OHCHR website.2",
+        "Labels": []
+    },
+    {
+        "ID": 8,
+        "Text": "8. The visit of the Special Rapporteur to Israel and the Occupied Palestinian territory has been postponed. The visit will take place from 4 to 18 December 2011.",
+        "Labels": []
+    },
+    {
+        "ID": 9,
+        "Text": "9. As of March 2011, the following visit requests from the Special Rapporteur were pending: the Bolivarian Republic of Venezuela (requested 2003 and 2009); the Islamic Republic of Iran (requested February 2010); Sri Lanka (requested June 2009); Tunisia (requested 2009); and Uganda (requested 2011).",
+        "Labels": []
+    },
+    {
+        "ID": 10,
+        "Text": "10. The Internet has become a vital communications medium which individuals can use to exercise their right to freedom of expression, or the right to seek, receive and impart information and ideas of all kinds, regardless of frontiers, as guaranteed under articles 19 of both the Universal Declaration of Human Rights and the International Covenant on Civil and Political Rights. Like no other communications medium before it, the Internet allows individuals to communicate instantaneously and inexpensively, and it has had a dramatic impact on the way information and ideas are shared and accessed, and on journalism itself.",
+        "Labels": []
+    },
+    {
+        "ID": 11,
+        "Text": "11. While the Internet offers new and expanded opportunities to disseminate and access information and ideas of all kinds, it would be naive and dangerous to ignore its simultaneous use as a tool to monitor, identify, locate and target individuals who disseminate critical or sensitive information via the Internet. Moreover, the vast amount of personal information that is made available online, including through social networking sites, also pose serious concerns regarding the right to privacy, such as who has access to specific personal information, how the information is used, and whether, and for how long, the information is stored. The Special Available from http://www.ohchr.org. Rapporteur has previously underscored the importance of the role of Governments in fully guaranteeing the right to privacy of all individuals, without which the right to freedom of opinion and expression cannot be fully enjoyed.3",
+        "Labels": []
+    },
+    {
+        "ID": 12,
+        "Text": "12. Despite the potential for the Internet to be misused in illegal activities, the Special Rapporteur believes that the Internet can primarily be used as a positive tool to increase transparency over the conduct of those in power, access diverse sources of information, facilitate active citizen participation in building democratic societies and counter authoritarian regimes, as demonstrated by the \"Arab spring\". Hence, the Special Rapporteur would like to reiterate that, as a general rule, there should be as little restriction as possible to the flow of information on the Internet, except under a few, very exceptional and limited circumstances prescribed by international law for the protection of other human rights.",
+        "Labels": []
+    },
+    {
+        "ID": 13,
+        "Text": "13. Anyone with access to the Internet can now potentially disseminate information to a global audience. In situations where journalists have limited access, for example during times of humanitarian crises or natural disasters, images recorded on mobile phones or messages posted online by bloggers and social networking sites have played a key role in keeping the international community informed of the situation on the ground. Indeed, with the increased use of Web 2.0 platforms, information is no longer an exclusive preserve of professional journalists, since a far wider range of people take part in gathering, filtering and distributing news. \"Crowdsourcing\" is one example which exemplifies such a trend. At the same time, traditional communications media, such as television, radio and newspaper, can also use the Internet to expand their audiences at nominal cost. While the increasing relevance and reliance on amateur videos and first-hand account of events posted on the Internet have had a profound effect on the news industry, professional journalists continue to play an indispensable role in researching, organizing and providing analysis and context to news events. The Internet should thus be seen as a complementary medium to mass media that has been based on a one-way transmission of information.",
+        "Labels": []
+    },
+    {
+        "ID": 14,
+        "Text": "14. The Special Rapporteur reiterates that the framework of international human rights law, in particular the provisions relating to the right to freedom of expression, continues to remain relevant and applicable to the Internet. Indeed, by explicitly providing that everyone has the right to freedom of expression through any media of choice, regardless of frontiers, articles 19 of the Universal Declaration of Human Rights and the International Covenant on Civil and Political Rights were drafted with the foresight to include and accommodate future technological developments through which individuals may exercise this right.",
+        "Labels": []
+    },
+    {
+        "ID": 15,
+        "Text": "15. Hence, the types of information or expression that may be restricted under international human rights law in relation to offline content also apply to online content. Similarly, any restriction applied to the right to freedom of expression exercised through the Internet must also comply with international human rights law, including the following three-part, cumulative criteria: (a) Any restriction must be provided by law, which must be formulated with sufficient precision to enable an individual to regulate his or her conduct accordingly and must be made accessible to the public;; See A/HRC/17/27, paras. 53-59. (b) Any restriction must pursue one of the legitimate grounds for restriction set out in article 19, paragraph 3, of the International Covenant, namely (i) respect of the rights or reputation of others; or (ii) the protection of national security or of public order, or of public health or morals;; (c) Any restriction must be proven as necessary and proportionate, or the least restrictive means to achieve one of the specified goals listed above.",
+        "Labels": []
+    },
+    {
+        "ID": 16,
+        "Text": "16. The Special Rapporteur welcomes the recently adopted general comment No. 34 of the Human Rights Committee on article 19 of the International Covenant, which underscores that when a State invokes a legitimate ground for restriction of the right to freedom of expression, it must demonstrate in specific and individualized fashion the precise nature of the threat, the necessity and the proportionality of the specific action taken, in particular by establishing a direct and immediate connection between the expression and the threat.4",
+        "Labels": []
+    },
+    {
+        "ID": 17,
+        "Text": "17. The Special Rapporteur also deems it appropriate to reiterate that the restriction must not put in jeopardy the right itself, and the relationship between right and restriction and between norm and exception must not be reversed.5 In addition, any legislation restricting the right to freedom of expression must be applied by a body that is independent of any political, commercial or other unwarranted influences in a manner which is neither arbitrary nor discriminatory, and with adequate safeguards against abuse, including the possibility of challenge and remedy against its abusive application.",
+        "Labels": []
+    },
+    {
+        "ID": 18,
+        "Text": "18. The Special Rapporteur underscores that there are differences between illegal content, which States are required to prohibit under international law, such as child pornography, and those that are considered harmful, offensive, objectionable or undesirable, but which States are neither required to prohibit nor criminalize. In this regard, the Special Rapporteur believes that it is important to make a clear distinction between three types of expression: (a) expression that constitutes an offence under international law and can be prosecuted criminally; (b) expression that is not criminally punishable but may justify a restriction and a civil suit; and (c) expression that does not give rise to criminal or civil sanctions, but still raises concerns in terms of tolerance, civility and respect for others. These different categories of content pose different issues of principle and call for different legal and technological responses.",
+        "Labels": [
+            "Children"
+        ]
+    },
+    {
+        "ID": 19,
+        "Text": "19. In the light of the ongoing debate regarding the regulation of content on the Internet, the Special Rapporteur outlines the types of expression which States are exceptionally required to prohibit under international criminal law and/or international human rights law (III.A) and then refers to impermissible restrictions (III.B). CCPR/C/GC/34, para. 36.",
+        "Labels": []
+    },
+    {
+        "ID": 20,
+        "Text": "20. Addressing child pornography online has become a major focus for regulation owing to the fact that the Internet has become the main gateway for the distribution of such content. The dissemination of child pornography is explicitly prohibited under international law, notably in the Optional Protocol to the Convention on the Rights of the Child on the sale of children, child prostitution and child pornography (defined in article 2 (c)). The Optional Protocol requires States parties to ensure that, as a minimum, producing, distributing, disseminating, importing, exporting, offering, selling or possessing child pornography (for purposes set out in article 3) are fully covered under its criminal or penal law, whether such offences are committed domestically or transnationally or on an individual or organized basis (article 3, para. 1 (c)).",
+        "Labels": [
+            "Children"
+        ]
+    },
+    {
+        "ID": 21,
+        "Text": "21. Child pornography is therefore a clear exception to the rule, and dissemination of content via the Internet is legitimately restricted, and States are even required to prohibit it as a criminal offence. As noted by the Special Rapporteur on the sale of children, child prostitution and child pornography in her report to the Council at its twelfth session, the relevant legislation should be clear and comprehensive and should treat child pornography on the Internet as a grave violation of the rights of the child and as a criminal act.6 The Special Rapporteur considers that child pornography constitutes an act of violence against children and an offence to their human dignity, which provokes more violence against children. Moreover, the victim's privacy must be protected and appropriate protection measures and care adapted to the needs and characteristics of children must be available.6",
+        "Labels": [
+            "Children"
+        ]
+    },
+    {
+        "ID": 22,
+        "Text": "22. The Special Rapporteur underscores that, as with any limitation, legislation prohibiting the dissemination of child pornography through the Internet, for example through the use of blocking and filtering technologies, must be sufficiently precise, and that there must be adequate and effective safeguards against abuse or misuse, including oversight and review by an independent and impartial tribunal or regulatory body. In addition, the Special Rapporteur reiterates that given the links between the sale of children, trafficking in children, forced labour, child prostitution, sex tourism and child pornography, States must also go beyond blocking measures to address the root causes of exploitation of children in a holistic manner and must investigate and prosecute those responsible.",
+        "Labels": [
+            "Children"
+        ]
+    },
+    {
+        "ID": 23,
+        "Text": "23. International criminal law prohibits direct and public incitement to commit genocide under article 3 of the Convention on the Prevention and Punishment of the Crime of Genocide, article 25, 3 (e), of the Rome Statute of the International Criminal Court, article 4, 3 (c), of the statute of the International Tribunal for the Former Yugoslavia, and article 2, 3 (c), of the statute of the International Criminal Tribunal for Rwanda. Incitement to commit genocide has historically been justified as a criminal offence owing to the particularly reprehensible nature of genocide as See A/HRC/12/23. \"the crime of crimes\".7 Indeed, the International Criminal Tribunal for Rwanda has repeatedly underscored the \"utmost gravity\" of the crime of direct and public incitement to genocide, and has stressed that the media as a key tool used by extremists in Rwanda to mobilize and incite the population to genocide, a view which led it to deny an application by Georges Ruggiu for early release.8",
+        "Labels": []
+    },
+    {
+        "ID": 24,
+        "Text": "24. Since the first conviction for the crime of incitement to commit genocide in 1998,7 this subject has become the focus of a substantial new body of jurisprudence.9 There are three defining requirements of the crime: it must be direct, public and committed with specific intent (mens rea). The International Criminal Tribunal for Rwanda has interpreted \"direct and public\" to include many forms of communication, by stating that \"direct and public incitement must be defined … as directly provoking the perpetrator(s) to commit genocide, whether through speeches, shouting or threats uttered in public places or at public gatherings, or through the sale or dissemination, offer for sale or display of written material or printed matter in public places or at public gatherings, or through the public display or placards or posters, or through any other means of audiovisual communication\".7",
+        "Labels": []
+    },
+    {
+        "ID": 25,
+        "Text": "25. The Special Rapporteur notes the concern that the Internet may be used as a means of inciting others to commit genocide, particularly given its capacity to reach a large audience. In order to prevent any excessive and undue limitation to the right to freedom of expression, the Special Rapporteur underscores that incitement to commit genocide must first be prohibited in domestic law and that any restriction imposed, for example through blocking or removing such expression via the Internet, must only be applied after a careful assessment of the threat of such expression to directly incite genocide, including factors such as the speaker, the intended audience, the content or meaning of the speech, the socio-historical context, the mode of transmission,10 and other indicators as outlined by the Committee on the Elimination of Racial Discrimination in its decision on follow-up to the declaration on the prevention of genocide (CERD/C/67/1). The Special Rapporteur also underlines that incitement to commit genocide, which is of utmost gravity, must be distinguished from other types of incitement, such as incitement to discrimination.",
+        "Labels": []
+    },
+    {
+        "ID": 26,
+        "Text": "26. The dissemination of \"hate speech\" via the Internet has also spurred efforts to regulate online content. There is, however, no definition of hate speech in international law, and the Special Rapporteur notes that many forms of hate speech do not meet the level of seriousness set out in article 20, paragraph 2, of the Prosecutor v. Riggiu, Case No. ICTR-97-32-S (Trial Chamber), 12 May 2005, International Criminal Tribunal for Rwanda. See, inter alia, Prosecutor v. Nahimana et al., Case No. ICTR-99-52-A, 28 November 2007, and Prosecutor v. Simon Bikindi, Case No. ICTR-01-72-T, 2 December 2008, International Criminal Tribunal for Rwanda. See the contribution to the Office of the United Nations High Commissioner for Human Rights (OHCHR) Initiative on Incitement to National, Racial or Religious Hatred by Susan Benesch, consultant to the United Nations Special Adviser on the Prevention of Genocide, 2011 (see http://www2.ohchr.org/english/issues/opinion/articles1920\\iccpr/experts\\papers.htm). International Covenant, which stipulates that States shall prohibit by law any advocacy of national, racial or religious hatred that constitutes incitement to discrimination, hostility or violence.",
+        "Labels": []
+    },
+    {
+        "ID": 27,
+        "Text": "27. As noted in the recently adopted general comment No. 34 on article 19 of the International Covenant by the Human Rights Committee, articles 19 and 20 of the Covenant are compatible with and complement each other, and the acts that are addressed in article 20 are all subject to restriction pursuant to article 19, paragraph 3. Hence, a limitation that is justified on the basis of article 20 must also comply with article 19, paragraph 3.11 Moreover, the Committee has clarified that what distinguishes the acts addressed in article 20 from other acts that may be subject to restriction under article 19, paragraph 3, is that for the acts addressed in article 20, the Covenant indicates the specific response required from the State: their prohibition by law. It is only to this extent that article 20 may be considered as lex specialis with regard to article 19.12",
+        "Labels": []
+    },
+    {
+        "ID": 28,
+        "Text": "28. There are two key elements of the type of expression that is prohibited under article 20, paragraph 2, of the International Covenant: first, only advocacy of hatred13 is covered, and second, it must constitute incitement14 to one of the three listed results. Thus, advocacy of national, racial or religious hatred is not a breach of article 20, paragraph 2, of the Covenant on its own. Such advocacy becomes an offence only when it also constitutes incitement to discrimination, hostility or violence; in other words, when the speaker seeks to provoke reactions (perlocutionary acts) on the part of the audience,10 and there is a very close link between the expression and the resulting risk of discrimination, hostility or violence. In this regard, context is central to the determination of whether or not a given expression constitutes incitement.",
+        "Labels": []
+    },
+    {
+        "ID": 29,
+        "Text": "29. As highlighted in joint papers for a series of expert workshops on the prohibition of incitement to national, racial or religious hatred organized by the Office of the United Nations High Commissioner for Human Rights (OHCHR) in 2011,15 the Special Rapporteur remains concerned by the vague formulation of some domestic legal provisions that prohibit incitement. These include combating \"incitement to religious unrest\", \"promoting division between religious believers and non-believers\", \"defamation of religion\", \"inciting to violation\", \"instigating hatred and disrespect against the ruling regime\", \"inciting subversion of state CCPR/C/GC/34, para. 50. The term \"incitement\" refers to statements about national, racial or religious groups which create an imminent risk of discrimination, hostility or violence against persons belonging to those groups (principle 12.1 of the Camden Principles). Available from http://www2.ohchr.org/english/issues/opinion/articles1920\\iccpr/ experts\\papers.htm. power\" and \"offences that damage public tranquillity\".16 Such vague and broad terms clearly do not meet the criterion of legal clarity.",
+        "Labels": []
+    },
+    {
+        "ID": 30,
+        "Text": "30. The Special Rapporteur reiterates that restrictions must be formulated in a way that makes clear that its sole purpose is to protect individuals from hostility, discrimination or violence, rather than to protect belief systems, religions or institutions as such from criticism. The right to freedom of expression implies that it should be possible to scrutinize, openly debate and criticize, even harshly and unreasonably, ideas, opinions, belief systems and institutions, including religious ones, as long as this does not advocate hatred that incites hostility, discrimination or violence against an individual or a group of individuals.",
+        "Labels": []
+    },
+    {
+        "ID": 31,
+        "Text": "31. In addition, article 4 of the International Convention on the Elimination of All Forms of Racial Discrimination stipulates that States parties shall declare all dissemination of ideas based on racial superiority or hatred and incitement to racial discrimination an offence punishable by law. In its general recommendation No. 15, the Committee on the Elimination of Racial Discrimination stated that \"in the opinion of the Committee, the prohibition of the dissemination of all ideas based upon racial superiority or hatred is compatible with the right to freedom of opinion and expression\".17 Moreover, the Committee has also stated that it regards article 4 of the Convention as a mandatory obligation of States parties to the Convention. It regards the obligation as consistent with the freedoms of opinion and expression affirmed in the Universal Declaration of Human Rights and the International Covenant on Civil and Political Rights and notes that such kind of acts mentioned above specifically outlaws inciting racial discrimination, hatred and violence. It views the provisions as necessary to prevent organized racial violence.18 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\",
+        "Labels": []
+    },
+    {
+        "ID": 32,
+        "Text": "32. In addition to the four types of incitement discussed above, a fifth form of incitement, incitement to terrorism, is the subject of Security Council resolution 1624 (2005), in which the Council called upon States to \"prohibit by law incitement to commit a terrorist act or acts\" and to prevent such conduct.",
+        "Labels": []
+    },
+    {
+        "ID": 33,
+        "Text": "33. The Special Rapporteur is concerned, however, particularly given the absence of an agreed definition of \"terrorism\" in international law,19 that States have a broad margin of discretionary power to interpret what kinds of expression constitute incitement to terrorism. Noting this lacuna, the Special Rapporteur on the promotion and protection of human rights and fundamental freedoms while countering terrorism has proposed a model definition of terrorism, as well as incitement to terrorism, based on best practices. With regard to the latter, he has proposed the following formulation as the model offence of incitement to terrorism: \"it is an The United Nations defines terrorism indirectly by relying on 16 international legal instruments which define \"terrorist acts\", see http://www.un.org/terrorism/instruments.shtml. offence to intentionally and unlawfully distribute or otherwise make available a message to the public with the intent to incite the commission of a terrorist offence, where such conduct, whether or not expressly advocating terrorist offences, causes a danger that one or more such offences may be committed\".20 This formulation encompasses two requirements: (a) an intent to incite the commission of a terrorist offence; and (b) the existence of an actual risk that such an offence will be committed as a consequence.21",
+        "Labels": []
+    },
+    {
+        "ID": 34,
+        "Text": "34. The Special Rapporteur reiterates that any domestic criminal laws that prohibit incitement to terrorism must meet the three-part test of restrictions to the right to freedom of expression. This entails that incitement of terrorism: (a) must be limited to the incitement of conduct that is truly terrorist in nature, as properly defined;22 (b) must restrict the right to freedom of expression no more than is necessary for the protection of national security, public order and safety or public health or morals; (c) must be prescribed in law in precise language, including by avoiding reference to vague terms such as \"glorifying\" or \"promoting\" terrorism; (d) must include an actual (objective) risk that the act incited will be committed; (e) should expressly refer to two elements of intent, namely intent to communicate a message and intent that this message incite the commission of a terrorist act; and (f) should preserve the application of legal defences or principles leading to the exclusion of criminal liability by referring to \"unlawful\" incitement to terrorism.23",
+        "Labels": []
+    },
+    {
+        "ID": 35,
+        "Text": "35. At the same time, as noted by the Working Group on Countering the Use of Internet for Terrorist Purposes, one of the nine working groups of the Counter-Terrorism Implementation Task Force, the available means to suppress content deemed to be incitement to terrorism are often \"clumsy or ineffective, or both\",24 and thus it may be more effective to devise strategies that work with the Internet \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ and (a) Provoking a state of terror in the general public or a segment of it; or; and quot;1. The action: b) All elements of a serious crime defined by national law.\" (A/HRC/51, para. 28). rather than against it, including the dissemination of rapid counter-narratives to extremist messages which constitute incitement to terrorism.",
+        "Labels": []
+    },
+    {
+        "ID": 36,
+        "Text": "36. That being the case, in addition to the prohibition of incitement to terrorism in domestic legislation, the Special Rapporteur notes that, at a practical level, a more effective strategy than attempting to restrict materials deemed to incite terrorism may be to use the Internet as a positive means of countering such incitement. Participants at the Riyadh Conference on the Use of the Internet to Counter the Appeal of Extremist Violence recommended, inter alia, that counter-narratives should be disseminated through all relevant media channels, including on social networking websites, to counter the appeal of extremist messages.25",
+        "Labels": []
+    },
+    {
+        "ID": 37,
+        "Text": "37. The four types of expression examined above (III.A) fall under the first category of the types of expression that constitute offences under international criminal law and/or international human rights law and which States are required to prohibit at the domestic level. However, as they all constitute restrictions to the right to freedom of expression, they must also comply with the three-part test of prescription by: unambiguous law; pursuance of a legitimate purpose; and respect for the principles of necessity and proportionality.",
+        "Labels": []
+    },
+    {
+        "ID": 38,
+        "Text": "38. The most common method of restricting the types of prohibited expression on the Internet is through the blocking of content (see III.A above). In this regard, the Special Rapporteur reiterates the recommendations made in his most recent report to the Human Rights Council that States should provide full details regarding the necessity and justification for blocking a particular website, and determination of what content should be blocked should be undertaken by a competent judicial authority or a body which is independent of any political, commercial, or other unwarranted influences to ensure that blocking is not used as a means of censorship.26",
+        "Labels": []
+    },
+    {
+        "ID": 39,
+        "Text": "39. In addition, the Human Rights Committee has affirmed that any \"restrictions on the operation of websites, blogs or any other Internet-based, electronic or other such information dissemination system, including systems to support such communication, such as Internet service providers or search engines, are only permissible to the extent that they are compatible with paragraph 3 [of article 19]. Permissible restrictions generally should be content-specific; generic bans on the operation of certain sites and systems are not compatible with paragraph 3. It is also inconsistent with paragraph 3 to prohibit a site or an information dissemination system from publishing material solely on the basis that it may be critical of the government or the political social system espoused by the government\".27 Riyadh Conference on the Use of the Internet to Counter the Appeal of Extremist Violence, 24-26 January 2011, summary and follow-up recommendations available from http://www.un.org/terrorism/pdfs/CTITF%20Riyadh%20Conference%20-%20Summary% 20&%20Recommendations.pdf. A/HRC/17/27, para. 70. CCPR/C/GC/34, para. 43.",
+        "Labels": []
+    },
+    {
+        "ID": 40,
+        "Text": "40. Moreover, given the importance of the right to freedom of expression and free flow of information as a foundation for every free and democratic society,28 the Special Rapporteur underscores that all other types of expression that are not mentioned above should not be criminalized, including defamation laws aimed at protecting the reputation of individuals, as criminalization can be counter-effective and the threat of harsh sanctions exert a significant chilling effect on the right to freedom of expression. Furthermore, the Special Rapporteur reiterates the view that for the types of expression that do not rise to criminal or civil sanctions, but still raise concerns in terms of civility and respect for others, effort should be focused on addressing the root causes of such expression, including intolerance, racism and bigotry by implementing strategies of prevention.16",
+        "Labels": []
+    },
+    {
+        "ID": 41,
+        "Text": "41. To do so, and to bring about real changes in mindsets, perceptions and discourse, a broad set of policy measures are necessary, for example in the areas of intercultural dialogue or education for diversity, equality and justice and in strengthening freedom of expression and promoting a \"culture of peace\". Indeed, the Special Rapporteur has previously stated that the strategic response to expressions deemed as offensive or intolerant is more speech: more speech that educates about cultural differences; more speech that promotes diversity and understanding; more speech to empower and give voice to minorities and indigenous peoples, for example through the support of community media and their representation in mainstream media.16 More speech can be the best strategy to reach out to individuals, changing what they think and not merely what they do, as has been recognized in the outcome document of the Durban Review Conference, which also affirmed the role that the right to freedom of opinion and expression can play in the fight against racism, racial discrimination, xenophobia and related intolerance worldwide.29",
+        "Labels": [
+            "Indigenous peoples"
+        ]
+    },
+    {
+        "ID": 42,
+        "Text": "42. Furthermore, the Special Rapporteur stresses that, as stipulated in Human Rights Council resolution 12/16 (para. 5 (p) (i)), the following types of expression should never be subject to restrictions: discussion of government policies and political debate; reporting on human rights, government activities and corruption in government; engaging in election campaigns, peaceful demonstrations or political activities, including for peace or democracy; and expression of opinion and dissent, religion or belief, including by persons belonging to minorities or vulnerable groups.",
+        "Labels": []
+    },
+    {
+        "ID": 43,
+        "Text": "43. Similarly, the Human Rights Committee has asserted that article 19, paragraph 3, of the International Covenant on limitations \"may never be invoked as a justification for the muzzling of any advocacy of multi-party democracy, democratic tenets and human rights. Nor, under any circumstance, can an attack on a person, because of the exercise of his or her freedom of opinion and expression, including such forms of attack as arbitrary arrest, torture, threats to life and killing, be compatible with article 19\".30 The Committee has also noted that journalists and bloggers are frequently subjected to such threats, intimidation and attacks because of their activities, as are persons who engage in the gathering and analysis of information on the human rights situation and who publish human rights-related reports, including judges and lawyers. Indeed, the Special Rapporteur remains deeply concerned about \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ 28 Ibid., para. 2. such threats and attacks against, as well as killings and imprisonment, of bloggers, journalists and human rights defenders who rely upon the Internet to carry out their work.",
+        "Labels": []
+    },
+    {
+        "ID": 44,
+        "Text": "44. States should thus forbid restrictions to the right to freedom of expression, except for the specific categories mentioned above, in order to prevent the illegitimate imprisonment of individuals and should vigorously investigate all attacks and prosecute the perpetrators in a timely fashion and, in the case of killings, provide effective redress to the victims' representatives.",
+        "Labels": []
+    },
+    {
+        "ID": 45,
+        "Text": "45. In addition to the availability of relevant content online which is free of censorship, the Special Rapporteur also notes the importance of ensuring that individuals possess the necessary skills to make full use of the Internet, or what is often referred to as \"digital literacy\". The Special Rapporteur encourages States to provide support for training in information and communications technology (ICT) skills, which can range from basic computer skills to creating web pages. In terms of the right to freedom of expression, course modules should not only clarify the benefits of accessing information online, but also of responsibly contributing information, which can also contribute to combating the third type of expression mentioned above.",
+        "Labels": []
+    },
+    {
+        "ID": 46,
+        "Text": "46. In addition, the Special Rapporteur believes that Internet literacy should be included in school curricula, as well as in learning modules outside of schools. One example is the ThutoNet programme in Botswana, which will not only provide all schools in Botswana with computers and access to the Internet, but will train teachers on how to use ICT as a classroom tool, including formal ICT education as part of the school curriculum. This programme aims to assist the country's children for success in the digital age, and will also involve the development of locally produced educational software to assist with e-learning and to ensure local content and subject relevance.31",
+        "Labels": [
+            "Children"
+        ]
+    },
+    {
+        "ID": 47,
+        "Text": "47. The Special Rapporteur also underscores the importance of educating individuals about Internet safety and security, including fraud, potential consequences of revealing private information on the Internet and the use of encryption or circumvention technologies to protect information from unwarranted interference, which is of particular importance for human rights defenders. Children should also be trained from an early age with regard to Internet safety.",
+        "Labels": [
+            "Children"
+        ]
+    },
+    {
+        "ID": 48,
+        "Text": "48. Moreover, the Special Rapporteur calls upon States to empower marginalized groups by ensuring that they receive effective digital literacy training. As the Special Rapporteur has noted in his previous reports, it is critical to strengthen the voice of those without power, especially people living in extreme poverty. Having access to the Internet allows people who are disadvantaged, discriminated against or marginalized to obtain information, assert their rights and participate in the public debate concerning social and political changes. Furthermore, the Internet allows See International Telecommunication Union (ITU)/United Nations Educational, Scientific and Cultural Organization (UNESCO), Broadband: A Platform for Progress, a report by the Broadband Commission for Digital Development, June 2011 (see http://www.broadbandcommission.org/report2/full-report.pdf). minorities and indigenous peoples to express and reproduce their cultures, language and traditions, preserving their heritage and making a valuable contribution to others in a truly multicultural world. However, basic ICT skills are essential if users are to benefit from the full potential of the Internet.",
+        "Labels": [
+            "Indigenous peoples"
+        ]
+    },
+    {
+        "ID": 49,
+        "Text": "49. Persons with disabilities often face additional obstacles in making full and effective use of the Internet. For example, in the United States of America, where 81 per cent of the total population has access to the Internet, this figure reaches only 54 per cent among people with disabilities.32",
+        "Labels": [
+            "Persons with disabilities"
+        ]
+    },
+    {
+        "ID": 50,
+        "Text": "50. The Convention on the Rights of Persons with Disabilities outlines general principles to which States that have ratified the Convention should adhere, including full and effective participation and inclusion in society and accessibility (article 3, paras. (c) and (f)). The Convention further stipulates that States should \"promote the availability and use of new technologies, including information and communications technologies, mobility aids, devices and assistive technologies, suitable for persons with disabilities, giving priority to technologies at an affordable cost\" (article 4, para. 1 (g)), and \"promote access for persons with disabilities to new information and communications technologies and systems, including the Internet\" (article 9, para. 2 (g)). To ensure fulfilment of these obligations, the International Telecommunication Union (ITU) has recommended the following principles for ICT accessibility: equal access, functional equivalency, accessibility, affordability and design for all.33",
+        "Labels": [
+            "Persons with disabilities"
+        ]
+    },
+    {
+        "ID": 51,
+        "Text": "51. The Special Rapporteur underscores that the needs of persons with disabilities should be taken into account when designing and implementing Internet infrastructure at all levels. This can be in relation to distribution, user facilities as well as access devices.31 Some positive examples include the \"Community Access\" programme in Canada, which seeks to provide an appropriate number of sites with enhanced accessibility to meet the broad range of needs of persons with disabilities. The programme also aims to provide Internet access to less likely users, such as individuals with low incomes, rural or Aboriginal population, the elderly and immigrants.34",
+        "Labels": [
+            "Indigenous peoples",
+            "Persons with disabilities",
+            "Persons living in rural/remote areas"
+        ]
+    },
+    {
+        "ID": 52,
+        "Text": "52. In the United States of America, the Senate unanimously passed the \"Twentyfirst Century Communications and Video Accessibility Act\" in 2010. The Act seeks to ensure full access for users who are deaf, hard of hearing, late deafened or deafblind to evolving high-speed broadband, wireless and other Internet protocol technologies. Moreover, the Act stipulates that accessibility features are preserved when materials are offered online, that telephones used over the Internet must be compatible with hearing aids and that television programmes must also be captioned when delivered over the Internet.31",
+        "Labels": [
+            "Persons living with HIV/AIDS"
+        ]
+    },
+    {
+        "ID": 53,
+        "Text": "53. The Special Rapporteur welcomes such initiatives, and stresses the need for States to ensure that everyone, including persons with disabilities, can fully participate in the information society. Susannah Fox, \"Americans living with disability and their technology profile\", Pew Internet & American Life Project, 21 January 2011 (http://www.pewinternet.org/Reports/2011/ Disability.aspx).",
+        "Labels": [
+            "Persons with disabilities"
+        ]
+    },
+    {
+        "ID": 54,
+        "Text": "54. With a few languages dominating the online environment, language barriers can also be a further impediment to access online content. However, the Special Rapporteur notes the increasing number of sophisticated online translation services.",
+        "Labels": []
+    },
+    {
+        "ID": 55,
+        "Text": "55. Other positive initiatives to overcome language barriers include, for example, the World Digital Library, which provides free, multilingual access to documentary heritage held in institutions around the world, aimed at a diverse audience, from students, teachers to ordinary members of the public.35 Furthermore, the content is contributed by partner institutions in the language of origin and is accessed through an interactive interface in seven languages, and allows for voice enabled browsing and can allow easy access to people with visual disabilities.36",
+        "Labels": []
+    },
+    {
+        "ID": 56,
+        "Text": "56. The Special Rapporteur also notes that the Board of the Internet Corporation for Assigned Names and Numbers has approved the internationalized domain name (IDN) ccTLD Fast Track Process, which enables countries and territories that use languages based on scripts other than Latin to offer their user's domain names in non-Latin characters.",
+        "Labels": []
+    },
+    {
+        "ID": 57,
+        "Text": "57. The Special Rapporteur also reiterates his call on Governments to honour their obligation to promote indigenous cultural diversity in the public and private media.37 This includes making governance information available in all relevant languages, including minority languages, in line with the principles enshrined in the 1992 Declaration on the Rights of Persons Belonging to National or Ethnic, Religious and Linguistic Minorities.",
+        "Labels": [
+            "Indigenous peoples"
+        ]
+    },
+    {
+        "ID": 58,
+        "Text": "58. The Special Rapporteur underlines the importance of equal and effective access to the Internet for women, which can play a key role in promoting their empowerment. Indeed, as highlighted in the latest report by the Broadband Commission, the Internet promotes empowerment by connecting women to a wide range of resources, for example to improve health, bolster education, allow for informed decisions and pursue economic opportunities.31 In this regard, there is an ongoing research project in India, which focuses on how ICT, such as mobile phone services, can facilitate women's entrepreneurship in the country, and also seeks to identify factors which enhance the ability of technology to transform women's economic experiences.38",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 59,
+        "Text": "59. The United Nations Girls' Education Initiative, evolving from the Millennium Villages project, is an example of \"e-education\" initiatives which also help promote girls' education. This initiative has launched a global campaign to promote universal and equality Internet access in secondary education in developing countries, with an World Digital Library (http://www.wdl.org/en/). ITU, \"Women entrepreneurs in India and ICT\", 14 July 2011 (http://www.itu.int/ITU-D/sis/ newslog/CategoryView,category,Gender.aspx). emphasis on girls' education. ICT skills will be used to enhance the quality of education and to connect schoolchildren worldwide.31",
+        "Labels": [
+            "Persons living in rural/remote areas"
+        ]
+    },
+    {
+        "ID": 60,
+        "Text": "60. The Special Rapporteur encourages further research on concrete initiatives around the world and on how ICT can help women to further improve their skills and knowledge, in particular in the employment sphere as well as citizen participation.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 61,
+        "Text": "61. Although access to the Internet is not yet a human right as such, the Special Rapporteur would like to reiterate that States have a positive obligation to promote or to facilitate the enjoyment of the right to freedom of expression and the means necessary to exercise this right, which includes the Internet. Moreover, access to the Internet is not only essential to enjoy the right to freedom of expression, but also other rights, such as the right to education, the right to freedom of association and assembly, the right to full participation in social, cultural and political life and the right to social and economic development.",
+        "Labels": []
+    },
+    {
+        "ID": 62,
+        "Text": "62. Recently, the Human Rights Committee, in its general comment No. 34 on the right to freedom of opinion and expression, also underscored that States parties should take all necessary steps to foster the independence of new media, such as the Internet, and to ensure access of all individuals thereto.39",
+        "Labels": []
+    },
+    {
+        "ID": 63,
+        "Text": "63. Indeed, given that the Internet has become an indispensable tool for full participation in political, cultural, social and economic life, States should adopt effective and concrete policies and strategies, developed in consultation with individuals from all segments of society, including the private sector as well as relevant Government ministries, to make the Internet widely available, accessible and affordable to all.",
+        "Labels": []
+    },
+    {
+        "ID": 64,
+        "Text": "64. Public and private policies aimed at extending Internet access have substantially increased the presence of Internet facilities in developing States. Yet despite these efforts, Internet usage is still lagging in developing States, perpetuating the \"digital divide\", a term that refers to the gap between people with effective access to digital and information technologies, in particular the Internet, and those with very limited or no access at all. In his previous report, the Special Rapporteur expressed concern that without Internet access, which facilitates economic development and the enjoyment of a range of human rights, marginalized groups and developing States remain trapped in a disadvantaged situation, thereby perpetrating the existing socio-economic disparities both within and between States.40",
+        "Labels": []
+    },
+    {
+        "ID": 65,
+        "Text": "65. There are a number of factors that pose challenges to ensuring Internet access at the national level. For example, in many countries, the Internet market, and particularly the backbone infrastructure and international gateway, remain under the CCPR/C/GC/34, para. 15. monopoly of one or very few telecommunications operators. Furthermore, both limited competition and scarce international Internet bandwidth tend to keep prices for Internet access high and often unaffordable in the area of fixed broadband access.41 Moreover, the relatively high cost of accessing the Internet and the purchase of basic equipment makes it impossible for many people to have Internet access at home, with public access the only way to go online.",
+        "Labels": []
+    },
+    {
+        "ID": 66,
+        "Text": "66. To overcome these barriers, it is particularly important for States to play a proactive role, for example, by making the Internet more affordable, and by allowing as many people as possible to have Internet access at home while at the same time ensuring public access for people in rural areas and for people with low income levels. States can use their regulatory powers in circumstances where competition is limited, as a way to limit costs. States should also consider the possibility of subsidizing Internet services and the necessary hardware to facilitate access to the poorest sectors of the population.",
+        "Labels": [
+            "Persons living in rural/remote areas",
+            "Persons living in poverty"
+        ]
+    },
+    {
+        "ID": 67,
+        "Text": "67. The Millennium Development Goals, including target 8.F, aim to make available, in cooperation with the private sector, the benefits of new technologies, especially ICT. This target is measured by the indicators of the number of telephone lines, mobile cellular subscriptions and Internet users per 100 people. Currently access to the Internet is far less widespread than mobile communications. At the end of 2009, the International Telecommunication Union (ITU) estimated that some 1.7 billion people around the world were using the Internet, or just over a quarter of the world's population (26 per cent). In developing countries, around 17.8 per cent were online. By the end of 2010, only Europe had achieved the target, with average Internet penetration rate at 67 per cent, and the Americas had reached around 50.7 per cent.41 These figures include public, communal centres and other kinds of Internet access. Moreover, according to the latest Millennium Development Goals Report 2011, although the number of Internet users continues to expand, penetration levels in the developing world remain relatively low, at 21 per cent at the end of 2010, compared to 72 per cent in the developed regions. Globally, two out of three people are not using the Internet. In the least developed countries, Internet penetration was as low as 3 per cent at the end of 2010.",
+        "Labels": []
+    },
+    {
+        "ID": 68,
+        "Text": "68. An increasing number of web services require high-speed Internet connectivity, in particular to access content on video-oriented websites. Thus, to effectively use the Internet, broadband access is increasingly becoming the norm. However, there is also a significant digital divide between those who enjoy fast access to multimedia content online and those still struggling with slow, shared dialup links.42 The Special Rapporteur notes that, according to ITU, 24.6 per cent of inhabitants in developed States have access to fixed broadband Internet connection, versus 4.4 per cent in developing States. See World Telecommunication/ICT Development Report 2010: Monitoring the WSIS Targets: A mid-term review, p. 201 (http://www.itu.int/ITU-D/ict/publications/wtdr\\10/material/ WTDR2010\\e\\v1.pdf). See United Nations, The Millennium Development Goals Report 2010 (http://www.un.org/ millenniumgoals/).",
+        "Labels": []
+    },
+    {
+        "ID": 69,
+        "Text": "69. There are, however, some encouraging initiatives to promote broadband Internet connection at the national level. Sweden, for example, was the first European country to develop a broadband policy in 1999, with the Government aiming to provide broadband in rural and remote areas where there is no market incentive to do so.43 In Brazil, the Government has been active in developing programmes that make broadband Internet access available to people in lower income brackets. For example, the e-government citizens' support service (GESAC) was set up in early 2002 for the purpose of increasing social inclusion by promoting digital inclusion, with the use of wireless technologies, such as satellite and WiMAX (Worldwide Interoperability for Microwave Access), to roll out broadband to poorly served areas. The Government also operates a network of community telecentres that offer Internet access free of charge. Through GESAC, the Government aims to ensure that all of Brazil's 5,565 municipalities have at least one broadband access point.31",
+        "Labels": [
+            "Persons living in rural/remote areas"
+        ]
+    },
+    {
+        "ID": 70,
+        "Text": "70. The importance of the Internet as an educational tool needs to be properly recognized. It provides access to a vast and expanding source of knowledge, supplements or transforms traditional forms of schooling and makes, through \"open access\" and active initiatives, previously unaffordable scholarly research available to people in developing States. Internet access allows students, teachers and parents alike to communicate more frequently and to keep abreast of the latest developments and issues related to their fields. Furthermore, the educational benefits attained from Internet usage directly contribute to the human capital of States. Therefore, the Special Rapporteur believes that access to the Internet will progressively be a key element of the right to education.",
+        "Labels": []
+    },
+    {
+        "ID": 71,
+        "Text": "71. Keeping the above in mind, the Special Rapporteur strongly emphasizes the importance of promoting and providing support to projects which seek to ensure the access to information and communication. In this regard, the global project \"One Laptop per Child\" is a good initiative. As stated in the most recent report of the Special Rapporteur to the Human Rights Council,44 this kind of initiative helps to spread the availability of ICT in developing countries. The project, supported by the United Nations Development Programme (UNDP) and several partners, has benefited not just children, but their families as well, since one of the essential aspects of the permanently connected laptop is its free use at home, which allows the child and the family to increase their access to information and to the outside world. Two important elements of these laptops are that they can be charged by solar or mechanical power; and they have been designed to provide an engaging wireless network, which allows the laptops to be connected automatically to others nearby.45",
+        "Labels": [
+            "Children"
+        ]
+    },
+    {
+        "ID": 72,
+        "Text": "72. The Special Rapporteur wishes to highlight how the successful example of \"Plan Ciebal\" in Uruguay has expanded and replicated around the world, and is a good example of partnership between the different private and public sectors. Ministry of Enterprise, Energy and Communications, Sweden (www.sweden.gov.se/sb/d/573/a/ 12566/action/search/type/simple?query=broadband+access). A/HRC/17/27, para. 63. Among the countries participating in the \"One Laptop per Child\" project include Afghanistan, Argentina, Australia, Brazil, Cambodia, Canada, China, India, Iraq, Nepal, South Africa, Rwanda, Thailand, Lebanon and Niue.46",
+        "Labels": []
+    },
+    {
+        "ID": 73,
+        "Text": "73. Another example of national strategies is that of Brazil, where in early 2008 a \"Broadband in Schools\" programme was launched in Brazil through a partnership involving the federal Government, the regulator National Telecommunications Agency (ANATEL) and several telecommunications operators. The project aims to connect 56,865 state schools nationwide, which would then benefit 37.1 million pupils, or 84 per cent of the Brazilian student population.31",
+        "Labels": []
+    },
+    {
+        "ID": 74,
+        "Text": "74. In New Zealand, a Government-funded programme, the Rural Broadband Initiative, aims to improve the availability of fibre backhaul links in less-urbanized parts of the country, as well as to provide country schools with reliable, high-speed connectivity.",
+        "Labels": [
+            "Persons living in rural/remote areas"
+        ]
+    },
+    {
+        "ID": 75,
+        "Text": "75. The digital divide in terms of access to mobile technology is much smaller than the Internet, with an estimated 67.6 per cent of individuals in developing States using mobile phones.31 While cellular phones do not provide the same benefits as direct computer-based Internet access, the Special Rapporteur is of the view that mobile technology can be a stepping stone to attain Internet connectivity, especially in remote areas where fixed line access is more difficult to establish.",
+        "Labels": [
+            "Persons living in rural/remote areas"
+        ]
+    },
+    {
+        "ID": 76,
+        "Text": "76. Recent reports show that access to the Internet using mobile phones is a growing trend, including in many developing countries and regions, including in Africa.41 According to the ITU, almost three quarters of the world's rural inhabitants were covered by mobile cellular signal by the end of 2008. Moreover, the report suggests that coverage in rural parts of Africa could exceed 90 per cent by 2015, with mobile cellular technology playing a crucial role in expanding communications networks.41",
+        "Labels": [
+            "Persons living in rural/remote areas"
+        ]
+    },
+    {
+        "ID": 77,
+        "Text": "77. Broadband Internet access through mobile phones is also increasing rapidly. According to ITU statistics, by the end of 2010, the total number of mobile broadband subscriptions worldwide had reached 940 million. This number is expected to top 1 billion in 2011, from 73 million in 2005. One key reason for the growth in mobile broadband is that operators are offering both competitive and affordable data packages. This development is complemented and supported by new technologies, which are bringing more efficiency to networks.31 Singapore is one such example with a 100 per cent penetration rate for mobile phones, and with a majority of households having at least one mode of broadband access.31 In addition, in 2008 and 2009, the Government selected two companies to work on a coordinated nationwide roll-out of the network. As stipulated under the terms of the broadband deployment, one of these companies will waive all installation charges for home and building owners when the network first reaches their area. These companies are also to provide network connectivity to outdoor locations.31 See http://wiki.laptop.org/go/Deployments and http://one.laptop.org.",
+        "Labels": []
+    },
+    {
+        "ID": 78,
+        "Text": "78. The Internet has become one of the most important vehicles by which individuals exercise their right to freedom of opinion and expression, and it can play an important role to promote human rights, democratic participation, accountability, transparency and economic development. However, as with all technological innovations, the Internet can also be used to cause harm, which has raised concerns among Governments as to whether to regulate content online.",
+        "Labels": []
+    },
+    {
+        "ID": 79,
+        "Text": "79. The general rule should be to maintain openness and the free flow of information over the Internet, with limitations, which should conform to the criteria established under international human rights law, as the exception. To protect the right to freedom of expression from undue restrictions, the Special Rapporteur has attempted to distinguish the types of expression: (a) which constitute an offence under international law and which States are required to prohibit; (b) which are not criminally punishable but may justify a civil suit; and (c) which do not give rise to criminal or civil sanctions, but still raise concerns in terms of tolerance, civility and respect for others. Each category poses different issues of principle, and thus requires different legal responses, as highlighted below.",
+        "Labels": []
+    },
+    {
+        "ID": 80,
+        "Text": "80. The Special Rapporteur also remains concerned that the majority of the world's population remain without access to Internet connection. Although access to the Internet is not yet recognized as a right in international human rights law, States have a positive obligation to create an enabling environment for all individuals to exercise their right to freedom of opinion and expression.",
+        "Labels": []
+    },
+    {
+        "ID": 81,
+        "Text": "81. States are obliged to guarantee a free flow of ideas and information and the right to seek and receive as well as to impart information and ideas over the Internet. States are also required under international law to prohibit under its criminal law the following types of content: (a) child pornography; (b) direct and public incitement to commit genocide; (c) advocacy of national, racial or religious hatred that constitutes incitement to discrimination, hostility or violence; and (d) incitement to terrorism. However, the Special Rapporteur reminds all States that any such laws must also comply with the three criteria of restrictions to the right to freedom of expression, namely: prescription by unambiguous law; pursuance of a legitimate purpose; and respect for the principles of necessity and proportionality.",
+        "Labels": [
+            "Children"
+        ]
+    },
+    {
+        "ID": 82,
+        "Text": "82. With regard to technical measures taken to regulate the above-mentioned type of prohibited expression, such as the blocking of content, the Special Rapporteur reiterates that States should provide full details regarding the necessity and justification for blocking a particular website and that the determination of what content should be blocked must be undertaken by a competent judicial authority or a body that is independent of any political, commercial or other unwarranted influences in order to ensure that blocking is not used as a means of censorship.",
+        "Labels": []
+    },
+    {
+        "ID": 83,
+        "Text": "83. The Special Rapporteur recommends that all other types of expression which do not fall under the above-mentioned category be decriminalized, as criminalization may be counter-effective and the threat of harsh sanctions can exert a significant chilling effect on the right to freedom of expression. Moreover, States should focus their efforts on combating the root problems of racist or offensive speech, such as bigotry and bias, which includes promoting more speech to counter such negative types of expression, improving understanding among peoples of the world and building a culture of peace.",
+        "Labels": []
+    },
+    {
+        "ID": 84,
+        "Text": "84. Enabling individuals to effectively use the content made available via the Internet requires a number of elements, including the skills to use the technology. The Special Rapporteur thus recommends that States include Internet literacy skills in school curricula and support similar learning modules outside of schools. In addition to basic skills training, modules should clarify the benefits of accessing information online and of responsibly contributing information. Training can also help individuals learn how to protect themselves against harmful content, such as the potential consequences of revealing private information on the Internet, as well as against undue restrictions by States or corporations through the use of encryption or circumvention technology.",
+        "Labels": []
+    },
+    {
+        "ID": 85,
+        "Text": "85. The Special Rapporteur encourages the translation of websites into multiple languages, including languages spoken by minorities and indigenous peoples, and their accessibility to persons with disabilities. Allowing people speaking different languages or with disabilities to participate in the same communication platform facilitates a truly global society. In addition, he recommends that all States ensure that all relevant governance information, including on the local levels, is available and accessible in the language of all those concerned.",
+        "Labels": [
+            "Indigenous peoples",
+            "Persons with disabilities"
+        ]
+    },
+    {
+        "ID": 86,
+        "Text": "86. The Special Rapporteur also underscores the importance of applying a gender dimension for Internet access and recommends that States develop strategies for ensuring effective access to online content, including through ICT training.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 87,
+        "Text": "87. The Special Rapporteur emphasizes that the access to information, the ability to exercise the right to freedom of expression and the participation that the Internet provides to all sectors of society is essential for a truly democratic society.",
+        "Labels": []
+    },
+    {
+        "ID": 88,
+        "Text": "88. Moreover, given the essential role played by the Internet to facilitate the enjoyment of the right to freedom of opinion and expression, as well as other rights, such as education, freedom of association and assembly, citizen participation and economic and social development, the Special Rapporteur believes that it is not only important but imperative that States adopt effective and concrete policies and strategies, developed in consultation with individuals from all segments of society, including the private sector and relevant Government ministries, in order to make the Internet widely available, accessible and affordable to all, based on the principles of non-discrimination of any kind, including on the grounds of race, colour, sex, language, disability, economic origin or any other status.",
+        "Labels": []
+    },
+    {
+        "ID": 89,
+        "Text": "89. In particular, the Special Rapporteur recommends that States take proactive measures to ensure that Internet connectivity is available on an individual or communal level in all inhabited localities of the State, by working on initiatives with the private sector, including in remote or rural areas. Such measures involve the adoption and implementation of policies that facilitate access to Internet connection and to low-cost hardware, including in remote and rural areas, including the subsidization of service, if necessary.",
+        "Labels": [
+            "Persons living in rural/remote areas"
+        ]
+    },
+    {
+        "ID": 90,
+        "Text": "90. Given the increasing amount of multimedia content online, broadband access should also be actively promoted and encouraged by States.",
+        "Labels": []
+    },
+    {
+        "ID": 91,
+        "Text": "91. As mobile technology is increasingly being used, and is more accessible in developing States, the Special Rapporteur recommends that States support policies and programmes to facilitate connection to the Internet through the use of mobile phones.",
+        "Labels": []
+    },
+    {
+        "ID": 92,
+        "Text": "92. At the international level, the Special Rapporteur reiterates his call on States, in particular developed States, to honour their commitment, expressed, inter alia, in the Millennium Development Goals, to facilitate technology transfer to developing States and to integrate effective programmes to facilitate universal Internet access in their development and assistance policies.",
+        "Labels": []
+    }
+]

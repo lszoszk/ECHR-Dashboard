@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Browse Special Procedures Reports - UN Database | Enhanced Document Viewer</title>
+
+    <!-- Favicon & Analytics -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <script src="/static/js/cookies.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VFCDZ89GWR"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-VFCDZ89GWR', { 'cookie_domain': 'auto' });
+    </script>
+
+    <!-- Bootstrap, Icons & Fonts -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Unified Design System -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/unified-design-system.css') }}?v=1">
+
+    <style>
+        /* Corpus Viewer Specific Styles */
+        .corpus-container {
+            display: flex;
+            min-height: calc(100vh - 140px);
+            margin-top: 70px;
+        }
+
+        .document-sidebar {
+            width: var(--sidebar-width);
+            background: var(--card-background);
+            border-right: 1px solid var(--border-color);
+            position: sticky;
+            top: 70px;
+            height: calc(100vh - 70px);
+            overflow-y: auto;
+            padding: var(--spacing-lg);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-collapsed .document-sidebar {
+            width: 60px;
+            padding: var(--spacing-md);
+        }
+
+        .sidebar-collapsed .sidebar-content {
+            display: none;
+        }
+
+        .sidebar-toggle {
+            position: fixed;
+            left: var(--sidebar-width);
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1030;
+            background: var(--primary-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 0 50% 50% 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-md);
+        }
+
+        .sidebar-collapsed .sidebar-toggle {
+            left: 60px;
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .sidebar-toggle:hover {
+            background: var(--accent-color);
+        }
+
+        .committee-selector {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .committee-selector select {
+            width: 100%;
+            padding: var(--spacing-sm);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--background);
+            color: var(--text-primary);
+        }
+
+        .document-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .document-list li {
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .document-item {
+            display: block;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--background);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .document-item:hover {
+            background: var(--primary-light);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .document-item.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .document-viewer {
+            flex: 1;
+            padding: var(--spacing-lg);
+            background: var(--background);
+            position: relative;
+        }
+
+        .sidebar-collapsed .document-viewer {
+            width: calc(100% - 60px);
+        }
+
+        .document-header {
+            background: var(--card-background);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .document-search-container {
+            position: sticky;
+            top: 0;
+            background: var(--card-background);
+            padding: var(--spacing-md) 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: var(--spacing-lg);
+            z-index: 10;
+        }
+
+        .document-search-input {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            background: var(--background);
+            color: var(--text-primary);
+            font-size: var(--font-size-sm);
+        }
+
+        .document-search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            width: 0%;
+            z-index: 1050;
+            transition: width 0.1s ease;
+        }
+
+        .document-content {
+            max-width: none;
+            line-height: 1.7;
+        }
+
+        .document-content h1, .document-content h2, .document-content h3 {
+            color: var(--primary-color);
+            margin-top: var(--spacing-xl);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .document-content p {
+            margin-bottom: var(--spacing-md);
+            text-align: justify;
+        }
+
+        .document-placeholder {
+            text-align: center;
+            padding: var(--spacing-2xl);
+            color: var(--text-muted);
+        }
+
+        .document-placeholder .placeholder-icon {
+            font-size: 4rem;
+            margin-bottom: var(--spacing-lg);
+            color: var(--border-color);
+        }
+
+        .scroll-to-top {
+            position: fixed;
+            bottom: var(--spacing-lg);
+            right: var(--spacing-lg);
+            width: 50px;
+            height: 50px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease;
+            z-index: 1040;
+        }
+
+        .scroll-to-top:hover {
+            background: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .scroll-to-top.show {
+            display: flex;
+        }
+
+        .citation-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-md);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .document-sidebar {
+                width: 280px;
+            }
+
+            .sidebar-toggle {
+                left: 280px;
+            }
+
+            .corpus-container {
+                flex-direction: column;
+            }
+
+            .document-sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                max-height: 300px;
+                top: 0;
+            }
+
+            .sidebar-toggle {
+                display: none;
+            }
+
+            .document-viewer {
+                margin-left: 0;
+            }
+
+            .sidebar-collapsed .document-viewer {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+
+        /* Search highlighting */
+        .highlight {
+            background: var(--highlight-color);
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        body.dark-mode .highlight {
+            background: var(--highlight-color);
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body class="d-flex flex-column">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/enhanced_home">
+                <i class="fas fa-gavel"></i>
+                Special Procedures Browser
+            </a>
+
+            <button class="navbar-toggler" type="button" data-toggle="collapse"
+                    data-target="#navbarNav" aria-controls="navbarNav"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/enhanced_home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/enhanced">Enhanced Search</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/enhanced_about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/enhanced_browse">Browse Texts</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/enhanced_procedures">Special Procedures</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://lszoszk.github.io/">Contact</a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="dark-mode-toggle" class="nav-link" href="#" title="Toggle Dark Mode">
+                            <i class="fas fa-moon"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Progress Bar -->
+    <div id="scroll-progress-bar" class="progress-bar"></div>
+
+    <!-- Main Content Area -->
+    <div class="corpus-container">
+
+        <!-- Document Sidebar -->
+        <div class="document-sidebar">
+            <div class="sidebar-content">
+                <!-- Committee Selector -->
+                <div class="committee-selector">
+                    <label class="form-label font-weight-medium">
+                        <i class="fas fa-users-cog text-primary mr-2"></i>
+                        Select Special Procedure
+                    </label>
+                    <select class="form-control" onchange="loadSPDocuments(this.value)">
+                        <option value="">Choose a Mandate...</option>
+                        {% for committee in committees %}
+                            <option value="{{ committee }}">{{ committee }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Document List -->
+                <div class="document-list-container">
+                    <h6 class="text-muted mb-3">
+                        <i class="fas fa-file-alt mr-2"></i>
+                        Available Reports
+                    </h6>
+                    <ul class="document-list">
+                        <!-- Document list will be populated here -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Toggle Button -->
+        <div class="sidebar-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-chevron-left"></i>
+        </div>
+
+        <!-- Document Viewer -->
+        <div class="document-viewer">
+            <!-- Document Search -->
+            <div class="document-search-container">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-transparent border-0">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                    </div>
+                    <input type="text"
+                           id="documentSearchInput"
+                           class="form-control border-0 document-search-input"
+                           placeholder="Search within current document...">
+                </div>
+            </div>
+
+            <!-- Document Content -->
+            <div class="document-content">
+                <div class="document-placeholder">
+                    <div class="placeholder-icon">
+                        <i class="fas fa-gavel"></i>
+                    </div>
+                    <h4 class="mb-3">Special Procedures Browser</h4>
+                    <p class="text-muted">
+                        Select a Special Procedure mandate from the sidebar to browse available reports and documents.
+                    </p>
+                    <div class="mt-4">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Browse full reports from UN Special Rapporteurs and Working Groups
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <button id="scrollToTopBtn" class="scroll-to-top" title="Scroll to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        let currentDocumentInfo = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // Dark mode toggle functionality
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+            const darkModeIcon = darkModeToggle.querySelector('i');
+
+            // Load saved dark mode preference
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                darkModeIcon.className = 'fas fa-sun';
+            }
+
+            darkModeToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.body.classList.toggle('dark-mode');
+
+                const isDarkMode = document.body.classList.contains('dark-mode');
+                localStorage.setItem('darkMode', isDarkMode);
+                darkModeIcon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+            });
+
+            // Scroll progress bar
+            window.addEventListener('scroll', function() {
+                const scrollTop = window.pageYOffset;
+                const docHeight = document.body.offsetHeight;
+                const winHeight = window.innerHeight;
+                const scrollPercent = scrollTop / (docHeight - winHeight);
+                const scrollPercentRounded = Math.round(scrollPercent * 100);
+
+                document.getElementById('scroll-progress-bar').style.width = scrollPercentRounded + '%';
+            });
+
+            // Scroll to top button
+            const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    scrollToTopBtn.classList.add('show');
+                } else {
+                    scrollToTopBtn.classList.remove('show');
+                }
+            });
+
+            scrollToTopBtn.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+
+            // Document search functionality
+            const documentSearchInput = document.getElementById('documentSearchInput');
+            let searchTimeout;
+
+            documentSearchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                const searchTerm = this.value.trim();
+
+                searchTimeout = setTimeout(() => {
+                    if (searchTerm) {
+                        highlightSearchTerm(searchTerm);
+                    } else {
+                        clearHighlights();
+                    }
+                }, 300);
+            });
+
+            // Google Analytics tracking
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'page_view', {
+                    'event_category': 'Special Procedures Browser',
+                    'event_label': 'Browse SP Reports'
+                });
+            }
+        });
+
+        // Sidebar toggle functionality
+        function toggleSidebar() {
+            document.body.classList.toggle('sidebar-collapsed');
+
+            // Track the toggle event
+            if (typeof gtag !== 'undefined') {
+                const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+                gtag('event', 'sidebar_toggle', {
+                    'event_category': 'SP UI Interaction',
+                    'event_label': isCollapsed ? 'Collapsed' : 'Expanded'
+                });
+            }
+        }
+
+        // Load Special Procedures documents
+        function loadSPDocuments(committee) {
+            if (!committee) {
+                document.querySelector('.document-list').innerHTML = '';
+                return;
+            }
+
+            fetch(`/get_sp_documents/${encodeURIComponent(committee)}`)
+                .then(response => response.json())
+                .then(documents => {
+                    const documentList = document.querySelector('.document-list');
+                    documentList.innerHTML = '';
+
+                    documents.forEach(doc => {
+                        const li = document.createElement('li');
+                        const link = document.createElement('a');
+                        link.href = '#';
+                        link.className = 'document-item';
+                        link.textContent = doc.name;
+                        link.setAttribute('data-doc-id', doc.id);
+                        link.onclick = (e) => {
+                            e.preventDefault();
+                            loadSPDocument(doc.id, link);
+                        };
+                        li.appendChild(link);
+                        documentList.appendChild(li);
+                    });
+
+                    // Track committee selection
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'sp_committee_select', {
+                            'event_category': 'SP Document Browse',
+                            'event_label': committee
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading documents:', error);
+                });
+        }
+
+        // Load Special Procedures document content
+        function loadSPDocument(documentId, linkElement) {
+            // Remove active class from all items
+            document.querySelectorAll('.document-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Add active class to clicked item
+            linkElement.classList.add('active');
+
+            fetch(`/get_sp_document/${encodeURIComponent(documentId)}`)
+                .then(response => response.json())
+                .then(doc => {
+                    currentDocumentInfo = doc;
+                    const content = document.querySelector('.document-content');
+
+                    let headerHtml = `
+                        <div class="document-header">
+                            <h2>${doc.title}</h2>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-1"><strong>Committee:</strong> ${doc.committee || 'N/A'}</p>
+                                    <p class="mb-1"><strong>Year:</strong> ${doc.adoption_year || 'N/A'}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-1"><strong>Signature:</strong> ${doc.signature || 'N/A'}</p>
+                                    ${doc.link ? `<p class="mb-1"><strong>Source:</strong> <a href="${doc.link}" target="_blank">View Original</a></p>` : ''}
+                                </div>
+                            </div>
+                            <div class="citation-actions">
+                                <button class="btn btn-sm btn-outline-primary" onclick="copyCitation()">
+                                    <i class="fas fa-copy mr-1"></i> Copy Citation
+                                </button>
+                                ${doc.link ? `<a href="${doc.link}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-external-link-alt mr-1"></i> View Source
+                                </a>` : ''}
+                            </div>
+                        </div>
+                    `;
+
+                    let paragraphsHtml = '';
+                    if (doc.paragraphs && doc.paragraphs.length > 0) {
+                        paragraphsHtml = doc.paragraphs.map(para => `<p>${para}</p>`).join('');
+                    } else {
+                        paragraphsHtml = '<p class="text-muted">No content available.</p>';
+                    }
+
+                    content.innerHTML = headerHtml + paragraphsHtml;
+
+                    // Track document view
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'sp_document_view', {
+                            'event_category': 'SP Document Browse',
+                            'event_label': doc.title
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading document:', error);
+                    document.querySelector('.document-content').innerHTML = '<p class="text-danger">Error loading document.</p>';
+                });
+        }
+
+        // Copy citation functionality
+        function copyCitation() {
+            if (!currentDocumentInfo) return;
+
+            const citation = `${currentDocumentInfo.committee || 'UN Special Procedures'}. "${currentDocumentInfo.title}". ${currentDocumentInfo.signature || ''}. ${currentDocumentInfo.adoption_year || ''}.`;
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(citation).then(() => {
+                    showCopyFeedback();
+                });
+            } else {
+                // Fallback for older browsers
+                const textArea = document.createElement("textarea");
+                textArea.value = citation;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textArea);
+                showCopyFeedback();
+            }
+        }
+
+        function showCopyFeedback() {
+            const button = document.querySelector('button[onclick="copyCitation()"]');
+            const originalHtml = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check mr-1"></i> Copied!';
+            button.classList.add('btn-success');
+            button.classList.remove('btn-outline-primary');
+
+            setTimeout(() => {
+                button.innerHTML = originalHtml;
+                button.classList.remove('btn-success');
+                button.classList.add('btn-outline-primary');
+            }, 2000);
+        }
+
+        // Search highlighting function
+        function highlightSearchTerm(term) {
+            clearHighlights();
+
+            const documentContent = document.querySelector('.document-content');
+            if (!documentContent || !term) return;
+
+            const walker = document.createTreeWalker(
+                documentContent,
+                NodeFilter.SHOW_TEXT,
+                null,
+                false
+            );
+
+            const textNodes = [];
+            let node;
+
+            while (node = walker.nextNode()) {
+                textNodes.push(node);
+            }
+
+            const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+
+            textNodes.forEach(textNode => {
+                if (textNode.textContent.match(regex)) {
+                    const parent = textNode.parentNode;
+                    const highlightedHTML = textNode.textContent.replace(regex, '<span class="highlight">$1</span>');
+
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = highlightedHTML;
+
+                    while (tempDiv.firstChild) {
+                        parent.insertBefore(tempDiv.firstChild, textNode);
+                    }
+                    parent.removeChild(textNode);
+                }
+            });
+        }
+
+        // Clear search highlights
+        function clearHighlights() {
+            const highlights = document.querySelectorAll('.highlight');
+            highlights.forEach(highlight => {
+                const parent = highlight.parentNode;
+                parent.replaceChild(document.createTextNode(highlight.textContent), highlight);
+                parent.normalize();
+            });
+        }
+    </script>
+</body>
+</html>

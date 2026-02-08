@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}{{ case.title }} — ECHR Search{% endblock %}
+
+{% block content %}
+<div class="case-view">
+    <a href="javascript:history.back()" class="back-link">← Back to results</a>
+
+    <header class="case-view-header">
+        <h1 class="case-view-title">{{ case.title }}</h1>
+        <div class="case-view-meta">
+            <span class="meta-item">📋 {{ case.case_no }}</span>
+            <span class="meta-item">📅 {{ case.judgment_date }}</span>
+            <span class="meta-item">🏳️ {% for d in case.defendants %}{{ country_names.get(d, d) }}{% if not loop.last %}, {% endif %}{% endfor %}</span>
+            <span class="meta-item">📜 {{ case.article_no }}</span>
+            {% if case.originating_body %}
+            <span class="meta-item">🏛️ {{ case.originating_body | join(', ') }}</span>
+            {% endif %}
+        </div>
+        {% if case.chamber_composed_of %}
+        <div class="judges-list">
+            <strong>Judges:</strong> {{ case.chamber_composed_of | join(', ') }}
+        </div>
+        {% endif %}
+    </header>
+
+    <!-- In-document search -->
+    <div class="doc-search-bar">
+        <input type="text" id="docSearch" class="doc-search-input"
+               placeholder="Search within this judgment…" oninput="searchInDocument()">
+        <span id="docSearchCount" class="doc-search-count"></span>
+        <select id="sectionFilter" class="section-filter-select" onchange="filterBySection()">
+            <option value="all">All sections</option>
+            {% for s in sections %}
+            <option value="{{ s }}">{{ section_labels.get(s, s) }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    {% if case.violation %}
+    <div class="verdict-box violation">
+        <strong>Violation:</strong> {{ case.violation | join('; ') }}
+    </div>
+    {% endif %}
+    {% if case.get('non-violation') %}
+    <div class="verdict-box non-violation">
+        <strong>No Violation:</strong> {{ case['non-violation'] | join('; ') }}
+    </div>
+    {% endif %}
+
+    <!-- Paragraphs grouped by section -->
+    {% set current_section = namespace(value='') %}
+    {% for para in case.paragraphs %}
+    {% if para.section != 'header' %}
+    {% if para.section != current_section.value %}
+    {% if current_section.value %}
+    </section>
+    {% endif %}
+    {% set current_section.value = para.section %}
+    <section class="doc-section" data-section="{{ para.section }}">
+        <h2 class="section-heading" style="border-bottom-color: {{ section_colors.get(para.section, '#4C72B0') }}">
+            <span class="section-dot" style="background: {{ section_colors.get(para.section, '#4C72B0') }}"></span>
+            {{ section_labels.get(para.section, para.section) }}
+        </h2>
+    {% endif %}
+        <div class="doc-paragraph" data-text="{{ para.text | lower }}" data-section="{{ para.section }}">
+            <span class="doc-para-num">{{ para.para_idx + 1 }}</span>
+            <p class="doc-para-text">{{ para.text }}</p>
+        </div>
+    {% endif %}
+    {% endfor %}
+    {% if current_section.value %}
+    </section>
+    {% endif %}
+
+    {% if case.court_assessment_references and case.court_assessment_references.case_references %}
+    <section class="doc-section">
+        <h2 class="section-heading">Case References</h2>
+        <div class="references-list">
+            {% for ref in case.court_assessment_references.case_references %}
+            <span class="ref-chip">{{ ref }}</span>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function searchInDocument() {
+    const query = document.getElementById('docSearch').value.toLowerCase().trim();
+    const paras = document.querySelectorAll('.doc-paragraph');
+    let count = 0;
+
+    paras.forEach(p => {
+        const text = p.getAttribute('data-text');
+        if (!query) {
+            p.classList.remove('hidden', 'doc-highlight');
+        } else if (text.includes(query)) {
+            p.classList.remove('hidden');
+            p.classList.add('doc-highlight');
+            count++;
+        } else {
+            p.classList.add('hidden');
+            p.classList.remove('doc-highlight');
+        }
+    });
+
+    const countEl = document.getElementById('docSearchCount');
+    countEl.textContent = query ? `${count} paragraphs found` : '';
+}
+
+function filterBySection() {
+    const selected = document.getElementById('sectionFilter').value;
+    const sections = document.querySelectorAll('.doc-section');
+
+    sections.forEach(s => {
+        if (selected === 'all' || s.getAttribute('data-section') === selected) {
+            s.classList.remove('hidden');
+        } else {
+            s.classList.add('hidden');
+        }
+    });
+}
+</script>
+{% endblock %}

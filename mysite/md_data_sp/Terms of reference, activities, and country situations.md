@@ -1,0 +1,666 @@
+![](_page_0_Picture_2.jpeg)
+
+# **Economic and Social Council**
+
+Distr. GENERAL
+
+E/CN.4/1996/39 22 March 1996
+
+ENGLISH ONLY
+
+COMMISSION ON HUMAN RIGHTS Fifty-second session Item 8 of the provisional agenda
+
+> QUESTION OF THE HUMAN RIGHTS OF ALL PERSONS SUBJECTED TO ANY FORM OF DETENTION OR IMPRISONMENT
+
+> > Promotion and protection of the right to freedom of opinion and expression
+
+Report of the Special Rapporteur, Mr. Abid Hussain, pursuant to Commission on Human Rights resolution 1993/45
+
+## CONTENTS
+
+| | Paragraphs | Page |
+|-------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|------|
+| Introduction | 1<br>-<br>3 | 2 |
+| I.<br>TERMS<br>OF<br>REFERENCE | 4<br>-<br>5 | 2 |
+| II.<br>ACTIVITIES | 6<br>-<br>13 | 2 |
+| III.<br>COUNTRY<br>SITUATIONS | 14<br>-<br>146 | 4 |
+| IV.<br>CONCLUSIONS<br>AND<br>RECOMMENDATIONS | 147<br>-<br>155 | 24 |
+| Annex:<br>The<br>Johannesburg<br>Principles<br>on<br>National<br>Security,<br>Freedom<br>of<br>Expression<br>and<br>Access<br>to<br>Information | | 28 |
+
+GE.96-11804 (E)
+
+# Introduction
+
+1. At its forty-ninth session, the Commission on Human Rights decided, by its resolution 1993/45 of 5 March 1993, to appoint, for a period of three years, a special rapporteur on the promotion and protection of the right to freedom of opinion and expression.
+
+2. On 2 April 1993, the Chairman of the Commission appointed Mr. Abid Hussain (India) Special Rapporteur on the promotion and protection of the right to freedom of opinion and expression. The Special Rapporteur, in pursuance of Commission resolutions 1993/45, 1994/33 and 1995/40, submitted reports to the Commission at its fiftieth (E/CN.4/1994/33) and fifty-first (E/CN.4/1995/32) sessions.
+
+3. In conformity with paragraph 18 of Commission resolution 1993/45, the Special Rapporteur hereby presents his third report to the Commission.
+
+# I. TERMS OF REFERENCE
+
+4. As the Special Rapporteur has indicated in his previous reports (E/CN.4/1995/32, para. 12, and E/CN.4/1994/33, para. 40) he would like to touch on certain basic questions concerning the right to freedom of opinion and expression in order to facilitate his work. The Special Rapporteur notes in this context that a number of non-governmental organizations have provided him with useful materials on the consequences for the enjoyment of the right to freedom of opinion and expression of applying national legislation aimed at protecting national security. In particular, the London-based organization Article 19, the International Centre against Censorship submitted the Johannesburg Principles on National Security, Freedom of Expression and Access to Information, drafted by a group of experts in international law, national security and human rights. The Special Rapporteur finds that these Principles offer useful guidance in assessing the often competing claims of freedom of expression and national security. The Principles are contained in the annex to the present report.
+
+5. The Special Rapporteur refers to resolution 1995/4, entitled "Prevention of incitement to hatred and genocide, particularly by the media", adopted on 18 August 1995 by the Sub-Commission on Prevention of Discrimination and Protection of Minorities, and has followed with great interest the Sub-Commission's consideration of the pernicious role of the so-called "hate media".
+
+#### II. ACTIVITIES
+
+6. During 1995, the Special Rapporteur received a substantially larger number of detailed allegations concerning cases of violation of the right to freedom of opinion and expression than during the previous year. As was the case for his 1995 report to the Commission (E/CN.4/1995/32), the Special Rapporteur was only able to transmit a limited number of requests for information to some Governments, owing to insufficient financial and human resources. In this connection, he recalls the concerns raised in paragraphs 92 to 95 of his previous report. Those concerns are also valid
+
+with regard to the year under review in the present report. In view of the substantially larger number of allegations he has received, however, this difficult situation has become more acute.
+
+7. As a consequence of the difficult circumstances surrounding his work, the incorrect impression might be given that the Special Rapporteur is concerned with only a limited number of countries, namely those included in chapter III below, whereas in reality he is concerned with a much larger number of countries. Furthermore, this impression risks being reinforced in that the report reflects communications with Governments that are engaged in a dialogue with the Special Rapporteur for the purpose of seeking to promote and protect the right to freedom of opinion and expression. In order to put his concerns in proper perspective, the Special Rapporteur in this report presents the Commission with the list of the States concerning which he has received information relating to events that took place in 1995. The preliminary consideration of these events has raised questions on the adequacy of the protection of the right to freedom of opinion and expression as guaranteed in the Universal Declaration of Human Rights and the International Covenant on Civil and Political Rights. The following 103 States and territories are concerned: Afghanistan, Albania, Algeria, Angola, Argentina, Armenia, Azerbaijan, Bahrain, Bangladesh, Belarus, Bolivia, Bosnia and Herzegovina, Botswana, Brazil, Burundi, Cambodia, Cameroon, Canada, Central African Republic, Chad, Chile, China, Colombia, Congo, Costa Rica, Côte d'Ivoire, Croatia, Cuba, Democratic People's Republic of Korea, Ecuador, Egypt, El Salvador, Ethiopia, France, Gambia, Greece, Guatemala, Guinea, Haiti, India, Indonesia, Iran (Islamic Republic of), Iraq, Israel, Jordan, Kazakstan, Kenya, Kyrgyzstan, Latvia, Lebanon, Libyan Arab Jamahiriya, Lithuania, Malawi, Malaysia, Maldives, Mali, Mauritania, Mauritius, Republic of Moldova, Morocco, Mozambique, Myanmar, Namibia, Nepal, Niger, Nigeria, Palestine, Paraguay, Pakistan, Peru, Philippines, Republic of Korea, Romania, Russian Federation, Rwanda, Sao Tome and Principe, Senegal, Sierra Leone, Singapore, Somalia, South Africa, Sri Lanka, Sudan, Swaziland, Syrian Arab Republic, Tajikistan, Tanzania, Togo, Tunisia, Turkey, Turkmenistan, Uganda, Ukraine, United Kingdom of Great Britain and Northern Ireland, United States of America, Uruguay, Uzbekistan, Vanuatu, Viet Nam, Yugoslavia, Zaire, Zambia and Zimbabwe.
+
+8. From 10 to 13 December 1994, in Aman, the Special Rapporteur attended the Round Table Conference on Strengthening the Universality of Human Rights, which he addressed. It was organized by the International Movement for the Promotion and Realization of Human Rights and Responsibilities, Rights and Humanity, under the patronage of His Royal Highness El Hassan bin Talal, Crown Prince of the Hashemite Kingdom of Jordan. He is grateful for having been provided with the opportunity to attend this meeting, which served to build greater understanding of Western and Islamic views on human rights and strengthen global commitment to universal human rights.
+
+9. On 22 May 1995, in London, the Special Rapporteur met with representatives of a number of non-governmental organizations active in the promotion and protection of the right to freedom of opinion and expression and a representative of the Communication Division of the United Nations Educational, Scientific and Cultural Organization for the purpose of
+
+exchanging views on work related to his mandate. The Special Rapporteur would like to express his gratitude to the host organization, Article 19, the International Centre against Censorship, and all participants for their valuable contribution to his work.
+
+10. The Special Rapporteur attended the Fourth World Conference on Women, held in Beijing from 4 to 15 September 1995. At a symposium on the issue of violence against women, the Special Rapporteur emphasized the importance of protecting the right to freedom of opinion and expression of women as a prerequisite for the effective protection of women against violence. He was impressed with the overwhelming feeling at the World Conference with regard to the need to promote the human rights of women and its concern at the plight of such prominent women as Daw Aung San Suu Kyi and Ms. Taslima Nasreen.
+
+11. From 15 to 17 June 1995, in Stockholm, the Special Rapporteur attended a conference on relations between European and Islamic cultures and the position of Muslims in Europe. Taking advantage of this opportunity, the Special Rapporteur, on 19 June 1995, met with representatives of a number of non-governmental organizations based in Sweden working on freedom of expression and with members of the academic community concerned with human rights.
+
+12. From 25 to 30 June 1995, the Special Rapporteur visited the Republic of Korea. He has submitted a separate report on that visit (E/CN.4/1996/Add.1).
+
+13. From 6 to 10 January 1996, the Special Rapporteur visited the Islamic Republic of Iran. He has submitted a separate report to the Commission on that visit (E/CN.4/1996/Add.2).
+
+#### III. COUNTRY SITUATIONS
+
+14. The Special Rapporteur in this section reports on communications concerning certain countries. For the list of all the countries and territories on which he has received information that raises questions as to the adequacy of protection of the right to freedom of opinion and expression, he refers to paragraph 7 above.
+
+#### Albania
+
+15. By a letter dated 30 June 1994 and two further letters dated 29 September 1994, the Special Rapporteur transmitted to the Government information he had received which led him to assume that the exercise of the right to freedom of opinion and expression of the following press professionals had been subjected to arbitrary interference: Mr. Alexander Frangaj, Mr. Martin Leka, Mr. Teodor Keko, Mr. Shyqyri Meka, Mr. Ilirian Zhupa, Mr. Tassos Dimopoulos, Mr. Kostas Papadopoulos, Mr. Anthi Vavoritou, Mr. Alekos Markellos and Mr. Vassiliki Siouri.
+
+16. The Special Rapporteur regrets that no information has yet been forwarded by the Government on the cases in question.
+
+# Algeria
+
+17. By letter dated 12 December 1994, the Government informed the Special Rapporteur that the following journalists and persons working in the information sector had been killed as a result of terrorist violence between 1 February and 3 December 1994: Mr. Olivier Quemeneur, Mr. Khaled Bougharbal, Mr. Mouloud Baroudi, Mr. Smail Sbaghi, Mr. Lahcène Bensadallah, Mr. Tayeb Bouterfif, Mr. Ziane Farrah, Mr. Kaddour Bensselham, Mr. Mohamed S. Benachour, Mr. Ahmed Issaad, Mr. Yasser Laakal and Mr. Said Mekbel.
+
+18. By letter dated 14 December 1995, the Special Rapporteur conveyed to the Government his concern about the fate of Mr. Hacene Ouandjli, editor of the Algiers-based daily Liberté, and Mr. Outoudert Abrous, director of Liberté. According to information received by the Special Rapporteur, both men were arrested at Algiers airport on 10 December 1995. Reportedly, the Ministry of the Interior ordered the closure of the newspaper, on the same day, for a period of 15 days.
+
+19. By letter dated 18 December 1995, the Special Rapporteur conveyed to the Government his concern about the deliberate killing between 6 January and 5 December 1995 of the following press professionals: Ms. Khedidja Dahmani, Mr. Hamid Mahiout, Mr. Ahmed Belkhefellah, Ms. Saidja Djebaili, Mr. Omar Ouartilan, Mr. Said Brahimi, Ms. Radja Brahimi, Ms. Yasmina Brikh, Mr. Brahim Guaraoui, Mr. Said Tazrout, Mr. Ameur Ouagueni, Ms. Naima Hamouda, Mr. Ahmed Takouchet, Mr. Mourad Hmaizi, Mr. Bakhti Benaouda, Ms. Malika Sabour, Mr. Azzedine Saidj, Mr. Mekhlouf Boukzer, Mr. Mohammed Abderrahmani, Mr. Ali Boukerbache, Ms. Rachida Hammadi, Mr. Djamel Ziater, Mr. Nacer Ouari, Mr. Abdelhamid Yahiaoui, Mr. Ali Abboud and Mr. Zineddine Aliou Salah.
+
+#### Argentina
+
+20. By letter dated 22 June 1994, the Special Rapporteur transmitted to the Government information on incidents which occurred between July and September 1993 of threats of or the use of violence against the following press professionals: Mr. Hernan Lopez Echagüe, Mr. Marcello Bonelli and Mr. Santo Biasatti.
+
+21. The Special Rapporteur regrets that no information has yet been forwarded by the Government on the cases in question.
+
+# Bangladesh
+
+22. By letter dated 9 November 1995, the Government informed the Special Rapporteur of a number of issues relating to the case of Ms. Taslima Nasreen, who had been charged with having committed acts offending the religious feelings of a section of the population and whose case was referred to in the Special Rapporteur's previous report to the Commission (E/CN.4/1995/32, paras. 101-103). The Government informed the Special Rapporteur, inter alia, that the intent or implications of Ms. Nasreen's quoted public pronouncement, and not her views or opinions themselves, had been considered to constitute a violation of article 295 (A) of the Penal Code, which guaranteed the rights of all religious communities to non-discriminatory protection by the State.
+
+The Government informed the Special Rapporteur that action had been initiated under the law for the purpose of protecting public order and respecting the rights and reputations of others.
+
+23. The Special Rapporteur notes decision No. 5/1995 of the Working Group on Arbitrary Detention concerning the press professionals, Mr. Toab Khan and Mr. Borhan Ahmed, who have been charged and imprisoned under article 295 (A) of the Penal Code (the same article under which Ms. Nasreen has been charged) for "insults to the religious feelings of the Muslim community of Bangladesh" in relation to an article, published by the defendants on 12 May 1994, focusing on an interpretation of the Koran by a group of religious scholars.
+
+#### Brazil
+
+24. By letter dated 26 September 1994, the Special Rapporteur transmitted to the Government information alleging intimidation of and the use of violence against Mr. Reinaldo Cabral, a correspondent in the State of Alagoas of the Rio de Janeiro based newspaper Jornal do Brazil.
+
+25. The Special Rapporteur regrets that no information has yet been forwarded by the Government on this case.
+
+#### Cameroon
+
+26. In a letter dated 28 March 1994, the Special Rapporteur transmitted information to the Government concerning the fate of the journalists Mr. Ndame Maloune and Mr. Jacques Doumbe, who allegedly were arrested on 3 November 1993 and subjected to torture by police officers after attending a press conference that reportedly had been prohibited by the authorities. In a letter dated 5 October 1994, the Special Rapporteur transmitted information to the Government on the seizure of the 21 and 24 March 1994 editions and an order banning the 6 April 1994 edition of the daily Le Messager, reportedly for the purpose of protecting public order.
+
+27. The Special Rapporteur regrets that no information has yet been forwarded by the Government on the cases in question.
+
+## China
+
+28. The Special Rapporteur received information alleging the persecution of press professionals and other persons seeking to exercise the right to freedom of expression, including the right to seek and receive information. In relation to this information, the Special Rapporteur sent the following communications to the Government.
+
+29. By letter dated 2 September 1994, he transmitted information on the fate of the following persons: Mr. Liu Nianchun, Mr. Nick Driver, Mr. Matthew Forney, Ms. Caroline Straathof and Ms. Carrie Gracie.
+
+30. By letter dated 7 September 1994, he transmitted information on the fate of Mr. Xi Yang and Mr. Tian Ye.
+
+31. The Special Rapporteur regrets that no information has yet been forwarded by the Government on these cases.
+
+32. By letter dated 14 December 1995, in a joint initiative with the Working Group on Arbitrary Detention and the Special Rapporteur on the independence of judges and lawyers, the Special Rapporteur transmitted information on the fate of Mr. Wei Jingsheng and expressed, inter alia, his concern that the detention and trial of Mr. Wei appeared to be in violation of his right to freedom of opinion and expression.
+
+#### Colombia
+
+33. By letter dated 26 September 1994, the Special Rapporteur transmitted information to the Government alleging threats against the life of a journalist, Mr. Alvaro Martinez Pinzon, in relation to the publication of an article in the press in which it was stated that a military unit was responsible for the death of a child. By letter dated 23 November 1994, the Government informed the Special Rapporteur that the authorities had learned from the person in question that the threats and harassment to which he had been subjected had ceased. The Special Rapporteur took note with appreciation of the protection measures the Government indicated it had offered to Mr. Alvaro Martinez.
+
+34. The Special Rapporteur considers this case closed to his satisfaction.
+
+#### Cuba
+
+35. By letter dated 28 March 1994, the Special Rapporteur transmitted information on the arrest, on 13 August 1993, and detention of Mr. Domiciano Torres Roca, vice-president of the unofficial Civil Democratic Party, on the charge of possessing enemy propaganda. According to this information, Mr. Torres Roca was beaten on his mouth and stomach at the time of his arrest and was held for an unspecified duration at a psychiatric hospital, among persons suffering from grave mental problems. At the time of writing of the letter, Mr. Torres Roca was reportedly held in the El Pitirre prison in Havana.
+
+36. By letter dated 15 December 1995, the Government informed the Special Rapporteur that, upon his arrest, Mr. Torres Roca had been tried by the People's Provincial Court of the City of Havana (case No. 3/91); that he had repeatedly committed common criminal acts and had also distributed, spread and systematically dispatched to foreign countries false and distorted information about the situation in Cuba; that he had gone beyond the exercise of the rights enshrined in the Universal Declaration of Human Rights and the Constitution of the Republic of Cuba by acting in breach of the provisions of the criminal law in force; and that he had been tried with all legal guarantees.
+
+37. The Special Rapporteur refers to decision No. 46/1994 adopted on 1 December 1994 by the Working Group on Arbitrary Detention, in which the detention of Mr. Rocca was considered to be arbitrary, falling under category II of its terms of reference. (See E/CN.4/1996/40/Add.1; the text of the decision is issued in Spanish only.)
+
+#### Egypt
+
+38. By letter dated 26 September 1994 the Special Rapporteur transmitted information to the Government on the arrest of Mr. Ibrahim Saad, a journalist with the Middle East News Agency. According to this information, Mr. Saad had been arrested for allegedly belonging to an illegal organization called El-Gama'a El-Islamiyya and had had no access to legal representation after his arrest.
+
+39. By letter dated 1 November 1994, the Government informed the Special Rapporteur that Mr. Ibrahim Saad, whose full name is Ibrahim al-Sayyid Muhammad Musaad, had been taken into custody for questioning by the Department of Public Prosecutions in Higher State Security Case No. 235 of 1994, relating to the "blowing up of banks", and that a lawyer had been present during questioning.
+
+40. By letter dated 22 June 1994, the Special Rapporteur transmitted information to the Government concerning the trial of 13 defendants who had been charged with involvement in the killing of a writer, Mr. Faraj Foda. Allegedly, one of the defendants, Sheik Muhammad Ghazali, a religious scholar had stated in his defence that anyone who opposed the application of Sharia law was "an apostate liable to be killed"; he had cited the opinion of renowned religious scholars that "killing Faraj Foda was our Islamic duty".
+
+41. By letter dated 26 September 1994, the Special Rapporteur transmitted information to the Government on the arrest and detention in a military prison of Mr. Abdel-Sattar Abu-Hussein, a journalist with the daily Al-Shaab. According to this information, Mr. Hussein had been interrogated in the absence of a lawyer and charged with publishing classified information concerning proposed joint international military manoeuvres. Reportedly, this information was confirmed later in a public statement by the Minister of Defence.
+
+42. The Special Rapporteur regrets that no information has yet been forwarded by the Government on the two above-mentioned cases.
+
+#### Ethiopia
+
+43. By letter dated 2 September 1994, the Special Rapporteur transmitted information to the Government alleging the disappearance of a journalist, Mr. Negusse Gamma, and indicating that his relatives did not know his whereabouts.
+
+44. By letter dated 3 July 1995, the Government informed the Special Rapporteur that Mr. Gamma, editor of the newspaper Taffa, had been briefly detained under a court order for publishing material contrary to the Press Law and the criminal laws of the country and that his case had been investigated initially by the police under file number 3186 and subsequently by the public prosecutor under file number 53886. The Government specified that no information had been brought to the attention of the law enforcement officials substantiating the alleged disappearance of Mr. Gamma and indicated that the files in question could be examined through the proper legal procedure by any interested party.
+
+#### Gabon
+
+45. By letter dated 30 June 1994, the Special Rapporteur transmitted information to the Government alleging the arrest and incommunicado detention of a radio newsreader, Mr. Nang Vecka-Brice, and the ransacking and burning by Presidential Guard military personnel, amid civil unrest, of the premises of the radio station Radio Liberté in Libreville.
+
+46. The Special Rapporteur regrets that no information has yet been forwarded by the Government on this case.
+
+#### Georgia
+
+47. By letter dated 20 June 1994, the Special Rapporteur transmitted information alleging threats by the authorities against Mr. Elizbar Javelidze, editor-in-chief of the daily Sakartvelos Samreklos, and Mr. Gotsirizde, editor-in-chief of the daily Iberia Spektr, causing Mr. Javelidze to feel compelled to hide.
+
+48. The Special Rapporteur regrets that no information has yet been forwarded by the Government on this case.
+
+#### Indonesia
+
+49. By letter dated 26 September 1994, the Special Rapporteur transmitted information to the Government concerning the fate of Mr. Nuku Suleiman. According to this information Mr. Suleiman, a student and human rights activist, was arrested on 25 November 1993 and sentenced to four years' imprisonment on 24 February 1994 for having distributed, during a peaceful protest outside the building of the National Parliament, stickers on which the acronym for a well-known lottery, SDSB, was paraphrased to convey the following opinion on the President: "Suharto is the mastermind of all disasters" ("Suharto Dalang Segala Bencana"). Reportedly, the stickers cited allegations of human rights violations committed by the security forces during the President's term of office. Reportedly, the trial of Mr. Suleiman lacked fairness, since the District Court of Central Jakarta had allowed 19 witnesses for the prosecution to be heard and only 1, out of a requested 17, for the defence.
+
+50. By letter dated 4 November 1994, the Government, promptly and in detail, informed the Special Rapporteur, inter alia, of the following: that Mr. Suleiman had staged a demonstration against the national lottery, intentionally distributing his defamatory stickers and at the same time launching baseless allegations and further defamatory statements against the President; that he had been arrested for publicly speaking and publishing the defamatory statement, injuring the reputation of the President and diminishing esteem, respect, good will or confidence towards him, all of which amounted to a criminal offence; that the prosecutor's indictment was not against the act of distribution per se, but the wilful intent of Mr. Suleiman to defame the President, in violation of article 134 of the Penal Code, which stipulated the offence to be punishable by up to six years' imprisonment; that the prosecutor had contended the defendant should be imprisoned for six years; that most of
+
+the 17 witnesses to vindicate Mr. Suleiman were not by any means directly or indirectly related to the defamation case nor could they be considered as expert witnesses.
+
+51. The Government also informed the Special Rapporteur that the panel of judges of the Court of First Instance of Central Jakarta had found Mr. Suleiman guilty on the charge of defamation of the President, considering that he had had the deliberate intention of injuring the reputation of, or of provoking adverse, derogatory or unpleasant feelings or opinions against the President; that by distributing his defamatory stickers to more than four persons and launching baseless and unsubstantiated allegations, he had had the intention to expose the President to contempt, hatred, ridicule or obloquy; and that Mr. Soleiman, by not making any attempt whatsoever to seek clarification as to whether the content of the defamatory statement was true or false, plainly had shown that an element of malice existed.
+
+52. The Government furthermore informed the Special Rapporteur that, upon appeal by the defence counsel, the Appellate Court of Jakarta, on 26 May 1994, had decided that Mr. Suleiman's sentence was to be increased to five years' imprisonment, considering the contempt of court shown by the defendant, his obstruction of court proceedings and the fact that he was a second offender.
+
+53. The Government expressed the view that in exercising his right to freedom of opinion and expression, Mr. Suleiman was substantially not protected by the Universal Declaration of Human Rights and the International Covenant on Civil and Political Rights and that his evil intent and malice constituted nothing but a violation of article 29 of the Universal Declaration of Human Rights and article 19.3 of the International Covenant on Civil and Political Rights.
+
+54. The Special Rapporteur refers to decision 31/1994, adopted on 29 September 1994 by the Working Group on Arbitrary Detention, in which the detention of Mr. Suleiman was considered to be arbitrary, falling under categories II and III of its terms of reference (see E/CN.4/1995/31/Add.2).
+
+#### Islamic Republic of Iran
+
+55. From 6 to 10 January 1996, the Special Rapporteur undertook a visit to the Islamic Republic of Iran, on which he has reported separately to the Commission at its present session (E/CN.4/1996/39/Add.2).
+
+#### Ireland
+
+56. By letter dated 11 October 1994, the Special Rapporteur transmitted information to the Government on the issuance of a writ for the arrest of Ms. Susan O'Keeffe, a journalist and a British national, for her refusal to reveal sources when she disclosed, in a television programme, the existence of illegal practices in the beef industry.
+
+57. The Special Rapporteur regrets that no information has yet been forwarded by the Government on this case.
+
+Israel
+
+58. By letter dated 22 June 1994, the Special Rapporteur transmitted information to the Government on the fate of the press professionals working in the Gaza area. Allegedly, on 21 June 1993, Mr. Majdi al-Arabid, a cameraman for Worldwide Television News was shot in the leg by an army officer who threatened to shoot Mr. Al-Arabid in the head if he were to continue filming a clash between demonstrators and soldiers in a refugee camp. Allegedly, Mr. Talal Abu Rahma, a reporter with Cable News Network (CNN) was arrested and detained by military personnel during a raid on his apartment and was forced, during his detention, to stand barefoot on a burning hot floor. Allegedly, Mr. Ahmad Jadallah, a photographer for Reuters, was assaulted by military personnel and had his film confiscated after he had taken photographs of military personnel beating a taxi driver.
+
+59. By letter dated 25 July 1994, the Special Rapporteur transmitted information to the Government on the assault by a group of armed individuals on Mr. Robert Friedman, a freelance reporter on assignment for the weekly New Yorker, on 10 January 1994, in the West Bank settlement of Kfar Tapauch. Reportedly, after having fought off his attackers, Mr. Friedman attempted to file a complaint at the police station of the settlement of Ariel, where officers were reluctant to take his statement and refused to cooperate in identifying his assailants. Reportedly, Mr. Friedman has been receiving death threats since 1988, in relation to a book written by him, entitled The False Prophet.
+
+60. By letter dated 5 October 1994, the Special Rapporteur transmitted information to the Government on the wounding by a rubber bullet, fired by military personnel, of a journalist, Hervé Deguine, while he was talking to a number of Palestinians in Jericho on 11 May 1994. Reportedly, during the first nine months of 1994, at least seven journalists were wounded and at least five arrested and briefly detained by military personnel in Gaza and Transjordan. Furthermore, the authorities reportedly banned the access to certain areas of the occupied territories to journalists.
+
+61. By letter dated 5 October 1994, the Special Rapporteur transmitted information to the Government on the wounding, by military personnel, of Mr. Hicham Charabati, a cameraman for Worldwide Television News, and Mr. Pierre Haski, correspondent of the daily Libération, in Halhoul, Transjordan, on 3 April 1994.
+
+62. By letter dated 11 October 1994, the Special Rapporteur transmitted information on the arrest of Mr. Adnan Abu Hasna, correspondent for Qatar Radio and the daily Al-Quds, at his home in Gaza City, on 25 April 1994.
+
+63. The Special Rapporteur regrets that no information has yet been forwarded by the Government on the cases in question.
+
+# Kenya
+
+64. By letter dated 30 June 1994, the Special Rapporteur transmitted information to the Government on the confiscation of 10,000 copies of the magazine Finance and the seizure of an unspecified number of copies of the
+
+magazines Society and Economic Review from the Colourprint printing house on 1 August 1994. Allegedly, police officers had forcibly entered the printing house, had beaten up the watchman, Mr. Edo Hussein, threatened to kill another employee who was present and warned a reporter of the Daily Nation covering the police action to "disappear with that pen immediately or we [will] come for you. You have no business being here."
+
+65. By letter dated 26 September 1994, the Special Rapporteur transmitted information on the arrest of Mr. Ngumo Wa Kuria and Mr. Peter Makori (on 16 March 1994) and Mr. Kamau Kanyanga and Mr. John Nyaosi (on 23 March 1994), all press professionals with the publication Standard. Allegedly these persons had been charged with subversive activities and were released on bail on 31 March 1994. Also, the Special Rapporteur transmitted information on the arrest, on 11 April 1994, of a Daily News journalist Mr. Mutegi Njau. Reportedly, his arrest was related to an article he had published on inter-ethnic conflicts in the country.
+
+66. By letter dated 26 September 1994, the Special Rapporteur transmitted information to the Government on the arrest, on 13 June 1994, of Mr. Bedan Mbugua, editor-in-chief of The People, and Mr. David Makali, a journalist with that weekly, on charges of contempt of court, allegedly for the publication of an article critical of a court decision to dismiss a number of scholars who had attempted to establish a trade union and for stating that the decision of the court had been influenced by the Government.
+
+67. By letter of 26 September 1994, the Special Rapporteur transmitted information to the Government on the deportation to Australia, by the Kenyan immigration service, of Mr. John Lawrence, an Australian national and a correspondent for the Melbourne daily The Age and journalist with the Kenyan Daily Nation. Allegedly, the authorities stated Mr. Lawrence's continued stay in Kenya was against the country's interest. Allegedly, the deportation was related to an article published by Mr. Lawrence on 27 June 1994 that was critical of a government decision to recruit medical doctors from India and Pakistan for the purpose of replacing Kenyan medical doctors on strike.
+
+68. The Special Rapporteur regrets that no information has yet been forwarded by the Government on the cases in question.
+
+#### Democratic People's Republic of Korea
+
+69. The Special Rapporteur refers to paragraph 2 of Addendum 1 to the present report. It is his intention to visit the Democratic People's Republic of Korea at the Government's earliest convenience.
+
+#### Republic of Korea
+
+70. From 25 to 30 June 1995, the Special Rapporteur undertook a visit to the Republic of Korea, on which he has reported separately to the Commission at its current session (E/CN.4/1996/39/Add.1).
+
+# Lebanon
+
+71. By letter dated 22 June 1994, the Special Rapporteur transmitted information to the Government on the closure of the dailies Nida' al-Watan (on 30 April 1993), Al-Safir (on 11 May 1993) and Al-Sharq (on 28 May 1993) and the television network ICN TV (on 29 April 1994), reportedly because they had published and broadcast material critical of government policies. Allegedly, in connection with these closures, the press professionals Mr. Muhammad Shams al-Din, Mr. Faisal Salman and Mr. Ibrahim al-Amin had been charged and were facing three years' imprisonment.
+
+72. The Special Rapporteur regrets that no information has yet been forwarded by the Government on the cases in question.
+
+# Malaysia
+
+73. By letter dated 2 September 1994, the Special Rapporteur transmitted information to the Government on the deportation to the Philippines of Ms. Leah Palma Makabenta, Kuala Lumpur correspondent for Inter Press Service and a national of the Philippines. According to this information, Ms. Makabenta was informed, on 25 March 1994, by the Director-General of Immigration that the Government intended to cancel her press pass owing to an article published by her that threatened national security. Reportedly, the Director-General declined to indicate the article in question. Allegedly, Ms. Makabenta's press pass was revoked on 1 April 1994 and she was ordered to leave the country within 48 hours. On 3 April, the Deputy Home Affairs Minister reportedly stated that Ms. Makabenta had been deported for writing a "very negative" article on the mistreatment of migrant labourers from neighbouring countries. Reportedly, the Deputy Minister announced, on 6 March 1994, that all foreign journalists who published what the Government considered to be negative reports on Malaysia would be banned from working in the country. Reportedly, this statement was delivered two weeks after the publication, in the British newspaper Sunday Times, of a report that a British contractor had made "special payments" totalling US\$ 50,000 to Malaysian politicians "at the highest level" while bidding for a contract to build an aluminium smelter. Reportedly, in this statement, the Deputy Minister also announced an investigation to determine whether any Malaysian national had collaborated in compiling the Sunday Times report.
+
+74. The Special Rapporteur regrets that no information has yet been forwarded by the Government on the cases in question.
+
+#### Mexico
+
+75. By letter dated 27 September 1994, the Special Rapporteur transmitted information to the Government on anonymous threats against the following press professionals, all working with the daily La Jornada: Mr. Carlos Payan Velver, Ms. Carmen Lira, Ms. Blanche Petrick, Mr. Josetxo Zaldua, Mr. Elio Henriquez and Mr. Gaspar Morquecho. According to this information, a group referred to as the "Mexican Anti-Communist Movement" had started a libel campaign against the daily, which it considered to be the organ of an
+
+organization named the "Zapatist Army of National Liberation". Reportedly, on 3 January 1994, another journalist of La Jornada, Mr. Ismael Romero, was wounded by bullets in Chiapas.
+
+76. The Special Rapporteur regrets that no information has yet been forwarded by the Government on the cases in question.
+
+#### Morocco
+
+77. By letter dated 5 October 1994, the Special Rapporteur transmitted information to the Government on the seizure by customs officers at Casablanca airport, on 8 June 1994, of half of the 6,000 copies of the weekly Jeune Afrique destined for distribution in Morocco and of a similar number of copies of the same weekly from news-stands throughout the country, on 30 May 1994. According to this information, customs officers have been instructed not to allow the import of over 3,000 copies per issue of the weekly.
+
+78. The Special Rapporteur regrets that no information has yet been forwarded by the Government on the matter in question.
+
+#### Myanmar
+
+79. By letter dated 27 June 1994, the Special Rapporteur transmitted information to the Government on the arrest (in August 1993) and sentencing to 20 years' imprisonment (in October 1993) of Dr. Ma Thida, a physician, writer and political activist, for "endangering public tranquillity, having contact with unlawful organizations and distributing unlawful literature".
+
+80. The Special Rapporteur regrets that no information has yet been forwarded by the Government on this case.
+
+# Nigeria
+
+81. By letter dated 1 September 1994, the Special Rapporteur transmitted the following information to the Government. Reportedly, between 21 and 23 July 1993, the police raided and closed down the offices of the Concord Press (publisher of the National Concord, the African Concord and at least six other publications), the dailies Punch and Newsday, the Sketch Group (publisher of the Daily Sketch and the Sunday Sketch) and the publication The Observer. Reportedly, on 16 August 1994, the Government issued Decree 48 proscribing the publications of the Concord Press and the Sketch Group, and also Punch and The Observer. Reportedly, the previously issued Decree 43 had established a press registration board whose chairman was to be appointed by the Government, required all newspapers to register annually with the Government against payment of a registration fee referred to as "steep", and rendered the publication of "false information" punishable by a prison term of 10 years or a fine equalling US\$ 11,000. Reportedly, on various dates in 1993 and 1994, the following persons were arrested: Mr. Nosa Igiebo, Mr. Onome Osifo-Whiskey, Mr. Kolawole Ilori, Mr. Kayode Akinkuotu (all four editors with the magazine Tell), Mr. Yinka Tella (reporter for The News), Mr. Ken Saro-Wiwa (writer and President of the Association of Nigerian Authors) and Mr. Chris Okolie (editor-in-chief and publisher of Newbreed Magazine).
+
+82. By letter dated 26 September 1994, the Special Rapporteur transmitted information to the Government on the arrest, incommunicado detention and deportation to the United States of America of Ms. Geraldine Brooks, a reporter for the United States based daily Wall Street Journal, and the confiscation of her material, in April 1994. Also, the Special Rapporteur transmitted information on the arrest, on 7 April 1994, of Mr. Dan Agbesse, Mr. Ray Ekpu and Mr. Yakubu Mohammed, press professionals working or having worked for the publication Newswatch, and on the alleged detention without charge of Mr. Alex Kabaa, a press professional working for the publication The News.
+
+83. By letter of 26 September 1994, the Special Rapporteur transmitted additional information to the Government on the arrest, on 22 May 1994, of Mr. Ken Saro-Wiwa. According to this information, Mr. Saro-Wiwa was being held incommunicado in military detention in Port Harcourt, was being denied access to medical services while in need of regular medication to control high blood pressure, and had not been charged - although he had been publicly accused by the Military Administrator of Rivers State of having incited the killing of four prominent members of the Ogoni minority. Furthermore, reportedly, Mr. Saro-Wiwa had previously been held incommunicado in military detention for a number of weeks in or around July 1993 in relation to the exercise of his right to freedom of expression and, reportedly, during this period of detention he had suffered heart attacks and was denied medical attention.
+
+84. The Special Rapporteur regrets that no information has yet been forwarded by the Government on the cases in question.
+
+85. By letter dated 10 November 1995, the Special Rapporteur conveyed to the Government his concern with regard to the fate of Mr. Ken Saro-Wiwa. The Special Rapporteur stated he had received information which led him to assume that the exercise of the right to freedom of opinion and expression by Mr. Saro-Wiwa had been subjected to arbitrary interference, that he had been sentenced to death by hanging on charges of incitement to murder and that his sentence had been upheld in last instance on 9 November 1995. The Special Rapporteur strongly urged the Government not to carry out the sentence on Mr. Saro-Wiwa in view of the many questions that had arisen with respect to the fairness and legality of the procedures followed in his trial.
+
+86. On the same day, 10 November 1995, the Special Rapporteur received information indicating that Mr. Saro-Wiwa had been executed in the early morning of that day.
+
+87. By letter dated 20 November 1995, the Government replied to the Special Rapporteur's letter of 10 November 1995, providing the Special Rapporteur with a description of events surrounding the case of Mr. Saro-Wiwa. The Government also informed the Special Rapporteur, inter alia, that Mr. Saro-Wiwa had been charged, under Charge No. OCDT/PH/1/95, as follows:
+
+"As President of MOSOP [Movement for the Survival of the Ogoni People] and founder of the NYCOP [the youth wing of MOSOP], he masterminded and led the riots of 21 May under the pretext of holding Constitutional Conference rally on a day that the law did not permit and which exercise
+
+> he had earlier directed members of MOSOP and NYCOP to boycott and in which he was not a bona fide candidate. He had orchestrated the campaign to eliminate the 'vultures' [pejorative description of certain prominent members of the Ogoni minority]. He was heard on the day of the riots to have said that he was not blaming those who had prevented him to go to the rally ground because they were sent by the 'vultures' meeting in Giokoo. A prosecution witness, whose house has been burnt down by members of NYCOP, testified that when she complained to Mr. Saro-Wiwa about this, he cautioned her that a revolution was taking place and that 'heads would roll in Gokana'."
+
+88. The Government furthermore informed the Special Rapporteur that Mr. Saro-Wiwa had been "found guilty of murder contrary to section 316 of the Criminal Code as incorporated in section 3 of the Civil Disturbances (Special Tribunal) Act and item 13 in the First Schedule to the Act [and] sentenced to death by hanging".
+
+#### Pakistan
+
+89. By letter dated 30 June 1994, the Special Rapporteur transmitted information to the Government on the killing of Mr. Rehmat Masih and wounding of Mr. Manzoor Masih, Mr. Salamat Masih (13 years of age) and Mr. John Masih by unidentified assailants riding motorbikes who opened fire on these persons as they were leaving their lawyers' office and after having appeared before a hearing at the Pakistan High Court of Lahore, on 5 April 1994, where the first three persons had been summoned to appear on charges relating to blasphemy. The three persons had allegedly been accused of "defiling the Holy Prophet's name in writings on walls and slips of paper", an offence reportedly punishable by a mandatory death sentence under article 295-C of the Penal Code.
+
+90. The Special Rapporteur regrets that no information has yet been forwarded by the Government on this case.
+
+91. By letter dated 26 September 1994, the Special Rapporteur transmitted information to the Government on the arrest and detention of leading members of the political party, Mohajir Qoumi Movement. According to this information, the senators Mr. Ishtiaq Azhar (72 years of age), Ms. Nasreen Jalil and Mr. Aftab A. Sheikh were arrested on 25 April 1994 and detained for two weeks and Mr. Farooq Sattar, a member of the Sindh Province Assembly, was held, on or around that date, by Sindh Province security forces. Allegedly, all four persons were being denied treatment that was in accordance with human rights standards in the administration of justice.
+
+92. By letter dated 15 July 1995, the Government informed the Special Rapporteur that "a number of cases of heinous crimes like murder have been registered against Mr. Ishtiaq Azhar, Begum Nasreen Jalil, Mr. Aftab Ahmed Sheikh and Mr. Farooq Sattar and their cases are pending trial in different courts".
+
+#### Paraguay
+
+93. By letter dated 11 October 1994, the Special Rapporteur transmitted information to the Government on the use of violence against press professionals by the police during demonstrations. Allegedly, on 2 May 1994 in Tacuara, Mr. Mariano Godoy, a correspondent for the daily ABC Color, was shot at. On the same day in Ciudad de Este, Mr. Juan Carlos Salinas and Mr. Gualberto Areco (journalists with the daily Noticias), Mr. Cesar Palacios and Mr. Blas Ceferino Pena (journalists with the daily ABC Color), Ms. Dolly Galeano (a journalist with the daily Ultima Hora) and Mr. Celso Salcedo (a journalist with Canal 13) were reportedly beaten.
+
+94. The Special Rapporteur regrets that no information has yet been forwarded by the Government on these cases.
+
+#### Peru
+
+95. By letter dated 26 September 1994, the Special Rapporteur transmitted information to the Government on the sentencing, in February 1993, of the press professionals Mr. Cesar Hildebrandt and Ms. Cecilia Valenzuela to one year's imprisonment on libel charges in relation to a television report alleging the involvement of a military officer, referred to by name, in committing human rights violations.
+
+96. By letter dated 26 September 1994, the Special Rapporteur transmitted information to the Government on the sentencing, on 29 April 1993, of the press professional Mr. Jesus Alfonso Castiglione Mendoza to 20 years' imprisonment for collaboration with terrorists.
+
+97. The Special Rapporteur regrets that no information has yet been forwarded by the Government on these cases.
+
+# Poland
+
+98. By letter dated 11 October 1994, the Special Rapporteur transmitted information to the Government on the interruption by the authorities, on 29 August 1994, of the broadcasts by the private television company Polsat 1, allegedly because it had not obtained a licence. Reportedly, police raided the office of the company and seized film material that was made on this action.
+
+99. The Special Rapporteur regrets that no information has yet been forwarded by the Government on this case.
+
+## Sierra Leone
+
+100. By letter of 7 March 1994, the Special Rapporteur transmitted information to the Government on the arrest, on 27 November 1993 in Freetown, of the press professionals Mr. Paul Kamara and Mr. Salio Kamara, editor-in-chief and assistant editor of the daily For Di People. Allegedly, documents and photographs were seized from the house of Mr. Paul Kamara and the two press
+
+professionals were interrogated on a project entitled "jumelage" that had been financed and sustained by UNESCO and that provided for cooperation between the daily concerned and the Swedish daily Expressen.
+
+101. The Special Rapporteur regrets that no information has yet been forwarded by the Government on this case.
+
+#### South Africa
+
+102. By letter dated 30 June 1994, the Special Rapporteur transmitted the following information to the Government on the use of violence against press professionals. Mr. Abdul Shariff, a photographer with the Associated Press, was killed on 9 January 1994 in the township of Katlehong when unidentified assailants opened fire. In the same attack, Mr. Charles Moikanyang and Mr. Anthea Warner, a television reporter and a radio reporter with the South African Broadcasting Corporation, were wounded.
+
+103. The Special Rapporteur regrets that no information has yet been forwarded by the Government on these cases.
+
+#### Sri Lanka
+
+104. By letter dated 26 September 1994, the Special Rapporteur transmitted information to the Government on Mr. Hemal Warnakula, a journalist with Radio Veritas, who had allegedly received a number of anonymous death threats in March 1994. On 24 March 1994, reportedly, a number of journalists had been assaulted by a number of politicians and, allegedly, no inquiries were made into the incident by the police.
+
+105. By letter dated 23 January 1995, the Government informed the Special Rapporteur that Mr. Warnakula had received death threats in the early months of 1994, that inquiries had been initiated by the Criminal Investigation Department of Colombo with a view to tracing the source of the threats and that Mr. Warnakula had since stated that as of August 1994 he had not received any threats and therefore did not want the investigations pursued further. Also, the Government informed the Special Rapporteur that, on 24 March 1994, Mr. R.M. Bandaragala Hasaka, a journalist with the newspaper Rawaya, had complained to the police at Hambantota that a fellow journalist named Jayawardena Jagoda had been kicked by the chairman of the Provincial Council of Hambantota, that the respondent had subsequently been arrested by the police and that no prosecution had been initiated because Mr. Jagoda's injuries were of a trivial nature.
+
+# Sudan
+
+106. By letter dated 29 April 1994, the Special Rapporteur transmitted information to the Government on a police raid, on or around 24 February 1994, on the office of the daily Al Sudani al-Doulia, the seizure of documents from the office and the arrest of the daily's news editor Mr. Mutasim Mahmoud, allegedly for having undertaken "anti-State activities". Allegedly, Mr. Mahmoud had not been charged and it was not known where he was being
+
+detained. Furthermore, the Special Rapporteur transmitted information on the closure of this daily, on 4 April 1994, and the arrest of its publisher, Mr. Mahjoub Mohamed El Hassan Erwa and two more of its staff members, Mr. Ahmed Ali Bagadi and Mr. Mutwakil Abdel Daff'eh. Allegedly, the Government had publicly stated the daily had been closed down permanently for trying to destroy the "National Salvation Revolution and its symbols".
+
+107. By letter dated 25 July 1994, the Special Rapporteur transmitted further information to the Government on the above-mentioned persons arrested on 4 April 1994. According to this information, the press professionals concerned were accused of, but not charged with, spreading "false news", reportedly by expressing opinions in favour of a return to multi-party politics and by alleging corruption among government officials. Reportedly, the whereabouts of the three detained press professionals were unknown.
+
+108. By letter dated 25 July 1994, the Special Rapporteur transmitted further information on the fate of Mr. Mutasim Mahmoud and the closure of the daily concerned, indicating that, on 12 March 1994, the daily had also been suspended by a Government appointed press and publications committee. In addition, the Special Rapporteur transmitted information on the alleged arrest of another press professional working with the daily concerned, Mr. Nour al-Dine Madani, on 4 April 1994.
+
+109. By letter dated 26 September 1994, the Special Rapporteur presented further information to the Government on the closure of the daily referred to in the preceding paragraphs and on the suspension of the weekly Darfour Al Gadida, since 12 March 1994.
+
+110. The Special Rapporteur regrets that no information has yet been forwarded by the Government on these cases.
+
+# Tajikistan
+
+111. By letter dated 10 August 1994, the Special Rapporteur transmitted information on the alleged killing of and use of violence against the following press professionals: Mr. Saidmurov Yerov of the magazine Farkhang, whose body was found on 2 February 1993 in a mass grave in Dushanbe; Mr. Zukhuruddin Suyari of the magazine Todzhikiston was found dead in March 1993 in Kurgan-Tiube; Mr. Igor Rotar of the daily Nezavisinaya Gazeta was threatened and beaten by law enforcement officials in May 1993; and Mr. Pirimkul Sattori of the daily Khatlon was found dead in May 1993. Furthermore, the radio and television professionals Mr. Mirbobo Mirrakhimov, Mr. Akhmadsho Kamilov, Mr. Khairiddin Kasymov and Mr. Khurshed Nazarov were allegedly charged, early in 1993, with "conspiracy to overthrow the Government through the mass media" and publicly accused of slander by the speaker of Parliament in relation to a video tape showing human rights abuses committed by government officials.
+
+112. The Special Rapporteur regrets that no information has yet been forwarded by the Government on these cases.
+
+#### The former Yugoslav Republic of Macedonia
+
+113. By letter dated 26 August 1994, the Special Rapporteur transmitted information to the Government on the confiscation of printed material from Mr. Ilija Ilievski by the border police, on 22 June, 5 July and 28 December 1991, on 18 March 1992 and on 26 March 1993. The material reportedly included works on the history of the national liberation movement.
+
+114. The Special Rapporteur regrets that no information has yet been forwarded by the Government on the confiscation in question.
+
+#### Tunisia
+
+115. By letter dated 10 November 1995, the Special Rapporteur conveyed his concern to the Government and requested information on the fate of Ms. Alya Chérif-Chammari, a lawyer, and Mr. Khemaïs Chammari, co-founder of the Arab Institute of Human Rights and the Mediterranean Centre for Human Rights. According to information received by the Special Rapporteur, Mr. and Ms. Chammari were prohibited from leaving the country and had their passports confiscated on Sunday, 29 October 1995, on or around 4 p.m., when they were about to leave Tunisia by air to attend a colloquium of the Mediterranean Centre for Human Rights in Valetta, Malta.
+
+116. The Special Rapporteur regrets that no information has yet been forwarded by the Government on these cases.
+
+#### Turkey
+
+117. By letter dated 10 August 1994, the Special Rapporteur transmitted information to the Government on the killing of the press professionals Mr. Ugur Mumcu of the daily Cumhuriyet (on 24 January 1993), Mr. Kemal Kilic of the daily Özgür Gündem (on 18 February 1993) and Mr. Ferhat Tepe of Özgür Gündem (in early August 1993); on the arrest and detention of the press professionals Mr. Davut Karadag of Özgür Gündem (on 15 July 1993), Ms. Nezahat Ozen of Özgür Gündem (on 16 July 1993) and Mr. Ahmet Ibili of the daily Mücadele (on 18 August 1993); and on the disappearance of Ms. Aysel Malkac of Özgür Gündem (on 7 August 1993). Allegedly, Ms. Ozen, who was seven months pregnant at the time of her arrest, was ill-treated during her interrogation, as a result of which she was transferred to hospital.
+
+118. By letter dated 10 August 1994, the Special Rapporteur transmitted information to the Government on the arrest and detention, on 17 April 1994, of two press professionals in the service of the magazine Alinteri, Mr. Derya Tanrivermis and Mr. Zafer Sakin.
+
+119. By letter dated 12 August 1994, the Special Rapporteur transmitted information to the Government on the lifting, allegedly without respect for proper procedure, of the parliamentary immunity and immediate subsequent arrest, detention and interrogation of the following members of Parliament, on 2 and 3 March 1994: Mr. Mahmut Alinak, Mr. Hatip Dicle, Mr. Orhan Dogan, Mr. H. Mezarci, Mr. Sirri Sakik, Mr. Ahmet Türk and Ms. Leyla Zana. According to this information, Mr. Mezarci was accused of having insulted the late President Kemal Atatürk. The other parliamentarians were allegedly detained
+
+for having publicly expressed their opinions, as members of Parliament, in favour of the recognition of a degree of autonomy in the region of the country where a majority of the population is of Kurdish origin.
+
+120. The Special Rapporteur regrets that no information has yet been forwarded by the Government on these cases.
+
+121. By letter dated 6 September 1994, the Special Rapporteur transmitted information to the Government on the fate of the following 13 press professionals. Mr. Tacettin Vural of Flash TV and Mr. Nevzat Yilmaz of the daily Aydinlik were allegedly beaten by police officers in Antalya on 16 March and in Istanbul on 7 February 1994 respectively. Mr. Hans Peter Wyman, Mr. Michael Enger and Ms. Corinna Gutstadt of the German Flash TV were allegedly harassed, detained and interrogated by police officers, who destroyed part of their equipment and confiscated film in two incidents in Tatvan, on 19 March 1994, and in Dolunay village (near Lice), on 23 March 1994. Mr. Nazim Babaoglu of Özgür Gündem and Mr. Murat Yogunlu of the Anatolian News Agency reportedly disappeared in March 1994, as did Mr. Aysul Malkac of Özgür Gündem as of 7 August 1994. Mr. Ali Tevfik Berber and Mr. Erhan Akyildiz of HBB Television reportedly were sentenced to two months' imprisonment by a military court, on 11 February 1994, for interviewing conscientious objectors to military service in their television programme "Anten". Mr. Ferit Ilselver and Mr. Hale Soysu of Aydinlik were reportedly sentenced to 10 months' imprisonment by the Second Criminal Court of Istanbul, on 28 December 1993, for "insulting the military", following a complaint brought by the Office of Joint Chiefs of Staff. The Special Rapporteur transmitted further information in relation to the fate of Mr. Davut Karadag, whose case he had taken up in a letter of 10 August 1994. The Special Rapporteur transmitted information on repeated closures of Özgür Gündem in 1993 and 1994 and on the confiscation of nine issues of the weekly Azadi in the first three months of 1994.
+
+122. By letter dated of 20 March 1995, the Government transmitted the following information on the cases referred to by the Special Rapporteur in his letter of 6 September 1994, with the exception of the cases involving Mr. Malkac, Mr. Berber and Mr. Akyildiz, Mr. Soysu and the weekly Azadi.
+
+123. An inquiry concerning the beating of Mr. Nevzat Yilmaz by the police was undertaken by decision of the Basic Criminal Court and the allegation was decided to be unfounded. A request by his legal representatives to reverse this decision was turned down by the High Criminal Court No. 2 of the Kadiköy District of Istanbul.
+
+124. Mr. Nazim Babaoglu has allegedly been missing since 12 March 1994. An inquiry into his case is being conducted by the Office of the Chief Public Prosecutor of the State Security Court in Diyarbakir Province.
+
+125. The Istanbul High Criminal Court sentenced Mr. Ferit Ilsever to 10 months' imprisonment on the charge of publishing an article in the 13 July 1993 issue of Aydinlik defaming and insulting the State security forces. The case is currently pending with the Court of Appeal.
+
+126. The Office of the Chief Public Prosecutor has established that the incident concerning Mr. Tacettin Vural took place when a number of journalists tried to board the Prime Minister's helicopter, which was already full. No inquiry was deemed necessary since the incident was related to the security of the flight.
+
+127. The Office of the Chief Public Prosecutor in Tatvan established that no complaints had been lodged concerning the alleged incidents involving Mr. Wyman, Mr. Enger and Ms. Gutstadt. It was furthermore established that these persons had been involved in a fight with local people, on 19 March 1994, as a result of which they were taken from the district of Tatvan to the province of Bitlis by the security forces.
+
+128. The Istanbul State Security Court No. 2 and the Istanbul High Criminal Court No. 2, in public trials held in 1993 and 1994, repeatedly sentenced Mr. Seyh Davut Karadag, editor-in-chief of Özgür Gündem, to prison terms ranging from five months to two years and, simultaneously, to fines ranging from the equivalent of US\$ 1,300 to 7,000, in relation to various articles printed in that newspaper, for the publication of which Mr. Karadag was charged with aiming at the destruction of the territorial integrity and the political unity of the Turkish Republic, with publishing propaganda material in favour of the terrorist organization PKK, with publishing views of the terrorist organization PKK, and with publishing separatist propaganda, thereby breaching relevant articles of Press Law No. 5680 and Anti-Terror Law No. 3713. Both courts, furthermore, had ordered suspension of publication of the daily concerned for various periods of 15 days, in accordance with Law No. 5680 on a number of occasions. The Government stated that these proceedings had been initiated on the ground of criminal offences against the national security, territorial integrity and public safety of the State and in conformity with article 10 of the European Convention on Human Rights, to which Turkey was a party.
+
+129. The same court sentenced Mr. Karadag, on 13 July 1993, to two years' imprisonment and a fine the equivalent of US\$ 5,680 upon charges of propagating ideas against the State security forces taking part in anti-terror activities through the publishing of three articles in the 5 July 1993 issue of Özgür Gündem. The court acquitted Mr. Karadag of the charges of provoking the public to hostility and of propagating separatist ideas.
+
+130. By letter dated 7 June 1995, the Government invited the Special Rapporteur to visit Turkey. As yet, no dates have been agreed upon. The Special Rapporteur intends to visit the country at the earliest possible date.
+
+## United States of America
+
+131. By letter dated 26 July 1994, the Special Rapporteur transmitted information to the Government on unidentified persons reported to have thrown a bomb into the building that houses the weekly Cincinnati Herald, on 29 March 1994, totally destroying its newsroom. Allegedly, the publisher of the weekly, Mr. William Spillers, had received threatening telephone calls and hate mail in the week prior to the bombing.
+
+132. The Special Rapporteur regrets that no information has yet been forwarded by the Government on this case.
+
+### Viet Nam
+
+133. By letter dated 28 March 1994, the Special Rapporteur transmitted information to the Government on the fate of the following press professionals.
+
+134. Mr. Doan Viet Hoat was reportedly arrested with his wife and son at their home in Ho Chi Minh Ville on 17 November 1990; he was convicted on 29 March 1993, on the charge of having expressed "anti Communist" views, and sentenced under article 73 of the Penal Code to 20 years' forced labour and 5 years' suspension of his civil rights. Reportedly, his sentence was commuted on 9 July 1993 to 15 years' imprisonment and 5 years' house arrest. He was reported to be imprisoned in camp No. 4, Phan Dang Luu, in Ho Chi Minh Ville.
+
+135. Mr. Le Duc Vuong was reportedly arrested and detained in December 1990, accused of having published in the unlicensed publication Dien Dan Tu Do (Freedom Forum), and sentenced under article 73 of the Penal Code, in April 1993, to seven years' imprisonment. Reportedly his sentence was commuted on 9 July 1993 to five years' imprisonment and three years' house arrest. He was reported to be imprisoned in Phan Dang Luu, in Ho Chi Minh Ville.
+
+136. Mr. Pham Duc Kham was reportedly arrested and detained in November 1990, accused of having published in Dien Dan Tu Do, and sentenced under article 73 of the Penal Code, in April 1993, to 15 years' imprisonment. Reportedly his sentence was commuted on 9 July 1993 to 12 years' imprisonment and 5 years' house arrest.
+
+137. Mr. Nguyen Van Thuan (alias Chau Son) was reportedly arrested and detained in December 1990, accused of having published in Dien Dan Tu Do and sentenced under article 73 of the Penal Code, in April 1993, to 12 years' imprisonment. Reportedly his sentence was commuted on 9 July 1993 to eight years' imprisonment and four years' house arrest.
+
+138. Mr. Thai Nhu Sieu, former editor-in-chief of the journal Tan Viet Hoa (Sino-Vietnamese Renaissance) was reportedly arrested on 21 July 1978 and sentenced to 20 years' imprisonment for activities related to his profession. Reportedly, he is imprisoned in Hoa Lo prison in Hanoi.
+
+139. By letter dated 26 September 1994, the Special Rapporteur transmitted information on Mr. Doan Viet Hoat, a writer, who reportedly is serving a 15-year prison term for activities related to his profession and who has been repeatedly transferred from prison to prison, as a result of which his family's efforts to supply him with otherwise unprovided medical care and warm clothing have been hampered. Reportedly, he was most recently transferred on 25 April 1994, from Ba Sao prison in Nam Ha Province to Thanh Cam prison, some 90 kilometres from Thanh Hoa City.
+
+140. The Special Rapporteur regrets that no information has yet been forwarded by the Government on this case.
+
+#### Yemen
+
+141. By letter dated 26 September 1994, the Special Rapporteur transmitted information to the Government on the suspension and confiscation of equipment of the weekly Yemen Times, in Sana'a on 10 May 1994. Reportedly, the action was taken upon publication by the weekly of a number for casualties caused by fighting between the armies of the former North and South Yemen that contradicted official estimates.
+
+142. The Special Rapporteur regrets that no information has yet been forwarded by the Government on this case.
+
+#### Zaire
+
+143. By letter dated 11 October 1994, the Special Rapporteur transmitted information to the Government on the suspension of the authorization to exercise their profession of the following press professionals of the Zairian Office of Radio and Television: Mr. Kalunga Wa Kalunga and Mr. Kabeya Pindi Pasi (in February 1994); Mr. Charles Djungu Singa Kamatanda, Mr. Michael Museme Diawé, Mr. Léonard Mulumba Kalala, Mr. Charles Dimanja Wembi and Mr. Jean René Mputu Bidwaya (on 4 June 1993); and Mr. Elonge Osako, Mr. Kafka Rujamizi and Mr. Ntumba Mudingayi (in July 1993). Reportedly, this action had been taken in relation to their membership of the Association for a Free and Democratic Press.
+
+144. The Special Rapporteur regrets that no information has yet been forwarded by the Government on these cases.
+
+# Zambia
+
+145. By letter dated 11 October 1994, the Special Rapporteur transmitted information to the Government on the arrest, charging with insulting the President and release on bail of Mr. Fred M'Membe and Mr. Bright Mwape, on 29 April 1994. Reportedly, the men were arrested in relation to an article published in the 29 March 1994 issue of the daily The Post quoting a former Minister of Community Development as having referred to the President as "a twit". Reportedly, the arrests occurred after several instances of intimidation by government officials of press professionals in the service of the daily, including the arrest of a reporter who had photographed police officers beating a suspect.
+
+146. The Special Rapporteur regrets that no information has yet been forwarded by the Government on this case.
+
+#### IV. CONCLUSIONS AND RECOMMENDATIONS
+
+147. The Special Rapporteur is compelled to conclude, as in previous years, that violations of the right to freedom of expression occur in all parts of the world. In a number of instances, these violations concur with violations of other human rights, including those related to enforced or involuntary
+
+disappearances, extrajudicial, arbitrary or summary executions, torture, religious intolerance and arbitrary detention, as well as with the problem of terrorism.
+
+148. The Special Rapporteur is concerned about the continued intimidation, harassment and use of violence against writers, press professionals and other persons seeking to exercise the right to freedom of opinion and expression. He is concerned at the many different manifestations of intolerance, both on the part of Governments and on the part of private persons, in relation to opinions expressed in the public arena. He is also concerned at the many instances of persecution of such professionals and other persons, and about the many reports of convictions under national legislation of such professionals and persons to severe sentences, including prolonged prison terms and corporal punishment, in violation of the right to freedom of opinion and expression as affirmed in the Universal Declaration of Human Rights and the International Covenant on Civil and Political Rights.
+
+149. The Special Rapporteur is concerned at the cases brought to his attention in relation to the right to freedom of opinion and expression of women. He considers the creative freedom for women to express themselves, to create and nourish culture and to bring into the light suffering that stays hidden because of societal taboos an essential means to overcome the many manifestations of the use of violence against women, that can negatively affect their enjoyment of the right to freedom of opinion and expression. A number of obstacles, however, stand in the way of the full enjoyment of freedom of opinion and expression by women. State censorship is among them, as are more informal types of censorship and self-censorship imposed on women by powerful groups in society that are inspired by fundamentalism of various kinds and claim the culture or self-esteem of the society at large is endangered by the free flow of ideas. The Special Rapporteur is aware the issue bristles with sensitivities given the diversity of cultural and religious traditions and he cautions against inaction that might result from them.
+
+150. The Special Rapporteur is concerned that private individuals regularly resort to acts of violence, threats, and intimidation against other private persons for the purpose of settling religious or ideological disputes. The Special Rapporteur considers that this phenomenon provokes a dangerous spiral of violence for which the authorities cannot deny responsibility if no adequate action is taken to protect the right to freedom of opinion and expression. In this connection, the Special Rapporteur notes that violations of the right to freedom of opinion and expression, including the right to seek and receive information, result not only from actions undertaken by the State and its representatives, but equally result from the inaction of the State, at governmental and other levels, under circumstances that unmistakeably call for the protection of this right and which compel the Special Rapporteur to take side with the victims and potential victims of these violations.
+
+151. The Special Rapporteur expresses his sincere appreciation to all Governments that, in accordance with the request of the Commission contained in resolution 1993/45, have cooperated with and assisted the Special Rapporteur in the performance of his tasks and have furnished all the information requested by him. He is committed to cooperating fully with
+
+Governments in their efforts to strengthen the promotion and protection of the right to freedom of opinion and expression and to solve the many problems in the area of his mandate.
+
+152. The Special Rapporteur appeals to all the Governments that he has requested to cooperate, to engage in a dialogue with him and to enable him to establish the facts and arrive at a well-informed opinion on matters relating to his mandate, including by visits to the countries concerned.
+
+153. The Special Rapporteur expresses his sincere appreciation to all non-governmental organizations active in the area of his concern with which he has been able to nurture a close relationship that is of great importance for the success of his work. He notes the intrinsic hesitation of State bureaucracies to admit voluntarily to violations of human rights and stresses that the integrity and vitality of any human rights review process also depends on information provided by non-governmental organizations.
+
+154. The Special Rapporteur is pleased to report that Governments, though some more than others, are proving willing to engage in a constructive dialogue with him on freedom of opinion and expression. He is concerned, however, at what he perceives to be a certain lack of appreciation of all the implications of the adequate promotion and protection of this right and regrets that at times bureaucratic explanations are provided in reply to his requests for information that appear to be designed to camouflage rather than to reveal problems and inadequacies in the protection of this right. He is aware that often there are no easy answers in cases where the protection of the right to freedom of opinion and expression is called for, especially under circumstances in which the Government feels compelled to act for the purpose of protecting the legitimate interests of society, including those of public morality and national security. For these reasons and for the purpose of assisting all Governments to promote and protect the right to freedom of expression and to move expeditiously and effectively towards achieving this goal, the Special Rapporteur recommends that the Commission on Human Rights endorse the Johannesburg Principles on National Security, Freedom of Expression and Access to Information, which are contained in the annex to the present report and which the Special Rapporteur considers give useful guidance for protecting adequately the right to freedom of opinion, expression and information.
+
+155. The Special Rapporteur finds that the protection of the right to freedom of opinion and expression is not always adequately guaranteed through ratification by States of the International Covenant on Civil and Political Rights and other relevant international instruments. In his opinion, such protection requires a continuous political commitment that includes implementation of specific policies and programmes. Furthermore, the Special Rapporteur much regrets the existence of, sometimes prolonged, crises in which violations of the right to freedom of opinion and expression are justified on the basis of outmoded notions of national security, manipulation by authoritarian regimes and the view expressed by some Governments that human rights are part of an alien culture not suited to being transposed to the countries they govern. The Special Rapporteur believes the effective implementation of the important mandate entrusted to him requires the pursuit of intellectually vigorous and novel approaches conducive to surmounting these and other problems on which he has reported to the Commission. If provided with the necessary support by the Commission, the Special Rapporteur is convinced he could more effectively assist in generating intellectual and political forces to achieve tangible progress in this field, including by stimulating public will and by building institutions to prevent violations from taking place. In this connection, the Special Rapporteur once again recommends that the Commission consider the question of financial and human resources in the light of the remarks contained in paragraph 6 of the present report and paragraphs 92 to 95 and 145 of his previous report (E/CN.4/1995/32).
+
+#### Annex
+
+# THE JOHANNESBURG PRINCIPLES ON NATIONAL SECURITY, FREEDOM OF EXPRESSION AND ACCESS TO INFORMATION
+
+#### Introduction
+
+These Principles were adopted on 1 October 1995 by a group of experts in international law, national security and human rights convened by Article 19, the International Centre against Censorship, in collaboration with the Centre for Applied Legal Studies of the University of the Witwatersrand, which met in South Africa.
+
+The Principles are based on international and regional law and standards relating to the protection of human rights, evolving state practice (as reflected, inter alia, in judgments of national courts), and the general principles of law recognized by the community of nations.
+
+These Principles acknowledge the enduring applicability of the Siracusa Principles on the Limitation and Derogation Provisions in the International Covenant on Civil and Political Rights and the Paris Minimum Standards of Human Rights Norms in a State of Emergency. 1/
+
+#### Preamble
+
+The participants involved in drafting the present Principles:
+
+Considering that, in accordance with the principles proclaimed in the Charter of the United Nations, recognition of the inherent dignity and of the equal and inalienable rights of all members of the human family is the foundation of freedom, justice and peace in the world;
+
+Convinced that it is essential, if people are not to be compelled to have recourse, as a last resort, to rebellion against tyranny and oppression, that human rights should be protected by the rule of law;
+
+Reaffirming their belief that freedom of expression and freedom of information are vital to a democratic society and are essential for its progress and welfare and for the enjoyment of other human rights and fundamental freedoms;
+
+Taking into account relevant provisions of the Universal Declaration of Human Rights, the International Covenant on Civil and Political Rights, the Convention on the Rights of the Child, the Basic Principles on the Independence of the Judiciary, the African Charter on Human and Peoples' Rights, the American Convention on Human Rights and the European Convention on Human Rights;
+
+Keenly aware that some of the most serious violations of human rights and fundamental freedoms are justified by Governments as necessary to protect national security;
+
+Bearing in mind that it is imperative, if people are to be able to monitor the conduct of their Government and to participate fully in a democratic society, that they have access to government-held information;
+
+Desiring to promote a clear recognition of the limited scope of restrictions on freedom of expression and freedom of information that may be imposed in the interest of national security, so as to discourage Governments from using the pretext of national security to place unjustified restrictions on the exercise of these freedoms;
+
+Recognizing the necessity for legal protection of these freedoms by the enactment of laws drawn narrowly and with precision, and which ensure the essential requirements of the rule of law; and
+
+Reiterating the need for judicial protection of these freedoms by independent courts;
+
+Agree upon the following Principles and recommend that appropriate bodies at the national, regional and international levels undertake steps to promote their widespread dissemination, acceptance and implementation:
+
+## I. GENERAL PRINCIPLES
+
+#### Principle 1. Freedom of opinion, expression and information
+
+(a) Everyone has the right to hold opinions without interference.
+
+(b) Everyone has the right to freedom of expression, which includes the freedom to seek, receive and impart information and ideas of all kinds, regardless of frontiers, either orally, in writing or in print, in the form of art, or through any other media of his or her choice.
+
+(c) The exercise of the rights provided for in paragraph (b) may be subject to restrictions on specific grounds, as established in international law, including for the protection of national security.
+
+(d) No restriction on freedom of expression or information on the ground of national security may be imposed unless the Government can demonstrate that the restriction is prescribed by law and is necessary in a democratic society to protect a legitimate national security interest. 2/ The burden of demonstrating the validity of the restriction rests with the Government.
+
+# Principle 1.1. Prescribed by law
+
+(a) Any restriction on expression or information must be prescribed by law. The law must be accessible, unambiguous, drawn narrowly and with precision so as to enable individuals to foresee whether a particular action is unlawful.
+
+(b) The law should provide for adequate safeguards against abuse, including prompt, full and effective judicial scrutiny of the validity of the restriction by an independent court or tribunal.
+
+# Principle 1.2. Protection of a legitimate national security interest
+
+Any restriction on expression or information that a Government seeks to justify on grounds of national security must have the genuine purpose and demonstrable effect of protecting a legitimate national security interest.
+
+#### Principle 1.3. Necessary in a democratic society
+
+To establish that a restriction on freedom of expression or information is necessary to protect a legitimate national security interest, a Government must demonstrate that:
+
+(a) The expression or information at issue poses a serious threat to a legitimate national security interest;
+
+(b) The restriction imposed is the least restrictive means possible of protecting that interest; and
+
+(c) The restriction is compatible with democratic principles.
+
+#### Principle 2. Legitimate national security interest
+
+(a) A restriction sought to be justified on the ground of national security is not legitimate unless its genuine purpose and demonstrable effect is to protect a country's existence or its territorial integrity against the use or threat of force, or its capacity to respond to the use or threat of force, whether from an external source, such as a military threat, or an internal source, such as incitement to violent overthrow of the Government.
+
+(b) In particular, a restriction sought to be justified on the ground of national security is not legitimate if its genuine purpose or demonstrable effect is to protect interests unrelated to national security, including, for example, to protect a Government from embarrassment or exposure of wrongdoing, or to conceal information about the functioning of its public institutions, or to entrench a particular ideology, or to suppress industrial unrest.
+
+#### Principle 3. States of emergency
+
+In time of public emergency which threatens the life of the country and the existence of which is officially and lawfully proclaimed in accordance with both national and international law, a State may impose restrictions on freedom of expression and information but only to the extent strictly required by the exigencies of the situation and only when and for so long as they are not inconsistent with the Government's other obligations under international law.
+
+# Principle 4. Prohibition of discrimination
+
+In no case may a restriction on freedom of expression or information, including on the ground of national security, involve discrimination based on race, colour, sex, language, religion, political or other opinion, national or social origin, nationality, property, birth or other status.
+
+## II. RESTRICTIONS ON FREEDOM OF EXPRESSION
+
+#### Principle 5. Protection of opinion
+
+No one may be subjected to any sort of restraint, disadvantage or sanction because of his or her opinions or beliefs.
+
+#### Principle 6. Expression that may threaten national security
+
+Subject to Principles 15 and 16, expression may be punished as a threat to national security only if a Government can demonstrate:
+
+- (a) That the expression is intended to incite imminent violence;
+- (b) It is likely to incite such violence; and
+
+(c) There is a direct and immediate connection between the expression and the likelihood or occurrence of such violence.
+
+#### Principle 7. Protected expression
+
+(a) Subject to Principles 15 and 16, the peaceful exercise of the right to freedom of expression shall not be considered a threat to national security or subjected to any restrictions or penalties. Expression which shall not constitute a threat to national security includes, but is not limited to, expression that:
+
+- (i) Advocates non-violent change of government policy or the Government itself;
+- (ii) Constitutes criticism of, or insult to, the nation, the State or its symbols, the Government, its agencies, or public officials, 3/ or a foreign nation, State or its symbols, Government, agencies or public officials;
+- (iii) Constitutes objection, or advocacy of objection, on grounds of religion, conscience or belief, to military conscription or service, a particular conflict, or the threat or use of force to settle international disputes;
+ - (iv) Is directed at communicating information about alleged violations of international human rights standards or international humanitarian law.
+
+(b) No one may be punished for criticizing or insulting the nation, the State or its symbols, the Government, its agencies or public officials, or a foreign nation, State or its symbols, Government, agency or public official unless the criticism or insult was intended and likely to incite imminent violence.
+
+# Principle 8. Mere publicity of activities that may threaten national security
+
+Expression may not be prevented or punished merely because it transmits information issued by or about an organization that a Government has declared threatens national security or a related interest.
+
+# Principle 9. Use of a minority or other language
+
+Expression, whether written or oral, can never be prohibited on the ground that it is in a particular language, especially the language of a national minority.
+
+# Principle 10. Unlawful interference with expression by third parties
+
+Governments are obliged to take reasonable measures to prevent private groups or individuals from interfering unlawfully with the peaceful exercise of freedom of expression, even where the expression is critical of the Government or its policies. In particular, Governments are obliged to condemn unlawful actions aimed at silencing freedom of expression, and to investigate and bring to justice those responsible.
+
+# III. RESTRICTIONS ON FREEDOM OF INFORMATION
+
+# Principle 11. General rule on access to information
+
+Everyone has the right to obtain information from public authorities, including information relating to national security. No restriction on this right may be imposed on the ground of national security unless the Government can demonstrate that the restriction is prescribed by law and is necessary in a democratic society to protect a legitimate national security interest.
+
+# Principle 12. Narrow designation of security exemption
+
+A State may not categorically deny access to all information related to national security, but must designate in law only those specific and narrow categories of information that it is necessary to withhold in order to protect a legitimate national security interest.
+
+# Principle 13. Public interest in disclosure
+
+In all laws and decisions concerning the right to obtain information, the public interest in knowing the information shall be a primary consideration.
+
+#### Principle 14. Right to independent review of denial of information
+
+The State is obliged to adopt appropriate measures to give effect to the right to obtain information. These measures shall require the authorities, if they deny a request for information, to specify their reasons for doing so in writing and as soon as reasonably possible; and shall provide for a right of review of the merits and the validity of the denial by an independent authority, including some form of judicial review. The reviewing authority must have the right to examine the information withheld. 4/
+
+# Principle 15. General rule on disclosure of secret information
+
+No person may be punished on national security grounds for disclosure of information if (1) the disclosure does not actually harm and is not likely to harm a legitimate national security interest, or (2) the public interest in knowing the information outweighs the harm from disclosure.
+
+### Principle 16. Information obtained through public service
+
+No person may be subjected to any detriment on national security grounds for disclosing information that he or she learned by virtue of government service if the public interest in knowing the information outweighs the harm from disclosure.
+
+## Principle 17. Information in the public domain
+
+Once information has been made generally available, even through illegal means, any justification for trying to stop further publication will be overridden by the public's right to know.
+
+#### Principle 18. Protection of journalists' sources
+
+Protection of national security may not be used as a reason to compel a journalist to reveal a confidential source.
+
+#### Principle 19. Access to restricted areas
+
+Any restriction on the free flow of information may not be of such a nature as to thwart the purposes of human rights and humanitarian law. In particular, Governments may not prevent journalists or representatives of intergovernmental or non-governmental organizations with a mandate to monitor adherence to human rights or humanitarian standards from entering areas where there are reasonable grounds to believe that violations of human rights or humanitarian law are being, or have been, committed. A government may not exclude journalists or representatives of such organizations from areas that are experiencing violence or armed conflict except where their presence would pose a clear risk to the safety of others.
+
+IV. RULE OF LAW AND OTHER MATTERS
+
+#### Principle 20. General rule of law protections
+
+Any person accused of a security-related crime 5/ involving expression or information is entitled to all of the rule of law protections that are part of international law. These include, but are not limited to, the following rights: (a) the right to be presumed innocent; (b) the right not to be arbitrarily detained; (c) the right to be informed promptly in a language the person can understand of the charges and the supporting evidence against him or her; (d) the right to prompt access to counsel of choice; (e) the right to a trial within a reasonable time; (f) the right to have adequate time to prepare his or her defence; (g) the right to a fair and public trial by an
+
+independent and impartial court or tribunal; (h) the right to examine prosecution witnesses; (i) the right not to have evidence introduced at trial unless it has been disclosed to the accused and he or she has had an opportunity to rebut it; and (j) the right to appeal to an independent court or tribunal with power to review the decision on law and facts and set it aside.
+
+### Principle 21. Remedies
+
+All remedies, including special ones, such as habeas corpus or amparo, shall be available to persons charged with security-related crimes, including during public emergencies which threaten the life of the country, as defined in Principle 3.
+
+#### Principle 22. Right to trial by an independent tribunal
+
+(a) At the option of the accused, a criminal prosecution of a security-related crime should be tried by a jury where that institution exists or else by judges who are genuinely independent. The trial of persons accused of security-related crimes by judges without security of tenure constitutes prima facie a violation of the right to be tried by an independent tribunal.
+
+(b) In no case may a civilian be tried for a security-related crime by a military court or tribunal.
+
+(c) In no case may a civilian or member of the military be tried by an ad hoc or specially constituted national court or tribunal.
+
+#### Principle 23. Prior censorship
+
+Expression shall not be subject to prior censorship in the interest of protecting national security, except in time of public emergency which threatens the life of the country under the conditions stated in Principle 3.
+
+#### Principle 24. Disproportionate punishments
+
+A person, media outlet, political or other organization may not be subject to such sanctions, restraints or penalties for a security-related crime involving freedom of expression or information that are disproportionate to the seriousness of the actual crime.
+
+#### Principle 25. Relation of these Principles to other standards
+
+Nothing in these Principles may be interpreted as restricting or limiting any human rights or freedoms recognized in international, regional or national law or standards.
+
+#### Notes
+
+1/ The Siracusa Principles were adopted in May 1984 by a group of experts convened by the International Commission of Jurists, the International Association of Penal Law, the American Association for the International Commission of Jurists, the Urban Morgan Institute for Human Rights and the International Institute of Higher Studies in Criminal Sciences. The Paris Minimum Standards were adopted in April 1984 by a group of experts under the auspices of the International Law Association.
+
+2/ For the purposes of these Principles, a democratic society is one which has a Government that is genuinely accountable to an entity or organ distinct from itself; genuine, periodic elections by universal and equal suffrage held by secret ballot that guarantee the free expression of the will of the electors; political groups that are free to organize in opposition to the Government in office; and effective legal guarantees of fundamental rights enforced by an independent judiciary. This formulation is based on a definition of constitutionalism provided by Professor S.A. de Smith in The Commonwealth and its Constitution (London, Stevens & Sons, 1964), p. 106, augmented by reference to article 25 of the International Covenant on Civil and Political Rights.
+
+3/ "Public officials", for the purpose of these Principles, include the Head of State; the Head of Government; all Government officials including Ministers; all officers of the military, security forces and police; and all people who hold elected office.
+
+4/ Additional grounds for obtaining and correcting personal information in files about oneself, such as the right to privacy, lie beyond the scope of these Principles.
+
+5/ For the purposes of these Principles, a "security-related crime" is an act or omission which the Government claims must be punished in order to protect national security or a closely related interest.
+
+-----

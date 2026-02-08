@@ -1,0 +1,26 @@
+{
+  "timestamp": "2025-11-14T17:01:24.849Z",
+  "responses": {
+    "q1": "dabbled",
+    "q2": "curiosity",
+    "q3": "5",
+    "q4": "more_accessible",
+    "q5": "I think I found it confusing from the beginning until the end. Even though I understand the concept of using LLM's and human language to give prompts so it can help you programme. I felt overwhelmed by all the applications (Cursor, JSON, Google Colab, LM Arena, Python) and use of other terms which to me I could not really distinguish between so I struggled to keep up with the programming itself. I was overwhelmed switching between all the apps and couldn't quite understand what each one was for in a short space of time.\n\nI also did not quite understand the purpose of the database from the beginning. i.e. what is the point of doing all this programming to create a search engine which can be done in more simple ways i.e. control+F? I am sure there is a good answer, but I think maybe if the purpose and goal could have been described more clearly at the beginning it would have helped me get started.",
+    "q6": "I liked that anyone can create their own app - accessible",
+    "q7": "too_fast",
+    "q8": "3",
+    "q9": [
+      "no_use_case",
+      "tech_support"
+    ],
+    "q10": "It was really good to see how AI is practiced in reality. AI and New Technology is a big and complex field, and I enjoyed the practical element - it put a face to the name in a way! Even though I haven't come out with skills I can do in my own time, it has definitely planted a seed to the potential ways I could teach myself in the future with more time.",
+    "q11": "understand_better",
+    "q12": "Before this course, I thought programming was mathematical. Now I think it's not, but still something new I have to get my head round. It might be in English, but it is still a new format and world for me.",
+    "q13": "Clearer introduction. Slower, step-by-step procedures, checking in on everyone that they have completed a step, before people continue on their own with more confidence",
+    "q14": "4",
+    "q14_why": "I know many people found it easier than me so I think in general it is useful and important - but more recognition that some people might find it harder.",
+    "q15": "Thank you - It was really interesting and I LOVED the film Theatre of Thoughts!",
+    "q16": "ngo"
+  },
+  "server_timestamp": "2025-11-14T17:01:25.427675"
+}

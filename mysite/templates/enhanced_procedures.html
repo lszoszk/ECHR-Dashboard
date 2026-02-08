@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UN Special Procedures Database | Independent Mandate Holders</title>
+
+    <!-- Favicon & Analytics -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <script src="/static/js/cookies.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VFCDZ89GWR"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-VFCDZ89GWR', { 'cookie_domain': 'auto' });
+    </script>
+
+    <!-- Bootstrap, Icons & Fonts -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Unified Design System -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/unified-design-system.css') }}?v=1">
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+    <!-- Skip Navigation Link -->
+    <a class="sr-only sr-only-focusable" href="#main-content">Skip to main content</a>
+
+    {% include 'navbar_universal.html' %}
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="hero-title">
+                UN Special Procedures Database
+            </h1>
+            <p class="hero-subtitle">
+                Search Mandate Holder Reports
+            </p>
+            <p class="hero-description">
+                Access the complete collection of UN Special Procedures documentation from independent mandate holders including Special Rapporteurs, Working Groups, and Independent Experts. Search thematic reports addressing all human rights issues worldwide.
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Search Section -->
+    <main id="main-content" class="flex-grow-1" tabindex="-1">
+        <div class="container">
+            <!-- Search Container -->
+            <div class="search-container">
+                <form id="searchForm" action="/sp_search" method="get">
+
+                    <!-- Main Search Input -->
+                    <div class="search-input-group">
+                        <div class="input-group">
+                            <label for="main-search" class="sr-only">Search Special Procedures Reports</label>
+                            <input type="text"
+                                   id="main-search"
+                                   name="search_query"
+                                   class="form-control form-control-lg"
+                                   placeholder="Search Special Procedures reports and communications..."
+                                   value="{{ request.args.get('search_query', '') }}"
+                                   aria-describedby="search-help">
+                            <div class="input-group-append">
+                                <button class="btn search-btn" type="submit" id="searchButton" style="height: auto; padding: 15px 30px;">
+                                    <i class="fas fa-search mr-2"></i>Search
+                                </button>
+                            </div>
+                        </div>
+                        <small id="search-help" class="form-text text-muted">
+                            <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>
+                            For multi-word phrases, use quotation marks, e.g. "freedom of expression"
+                        </small>
+                    </div>
+
+                    <!-- Advanced Search Toggle -->
+                    <div class="text-center mb-4">
+                        <a class="advanced-search-toggle text-primary font-weight-medium text-decoration-none"
+                           data-toggle="collapse"
+                           href="#advancedFilters"
+                           role="button"
+                           aria-expanded="false"
+                           aria-controls="advancedFilters"
+                           id="advancedToggle"
+                           aria-describedby="advanced-help">
+                            <i class="fas fa-sliders-h mr-2" id="advancedIcon"></i>
+                            <b>Advanced Search</b>
+                        </a>
+                        <div id="advanced-help" class="sr-only">Press Enter or Space to toggle advanced search filters</div>
+                    </div>
+
+                    <!-- Advanced Filters (Collapsible) -->
+        <div class="collapse" id="advancedFilters">
+          <div class="card card-body border-0 shadow-sm bg-white">
+
+            <div class="form-row">
+
+              <!-- Concerned groups -->
+              <div class="form-group col-md-6">
+                <label><strong>Concerned groups</strong></label>
+                <div class="filter-checkbox-list text-left p-3 border rounded">
+                  {% for label in [
+                    'Adolescents','Children','Children in alternative care','Indigenous peoples',
+                    'Internally displaced persons','LGBT+ persons','Migrants',
+                    'Non-citizens & stateless','Persons affected by armed conflict',
+                    'Persons affected by natural disasters','Persons deprived of their liberty',
+                    'Persons in street situations','Persons living in poverty',
+                    'Persons living in rural/remote areas','Persons living with HIV/AIDS',
+                    'Persons with disabilities','Roma, Gypsies, Sinti & Travellers',
+                    'Refugees & asylum-seekers','Women/girls'
+                  ] %}
+                    <div class="form-check mb-1">
+                      <input class="form-check-input"
+                             type="checkbox"
+                             id="label_{{ loop.index }}"
+                             name="labels[]"
+                             value="{{ label }}"
+                             {% if label in request.args.getlist('labels[]') %}checked{% endif %}>
+                      <label class="form-check-label" for="label_{{ loop.index }}">
+                        {{ label }}
+                      </label>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+
+              <!-- Special Procedures -->
+              <div class="form-group col-md-4">
+                <label><strong>Special Procedures</strong></label>
+                <div class="filter-checkbox-list p-3 border rounded">
+                  {% for tb in ['SR Privacy', 'SR Freedom of Expression'] %}
+                    <div class="form-check mb-1">
+                      <input class="form-check-input"
+                             type="checkbox"
+                             id="tb_{{ loop.index }}"
+                             name="treatyBodies[]"
+                             value="{{ tb }}"
+                             {% if tb in request.args.getlist('treatyBodies[]') %}checked{% endif %}>
+                      <label class="form-check-label" for="tb_{{ loop.index }}">
+                        {{ tb }}
+                      </label>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        </div>
+    </main>
+
+    <!-- Features Section -->
+    <section class="features-section" aria-labelledby="features-heading">
+        <div class="container">
+            <h2 id="features-heading" class="sr-only">Application Features</h2>
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <div class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3>Comprehensive Search</h3>
+                        <p>Search the complete Special Procedures archive with advanced filtering by mandate holders, document types (country visits, communications, thematic reports), rights categories, and geographic coverage across all UN regions.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <div class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>Independent Mandate Holders</h3>
+                        <p>Access reports from over 50+ Special Procedures mandate holders including thematic and country-specific Special Rapporteurs, Working Groups, and Independent Experts addressing civil, political, economic, social and cultural rights.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <div class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">
+                            <i class="fas fa-globe-americas"></i>
+                        </div>
+                        <h3>Official Communications</h3>
+                        <p>Browse country visit reports, urgent appeals, allegation letters, and government responses providing detailed analysis, findings, and recommendations on human rights situations from independent UN experts.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<!-- Recent Developments Section -->
+<section class="recent-developments-section" aria-labelledby="recent-developments-heading">
+  <div class="container">
+    <h2 id="recent-developments-heading" class="developments-title">
+      <i class="fas fa-clock mr-2"></i>
+      Recent Developments
+    </h2>
+    <p class="developments-subtitle">
+      Latest Reports, Communications & Country Visits from Independent Mandate Holders
+    </p>
+
+    <!-- NOTE: class changed to developments-scroll-container -->
+    <div class="developments-scroll-container" id="recentDevelopments">
+      <!-- Content will be loaded by JavaScript -->
+    </div>
+
+    <div class="text-center mt-3">
+      <small class="text-muted">
+        <i class="fas fa-external-link-alt mr-1"></i>
+        Click on any document to view the official UN document
+      </small>
+    </div>
+  </div>
+</section>
+
+<style>
+/* Match the working GC page styles so items are visible and nicely formatted */
+.recent-developments-section {
+  background: var(--secondary-color);
+  padding: var(--spacing-2xl) 0;
+  margin-bottom: var(--spacing-lg);
+}
+
+.developments-title {
+  font-size: var(--font-size-3xl);
+  font-weight: 600;
+  color: var(--primary-color);
+  text-align: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.developments-subtitle {
+  text-align: center;
+  color: var(--text-muted);
+  margin-bottom: var(--spacing-xl);
+  font-size: var(--font-size-lg);
+}
+
+.developments-scroll-container {
+  height: 400px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  background-color: var(--card-background);
+  box-shadow: var(--shadow-sm);
+  -webkit-overflow-scrolling: touch;
+}
+
+.development-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--border-light);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;          /* ensures text uses theme color (not transparent) */
+  opacity: 1;              /* visible! */
+}
+
+.development-item:last-child { border-bottom: none; }
+
+.development-item:hover {
+  background-color: var(--primary-light);
+  border-radius: var(--radius-sm);
+  margin: 0 calc(-1 * var(--spacing-sm));
+  padding-left: var(--spacing-md);
+  padding-right: var(--spacing-md);
+  text-decoration: none;
+  color: inherit;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 158, 219, 0.1);
+}
+
+.development-item:hover .development-text { color: var(--primary-color); }
+
+.treaty-badge {
+  background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+  color: #fff;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  min-width: 60px;
+  text-align: center;
+  margin-right: var(--spacing-md);
+  flex-shrink: 0;
+}
+
+.development-text {
+  flex-grow: 1;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+}
+
+/* Your JS renders <span class="adoption-date"> — style that class name */
+.adoption-date {
+  color: var(--text-muted);
+  font-size: var(--font-size-xs);
+  margin-left: var(--spacing-md);
+  flex-shrink: 0;
+  font-weight: 500;
+}
+
+/* Dark mode adjustments */
+body.dark-mode .developments-scroll-container {
+  border-color: var(--border-color);
+  background-color: var(--card-background);
+}
+body.dark-mode .development-item:hover { background-color: var(--primary-light); }
+
+/* Scrollbar */
+.developments-scroll-container::-webkit-scrollbar { width: 8px; }
+.developments-scroll-container::-webkit-scrollbar-track {
+  background: var(--secondary-color);
+  border-radius: 4px;
+}
+.developments-scroll-container::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+.developments-scroll-container::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+.advanced-search-toggle {
+    color: var(--primary-color) !important;
+
+</style>
+
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-3 small" role="contentinfo" style="font-size: 0.875rem;">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <p class="mb-2">&copy; 2025 UN Treaty Body Database. All rights reserved.</p>
+                    <p class="mb-0 text-muted" style="font-size: 0.75rem;">
+                        By continuing to use this site, you agree to our use of cookies.
+                        <a href="/cookie_policy" class="text-light">Learn more</a>.
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-right">
+                    <p class="mb-0">
+                        <a href="https://github.com/lszoszk/UN-TreatyBodiesDocSearch"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="footer-github-link">
+                            <i class="fab fa-github mr-2"></i>
+                            Open Source Project
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  /* ============================
+   * 1) Keep --navbar-height in sync
+   * ============================ */
+  const navbar = document.querySelector('.navbar');
+  function applyNavbarHeight() {
+    if (!navbar) return;
+    const h = navbar.getBoundingClientRect().height;
+    document.documentElement.style.setProperty('--navbar-height', h + 'px');
+  }
+  applyNavbarHeight();
+  window.addEventListener('resize', applyNavbarHeight);
+
+  /* ============================
+   * 2) Date validation (if fields exist)
+   * ============================ */
+  const today = new Date().toISOString().split('T')[0];
+  const startDate = document.getElementById('start_date');
+  const finishDate = document.getElementById('finish_date');
+  if (startDate && finishDate) {
+    startDate.setAttribute('max', today);
+    finishDate.setAttribute('max', today);
+    startDate.addEventListener('change', function () {
+      finishDate.setAttribute('min', this.value);
+    });
+  }
+
+  /* ============================
+   * 3) Search form validation + GA
+   * ============================ */
+  const searchForm = document.getElementById('searchForm');
+  const searchInput = document.querySelector('input[name="search_query"]');
+
+  if (searchForm && searchInput) {
+    // Error container
+    const errorContainer = document.createElement('div');
+    errorContainer.id = 'form-errors';
+    errorContainer.className = 'alert alert-danger mt-2';
+    errorContainer.style.display = 'none';
+    errorContainer.setAttribute('role', 'alert');
+    errorContainer.setAttribute('aria-live', 'assertive');
+    searchForm.insertBefore(errorContainer, searchForm.firstChild);
+
+    searchForm.addEventListener('submit', function (e) {
+      const q = (searchInput.value || '').trim();
+      const selectedFilters =
+        document.querySelectorAll(
+          'input[name="documentTypes[]"]:checked, ' +
+          'input[name="mandateTypes[]"]:checked, ' +
+          'input[name="rightsCategories[]"]:checked, ' +
+          'input[name="regions[]"]:checked'
+        ).length;
+
+      // Reset errors
+      errorContainer.style.display = 'none';
+      errorContainer.innerHTML = '';
+      searchInput.removeAttribute('aria-invalid');
+
+      if (!q && selectedFilters === 0) {
+        e.preventDefault();
+        errorContainer.innerHTML =
+          '<i class="fas fa-exclamation-triangle mr-2" aria-hidden="true"></i>' +
+          'Please enter a search term or select at least one filter to search the Special Procedures database.';
+        errorContainer.style.display = 'block';
+        searchInput.setAttribute('aria-invalid', 'true');
+        searchInput.setAttribute('aria-describedby', 'search-help form-errors');
+        searchInput.focus();
+        return false;
+      }
+
+      // GA event
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'special_procedures_search', {
+          event_category: 'SP Database Search',
+          event_label: q,
+          custom_map: { dimension1: 'special_procedures' }
+        });
+      }
+    });
+
+    // Clear error while typing
+    searchInput.addEventListener('input', function () {
+      if (this.hasAttribute('aria-invalid')) {
+        errorContainer.style.display = 'none';
+        this.removeAttribute('aria-invalid');
+        this.setAttribute('aria-describedby', 'search-help');
+      }
+    });
+  }
+
+  /* ============================
+   * 4) Optional dark-mode sync (navbar_universal provides the toggle)
+   * ============================ */
+  const darkModeToggle = document.getElementById('dark-mode-toggle');
+  if (darkModeToggle) {
+    const darkModeIcon = darkModeToggle.querySelector('i');
+    const THEME_KEY = 'theme';
+    const applyTheme = (theme) => {
+      const isDark = theme === 'dark';
+      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+      document.body.classList.toggle('dark-mode', isDark);
+      if (darkModeIcon) {
+        darkModeIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+      }
+      localStorage.setItem(THEME_KEY, theme);
+    };
+    const storedTheme = localStorage.getItem(THEME_KEY);
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(storedTheme ? storedTheme : (prefersDark ? 'dark' : 'light'));
+
+    darkModeToggle.addEventListener('click', function (e) {
+      e.preventDefault();
+      const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      applyTheme(current === 'dark' ? 'light' : 'dark');
+    });
+  }
+
+  /* ============================
+   * 5) Add Select All / Clear All to checkbox grids (regions)
+   * ============================ */
+  const addSelectButtons = (containerSelector, groupName) => {
+    const container = document.querySelector(containerSelector);
+    if (!container) return;
+
+    const selectAll = document.createElement('button');
+    selectAll.type = 'button';
+    selectAll.className = 'btn btn-sm btn-secondary mr-2 mb-2';
+    selectAll.innerHTML = '<i class="fas fa-check-square mr-1"></i>Select All';
+    selectAll.onclick = () => {
+      container.querySelectorAll(`input[name="${groupName}"]`).forEach(cb => cb.checked = true);
+    };
+
+    const selectNone = document.createElement('button');
+    selectNone.type = 'button';
+    selectNone.className = 'btn btn-sm btn-secondary mb-2';
+    selectNone.innerHTML = '<i class="fas fa-times-circle mr-1"></i>Clear All';
+    selectNone.onclick = () => {
+      container.querySelectorAll(`input[name="${groupName}"]`).forEach(cb => cb.checked = false);
+    };
+
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'mb-2';
+    buttonContainer.appendChild(selectAll);
+    buttonContainer.appendChild(selectNone);
+
+    container.parentNode.insertBefore(buttonContainer, container);
+  };
+  // Your SP page uses a two-column checkbox grid for regions
+  addSelectButtons('.checkbox-grid-two-col', 'regions[]');
+
+  /* ============================
+   * 6) Advanced toggle icon animation
+   * ============================ */
+  const advancedToggle = document.getElementById('advancedToggle');
+  const advancedIcon = document.getElementById('advancedIcon');
+  const advancedFilters = document.getElementById('advancedFilters');
+  if (advancedToggle && advancedIcon && advancedFilters && typeof $ !== 'undefined') {
+    $('#advancedToggle').on('click', function () {
+      const isOpen = $('#advancedFilters').hasClass('show');
+      setTimeout(() => {
+        if (isOpen) {
+          // closing -> back to sliders icon
+          advancedIcon.classList.remove('fa-chevron-down');
+          advancedIcon.classList.add('fa-sliders-h');
+        } else {
+          // opening -> show chevron
+          advancedIcon.classList.remove('fa-sliders-h');
+          advancedIcon.classList.add('fa-chevron-down');
+        }
+      }, 150);
+    });
+  }
+
+  /* ============================
+   * 7) Recent Developments (ALL documents, progressive render)
+   * ============================ */
+  loadRecentDevelopments();
+
+  function loadRecentDevelopments() {
+    // Use the same scroll container class as your GC page for a consistent feel
+    const container = document.getElementById('recentDevelopments');
+    if (!container) return;
+
+    container.innerHTML =
+      '<div style="text-align:center; padding: 1.25rem; color: var(--text-muted);">' +
+      '<i class="fas fa-spinner fa-spin mr-2"></i>Loading Special Procedures developments…' +
+      '</div>';
+
+    fetch('/static/data/specialprocedures_info.json')
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        const all = (Array.isArray(data) ? data : [])
+          .filter(Boolean)
+          .sort((a, b) => new Date(b['Adoption Date']) - new Date(a['Adoption Date'])); // newest → oldest
+
+        container.innerHTML = '';
+
+        // Progressive rendering to keep UI responsive with many items
+        const BATCH = 100; // tune as needed (50–250)
+        let i = 0;
+
+        (function renderChunk() {
+          const frag = document.createDocumentFragment();
+          for (let end = Math.min(i + BATCH, all.length); i < end; i++) {
+            const dev = all[i];
+            const a = document.createElement('a');
+            a.className = 'development-item';
+            a.href = dev.Link || '#';
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+
+            // Badge label: Mandate holder > Committee > 'SP'
+            let badge = dev['Mandate holder'] || dev.Committee || 'SP';
+            if (typeof badge === 'string' && badge.includes(',')) {
+              badge = badge.split(',')[0].trim();
+            }
+            if (badge.includes('Special Rapporteur on ')) {
+              badge = badge.replace('Special Rapporteur on ', 'SR ');
+            } else if (badge.startsWith('Special Rapporteur ')) {
+              badge = badge.replace('Special Rapporteur ', 'SR ');
+            }
+            if (badge.length > 28) badge = badge.slice(0, 25) + '…';
+
+            // Title & date
+            const title = dev['Simplified Name'] || dev.Name || 'Special Procedures document';
+            const d = new Date(dev['Adoption Date']);
+            const dateLabel = isNaN(d.getTime())
+              ? ''
+              : d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+            a.innerHTML = `
+              <span class="treaty-badge">${badge}</span>
+              <span class="development-text">${title}</span>
+              <span class="adoption-date">${dateLabel}</span>
+            `;
+
+            // Optional analytics
+            a.addEventListener('click', function () {
+              if (typeof gtag !== 'undefined') {
+                gtag('event', 'sp_document_access', {
+                  event_category: 'SP Recent Documents',
+                  event_label: dev.Name || title
+                });
+              }
+            });
+
+            frag.appendChild(a);
+          }
+          container.appendChild(frag);
+
+          if (i < all.length) {
+            // Yield to main thread between chunks
+            if ('requestIdleCallback' in window) {
+              requestIdleCallback(renderChunk, { timeout: 200 });
+            } else {
+              setTimeout(renderChunk, 0);
+            }
+          } else if (!container.children.length) {
+            // Safety fallback
+            showFallback(container);
+          }
+        })();
+      })
+      .catch(() => {
+        showFallback(container);
+      });
+  }
+
+  function showFallback(containerEl) {
+    // Your full fallback list (kept exactly as provided)
+    const fallbackDevelopments = [
+      {
+        "Committee": "SR Freedom of Expression",
+        "Mandate holder": "Irene Khan",
+        "Simplified Name": "Freedom of expression and elections in the digital age",
+        "Adoption Date": "11 June 2025",
+        "Link": "https://www.ohchr.org/sites/default/files/documents/hrbodies/hrcouncil/sessions-regular/session59/advance-version/a-hrc-59-50-aev.pdf"
+      },
+      {
+        "Committee": "SR Privacy",
+        "Mandate holder": "Ana Brian Nougrères",
+        "Simplified Name": "Foundations and principles for the regulation of neurotechnologies",
+        "Adoption Date": "16 January 2025",
+        "Link": "https://docs.un.org/en/A/HRC/58/58"
+      },
+      {
+        "Committee": "SR Privacy",
+        "Mandate holder": "Ana Brian Nougrères",
+        "Simplified Name": "Updating GA resolution 45/95 on computerized personal data files",
+        "Adoption Date": "17 July 2024",
+        "Link": "https://docs.un.org/en/A/79/173"
+      },
+      {
+        "Committee": "SR Freedom of Expression",
+        "Mandate holder": "Irene Khan",
+        "Simplified Name": "Global threats to freedom of expression arising from the conflict in Gaza",
+        "Adoption Date": "23 August 2024",
+        "Link": "https://docs.un.org/en/A/79/319"
+      },
+      {
+        "Committee": "SR Freedom of Expression",
+        "Mandate holder": "Irene Khan",
+        "Simplified Name": "Journalists in exile",
+        "Adoption Date": "26 April 2024",
+        "Link": "https://docs.un.org/en/A/HRC/56/53"
+      },
+      {
+        "Committee": "SR Freedom of Expression",
+        "Mandate holder": "Irene Khan",
+        "Simplified Name": "Gendered disinformation and the right to freedom of expression",
+        "Adoption Date": "7 August 2023",
+        "Link": "https://docs.un.org/en/A/78/288"
+      },
+      {
+        "Committee": "SR Freedom of Expression",
+        "Mandate holder": "Irene Khan",
+        "Simplified Name": "Sustainable development and freedom of expression",
+        "Adoption Date": "19 April 2023",
+        "Link": "https://docs.un.org/en/A/HRC/53/25"
+      },
+      {
+        "Committee": "SR Freedom of Expression",
+        "Mandate holder": "Irene Khan",
+        "Simplified Name": "Disinformation and freedom of opinion and expression during armed conflicts",
+        "Adoption Date": "12 August 2022",
+        "Link": "https://docs.un.org/en/A/77/288"
+      },
+      {
+        "Committee": "SR Freedom of Expression",
+        "Mandate holder": "Irene Khan",
+        "Simplified Name": "Media freedom and safety of journalists in the digital age",
+        "Adoption Date": "20 April 2022",
+        "Link": "https://docs.un.org/en/A/HRC/50/29"
+      },
+      {
+        "Committee": "SR Freedom of Expression",
+        "Mandate holder": "Irene Khan",
+        "Simplified Name": "Gender justice and freedom of opinion and expression",
+        "Adoption Date": "30 July 2021",
+        "Link": "https://docs.un.org/en/A/76/258"
+      }
+    ];
+
+    containerEl.innerHTML = '';
+    fallbackDevelopments.forEach((dev) => {
+      const a = document.createElement('a');
+      a.className = 'development-item';
+      a.href = dev.Link || '#';
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+
+      const d = new Date(dev['Adoption Date']);
+      const dateLabel = isNaN(d.getTime())
+        ? ''
+        : d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+      let badge = dev['Mandate holder'] || dev.Committee || 'SP';
+      if (badge.length > 28) badge = badge.slice(0, 25) + '…';
+
+      a.innerHTML = `
+        <span class="treaty-badge">${badge}</span>
+        <span class="development-text">${dev['Simplified Name']}</span>
+        <span class="adoption-date">${dateLabel}</span>
+      `;
+      containerEl.appendChild(a);
+    });
+  }
+
+  /* ============================
+   * 8) (Dev only) Accessibility quick check
+   * ============================ */
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    console.log('Accessibility Check: Enhanced Special Procedures Page Loaded');
+    const accessibilityChecks = {
+      'Skip Link': !!document.querySelector('.sr-only-focusable'),
+      'Main Landmark': !!document.querySelector('main'),
+      'Form Labels': document.querySelectorAll('label').length,
+      'ARIA Attributes': document.querySelectorAll('[aria-label], [aria-labelledby], [aria-describedby]').length,
+      'Color Token --text-primary': getComputedStyle(document.body).getPropertyValue('--text-primary')
+    };
+    console.table(accessibilityChecks);
+  }
+});
+</script>
+
+
+</body>
+</html>

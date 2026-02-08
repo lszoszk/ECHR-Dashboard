@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UN General Comments/Recommendations Browser</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style-additional.css') }}">
+    <title>About</title>
+</head>
+<style>
+</style>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+  <a class="navbar-brand" href="https://lszoszk.pythonanywhere.com/">UN General Comments/Recommendations</a>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav ml-auto">
+      <!-- Other nav items -->
+      <li class="nav-item">
+        <a class="nav-link" href="/about">About</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/corpus_viewer.html">Browse full texts</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://lszoszk.github.io/">Contact</a>
+      </li>
+      <!-- Dark mode toggle as a menu item -->
+    <li class="nav-item">
+        <a id="dark-mode-toggle" href="javascript:void(0);">
+            <i class="fas fa-moon"></i>
+        </a>
+    </li>
+    </ul>
+  </div>
+</nav>
+    <div class="container">
+<h2>Cookie Policy for the General Comments/Recommendations Database</h2>
+
+<h4>What Are Cookies?</h4>
+<p>As is common practice with almost all professional websites, this site uses cookies, which are tiny files that are downloaded to your computer, to improve your experience. This page describes what information they gather, how we use it, and why we sometimes need to store these cookies. We will also share how you can prevent these cookies from being stored; however, this may downgrade or 'break' certain elements of the site's functionality.</p>
+
+<h4>How We Use Cookies</h4>
+<p>We use cookies for a variety of reasons detailed below. In most cases, there are no industry standard options for disabling cookies without completely disabling the functionality and features they add to this site. It is recommended that you leave on all cookies if you are not sure whether you need them or not, in case they are used to provide a service that you use.</p>
+
+<h4>Disabling Cookies</h4>
+<p>You can prevent the setting of cookies by adjusting the settings on your browser (see your browser's "Help" for how to do this). Be aware that disabling cookies will affect the functionality of this and many other websites that you visit. Disabling cookies will usually result in also disabling certain functionality and features of this site. Therefore, it is recommended that you do not disable cookies.</p>
+
+<h4>The Cookies We Set</h4>
+<p>Site preferences cookies: In order to provide you with a great experience on this site, we provide the functionality to set your preferences for how this site runs when you use it. To remember your preferences, we need to set cookies so that this information can be called whenever you interact with a page that is affected by your preferences.
+</p>
+
+<h4>Third Party Cookies</h4>
+<p>In some special cases, we also use cookies provided by trusted third parties. The following section details which third party cookies you might encounter through this site.</p>
+<p>This site uses Google Analytics, one of the most widespread and trusted analytics solutions on the web, for helping us to understand how you use the site and ways that we can improve your experience. These cookies may track things such as how long you spend on the site and the pages that you visit so we can continue to produce engaging content.</p>
+
+<h4>More Information</h4>
+<p>Hopefully, that has clarified things for you. If there is something that you aren't sure whether you need or not, it's usually safer to leave cookies enabled in case it does interact with one of the features you use on our site.</p>
+
+<p>However, if you are still looking for more information, you can contact us through one of our preferred contact methods:</p>
+<br>Email: l.szoszkiewicz@amu.edu.pl
+
+
+
+<script>
+function copyCitation() {
+    var citationText = document.getElementById("citationText").innerText;
+    var textArea = document.createElement("textarea");
+    textArea.value = citationText;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textArea);
+
+    // Show the tooltip with "Copied!" text
+    var tooltip = document.getElementById("copyTooltip");
+    tooltip.style.visibility = "visible";
+    tooltip.style.display = "block"; // Make sure tooltip is displayed
+
+    // Hide the tooltip after a few seconds
+    setTimeout(function() {
+        tooltip.style.visibility = "hidden";
+        tooltip.style.display = "none"; // Hide tooltip again
+    }, 2000); // Adjust the duration as needed
+}
+
+// Function to set dark mode preference
+function setDarkModePreference(isDarkMode) {
+    localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
+}
+
+// Function to apply dark mode based on preference
+function applyDarkModePreference() {
+    const isDarkMode = localStorage.getItem('darkMode') === 'enabled';
+    const darkModeToggle = document.getElementById("dark-mode-toggle");
+
+    if (isDarkMode) {
+        document.body.classList.add('dark-mode');
+        darkModeToggle.querySelector('i').classList.replace("fa-moon", "fa-sun");
+        darkModeToggle.querySelector('i').classList.add("dark-mode-active");
+    } else {
+        document.body.classList.remove('dark-mode');
+        darkModeToggle.querySelector('i').classList.replace("fa-sun", "fa-moon");
+        darkModeToggle.querySelector('i').classList.remove("dark-mode-active");
+    }
+}
+
+// Check if the user has a preference and apply it
+applyDarkModePreference();
+
+function toggleDarkMode() {
+    const body = document.body;
+    const darkModeToggle = document.getElementById("dark-mode-toggle");
+    body.classList.toggle("dark-mode");
+
+    if (body.classList.contains("dark-mode")) {
+        darkModeToggle.querySelector('i').classList.replace("fa-moon", "fa-sun");
+        darkModeToggle.querySelector('i').classList.add("dark-mode-active");
+        setDarkModePreference(true);
+    } else {
+        darkModeToggle.querySelector('i').classList.replace("fa-sun", "fa-moon");
+        darkModeToggle.querySelector('i').classList.remove("dark-mode-active");
+        setDarkModePreference(false);
+    }
+}
+
+// Event listener for the dark mode toggle click
+const darkModeToggle = document.getElementById("dark-mode-toggle");
+if (darkModeToggle) {
+    darkModeToggle.addEventListener("click", toggleDarkMode);
+}
+
+</script>
+<footer class="bg-dark text-center text-white text-sm-start mt-5" style="font-size: 0.7rem; background-color: #343a40; position: fixed; bottom: 0; left: 0; right: 0; width: 100%; padding: 0.5rem 0; z-index: 1000;">
+    <div class="container-fluid">
+        <p class="mb-1">&copy; 2025 UN Treaty Body Database. All rights reserved. This website uses cookies to enhance your experience. By continuing to use this site, you agree to our use of cookies. <a href="/cookie-policy" class="text-decoration-underline text-white">Learn more</a>.</p>
+    </div>
+</footer>
+</body>
+</html>

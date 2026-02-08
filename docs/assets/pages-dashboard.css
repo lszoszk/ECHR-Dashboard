@@ -1,0 +1,147 @@
+:root {
+  --bg: #f3f7fb;
+  --card: #ffffff;
+  --text: #16253a;
+  --muted: #516780;
+  --accent: #245ea8;
+  --accent-2: #3c8d5a;
+  --border: #dbe5ef;
+  --shadow: 0 8px 24px rgba(19, 46, 77, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, -apple-system, Segoe UI, sans-serif;
+  background: radial-gradient(circle at 10% -10%, #e5f1ff 0, transparent 40%),
+    radial-gradient(circle at 90% -20%, #dff7eb 0, transparent 45%),
+    var(--bg);
+  color: var(--text);
+}
+
+.hero {
+  padding: 44px 20px 30px;
+}
+
+.hero-inner {
+  max-width: 1220px;
+  margin: 0 auto;
+  background: linear-gradient(120deg, #183b67 0%, #245ea8 60%, #2f6ebf 100%);
+  color: #f8fbff;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 28px 32px;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-family: "Source Serif 4", serif;
+  font-size: 2rem;
+  line-height: 1.2;
+}
+
+.hero p {
+  margin: 0;
+  opacity: 0.9;
+}
+
+.meta-line {
+  margin-top: 14px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 0.88rem;
+  opacity: 0.88;
+}
+
+.container {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 0 20px 40px;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.kpi-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 16px 16px 14px;
+}
+
+.kpi-label {
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.kpi-value {
+  font-size: 1.58rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1.1;
+}
+
+.kpi-note {
+  margin-top: 6px;
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+
+.chart-grid {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.chart-grid.two-cols {
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+}
+
+.chart-grid.one-col {
+  grid-template-columns: 1fr;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.card h2 {
+  margin: 0 0 12px;
+  font-size: 0.96rem;
+  color: var(--text);
+}
+
+.card canvas {
+  width: 100% !important;
+  max-height: 360px;
+}
+
+@media (max-width: 680px) {
+  .hero-inner {
+    padding: 20px;
+  }
+
+  .hero h1 {
+    font-size: 1.65rem;
+  }
+
+  .chart-grid.two-cols {
+    grid-template-columns: 1fr;
+  }
+}

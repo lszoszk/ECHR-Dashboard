@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}ECHR Case Law — Paragraph-Level Search{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-inner">
+        <h1 class="hero-title">European Court of Human Rights</h1>
+        <p class="hero-subtitle">Search through judicial decisions at the paragraph level</p>
+
+        <form action="/search" method="GET" class="search-form" id="searchForm">
+            <div class="search-box">
+                <input type="text" name="q" id="searchInput" class="search-input"
+                       placeholder="Search paragraphs… e.g. &quot;right to privacy&quot; OR surveillance"
+                       autocomplete="off" autofocus>
+                <button type="submit" class="search-btn">Search</button>
+            </div>
+
+            <div class="search-tips">
+                <span class="tip">Use <code>"quotes"</code> for exact phrases</span>
+                <span class="tip-sep">·</span>
+                <span class="tip">Use <code>OR</code> between alternatives</span>
+                <span class="tip-sep">·</span>
+                <span class="tip">Multiple words = AND logic</span>
+            </div>
+
+            <button type="button" class="filter-toggle" onclick="toggleFilters()">
+                <span class="filter-toggle-icon">▼</span> Advanced Filters
+            </button>
+
+            <div class="filters-panel" id="filtersPanel">
+                <div class="filters-grid">
+                    <!-- Sections -->
+                    <div class="filter-group">
+                        <h3 class="filter-title">Case Sections</h3>
+                        <div class="checkbox-grid compact">
+                            {% for key, label in sections %}
+                            <label class="cb-label">
+                                <input type="checkbox" name="sections" value="{{ key }}">
+                                <span>{{ label }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Countries -->
+                    <div class="filter-group">
+                        <h3 class="filter-title">Respondent State</h3>
+                        <div class="checkbox-grid scrollable">
+                            {% for code, name in countries %}
+                            <label class="cb-label">
+                                <input type="checkbox" name="countries" value="{{ code }}">
+                                <span>{{ name }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Articles -->
+                    <div class="filter-group">
+                        <h3 class="filter-title">Convention Articles</h3>
+                        <div class="checkbox-grid scrollable">
+                            {% for art in articles %}
+                            <label class="cb-label">
+                                <input type="checkbox" name="articles" value="{{ art }}">
+                                <span>Art. {{ art }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Date Range -->
+                    <div class="filter-group">
+                        <h3 class="filter-title">Judgment Date</h3>
+                        <div class="date-range">
+                            <input type="date" name="date_from" class="date-input" placeholder="From">
+                            <span class="date-sep">to</span>
+                            <input type="date" name="date_to" class="date-input" placeholder="To">
+                        </div>
+                        <h3 class="filter-title" style="margin-top: 1rem;">Chamber</h3>
+                        <div class="checkbox-grid compact">
+                            <label class="cb-label">
+                                <input type="checkbox" name="case_type" value="CHAMBER">
+                                <span>Chamber</span>
+                            </label>
+                            <label class="cb-label">
+                                <input type="checkbox" name="case_type" value="GRANDCHAMBER">
+                                <span>Grand Chamber</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<section class="stats-bar">
+    <div class="stats-bar-inner">
+        <div class="stat-chip">
+            <span class="stat-value">{{ stats.total_cases }}</span>
+            <span class="stat-label">Cases</span>
+        </div>
+        <div class="stat-chip">
+            <span class="stat-value">{{ "{:,}".format(stats.total_paragraphs) }}</span>
+            <span class="stat-label">Paragraphs</span>
+        </div>
+        <div class="stat-chip">
+            <span class="stat-value">{{ stats.countries }}</span>
+            <span class="stat-label">Countries</span>
+        </div>
+        <div class="stat-chip">
+            <span class="stat-value">{{ stats.date_range }}</span>
+            <span class="stat-label">Date Range</span>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,30 @@
+{
+  "timestamp": "2025-11-14T16:56:20.125Z",
+  "responses": {
+    "q1": "absolute_beginner",
+    "q2": [
+      "build_tools",
+      "understand_ai",
+      "stay_current"
+    ],
+    "q3": "2",
+    "q4": "more_accessible",
+    "q5": "Seeing a code pre-made and ready to be used - quite frustrating to see what I \"should\" be able to produce on my own later",
+    "q6": "Seeing the tools actually functionning! Also trying to think ways of visualising data and getting inspired",
+    "q7": "varied",
+    "q8": "4",
+    "q9": [
+      "time",
+      "tech_support"
+    ],
+    "q10": "that AI can be a really helpful tool to get me started. That the tools are out there and I may need a bit more of guidance but I can get there",
+    "q11": "empowered",
+    "q12": "more complex ... quite feasible even for beginners - BUT with the right tools and guidance",
+    "q13": "Focus on more basic things first. Give the broader but also the more concrete context. Make clear step by step what we will be doing but also what has been already done, and is ready provided to us. ",
+    "q14": "5",
+    "q14_why": "Sure, it was truly inspiring for those who share this interest. But I'd claim that a pure interest in technology would not be enough. A high interest in understanding coding is also key.",
+    "q15": "I was surprised by how a law graduate created this career path on his own. That was really inspiring, given that I also don't want to follow a \"traditional\" legal career.",
+    "q16": "academic"
+  },
+  "server_timestamp": "2025-11-14T16:56:13.232540"
+}

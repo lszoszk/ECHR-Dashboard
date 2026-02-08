@@ -1,0 +1,791 @@
+[
+    {
+        "ID": 1,
+        "Text": "1. It is high time to talk about what freedom of opinion and expression means for women and girls. The road has been bumpy, but much has been achieved. From Beijing in 1995 to Paris in 2021, women have raised their voices to speak truth to power, make visible what had been rendered invisible and demand equality and justice. Through their words and actions, women have demonstrated the mutually reinforcing nature of gender equality and freedom of expression, offline and online.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 2,
+        "Text": "2. Women have launched feminist principles for the Internet and founded community radio stations and networks in many parts of the world. In Latin America, they have organized journalism collectives to cover news from a feminist perspective. In Africa, they have created websites to express their sexuality. In Asia, they have collected case studies to demonstrate the impact of the gender digital divide.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 3,
+        "Text": "3. Women's activism has produced results. Argentina established the Ministry for Women and Diversity and Canada launched a Feminist Response and Recovery Fund. Colombia became the first country in the world to develop a national protection mechanism for journalists with a dedicated women's protection committee. In Sweden, the action plan on defending free speech contains measures to protect female journalists, elected representatives and artists from exposure to threats and hatred. The African Declaration on Internet Rights and Freedoms promotes non-discrimination and freedom of speech, equal access to the Internet for women and men, and the elimination of discrimination online.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 4,
+        "Text": "4. Despite the impressive and inspirational gains made by women, gender equality in freedom of expression remains a distant goal. When women raise their voices, too often they are suppressed. In the digital age, the Internet has become the new battleground in the struggle for women's rights, amplifying opportunities for women to express themselves but also multiplying possibilities for repression.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 5,
+        "Text": "5. The full participation of women at all levels of decision-making is essential for the achievement of equality, sustainable development, peace and democracy. Freedom of opinion and expression enables and empowers women to realize not only their civil and political rights, but also their economic, social, cultural and environmental rights. The coronavirus disease (COVID-19) pandemic has exacerbated gender inequalities across the spectrum of development. If women are to regain lost ground and lead the recovery, their right to freedom of opinion and expression must be front and centre.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 6,
+        "Text": "6. The present report is the first in the 27-year history of the mandate to be devoted exclusively to gender and freedom of opinion and expression. Gender equality has been identified by the Special Rapporteur as a priority. The report is the first step in a series of reports, consultations and activities that she will undertake during the course of her mandate. The aim is to promote a gendered understanding of freedom of opinion and expression that is responsive to the challenges women face and will enhance their contribution to the 2030 Agenda for Sustainable Development.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 7,
+        "Text": "7. The term \"gender justice\" is used in the report to convey the need for transformative changes encompassing equity (equal distribution of resources, access and opportunity) and equality (equal outcomes) to break the structural and systemic barriers holding women back.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 8,
+        "Text": "8. In the report, the Special Rapporteur adopts a feminist analytical framework that is attentive to the lived realities and needs of women and gender nonconforming people, and in so doing addresses traditionally neglected forms of speech relevant to their lives, including freedom of gender, sexual and cultural expression. It takes an intersectional approach, noting that women's experiences vary according to their race, ethnicity, caste, religion, sexual orientation, age, geographic location, social, economic and legal status and many other factors. Looking at freedom of opinion and expression through a feminist lens, she notes the power imbalances in soc iety that feed sexism, gender-based discrimination and misogyny, and constrain women's enjoyment of human rights.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 9,
+        "Text": "9. In light of the dominant role of the Internet in today's world, particular attention is paid in the report to the impact of digital technology, while acknowledging online and offline contexts as a continuous space where the rights exercised and the consequences experienced are often interlinked. On the one hand, the discrimination, inequalities and dangers that women face in the real world ar e carried over into the digital space. On the other hand, the threats they encounter in the digital space may result in physical violence offline.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 10,
+        "Text": "10. In this report, the Special Rapporteur maps out the key factors constraining women's equal right to freedom of expression, analyses the relevant international standards and the duties of States and responsibilities of companies. She identifies legal gaps and policy dilemmas, and makes recommendations to States, companies, media and civil society. The report draws on the contributions by 57 civil society organizations and scholars, 13 Governments and 2 international organizations, an expert workshop and large multi-stakeholder consultations at the 2021 RightsCon conference and Stockholm Internet Forum.",
+        "Labels": []
+    },
+    {
+        "ID": 11,
+        "Text": "11. Both sex and gender have been the basis for inequality and discrimination in the exercise of freedom of opinion and expression. While focusing primarily on women, where appropriate, reference is made in the report to the specific challenges faced by lesbian, gay, bisexual, transgender and questioning (LGBTQ+) individuals. The term \"women\" is also used in the report to include girls, where appropriate.",
+        "Labels": [
+            "Women/girls",
+            "LGBTI+"
+        ]
+    },
+    {
+        "ID": 12,
+        "Text": "12. Gendered censorship is pervasive. Expression is not free for many women or gender nonconforming people. Their voices are suppressed, controlled or punished explicitly by laws, policies and discriminatory practices and implicitly by social attitudes, cultural norms and patriarchal values. In its most extreme form, sexual and gender-based violence online and offline is used to chill or kill expression that is nonconformist or transgresses patriarchal and heteronormative societal or moral codes or norms.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 13,
+        "Text": "13. While the international human rights system has focused largely on censorship as repressive action by the State, non-State and private actors – whether social, cultural, religious or commercial – often play a leading and visible role in gendered censorship alongside the State, using various social mechanisms that \"mute women's voices, deny validity to their experience, and exclude them from the political discourse\". In the digital age, the spate of online violence, hate speech and disinformation often compel women to self-censor, limit what they post or leave platforms.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 14,
+        "Text": "14. Sexism and misogyny, combined with direct discrimination through laws and policies, are dominant factors in gendered censorship. Growing trends of populism, authoritarianism, nationalism and fundamentalism worldwide have accentuated patriarchy and misogyny and enhanced discrimination against women, as well as the suppression of their ability to express themselves. National security laws and new technologies, combined with cultural norms and community monitoring, have created a particularly challenging environment for female human rights defenders in some countries.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 15,
+        "Text": "15. Interpretations of culture, religion and tradition that subordinate women within patriarchal systems and structures are used often to justify discriminatory laws, institutions, rules and regulations. They disempower women and undermine their agency to express themselves or define their own culture, religion and tradition, while at the same time assigning them the role of preserving cultural traditions and values. It creates a form of structural silencing that leads women to self-censor. Many women fear the consequences of challenging existing norms and practices or lack the support mechanisms needed to take action. In some contexts, the fact that a woman, especially a young woman, is expressing her views is enough for her ideas to be discredited, and for the speaker to be socially sanctioned.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 16,
+        "Text": "16. The following paragraphs describe some specific ways in which women's expression is censored, restricted or hindered.",
+        "Labels": []
+    },
+    {
+        "ID": 17,
+        "Text": "17. Acts and threats of physical, sexual and psychological violence to silence women and gender nonconforming people are the most extreme manifestations of gendered censorship. Female journalists, human rights defenders, politicians and feminist activists are particularly targeted for physical and psychological violence and threats, including death and rape threats, for speaking out or simply for being a woman in a leadership role. In some contexts, female protestors and activists in detention are at heightened risk of sexual or gender-based violence at the hands of law enforcement or security forces. In some places in the Middle East, girls may be at risk for simply being on social media.",
+        "Labels": [
+            "Women/girls",
+            "Children",
+            "Persons deprived of their liberty"
+        ]
+    },
+    {
+        "ID": 18,
+        "Text": "18. As more women and gender nonconforming people use digital spaces to discuss, debate and build support networks on topics that are taboo in their homes and communities, the patriarchal norms of the real world are replicated on the platforms. To give an example, as women's reliance on online spaces has increased during the COVID-19 pandemic, online abuse against women has also increased, alongside a rise in offline domestic violence.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 19,
+        "Text": "19. People with intersecting marginalized identities, such as people of African descent, indigenous people, Dalits, migrants, LGBTQ+ people and persons with disabilities face more frequent and more concerted attacks targeting their identities. Survey results show that high percentages of young women and girls who are active online face intense gender-based trolling and harassment.",
+        "Labels": [
+            "Indigenous peoples",
+            "Women/girls",
+            "Children",
+            "Persons with disabilities"
+        ]
+    },
+    {
+        "ID": 20,
+        "Text": "20. Online gender-based violence includes both harmful speech and behaviour. It is often sexist or misogynistic in nature and contains digital threats or incitement to physical or sexual violence. \"Sextortion\", doxing, trolling, online bullying and harassment, online stalking, online sexual harassment and the non-consensual sharing of intimate images have been identified as digitalized forms of violence against women by the Special Rapporteur on violence against women, its causes and consequences. Such acts can also involve smear campaigns, electronic sabotage, impersonation of the victim online and the sending of abusive messages in the victim's name.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 21,
+        "Text": "21. Gendered disinformation is also on the rise. While it is a subset of genderbased violence, it has some distinct characteristics, using \"false or misleading gender and sex-based narratives against women, often with some degree of coordination, aimed at deterring women from participating in the public sphere. It combines three defining characteristics of online disinformation: falsity, malign intent, and coordination.\" It is often intersectional in nature, promoting both sex and race-based narratives, and used as part of issue-based campaigns to undermine public trust. Research data indicates that female politicians, especially those who speak out on feminist issues or come from racial, ethnic, religious or minority groups are targeted with much higher levels of disinformation than their male counterparts.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 22,
+        "Text": "22. In a perverse twist in the #MeToo age, women who publicly denounce alleged perpetrators of sexual violence online are increasingly subject to defamation suits or charged with criminal libel or the false reporting of crimes. Weaponizing the justice system to silence women feeds impunity while also undermining free speech.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 23,
+        "Text": "23. The harm caused by online violence, sexist hate speech and disinformation are real and diverse, affecting the mental and physical health of those targeted, undermining their confidence and autonomy, stigmatizing them and generating fear, shame, and professional and reputational damage. In extreme cases, online threats can escalate to physical violence and even murder. The overall objective is to intimidate and silence female and non-binary journalists, writers, artists and politicians and drive them out of digital spaces. Since online networks are the dominant space for freedom of expression in the digital age, silencing such voices online may prevent them from being heard at all, reducing diversity and affecting democratic debate.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 24,
+        "Text": "24. National laws and judicial decisions often cite the protection of public morals as a reason to criminalize or seek the removal of content deemed to be improper, indecent, obscene or immodest. In a number of countries, such laws have been used to police the online social behaviour of women and remove content relating to sexual expression, sexual orientation or gender identity. Online threats and harassment against women by non-State actors are usually framed in terms of the immodesty or obscenity of women's audiovisual or written self-expression.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 25,
+        "Text": "25. In 2020, 10 female TikTok influencers in Egypt were charged with inciting immorality and debauchery and violating Egyptian family values. Also in 2020, a number of Iranian women were arrested for violating modesty because they had posted photos or videos of themselves without headscarves on Instagram. Countries that criminalize women's freedom of expression online on grounds of morality or obscenity claim to do so in order to protect them. Such paternalistic approaches do not take women's consent into account and see any expression of female sexuality as problematic, transgressive and punishable.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 26,
+        "Text": "26. The policies of digital platforms also seek to censor women's sexual expression, including prohibiting nudity and \"adult content\". Because automated content moderation is unable to identify nuance, content can be wrongly removed or blocked, as shown by the first decision of the Facebook Oversight Board.",
+        "Labels": []
+    },
+    {
+        "ID": 27,
+        "Text": "27. Many countries criminalize not only homosexuality and transgender behaviour but also LGBTQ+ information on grounds of morals, traditional values and child protection. Evidence shows that such an approach fosters intolerance, stigmatization and violence, and deprives people from access to accurate information.",
+        "Labels": [
+            "Children",
+            "LGBTI+"
+        ]
+    },
+    {
+        "ID": 28,
+        "Text": "28. The \"homosexual propaganda\" law in the Russian Federation and the law passed in Hungary in 2020 are two examples of censorship of legitimate speech about and by LGBTQ+ and gender nonconforming people. The special procedure mandate holders have expressed serious concerns regarding the bans on the dissemin ation of information related to sexual orientation and gender identity on grounds of public morality.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 29,
+        "Text": "29. According to the Feminist Principles of the Internet 2.0, the right to sexual expression is \"a freedom of expression issue of no less importance than political or religious expression\". The World Health Organization has underlined the vital role of the right to freedom of opinion and expression in the realization of sexual health. The Special Rapporteur on Economic, Social, Cultural and Environmental Rights of the Organization of American States has affirmed that gender expression constitutes a form of expression that is protected under the international human rights framework.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 30,
+        "Text": "30. Across different contexts, feminist artists and activists seek to spark dialogue to disrupt and reshape norms and practices, challenge sociocultural narratives and power structures, and empower individuals and communities. Cultural expression, including artistic freedom, is protected under international human rights law. Nevertheless, religious interpretations, traditional values and patriarchal social constructs are used to restrict or stifle cultural expression, including artistic freedom of women and gender nonconforming people.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 31,
+        "Text": "31. Restrictions range from bans on women performing or on the broadcast of their performances to the suppression of art and culture produced by LBGTQ+ and gender nonconforming people, or on themes of gender and sexuality. Artists have also faced censorship of artwork on issues such as abortion or gender-based violence.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 32,
+        "Text": "32. The Special Rapporteur in the field of cultural rights has noted that diverse State and non-State actors seek to quash cultural expression that is antithetical to their agendas and erase cultural diversity, using blasphemy laws, laws on public morals, criminal laws and campaigns of threats, harassment and violence. Cultural events associated with women and girls have been the target of violent attacks.",
+        "Labels": [
+            "Women/girls",
+            "Children"
+        ]
+    },
+    {
+        "ID": 33,
+        "Text": "33. As the digital space has become a major venue for social and cultural interaction during the COVID-19 pandemic, social media platforms have sought to restrict women's artistic expression online. Vaguely worded community standards and a punitive, conservative and inconsistent approach to content moderation has led to the disproportionate censoring of female artists and artwork on themes of women's rights, which has in turn caused female artists to self-censor.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 34,
+        "Text": "34. Unequal access to the Internet is a major impediment to the empowerment of women, especially those who are excluded from other public spaces, such as gender nonconforming people or young women from traditional societies. Only 48 per cent of women worldwide have access to information and communications technology (ICT), with the percentage falling as low as 23 per cent in Africa. Within countries, the digital divide may cut across other axes of discrimination, e.g. along lines of race and ethnicity in the United States of America.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 35,
+        "Text": "35. The disparities in Internet access are grounded in other disparities that women face in society arising from their economic, social, political and cultural contex ts. There is therefore not merely one divide but multiple divides to be overcome.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 36,
+        "Text": "36. Access to information is key to women's empowerment and agency. From a gender perspective, at least two problems are evident. Firstly, information of particular interest to women, e.g. data on workplace inequalities or violence against women, is often unavailable, outdated or difficult to find. Gender-disaggregated data are systematically lacking in many countries. The Women Count project of the United Nations Entity for Gender Equality and the Empowerment of Women (UN-Women) is an important initiative to improve the production and use of gender statistics.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 37,
+        "Text": "37. Secondly, there is a deliberate attempt to block the dissemination of genderrelated information. In a number of countries, regressive lobbies present sexual and reproductive rights as perpetuating \"gender ideology\" and threatening culture, religion, traditional values, parental rights and the right to life. Some Governments and private actors seek to restrict information on reproductive and sexual health, including safe abortion, and the provision of comprehensive sexuality education. United Nations treaty bodies, special procedure mandate holders and the Human Rights Council have clarified that such discourse is misleading, and incompatible with and antagonistic to human rights standards. Civil society organizations have campaigned to promote access to health information for marginalized communities, and to provide content from an intersectional feminist perspective.",
+        "Labels": []
+    },
+    {
+        "ID": 38,
+        "Text": "38. Increasingly, there are also efforts to ban gender studies, restricting academic freedom of expression and limiting information on gender theory, rights related to gender and sexuality, and feminist scholarship. In 2017, Paraguay banned the discussion of gender-related issues in schools. In 2018, Hungary revoked accreditation and funding for gender studies programs at the two universities where they were being offered.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 39,
+        "Text": "39. Women's rights groups and feminist movements have been a critical force for change around the world but they have come under increased pressure as public space for civic action has been restricted by authoritarian regimes and regressive social actors. Organizations have been turning to digital platforms as an alternative space to organize, in particular during the COVID-19 pandemic, but find themselves under attack from State and non-State actors.",
+        "Labels": []
+    },
+    {
+        "ID": 40,
+        "Text": "40. Interrelated trends restrict the space available to women's rights organizations today: censorship, repression, surveillance, the shutdown of websites or other restrictions by the authorities and intimidation, blackmail, slander and online harassment by a range of ideologically driven non-State actors. Like other civil society organizations, women's groups also face Government-imposed constraints on international funding and cumbersome domestic regulations.",
+        "Labels": []
+    },
+    {
+        "ID": 41,
+        "Text": "41. The closing of spaces for feminists to organize is a highly gendered phenomenon, with restrictions and repression linked to the gender of the activists or the gender-related nature of their work. The ways in which they are targeted are also gendered, with additional risks of violence, censorship or surveillance for those identified with or working on, for instance, sexual and reproductive rights or the rights of LGBTQ+ communities or other marginalized groups, such as Dalit women. As an example, hundreds of women peacefully protesting against Turkey's withdrawal from the Council of Europe Convention on Preventing and Combating Violence against Women and Domestic Violence (Istanbul Convention) were arrested and prosecuted.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 42,
+        "Text": "42. Neither gender equality nor women's freedom of expression can be promoted if spaces for women to organize are not protected.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 43,
+        "Text": "43. The Fourth World Conference on Women in 1995 called for greater participation and decision-making of women in the media, and for the media to promote a balanced and non-stereotyped portrayal of women. As the commitment of the United Nations Generation Equality campaign to meet the goals of the Beijing Declaration is reaffirmed, \"traditional understandings of masculinity persist and are disseminated by the media industry, and constitute a barrier for gender equality in different contexts.\" Women are far less likely than men to be seen in the media worldwide. As subjects of stories, women only appear in a quarter of television, radio and print news. Women's perspectives and issues are less likely to reach audiences. The gender imbalance in how media views society reinforces and perpetuates stereotypes and biases.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 44,
+        "Text": "44. There has been little change in the past 25 years, according to the Global Media Monitoring Project, a worldwide grass-roots media research and advocacy initiative. In a 2015 report, women made up only 19 per cent of experts featured in news stories and 37 per cent of reporters telling stories globally. A survey of Indian media conducted in 2019 found that women accounted for less than 15 per cent of panellists on English news channels and authored only 25 per cent of news articles. A 2019 study in the United States pointed to the underrepresentation of women, especially black women, in news media. Employment practices and sexist behaviour were identified as problems in the sector.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 45,
+        "Text": "45. While the safety of both male and female journalists are threatened in the course of their work, women are at much higher risk of sexualized violence and online violence including doxing. A global survey released in April 2021 by the United Nations Educational, Scientific and Cultural Organization and the International Center for Journalists found that 73 per cent of female journalists claimed to have experienced online gender-based violence, with black and indigenous women targeted more often than white women.",
+        "Labels": [
+            "Indigenous peoples",
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 46,
+        "Text": "46. Attacks on female journalists violate not only their freedom of expression, but also society's right to information from diverse media, as highlighted by the global campaign to support Maria Ressa. It represents a gendered attack on media freedom.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 47,
+        "Text": "47. In this section, the international legal standards relevant to gender equality and freedom of expression are set out and analysed in relation to the challenges and barriers mentioned above and the duties of States to respect, protect and fulfil human rights.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 48,
+        "Text": "48. States have an obligation not only to respect freedom of opinion and expression, but also to proactively remove the structural and systemic barriers to equality, including sexual and gender-based violence, which impede women's full enjoyment of freedom of opinion and expression.",
+        "Labels": []
+    },
+    {
+        "ID": 49,
+        "Text": "49. The right to freedom of opinion and expression is guaranteed in article 19 of the Universal Declaration of Human Rights and of the International Covenant on Civil and Political Rights. While gender neutral in their language, articles 2, 3 and 26 of the Covenant are explicit in guaranteeing all rights enshrined in the Covenant without discrimination on the basis of sex. European, Inter-American and African regional human rights instruments also protect freedom of opinion and expression and provide similar guarantees of equality.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 50,
+        "Text": "50. Under the Convention on the Elimination of All Forms of Discrimination against Women, States are obliged to guarantee women equal enjoyment of all human rights and fundamental freedoms. The Committee on the Elimination of Racial Discrimination and the Working Group on discrimination against women and girls have affirmed that the rights to equality and freedom of expression are mutually supportive.",
+        "Labels": [
+            "Women/girls",
+            "Children"
+        ]
+    },
+    {
+        "ID": 51,
+        "Text": "51. The elimination of structural and systemic forms of gender discrimination is essential to protecting freedom of expression on a basis of equality. International law recognizes the obligation of States to address not only discriminatory laws, policies and practices, but also the structural and systemic factors that perpetuate disadvantages, including through socially, culturally and legally entrenched gender stereotypes. In its general recommendation No. 25 (2004) on temporary special measures, the Committee on the Elimination of Discrimination against Women affirmed that States parties must address gender-based stereotypes that affect women individually, in law and in legal and societal structures and institutions.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 52,
+        "Text": "52. In a series of resolutions, the Human Rights Council has recognized the intersectionality of gender-based discrimination. It has called on States to eliminate the root causes of structural discrimination against women and girls, including deep rooted patriarchal and gender stereotypes, negative social norms and systemic racism, and traditional understandings of gender roles that perpetuate unequal power relations, discriminatory attitudes, behaviours, norms, perceptions, customs and harmful practices.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 53,
+        "Text": "53. The right to freedom of expression is established as a broad and inclusive right in article 19 (2) of the Covenant, encompassing the right to seek, receive and impart information and ideas of all kinds, regardless of borders and through any media. The Human Rights Committee has clarified that the protection of information and ideas include those that may shock, offend or disturb.",
+        "Labels": []
+    },
+    {
+        "ID": 54,
+        "Text": "54. This right incorporates a right to access information, including from public bodies, and places an obligation on States to respond to information requests from the public or the media and proactively publish and widely disseminate information of significant public interest. A total of 121 States, comprising 90 per cent of the world's population, have adopted laws on the right to information, with varying degrees of effectiveness in providing public information and advancing transparent governance. While women have used their right to access information to claim other rights and demand accountability, many of them confront significant structural barriers, including a lack of education, a lack of access to the Internet, digital illiteracy, poverty and \"time poverty\", as well as cultural and legal norms that deem it inappropriate for women to seek information from public authorities.",
+        "Labels": [
+            "Women/girls",
+            "Persons living in poverty"
+        ]
+    },
+    {
+        "ID": 55,
+        "Text": "55. The gender data gap, or the failure of many States to provide disaggregated information, is inconsistent with the obligation of States to uphold the right to information. It is also inconsistent with States' commitments to gender equality. The failure of States to produce disaggregated data and the resultant bias not only undermines the right to information, but may also skew policymaking and have an impact on the enjoyment of a variety of human rights. Too often, the very existence of gender data gaps and data biases is a manifestation of the structural discrimination faced by women, girls and non-binary persons.",
+        "Labels": [
+            "Women/girls",
+            "Children"
+        ]
+    },
+    {
+        "ID": 56,
+        "Text": "56. In the digital age, the Internet is the main means of accessing and sharing information. Human rights bodies have recognized the gender digital divide as a major constraint on the equal right to freedom of expression of women and girls. The Human Rights Council has affirmed the importance of applying a comprehensive human rights-based approach to providing and expanding access to the Internet, calling on all States to bridge the gender digital divide, foster an enabling online environment that is safe and inclusive, and make a gender perspective central to policy decisions and the frameworks that guide ICT policies. Community efforts, as an alternative to commercial models led by large companies, also deserve more attention and support.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 57,
+        "Text": "57. Rooted in systemic and structural discrimination against women and girls, the gender digital divide and data gap are not only concerns for development, but also represent the failure of States to fulfil the right to information.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 58,
+        "Text": "58. While the freedom of opinion is absolute, freedom of expression may be restricted. Under article 19 (3) of the Covenant, all restrictions must be provided by law and must be necessary and legitimate to protect the rights or reputations of others, national security or public order, public health or public morals. The restriction must be the least restrictive and proportionate means of achieving the purported aim. The application of these restrictions by States \"may not put in jeopardy the right itself\". 90",
+        "Labels": []
+    },
+    {
+        "ID": 59,
+        "Text": "59. As mentioned earlier in the report, States have frequently relied on public morals to improperly restrict gender, sexual and cultural expression. While \"public morals\" is a potentially broad concept, under international law there are important limits on its application through a three-part test of its lawfulness, legitimate objective, necessity and proportionality. It is also worth recalling that speech that may shock, offend or disturb is protected under article 19 (2) of the Covenant.",
+        "Labels": []
+    },
+    {
+        "ID": 60,
+        "Text": "60. The Human Rights Committee has clarified that restrictions to protect public morals cannot be based exclusively on a single tradition and must respect the universality of human rights and the principle of non-discrimination. No restriction may be enshrined in traditional, religious or customary law. The Human Rights Council and the General Assembly have reinforced the narrow and specific nature of the public morals limitation, calling on States to ensure that any legislation aimed a t preserving morals is compatible with international human rights law, and that all policies, administrative measures and legal provisions aimed at preserving public morals are clearly defined, determinable, non-retroactive and compatible with international human rights law.",
+        "Labels": []
+    },
+    {
+        "ID": 61,
+        "Text": "61. Furthermore, States bear the burden of proving that the restriction is necessary and proportionate to the aim, and are obliged to interpret all restrictions to freedom of expression narrowly, given \"the primary responsibility of the State to secure [recognized] rights and liberties\". The principle of necessity and proportionality means that restrictions cannot be justified where the harm to freedom of expression outweighs the benefits.",
+        "Labels": []
+    },
+    {
+        "ID": 62,
+        "Text": "62. The prohibition against sexual and gender-based violence is well established in international law and regional human rights instruments. States have an obligation to ensure that State and non-State actors refrain from engaging in or contributing to threats or acts of sexual and gender-based violence.",
+        "Labels": []
+    },
+    {
+        "ID": 63,
+        "Text": "63. As noted by the Special Rapporteur on violence against women, the right to be safe from threats and violence applies equally online and offline. This report focuses on online violence against women because digital technology has added new and dangerous dimensions that pose a serious threat to freedom of expression. Given the global nature of the issue, the absence of an international definition of online genderbased violence complicates the problem.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 64,
+        "Text": "64. Online gender-based violence has some distinct features that differentiate it from violence in the real world. The acts can be committed at any time and from any place by primary perpetrators and amplified by secondary perpetrators, using digital spaces and tools that greatly enhance the rate, speed, replication and permanence of the acts, with significant impacts on survivors. Existing laws on violence against women and girls are not suited to addressing these peculiarities.",
+        "Labels": [
+            "Women/girls",
+            "Children"
+        ]
+    },
+    {
+        "ID": 65,
+        "Text": "65. A growing number of States have enacted specific legislation or updated existing laws to criminalize online violence or require social media platforms to remove such violent content. Civil society and women's groups have found that, in many cases, the laws fail to address the distinct nature of online violence or are being implemented poorly. Furthermore, because of the absence of physical violence, law enforcement and judicial authorities tend to trivialize the abuse even though it often has real world consequences. In countries that have no specific laws on online genderbased violence, the victims are either left without recourse or resort in the face of defamation, or with privacy laws that do not meet their needs adequately.",
+        "Labels": []
+    },
+    {
+        "ID": 66,
+        "Text": "66. The Council of Europe Group of Experts on Action against Violence against Women and Domestic Violence, which monitors the implementation of the Istanbul Convention, has increasingly focused its attention on online violence. It will adopt a general recommendation in 2021 on the digital dimensions of violence and its impact on democratic participation, which is therefore also relevant to women's freedom of expression.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 67,
+        "Text": "67. Like offline violence, addressing online violations requires a mix of criminal, civil, legal, administrative and social responses. States have taken a range of initiatives, such as training police, prosecutors and judges on hate speech and hate crimes in Finland, launching women's justice centres to empower survivors and support their access to justice in Mexico, and making community-level interventions in Honduras using social media platforms to change cultural norms and the attitudes of young men and women. The digital rights organization Access Now operates a digital security helpline open at all times to provide direct support to at-risk users and build capacity in local communities.",
+        "Labels": []
+    },
+    {
+        "ID": 68,
+        "Text": "68. As misogyny proliferates on social media platforms, there are increasing calls to prohibit or criminalize gendered hate speech. While important, the issue should be approached with care given the risk of censoring legitimate speech.",
+        "Labels": []
+    },
+    {
+        "ID": 69,
+        "Text": "69. Although hate speech has no universally accepted definition in international law, it is understood to cover a broad range of hateful expression and the obligations of States vary depending on the level and nature of likely harm. The most severe forms of hate speech are prohibited under international law. Under article 20 (2) of the Covenant, \"advocacy of national, racial or religious hatred that constitutes incitement to discrimination, hostility or violence\" is prohibited.",
+        "Labels": []
+    },
+    {
+        "ID": 70,
+        "Text": "70. Although gender and sex are not mentioned in article 20 (2), they can and should be considered grounds for protection in view of the gender equality clauses elsewhere in the Covenant and the broader intersectional approach to non-discrimination that international human rights law has consistently taken in recent decades. In addition to the specific requirements set out in article 20 (2) of the Covenant, in the Rabat Plan of Action on the prohibition of advocacy of national, racial or religious hatred that constitutes incitement to discrimination, hostility or violence six elements are proposed as a threshold test for hate speech: the context; the speaker; the intent; the content and form of the speech; the extent of the speech act; and the likelihood, including the imminence, of harm. Providing all these elements are satisfied, gendered hate speech can be prohibited under international law. However, it should not be criminalized except in the most egregious cases of real and imminent danger with a clear intention to cause serious harm.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 71,
+        "Text": "71. The Rabat Plan of Action also offers a framework for distinguishing between different types of speech based on the severity of harm. It sets out three categories: harmful speech that constitutes a crime because it presents real and imminent danger; harmful speech that does not reach that threshold but may justify civil action; and offensive speech that raises concerns in terms of tolerance, hostility or discrimination and should be addressed through non-legal measures, such as condemnation, awareness-raising and education.",
+        "Labels": []
+    },
+    {
+        "ID": 72,
+        "Text": "72. Such a graduated approach could provide an international benchmark for defining gender-based hate speech in a way that protects both women's safety and freedom of expression.",
+        "Labels": []
+    },
+    {
+        "ID": 73,
+        "Text": "73. There is no agreed definition of disinformation under international law. It is understood generally to be false information disseminated with the intent of causing social harm. Information cannot be restricted under international law simply because of falsity. False information can be restricted only by measures that meet the three part test set out in article 19 (3) of the Covenant, meaning that they are lawful, necessary and proportionate to protect one of the specified legitimate objectives, e.g. to prevent serious reputational damage.",
+        "Labels": []
+    },
+    {
+        "ID": 74,
+        "Text": "74. Laws purportedly adopted to restrict disinformation (\"fake news\" laws) are often misused to silence critics. The criminalization of disinformation is counterproductive. The most powerful antidote to disinformation is a well-informed and digitally literate population with access to multiple, diverse media and information sources, and multifaceted, multi-stakeholder approaches involving States, companies and civil society, including women's groups. Disinformation is a complex phenomenon, even more so when it is gendered, and would benefit from more research and analysis.",
+        "Labels": []
+    },
+    {
+        "ID": 75,
+        "Text": "75. Under international law, companies have the responsibility to respect human rights, including gender equality and the right to freedom of opinion and expression. In line with the Guiding Principles on Business and Human Rights: Implementing the United Nations \"Protect, Respect and Remedy\" Framework, they are expected to exercise due diligence and conduct regular human rights assessments of their products, operations and policies with a view to identifying, preventing or mitigating actual or potential adverse impacts on human rights and provide remediation. There is also an expectation for companies to be transparent about their policies and practices.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 76,
+        "Text": "76. As the prime space for public discourse, social media platforms have contributed significantly to women's empowerment by enabling them to access information, communicate, advocate and organize. However, the platforms have failed to respond adequately to the risks and dangers of online violence, hate speech and disinformation that women confront in the digital space. The following paragraphs set out some of the concerns.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 77,
+        "Text": "77. A key concern, noted by the previous Special Rapporteur, is that platforms set their own standards for content moderation, disconnected from human rights. Only Facebook has recently adopted a human rights policy, although its impact, if any, on content moderation is unclear.",
+        "Labels": []
+    },
+    {
+        "ID": 78,
+        "Text": "78. The community standards and content governance guidelines of all major social media platforms cover hate speech, hate promotion and harassment, and view genderbased discrimination as propagating hate speech, although none of them refer to human rights. The rising tide of online gender-based violence, harassment, trolling, doxing and other harmful activity has led to criticism that the platforms are not treating online gender-based violence with the urgency, seriousness and resources it requires.",
+        "Labels": []
+    },
+    {
+        "ID": 79,
+        "Text": "79. In 2020 and 2021, the dominant platforms have introduced measures, such as integrated reporting of abuse, blocking, unfriending and muting to alleviate harm, but these features are still largely missing from smaller, newer forms of social media. In June 2021, Facebook, Google, TikTok and Twitter announced their commitment to tackling online abuse and further improving the safety of women on their platforms.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 80,
+        "Text": "80. Safety tools need to be adopted throughout the sector. Furthermore, in order to be effective, the measures need to be accompanied by broader commitments to transparency and accountability, changes in a business model based on the extraction of personal data and a greater awareness of gender and human rights.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 81,
+        "Text": "81. There are concerns that insufficient sensitivity to local contexts may endanger women. Platform content moderation is typically performed by a combination of algorithmic sorting, including classifiers to identify prescribed content, and human review. Automated content moderation is capable of image recognition but struggles to detect sentiment, capture nuance or consider relevant linguistic and cultural traits. Given that transgressions of social and cultural norms and the consequences for them depend on local contexts, the failure to understand diverse local situations can jeopardize women's safety.",
+        "Labels": []
+    },
+    {
+        "ID": 82,
+        "Text": "82. Human moderators of content can also err while enforcing internal policies, training artificial intelligence systems and actively screening and removing offensive material, as well as being subject to the emotional toll of viewing pornographic, violent and other harmful content. Given the significant error rates of both human and automated content moderation processes, dominant platforms need to invest more in improving accuracy and understanding local contexts, including through partnerships with civil society and women's groups.",
+        "Labels": []
+    },
+    {
+        "ID": 83,
+        "Text": "83. Women and gender nonconforming people are subjected to harmful speech, but they also find their own expression suppressed on platforms. There have been many reports of removal of content and imagery produced by women, especially those from minority groups, which show gender bias in content moderation. Several reports of pictures of indigenous women nude, including while protesting, were removed for violating community standards. It is also claimed in some reports that specific groups of women are particularly subject to removals, such as transgender women.",
+        "Labels": [
+            "Indigenous peoples",
+            "Women/girls",
+            "LGBTI+"
+        ]
+    },
+    {
+        "ID": 84,
+        "Text": "84. The setting of rules by social media platforms through community guidelines and moderation by algorithms is not objective. It reflects the biases and worldviews of the rule-setters, who tend to be typically from the specific sociocultural context of Silicon Valley: racially monochromatic and economically elite. The gender bias evident in content moderation reinforces the argument for companies to base their content moderation on international human rights standards. \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 85,
+        "Text": "85. A challenge to the moderation of harmful content is the platform business model that seeks to maximize user engagement by promoting inflammatory and controversial content. Gender-based hate speech fuelling controversy and moral outrage is an example of this type of content. Content moderation rules may also lead to the amplification and aggravation of sexist and misogynistic speech through confirmation bias with the creation of filter bubbles and echo chambers that perpetuate online toxicity. .",
+        "Labels": []
+    },
+    {
+        "ID": 86,
+        "Text": "86. Some limited steps have been taken to improve the ranking of so-called authoritative content, including by Facebook and YouTube, typically as temporary crisis measures, for example during election periods or in response to misinformation related to COVID-19. Other proposed measures include introducing \"friction\" on the viral nature of content, as WhatsApp has done by limiting forwarding; temporarily halting the sharing of content until it has been fact-checked; labelling posts; using \"scan and suggest\" technology; and limiting the auto-playing of videos.",
+        "Labels": []
+    },
+    {
+        "ID": 87,
+        "Text": "87. Researchers and civil society have long called for a greater focus on the role of social media companies' algorithms and design decisions. It is an open and difficult question on how to reconfigure social media to better incentivize diverse, varied and reliable information while fostering freedom of expression. More informed and multistakeholder debate is needed on the societal impact of algorithmic ranking of information.",
+        "Labels": []
+    },
+    {
+        "ID": 88,
+        "Text": "88. Appeal mechanisms for wrongful decisions are crucial to offsetting the significant risk inherent in large social media companies using imperfect filters to remove content, or conversely, failing to take action in response to user complaints. Under the Guiding Principles, company-led remediation must begin with an effective way for women to report potential violations of hate speech policies, and a transparent and accessible process to appeal platform decisions, with companies publishing a publicly accessible and reasoned response.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 89,
+        "Text": "89. The platforms should disclose the kinds of remedies they will impose on those who have violated their gender policies, using graduated responses according to the severity of the violation or the recidivism of the user. As part of their due diligence efforts, they should identify rights-compliant tools to address problematic content beyond account suspension and content removal, such as demonetization, factchecking and, where appropriate, counter-messaging.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 90,
+        "Text": "90. There are periodic recommendations to require real name identity and allow backdoor access to encrypted products for surveillance and law enforcement. Questions have been raised about anonymity as a factor in encouraging online violence with impunity. However, anonymity and the use of encryption and other privacy protocols are an essential facet of women's enjoyment of freedom of opinion and expression in the online context and must be protected. The anonymous browsing of networks facilitates their safe access to the Internet without fear of discovery or reprisal, especially in the case of feminist and LGBTQ+ activists and female human rights defenders, but also for many others, such as victims of domestic violence.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 91,
+        "Text": "91. It is critical to formulate principles and guidelines that allow the Internet to continue to be the central global public forum, upholding the right to privacy and being free from government censorship, while ensuring that it is not used as an instrument to commit violations of women's human rights.",
+        "Labels": []
+    },
+    {
+        "ID": 92,
+        "Text": "92. A lack of transparency remains a major failing of Internet intermediaries. There are at least three areas where platform transparency needs to be improved: transparency reporting, access to data and audits.",
+        "Labels": []
+    },
+    {
+        "ID": 93,
+        "Text": "93. Industry transparency reports give insights into the number of requests to take down allegedly unlawful content and content that violates platforms' terms of services. They are an important source of information, but platforms need to standardize reporting procedures and key performance indicators to allow comparative analysis.",
+        "Labels": []
+    },
+    {
+        "ID": 94,
+        "Text": "94. Meaningful disclosures should include, inter alia, disaggregated data on genderbased online violence that tracks the scale and size of the problem, and provides insights into the nature of the multiple forms of identity-based discrimination, harassment and violence.",
+        "Labels": []
+    },
+    {
+        "ID": 95,
+        "Text": "95. Platforms should also improve transparency and accountability in algorithm design and implementation to prevent the occurrence of algorithmic discrimination. As the focus is increasingly on how algorithms treat content and what content is amplified, platform transparency should go beyond content removals to also include lesser responses to violations of terms of service.",
+        "Labels": []
+    },
+    {
+        "ID": 96,
+        "Text": "96. The larger platforms should also promote transparency and accountability by undergoing regular independent audits. The draft European Union Digital Services Act makes a similar proposal.",
+        "Labels": []
+    },
+    {
+        "ID": 97,
+        "Text": "97. Underlying the problems is a deeper issue of the culture of the technology industry in which women are not sufficiently involved in discussions shaping policies on data use, privacy, ethics, algorithmic functions or content moderation. Without meaningful engagement with women in design and governance, technologies will continue to reinforce gender bias inequality.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 98,
+        "Text": "98. Platforms must build greater awareness of and sensitivity to gender issues in their business operations and activities, including through gender training for their program designers, content policy teams, content moderators, fact-checkers and others. At a systemic level, effective and scalable solutions require the needs of female users to be taken on board and addressed. This approach aligns with the obligations to the Contract for the Web to which companies such as Facebook, Instagram, WhatsApp, Google, Microsoft and Twitter have committed themselves.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 99,
+        "Text": "99. More broadly, fundamental changes are needed to increase the number of women in the workforces of technology companies.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 100,
+        "Text": "100. Gender equality and freedom of opinion and expression are mutually reinforcing, indivisible, interdependent and essential to the achievement of peace, democracy and sustainable development. That is why the failure of many States to respect, protect and fulfil women's equal right to freedom of opinion and expression is a cause for concern.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 101,
+        "Text": "101. The ability of women to make themselves heard is a key measure of gender equality and democratic freedom. The report exposes appalling levels of gendered censorship against women, combining discriminatory laws, policies and practices with sexism, misogyny and social and cultural norms based on patriarchal values. Major barriers to women's freedom of opinion and expression, including unequal access to the Internet and information, the spike in online gender-based violence and hate speech, and attacks on female journalists, warrant urgent action.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 102,
+        "Text": "102. The most pervasive and pernicious form of gendered censorship is the use of online sexual and gender-based violence, hate speech and disinformation to silence women. Digital platforms have provided a vital space for women's engagement and activism but they have also perpetuated gender power structures, normalizing sexualized attacks online. Female politicians, journalists, human rights defenders and feminist activists, especially those with intersecting marginalized identities, are disproportionately targeted by State and non-State actors. The objective is to intimidate them and drive them off the platforms and out of public life. That has serious consequences for human rights, diversity in public debates and the media, and ultimately, democracy and development.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 103,
+        "Text": "103. It is imperative to make digital spaces safe for women. The interdependence of human rights affirms that there can be no trade-off between women's right to be free from violence and the right to freedom of opinion and expression. Preserving that freedom while also protecting women from violence and hate requires a three-fold approach: firstly, a gender-sensitive interpretation of the right to freedom of expression and opinion; secondly, a calibrated approach to ensure that responses are aligned with the level of harm or threat; and, thirdly, a clear understanding of what constitutes online gender-based violence.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 104,
+        "Text": "104. Efforts to eradicate online gender-based violence, gendered hate speech and disinformation should not be used as a pretext by States to restrict freedom of expression beyond what is permitted under international law, nor should restrictions of freedom of expression permitted by international law be weaponized to inhibit women's cultural, gender and sexual expression and academic freedom, or restrict feminist discourse and women's organizations.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 105,
+        "Text": "105. Gender justice requires more than just an end to unlawful interference with women's freedom of opinion and expression. It demands the creation of an enabling environment in which women can exercise their agency and participate with full and equal access to \"information and ideas of all kinds\", the Internet, diverse media and civic space in which feminist organizations can flourish.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 106,
+        "Text": "106. States should recognize non-discrimination and inclusion as central to their duty to respect, protect and fulfil the right to freedom of opinion and expression. They should take appropriate measures as part of their national development plans to eliminate gender stereotypes, negative social norms and discriminatory attitudes through legislative measures, social policies and educational programs.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 107,
+        "Text": "107. States should adopt specific legislation to prohibit, investigate and prosecute online gender-based violence. The legislation should be grounded in international women's human rights instruments and international standards on freedom of opinion and expression. The prohibitions should be drafted restrictively and should take into account specific digital traits, such as amplification by secondary perpetrators.",
+        "Labels": []
+    },
+    {
+        "ID": 108,
+        "Text": "108. Sex and gender should be recognized as protected characteristics for the prohibition of advocacy of hatred that constitutes incitement to discrimination, hostility or violence in line with article 20 (2) of the International Covenant on Civil and Political Rights and article 4 of the International Convention on the Elimination of All Forms of Racial Discrimination. Misogyny should be prohibited if it reaches the threshold set by articles 19 (3) and 20 (2) of the Covenant.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 109,
+        "Text": "109. All legal measures to restrict gender-based hate speech or gendered disinformation should comply with the three-part test of legality, necessity and proportionality, and legitimate objectives, as set out in article 19 (3) of the Covenant. Criminalization should be avoided except in the most egregious cases of advocacy that constitutes incitement.",
+        "Labels": []
+    },
+    {
+        "ID": 110,
+        "Text": "110. Gendered disinformation should be addressed through non-legal measures, including fostering diverse and independent media, fact-checking, digital and media literacy, community-based awareness programs. Content that is offensive, shocking or disturbing should not be legally restricted but addressed through such non-legal measures.",
+        "Labels": []
+    },
+    {
+        "ID": 111,
+        "Text": "111. States should respect the protection that gender, sexual and cultural expression enjoys under international law and interpret \"public morals\" restrictively, in line with international guidance on article 19 (3) of the Covenant. They should refrain from harassment, detention or silencing of artists for their creative and political expressions.",
+        "Labels": [
+            "Persons deprived of their liberty"
+        ]
+    },
+    {
+        "ID": 112,
+        "Text": "112. States should fulfil the right to information, as well as their commitments under the 2030 Agenda for Sustainable Development, by: (a) Guaranteeing affordable open, secure and high-quality access to the Internet, free of restrictions and shutdowns and on a non-discriminatory basis to all;; (b) Producing and publishing gender-disaggregated data, including on digital inclusion;; (c) Facilitating women's access to information on all matters regarding their own bodies, lives and health, including sexual and reproductive health and rights;; (d) Adopting and enforcing strong data protection regulations;; (e) Adopting legal and regulatory frameworks and policies to provide comprehensive protection for secure digital communications and promote strong encryption and anonymity enhancing tools, products and services;; (f) Facilitating opportunities for digital literacy through practical, inclusive lifelong learning to empower women, young people and LGBTQ+ groups to develop their digital skills as a means of bridging the digital divide and protecting themselves in digital contexts.",
+        "Labels": [
+            "Adolescents"
+        ]
+    },
+    {
+        "ID": 113,
+        "Text": "113. Over the past several decades, gender equality has been reaffirmed as a fundamental principle of international law. In light of that affirmation, and in order to address some of the emerging challenges to women's equal expression in the digital space, it would be timely for the international community to acknowledge and promote an explicit, gender-sensitive interpretation of freedom of opinion and expression. More specifically: (a) The Human Rights Committee should affirm gender and sex as grounds protected under article 20 (2) of the Covenant and further develop the threshold test for the prohibition of online misogynistic speech;; (b) The Committee for the Elimination of Discrimination against Women should develop an authoritative legal definition of online gender-based violence;; (c) The Human Rights Council, in collaboration with the special procedure mandate holders and the Office of the High Commissioner for Human Rights, should initiate a multi-stakeholder consultative process to develop guidelines on gendered hate speech and disinformation, along the lines of the Rabat Plan of Action.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 114,
+        "Text": "114. The Special Rapporteur stands ready to support these endeavours.",
+        "Labels": []
+    },
+    {
+        "ID": 115,
+        "Text": "115. Digital spaces are owned and managed by private actors but they are public spaces accessed by millions of people. As such, and taking into account the nature of their business, social media platforms should be guided by international human rights standards in their content moderation. Furthermore, in line with the United Nations Guiding Principles on Business and Human Rights, as a matter of due diligence companies should carry out regular human rights and gender impact assessments to identify and mitigate systemic risks affecting women and gender nonconforming people.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 116,
+        "Text": "116. Platforms have collaborated on best practices for child protection. Guided by international human rights standards and the principles of gender equality, they should take the same coordinated approach to make digital spaces safe and gender-inclusive. Policies on safety from online violence should be developed and made available, with full transparency in relation to algorithms, practices and decision-making processes, in an accessible, non-technical jargon in local languages.",
+        "Labels": [
+            "Women/girls",
+            "Children"
+        ]
+    },
+    {
+        "ID": 117,
+        "Text": "117. Companies should improve both their transparency, making it more meaningful, and their remedies, along the lines discussed earlier in the report. In addition, in the interest of greater accountability, they should explore an external appeals system, e.g. independent social media councils.",
+        "Labels": []
+    },
+    {
+        "ID": 118,
+        "Text": "118. Companies should ensure data security and privacy, and ensure that the use of data is in compliance with international human rights law and relevant national laws, and has the full informed consent of data providers.",
+        "Labels": []
+    },
+    {
+        "ID": 119,
+        "Text": "119. The prescribed length of the present report does not allow a proper analysis of the challenges of gender and traditional media. Pending a report on the issue in the future, the following broad recommendations are being made to States and media companies.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 120,
+        "Text": "120. The safety of female journalists is of paramount importance. In consultation with media organizations and female journalists, States should develop and adopt integrated prevention, protection, monitoring and response mechanisms for the online and offline safety of female journalists. State officials should publicly condemn any attack on female journalists and should refrain from making statements that could put the women at risk.",
+        "Labels": [
+            "Women/girls"
+        ]
+    },
+    {
+        "ID": 121,
+        "Text": "121. Media outlets should: (a) Adopt internal protocols and processes, in consultations with female journalists, to address gender-based violence and harassment at work and in the workplace, and provide comprehensive support, including psychosocial and legal assistance and training;; (b) Improve workplace culture and promote equal opportunities for female journalists;; (c) Take targeted measures to increase women's representation as sources, experts and interviewees in the news, keeping in mind the importance of intersectionality in representation;; (d) Through news coverage, analysis and other means, seek to dismantle gender stereotypes in the media and combat gender bias and violence against women and non-binary persons among the readership.",
+        "Labels": [
+            "Women/girls",
+            "Persons affected by armed conflict"
+        ]
+    },
+    {
+        "ID": 122,
+        "Text": "122. Finally, to all stakeholders – States, international organizations, human rights bodies, civil society and companies – an important recommendation is that women, in all their diversity and intersectionality, must be at the table when policies, laws, treaties, community standards and regulations are being discussed and adopted or when technology is designed and deployed. Women's voices count.",
+        "Labels": []
+    }
+]
