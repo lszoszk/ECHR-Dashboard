@@ -311,11 +311,12 @@ body {
     max-width: 1400px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: 1fr 320px;
+    grid-template-columns: minmax(0, 1fr) 320px;
     gap: var(--gap);
     padding: var(--gap);
     align-items: start;
 }
+.results-main { min-width: 0; }
 
 .results-header {
     position: sticky;
@@ -461,6 +462,7 @@ body {
 }
 
 .paragraph-item {
+    max-width: 100%;
     padding: 14px 20px;
     border-bottom: 1px solid var(--border-light);
     transition: background 0.1s;
@@ -505,6 +507,8 @@ body {
 .copy-btn.copied { border-color: var(--positive); color: var(--positive); }
 
 .para-text {
+    display: block;
+    max-width: min(100%, 115ch);
     font-family: var(--font-serif);
     font-size: 0.92rem;
     line-height: 1.7;

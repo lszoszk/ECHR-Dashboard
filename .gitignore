@@ -10,3 +10,13 @@ __pycache__/
 .env
 .env.*
 *.log
+
+# Keep repo lean (exclude non-essential local assets and tools)
+mysite/
+*.docx
+echr_cases_20260207_121847.jsonl
+echr_cases_cleaned.jsonl
+echr_cases_scraped.jsonl
+echr_dashboard/scraper_hudoc.py
+echr_dashboard/scraper_chrome.html
+echr_dashboard/analysis_selimi.js
