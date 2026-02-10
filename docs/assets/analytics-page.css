@@ -1,0 +1,27 @@
+.analytics-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  justify-content: center;
+  margin-top: 14px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.86rem;
+}
+
+.analytics-meta span {
+  white-space: nowrap;
+}
+
+.stats-page {
+  padding-top: 26px;
+}
+
+.chart-container canvas {
+  width: 100% !important;
+}
+
+@media (max-width: 768px) {
+  .analytics-meta {
+    justify-content: flex-start;
+  }
+}

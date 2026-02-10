@@ -1,83 +1,128 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ECHR Analytics Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Source+Serif+4:wght@600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/pages-dashboard.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/dashboard.css">
+  <link rel="stylesheet" href="assets/analytics-page.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1"></script>
 </head>
 <body>
-  <a class="floating-back-link" href="./" aria-label="Back to search app">← Search</a>
-
-  <header class="hero">
-    <div class="hero-inner">
-      <h1>ECHR Analytics Dashboard</h1>
-      <p>Static public dashboard generated from the ECHR case corpus.</p>
-      <div class="hero-actions">
-        <a class="back-home-btn" href="./">← Back to Search App</a>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="./" class="nav-brand">
+        <span class="brand-icon">⚖️</span>
+        <span class="brand-text">ECHR Search</span>
+      </a>
+      <div class="nav-links">
+        <a href="./" class="nav-link">Search</a>
+        <a href="analytics.html" class="nav-link active">Statistics</a>
       </div>
-      <div class="meta-line">
-        <span>Use the button above to return to search.</span>
-        <span id="metaSource">Source: -</span>
-        <span id="metaGenerated">Generated: -</span>
-      </div>
+      <button class="theme-toggle" id="themeToggle" type="button" title="Toggle dark mode" aria-label="Toggle dark mode">
+        <span class="theme-icon-light">☀️</span>
+        <span class="theme-icon-dark">🌙</span>
+      </button>
     </div>
-  </header>
+  </nav>
 
-  <main class="container">
-    <section class="kpi-grid" id="kpiGrid"></section>
-
-    <section class="chart-grid two-cols">
-      <article class="card">
-        <h2>Cases by Month</h2>
-        <canvas id="casesMonthChart"></canvas>
-      </article>
-      <article class="card">
-        <h2>Cases by Year</h2>
-        <canvas id="casesYearChart"></canvas>
-      </article>
+  <main class="main-content">
+    <section class="hero">
+      <div class="hero-inner">
+        <h1 class="hero-title">ECHR Analytics Dashboard</h1>
+        <p class="hero-subtitle">Static public dashboard generated from the ECHR case corpus.</p>
+        <div class="analytics-meta">
+          <span id="metaSource">Source: -</span>
+          <span id="metaGenerated">Generated: -</span>
+        </div>
+      </div>
     </section>
 
-    <section class="chart-grid two-cols">
-      <article class="card">
-        <h2>Top Respondent States</h2>
-        <canvas id="countriesChart"></canvas>
-      </article>
-      <article class="card">
-        <h2>Most Cited Convention Articles</h2>
-        <canvas id="articlesChart"></canvas>
-      </article>
-    </section>
+    <div class="stats-page">
+      <div class="kpi-row" id="kpiGrid"></div>
 
-    <section class="chart-grid one-col">
-      <article class="card">
-        <h2>Paragraph Distribution by Section</h2>
-        <canvas id="sectionsChart"></canvas>
-      </article>
-    </section>
+      <section class="chart-row">
+        <article class="chart-container">
+          <h3 class="chart-title">Cases by Month</h3>
+          <canvas id="casesMonthChart"></canvas>
+        </article>
+        <article class="chart-container">
+          <h3 class="chart-title">Cases by Year</h3>
+          <canvas id="casesYearChart"></canvas>
+        </article>
+      </section>
 
-    <section class="chart-grid two-cols">
-      <article class="card">
-        <h2>Indexed Paragraph Volume by Month</h2>
-        <canvas id="paragraphsMonthChart"></canvas>
-      </article>
-      <article class="card">
-        <h2>Chamber Split</h2>
-        <canvas id="chamberChart"></canvas>
-      </article>
-    </section>
+      <section class="chart-row">
+        <article class="chart-container">
+          <h3 class="chart-title">Top Respondent States</h3>
+          <canvas id="countriesChart"></canvas>
+        </article>
+        <article class="chart-container">
+          <h3 class="chart-title">Most Cited Convention Articles</h3>
+          <canvas id="articlesChart"></canvas>
+        </article>
+      </section>
 
-    <section class="chart-grid one-col">
-      <article class="card">
-        <h2>Case Length Snapshot</h2>
-        <canvas id="lengthChart"></canvas>
-      </article>
-    </section>
+      <section class="chart-row">
+        <article class="chart-container full-width">
+          <h3 class="chart-title">Paragraph Distribution by Section</h3>
+          <canvas id="sectionsChart"></canvas>
+        </article>
+      </section>
+
+      <section class="chart-row">
+        <article class="chart-container">
+          <h3 class="chart-title">Indexed Paragraph Volume by Month</h3>
+          <canvas id="paragraphsMonthChart"></canvas>
+        </article>
+        <article class="chart-container">
+          <h3 class="chart-title">Chamber Split</h3>
+          <canvas id="chamberChart"></canvas>
+        </article>
+      </section>
+
+      <section class="chart-row">
+        <article class="chart-container full-width">
+          <h3 class="chart-title">Case Length Snapshot</h3>
+          <canvas id="lengthChart"></canvas>
+        </article>
+      </section>
+    </div>
   </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <span>ECHR Case Law Database — Public Statistics</span>
+    </div>
+  </footer>
+
+  <script>
+    (function initTheme() {
+      try {
+        const saved = localStorage.getItem("echr-theme");
+        if (saved === "dark" || saved === "light") {
+          document.documentElement.setAttribute("data-theme", saved);
+        }
+      } catch (err) {
+        console.warn("Theme init failed", err);
+      }
+
+      const toggle = document.getElementById("themeToggle");
+      toggle?.addEventListener("click", () => {
+        const current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+        const next = current === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", next);
+        try {
+          localStorage.setItem("echr-theme", next);
+        } catch (err) {
+          console.warn("Theme save failed", err);
+        }
+      });
+    })();
+  </script>
 
   <script src="assets/pages-dashboard.js"></script>
 </body>
