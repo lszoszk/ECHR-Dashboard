@@ -267,6 +267,17 @@ def main():
         default="docs/data/echr_cases.jsonl",
         help="Path to copy selected input JSONL for static web app",
     )
+    parser.add_argument(
+        "--sample-output",
+        default="docs/data/echr_cases_sample50.jsonl",
+        help="Path to write sample JSONL for static web app",
+    )
+    parser.add_argument(
+        "--sample-size",
+        type=int,
+        default=50,
+        help="Number of decisions in generated sample JSONL",
+    )
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parents[1]
@@ -281,6 +292,12 @@ def main():
         if not export_data_path.is_absolute():
             export_data_path = (repo_root / export_data_path).resolve()
 
+    sample_output_path = None
+    if args.sample_output:
+        sample_output_path = Path(args.sample_output).expanduser()
+        if not sample_output_path.is_absolute():
+            sample_output_path = (repo_root / sample_output_path).resolve()
+
     cases = load_cases(input_path)
     payload = build_payload(cases, input_path.name)
 
@@ -294,6 +311,17 @@ def main():
         export_data_path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(input_path, export_data_path)
         print(f"Copied JSONL dataset for web app: {export_data_path}")
+
+    if sample_output_path:
+        sample_output_path.parent.mkdir(parents=True, exist_ok=True)
+        sample_size = max(0, int(args.sample_size))
+        with sample_output_path.open("w", encoding="utf-8") as f:
+            for case in cases[:sample_size]:
+                f.write(json.dumps(case, ensure_ascii=False) + "\n")
+        print(
+            "Wrote sample JSONL for web app: "
+            f"{sample_output_path} ({min(sample_size, len(cases))} cases)"
+        )
 
 
 if __name__ == "__main__":

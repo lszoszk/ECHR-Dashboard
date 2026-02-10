@@ -14,6 +14,11 @@ After GitHub Pages deploy is active, use:
 - Search app: `https://lszoszk.github.io/ECHR-Dashboard/`
 - Analytics: `https://lszoszk.github.io/ECHR-Dashboard/analytics.html`
 
+On the search app home screen, you can:
+
+- Load built-in sample dataset (50 decisions)
+- Drag and drop your own `.jsonl` file (same schema as this project)
+
 ## Quick start (local)
 
 1. Install dependencies:

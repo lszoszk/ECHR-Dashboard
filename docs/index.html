@@ -1,141 +1,204 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ECHR Decisions Search App</title>
+  <title>ECHR Case Law — Paragraph-Level Search</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Source+Serif+4:wght@600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/dashboard.css">
   <link rel="stylesheet" href="assets/search-app.css">
 </head>
 <body>
-  <header class="hero">
-    <div class="hero-inner">
-      <div class="hero-top">
-        <h1>ECHR Decisions Search</h1>
-        <a class="hero-link" href="analytics.html">Open Analytics Dashboard</a>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="./" class="nav-brand">
+        <span class="brand-icon">⚖️</span>
+        <span class="brand-text">ECHR Search</span>
+      </a>
+      <div class="nav-links">
+        <a href="./" class="nav-link active">Search</a>
+        <a href="analytics.html" class="nav-link">Statistics</a>
       </div>
-      <p>Fully static web app: paragraph-level search, filters, full case view, and CSV export.</p>
-      <div class="meta-line">
-        <span id="datasetMeta">Dataset: loading...</span>
-        <span id="loadMeta">Status: loading...</span>
-      </div>
-
-      <form id="searchForm" class="search-form">
-        <div class="search-box">
-          <input
-            type="text"
-            id="queryInput"
-            class="search-input"
-            placeholder='Search paragraphs... e.g. "right to privacy" OR surveillance'
-            autocomplete="off"
-          >
-          <button type="submit" class="search-btn">Search</button>
-        </div>
-
-        <div class="search-tips">
-          <span>Use <code>"quotes"</code> for exact phrases</span>
-          <span>Use <code>OR</code> between alternatives</span>
-          <span>Multiple words = AND logic</span>
-        </div>
-
-        <button type="button" id="toggleFilters" class="filter-toggle" aria-expanded="false">
-          Advanced Filters
-        </button>
-
-        <div class="filters-panel" id="filtersPanel">
-          <div class="filters-grid">
-            <section class="filter-group">
-              <h3>Case Sections</h3>
-              <div class="checkbox-grid" id="sectionsFilters"></div>
-            </section>
-
-            <section class="filter-group">
-              <h3>Respondent States</h3>
-              <div class="checkbox-grid scrollable" id="countriesFilters"></div>
-            </section>
-
-            <section class="filter-group">
-              <h3>Convention Articles</h3>
-              <div class="checkbox-grid scrollable" id="articlesFilters"></div>
-            </section>
-
-            <section class="filter-group">
-              <h3>Judgment Date</h3>
-              <div class="date-range">
-                <input type="date" id="dateFrom" class="date-input">
-                <span class="date-sep">to</span>
-                <input type="date" id="dateTo" class="date-input">
-              </div>
-
-              <h3 class="spaced">Chamber</h3>
-              <div class="checkbox-grid" id="chamberFilters">
-                <label class="cb-label"><input type="checkbox" value="CHAMBER"> <span>Chamber</span></label>
-                <label class="cb-label"><input type="checkbox" value="GRANDCHAMBER"> <span>Grand Chamber</span></label>
-              </div>
-            </section>
-          </div>
-        </div>
-      </form>
+      <button class="theme-toggle" id="themeToggle" type="button" title="Toggle dark mode" aria-label="Toggle dark mode">
+        <span class="theme-icon-light">☀️</span>
+        <span class="theme-icon-dark">🌙</span>
+      </button>
     </div>
-  </header>
+  </nav>
 
-  <main class="container">
-    <section class="stats-bar" id="globalStats"></section>
+  <main class="main-content">
+    <section class="hero">
+      <div class="hero-inner">
+        <h1 class="hero-title">European Court of Human Rights</h1>
+        <p class="hero-subtitle">Search through judicial decisions at the paragraph level</p>
 
-    <section class="results-header" id="resultsHeader" hidden>
-      <div>
-        <strong id="resultsCount">0</strong>
-        <span id="resultsMeta">results</span>
-      </div>
-      <div class="results-actions">
-        <button id="clearBtn" class="secondary-btn" type="button">Clear</button>
-        <button id="exportBtn" class="secondary-btn" type="button">Export CSV</button>
+        <section class="data-source-panel" aria-labelledby="dataSourceTitle">
+          <h2 id="dataSourceTitle" class="data-source-title">Data Source</h2>
+          <p class="data-source-subtitle">Choose one option to start: load sample dataset (50 decisions) or upload your own JSONL file.</p>
+
+          <div class="source-actions">
+            <button type="button" id="loadSampleBtn" class="source-btn">Load Sample Dataset (50)</button>
+            <label class="source-upload-btn" for="fileInput">Choose JSONL File</label>
+            <input id="fileInput" type="file" accept=".jsonl,application/json,text/plain" hidden>
+          </div>
+
+          <div id="dropZone" class="drop-zone" tabindex="0" role="button" aria-label="Drop JSONL file here or click to choose one">
+            Drag and drop your `.jsonl` file here
+          </div>
+
+          <p id="datasetStatus" class="dataset-status">No dataset loaded yet.</p>
+          <p id="datasetMeta" class="dataset-note">Dataset: not selected</p>
+        </section>
+
+        <form id="searchForm" class="search-form search-disabled">
+          <div class="search-box">
+            <input
+              type="text"
+              id="searchInput"
+              class="search-input"
+              placeholder='Search paragraphs... e.g. "right to privacy" OR surveillance'
+              autocomplete="off"
+              disabled
+            >
+            <button type="submit" class="search-btn" id="searchBtn" disabled>Search</button>
+          </div>
+
+          <div class="search-tips">
+            <span class="tip">Use <code>"quotes"</code> for exact phrases</span>
+            <span class="tip-sep">·</span>
+            <span class="tip">Use <code>OR</code> between alternatives</span>
+            <span class="tip-sep">·</span>
+            <span class="tip">Multiple words = AND logic</span>
+          </div>
+
+          <button type="button" class="filter-toggle" id="filterToggleBtn" aria-expanded="false" disabled>
+            <span class="filter-toggle-icon">▼</span> Advanced Filters
+          </button>
+
+          <div class="filters-panel" id="filtersPanel">
+            <div class="filters-grid">
+              <div class="filter-group">
+                <h3 class="filter-title">Case Sections</h3>
+                <div class="checkbox-grid compact" id="sectionsFilters"></div>
+              </div>
+
+              <div class="filter-group">
+                <h3 class="filter-title">Respondent State</h3>
+                <div class="checkbox-grid scrollable" id="countriesFilters"></div>
+              </div>
+
+              <div class="filter-group">
+                <h3 class="filter-title">Convention Articles</h3>
+                <div class="checkbox-grid scrollable" id="articlesFilters"></div>
+              </div>
+
+              <div class="filter-group">
+                <h3 class="filter-title">Judgment Date</h3>
+                <div class="date-range">
+                  <input type="date" id="dateFrom" class="date-input" disabled>
+                  <span class="date-sep">to</span>
+                  <input type="date" id="dateTo" class="date-input" disabled>
+                </div>
+
+                <h3 class="filter-title inline-space">Chamber</h3>
+                <div class="checkbox-grid compact" id="chamberFilters">
+                  <label class="cb-label"><input type="checkbox" value="CHAMBER" disabled> <span>Chamber</span></label>
+                  <label class="cb-label"><input type="checkbox" value="GRANDCHAMBER" disabled> <span>Grand Chamber</span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
       </div>
     </section>
 
-    <section class="results-layout">
-      <div class="results-main" id="resultsMain">
-        <article class="placeholder" id="placeholderCard">
-          <h2>Ready</h2>
-          <p>Type a query and press Search. Dataset is already loaded in-browser.</p>
-        </article>
-        <div id="resultsList"></div>
+    <section class="stats-bar">
+      <div class="stats-bar-inner">
+        <div class="stat-chip">
+          <span class="stat-value" id="statTotalCases">-</span>
+          <span class="stat-label">Cases</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-value" id="statTotalParagraphs">-</span>
+          <span class="stat-label">Paragraphs</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-value" id="statTotalCountries">-</span>
+          <span class="stat-label">Countries</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-value" id="statDateRange">-</span>
+          <span class="stat-label">Date Range</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="results-layout">
+      <div class="results-main">
+        <div class="results-header" id="resultsHeader" hidden>
+          <form id="inlineSearchForm" class="inline-search">
+            <input type="text" id="inlineSearchInput" class="search-input compact" placeholder="Search paragraphs..." disabled>
+            <button type="submit" class="search-btn compact" id="inlineSearchBtn" disabled>Search</button>
+          </form>
+          <div class="results-meta">
+            <span class="meta-count"><strong id="resultsHits">0</strong> paragraphs in <strong id="resultsCases">0</strong> cases</span>
+            <span class="meta-time" id="resultsTime">(0.000s)</span>
+            <button type="button" class="export-btn" id="exportBtn" title="Export results to CSV" disabled>📥 Export CSV</button>
+            <button type="button" class="export-btn clear-btn" id="clearBtn" title="Clear current search" disabled>Clear</button>
+          </div>
+          <div class="active-filters" id="activeFilters"></div>
+        </div>
+
+        <div class="no-results" id="noResults" hidden>
+          <div class="no-results-icon">🔍</div>
+          <h2>No results found</h2>
+          <p>Try different search terms, broader filters, or check your spelling.</p>
+          <a href="#" class="back-link" id="backToSearch">← Back to search</a>
+        </div>
+
+        <div class="cases-list" id="casesList"></div>
+        <div class="pagination" id="pagination" hidden></div>
       </div>
 
-      <aside class="results-sidebar" id="analyticsSidebar">
-        <h3>Search Analytics</h3>
+      <aside class="results-sidebar" id="sidebar">
+        <h3 class="sidebar-title">Search Analytics</h3>
 
-        <section class="sidebar-section">
-          <h4>Articles</h4>
-          <div id="analyticsArticles" class="bar-list empty">No data yet</div>
-        </section>
+        <div class="sidebar-section">
+          <h4>Convention Articles</h4>
+          <div class="bar-list" id="analyticsArticles"></div>
+        </div>
 
-        <section class="sidebar-section">
+        <div class="sidebar-section">
           <h4>Respondent States</h4>
-          <div id="analyticsCountries" class="bar-list empty">No data yet</div>
-        </section>
+          <div class="bar-list" id="analyticsCountries"></div>
+        </div>
 
-        <section class="sidebar-section">
+        <div class="sidebar-section">
           <h4>Sections</h4>
-          <div id="analyticsSections" class="bar-list empty">No data yet</div>
-        </section>
+          <div class="bar-list" id="analyticsSections"></div>
+        </div>
 
-        <section class="sidebar-section">
+        <div class="sidebar-section">
           <h4>Frequent Terms</h4>
-          <div id="analyticsWords" class="word-cloud empty">No data yet</div>
-        </section>
+          <div class="word-cloud" id="analyticsWords"></div>
+        </div>
       </aside>
-    </section>
+    </div>
   </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <span>ECHR Case Law Database — Paragraph-Level Search</span>
+    </div>
+  </footer>
 
   <div class="modal" id="caseModal" hidden>
     <div class="modal-backdrop" data-close-modal="true"></div>
     <div class="modal-panel">
       <div class="modal-header">
         <h2 id="modalTitle">Case</h2>
-        <button type="button" id="closeModal" class="icon-btn" aria-label="Close">×</button>
+        <button type="button" id="closeModal" class="modal-close" aria-label="Close">×</button>
       </div>
       <div class="modal-meta" id="modalMeta"></div>
 
