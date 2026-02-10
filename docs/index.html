@@ -3,76 +3,154 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ECHR Analytics Dashboard</title>
+  <title>ECHR Decisions Search App</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Source+Serif+4:wght@600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/pages-dashboard.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1"></script>
+  <link rel="stylesheet" href="assets/search-app.css">
 </head>
 <body>
   <header class="hero">
     <div class="hero-inner">
-      <h1>ECHR Analytics Dashboard</h1>
-      <p>Static public dashboard generated from the local ECHR case corpus.</p>
-      <div class="meta-line">
-        <span id="metaSource">Source: -</span>
-        <span id="metaGenerated">Generated: -</span>
+      <div class="hero-top">
+        <h1>ECHR Decisions Search</h1>
+        <a class="hero-link" href="analytics.html">Open Analytics Dashboard</a>
       </div>
+      <p>Fully static web app: paragraph-level search, filters, full case view, and CSV export.</p>
+      <div class="meta-line">
+        <span id="datasetMeta">Dataset: loading...</span>
+        <span id="loadMeta">Status: loading...</span>
+      </div>
+
+      <form id="searchForm" class="search-form">
+        <div class="search-box">
+          <input
+            type="text"
+            id="queryInput"
+            class="search-input"
+            placeholder='Search paragraphs... e.g. "right to privacy" OR surveillance'
+            autocomplete="off"
+          >
+          <button type="submit" class="search-btn">Search</button>
+        </div>
+
+        <div class="search-tips">
+          <span>Use <code>"quotes"</code> for exact phrases</span>
+          <span>Use <code>OR</code> between alternatives</span>
+          <span>Multiple words = AND logic</span>
+        </div>
+
+        <button type="button" id="toggleFilters" class="filter-toggle" aria-expanded="false">
+          Advanced Filters
+        </button>
+
+        <div class="filters-panel" id="filtersPanel">
+          <div class="filters-grid">
+            <section class="filter-group">
+              <h3>Case Sections</h3>
+              <div class="checkbox-grid" id="sectionsFilters"></div>
+            </section>
+
+            <section class="filter-group">
+              <h3>Respondent States</h3>
+              <div class="checkbox-grid scrollable" id="countriesFilters"></div>
+            </section>
+
+            <section class="filter-group">
+              <h3>Convention Articles</h3>
+              <div class="checkbox-grid scrollable" id="articlesFilters"></div>
+            </section>
+
+            <section class="filter-group">
+              <h3>Judgment Date</h3>
+              <div class="date-range">
+                <input type="date" id="dateFrom" class="date-input">
+                <span class="date-sep">to</span>
+                <input type="date" id="dateTo" class="date-input">
+              </div>
+
+              <h3 class="spaced">Chamber</h3>
+              <div class="checkbox-grid" id="chamberFilters">
+                <label class="cb-label"><input type="checkbox" value="CHAMBER"> <span>Chamber</span></label>
+                <label class="cb-label"><input type="checkbox" value="GRANDCHAMBER"> <span>Grand Chamber</span></label>
+              </div>
+            </section>
+          </div>
+        </div>
+      </form>
     </div>
   </header>
 
   <main class="container">
-    <section class="kpi-grid" id="kpiGrid"></section>
+    <section class="stats-bar" id="globalStats"></section>
 
-    <section class="chart-grid two-cols">
-      <article class="card">
-        <h2>Cases by Month</h2>
-        <canvas id="casesMonthChart"></canvas>
-      </article>
-      <article class="card">
-        <h2>Cases by Year</h2>
-        <canvas id="casesYearChart"></canvas>
-      </article>
+    <section class="results-header" id="resultsHeader" hidden>
+      <div>
+        <strong id="resultsCount">0</strong>
+        <span id="resultsMeta">results</span>
+      </div>
+      <div class="results-actions">
+        <button id="clearBtn" class="secondary-btn" type="button">Clear</button>
+        <button id="exportBtn" class="secondary-btn" type="button">Export CSV</button>
+      </div>
     </section>
 
-    <section class="chart-grid two-cols">
-      <article class="card">
-        <h2>Top Respondent States</h2>
-        <canvas id="countriesChart"></canvas>
-      </article>
-      <article class="card">
-        <h2>Most Cited Convention Articles</h2>
-        <canvas id="articlesChart"></canvas>
-      </article>
-    </section>
+    <section class="results-layout">
+      <div class="results-main" id="resultsMain">
+        <article class="placeholder" id="placeholderCard">
+          <h2>Ready</h2>
+          <p>Type a query and press Search. Dataset is already loaded in-browser.</p>
+        </article>
+        <div id="resultsList"></div>
+      </div>
 
-    <section class="chart-grid one-col">
-      <article class="card">
-        <h2>Paragraph Distribution by Section</h2>
-        <canvas id="sectionsChart"></canvas>
-      </article>
-    </section>
+      <aside class="results-sidebar" id="analyticsSidebar">
+        <h3>Search Analytics</h3>
 
-    <section class="chart-grid two-cols">
-      <article class="card">
-        <h2>Indexed Paragraph Volume by Month</h2>
-        <canvas id="paragraphsMonthChart"></canvas>
-      </article>
-      <article class="card">
-        <h2>Chamber Split</h2>
-        <canvas id="chamberChart"></canvas>
-      </article>
-    </section>
+        <section class="sidebar-section">
+          <h4>Articles</h4>
+          <div id="analyticsArticles" class="bar-list empty">No data yet</div>
+        </section>
 
-    <section class="chart-grid one-col">
-      <article class="card">
-        <h2>Case Length Snapshot</h2>
-        <canvas id="lengthChart"></canvas>
-      </article>
+        <section class="sidebar-section">
+          <h4>Respondent States</h4>
+          <div id="analyticsCountries" class="bar-list empty">No data yet</div>
+        </section>
+
+        <section class="sidebar-section">
+          <h4>Sections</h4>
+          <div id="analyticsSections" class="bar-list empty">No data yet</div>
+        </section>
+
+        <section class="sidebar-section">
+          <h4>Frequent Terms</h4>
+          <div id="analyticsWords" class="word-cloud empty">No data yet</div>
+        </section>
+      </aside>
     </section>
   </main>
 
-  <script src="assets/pages-dashboard.js"></script>
+  <div class="modal" id="caseModal" hidden>
+    <div class="modal-backdrop" data-close-modal="true"></div>
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2 id="modalTitle">Case</h2>
+        <button type="button" id="closeModal" class="icon-btn" aria-label="Close">×</button>
+      </div>
+      <div class="modal-meta" id="modalMeta"></div>
+
+      <div class="modal-tools">
+        <input type="text" id="modalQuery" class="modal-input" placeholder="Search within this judgment">
+        <select id="modalSectionFilter" class="modal-select">
+          <option value="all">All sections</option>
+        </select>
+        <span id="modalCount" class="modal-count"></span>
+      </div>
+
+      <div id="modalBody" class="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="assets/search-app.js"></script>
 </body>
 </html>

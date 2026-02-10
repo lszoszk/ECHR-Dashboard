@@ -2,9 +2,17 @@
 
 This repository includes a full ECHR dashboard project with:
 
-- Flask app (interactive paragraph-level case search): `echr_dashboard/`
-- Static GitHub Pages analytics dashboard: `docs/`
+- Online static search app (no install needed): `docs/index.html`
+- Online analytics dashboard: `docs/analytics.html`
+- Flask app (optional local backend version): `echr_dashboard/`
 - Sample JSONL dataset for testing: `data/echr_decisions_sample.jsonl`
+
+## Online access (no installation)
+
+After GitHub Pages deploy is active, use:
+
+- Search app: `https://lszoszk.github.io/ECHR-Dashboard/`
+- Analytics: `https://lszoszk.github.io/ECHR-Dashboard/analytics.html`
 
 ## Quick start (local)
 
@@ -43,7 +51,10 @@ ECHR_DATA_FILE=/absolute/path/to/your_cases.jsonl python3 echr_dashboard/app.py
 python3 scripts/build_pages_dashboard.py
 ```
 
-This regenerates `docs/data/stats.json` from the selected JSONL dataset.
+This regenerates:
+
+- `docs/data/stats.json` (analytics payload)
+- `docs/data/echr_cases.jsonl` (dataset used by the online search app)
 
 ## GitHub Pages deployment
 
@@ -52,8 +63,9 @@ Workflow file: `.github/workflows/deploy-pages.yml`
 On each push to `main`/`master`, GitHub Actions:
 
 1. Builds `docs/data/stats.json`
-2. Uploads `docs/`
-3. Deploys to GitHub Pages
+2. Copies JSONL dataset to `docs/data/echr_cases.jsonl`
+3. Uploads `docs/`
+4. Deploys to GitHub Pages
 
 Enable Pages in repository settings:
 

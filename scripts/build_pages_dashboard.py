@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import shutil
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -261,6 +262,11 @@ def main():
         default="docs/data/stats.json",
         help="Path to output stats JSON",
     )
+    parser.add_argument(
+        "--export-data",
+        default="docs/data/echr_cases.jsonl",
+        help="Path to copy selected input JSONL for static web app",
+    )
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parents[1]
@@ -268,6 +274,12 @@ def main():
     output_path = Path(args.output).expanduser()
     if not output_path.is_absolute():
         output_path = (repo_root / output_path).resolve()
+
+    export_data_path = None
+    if args.export_data:
+        export_data_path = Path(args.export_data).expanduser()
+        if not export_data_path.is_absolute():
+            export_data_path = (repo_root / export_data_path).resolve()
 
     cases = load_cases(input_path)
     payload = build_payload(cases, input_path.name)
@@ -277,6 +289,11 @@ def main():
 
     print(f"Wrote dashboard data: {output_path}")
     print(f"Cases: {payload['summary']['total_cases']}, paragraphs: {payload['summary']['total_paragraphs']}")
+
+    if export_data_path:
+        export_data_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(input_path, export_data_path)
+        print(f"Copied JSONL dataset for web app: {export_data_path}")
 
 
 if __name__ == "__main__":
