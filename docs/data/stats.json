@@ -1,51 +1,31 @@
 {
-  "generated_at": "2026-02-08T16:25:25.726073+00:00",
-  "source_file": "echr_cases_optionB.jsonl",
+  "generated_at": "2026-02-10T14:01:26.340905+00:00",
+  "source_file": "echr_decisions_sample.jsonl",
   "summary": {
-    "total_cases": 104,
-    "total_paragraphs": 27227,
-    "dated_cases": 104,
+    "total_cases": 25,
+    "total_paragraphs": 7240,
+    "dated_cases": 25,
     "undated_cases": 0,
-    "date_range_label": "31 Jul 2025 – 05 Feb 2026",
-    "unique_countries": 34,
-    "unique_articles": 64,
-    "avg_paragraphs_per_case": 261.7980769230769,
-    "median_paragraphs_per_case": 152.0,
-    "p90_paragraphs_per_case": 366.80000000000007,
-    "min_paragraphs_per_case": 5,
-    "max_paragraphs_per_case": 4159,
-    "violation_cases": 77,
-    "non_violation_cases": 32,
-    "grand_chamber_share": 1.9230769230769231,
-    "grand_chamber_cases": 2,
-    "chamber_cases": 102,
+    "date_range_label": "16 Dec 2025 – 05 Feb 2026",
+    "unique_countries": 16,
+    "unique_articles": 41,
+    "avg_paragraphs_per_case": 289.6,
+    "median_paragraphs_per_case": 170.0,
+    "p90_paragraphs_per_case": 319.0,
+    "min_paragraphs_per_case": 57,
+    "max_paragraphs_per_case": 2950,
+    "violation_cases": 21,
+    "non_violation_cases": 7,
+    "grand_chamber_share": 0.0,
+    "grand_chamber_cases": 0,
+    "chamber_cases": 25,
     "other_cases": 0
   },
   "series": {
     "cases_by_month": [
       [
-        "2025-07",
-        1
-      ],
-      [
-        "2025-08",
-        6
-      ],
-      [
-        "2025-09",
-        8
-      ],
-      [
-        "2025-10",
-        27
-      ],
-      [
-        "2025-11",
-        23
-      ],
-      [
         "2025-12",
-        18
+        4
       ],
       [
         "2026-01",
@@ -59,7 +39,7 @@
     "cases_by_year": [
       [
         "2025",
-        83
+        4
       ],
       [
         "2026",
@@ -68,28 +48,8 @@
     ],
     "paragraphs_by_month": [
       [
-        "2025-07",
-        213
-      ],
-      [
-        "2025-08",
-        820
-      ],
-      [
-        "2025-09",
-        2130
-      ],
-      [
-        "2025-10",
-        5352
-      ],
-      [
-        "2025-11",
-        8028
-      ],
-      [
         "2025-12",
-        6799
+        3355
       ],
       [
         "2026-01",
@@ -103,11 +63,11 @@
     "chamber_breakdown": [
       [
         "Grand Chamber",
-        2
+        0
       ],
       [
         "Chamber",
-        102
+        25
       ],
       [
         "Other",
@@ -117,227 +77,211 @@
     "case_length_snapshot": [
       [
         "Min",
-        5
+        57
       ],
       [
         "Median",
-        152.0
+        170.0
       ],
       [
         "P90",
-        366.80000000000007
+        319.0
       ],
       [
         "Max",
-        4159
+        2950
       ]
     ]
   },
   "rankings": {
     "countries_top": [
       [
-        "Serbia",
-        8
-      ],
-      [
         "Turkey",
-        8
-      ],
-      [
-        "Italy",
-        7
-      ],
-      [
-        "Ukraine",
-        7
-      ],
-      [
-        "Spain",
-        6
+        3
       ],
       [
         "Poland",
-        5
-      ],
-      [
-        "Czech Republic",
-        5
-      ],
-      [
-        "Georgia",
-        4
-      ],
-      [
-        "Russia",
-        4
-      ],
-      [
-        "Iceland",
-        4
-      ],
-      [
-        "Armenia",
-        4
-      ],
-      [
-        "Greece",
-        4
-      ],
-      [
-        "Azerbaijan",
-        3
-      ],
-      [
-        "Romania",
-        3
-      ],
-      [
-        "Denmark",
-        3
-      ],
-      [
-        "North Macedonia",
-        3
-      ],
-      [
-        "Estonia",
-        3
+        2
       ],
       [
         "Bosnia and Herzegovina",
         2
       ],
       [
-        "Finland",
+        "Serbia",
         2
       ],
       [
-        "Moldova",
+        "Russia",
         2
+      ],
+      [
+        "Italy",
+        2
+      ],
+      [
+        "Iceland",
+        2
+      ],
+      [
+        "Spain",
+        2
+      ],
+      [
+        "Georgia",
+        1
+      ],
+      [
+        "Hungary",
+        1
+      ],
+      [
+        "Azerbaijan",
+        1
+      ],
+      [
+        "Slovakia",
+        1
+      ],
+      [
+        "Portugal",
+        1
+      ],
+      [
+        "Slovenia",
+        1
+      ],
+      [
+        "Czech Republic",
+        1
+      ],
+      [
+        "Germany",
+        1
       ]
     ],
     "articles_top": [
       [
         "41",
-        64
-      ],
-      [
-        "35",
-        40
-      ],
-      [
-        "8",
-        35
-      ],
-      [
-        "8-1",
-        35
+        20
       ],
       [
         "6",
-        34
-      ],
-      [
-        "6-1",
-        33
-      ],
-      [
-        "35-3-a",
-        30
-      ],
-      [
-        "10",
-        17
-      ],
-      [
-        "35-1",
-        17
-      ],
-      [
-        "10-1",
-        16
-      ],
-      [
-        "3",
-        14
-      ],
-      [
-        "8-2",
-        13
-      ],
-      [
-        "34",
-        12
-      ],
-      [
-        "10-2",
-        11
-      ],
-      [
-        "5",
         10
       ],
       [
+        "6-1",
+        10
+      ],
+      [
+        "8",
+        10
+      ],
+      [
+        "8-1",
+        10
+      ],
+      [
+        "35",
+        10
+      ],
+      [
+        "35-3-a",
+        8
+      ],
+      [
+        "34",
+        6
+      ],
+      [
+        "10",
+        6
+      ],
+      [
+        "10-1",
+        5
+      ],
+      [
+        "8-2",
+        4
+      ],
+      [
+        "3",
+        4
+      ],
+      [
+        "10-2",
+        3
+      ],
+      [
+        "46",
+        3
+      ],
+      [
+        "46-2",
+        3
+      ],
+      [
+        "5",
+        2
+      ],
+      [
         "5-1",
-        9
+        2
       ],
       [
         "37",
-        9
-      ],
-      [
-        "2",
-        8
-      ],
-      [
-        "2-1",
-        8
+        2
       ],
       [
         "37-1",
-        7
+        2
+      ],
+      [
+        "2",
+        2
       ]
     ],
     "sections": [
       [
-        "Separate Opinion",
-        6585
+        "Operative Part",
+        3132
       ],
       [
         "Merits",
-        4938
+        1566
       ],
       [
         "Legal Framework",
-        4679
-      ],
-      [
-        "Operative Part",
-        4048
+        1009
       ],
       [
         "Facts (Proceedings)",
-        2682
+        593
       ],
       [
         "Admissibility",
-        2084
+        479
       ],
       [
         "Facts (Background)",
-        1744
+        226
+      ],
+      [
+        "Separate Opinion",
+        97
       ],
       [
         "Article 46 (Execution)",
-        259
+        89
       ],
       [
         "Introduction",
-        106
+        31
       ],
       [
         "Just Satisfaction",
-        102
+        18
       ]
     ]
   }

@@ -100,8 +100,11 @@ def percentile(sorted_values, q):
 
 
 def select_input_file(root: Path):
+    sample = root / "data" / "echr_decisions_sample.jsonl"
     option_b = root / "echr_cases_optionB.jsonl"
     fallback = root / "echr_cases_20260207_121847.jsonl"
+    if sample.exists():
+        return sample
     if option_b.exists():
         return option_b
     if fallback.exists():

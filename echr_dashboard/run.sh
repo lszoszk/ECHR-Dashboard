@@ -21,14 +21,28 @@ if ! python3 -c "import flask" 2>/dev/null; then
     pip3 install flask --quiet
 fi
 
-# Check data file
-if [ ! -f "../echr_cases_20260207_121847.jsonl" ]; then
-    echo "❌ Data file not found: ../echr_cases_20260207_121847.jsonl"
-    echo "   Place the JSONL file in the parent directory."
+# Resolve data file
+DATA_FILE=""
+if [ -n "${ECHR_DATA_FILE:-}" ] && [ -f "$ECHR_DATA_FILE" ]; then
+    DATA_FILE="$ECHR_DATA_FILE"
+elif [ -f "../data/echr_decisions_sample.jsonl" ]; then
+    DATA_FILE="../data/echr_decisions_sample.jsonl"
+elif [ -f "../echr_cases_optionB.jsonl" ]; then
+    DATA_FILE="../echr_cases_optionB.jsonl"
+elif [ -f "../echr_cases_20260207_121847.jsonl" ]; then
+    DATA_FILE="../echr_cases_20260207_121847.jsonl"
+else
+    echo "❌ No data file found."
+    echo "   Expected one of:"
+    echo "   - ECHR_DATA_FILE (environment variable)"
+    echo "   - ../data/echr_decisions_sample.jsonl"
+    echo "   - ../echr_cases_optionB.jsonl"
+    echo "   - ../echr_cases_20260207_121847.jsonl"
     exit 1
 fi
 
 echo "🚀 Starting dashboard at http://127.0.0.1:5001"
+echo "📚 Using dataset: $DATA_FILE"
 echo "   Press Ctrl+C to stop"
 echo ""
 

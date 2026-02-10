@@ -19,10 +19,34 @@ import csv
 
 app = Flask(__name__)
 
-# Try Option B first, fall back to original
-DATA_FILE_B = os.path.join(os.path.dirname(__file__), '..', 'echr_cases_optionB.jsonl')
-DATA_FILE_ORIG = os.path.join(os.path.dirname(__file__), '..', 'echr_cases_20260207_121847.jsonl')
-DATA_FILE = DATA_FILE_B if os.path.exists(DATA_FILE_B) else DATA_FILE_ORIG
+def resolve_data_file():
+    """Resolve the dataset path with optional environment override."""
+    base_dir = os.path.dirname(__file__)
+
+    env_path = os.getenv('ECHR_DATA_FILE')
+    if env_path:
+        env_path = os.path.abspath(env_path)
+        if os.path.exists(env_path):
+            return env_path
+        print(f"Warning: ECHR_DATA_FILE was set but not found: {env_path}")
+
+    candidates = [
+        os.path.join(base_dir, '..', 'data', 'echr_decisions_sample.jsonl'),
+        os.path.join(base_dir, '..', 'echr_cases_optionB.jsonl'),
+        os.path.join(base_dir, '..', 'echr_cases_20260207_121847.jsonl'),
+    ]
+
+    for candidate in candidates:
+        if os.path.exists(candidate):
+            return candidate
+
+    raise FileNotFoundError(
+        "No dataset found. Provide ECHR_DATA_FILE or add one of: "
+        + ", ".join(os.path.abspath(path) for path in candidates)
+    )
+
+
+DATA_FILE = resolve_data_file()
 
 # ── Data Loading ─────────────────────────────────────────────────────────────
 
