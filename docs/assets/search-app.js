@@ -1,6 +1,10 @@
 const SAMPLE_DATA_URL = "data/echr_cases_sample50.jsonl";
 const PAGE_SIZE = 20;
 const MAX_HITS = 5000;
+const CLASSIFIER_SAMPLE_SIZE = 30;
+const CLASSIFIER_STORAGE_PREFIX = "echr-classifier-v1:";
+const CLASSIFIER_DEFAULT_THRESHOLD = 0.22;
+const CLASSIFIER_MIN_LABELED_PARAGRAPHS = 6;
 
 const SECTION_ORDER = [
   "introduction",
@@ -106,10 +110,13 @@ const fmtInt = new Intl.NumberFormat("en-US");
 
 const state = {
   loaded: false,
+  datasetKey: "",
   sourceLabel: "",
   cases: [],
   caseById: new Map(),
   paragraphIndex: [],
+  paragraphByKey: new Map(),
+  sectionsInDataset: [],
   sortedCaseIdsByDate: [],
   articles: [],
   countries: [],
@@ -123,12 +130,30 @@ const state = {
   totalHits: 0,
   limited: false,
   searchTimeMs: 0,
+  classifierOpen: false,
+  classifier: null,
 };
 
 const el = {};
 
 function byId(id) {
   return document.getElementById(id);
+}
+
+function createEmptyClassifierState() {
+  return {
+    labels: [],
+    trainingSections: new Set(),
+    predictionSections: new Set(),
+    sampleKeys: [],
+    sampleCursor: 0,
+    assignments: new Map(),
+    threshold: CLASSIFIER_DEFAULT_THRESHOLD,
+    model: null,
+    modelInfo: "",
+    lastSavedAt: null,
+    loadedFromStorage: false,
+  };
 }
 
 function cacheElements() {
@@ -139,6 +164,8 @@ function cacheElements() {
   el.dropZone = byId("dropZone");
   el.datasetStatus = byId("datasetStatus");
   el.datasetMeta = byId("datasetMeta");
+  el.classifierResumeNote = byId("classifierResumeNote");
+  el.openClassifierBtn = byId("openClassifierBtn");
 
   el.searchForm = byId("searchForm");
   el.searchInput = byId("searchInput");
@@ -166,6 +193,7 @@ function cacheElements() {
   el.resultsCases = byId("resultsCases");
   el.resultsTime = byId("resultsTime");
   el.exportBtn = byId("exportBtn");
+  el.classifierQuickOpenBtn = byId("classifierQuickOpenBtn");
   el.clearBtn = byId("clearBtn");
   el.activeFilters = byId("activeFilters");
 
@@ -188,6 +216,29 @@ function cacheElements() {
   el.modalSectionFilter = byId("modalSectionFilter");
   el.modalCount = byId("modalCount");
   el.modalBody = byId("modalBody");
+
+  el.classifierPane = byId("classifierPane");
+  el.classifierBackdrop = byId("classifierBackdrop");
+  el.closeClassifierBtn = byId("closeClassifierBtn");
+  el.newClassifierLabelInput = byId("newClassifierLabelInput");
+  el.addClassifierLabelBtn = byId("addClassifierLabelBtn");
+  el.classifierLabelsList = byId("classifierLabelsList");
+  el.classifierTrainingSections = byId("classifierTrainingSections");
+  el.refreshClassifierSampleBtn = byId("refreshClassifierSampleBtn");
+  el.classifierPrevSampleBtn = byId("classifierPrevSampleBtn");
+  el.classifierNextSampleBtn = byId("classifierNextSampleBtn");
+  el.classifierSampleCounter = byId("classifierSampleCounter");
+  el.classifierSampleCard = byId("classifierSampleCard");
+  el.classifierThresholdRange = byId("classifierThresholdRange");
+  el.classifierThresholdValue = byId("classifierThresholdValue");
+  el.trainClassifierBtn = byId("trainClassifierBtn");
+  el.classifierModelStatus = byId("classifierModelStatus");
+  el.classifierPredictionSections = byId("classifierPredictionSections");
+  el.applyClassifierModelBtn = byId("applyClassifierModelBtn");
+  el.exportClassifierProgressBtn = byId("exportClassifierProgressBtn");
+  el.importClassifierProgressInput = byId("importClassifierProgressInput");
+  el.clearClassifierProgressBtn = byId("clearClassifierProgressBtn");
+  el.classifierPersistStatus = byId("classifierPersistStatus");
 }
 
 function escapeHtml(text) {
@@ -352,11 +403,17 @@ function setSearchEnabled(enabled) {
 
   el.exportBtn.disabled = !enabled || !state.currentOrderedCaseIds.length;
   el.clearBtn.disabled = !enabled;
+  el.openClassifierBtn.disabled = !enabled;
+  el.classifierQuickOpenBtn.disabled = !enabled;
 }
 
 function setDatasetLoading(loading) {
   el.loadSampleBtn.disabled = loading;
   el.fileInput.disabled = loading;
+  if (!state.loaded) {
+    el.openClassifierBtn.disabled = true;
+    el.classifierQuickOpenBtn.disabled = true;
+  }
   el.dropZone.classList.toggle("loading", loading);
 }
 
@@ -425,6 +482,7 @@ function normalizeCases(rawCases) {
       parsedParagraphs.push({
         section,
         paraIdx,
+        localIdx: parsedParagraphs.length,
         text,
         textLower: text.toLowerCase(),
       });
@@ -447,13 +505,35 @@ function normalizeCases(rawCases) {
   return normalized;
 }
 
+function computeSimpleHash(text) {
+  let hash = 5381;
+  for (let i = 0; i < text.length; i += 1) {
+    hash = ((hash << 5) + hash) ^ text.charCodeAt(i);
+  }
+  return (hash >>> 0).toString(36);
+}
+
+function computeDatasetKey(cases) {
+  const head = cases.slice(0, 8);
+  const tail = cases.slice(-8);
+  const sig = [
+    `cases:${cases.length}`,
+    `head:${head.map((c) => `${c.case_id}|${c.__paragraphs.length}|${c.judgment_date || ""}`).join("~")}`,
+    `tail:${tail.map((c) => `${c.case_id}|${c.__paragraphs.length}|${c.judgment_date || ""}`).join("~")}`,
+  ].join("|");
+  return computeSimpleHash(sig);
+}
+
 function preprocessDataset(cases) {
   const articles = new Set();
   const countries = new Set();
+  const sections = new Set();
 
   state.cases = cases;
   state.caseById = new Map();
   state.paragraphIndex = [];
+  state.paragraphByKey = new Map();
+  state.datasetKey = computeDatasetKey(cases);
 
   for (let caseIdx = 0; caseIdx < cases.length; caseIdx += 1) {
     const c = cases[caseIdx];
@@ -467,9 +547,25 @@ function preprocessDataset(cases) {
     }
 
     for (const para of c.__paragraphs) {
+      sections.add(para.section);
+      const paraKey = `${c.case_id}::${para.localIdx}`;
+      para.key = paraKey;
+
       state.paragraphIndex.push({
         caseIdx,
         caseId: c.case_id,
+        key: paraKey,
+        section: para.section,
+        paraIdx: para.paraIdx,
+        text: para.text,
+        textLower: para.textLower,
+      });
+
+      state.paragraphByKey.set(paraKey, {
+        caseObj: c,
+        caseId: c.case_id,
+        caseTitle: c.title || "Untitled case",
+        caseDate: c.judgment_date || "-",
         section: para.section,
         paraIdx: para.paraIdx,
         text: para.text,
@@ -489,6 +585,14 @@ function preprocessDataset(cases) {
 
   state.articles = [...articles].sort((a, b) => (a.length - b.length) || a.localeCompare(b));
   state.countries = [...countries].sort((a, b) => (COUNTRY_NAMES[a] || a).localeCompare(COUNTRY_NAMES[b] || b));
+  state.sectionsInDataset = [...sections].sort((a, b) => {
+    const ai = SECTION_ORDER.indexOf(a);
+    const bi = SECTION_ORDER.indexOf(b);
+    if (ai !== -1 && bi !== -1) return ai - bi;
+    if (ai !== -1) return -1;
+    if (bi !== -1) return 1;
+    return a.localeCompare(b);
+  });
   state.loaded = true;
 }
 
@@ -599,6 +703,7 @@ function passesCaseFilters(c, filters) {
 
 function buildParagraphResult(para, terms) {
   return {
+    key: para.key || "",
     section: para.section,
     sectionLabel: SECTION_LABELS[para.section] || para.section,
     sectionColor: SECTION_COLORS[para.section] || "#718096",
@@ -705,6 +810,7 @@ function buildQueryResults(query, filters) {
     row.paragraphs.push(
       buildParagraphResult(
         {
+          key: entry.key,
           section: entry.section,
           paraIdx: entry.paraIdx,
           text: entry.text,
@@ -765,6 +871,1149 @@ function renderActiveFilters(filters) {
   el.activeFilters.innerHTML = chips.join("");
 }
 
+function getParagraphAssignment(paraKey) {
+  if (!paraKey || !state.classifier) return null;
+  return state.classifier.assignments.get(paraKey) || null;
+}
+
+function getCombinedParagraphLabels(paraKey) {
+  const assignment = getParagraphAssignment(paraKey);
+  if (!assignment) return [];
+
+  const labels = [];
+  for (const label of assignment.manual) {
+    labels.push({ label, kind: "manual" });
+  }
+  for (const label of assignment.predicted) {
+    if (!assignment.manual.has(label)) {
+      labels.push({ label, kind: "predicted" });
+    }
+  }
+  return labels;
+}
+
+function buildParagraphLabelBadgesHtml(paraKey) {
+  const labels = getCombinedParagraphLabels(paraKey);
+  if (!labels.length) return "";
+  return `
+    <span class="para-label-badges">
+      ${labels.map((item) => `<span class="para-label-chip ${item.kind}">${escapeHtml(item.label)}</span>`).join("")}
+    </span>
+  `;
+}
+
+function getClassifierStorageKey() {
+  if (!state.datasetKey) return "";
+  return `${CLASSIFIER_STORAGE_PREFIX}${state.datasetKey}`;
+}
+
+function normalizeClassifierLabel(rawLabel) {
+  return String(rawLabel || "").trim().replace(/\s+/g, " ");
+}
+
+function classifierLabelKey(rawLabel) {
+  return normalizeClassifierLabel(rawLabel).toLowerCase();
+}
+
+function sanitizeClassifierThreshold(value) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) {
+    return CLASSIFIER_DEFAULT_THRESHOLD;
+  }
+  return Math.max(0.05, Math.min(0.8, numeric));
+}
+
+function createClassifierAssignment(manual = [], predicted = []) {
+  return {
+    manual: new Set(manual),
+    predicted: new Set(predicted),
+  };
+}
+
+function setsEqual(a, b) {
+  if (a.size !== b.size) return false;
+  for (const item of a) {
+    if (!b.has(item)) return false;
+  }
+  return true;
+}
+
+function getInitialClassifierSections() {
+  const preferred = ["merits", "admissibility"];
+  const selected = preferred.filter((sec) => state.sectionsInDataset.includes(sec));
+  if (selected.length) {
+    return new Set(selected);
+  }
+  return new Set(state.sectionsInDataset);
+}
+
+function createDefaultClassifierState() {
+  const classifier = createEmptyClassifierState();
+  const defaults = getInitialClassifierSections();
+  classifier.trainingSections = new Set(defaults);
+  classifier.predictionSections = new Set(defaults);
+  return classifier;
+}
+
+function sanitizeModelVector(rawVector) {
+  const clean = {};
+  if (!rawVector || typeof rawVector !== "object") return clean;
+
+  for (const [token, value] of Object.entries(rawVector)) {
+    const numeric = Number(value);
+    if (!token || !Number.isFinite(numeric)) continue;
+    clean[token] = numeric;
+  }
+
+  return clean;
+}
+
+function sanitizeClassifierModel(rawModel, validLabelsSet) {
+  if (!rawModel || typeof rawModel !== "object") return null;
+
+  const idf = sanitizeModelVector(rawModel.idf);
+  const centroids = {};
+  const sourceCentroids = rawModel.centroids && typeof rawModel.centroids === "object"
+    ? rawModel.centroids
+    : {};
+
+  for (const [label, vector] of Object.entries(sourceCentroids)) {
+    if (validLabelsSet.size && !validLabelsSet.has(label)) continue;
+    const cleanVector = sanitizeModelVector(vector);
+    if (!Object.keys(cleanVector).length) continue;
+    centroids[label] = cleanVector;
+  }
+
+  if (!Object.keys(centroids).length) return null;
+
+  const labelCounts = {};
+  if (rawModel.labelCounts && typeof rawModel.labelCounts === "object") {
+    for (const [label, count] of Object.entries(rawModel.labelCounts)) {
+      if (!centroids[label]) continue;
+      const numeric = Number(count);
+      if (!Number.isFinite(numeric) || numeric <= 0) continue;
+      labelCounts[label] = numeric;
+    }
+  }
+
+  const trainingSize = Number(rawModel.trainingSize);
+  return {
+    type: String(rawModel.type || "tfidf-centroid-v1"),
+    trainedAt: String(rawModel.trainedAt || new Date().toISOString()),
+    trainingSize: Number.isFinite(trainingSize) && trainingSize > 0 ? trainingSize : 0,
+    idf,
+    centroids,
+    labelCounts,
+  };
+}
+
+function normalizeRawAssignmentRows(rawAssignments) {
+  if (Array.isArray(rawAssignments)) {
+    return rawAssignments;
+  }
+  if (rawAssignments && typeof rawAssignments === "object") {
+    return Object.entries(rawAssignments).map(([key, value]) => ({
+      key,
+      ...(value && typeof value === "object" ? value : {}),
+    }));
+  }
+  return [];
+}
+
+function hydrateClassifierPayload(payload, loadedFromStorage = false) {
+  const classifier = createDefaultClassifierState();
+
+  if (!payload || typeof payload !== "object") {
+    classifier.loadedFromStorage = loadedFromStorage;
+    return classifier;
+  }
+
+  const labels = [];
+  const labelKeys = new Set();
+  const pushLabel = (candidate) => {
+    const normalized = normalizeClassifierLabel(candidate);
+    if (!normalized) return;
+    const key = classifierLabelKey(normalized);
+    if (labelKeys.has(key)) return;
+    labelKeys.add(key);
+    labels.push(normalized);
+  };
+
+  if (Array.isArray(payload.labels)) {
+    for (const label of payload.labels) {
+      pushLabel(label);
+    }
+  }
+
+  const rawAssignments = normalizeRawAssignmentRows(payload.assignments);
+  for (const row of rawAssignments) {
+    if (!row || typeof row !== "object") continue;
+    if (Array.isArray(row.manual)) {
+      for (const label of row.manual) {
+        pushLabel(label);
+      }
+    }
+    if (Array.isArray(row.predicted)) {
+      for (const label of row.predicted) {
+        pushLabel(label);
+      }
+    }
+  }
+
+  classifier.labels = labels;
+  const validLabelsSet = new Set(classifier.labels);
+  const validSectionsSet = new Set(state.sectionsInDataset);
+
+  if (Array.isArray(payload.trainingSections)) {
+    const selected = payload.trainingSections.filter((sec) => validSectionsSet.has(sec));
+    classifier.trainingSections = selected.length ? new Set(selected) : getInitialClassifierSections();
+  }
+
+  if (Array.isArray(payload.predictionSections)) {
+    const selected = payload.predictionSections.filter((sec) => validSectionsSet.has(sec));
+    classifier.predictionSections = selected.length ? new Set(selected) : new Set(classifier.trainingSections);
+  }
+
+  classifier.threshold = sanitizeClassifierThreshold(payload.threshold);
+  classifier.model = sanitizeClassifierModel(payload.model, validLabelsSet);
+  classifier.modelInfo = typeof payload.modelInfo === "string" ? payload.modelInfo : "";
+  classifier.lastSavedAt = typeof payload.savedAt === "string" ? payload.savedAt : null;
+  classifier.loadedFromStorage = loadedFromStorage;
+
+  const assignments = new Map();
+  for (const row of rawAssignments) {
+    if (!row || typeof row !== "object") continue;
+    const paraKey = String(row.key || "");
+    if (!paraKey || !state.paragraphByKey.has(paraKey)) continue;
+
+    const manual = Array.isArray(row.manual)
+      ? row.manual.map((x) => normalizeClassifierLabel(x)).filter((label) => validLabelsSet.has(label))
+      : [];
+    const predicted = Array.isArray(row.predicted)
+      ? row.predicted.map((x) => normalizeClassifierLabel(x)).filter((label) => validLabelsSet.has(label))
+      : [];
+
+    if (!manual.length && !predicted.length) continue;
+    assignments.set(paraKey, createClassifierAssignment(manual, predicted));
+  }
+  classifier.assignments = assignments;
+
+  const rawSampleKeys = Array.isArray(payload.sampleKeys) ? payload.sampleKeys : [];
+  const sampleKeys = [];
+  for (const key of rawSampleKeys) {
+    const paraKey = String(key || "");
+    if (!state.paragraphByKey.has(paraKey)) continue;
+    const para = state.paragraphByKey.get(paraKey);
+    if (!classifier.trainingSections.has(para.section)) continue;
+    if (!sampleKeys.includes(paraKey)) {
+      sampleKeys.push(paraKey);
+    }
+  }
+  classifier.sampleKeys = sampleKeys;
+
+  const rawCursor = Number(payload.sampleCursor);
+  if (classifier.sampleKeys.length) {
+    const maxCursor = classifier.sampleKeys.length - 1;
+    classifier.sampleCursor = Number.isFinite(rawCursor)
+      ? Math.max(0, Math.min(maxCursor, Math.floor(rawCursor)))
+      : 0;
+  } else {
+    classifier.sampleCursor = 0;
+  }
+
+  return classifier;
+}
+
+function serializeClassifierState() {
+  if (!state.classifier) return null;
+  const classifier = state.classifier;
+  const assignments = [];
+
+  for (const [key, assignment] of classifier.assignments.entries()) {
+    const manual = [...assignment.manual];
+    const predicted = [...assignment.predicted];
+    if (!manual.length && !predicted.length) continue;
+    assignments.push({ key, manual, predicted });
+  }
+
+  return {
+    version: 1,
+    datasetKey: state.datasetKey,
+    sourceLabel: state.sourceLabel,
+    labels: [...classifier.labels],
+    trainingSections: [...classifier.trainingSections],
+    predictionSections: [...classifier.predictionSections],
+    sampleKeys: [...classifier.sampleKeys],
+    sampleCursor: classifier.sampleCursor,
+    threshold: classifier.threshold,
+    model: classifier.model,
+    modelInfo: classifier.modelInfo,
+    assignments,
+    savedAt: new Date().toISOString(),
+  };
+}
+
+function formatClassifierTimestamp(isoDate) {
+  if (!isoDate) return "";
+  const dt = new Date(isoDate);
+  if (!Number.isFinite(dt.getTime())) return "";
+  return dt.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+}
+
+function countClassifierManualAssignments() {
+  if (!state.classifier) return 0;
+  let total = 0;
+  for (const assignment of state.classifier.assignments.values()) {
+    if (assignment.manual.size) total += 1;
+  }
+  return total;
+}
+
+function countClassifierPredictedAssignments() {
+  if (!state.classifier) return 0;
+  let total = 0;
+  for (const assignment of state.classifier.assignments.values()) {
+    if (assignment.predicted.size) total += 1;
+  }
+  return total;
+}
+
+function countClassifierManualAssignmentsInSections(sectionSet) {
+  if (!state.classifier) return 0;
+  let total = 0;
+  for (const [key, assignment] of state.classifier.assignments.entries()) {
+    if (!assignment.manual.size) continue;
+    const paragraph = state.paragraphByKey.get(key);
+    if (!paragraph) continue;
+    if (!sectionSet.has(paragraph.section)) continue;
+    total += 1;
+  }
+  return total;
+}
+
+function setClassifierPersistStatus(message) {
+  el.classifierPersistStatus.textContent = message;
+}
+
+function setClassifierModelStatus(message) {
+  el.classifierModelStatus.textContent = message;
+}
+
+function updateClassifierResumeNote() {
+  if (!state.loaded || !state.classifier) {
+    el.classifierResumeNote.classList.add("hidden");
+    return;
+  }
+
+  const manualCount = countClassifierManualAssignments();
+  const predictedCount = countClassifierPredictedAssignments();
+  const source = state.classifier.loadedFromStorage ? "resumed from browser storage" : "new session";
+  const savedAt = formatClassifierTimestamp(state.classifier.lastSavedAt);
+  const timePart = savedAt ? ` · last saved ${savedAt}` : "";
+
+  el.classifierResumeNote.textContent =
+    `Classifier progress: ${fmtInt.format(manualCount)} manual, ${fmtInt.format(predictedCount)} model-tagged paragraphs (${source}${timePart}).`;
+  el.classifierResumeNote.classList.remove("hidden");
+}
+
+function saveClassifierState(statusMessage = "") {
+  if (!state.classifier || !state.datasetKey) return;
+  const storageKey = getClassifierStorageKey();
+  if (!storageKey) return;
+
+  const payload = serializeClassifierState();
+  if (!payload) return;
+
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(payload));
+    state.classifier.lastSavedAt = payload.savedAt;
+
+    if (statusMessage) {
+      const savedAt = formatClassifierTimestamp(payload.savedAt);
+      setClassifierPersistStatus(`${statusMessage} Saved locally${savedAt ? ` (${savedAt})` : ""}.`);
+    }
+  } catch (err) {
+    setClassifierPersistStatus(`Could not save classifier progress: ${err.message}`);
+  }
+
+  updateClassifierResumeNote();
+}
+
+function removeClassifierSavedState() {
+  const storageKey = getClassifierStorageKey();
+  if (!storageKey) return;
+  try {
+    localStorage.removeItem(storageKey);
+  } catch {
+    // Ignore storage errors.
+  }
+}
+
+function pruneClassifierSampleKeysToTrainingSections() {
+  if (!state.classifier) return;
+  const classifier = state.classifier;
+
+  classifier.sampleKeys = classifier.sampleKeys.filter((key) => {
+    const paragraph = state.paragraphByKey.get(key);
+    return paragraph && classifier.trainingSections.has(paragraph.section);
+  });
+
+  if (!classifier.sampleKeys.length) {
+    classifier.sampleCursor = 0;
+    return;
+  }
+
+  classifier.sampleCursor = Math.max(0, Math.min(classifier.sampleCursor, classifier.sampleKeys.length - 1));
+}
+
+function cleanupEmptyClassifierAssignment(paraKey) {
+  if (!state.classifier) return;
+  const assignment = state.classifier.assignments.get(paraKey);
+  if (!assignment) return;
+  if (!assignment.manual.size && !assignment.predicted.size) {
+    state.classifier.assignments.delete(paraKey);
+  }
+}
+
+function markClassifierModelOutdated(reason) {
+  if (!state.classifier) return;
+  if (state.classifier.model) {
+    state.classifier.model = null;
+  }
+  state.classifier.modelInfo = reason;
+  setClassifierModelStatus(reason);
+}
+
+function renderClassifierLabels() {
+  if (!state.classifier) {
+    el.classifierLabelsList.innerHTML = "";
+    return;
+  }
+
+  if (!state.classifier.labels.length) {
+    el.classifierLabelsList.innerHTML = '<p class="classifier-empty">No labels yet.</p>';
+    return;
+  }
+
+  el.classifierLabelsList.innerHTML = state.classifier.labels
+    .map((label) => `
+      <span class="classifier-chip">
+        ${escapeHtml(label)}
+        <button type="button" data-action="remove-label" data-label="${escapeHtml(label)}" aria-label="Remove label">×</button>
+      </span>
+    `)
+    .join("");
+}
+
+function renderClassifierSectionGrid(container, kind, selectedSections) {
+  if (!state.sectionsInDataset.length) {
+    container.innerHTML = '<p class="classifier-empty">No sections available in this dataset.</p>';
+    return;
+  }
+
+  container.innerHTML = state.sectionsInDataset
+    .map((section) => {
+      const checked = selectedSections.has(section) ? "checked" : "";
+      return `
+        <label>
+          <input type="checkbox" data-kind="${escapeHtml(kind)}" value="${escapeHtml(section)}" ${checked}>
+          <span>${escapeHtml(SECTION_LABELS[section] || section)}</span>
+        </label>
+      `;
+    })
+    .join("");
+}
+
+function renderClassifierSampleCard() {
+  if (!state.classifier) return;
+  const classifier = state.classifier;
+
+  if (!classifier.sampleKeys.length) {
+    el.classifierSampleCounter.textContent = "No sample loaded";
+    el.classifierSampleCard.innerHTML = classifier.trainingSections.size
+      ? '<p class="classifier-empty">Generate sample first.</p>'
+      : '<p class="classifier-empty">Select at least one section to generate a sample.</p>';
+    el.classifierPrevSampleBtn.disabled = true;
+    el.classifierNextSampleBtn.disabled = true;
+    return;
+  }
+
+  const currentKey = classifier.sampleKeys[classifier.sampleCursor];
+  const paragraph = state.paragraphByKey.get(currentKey);
+  if (!paragraph) {
+    el.classifierSampleCounter.textContent = "Sample item unavailable";
+    el.classifierSampleCard.innerHTML = '<p class="classifier-empty">Current sample paragraph is no longer available.</p>';
+    el.classifierPrevSampleBtn.disabled = true;
+    el.classifierNextSampleBtn.disabled = true;
+    return;
+  }
+
+  const assignment = classifier.assignments.get(currentKey) || createClassifierAssignment();
+  const manual = [...assignment.manual];
+  const predictedOnly = [...assignment.predicted].filter((label) => !assignment.manual.has(label));
+  const labeledInSample = classifier.sampleKeys.filter((key) => {
+    const row = classifier.assignments.get(key);
+    return !!(row && row.manual.size);
+  }).length;
+
+  el.classifierSampleCounter.textContent =
+    `Sample ${classifier.sampleCursor + 1}/${classifier.sampleKeys.length} · manually labeled ${labeledInSample}/${classifier.sampleKeys.length}`;
+
+  const labelButtons = classifier.labels.length
+    ? classifier.labels
+      .map((label) => {
+        const active = assignment.manual.has(label) ? "active" : "";
+        return `
+          <button
+            type="button"
+            class="classifier-label-toggle ${active}"
+            data-action="toggle-sample-label"
+            data-label="${escapeHtml(label)}"
+            aria-pressed="${assignment.manual.has(label) ? "true" : "false"}">
+            ${escapeHtml(label)}
+          </button>
+        `;
+      })
+      .join("")
+    : '<p class="classifier-empty">Add labels first.</p>';
+
+  const modelSuggestion = predictedOnly.length
+    ? `<p class="classifier-help">Model suggestions: ${predictedOnly.map((label) => escapeHtml(label)).join(", ")}</p>`
+    : "";
+
+  el.classifierSampleCard.innerHTML = `
+    <div class="classifier-sample-meta">
+      <span><strong>${escapeHtml(SECTION_LABELS[paragraph.section] || paragraph.section)}</strong></span>
+      <span>¶ ${paragraph.paraIdx + 1}</span>
+      <span>${escapeHtml(paragraph.caseId)}</span>
+    </div>
+    <p class="classifier-sample-text">${escapeHtml(paragraph.text)}</p>
+    ${modelSuggestion}
+    <div class="classifier-sample-labels">
+      ${labelButtons}
+    </div>
+    <div class="classifier-sample-actions">
+      <button
+        type="button"
+        class="classifier-btn secondary"
+        data-action="clear-current-sample-labels"
+        ${manual.length ? "" : "disabled"}>
+        Clear Manual Labels
+      </button>
+    </div>
+  `;
+
+  el.classifierPrevSampleBtn.disabled = classifier.sampleCursor <= 0;
+  el.classifierNextSampleBtn.disabled = classifier.sampleCursor >= classifier.sampleKeys.length - 1;
+}
+
+function renderClassifierPanel() {
+  if (!state.classifier) return;
+  const classifier = state.classifier;
+
+  renderClassifierLabels();
+  renderClassifierSectionGrid(el.classifierTrainingSections, "training", classifier.trainingSections);
+  renderClassifierSectionGrid(el.classifierPredictionSections, "prediction", classifier.predictionSections);
+  renderClassifierSampleCard();
+
+  classifier.threshold = sanitizeClassifierThreshold(classifier.threshold);
+  el.classifierThresholdRange.value = classifier.threshold.toFixed(2);
+  el.classifierThresholdValue.textContent = classifier.threshold.toFixed(2);
+
+  if (classifier.model) {
+    const labelsCount = Object.keys(classifier.model.centroids || {}).length;
+    const message = classifier.modelInfo
+      || `Model ready (${fmtInt.format(classifier.model.trainingSize || 0)} training paragraphs, ${fmtInt.format(labelsCount)} labels).`;
+    setClassifierModelStatus(message);
+  } else if (classifier.modelInfo) {
+    setClassifierModelStatus(classifier.modelInfo);
+  } else {
+    setClassifierModelStatus("Model not trained yet.");
+  }
+
+  const manualCount = countClassifierManualAssignmentsInSections(classifier.trainingSections);
+  el.refreshClassifierSampleBtn.disabled = !classifier.trainingSections.size;
+  el.trainClassifierBtn.disabled =
+    !classifier.trainingSections.size
+    || !classifier.labels.length
+    || manualCount < CLASSIFIER_MIN_LABELED_PARAGRAPHS;
+  el.applyClassifierModelBtn.disabled = !classifier.model || !classifier.predictionSections.size;
+}
+
+function openClassifierPane() {
+  if (!state.loaded || !state.classifier) return;
+  state.classifierOpen = true;
+  el.classifierBackdrop.hidden = false;
+  el.classifierPane.classList.add("open");
+  renderClassifierPanel();
+}
+
+function closeClassifierPane() {
+  state.classifierOpen = false;
+  el.classifierBackdrop.hidden = true;
+  el.classifierPane.classList.remove("open");
+}
+
+function getSampleParagraphKeysFromSections(sectionSet) {
+  const candidateKeys = [];
+
+  for (const row of state.paragraphIndex) {
+    if (sectionSet.size && !sectionSet.has(row.section)) {
+      continue;
+    }
+    candidateKeys.push(row.key);
+  }
+
+  return candidateKeys;
+}
+
+function shuffleArray(values) {
+  const arr = [...values];
+  for (let i = arr.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function regenerateClassifierSample() {
+  if (!state.classifier) return;
+  const classifier = state.classifier;
+
+  if (!classifier.trainingSections.size) {
+    setClassifierPersistStatus("Select at least one section for training sample.");
+    renderClassifierPanel();
+    return;
+  }
+
+  const allKeys = getSampleParagraphKeysFromSections(classifier.trainingSections);
+  if (!allKeys.length) {
+    classifier.sampleKeys = [];
+    classifier.sampleCursor = 0;
+    setClassifierPersistStatus("No paragraphs available in selected training sections.");
+    renderClassifierPanel();
+    saveClassifierState();
+    return;
+  }
+
+  const unlabeled = [];
+  const labeled = [];
+  for (const key of allKeys) {
+    const assignment = classifier.assignments.get(key);
+    if (assignment && assignment.manual.size) {
+      labeled.push(key);
+    } else {
+      unlabeled.push(key);
+    }
+  }
+
+  const prioritized = [...shuffleArray(unlabeled), ...shuffleArray(labeled)];
+  const sampleSize = Math.min(CLASSIFIER_SAMPLE_SIZE, prioritized.length);
+  classifier.sampleKeys = prioritized.slice(0, sampleSize);
+  classifier.sampleCursor = 0;
+
+  renderClassifierPanel();
+  saveClassifierState(`Sample refreshed (${fmtInt.format(sampleSize)} paragraphs).`);
+}
+
+function moveClassifierSample(delta) {
+  if (!state.classifier || !state.classifier.sampleKeys.length) return;
+  const classifier = state.classifier;
+  const maxCursor = classifier.sampleKeys.length - 1;
+  classifier.sampleCursor = Math.max(0, Math.min(maxCursor, classifier.sampleCursor + delta));
+  renderClassifierSampleCard();
+  saveClassifierState();
+}
+
+function toggleCurrentSampleLabel(label) {
+  if (!state.classifier) return;
+  const classifier = state.classifier;
+  const normalizedLabel = normalizeClassifierLabel(label);
+  if (!normalizedLabel || !classifier.labels.includes(normalizedLabel)) return;
+
+  const sampleKey = classifier.sampleKeys[classifier.sampleCursor];
+  if (!sampleKey) return;
+
+  const assignment = classifier.assignments.get(sampleKey) || createClassifierAssignment();
+  if (assignment.manual.has(normalizedLabel)) {
+    assignment.manual.delete(normalizedLabel);
+  } else {
+    assignment.manual.add(normalizedLabel);
+  }
+
+  classifier.assignments.set(sampleKey, assignment);
+  cleanupEmptyClassifierAssignment(sampleKey);
+  markClassifierModelOutdated("Labels changed. Train model again to refresh predictions.");
+
+  renderClassifierPanel();
+  renderResultsPage();
+  saveClassifierState("Updated manual labels.");
+}
+
+function clearCurrentSampleManualLabels() {
+  if (!state.classifier) return;
+  const classifier = state.classifier;
+  const sampleKey = classifier.sampleKeys[classifier.sampleCursor];
+  if (!sampleKey) return;
+
+  const assignment = classifier.assignments.get(sampleKey);
+  if (!assignment || !assignment.manual.size) return;
+
+  assignment.manual.clear();
+  classifier.assignments.set(sampleKey, assignment);
+  cleanupEmptyClassifierAssignment(sampleKey);
+  markClassifierModelOutdated("Labels changed. Train model again to refresh predictions.");
+
+  renderClassifierPanel();
+  renderResultsPage();
+  saveClassifierState("Cleared manual labels for current sample.");
+}
+
+function addClassifierLabel() {
+  if (!state.classifier) return;
+  const classifier = state.classifier;
+  const label = normalizeClassifierLabel(el.newClassifierLabelInput.value);
+  if (!label) return;
+
+  const labelKey = classifierLabelKey(label);
+  if (classifier.labels.some((item) => classifierLabelKey(item) === labelKey)) {
+    setClassifierPersistStatus(`Label "${label}" already exists.`);
+    return;
+  }
+
+  classifier.labels.push(label);
+  el.newClassifierLabelInput.value = "";
+  markClassifierModelOutdated("Label set changed. Train model again.");
+  renderClassifierPanel();
+  saveClassifierState(`Added label "${label}".`);
+}
+
+function removeClassifierLabel(label) {
+  if (!state.classifier) return;
+  const classifier = state.classifier;
+  const normalized = normalizeClassifierLabel(label);
+  if (!normalized) return;
+  const targetKey = classifierLabelKey(normalized);
+
+  const current = classifier.labels.find((item) => classifierLabelKey(item) === targetKey);
+  if (!current) return;
+
+  const shouldRemove = window.confirm(`Remove label "${current}" from classifier and all paragraph assignments?`);
+  if (!shouldRemove) return;
+
+  classifier.labels = classifier.labels.filter((item) => classifierLabelKey(item) !== targetKey);
+
+  for (const [key, assignment] of classifier.assignments.entries()) {
+    assignment.manual.delete(current);
+    assignment.predicted.delete(current);
+    if (!assignment.manual.size && !assignment.predicted.size) {
+      classifier.assignments.delete(key);
+    } else {
+      classifier.assignments.set(key, assignment);
+    }
+  }
+
+  markClassifierModelOutdated("Label set changed. Train model again.");
+  renderClassifierPanel();
+  renderResultsPage();
+  saveClassifierState(`Removed label "${current}".`);
+}
+
+function handleClassifierSectionToggle(kind, section, checked) {
+  if (!state.classifier) return;
+  const classifier = state.classifier;
+  if (!state.sectionsInDataset.includes(section)) return;
+
+  const targetSet = kind === "prediction" ? classifier.predictionSections : classifier.trainingSections;
+  if (checked) {
+    targetSet.add(section);
+  } else {
+    targetSet.delete(section);
+  }
+
+  if (kind === "training") {
+    pruneClassifierSampleKeysToTrainingSections();
+    markClassifierModelOutdated("Training sections changed. Train model again.");
+  }
+
+  renderClassifierPanel();
+  saveClassifierState(`Updated ${kind} sections.`);
+}
+
+function onClassifierThresholdInput() {
+  if (!state.classifier) return;
+  state.classifier.threshold = sanitizeClassifierThreshold(el.classifierThresholdRange.value);
+  el.classifierThresholdValue.textContent = state.classifier.threshold.toFixed(2);
+  saveClassifierState();
+}
+
+function tokenizeClassifierText(text) {
+  const tokens = String(text || "").toLowerCase().match(/[a-z0-9]{3,}/g) || [];
+  return tokens.filter((token) => !STOPWORDS.has(token));
+}
+
+function computeClassifierTfIdf(texts) {
+  const docsTf = [];
+  const df = new Map();
+
+  for (const text of texts) {
+    const tokens = tokenizeClassifierText(text);
+    const tf = new Map();
+    const seen = new Set();
+
+    for (const token of tokens) {
+      tf.set(token, (tf.get(token) || 0) + 1);
+      if (!seen.has(token)) {
+        seen.add(token);
+        df.set(token, (df.get(token) || 0) + 1);
+      }
+    }
+
+    const total = tokens.length || 1;
+    const normalizedTf = {};
+    for (const [token, count] of tf.entries()) {
+      normalizedTf[token] = count / total;
+    }
+    docsTf.push(normalizedTf);
+  }
+
+  const idf = {};
+  const docCount = texts.length || 1;
+  for (const [token, count] of df.entries()) {
+    idf[token] = Math.log((docCount + 1) / (count + 1)) + 1;
+  }
+
+  const vectors = docsTf.map((docTf) => {
+    const vec = {};
+    for (const [token, tfVal] of Object.entries(docTf)) {
+      vec[token] = tfVal * (idf[token] || 1);
+    }
+    return vec;
+  });
+
+  return { idf, vectors };
+}
+
+function buildClassifierCentroids(vectors, examples, labels) {
+  const sumsByLabel = new Map();
+  const countsByLabel = new Map();
+  for (const label of labels) {
+    sumsByLabel.set(label, {});
+    countsByLabel.set(label, 0);
+  }
+
+  for (let i = 0; i < examples.length; i += 1) {
+    const vector = vectors[i];
+    const row = examples[i];
+    for (const label of row.labels) {
+      if (!sumsByLabel.has(label)) continue;
+      const sums = sumsByLabel.get(label);
+      countsByLabel.set(label, (countsByLabel.get(label) || 0) + 1);
+      for (const [token, value] of Object.entries(vector)) {
+        sums[token] = (sums[token] || 0) + value;
+      }
+    }
+  }
+
+  const centroids = {};
+  const labelCounts = {};
+  for (const label of labels) {
+    const count = countsByLabel.get(label) || 0;
+    if (!count) continue;
+    labelCounts[label] = count;
+    const centroid = {};
+    const sums = sumsByLabel.get(label);
+    for (const [token, value] of Object.entries(sums)) {
+      centroid[token] = value / count;
+    }
+    centroids[label] = centroid;
+  }
+
+  return { centroids, labelCounts };
+}
+
+function textToClassifierVector(text, idf) {
+  const tokens = tokenizeClassifierText(text);
+  const counts = new Map();
+  for (const token of tokens) {
+    counts.set(token, (counts.get(token) || 0) + 1);
+  }
+
+  const total = tokens.length || 1;
+  const vector = {};
+  for (const [token, count] of counts.entries()) {
+    vector[token] = (count / total) * (idf[token] || 1);
+  }
+  return vector;
+}
+
+function cosineSimilarity(vecA, vecB) {
+  let dot = 0;
+  let normA = 0;
+  let normB = 0;
+
+  for (const value of Object.values(vecA)) {
+    normA += value * value;
+  }
+  for (const value of Object.values(vecB)) {
+    normB += value * value;
+  }
+  if (!normA || !normB) return 0;
+
+  const [small, large] = Object.keys(vecA).length <= Object.keys(vecB).length
+    ? [vecA, vecB]
+    : [vecB, vecA];
+
+  for (const [token, value] of Object.entries(small)) {
+    dot += value * (large[token] || 0);
+  }
+
+  return dot / (Math.sqrt(normA) * Math.sqrt(normB));
+}
+
+function trainClassifierModel() {
+  if (!state.classifier) return;
+  const classifier = state.classifier;
+
+  if (!classifier.trainingSections.size) {
+    setClassifierModelStatus("Select at least one section for training.");
+    return;
+  }
+
+  if (!classifier.labels.length) {
+    setClassifierModelStatus("Add at least one label before training.");
+    return;
+  }
+
+  const validLabelsSet = new Set(classifier.labels);
+  const examples = [];
+
+  for (const [paraKey, assignment] of classifier.assignments.entries()) {
+    if (!assignment.manual.size) continue;
+    const paragraph = state.paragraphByKey.get(paraKey);
+    if (!paragraph) continue;
+    if (!classifier.trainingSections.has(paragraph.section)) continue;
+
+    const labels = [...assignment.manual].filter((label) => validLabelsSet.has(label));
+    if (!labels.length) continue;
+    examples.push({
+      text: paragraph.text,
+      labels,
+    });
+  }
+
+  if (examples.length < CLASSIFIER_MIN_LABELED_PARAGRAPHS) {
+    setClassifierModelStatus(
+      `Need at least ${CLASSIFIER_MIN_LABELED_PARAGRAPHS} manually labeled paragraphs in selected training sections (currently ${examples.length}).`
+    );
+    return;
+  }
+
+  const { idf, vectors } = computeClassifierTfIdf(examples.map((row) => row.text));
+  const { centroids, labelCounts } = buildClassifierCentroids(vectors, examples, classifier.labels);
+
+  if (!Object.keys(centroids).length) {
+    setClassifierModelStatus("Could not train model. Ensure labels are assigned in selected training sections.");
+    return;
+  }
+
+  classifier.model = {
+    type: "tfidf-centroid-v1",
+    trainedAt: new Date().toISOString(),
+    trainingSize: examples.length,
+    idf,
+    centroids,
+    labelCounts,
+  };
+
+  const labelsWithData = Object.keys(centroids).length;
+  classifier.modelInfo =
+    `Model trained on ${fmtInt.format(examples.length)} labeled paragraphs (${fmtInt.format(labelsWithData)} labels with examples).`;
+  setClassifierModelStatus(classifier.modelInfo);
+
+  renderClassifierPanel();
+  saveClassifierState("Model trained.");
+}
+
+function predictLabelsForTextWithClassifier(text, classifier) {
+  if (!classifier.model) {
+    return { labels: [], scores: {} };
+  }
+
+  const threshold = sanitizeClassifierThreshold(classifier.threshold);
+  const vector = textToClassifierVector(text, classifier.model.idf || {});
+  const scores = [];
+
+  for (const [label, centroid] of Object.entries(classifier.model.centroids || {})) {
+    const score = cosineSimilarity(vector, centroid);
+    if (score >= threshold) {
+      scores.push([label, score]);
+    }
+  }
+
+  scores.sort((a, b) => b[1] - a[1]);
+  const limitedScores = scores.slice(0, 5);
+  return {
+    labels: limitedScores.map(([label]) => label),
+    scores: Object.fromEntries(limitedScores),
+  };
+}
+
+function applyClassifierModelToSelectedSections() {
+  if (!state.classifier) return;
+  const classifier = state.classifier;
+
+  if (!classifier.model) {
+    setClassifierModelStatus("Train model before applying predictions.");
+    return;
+  }
+
+  if (!classifier.predictionSections.size) {
+    setClassifierModelStatus("Select at least one section for model tagging.");
+    return;
+  }
+
+  let evaluatedParagraphs = 0;
+  let taggedParagraphs = 0;
+  let assignedLabels = 0;
+  let changedParagraphs = 0;
+
+  for (const row of state.paragraphIndex) {
+    if (!classifier.predictionSections.has(row.section)) {
+      continue;
+    }
+
+    evaluatedParagraphs += 1;
+    const existing = classifier.assignments.get(row.key) || createClassifierAssignment();
+    const previousPredicted = new Set(existing.predicted);
+
+    const prediction = predictLabelsForTextWithClassifier(row.text, classifier);
+    const nextPredicted = new Set(prediction.labels.filter((label) => !existing.manual.has(label)));
+    existing.predicted = nextPredicted;
+
+    if (!setsEqual(previousPredicted, nextPredicted)) {
+      changedParagraphs += 1;
+    }
+
+    if (nextPredicted.size) {
+      taggedParagraphs += 1;
+      assignedLabels += nextPredicted.size;
+    }
+
+    if (existing.manual.size || existing.predicted.size) {
+      classifier.assignments.set(row.key, existing);
+    } else {
+      classifier.assignments.delete(row.key);
+    }
+  }
+
+  const sectionCount = classifier.predictionSections.size;
+  const sectionWord = sectionCount === 1 ? "section" : "sections";
+  const summary =
+    `Model applied to ${fmtInt.format(evaluatedParagraphs)} paragraphs in ${fmtInt.format(sectionCount)} ${sectionWord}. ` +
+    `Tagged ${fmtInt.format(taggedParagraphs)} paragraphs (${fmtInt.format(assignedLabels)} labels, ${fmtInt.format(changedParagraphs)} changes).`;
+
+  setClassifierModelStatus(summary);
+  renderClassifierPanel();
+  renderResultsPage();
+  saveClassifierState("Model predictions applied.");
+}
+
+function exportClassifierProgress() {
+  const payload = serializeClassifierState();
+  if (!payload) return;
+  payload.exportedAt = new Date().toISOString();
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `echr_classifier_progress_${state.datasetKey || "dataset"}.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+
+  setClassifierPersistStatus("Classifier progress exported.");
+}
+
+async function importClassifierProgress(file) {
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const payload = JSON.parse(text);
+    if (!payload || typeof payload !== "object") {
+      throw new Error("Invalid JSON structure.");
+    }
+
+    if (payload.datasetKey && payload.datasetKey !== state.datasetKey) {
+      const proceed = window.confirm(
+        "This progress file belongs to a different dataset signature. Import anyway?"
+      );
+      if (!proceed) {
+        return;
+      }
+    }
+
+    state.classifier = hydrateClassifierPayload(payload, true);
+    renderClassifierPanel();
+    renderResultsPage();
+    saveClassifierState("Classifier progress imported.");
+  } catch (err) {
+    setClassifierPersistStatus(`Could not import progress file: ${err.message}`);
+  } finally {
+    el.importClassifierProgressInput.value = "";
+  }
+}
+
+function clearClassifierProgress() {
+  if (!state.classifier) return;
+  const shouldClear = window.confirm("Clear all classifier labels, assignments, and model for this dataset?");
+  if (!shouldClear) return;
+
+  removeClassifierSavedState();
+  state.classifier = createDefaultClassifierState();
+  state.classifier.loadedFromStorage = false;
+  state.classifier.modelInfo = "Model not trained yet.";
+  setClassifierPersistStatus("Classifier progress cleared for this dataset.");
+  setClassifierModelStatus("Model not trained yet.");
+  renderClassifierPanel();
+  renderResultsPage();
+  updateClassifierResumeNote();
+}
+
+function loadClassifierStateForDataset() {
+  const storageKey = getClassifierStorageKey();
+  let classifier = null;
+
+  if (storageKey) {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) {
+        classifier = hydrateClassifierPayload(JSON.parse(raw), true);
+      }
+    } catch (err) {
+      console.error("Could not load classifier state:", err);
+    }
+  }
+
+  if (!classifier) {
+    classifier = createDefaultClassifierState();
+    classifier.loadedFromStorage = false;
+    classifier.modelInfo = "Model not trained yet.";
+    setClassifierPersistStatus("No saved state loaded for this dataset yet.");
+  } else {
+    const savedAt = formatClassifierTimestamp(classifier.lastSavedAt);
+    setClassifierPersistStatus(
+      `Loaded saved classifier progress${savedAt ? ` (${savedAt})` : ""}.`
+    );
+  }
+
+  state.classifier = classifier;
+  renderClassifierPanel();
+  updateClassifierResumeNote();
+}
+
 function buildCaseCard(caseId, row) {
   const c = row.case;
   const defendantLabel = (c.defendants || []).map((d) => COUNTRY_NAMES[d] || d).join(", ");
@@ -776,6 +2025,7 @@ function buildCaseCard(caseId, row) {
           <div class="para-header">
             <span class="para-section">${escapeHtml(p.sectionLabel)}</span>
             <span class="para-num">¶ ${p.paraIdx + 1}</span>
+            ${buildParagraphLabelBadgesHtml(p.key)}
             <button class="copy-btn" data-action="copy-paragraph" data-text="${escapeHtml(p.rawText)}">Copy</button>
           </div>
           <p class="para-text">${p.textHtml}</p>
@@ -1082,7 +2332,7 @@ function exportCsv() {
   if (!state.currentOrderedCaseIds.length) return;
 
   const rows = [
-    ["Case ID", "Case No", "Title", "Judgment Date", "Defendants", "Articles", "Section", "Paragraph", "Text"],
+    ["Case ID", "Case No", "Title", "Judgment Date", "Defendants", "Articles", "Section", "Paragraph", "Assigned Labels", "Text"],
   ];
 
   for (const caseId of state.currentOrderedCaseIds) {
@@ -1099,6 +2349,7 @@ function exportCsv() {
         data.case.article_no || "",
         p.sectionLabel,
         String(p.paraIdx + 1),
+        getCombinedParagraphLabels(p.key).map((x) => x.label).join("; "),
         p.rawText,
       ]);
     }
@@ -1280,6 +2531,8 @@ async function activateDataset(rawRows, sourceLabel, metaLine, invalidCount = 0)
   );
   setDatasetMeta(metaLine);
 
+  closeClassifierPane();
+  loadClassifierStateForDataset();
   setSearchEnabled(true);
 
   resetFiltersAndQuery();
@@ -1374,6 +2627,67 @@ function bindEvents() {
   });
 
   el.loadSampleBtn.addEventListener("click", loadSampleDataset);
+  el.openClassifierBtn.addEventListener("click", openClassifierPane);
+  el.classifierQuickOpenBtn.addEventListener("click", openClassifierPane);
+  el.closeClassifierBtn.addEventListener("click", closeClassifierPane);
+  el.classifierBackdrop.addEventListener("click", closeClassifierPane);
+
+  el.addClassifierLabelBtn.addEventListener("click", addClassifierLabel);
+  el.newClassifierLabelInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addClassifierLabel();
+    }
+  });
+
+  el.classifierLabelsList.addEventListener("click", (e) => {
+    const target = e.target.closest("button[data-action='remove-label']");
+    if (!target) return;
+    const label = target.getAttribute("data-label") || "";
+    removeClassifierLabel(label);
+  });
+
+  el.classifierTrainingSections.addEventListener("change", (e) => {
+    const input = e.target.closest("input[type='checkbox'][data-kind='training']");
+    if (!input) return;
+    handleClassifierSectionToggle("training", input.value, input.checked);
+  });
+
+  el.classifierPredictionSections.addEventListener("change", (e) => {
+    const input = e.target.closest("input[type='checkbox'][data-kind='prediction']");
+    if (!input) return;
+    handleClassifierSectionToggle("prediction", input.value, input.checked);
+  });
+
+  el.refreshClassifierSampleBtn.addEventListener("click", regenerateClassifierSample);
+  el.classifierPrevSampleBtn.addEventListener("click", () => moveClassifierSample(-1));
+  el.classifierNextSampleBtn.addEventListener("click", () => moveClassifierSample(1));
+
+  el.classifierSampleCard.addEventListener("click", (e) => {
+    const button = e.target.closest("button[data-action]");
+    if (!button) return;
+    const action = button.getAttribute("data-action");
+    if (action === "toggle-sample-label") {
+      toggleCurrentSampleLabel(button.getAttribute("data-label") || "");
+      return;
+    }
+    if (action === "clear-current-sample-labels") {
+      clearCurrentSampleManualLabels();
+    }
+  });
+
+  el.classifierThresholdRange.addEventListener("input", onClassifierThresholdInput);
+  el.trainClassifierBtn.addEventListener("click", trainClassifierModel);
+  el.applyClassifierModelBtn.addEventListener("click", applyClassifierModelToSelectedSections);
+
+  el.exportClassifierProgressBtn.addEventListener("click", exportClassifierProgress);
+  el.importClassifierProgressInput.addEventListener("change", () => {
+    const file = el.importClassifierProgressInput.files && el.importClassifierProgressInput.files[0];
+    if (file) {
+      importClassifierProgress(file);
+    }
+  });
+  el.clearClassifierProgressBtn.addEventListener("click", clearClassifierProgress);
 
   el.fileInput.addEventListener("change", () => {
     const file = el.fileInput.files && el.fileInput.files[0];
@@ -1490,9 +2804,16 @@ function bindEvents() {
   el.modalSectionFilter.addEventListener("change", filterModalParagraphs);
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !el.caseModal.hidden) {
-      closeCaseModal();
-      return;
+    if (e.key === "Escape") {
+      if (state.classifierOpen) {
+        closeClassifierPane();
+        return;
+      }
+
+      if (!el.caseModal.hidden) {
+        closeCaseModal();
+        return;
+      }
     }
 
     if (e.key === "/" && !["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)) {
@@ -1512,6 +2833,9 @@ function init() {
   setSearchEnabled(false);
   setDatasetMeta("Dataset: not selected");
   setDatasetStatus("No dataset loaded yet. Choose sample dataset or upload your JSONL file.");
+  el.classifierResumeNote.classList.add("hidden");
+  setClassifierPersistStatus("No saved state loaded.");
+  setClassifierModelStatus("Model not trained yet.");
 
   el.resultsHeader.hidden = true;
   el.noResults.hidden = true;

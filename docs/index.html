@@ -40,6 +40,7 @@
           <div class="source-actions">
             <button type="button" id="loadSampleBtn" class="source-btn">Load Sample Dataset (50)</button>
             <label class="source-upload-btn" for="fileInput">Choose JSONL File</label>
+            <button type="button" id="openClassifierBtn" class="source-btn" disabled>Open Classifier</button>
             <input id="fileInput" type="file" accept=".jsonl,application/json,text/plain" hidden>
           </div>
 
@@ -49,6 +50,7 @@
 
           <p id="datasetStatus" class="dataset-status">No dataset loaded yet.</p>
           <p id="datasetMeta" class="dataset-note">Dataset: not selected</p>
+          <p id="classifierResumeNote" class="dataset-note hidden">Classifier progress: not loaded</p>
         </section>
 
         <form id="searchForm" class="search-form search-disabled">
@@ -145,6 +147,7 @@
             <span class="meta-count"><strong id="resultsHits">0</strong> paragraphs in <strong id="resultsCases">0</strong> cases</span>
             <span class="meta-time" id="resultsTime">(0.000s)</span>
             <button type="button" class="export-btn" id="exportBtn" title="Export results to CSV" disabled>📥 Export CSV</button>
+            <button type="button" class="export-btn" id="classifierQuickOpenBtn" title="Open classifier panel" disabled>🏷️ Classifier</button>
             <button type="button" class="export-btn clear-btn" id="clearBtn" title="Clear current search" disabled>Clear</button>
           </div>
           <div class="active-filters" id="activeFilters"></div>
@@ -213,6 +216,77 @@
       <div id="modalBody" class="modal-body"></div>
     </div>
   </div>
+
+  <div class="classifier-pane" id="classifierPane">
+    <div class="classifier-pane-header">
+      <h2>🏷️ Paragraph Classifier</h2>
+      <button type="button" id="closeClassifierBtn" class="classifier-pane-close" aria-label="Close classifier">×</button>
+    </div>
+
+    <div class="classifier-pane-body">
+      <section class="classifier-section">
+        <h3><span class="step-number">1</span> Labels</h3>
+        <p class="classifier-help">Define your own labels. You can assign multiple labels to one paragraph.</p>
+        <div class="classifier-row">
+          <input type="text" id="newClassifierLabelInput" placeholder="New label name" class="classifier-input">
+          <button type="button" id="addClassifierLabelBtn" class="classifier-btn primary">Add</button>
+        </div>
+        <div id="classifierLabelsList" class="classifier-chip-list"></div>
+      </section>
+
+      <section class="classifier-section">
+        <h3><span class="step-number">2</span> Training Sample</h3>
+        <p class="classifier-help">Select sections for sampling. Training sample size is fixed at 30 paragraphs.</p>
+        <div id="classifierTrainingSections" class="classifier-check-grid"></div>
+        <div class="classifier-row">
+          <button type="button" id="refreshClassifierSampleBtn" class="classifier-btn secondary">Generate / Refresh Sample (30)</button>
+        </div>
+        <div class="classifier-sample-nav">
+          <button type="button" id="classifierPrevSampleBtn" class="classifier-btn secondary">← Prev</button>
+          <span id="classifierSampleCounter">No sample loaded</span>
+          <button type="button" id="classifierNextSampleBtn" class="classifier-btn secondary">Next →</button>
+        </div>
+        <div id="classifierSampleCard" class="classifier-sample-card">
+          <p class="classifier-empty">Generate sample first.</p>
+        </div>
+      </section>
+
+      <section class="classifier-section">
+        <h3><span class="step-number">3</span> Train And Predict</h3>
+        <div class="classifier-row">
+          <label class="classifier-threshold-label" for="classifierThresholdRange">Threshold</label>
+          <input type="range" id="classifierThresholdRange" min="0.05" max="0.8" step="0.01" value="0.22">
+          <span id="classifierThresholdValue" class="classifier-threshold-value">0.22</span>
+        </div>
+        <div class="classifier-row">
+          <button type="button" id="trainClassifierBtn" class="classifier-btn primary">Train Model</button>
+        </div>
+        <p id="classifierModelStatus" class="classifier-help">Model not trained yet.</p>
+
+        <h4 class="classifier-subtitle">Tag Sections With Model</h4>
+        <div id="classifierPredictionSections" class="classifier-check-grid"></div>
+        <div class="classifier-row">
+          <button type="button" id="applyClassifierModelBtn" class="classifier-btn success">Apply Model To Selected Sections</button>
+        </div>
+      </section>
+
+      <section class="classifier-section">
+        <h3><span class="step-number">4</span> Save Progress</h3>
+        <p class="classifier-help">Progress is auto-saved in browser local storage per dataset. You can also export/import a backup file.</p>
+        <div class="classifier-row">
+          <button type="button" id="exportClassifierProgressBtn" class="classifier-btn secondary">Export Progress JSON</button>
+          <label for="importClassifierProgressInput" class="classifier-import-label">Import Progress JSON</label>
+          <input id="importClassifierProgressInput" type="file" accept=".json,application/json" hidden>
+        </div>
+        <div class="classifier-row">
+          <button type="button" id="clearClassifierProgressBtn" class="classifier-btn danger">Clear Classifier Progress</button>
+        </div>
+        <p id="classifierPersistStatus" class="classifier-help">No saved state loaded.</p>
+      </section>
+    </div>
+  </div>
+
+  <div class="classifier-backdrop" id="classifierBackdrop" hidden></div>
 
   <script src="assets/search-app.js"></script>
 </body>

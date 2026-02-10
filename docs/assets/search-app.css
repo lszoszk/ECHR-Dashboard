@@ -331,6 +331,398 @@ button.export-btn:disabled {
   padding: 0 3px;
 }
 
+.para-label-badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-left: 2px;
+}
+
+.para-label-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  border: 1px solid transparent;
+}
+
+.para-label-chip.manual {
+  background: rgba(56, 161, 105, 0.16);
+  color: #2f855a;
+  border-color: rgba(56, 161, 105, 0.32);
+}
+
+.para-label-chip.predicted {
+  background: rgba(49, 130, 206, 0.14);
+  color: #2b6cb0;
+  border-color: rgba(49, 130, 206, 0.3);
+}
+
+[data-theme="dark"] .para-label-chip.manual {
+  color: #9ae6b4;
+  border-color: rgba(104, 211, 145, 0.34);
+}
+
+[data-theme="dark"] .para-label-chip.predicted {
+  color: #90cdf4;
+  border-color: rgba(144, 205, 244, 0.35);
+}
+
+.classifier-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 32, 0.44);
+  z-index: 540;
+}
+
+.classifier-pane {
+  position: fixed;
+  top: 0;
+  right: -460px;
+  width: min(460px, 100vw);
+  height: 100vh;
+  background: var(--bg-card);
+  border-left: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  z-index: 550;
+  display: flex;
+  flex-direction: column;
+  transition: right 0.24s ease;
+}
+
+.classifier-pane.open {
+  right: 0;
+}
+
+.classifier-pane-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(135deg, rgba(49, 130, 206, 0.13), rgba(76, 114, 176, 0.1));
+}
+
+.classifier-pane-header h2 {
+  margin: 0;
+  font-size: 0.98rem;
+  color: var(--primary);
+  font-family: var(--font-serif);
+}
+
+.classifier-pane-close {
+  border: 1px solid var(--border);
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-size: 1.18rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.classifier-pane-close:hover {
+  color: var(--primary-accent);
+  border-color: var(--primary-accent);
+}
+
+.classifier-pane-body {
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.classifier-section {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-card);
+  padding: 10px;
+}
+
+.classifier-section h3 {
+  margin: 0 0 6px;
+  font-size: 0.86rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.step-number {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(49, 130, 206, 0.16);
+  color: var(--primary-accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.classifier-help {
+  margin: 0 0 8px;
+  color: var(--text-muted);
+  font-size: 0.77rem;
+  line-height: 1.45;
+}
+
+.classifier-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.classifier-row:last-child {
+  margin-bottom: 0;
+}
+
+.classifier-input {
+  flex: 1;
+  min-width: 140px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 10px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+}
+
+.classifier-input:focus {
+  outline: none;
+  border-color: var(--primary-accent);
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.12);
+}
+
+.classifier-btn {
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 7px 10px;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.78rem;
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+
+.classifier-btn:hover:not(:disabled) {
+  border-color: var(--primary-accent);
+  color: var(--primary-accent);
+}
+
+.classifier-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.classifier-btn.primary {
+  background: rgba(49, 130, 206, 0.13);
+  color: var(--primary-accent);
+  border-color: rgba(49, 130, 206, 0.3);
+}
+
+.classifier-btn.secondary {
+  background: rgba(148, 163, 184, 0.1);
+}
+
+.classifier-btn.success {
+  background: rgba(56, 161, 105, 0.14);
+  color: #2f855a;
+  border-color: rgba(56, 161, 105, 0.28);
+}
+
+.classifier-btn.danger {
+  background: rgba(229, 62, 62, 0.1);
+  color: #c53030;
+  border-color: rgba(229, 62, 62, 0.26);
+}
+
+.classifier-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.classifier-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(49, 130, 206, 0.11);
+  color: var(--primary-accent);
+  border: 1px solid rgba(49, 130, 206, 0.25);
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.classifier-chip button {
+  border: none;
+  background: transparent;
+  color: currentColor;
+  cursor: pointer;
+  font-size: 0.86rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.classifier-empty {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.classifier-check-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 8px;
+  margin-bottom: 8px;
+}
+
+.classifier-check-grid label {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+.classifier-check-grid input[type="checkbox"] {
+  accent-color: var(--primary-accent);
+}
+
+.classifier-sample-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+#classifierSampleCounter {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.classifier-sample-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-page);
+  padding: 10px;
+}
+
+.classifier-sample-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin-bottom: 6px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.classifier-sample-text {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 0.85rem;
+  line-height: 1.58;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+}
+
+.classifier-sample-labels {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.classifier-label-toggle {
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.74rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.classifier-label-toggle.active {
+  color: #fff;
+  border-color: var(--primary-accent);
+  background: var(--primary-accent);
+}
+
+.classifier-sample-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.classifier-threshold-label {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+#classifierThresholdRange {
+  flex: 1;
+  min-width: 140px;
+}
+
+.classifier-threshold-value {
+  min-width: 38px;
+  text-align: right;
+  font-size: 0.78rem;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.classifier-subtitle {
+  margin: 10px 0 6px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.25px;
+  color: var(--text-secondary);
+}
+
+.classifier-import-label {
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 7px 10px;
+  background: rgba(148, 163, 184, 0.1);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.classifier-import-label:hover {
+  border-color: var(--primary-accent);
+  color: var(--primary-accent);
+}
+
+[data-theme="dark"] .classifier-btn.success {
+  color: #9ae6b4;
+}
+
+[data-theme="dark"] .classifier-btn.danger {
+  color: #feb2b2;
+}
+
 @media (max-width: 768px) {
   .source-actions {
     flex-direction: column;
@@ -346,5 +738,14 @@ button.export-btn:disabled {
     width: calc(100% - 8px);
     max-height: calc(100% - 8px);
     margin: 4px auto;
+  }
+
+  .classifier-pane {
+    width: 100vw;
+    right: -100vw;
+  }
+
+  .classifier-check-grid {
+    grid-template-columns: 1fr;
   }
 }
