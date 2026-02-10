@@ -57,6 +57,45 @@ body {
   opacity: 0.88;
 }
 
+.hero-actions {
+  margin-top: 12px;
+}
+
+.back-home-btn {
+  display: inline-block;
+  text-decoration: none;
+  font-weight: 700;
+  color: #183b67;
+  background: #f8fbff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 0.86rem;
+}
+
+.back-home-btn:hover {
+  background: #e8f1fb;
+}
+
+.floating-back-link {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 240;
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #f8fbff;
+  background: #245ea8;
+  border-radius: 999px;
+  padding: 8px 12px;
+  box-shadow: var(--shadow);
+}
+
+.floating-back-link:hover {
+  background: #1f5393;
+}
+
 .container {
   max-width: 1220px;
   margin: 0 auto;
@@ -143,5 +182,12 @@ body {
 
   .chart-grid.two-cols {
     grid-template-columns: 1fr;
+  }
+
+  .floating-back-link {
+    right: 10px;
+    bottom: 10px;
+    font-size: 0.78rem;
+    padding: 7px 10px;
   }
 }
