@@ -96,6 +96,37 @@
               </div>
 
               <div class="filter-group">
+                <h3 class="filter-title">Originating Body</h3>
+                <div class="checkbox-grid scrollable" id="originatingBodyFilters"></div>
+              </div>
+
+              <div class="filter-group">
+                <h3 class="filter-title">Importance</h3>
+                <div class="checkbox-grid compact" id="importanceFilters"></div>
+              </div>
+
+              <div class="filter-group">
+                <h3 class="filter-title">Outcome</h3>
+                <div class="checkbox-grid compact" id="outcomeFilters"></div>
+
+                <h3 class="filter-title inline-space">Separate Opinion</h3>
+                <div class="checkbox-grid compact" id="separateOpinionFilters"></div>
+              </div>
+
+              <div class="filter-group">
+                <h3 class="filter-title">Metadata Presence</h3>
+                <div class="checkbox-grid compact" id="presenceFilters">
+                  <label class="cb-label"><input type="checkbox" data-name="presence" value="has_strasbourg_caselaw" disabled> <span>Has Strasbourg citations</span></label>
+                  <label class="cb-label"><input type="checkbox" data-name="presence" value="has_domestic_law" disabled> <span>Has domestic law</span></label>
+                  <label class="cb-label"><input type="checkbox" data-name="presence" value="has_international_law" disabled> <span>Has international law</span></label>
+                  <label class="cb-label"><input type="checkbox" data-name="presence" value="has_rules_of_court" disabled> <span>Has rules of court</span></label>
+                </div>
+
+                <h3 class="filter-title inline-space">Keyword Filter</h3>
+                <input type="text" id="keywordFilterInput" class="search-input compact" placeholder="e.g. proportionality" disabled>
+              </div>
+
+              <div class="filter-group">
                 <h3 class="filter-title">Judgment Date</h3>
                 <div class="date-range">
                   <input type="date" id="dateFrom" class="date-input" disabled>
@@ -107,6 +138,7 @@
                 <div class="checkbox-grid compact" id="chamberFilters">
                   <label class="cb-label"><input type="checkbox" value="CHAMBER" disabled> <span>Chamber</span></label>
                   <label class="cb-label"><input type="checkbox" value="GRANDCHAMBER" disabled> <span>Grand Chamber</span></label>
+                  <label class="cb-label"><input type="checkbox" value="OTHER" disabled> <span>Other</span></label>
                 </div>
               </div>
             </div>
@@ -183,6 +215,21 @@
         </div>
 
         <div class="sidebar-section">
+          <h4>Originating Body</h4>
+          <div class="bar-list" id="analyticsBodies"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <h4>Importance</h4>
+          <div class="bar-list" id="analyticsImportance"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <h4>Outcomes</h4>
+          <div class="bar-list" id="analyticsOutcomes"></div>
+        </div>
+
+        <div class="sidebar-section">
           <h4>Frequent Terms</h4>
           <div class="word-cloud" id="analyticsWords"></div>
         </div>
@@ -253,6 +300,15 @@
 
       <section class="classifier-section">
         <h3><span class="step-number">3</span> Train And Predict</h3>
+        <div class="classifier-method-row">
+          <label for="classifierMethod" class="classifier-method-label">Classifier Method</label>
+          <select id="classifierMethod" class="classifier-select">
+            <option value="tfidf_centroid">TF-IDF Centroid (Balanced)</option>
+            <option value="char_ngram_centroid">Char N-Gram Centroid (Short Text)</option>
+            <option value="keyword_overlap">Keyword Overlap (Fast, Interpretable)</option>
+          </select>
+          <p id="classifierMethodHint" class="classifier-help">Balanced precision/recall using word TF-IDF centroids.</p>
+        </div>
         <div class="classifier-row">
           <label class="classifier-threshold-label" for="classifierThresholdRange">Threshold</label>
           <input type="range" id="classifierThresholdRange" min="0.05" max="0.8" step="0.01" value="0.22">

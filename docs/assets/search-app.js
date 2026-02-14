@@ -5,18 +5,37 @@ const CLASSIFIER_SAMPLE_SIZE = 30;
 const CLASSIFIER_STORAGE_PREFIX = "echr-classifier-v1:";
 const CLASSIFIER_DEFAULT_THRESHOLD = 0.22;
 const CLASSIFIER_MIN_LABELED_PARAGRAPHS = 6;
+const CLASSIFIER_METHODS = {
+  tfidf_centroid: {
+    label: "TF-IDF Centroid (Balanced)",
+    hint: "Balanced precision/recall using word TF-IDF centroids.",
+    defaultThreshold: 0.22,
+  },
+  char_ngram_centroid: {
+    label: "Char N-Gram Centroid (Short Text)",
+    hint: "Robust on short/noisy text using character n-gram TF-IDF.",
+    defaultThreshold: 0.18,
+  },
+  keyword_overlap: {
+    label: "Keyword Overlap (Fast, Interpretable)",
+    hint: "Fast rule-like scoring based on label-specific keywords.",
+    defaultThreshold: 0.2,
+  },
+};
 
 const SECTION_ORDER = [
   "introduction",
   "facts_background",
   "facts_proceedings",
   "legal_framework",
+  "legal_context",
   "admissibility",
   "merits",
   "just_satisfaction",
   "article_46",
   "operative_part",
   "separate_opinion",
+  "appendix",
 ];
 
 const SECTION_LABELS = {
@@ -25,12 +44,14 @@ const SECTION_LABELS = {
   facts_background: "Facts (Background)",
   facts_proceedings: "Facts (Proceedings)",
   legal_framework: "Legal Framework",
+  legal_context: "Legal Context",
   admissibility: "Admissibility",
   merits: "Merits",
   just_satisfaction: "Just Satisfaction",
   article_46: "Article 46 (Execution)",
   operative_part: "Operative Part",
   separate_opinion: "Separate Opinion",
+  appendix: "Appendix",
 };
 
 const SECTION_COLORS = {
@@ -39,12 +60,14 @@ const SECTION_COLORS = {
   facts_background: "#DD8452",
   facts_proceedings: "#C44E52",
   legal_framework: "#937860",
+  legal_context: "#8B6A9C",
   admissibility: "#8172B3",
   merits: "#55A868",
   just_satisfaction: "#DA8BC3",
   article_46: "#CCB974",
   operative_part: "#64B5CD",
   separate_opinion: "#8C8C8C",
+  appendix: "#A5A58D",
 };
 
 const COUNTRY_NAMES = {
@@ -120,6 +143,8 @@ const state = {
   sortedCaseIdsByDate: [],
   articles: [],
   countries: [],
+  bodies: [],
+  importanceLevels: [],
   query: "",
   currentFilters: null,
   currentOrderedCaseIds: [],
@@ -148,6 +173,7 @@ function createEmptyClassifierState() {
     sampleKeys: [],
     sampleCursor: 0,
     assignments: new Map(),
+    method: "tfidf_centroid",
     threshold: CLASSIFIER_DEFAULT_THRESHOLD,
     model: null,
     modelInfo: "",
@@ -176,6 +202,12 @@ function cacheElements() {
   el.sectionsFilters = byId("sectionsFilters");
   el.countriesFilters = byId("countriesFilters");
   el.articlesFilters = byId("articlesFilters");
+  el.originatingBodyFilters = byId("originatingBodyFilters");
+  el.importanceFilters = byId("importanceFilters");
+  el.outcomeFilters = byId("outcomeFilters");
+  el.separateOpinionFilters = byId("separateOpinionFilters");
+  el.presenceFilters = byId("presenceFilters");
+  el.keywordFilterInput = byId("keywordFilterInput");
   el.chamberFilters = byId("chamberFilters");
   el.dateFrom = byId("dateFrom");
   el.dateTo = byId("dateTo");
@@ -205,6 +237,9 @@ function cacheElements() {
   el.analyticsArticles = byId("analyticsArticles");
   el.analyticsCountries = byId("analyticsCountries");
   el.analyticsSections = byId("analyticsSections");
+  el.analyticsBodies = byId("analyticsBodies");
+  el.analyticsImportance = byId("analyticsImportance");
+  el.analyticsOutcomes = byId("analyticsOutcomes");
   el.analyticsWords = byId("analyticsWords");
 
   el.caseModal = byId("caseModal");
@@ -229,6 +264,8 @@ function cacheElements() {
   el.classifierNextSampleBtn = byId("classifierNextSampleBtn");
   el.classifierSampleCounter = byId("classifierSampleCounter");
   el.classifierSampleCard = byId("classifierSampleCard");
+  el.classifierMethodSelect = byId("classifierMethod");
+  el.classifierMethodHint = byId("classifierMethodHint");
   el.classifierThresholdRange = byId("classifierThresholdRange");
   el.classifierThresholdValue = byId("classifierThresholdValue");
   el.trainClassifierBtn = byId("trainClassifierBtn");
@@ -391,9 +428,10 @@ function setSearchEnabled(enabled) {
   el.filterToggleBtn.disabled = !enabled;
   el.dateFrom.disabled = !enabled;
   el.dateTo.disabled = !enabled;
+  el.keywordFilterInput.disabled = !enabled;
 
   const dynamicInputs = document.querySelectorAll(
-    "#sectionsFilters input, #countriesFilters input, #articlesFilters input, #chamberFilters input"
+    "#sectionsFilters input, #countriesFilters input, #articlesFilters input, #originatingBodyFilters input, #importanceFilters input, #outcomeFilters input, #separateOpinionFilters input, #presenceFilters input, #chamberFilters input"
   );
   for (const input of dynamicInputs) {
     input.disabled = !enabled;
@@ -442,6 +480,102 @@ function parseJsonlText(text) {
   return { rows, invalidCount, totalLines: lines.length };
 }
 
+function isPresentValue(value) {
+  return !(value == null || value === "" || value === false || (Array.isArray(value) && value.length === 0));
+}
+
+function dedupeStrings(values) {
+  return [...new Set(values.map((x) => String(x || "").trim()).filter(Boolean))];
+}
+
+function normalizeListField(value, splitPattern = /[;,]/) {
+  if (Array.isArray(value)) {
+    return dedupeStrings(value);
+  }
+  const text = String(value || "").trim();
+  if (!text) return [];
+  return dedupeStrings(text.split(splitPattern));
+}
+
+function normalizeSectionKey(rawSection) {
+  const key = String(rawSection || "").trim().toLowerCase().replaceAll("-", " ");
+  if (!key) return "unknown";
+
+  const aliases = {
+    header: "header",
+    introduction: "introduction",
+    "facts background": "facts_background",
+    facts_background: "facts_background",
+    "facts proceedings": "facts_proceedings",
+    facts_proceedings: "facts_proceedings",
+    "legal framework": "legal_framework",
+    legal_framework: "legal_framework",
+    "legal context": "legal_context",
+    legal_context: "legal_context",
+    admissibility: "admissibility",
+    merits: "merits",
+    "just satisfaction": "just_satisfaction",
+    just_satisfaction: "just_satisfaction",
+    "article 46": "article_46",
+    article_46: "article_46",
+    "operative part": "operative_part",
+    operative_part: "operative_part",
+    "separate opinion": "separate_opinion",
+    separate_opinion: "separate_opinion",
+    appendix: "appendix",
+  };
+
+  if (aliases[key]) {
+    return aliases[key];
+  }
+  return key.replace(/\s+/g, "_");
+}
+
+function normalizeStateValues(caseObj) {
+  const respondent = String(caseObj.respondent_state || "").trim();
+  if (respondent) {
+    return [respondent];
+  }
+
+  const defendantsRaw = normalizeListField(caseObj.defendants);
+  if (!defendantsRaw.length) return [];
+  return defendantsRaw.map((value) => COUNTRY_NAMES[value] || value);
+}
+
+function normalizeDocumentTypes(caseObj) {
+  return normalizeListField(caseObj.document_type);
+}
+
+function deriveChamberCategory(documentTypes, originatingBody) {
+  const docText = documentTypes.join(" ").toUpperCase();
+  const bodyText = String(originatingBody || "").toUpperCase();
+
+  if (docText.includes("GRANDCHAMBER") || docText.includes("GRAND CHAMBER") || bodyText.includes("GRAND CHAMBER")) {
+    return "GRANDCHAMBER";
+  }
+  if (docText.includes("CHAMBER") || bodyText.includes("SECTION") || bodyText.includes("CHAMBER")) {
+    return "CHAMBER";
+  }
+  return "OTHER";
+}
+
+function parseBoolLike(value) {
+  if (value === true || value === false) return value;
+  const text = String(value || "").trim().toLowerCase();
+  if (["true", "1", "yes", "y"].includes(text)) return true;
+  if (["false", "0", "no", "n"].includes(text)) return false;
+  return false;
+}
+
+function deriveOutcomeBucket(violation, nonViolation) {
+  const hasViolation = violation.length > 0;
+  const hasNonViolation = nonViolation.length > 0;
+  if (hasViolation && hasNonViolation) return "both";
+  if (hasViolation) return "violation_only";
+  if (hasNonViolation) return "non_violation_only";
+  return "neither";
+}
+
 function normalizeCases(rawCases) {
   const usedIds = new Set();
   const normalized = [];
@@ -459,20 +593,28 @@ function normalizeCases(rawCases) {
     }
     usedIds.add(caseId);
 
-    const defendants = Array.isArray(caseObj.defendants)
-      ? caseObj.defendants.map((d) => String(d).trim()).filter(Boolean)
-      : [];
-
-    const documentType = Array.isArray(caseObj.document_type)
-      ? caseObj.document_type.map((d) => String(d).trim()).filter(Boolean)
-      : [];
+    const defendants = normalizeListField(caseObj.defendants);
+    const states = normalizeStateValues(caseObj);
+    const documentType = normalizeDocumentTypes(caseObj);
+    const originatingBody = String(caseObj.originating_body || "").trim();
+    const importance = String(caseObj.importance || "").trim();
+    const separateOpinion = parseBoolLike(caseObj.separate_opinion);
+    const keywords = normalizeListField(caseObj.keywords);
+    const violation = normalizeListField(caseObj.violation);
+    const nonViolation = normalizeListField(caseObj["non-violation"]);
+    const chamberComposedOf = normalizeListField(caseObj.chamber_composed_of);
+    const strasbourgCaselaw = normalizeListField(caseObj.strasbourg_caselaw);
+    const representedBy = String(caseObj.represented_by || "").trim();
+    const ecli = String(caseObj.ecli || "").trim();
+    const hudocUrl = String(caseObj.hudoc_url || "").trim();
+    const chamberCategory = deriveChamberCategory(documentType, originatingBody);
 
     const rawParagraphs = Array.isArray(caseObj.paragraphs) ? caseObj.paragraphs : [];
     const parsedParagraphs = [];
 
     for (let p = 0; p < rawParagraphs.length; p += 1) {
       const para = rawParagraphs[p] || {};
-      const section = String(para.section || "unknown").trim() || "unknown";
+      const section = normalizeSectionKey(para.section || "unknown");
       const text = String(para.text || "").trim();
       if (!text || section === "header") continue;
 
@@ -494,8 +636,32 @@ function normalizeCases(rawCases) {
       ...caseObj,
       case_id: caseId,
       defendants,
+      respondent_state: states[0] || "",
+      represented_by: representedBy,
       document_type: documentType,
+      originating_body: originatingBody,
+      importance,
+      separate_opinion: separateOpinion,
+      keywords,
+      violation,
+      "non-violation": nonViolation,
+      chamber_composed_of: chamberComposedOf,
+      strasbourg_caselaw: strasbourgCaselaw,
+      ecli,
+      hudoc_url: hudocUrl,
       __articles: splitArticles(caseObj.article_no),
+      __states: states,
+      __originatingBody: originatingBody || "Unknown",
+      __importance: importance || "Unspecified",
+      __outcomeBucket: deriveOutcomeBucket(violation, nonViolation),
+      __hasSeparateOpinion: separateOpinion,
+      __hasStrasbourgCaselaw: strasbourgCaselaw.length > 0,
+      __hasDomesticLaw: isPresentValue(caseObj.domestic_law),
+      __hasInternationalLaw: isPresentValue(caseObj.international_law),
+      __hasRulesOfCourt: isPresentValue(caseObj.rules_of_court),
+      __keywordsNorm: keywords.map((k) => k.toLowerCase()),
+      __keywordsText: keywords.join(" ").toLowerCase(),
+      __chamberCategory: chamberCategory,
       __judgmentDateTs: ts,
       __sortTs: ts == null ? -Infinity : ts,
       __paragraphs: parsedParagraphs,
@@ -528,6 +694,8 @@ function preprocessDataset(cases) {
   const articles = new Set();
   const countries = new Set();
   const sections = new Set();
+  const bodies = new Set();
+  const importanceLevels = new Set();
 
   state.cases = cases;
   state.caseById = new Map();
@@ -542,9 +710,11 @@ function preprocessDataset(cases) {
     for (const a of c.__articles) {
       articles.add(a);
     }
-    for (const d of c.defendants) {
+    for (const d of c.__states) {
       countries.add(d);
     }
+    bodies.add(c.__originatingBody);
+    importanceLevels.add(c.__importance);
 
     for (const para of c.__paragraphs) {
       sections.add(para.section);
@@ -585,6 +755,8 @@ function preprocessDataset(cases) {
 
   state.articles = [...articles].sort((a, b) => (a.length - b.length) || a.localeCompare(b));
   state.countries = [...countries].sort((a, b) => (COUNTRY_NAMES[a] || a).localeCompare(COUNTRY_NAMES[b] || b));
+  state.bodies = [...bodies].sort((a, b) => a.localeCompare(b));
+  state.importanceLevels = [...importanceLevels].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
   state.sectionsInDataset = [...sections].sort((a, b) => {
     const ai = SECTION_ORDER.indexOf(a);
     const bi = SECTION_ORDER.indexOf(b);
@@ -601,7 +773,7 @@ function makeCheckbox(label, value, name) {
 }
 
 function renderFilters() {
-  el.sectionsFilters.innerHTML = SECTION_ORDER
+  el.sectionsFilters.innerHTML = state.sectionsInDataset
     .map((sec) => makeCheckbox(SECTION_LABELS[sec] || sec, sec, "sections"))
     .join("");
 
@@ -612,6 +784,26 @@ function renderFilters() {
   el.articlesFilters.innerHTML = state.articles
     .map((article) => makeCheckbox(`Art. ${article}`, article, "articles"))
     .join("");
+
+  el.originatingBodyFilters.innerHTML = state.bodies
+    .map((body) => makeCheckbox(body, body, "bodies"))
+    .join("");
+
+  el.importanceFilters.innerHTML = state.importanceLevels
+    .map((level) => makeCheckbox(level, level, "importance"))
+    .join("");
+
+  el.outcomeFilters.innerHTML = [
+    makeCheckbox("Violation only", "violation_only", "outcomes"),
+    makeCheckbox("Non-violation only", "non_violation_only", "outcomes"),
+    makeCheckbox("Both", "both", "outcomes"),
+    makeCheckbox("Neither", "neither", "outcomes"),
+  ].join("");
+
+  el.separateOpinionFilters.innerHTML = [
+    makeCheckbox("Yes", "yes", "separateOpinion"),
+    makeCheckbox("No", "no", "separateOpinion"),
+  ].join("");
 }
 
 function renderGlobalStats() {
@@ -650,7 +842,13 @@ function getCurrentFilters() {
     sections: collectChecked("sections"),
     countries: collectChecked("countries"),
     articles: collectChecked("articles"),
+    bodies: collectChecked("bodies"),
+    importance: collectChecked("importance"),
+    outcomes: collectChecked("outcomes"),
+    separateOpinion: collectChecked("separateOpinion"),
+    presence: collectChecked("presence"),
     caseTypes: collectCheckedValuesIn(el.chamberFilters),
+    keyword: String(el.keywordFilterInput.value || "").trim().toLowerCase(),
     dateFrom: parseDateInput(el.dateFrom.value),
     dateTo: parseDateInput(el.dateTo.value),
   };
@@ -670,7 +868,7 @@ function passesCaseFilters(c, filters) {
 
   if (filters.countries.size) {
     let ok = false;
-    for (const d of c.defendants) {
+    for (const d of c.__states) {
       if (filters.countries.has(d)) {
         ok = true;
         break;
@@ -680,14 +878,41 @@ function passesCaseFilters(c, filters) {
   }
 
   if (filters.caseTypes.size) {
-    let ok = false;
-    for (const t of c.document_type) {
-      if (filters.caseTypes.has(t)) {
-        ok = true;
-        break;
-      }
-    }
-    if (!ok) return false;
+    if (!filters.caseTypes.has(c.__chamberCategory)) return false;
+  }
+
+  if (filters.bodies.size && !filters.bodies.has(c.__originatingBody)) {
+    return false;
+  }
+
+  if (filters.importance.size && !filters.importance.has(c.__importance)) {
+    return false;
+  }
+
+  if (filters.outcomes.size && !filters.outcomes.has(c.__outcomeBucket)) {
+    return false;
+  }
+
+  if (filters.separateOpinion.size) {
+    const key = c.__hasSeparateOpinion ? "yes" : "no";
+    if (!filters.separateOpinion.has(key)) return false;
+  }
+
+  if (filters.presence.has("has_strasbourg_caselaw") && !c.__hasStrasbourgCaselaw) {
+    return false;
+  }
+  if (filters.presence.has("has_domestic_law") && !c.__hasDomesticLaw) {
+    return false;
+  }
+  if (filters.presence.has("has_international_law") && !c.__hasInternationalLaw) {
+    return false;
+  }
+  if (filters.presence.has("has_rules_of_court") && !c.__hasRulesOfCourt) {
+    return false;
+  }
+
+  if (filters.keyword && !c.__keywordsText.includes(filters.keyword)) {
+    return false;
   }
 
   if (filters.dateFrom != null && (c.__judgmentDateTs == null || c.__judgmentDateTs < filters.dateFrom)) {
@@ -858,8 +1083,39 @@ function renderActiveFilters(filters) {
   for (const c of filters.countries) {
     chips.push(`<span class="filter-chip">${escapeHtml(COUNTRY_NAMES[c] || c)}</span>`);
   }
+  for (const body of filters.bodies) {
+    chips.push(`<span class="filter-chip">${escapeHtml(body)}</span>`);
+  }
+  for (const level of filters.importance) {
+    chips.push(`<span class="filter-chip">Importance: ${escapeHtml(level)}</span>`);
+  }
+  for (const outcome of filters.outcomes) {
+    const label = {
+      violation_only: "Violation only",
+      non_violation_only: "Non-violation only",
+      both: "Both",
+      neither: "Neither",
+    }[outcome] || outcome;
+    chips.push(`<span class="filter-chip">${escapeHtml(label)}</span>`);
+  }
+  for (const value of filters.separateOpinion) {
+    chips.push(`<span class="filter-chip">Separate opinion: ${value === "yes" ? "Yes" : "No"}</span>`);
+  }
+  for (const key of filters.presence) {
+    const label = {
+      has_strasbourg_caselaw: "Has Strasbourg citations",
+      has_domestic_law: "Has domestic law",
+      has_international_law: "Has international law",
+      has_rules_of_court: "Has rules of court",
+    }[key] || key;
+    chips.push(`<span class="filter-chip">${escapeHtml(label)}</span>`);
+  }
   for (const t of filters.caseTypes) {
-    chips.push(`<span class="filter-chip">${escapeHtml(t)}</span>`);
+    const label = t === "GRANDCHAMBER" ? "Grand Chamber" : (t === "CHAMBER" ? "Chamber" : "Other");
+    chips.push(`<span class="filter-chip">${escapeHtml(label)}</span>`);
+  }
+  if (filters.keyword) {
+    chips.push(`<span class="filter-chip">Keyword: ${escapeHtml(filters.keyword)}</span>`);
   }
   if (el.dateFrom.value) {
     chips.push(`<span class="filter-chip">From: ${escapeHtml(el.dateFrom.value)}</span>`);
@@ -879,6 +1135,7 @@ function getParagraphAssignment(paraKey) {
 function getCombinedParagraphLabels(paraKey) {
   const assignment = getParagraphAssignment(paraKey);
   if (!assignment) return [];
+  if (assignment.excluded) return [];
 
   const labels = [];
   for (const label of assignment.manual) {
@@ -923,10 +1180,11 @@ function sanitizeClassifierThreshold(value) {
   return Math.max(0.05, Math.min(0.8, numeric));
 }
 
-function createClassifierAssignment(manual = [], predicted = []) {
+function createClassifierAssignment(manual = [], predicted = [], excluded = false) {
   return {
     manual: new Set(manual),
     predicted: new Set(predicted),
+    excluded: !!excluded,
   };
 }
 
@@ -970,6 +1228,32 @@ function sanitizeModelVector(rawVector) {
 
 function sanitizeClassifierModel(rawModel, validLabelsSet) {
   if (!rawModel || typeof rawModel !== "object") return null;
+  const method = typeof rawModel.method === "string" && CLASSIFIER_METHODS[rawModel.method]
+    ? rawModel.method
+    : "tfidf_centroid";
+
+  const trainingSize = Number(rawModel.trainingSize);
+  if (method === "keyword_overlap") {
+    const profiles = rawModel.keywordProfiles && typeof rawModel.keywordProfiles === "object"
+      ? rawModel.keywordProfiles
+      : {};
+    const sanitizedProfiles = {};
+    for (const [label, profile] of Object.entries(profiles)) {
+      if (validLabelsSet.size && !validLabelsSet.has(label)) continue;
+      const weights = profile?.weights && typeof profile.weights === "object" ? profile.weights : {};
+      const totalWeight = Number(profile?.totalWeight) || 0;
+      if (!Object.keys(weights).length || !totalWeight) continue;
+      sanitizedProfiles[label] = { weights, totalWeight };
+    }
+    if (!Object.keys(sanitizedProfiles).length) return null;
+    return {
+      type: String(rawModel.type || "keyword-overlap-v1"),
+      method,
+      trainedAt: String(rawModel.trainedAt || new Date().toISOString()),
+      trainingSize: Number.isFinite(trainingSize) && trainingSize > 0 ? trainingSize : 0,
+      keywordProfiles: sanitizedProfiles,
+    };
+  }
 
   const idf = sanitizeModelVector(rawModel.idf);
   const centroids = {};
@@ -996,9 +1280,9 @@ function sanitizeClassifierModel(rawModel, validLabelsSet) {
     }
   }
 
-  const trainingSize = Number(rawModel.trainingSize);
   return {
     type: String(rawModel.type || "tfidf-centroid-v1"),
+    method,
     trainedAt: String(rawModel.trainedAt || new Date().toISOString()),
     trainingSize: Number.isFinite(trainingSize) && trainingSize > 0 ? trainingSize : 0,
     idf,
@@ -1074,7 +1358,15 @@ function hydrateClassifierPayload(payload, loadedFromStorage = false) {
     classifier.predictionSections = selected.length ? new Set(selected) : new Set(classifier.trainingSections);
   }
 
-  classifier.threshold = sanitizeClassifierThreshold(payload.threshold);
+  const method = typeof payload.method === "string" && CLASSIFIER_METHODS[payload.method]
+    ? payload.method
+    : "tfidf_centroid";
+  classifier.method = method;
+  classifier.threshold = sanitizeClassifierThreshold(
+    Number.isFinite(Number(payload.threshold))
+      ? payload.threshold
+      : (CLASSIFIER_METHODS[method]?.defaultThreshold ?? CLASSIFIER_DEFAULT_THRESHOLD)
+  );
   classifier.model = sanitizeClassifierModel(payload.model, validLabelsSet);
   classifier.modelInfo = typeof payload.modelInfo === "string" ? payload.modelInfo : "";
   classifier.lastSavedAt = typeof payload.savedAt === "string" ? payload.savedAt : null;
@@ -1092,9 +1384,10 @@ function hydrateClassifierPayload(payload, loadedFromStorage = false) {
     const predicted = Array.isArray(row.predicted)
       ? row.predicted.map((x) => normalizeClassifierLabel(x)).filter((label) => validLabelsSet.has(label))
       : [];
+    const excluded = !!row.excluded;
 
-    if (!manual.length && !predicted.length) continue;
-    assignments.set(paraKey, createClassifierAssignment(manual, predicted));
+    if (!manual.length && !predicted.length && !excluded) continue;
+    assignments.set(paraKey, createClassifierAssignment(manual, predicted, excluded));
   }
   classifier.assignments = assignments;
 
@@ -1132,8 +1425,9 @@ function serializeClassifierState() {
   for (const [key, assignment] of classifier.assignments.entries()) {
     const manual = [...assignment.manual];
     const predicted = [...assignment.predicted];
-    if (!manual.length && !predicted.length) continue;
-    assignments.push({ key, manual, predicted });
+    const excluded = !!assignment.excluded;
+    if (!manual.length && !predicted.length && !excluded) continue;
+    assignments.push({ key, manual, predicted, excluded });
   }
 
   return {
@@ -1145,6 +1439,7 @@ function serializeClassifierState() {
     predictionSections: [...classifier.predictionSections],
     sampleKeys: [...classifier.sampleKeys],
     sampleCursor: classifier.sampleCursor,
+    method: classifier.method,
     threshold: classifier.threshold,
     model: classifier.model,
     modelInfo: classifier.modelInfo,
@@ -1164,6 +1459,7 @@ function countClassifierManualAssignments() {
   if (!state.classifier) return 0;
   let total = 0;
   for (const assignment of state.classifier.assignments.values()) {
+    if (assignment.excluded) continue;
     if (assignment.manual.size) total += 1;
   }
   return total;
@@ -1173,6 +1469,7 @@ function countClassifierPredictedAssignments() {
   if (!state.classifier) return 0;
   let total = 0;
   for (const assignment of state.classifier.assignments.values()) {
+    if (assignment.excluded) continue;
     if (assignment.predicted.size) total += 1;
   }
   return total;
@@ -1182,11 +1479,21 @@ function countClassifierManualAssignmentsInSections(sectionSet) {
   if (!state.classifier) return 0;
   let total = 0;
   for (const [key, assignment] of state.classifier.assignments.entries()) {
+    if (assignment.excluded) continue;
     if (!assignment.manual.size) continue;
     const paragraph = state.paragraphByKey.get(key);
     if (!paragraph) continue;
     if (!sectionSet.has(paragraph.section)) continue;
     total += 1;
+  }
+  return total;
+}
+
+function countClassifierExcludedAssignments() {
+  if (!state.classifier) return 0;
+  let total = 0;
+  for (const assignment of state.classifier.assignments.values()) {
+    if (assignment.excluded) total += 1;
   }
   return total;
 }
@@ -1207,12 +1514,13 @@ function updateClassifierResumeNote() {
 
   const manualCount = countClassifierManualAssignments();
   const predictedCount = countClassifierPredictedAssignments();
+  const excludedCount = countClassifierExcludedAssignments();
   const source = state.classifier.loadedFromStorage ? "resumed from browser storage" : "new session";
   const savedAt = formatClassifierTimestamp(state.classifier.lastSavedAt);
   const timePart = savedAt ? ` · last saved ${savedAt}` : "";
 
   el.classifierResumeNote.textContent =
-    `Classifier progress: ${fmtInt.format(manualCount)} manual, ${fmtInt.format(predictedCount)} model-tagged paragraphs (${source}${timePart}).`;
+    `Classifier progress: ${fmtInt.format(manualCount)} manual, ${fmtInt.format(predictedCount)} model-tagged, ${fmtInt.format(excludedCount)} excluded paragraphs (${source}${timePart}).`;
   el.classifierResumeNote.classList.remove("hidden");
 }
 
@@ -1270,7 +1578,7 @@ function cleanupEmptyClassifierAssignment(paraKey) {
   if (!state.classifier) return;
   const assignment = state.classifier.assignments.get(paraKey);
   if (!assignment) return;
-  if (!assignment.manual.size && !assignment.predicted.size) {
+  if (!assignment.manual.size && !assignment.predicted.size && !assignment.excluded) {
     state.classifier.assignments.delete(paraKey);
   }
 }
@@ -1329,6 +1637,7 @@ function renderClassifierSampleCard() {
   const classifier = state.classifier;
 
   if (!classifier.sampleKeys.length) {
+    el.classifierSampleCard.classList.remove("excluded");
     el.classifierSampleCounter.textContent = "No sample loaded";
     el.classifierSampleCard.innerHTML = classifier.trainingSections.size
       ? '<p class="classifier-empty">Generate sample first.</p>'
@@ -1341,6 +1650,7 @@ function renderClassifierSampleCard() {
   const currentKey = classifier.sampleKeys[classifier.sampleCursor];
   const paragraph = state.paragraphByKey.get(currentKey);
   if (!paragraph) {
+    el.classifierSampleCard.classList.remove("excluded");
     el.classifierSampleCounter.textContent = "Sample item unavailable";
     el.classifierSampleCard.innerHTML = '<p class="classifier-empty">Current sample paragraph is no longer available.</p>';
     el.classifierPrevSampleBtn.disabled = true;
@@ -1351,13 +1661,20 @@ function renderClassifierSampleCard() {
   const assignment = classifier.assignments.get(currentKey) || createClassifierAssignment();
   const manual = [...assignment.manual];
   const predictedOnly = [...assignment.predicted].filter((label) => !assignment.manual.has(label));
+  const isExcluded = !!assignment.excluded;
   const labeledInSample = classifier.sampleKeys.filter((key) => {
     const row = classifier.assignments.get(key);
-    return !!(row && row.manual.size);
+    return !!(row && row.manual.size && !row.excluded);
+  }).length;
+  const excludedInSample = classifier.sampleKeys.filter((key) => {
+    const row = classifier.assignments.get(key);
+    return !!(row && row.excluded);
   }).length;
 
   el.classifierSampleCounter.textContent =
-    `Sample ${classifier.sampleCursor + 1}/${classifier.sampleKeys.length} · manually labeled ${labeledInSample}/${classifier.sampleKeys.length}`;
+    `Sample ${classifier.sampleCursor + 1}/${classifier.sampleKeys.length} · manual ${labeledInSample}/${classifier.sampleKeys.length} · excluded ${excludedInSample}`;
+
+  el.classifierSampleCard.classList.toggle("excluded", isExcluded);
 
   const labelButtons = classifier.labels.length
     ? classifier.labels
@@ -1369,7 +1686,8 @@ function renderClassifierSampleCard() {
             class="classifier-label-toggle ${active}"
             data-action="toggle-sample-label"
             data-label="${escapeHtml(label)}"
-            aria-pressed="${assignment.manual.has(label) ? "true" : "false"}">
+            aria-pressed="${assignment.manual.has(label) ? "true" : "false"}"
+            ${isExcluded ? "disabled" : ""}>
             ${escapeHtml(label)}
           </button>
         `;
@@ -1380,6 +1698,9 @@ function renderClassifierSampleCard() {
   const modelSuggestion = predictedOnly.length
     ? `<p class="classifier-help">Model suggestions: ${predictedOnly.map((label) => escapeHtml(label)).join(", ")}</p>`
     : "";
+  const excludedNote = isExcluded
+    ? '<p class="classifier-exclude-note">This paragraph is excluded from training.</p>'
+    : "";
 
   el.classifierSampleCard.innerHTML = `
     <div class="classifier-sample-meta">
@@ -1388,6 +1709,7 @@ function renderClassifierSampleCard() {
       <span>${escapeHtml(paragraph.caseId)}</span>
     </div>
     <p class="classifier-sample-text">${escapeHtml(paragraph.text)}</p>
+    ${excludedNote}
     ${modelSuggestion}
     <div class="classifier-sample-labels">
       ${labelButtons}
@@ -1395,9 +1717,15 @@ function renderClassifierSampleCard() {
     <div class="classifier-sample-actions">
       <button
         type="button"
+        class="classifier-btn ${isExcluded ? "danger exclude-active" : "secondary"}"
+        data-action="toggle-sample-excluded">
+        ${isExcluded ? "Include In Training" : "Exclude From Training"}
+      </button>
+      <button
+        type="button"
         class="classifier-btn secondary"
         data-action="clear-current-sample-labels"
-        ${manual.length ? "" : "disabled"}>
+        ${manual.length && !isExcluded ? "" : "disabled"}>
         Clear Manual Labels
       </button>
     </div>
@@ -1415,6 +1743,15 @@ function renderClassifierPanel() {
   renderClassifierSectionGrid(el.classifierTrainingSections, "training", classifier.trainingSections);
   renderClassifierSectionGrid(el.classifierPredictionSections, "prediction", classifier.predictionSections);
   renderClassifierSampleCard();
+
+  const method = CLASSIFIER_METHODS[classifier.method] ? classifier.method : "tfidf_centroid";
+  classifier.method = method;
+  if (el.classifierMethodSelect) {
+    el.classifierMethodSelect.value = method;
+  }
+  if (el.classifierMethodHint) {
+    el.classifierMethodHint.textContent = CLASSIFIER_METHODS[method]?.hint || "";
+  }
 
   classifier.threshold = sanitizeClassifierThreshold(classifier.threshold);
   el.classifierThresholdRange.value = classifier.threshold.toFixed(2);
@@ -1500,7 +1837,7 @@ function regenerateClassifierSample() {
   const labeled = [];
   for (const key of allKeys) {
     const assignment = classifier.assignments.get(key);
-    if (assignment && assignment.manual.size) {
+    if (assignment && (assignment.manual.size || assignment.excluded)) {
       labeled.push(key);
     } else {
       unlabeled.push(key);
@@ -1535,6 +1872,9 @@ function toggleCurrentSampleLabel(label) {
   if (!sampleKey) return;
 
   const assignment = classifier.assignments.get(sampleKey) || createClassifierAssignment();
+  if (assignment.excluded) {
+    assignment.excluded = false;
+  }
   if (assignment.manual.has(normalizedLabel)) {
     assignment.manual.delete(normalizedLabel);
   } else {
@@ -1567,6 +1907,33 @@ function clearCurrentSampleManualLabels() {
   renderClassifierPanel();
   renderResultsPage();
   saveClassifierState("Cleared manual labels for current sample.");
+}
+
+function toggleExcludeCurrentSample() {
+  if (!state.classifier) return;
+  const classifier = state.classifier;
+  const sampleKey = classifier.sampleKeys[classifier.sampleCursor];
+  if (!sampleKey) return;
+
+  const assignment = classifier.assignments.get(sampleKey) || createClassifierAssignment();
+  assignment.excluded = !assignment.excluded;
+
+  if (assignment.excluded) {
+    assignment.manual.clear();
+    assignment.predicted.clear();
+  }
+
+  classifier.assignments.set(sampleKey, assignment);
+  cleanupEmptyClassifierAssignment(sampleKey);
+  markClassifierModelOutdated("Training sample set changed. Train model again.");
+
+  renderClassifierPanel();
+  renderResultsPage();
+  saveClassifierState(
+    assignment.excluded
+      ? "Sample excluded from training."
+      : "Sample included in training again."
+  );
 }
 
 function addClassifierLabel() {
@@ -1647,17 +2014,65 @@ function onClassifierThresholdInput() {
   saveClassifierState();
 }
 
+function setClassifierMethod(method) {
+  if (!state.classifier) return;
+  const nextMethod = CLASSIFIER_METHODS[method] ? method : "tfidf_centroid";
+  if (state.classifier.method === nextMethod) return;
+
+  state.classifier.method = nextMethod;
+  state.classifier.model = null;
+  state.classifier.modelInfo = `Method changed to ${CLASSIFIER_METHODS[nextMethod].label}. Train model again.`;
+  state.classifier.threshold = sanitizeClassifierThreshold(
+    CLASSIFIER_METHODS[nextMethod]?.defaultThreshold ?? CLASSIFIER_DEFAULT_THRESHOLD
+  );
+
+  renderClassifierPanel();
+  saveClassifierState("Classifier method updated.");
+}
+
+function onClassifierMethodChange() {
+  if (!el.classifierMethodSelect) return;
+  setClassifierMethod(el.classifierMethodSelect.value);
+}
+
 function tokenizeClassifierText(text) {
   const tokens = String(text || "").toLowerCase().match(/[a-z0-9]{3,}/g) || [];
   return tokens.filter((token) => !STOPWORDS.has(token));
 }
 
-function computeClassifierTfIdf(texts) {
+function tokenizeClassifierCharNgrams(text, minN = 3, maxN = 5) {
+  const clean = String(text || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!clean) return [];
+  const padded = ` ${clean} `;
+  const grams = [];
+  for (let n = minN; n <= maxN; n += 1) {
+    for (let i = 0; i <= padded.length - n; i += 1) {
+      const gram = padded.slice(i, i + n);
+      if (gram.trim().length >= Math.max(2, n - 1)) {
+        grams.push(gram);
+      }
+    }
+  }
+  return grams;
+}
+
+function getClassifierTokenizer(method) {
+  if (method === "char_ngram_centroid") {
+    return (text) => tokenizeClassifierCharNgrams(text, 3, 5);
+  }
+  return tokenizeClassifierText;
+}
+
+function computeClassifierTfIdf(texts, tokenizer = tokenizeClassifierText) {
   const docsTf = [];
   const df = new Map();
 
   for (const text of texts) {
-    const tokens = tokenizeClassifierText(text);
+    const tokens = tokenizer(text);
     const tf = new Map();
     const seen = new Set();
 
@@ -1732,8 +2147,8 @@ function buildClassifierCentroids(vectors, examples, labels) {
   return { centroids, labelCounts };
 }
 
-function textToClassifierVector(text, idf) {
-  const tokens = tokenizeClassifierText(text);
+function textToClassifierVector(text, idf, tokenizer = tokenizeClassifierText) {
+  const tokens = tokenizer(text);
   const counts = new Map();
   for (const token of tokens) {
     counts.set(token, (counts.get(token) || 0) + 1);
@@ -1745,6 +2160,79 @@ function textToClassifierVector(text, idf) {
     vector[token] = (count / total) * (idf[token] || 1);
   }
   return vector;
+}
+
+function buildClassifierKeywordProfiles(texts, labelsByDoc, labels) {
+  const tokenized = texts.map((t) => tokenizeClassifierText(t));
+  const df = {};
+  tokenized.forEach((tokens) => {
+    const unique = new Set(tokens);
+    unique.forEach((tok) => { df[tok] = (df[tok] || 0) + 1; });
+  });
+  const docCount = texts.length || 1;
+
+  const labelTokenCounts = {};
+  const labelTotals = {};
+  labels.forEach((label) => {
+    labelTokenCounts[label] = {};
+    labelTotals[label] = 0;
+  });
+
+  tokenized.forEach((tokens, idx) => {
+    const tf = {};
+    tokens.forEach((tok) => { tf[tok] = (tf[tok] || 0) + 1; });
+    (labelsByDoc[idx] || []).forEach((label) => {
+      if (!labelTokenCounts[label]) return;
+      Object.entries(tf).forEach(([tok, count]) => {
+        labelTokenCounts[label][tok] = (labelTokenCounts[label][tok] || 0) + count;
+        labelTotals[label] += count;
+      });
+    });
+  });
+
+  const profiles = {};
+  labels.forEach((label) => {
+    const counts = labelTokenCounts[label] || {};
+    const total = labelTotals[label] || 1;
+    const weighted = Object.entries(counts)
+      .map(([tok, count]) => {
+        const idf = Math.log((docCount + 1) / ((df[tok] || 0) + 1)) + 1;
+        return [tok, (count / total) * idf];
+      })
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 120);
+
+    const weights = {};
+    let totalWeight = 0;
+    weighted.forEach(([tok, weight]) => {
+      weights[tok] = weight;
+      totalWeight += weight;
+    });
+    profiles[label] = { weights, totalWeight };
+  });
+
+  return profiles;
+}
+
+function predictLabelsWithKeywordProfiles(text, profiles, threshold) {
+  const tokenSet = new Set(tokenizeClassifierText(text));
+  const scored = [];
+
+  for (const [label, profile] of Object.entries(profiles || {})) {
+    const weights = profile?.weights || {};
+    const totalWeight = profile?.totalWeight || 1;
+    let overlap = 0;
+    for (const [tok, weight] of Object.entries(weights)) {
+      if (tokenSet.has(tok)) overlap += weight;
+    }
+    const score = overlap / totalWeight;
+    if (score >= threshold) {
+      scored.push([label, score]);
+    }
+  }
+
+  scored.sort((a, b) => b[1] - a[1]);
+  return scored.slice(0, 5).map(([label]) => label);
 }
 
 function cosineSimilarity(vecA, vecB) {
@@ -1789,6 +2277,7 @@ function trainClassifierModel() {
   const examples = [];
 
   for (const [paraKey, assignment] of classifier.assignments.entries()) {
+    if (assignment.excluded) continue;
     if (!assignment.manual.size) continue;
     const paragraph = state.paragraphByKey.get(paraKey);
     if (!paragraph) continue;
@@ -1809,26 +2298,57 @@ function trainClassifierModel() {
     return;
   }
 
-  const { idf, vectors } = computeClassifierTfIdf(examples.map((row) => row.text));
-  const { centroids, labelCounts } = buildClassifierCentroids(vectors, examples, classifier.labels);
+  const method = CLASSIFIER_METHODS[classifier.method] ? classifier.method : "tfidf_centroid";
+  const labelsWithExamples = examples.map((row) => row.labels);
 
-  if (!Object.keys(centroids).length) {
-    setClassifierModelStatus("Could not train model. Ensure labels are assigned in selected training sections.");
-    return;
+  let model = null;
+  if (method === "keyword_overlap") {
+    const profiles = buildClassifierKeywordProfiles(
+      examples.map((row) => row.text),
+      labelsWithExamples,
+      classifier.labels
+    );
+    if (!Object.keys(profiles).length) {
+      setClassifierModelStatus("Could not train model. Add more labeled examples for your labels.");
+      return;
+    }
+    model = {
+      type: "keyword-overlap-v1",
+      method,
+      trainedAt: new Date().toISOString(),
+      trainingSize: examples.length,
+      keywordProfiles: profiles,
+    };
+  } else {
+    const tokenizer = getClassifierTokenizer(method);
+    const { idf, vectors } = computeClassifierTfIdf(
+      examples.map((row) => row.text),
+      tokenizer
+    );
+    const { centroids, labelCounts } = buildClassifierCentroids(vectors, examples, classifier.labels);
+    if (!Object.keys(centroids).length) {
+      setClassifierModelStatus("Could not train model. Ensure labels are assigned in selected training sections.");
+      return;
+    }
+    model = {
+      type: method === "char_ngram_centroid" ? "char-ngram-centroid-v1" : "tfidf-centroid-v1",
+      method,
+      trainedAt: new Date().toISOString(),
+      trainingSize: examples.length,
+      idf,
+      centroids,
+      labelCounts,
+    };
   }
 
-  classifier.model = {
-    type: "tfidf-centroid-v1",
-    trainedAt: new Date().toISOString(),
-    trainingSize: examples.length,
-    idf,
-    centroids,
-    labelCounts,
-  };
+  classifier.model = model;
+  classifier.model.method = method;
 
-  const labelsWithData = Object.keys(centroids).length;
+  const labelsWithData = method === "keyword_overlap"
+    ? Object.keys(classifier.model.keywordProfiles || {}).length
+    : Object.keys(classifier.model.centroids || {}).length;
   classifier.modelInfo =
-    `Model trained on ${fmtInt.format(examples.length)} labeled paragraphs (${fmtInt.format(labelsWithData)} labels with examples).`;
+    `Model trained on ${fmtInt.format(examples.length)} labeled paragraphs (${fmtInt.format(labelsWithData)} labels with examples). Method: ${CLASSIFIER_METHODS[method].label}.`;
   setClassifierModelStatus(classifier.modelInfo);
 
   renderClassifierPanel();
@@ -1841,7 +2361,17 @@ function predictLabelsForTextWithClassifier(text, classifier) {
   }
 
   const threshold = sanitizeClassifierThreshold(classifier.threshold);
-  const vector = textToClassifierVector(text, classifier.model.idf || {});
+  const method = classifier.model.method || classifier.method || "tfidf_centroid";
+
+  if (method === "keyword_overlap") {
+    return {
+      labels: predictLabelsWithKeywordProfiles(text, classifier.model.keywordProfiles || {}, threshold),
+      scores: {},
+    };
+  }
+
+  const tokenizer = getClassifierTokenizer(method);
+  const vector = textToClassifierVector(text, classifier.model.idf || {}, tokenizer);
   const scores = [];
 
   for (const [label, centroid] of Object.entries(classifier.model.centroids || {})) {
@@ -1883,8 +2413,13 @@ function applyClassifierModelToSelectedSections() {
       continue;
     }
 
-    evaluatedParagraphs += 1;
     const existing = classifier.assignments.get(row.key) || createClassifierAssignment();
+    if (existing.excluded) {
+      classifier.assignments.set(row.key, existing);
+      continue;
+    }
+
+    evaluatedParagraphs += 1;
     const previousPredicted = new Set(existing.predicted);
 
     const prediction = predictLabelsForTextWithClassifier(row.text, classifier);
@@ -2010,13 +2545,16 @@ function loadClassifierStateForDataset() {
   }
 
   state.classifier = classifier;
+  if (!CLASSIFIER_METHODS[state.classifier.method]) {
+    state.classifier.method = "tfidf_centroid";
+  }
   renderClassifierPanel();
   updateClassifierResumeNote();
 }
 
 function buildCaseCard(caseId, row) {
   const c = row.case;
-  const defendantLabel = (c.defendants || []).map((d) => COUNTRY_NAMES[d] || d).join(", ");
+  const defendantLabel = (c.__states || []).map((d) => COUNTRY_NAMES[d] || d).join(", ");
 
   const paraBlocks = row.paragraphs
     .map((p) => {
@@ -2047,7 +2585,9 @@ function buildCaseCard(caseId, row) {
             <span class="meta-item">📋 ${escapeHtml(c.case_no || "-")}</span>
             <span class="meta-item">📅 ${escapeHtml(c.judgment_date || "-")}</span>
             <span class="meta-item">🏳️ ${escapeHtml(defendantLabel || "-")}</span>
+            <span class="meta-item">🏛️ ${escapeHtml(c.__originatingBody || "-")}</span>
             <span class="meta-item">📜 ${escapeHtml(c.article_no || "-")}</span>
+            <span class="meta-item">⭐ ${escapeHtml(c.__importance || "-")}</span>
           </div>
         </div>
         <div class="case-badge">
@@ -2060,6 +2600,7 @@ function buildCaseCard(caseId, row) {
         ${paraBlocks || '<div class="paragraph-item"><p class="para-text">No paragraphs for current filters.</p></div>'}
         <div class="case-footer">
           <a href="#" class="view-full" data-action="open-case" data-case-id="${escapeHtml(caseId)}">View full judgment →</a>
+          ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="view-full" target="_blank" rel="noopener noreferrer">Open in HUDOC ↗</a>` : ""}
         </div>
       </div>
     </div>
@@ -2155,15 +2696,22 @@ function computeAnalytics() {
   const countryCounts = new Map();
   const articleCounts = new Map();
   const sectionCounts = new Map();
+  const bodyCounts = new Map();
+  const importanceCounts = new Map();
+  const outcomeCounts = new Map();
   const wordCounts = new Map();
 
   for (const caseId of state.currentOrderedCaseIds) {
     const data = state.currentResultsById.get(caseId);
     if (!data) continue;
 
-    for (const d of data.case.defendants || []) {
+    for (const d of data.case.__states || []) {
       countryCounts.set(d, (countryCounts.get(d) || 0) + data.hitCount);
     }
+
+    bodyCounts.set(data.case.__originatingBody, (bodyCounts.get(data.case.__originatingBody) || 0) + data.hitCount);
+    importanceCounts.set(data.case.__importance, (importanceCounts.get(data.case.__importance) || 0) + data.hitCount);
+    outcomeCounts.set(data.case.__outcomeBucket, (outcomeCounts.get(data.case.__outcomeBucket) || 0) + data.hitCount);
 
     for (const a of data.case.__articles || []) {
       articleCounts.set(a, (articleCounts.get(a) || 0) + data.hitCount);
@@ -2186,6 +2734,9 @@ function computeAnalytics() {
     countries: [...countryCounts.entries()].sort(sortDesc).slice(0, 10),
     articles: [...articleCounts.entries()].sort(sortDesc).slice(0, 10),
     sections: [...sectionCounts.entries()].sort(sortDesc).slice(0, 10),
+    bodies: [...bodyCounts.entries()].sort(sortDesc).slice(0, 10),
+    importance: [...importanceCounts.entries()].sort(sortDesc).slice(0, 10),
+    outcomes: [...outcomeCounts.entries()].sort(sortDesc).slice(0, 10),
     words: [...wordCounts.entries()].sort(sortDesc).slice(0, 25),
   };
 }
@@ -2260,6 +2811,32 @@ function renderAnalytics() {
     "section"
   );
 
+  renderBarList(
+    el.analyticsBodies,
+    a.bodies,
+    (label) => label,
+    "section"
+  );
+
+  renderBarList(
+    el.analyticsImportance,
+    a.importance,
+    (label) => `Importance ${label}`,
+    ""
+  );
+
+  renderBarList(
+    el.analyticsOutcomes,
+    a.outcomes,
+    (label) => ({
+      violation_only: "Violation only",
+      non_violation_only: "Non-violation only",
+      both: "Both",
+      neither: "Neither",
+    })[label] || label,
+    "country"
+  );
+
   renderWordCloud(a.words);
 }
 
@@ -2319,6 +2896,7 @@ function resetFiltersAndQuery() {
   el.inlineSearchInput.value = "";
   el.dateFrom.value = "";
   el.dateTo.value = "";
+  el.keywordFilterInput.value = "";
 
   const checks = document.querySelectorAll("#filtersPanel input[type='checkbox']");
   for (const c of checks) {
@@ -2332,7 +2910,28 @@ function exportCsv() {
   if (!state.currentOrderedCaseIds.length) return;
 
   const rows = [
-    ["Case ID", "Case No", "Title", "Judgment Date", "Defendants", "Articles", "Section", "Paragraph", "Assigned Labels", "Text"],
+    [
+      "Case ID",
+      "Case No",
+      "Title",
+      "Judgment Date",
+      "Defendants",
+      "Articles",
+      "Respondent State",
+      "Originating Body",
+      "Importance",
+      "Outcome",
+      "Separate Opinion",
+      "ECLI",
+      "HUDOC URL",
+      "Violation",
+      "Non-violation",
+      "Keywords",
+      "Section",
+      "Paragraph",
+      "Assigned Labels",
+      "Text",
+    ],
   ];
 
   for (const caseId of state.currentOrderedCaseIds) {
@@ -2347,6 +2946,16 @@ function exportCsv() {
         data.case.judgment_date || "",
         (data.case.defendants || []).join(", "),
         data.case.article_no || "",
+        (data.case.__states || []).join(", "),
+        data.case.__originatingBody || "",
+        data.case.__importance || "",
+        data.case.__outcomeBucket || "",
+        data.case.__hasSeparateOpinion ? "yes" : "no",
+        data.case.ecli || "",
+        data.case.hudoc_url || "",
+        (data.case.violation || []).join("; "),
+        (data.case["non-violation"] || []).join("; "),
+        (data.case.keywords || []).join("; "),
         p.sectionLabel,
         String(p.paraIdx + 1),
         getCombinedParagraphLabels(p.key).map((x) => x.label).join("; "),
@@ -2389,9 +2998,18 @@ function buildCaseMeta(caseObj) {
   parts.push(`Case no: ${escapeHtml(caseObj.case_no || "-")}`);
   parts.push(`Judgment: ${escapeHtml(caseObj.judgment_date || "-")}`);
 
-  const defendants = (caseObj.defendants || []).map((d) => COUNTRY_NAMES[d] || d).join(", ") || "-";
-  parts.push(`Defendants: ${escapeHtml(defendants)}`);
+  const states = (caseObj.__states || []).map((d) => COUNTRY_NAMES[d] || d).join(", ") || "-";
+  parts.push(`Respondent State: ${escapeHtml(states)}`);
+  parts.push(`Originating Body: ${escapeHtml(caseObj.__originatingBody || "-")}`);
+  parts.push(`Importance: ${escapeHtml(caseObj.__importance || "-")}`);
+  parts.push(`Separate Opinion: ${caseObj.__hasSeparateOpinion ? "Yes" : "No"}`);
   parts.push(`Articles: ${escapeHtml(caseObj.article_no || "-")}`);
+  if (caseObj.represented_by) {
+    parts.push(`Represented by: ${escapeHtml(caseObj.represented_by)}`);
+  }
+  if (caseObj.ecli) {
+    parts.push(`ECLI: ${escapeHtml(caseObj.ecli)}`);
+  }
 
   if (Array.isArray(caseObj.violation) && caseObj.violation.length) {
     parts.push(`Violation: ${escapeHtml(caseObj.violation.join("; "))}`);
@@ -2399,6 +3017,10 @@ function buildCaseMeta(caseObj) {
 
   if (Array.isArray(caseObj["non-violation"]) && caseObj["non-violation"].length) {
     parts.push(`No violation: ${escapeHtml(caseObj["non-violation"].join("; "))}`);
+  }
+
+  if (caseObj.hudoc_url) {
+    parts.push(`<a href="${escapeHtml(caseObj.hudoc_url)}" target="_blank" rel="noopener noreferrer">Open in HUDOC ↗</a>`);
   }
 
   return parts.join(" · ");
@@ -2614,6 +3236,16 @@ function bindEvents() {
     applySearch(true);
   });
 
+  el.filtersPanel.addEventListener("change", () => {
+    if (!state.loaded) return;
+    applySearch(true);
+  });
+
+  el.keywordFilterInput.addEventListener("change", () => {
+    if (!state.loaded) return;
+    applySearch(true);
+  });
+
   el.clearBtn.addEventListener("click", () => {
     if (!state.loaded) return;
     resetFiltersAndQuery();
@@ -2671,12 +3303,17 @@ function bindEvents() {
       toggleCurrentSampleLabel(button.getAttribute("data-label") || "");
       return;
     }
+    if (action === "toggle-sample-excluded") {
+      toggleExcludeCurrentSample();
+      return;
+    }
     if (action === "clear-current-sample-labels") {
       clearCurrentSampleManualLabels();
     }
   });
 
   el.classifierThresholdRange.addEventListener("input", onClassifierThresholdInput);
+  el.classifierMethodSelect?.addEventListener("change", onClassifierMethodChange);
   el.trainClassifierBtn.addEventListener("click", trainClassifierModel);
   el.applyClassifierModelBtn.addEventListener("click", applyClassifierModelToSelectedSections);
 
@@ -2844,6 +3481,9 @@ function init() {
   renderBarList(el.analyticsArticles, [], (x) => x);
   renderBarList(el.analyticsCountries, [], (x) => x);
   renderBarList(el.analyticsSections, [], (x) => x);
+  renderBarList(el.analyticsBodies, [], (x) => x);
+  renderBarList(el.analyticsImportance, [], (x) => x);
+  renderBarList(el.analyticsOutcomes, [], (x) => x);
   renderWordCloud([]);
 }
 

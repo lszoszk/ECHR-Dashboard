@@ -68,12 +68,21 @@ SECTION_LABELS = {
     "facts_background": "Facts (Background)",
     "facts_proceedings": "Facts (Proceedings)",
     "legal_framework": "Legal Framework",
+    "legal_context": "Legal Context",
     "admissibility": "Admissibility",
     "merits": "Merits",
     "just_satisfaction": "Just Satisfaction",
     "article_46": "Article 46 (Execution)",
     "operative_part": "Operative Part",
     "separate_opinion": "Separate Opinion",
+    "appendix": "Appendix",
+}
+
+OUTCOME_LABELS = {
+    "violation_only": "Violation only",
+    "non_violation_only": "Non-violation only",
+    "both": "Both",
+    "neither": "Neither",
 }
 
 
@@ -100,16 +109,170 @@ def percentile(sorted_values, q):
     return sorted_values[low] * (1 - weight) + sorted_values[high] * weight
 
 
+def is_present(value) -> bool:
+    if value is None:
+        return False
+    if isinstance(value, str):
+        return bool(value.strip())
+    if isinstance(value, (list, dict, tuple, set)):
+        return len(value) > 0
+    return True
+
+
+def normalize_list(value, split_text: bool = False):
+    if isinstance(value, list):
+        return [str(x).strip() for x in value if str(x).strip()]
+
+    text = str(value or "").strip()
+    if not text:
+        return []
+
+    if split_text:
+        return [x.strip() for x in re.split(r"[;,]", text) if x.strip()]
+    return [text]
+
+
+def normalize_section_key(raw_section: str) -> str:
+    key = str(raw_section or "").strip().lower().replace("-", " ")
+    aliases = {
+        "header": "header",
+        "introduction": "introduction",
+        "facts background": "facts_background",
+        "facts_background": "facts_background",
+        "facts proceedings": "facts_proceedings",
+        "facts_proceedings": "facts_proceedings",
+        "legal framework": "legal_framework",
+        "legal_framework": "legal_framework",
+        "legal context": "legal_context",
+        "legal_context": "legal_context",
+        "admissibility": "admissibility",
+        "merits": "merits",
+        "just satisfaction": "just_satisfaction",
+        "just_satisfaction": "just_satisfaction",
+        "article 46": "article_46",
+        "article_46": "article_46",
+        "operative part": "operative_part",
+        "operative_part": "operative_part",
+        "separate opinion": "separate_opinion",
+        "separate_opinion": "separate_opinion",
+        "appendix": "appendix",
+    }
+    if key in aliases:
+        return aliases[key]
+    return re.sub(r"\s+", "_", key or "unknown")
+
+
+def normalize_doc_types(case):
+    return normalize_list(case.get("document_type"), split_text=False)
+
+
+def normalize_states(case):
+    respondent = str(case.get("respondent_state") or "").strip()
+    if respondent:
+        return [respondent]
+
+    defendants = normalize_list(case.get("defendants"), split_text=True)
+    if not defendants:
+        return []
+    return [COUNTRY_NAMES.get(code, code) for code in defendants]
+
+
+def infer_chamber_category(doc_types, originating_body: str) -> str:
+    doc_text = " ".join(doc_types).upper()
+    body_text = str(originating_body or "").upper()
+
+    if "GRANDCHAMBER" in doc_text or "GRAND CHAMBER" in doc_text or "GRAND CHAMBER" in body_text:
+        return "GRANDCHAMBER"
+    if "CHAMBER" in doc_text or "SECTION" in body_text or "CHAMBER" in body_text:
+        return "CHAMBER"
+    return "OTHER"
+
+
+def normalize_bool(value) -> bool:
+    if value is True or value is False:
+        return value
+    text = str(value or "").strip().lower()
+    if text in {"true", "1", "yes", "y"}:
+        return True
+    if text in {"false", "0", "no", "n"}:
+        return False
+    return False
+
+
+def normalize_articles(case):
+    articles = []
+    for token in re.split(r"[;,]", str(case.get("article_no", ""))):
+        token = token.strip()
+        if token:
+            articles.append(token)
+    return articles
+
+
+def derive_outcome_bucket(violation, non_violation):
+    has_v = len(violation) > 0
+    has_nv = len(non_violation) > 0
+    if has_v and has_nv:
+        return "both"
+    if has_v:
+        return "violation_only"
+    if has_nv:
+        return "non_violation_only"
+    return "neither"
+
+
+def normalize_case(case):
+    doc_types = normalize_doc_types(case)
+    originating_body = str(case.get("originating_body") or "").strip()
+    states = normalize_states(case)
+    keywords = normalize_list(case.get("keywords"), split_text=False)
+    violation = normalize_list(case.get("violation"), split_text=True)
+    non_violation = normalize_list(case.get("non-violation"), split_text=True)
+    citations = normalize_list(case.get("strasbourg_caselaw"), split_text=False)
+    judges = normalize_list(case.get("chamber_composed_of"), split_text=False)
+    paragraphs = []
+
+    for para in case.get("paragraphs", []):
+        text = str((para or {}).get("text", "")).strip()
+        section = normalize_section_key((para or {}).get("section", "unknown"))
+        if not text or section == "header":
+            continue
+        paragraphs.append({"section": section, "text": text})
+
+    return {
+        "date": parse_date(str(case.get("judgment_date", "")).strip()),
+        "states": states,
+        "articles": normalize_articles(case),
+        "doc_types": doc_types,
+        "chamber_category": infer_chamber_category(doc_types, originating_body),
+        "originating_body": originating_body or "Unknown",
+        "importance": str(case.get("importance") or "").strip() or "Unspecified",
+        "separate_opinion": normalize_bool(case.get("separate_opinion")),
+        "paragraphs": paragraphs,
+        "paragraph_len": len(paragraphs),
+        "violation": violation,
+        "non_violation": non_violation,
+        "outcome_bucket": derive_outcome_bucket(violation, non_violation),
+        "keywords": keywords,
+        "citations": citations,
+        "judges": judges,
+        "has_strasbourg_caselaw": len(citations) > 0,
+        "has_domestic_law": is_present(case.get("domestic_law")),
+        "has_international_law": is_present(case.get("international_law")),
+        "has_rules_of_court": is_present(case.get("rules_of_court")),
+        "is_key_case": str(case.get("importance") or "").strip().lower() == "key cases",
+    }
+
+
 def select_input_file(root: Path):
+    preferred = root / "echr_cases_20260213_081310.jsonl"
     sample = root / "data" / "echr_decisions_sample.jsonl"
     option_b = root / "echr_cases_optionB.jsonl"
     fallback = root / "echr_cases_20260207_121847.jsonl"
-    if sample.exists():
-        return sample
-    if option_b.exists():
-        return option_b
-    if fallback.exists():
-        return fallback
+
+    for candidate in (preferred, sample, option_b, fallback):
+        if candidate.exists():
+            return candidate
+
     raise FileNotFoundError("No JSONL input found in expected locations.")
 
 
@@ -130,25 +293,62 @@ def build_payload(cases, source_file: str):
     article_counts = Counter()
     chamber_counts = Counter()
     section_counts = Counter()
+    body_counts = Counter()
+    importance_counts = Counter()
+    outcome_counts = Counter()
+    keyword_counts = Counter()
+    judge_counts = Counter()
+    citation_counts = Counter()
+    separate_opinion_by_body_total = Counter()
+    separate_opinion_by_body_cases = Counter()
+    article_violation_counts = Counter()
+    article_non_violation_counts = Counter()
+
     case_lengths = []
     parsed_dates = []
-    violation_cases = 0
-    non_violation_cases = 0
     unique_articles = set()
 
     total_paragraphs = 0
+    violation_cases = 0
+    non_violation_cases = 0
+    key_cases = 0
+    separate_opinion_cases = 0
+    cases_with_strasbourg_caselaw = 0
+    cases_with_domestic_law = 0
+    cases_with_international_law = 0
+    cases_with_rules_of_court = 0
+    total_strasbourg_citations = 0
+
+    quality_fields = [
+        "respondent_state",
+        "defendants",
+        "originating_body",
+        "importance",
+        "keywords",
+        "separate_opinion",
+        "ecli",
+        "hudoc_url",
+        "represented_by",
+        "strasbourg_caselaw",
+        "domestic_law",
+        "international_law",
+        "rules_of_court",
+        "violation",
+        "non-violation",
+        "applicability",
+        "conclusion",
+        "chamber_composed_of",
+    ]
+    nonempty_field_counts = Counter()
 
     for case in cases:
-        paragraphs = [
-            p
-            for p in case.get("paragraphs", [])
-            if p.get("section") != "header" and str(p.get("text", "")).strip()
-        ]
-        paragraph_len = len(paragraphs)
+        normalized = normalize_case(case)
+        paragraph_len = normalized["paragraph_len"]
+
         total_paragraphs += paragraph_len
         case_lengths.append(paragraph_len)
 
-        date_obj = parse_date(str(case.get("judgment_date", "")).strip())
+        date_obj = normalized["date"]
         if date_obj:
             month_key = date_obj.strftime("%Y-%m")
             year_key = date_obj.strftime("%Y")
@@ -157,30 +357,76 @@ def build_payload(cases, source_file: str):
             paragraph_count_by_month[month_key] += paragraph_len
             parsed_dates.append(date_obj)
 
-        for country in case.get("defendants", []):
-            country_counts[country] += 1
+        for state in normalized["states"]:
+            country_counts[state] += 1
 
-        for article in re.split(r"[;,]", case.get("article_no", "")):
-            article = article.strip()
+        for article in normalized["articles"]:
             if article and not article.startswith("P") and len(article) < 10:
                 article_counts[article] += 1
                 unique_articles.add(article)
 
-        doc_types = case.get("document_type", [])
-        if "GRANDCHAMBER" in doc_types:
+        for article in normalized["violation"]:
+            article_violation_counts[article] += 1
+        for article in normalized["non_violation"]:
+            article_non_violation_counts[article] += 1
+
+        if normalized["chamber_category"] == "GRANDCHAMBER":
             chamber_counts["Grand Chamber"] += 1
-        elif "CHAMBER" in doc_types:
+        elif normalized["chamber_category"] == "CHAMBER":
             chamber_counts["Chamber"] += 1
         else:
             chamber_counts["Other"] += 1
 
-        if case.get("violation"):
+        if normalized["violation"]:
             violation_cases += 1
-        if case.get("non-violation"):
+        if normalized["non_violation"]:
             non_violation_cases += 1
 
-        for para in paragraphs:
-            section_counts[para.get("section", "unknown")] += 1
+        if normalized["is_key_case"]:
+            key_cases += 1
+
+        if normalized["separate_opinion"]:
+            separate_opinion_cases += 1
+
+        if normalized["has_strasbourg_caselaw"]:
+            cases_with_strasbourg_caselaw += 1
+
+        if normalized["has_domestic_law"]:
+            cases_with_domestic_law += 1
+
+        if normalized["has_international_law"]:
+            cases_with_international_law += 1
+
+        if normalized["has_rules_of_court"]:
+            cases_with_rules_of_court += 1
+
+        total_strasbourg_citations += len(normalized["citations"])
+
+        body = normalized["originating_body"]
+        importance = normalized["importance"]
+        outcome = normalized["outcome_bucket"]
+        body_counts[body] += 1
+        importance_counts[importance] += 1
+        outcome_counts[outcome] += 1
+        separate_opinion_by_body_total[body] += 1
+        if normalized["separate_opinion"]:
+            separate_opinion_by_body_cases[body] += 1
+
+        for para in normalized["paragraphs"]:
+            section_counts[para["section"]] += 1
+
+        for keyword in normalized["keywords"]:
+            keyword_counts[keyword] += 1
+
+        for citation in normalized["citations"]:
+            citation_counts[citation] += 1
+
+        for judge in normalized["judges"]:
+            judge_counts[judge] += 1
+
+        for field in quality_fields:
+            if is_present(case.get(field)):
+                nonempty_field_counts[field] += 1
 
     sorted_lengths = sorted(case_lengths)
     total_cases = len(cases)
@@ -200,6 +446,34 @@ def build_payload(cases, source_file: str):
     chamber_count = chamber_counts.get("Chamber", 0)
     other_count = chamber_counts.get("Other", 0)
     grand_share = (grand_count / total_cases * 100) if total_cases else 0
+
+    avg_strasbourg_citations_per_case = (
+        total_strasbourg_citations / total_cases if total_cases else 0
+    )
+
+    article_outcomes = []
+    for article in set(article_violation_counts) | set(article_non_violation_counts):
+        v_count = article_violation_counts.get(article, 0)
+        nv_count = article_non_violation_counts.get(article, 0)
+        article_outcomes.append([article, v_count, nv_count, v_count + nv_count])
+    article_outcomes.sort(key=lambda row: row[3], reverse=True)
+
+    field_completeness = {
+        field: round((nonempty_field_counts[field] / total_cases), 4) if total_cases else 0
+        for field in quality_fields
+    }
+
+    separate_opinion_share_by_body = []
+    for body, total in separate_opinion_by_body_total.most_common(20):
+        separate_cases = separate_opinion_by_body_cases.get(body, 0)
+        share_pct = (separate_cases / total * 100) if total else 0
+        separate_opinion_share_by_body.append([body, round(share_pct, 2), total, separate_cases])
+
+    importance_breakdown = [[level, count] for level, count in importance_counts.most_common()]
+    outcome_breakdown = [
+        [OUTCOME_LABELS.get(key, key), outcome_counts.get(key, 0)]
+        for key in ("violation_only", "non_violation_only", "both", "neither")
+    ]
 
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -223,6 +497,17 @@ def build_payload(cases, source_file: str):
             "grand_chamber_cases": grand_count,
             "chamber_cases": chamber_count,
             "other_cases": other_count,
+            "key_cases": key_cases,
+            "separate_opinion_cases": separate_opinion_cases,
+            "cases_with_strasbourg_caselaw": cases_with_strasbourg_caselaw,
+            "avg_strasbourg_citations_per_case": avg_strasbourg_citations_per_case,
+            "cases_with_domestic_law": cases_with_domestic_law,
+            "cases_with_international_law": cases_with_international_law,
+            "cases_with_rules_of_court": cases_with_rules_of_court,
+            "outcome_violation_only": outcome_counts.get("violation_only", 0),
+            "outcome_non_violation_only": outcome_counts.get("non_violation_only", 0),
+            "outcome_both": outcome_counts.get("both", 0),
+            "outcome_neither": outcome_counts.get("neither", 0),
         },
         "series": {
             "cases_by_month": sorted(case_count_by_month.items()),
@@ -239,17 +524,27 @@ def build_payload(cases, source_file: str):
                 ["P90", p90_len],
                 ["Max", max_len],
             ],
+            "importance_breakdown": importance_breakdown,
+            "outcome_breakdown": outcome_breakdown,
+            "separate_opinion_share_by_body": separate_opinion_share_by_body,
         },
         "rankings": {
-            "countries_top": [
-                [COUNTRY_NAMES.get(code, code), count]
-                for code, count in country_counts.most_common(20)
-            ],
+            "countries_top": country_counts.most_common(20),
             "articles_top": article_counts.most_common(20),
             "sections": [
                 [SECTION_LABELS.get(sec, sec), count]
                 for sec, count in section_counts.most_common()
             ],
+            "originating_bodies_top": body_counts.most_common(20),
+            "importance_distribution": importance_breakdown,
+            "keywords_top": keyword_counts.most_common(30),
+            "judges_top": judge_counts.most_common(30),
+            "strasbourg_caselaw_top": citation_counts.most_common(20),
+            "article_outcomes_top": article_outcomes[:20],
+            "outcomes": outcome_breakdown,
+        },
+        "quality": {
+            "field_completeness": field_completeness,
         },
     }
 
@@ -315,12 +610,16 @@ def main():
     if sample_output_path:
         sample_output_path.parent.mkdir(parents=True, exist_ok=True)
         sample_size = max(0, int(args.sample_size))
+        sample_cases = cases
+        compatibility_sample_source = repo_root / "data" / "echr_decisions_sample.jsonl"
+        if compatibility_sample_source.exists():
+            sample_cases = load_cases(compatibility_sample_source)
         with sample_output_path.open("w", encoding="utf-8") as f:
-            for case in cases[:sample_size]:
+            for case in sample_cases[:sample_size]:
                 f.write(json.dumps(case, ensure_ascii=False) + "\n")
         print(
             "Wrote sample JSONL for web app: "
-            f"{sample_output_path} ({min(sample_size, len(cases))} cases)"
+            f"{sample_output_path} ({min(sample_size, len(sample_cases))} cases)"
         )
 
 

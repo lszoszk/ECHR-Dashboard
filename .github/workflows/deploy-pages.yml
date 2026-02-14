@@ -27,7 +27,7 @@ jobs:
           python-version: "3.11"
 
       - name: Build static dashboard data
-        run: python scripts/build_pages_dashboard.py
+        run: python scripts/build_pages_dashboard.py --input echr_cases_20260213_081310.jsonl
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

@@ -109,6 +109,10 @@
   margin-top: 1rem;
 }
 
+#keywordFilterInput {
+  width: 100%;
+}
+
 button.export-btn {
   border: 1px solid var(--border);
   background: var(--bg-card);
@@ -498,6 +502,35 @@ button.export-btn:disabled {
   font-size: 0.82rem;
 }
 
+.classifier-method-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.classifier-method-label {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.classifier-select {
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 10px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+}
+
+.classifier-select:focus {
+  outline: none;
+  border-color: var(--primary-accent);
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.12);
+}
+
 .classifier-input:focus {
   outline: none;
   border-color: var(--primary-accent);
@@ -623,6 +656,11 @@ button.export-btn:disabled {
   padding: 10px;
 }
 
+.classifier-sample-card.excluded {
+  border-color: rgba(229, 62, 62, 0.34);
+  background: rgba(254, 226, 226, 0.35);
+}
+
 .classifier-sample-meta {
   display: flex;
   flex-wrap: wrap;
@@ -648,6 +686,14 @@ button.export-btn:disabled {
   gap: 6px;
 }
 
+.classifier-exclude-note {
+  margin-top: 8px;
+  margin-bottom: 0;
+  font-size: 0.75rem;
+  color: #c53030;
+  font-weight: 600;
+}
+
 .classifier-label-toggle {
   border: 1px solid var(--border);
   background: var(--bg-card);
@@ -665,11 +711,31 @@ button.export-btn:disabled {
   background: var(--primary-accent);
 }
 
+.classifier-label-toggle:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .classifier-sample-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 8px;
+}
+
+.classifier-btn.exclude-active {
+  color: #fff;
+  background: #c53030;
+  border-color: #c53030;
+}
+
+[data-theme="dark"] .classifier-sample-card.excluded {
+  border-color: rgba(252, 129, 129, 0.42);
+  background: rgba(159, 55, 55, 0.26);
+}
+
+[data-theme="dark"] .classifier-exclude-note {
+  color: #feb2b2;
 }
 
 .classifier-threshold-label {
