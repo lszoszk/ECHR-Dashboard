@@ -610,16 +610,12 @@ def main():
     if sample_output_path:
         sample_output_path.parent.mkdir(parents=True, exist_ok=True)
         sample_size = max(0, int(args.sample_size))
-        sample_cases = cases
-        compatibility_sample_source = repo_root / "data" / "echr_decisions_sample.jsonl"
-        if compatibility_sample_source.exists():
-            sample_cases = load_cases(compatibility_sample_source)
         with sample_output_path.open("w", encoding="utf-8") as f:
-            for case in sample_cases[:sample_size]:
+            for case in cases[:sample_size]:
                 f.write(json.dumps(case, ensure_ascii=False) + "\n")
         print(
             "Wrote sample JSONL for web app: "
-            f"{sample_output_path} ({min(sample_size, len(sample_cases))} cases)"
+            f"{sample_output_path} ({min(sample_size, len(cases))} cases)"
         )
 
 
