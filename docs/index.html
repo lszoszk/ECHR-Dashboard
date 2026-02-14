@@ -73,7 +73,7 @@
             <span class="tip-sep">·</span>
             <span class="tip">Multiple words = AND logic</span>
             <span class="tip-sep">·</span>
-            <span class="tip">Metadata prefixes: <code>case:</code>, <code>ecli:</code>, <code>article:</code>, <code>state:</code></span>
+            <span class="tip">Metadata prefixes: <code>case:</code>, <code>ecli:</code>, <code>article:</code>, <code>state:</code>, <code>body:</code>, <code>judge:</code></span>
           </div>
 
           <button type="button" class="filter-toggle" id="filterToggleBtn" aria-expanded="false" disabled>
@@ -189,6 +189,7 @@
           <div class="results-meta">
             <span class="meta-count"><strong id="resultsHits">0</strong> paragraphs in <strong id="resultsCases">0</strong> cases</span>
             <span class="meta-time" id="resultsTime">(0.000s)</span>
+            <button type="button" class="export-btn" id="cardModeBtn" title="Toggle compact/detailed case cards" disabled>Detailed view</button>
             <button type="button" class="export-btn" id="exportBtn" title="Export results to CSV" disabled>📥 Export CSV</button>
             <label class="export-option"><input type="checkbox" id="exportIncludeClassifier" disabled> Include classifier labels</label>
             <button type="button" class="export-btn" id="classifierQuickOpenBtn" title="Open classifier panel" disabled>🏷️ Classifier</button>

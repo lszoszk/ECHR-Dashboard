@@ -137,6 +137,12 @@
   margin-top: 8px;
 }
 
+.compact-actions {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
 .case-open-link {
   border: 1px solid var(--border);
   border-radius: 999px;
@@ -155,13 +161,212 @@
   text-decoration: none;
 }
 
-.case-citation-preview {
-  margin-top: 8px;
-  padding: 8px 10px;
-  border: 1px dashed var(--border);
-  border-radius: 8px;
-  font-size: 0.78rem;
+.case-open-link.primary {
+  background: rgba(49, 130, 206, 0.11);
+  border-color: rgba(49, 130, 206, 0.32);
+  color: var(--primary-accent);
+  font-weight: 600;
+}
+
+.case-open-secondary {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  text-decoration: none;
+}
+
+.case-open-secondary:hover {
+  color: var(--primary-accent);
+  text-decoration: underline;
+}
+
+.case-header {
+  cursor: default;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.case-header:hover {
+  background: transparent;
+}
+
+.case-title {
+  margin-bottom: 8px;
+  font-size: 1.12rem;
+}
+
+.case-primary-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.meta-chip {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.76rem;
   color: var(--text-secondary);
+  background: var(--bg-card);
+}
+
+.meta-chip.outcome {
+  font-weight: 600;
+}
+
+.meta-chip.outcome.violation {
+  color: #b7551f;
+  border-color: rgba(217, 122, 43, 0.35);
+  background: rgba(217, 122, 43, 0.12);
+}
+
+.meta-chip.outcome.non-violation {
+  color: #215aa3;
+  border-color: rgba(36, 94, 168, 0.35);
+  background: rgba(36, 94, 168, 0.12);
+}
+
+.meta-chip.outcome.neutral {
+  color: var(--text-muted);
+  border-color: rgba(140, 140, 140, 0.35);
+  background: rgba(140, 140, 140, 0.12);
+}
+
+.legal-details-wrap {
+  margin-top: 2px;
+}
+
+.legal-toggle-btn {
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.legal-toggle-btn:hover {
+  border-color: var(--primary-accent);
+  color: var(--primary-accent);
+}
+
+.legal-details {
+  display: none;
+  margin-top: 8px;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: rgba(148, 163, 184, 0.07);
+}
+
+.legal-details.open {
+  display: block;
+}
+
+.legal-row {
+  display: grid;
+  grid-template-columns: 82px 1fr;
+  gap: 8px;
+  align-items: start;
+  margin-bottom: 6px;
+}
+
+.legal-row:last-child {
+  margin-bottom: 0;
+}
+
+.legal-row-label {
+  font-size: 0.71rem;
+  text-transform: uppercase;
+  letter-spacing: 0.35px;
+  color: var(--text-muted);
+  font-weight: 700;
+  padding-top: 3px;
+}
+
+.legal-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.legal-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  padding: 2px 8px;
+}
+
+.legal-chip.article {
+  border-color: rgba(36, 94, 168, 0.28);
+}
+
+.legal-chip.status {
+  border-color: rgba(176, 62, 69, 0.3);
+}
+
+.legal-chip.citation {
+  border-color: rgba(60, 141, 90, 0.28);
+}
+
+.legal-chip.keycase {
+  border-color: rgba(178, 138, 47, 0.36);
+  background: rgba(178, 138, 47, 0.15);
+}
+
+.legal-chip.muted {
+  color: var(--text-muted);
+}
+
+.case-badge {
+  margin-top: 4px;
+}
+
+.expand-paras-btn {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-card);
+  padding: 4px 8px 4px 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.expand-paras-btn:hover {
+  border-color: var(--primary-accent);
+}
+
+.cases-list.card-mode-detailed .legal-details {
+  display: block;
+}
+
+.cases-list.card-mode-detailed .legal-toggle-btn {
+  display: none;
+}
+
+.results-meta {
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+
+.results-meta .export-btn {
+  margin-left: 0;
+}
+
+.results-meta .meta-time {
+  margin-right: auto;
+}
+
+#cardModeBtn[aria-pressed="true"] {
+  border-color: rgba(49, 130, 206, 0.36);
+  background: rgba(49, 130, 206, 0.1);
 }
 
 button.export-btn {
@@ -871,6 +1076,20 @@ button.export-btn:disabled {
   .classifier-pane {
     width: 100vw;
     right: -100vw;
+  }
+
+  .legal-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .case-badge {
+    width: 100%;
+  }
+
+  .expand-paras-btn {
+    width: 100%;
+    justify-content: center;
   }
 
   .classifier-check-grid {

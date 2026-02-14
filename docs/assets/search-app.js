@@ -183,6 +183,8 @@ const state = {
   totalHits: 0,
   limited: false,
   searchTimeMs: 0,
+  cardMode: "compact",
+  openLegalDetails: new Set(),
   classifierOpen: false,
   classifier: null,
 };
@@ -254,6 +256,7 @@ function cacheElements() {
   el.resultsHits = byId("resultsHits");
   el.resultsCases = byId("resultsCases");
   el.resultsTime = byId("resultsTime");
+  el.cardModeBtn = byId("cardModeBtn");
   el.exportBtn = byId("exportBtn");
   el.exportIncludeClassifier = byId("exportIncludeClassifier");
   el.classifierQuickOpenBtn = byId("classifierQuickOpenBtn");
@@ -525,6 +528,51 @@ function highlightTerms(text, terms) {
   return html;
 }
 
+function updateCardModeButton() {
+  if (!el.cardModeBtn) return;
+  const isDetailed = state.cardMode === "detailed";
+  el.cardModeBtn.textContent = isDetailed ? "Compact view" : "Detailed view";
+  el.cardModeBtn.setAttribute("aria-pressed", isDetailed ? "true" : "false");
+}
+
+function loadCardModePreference() {
+  try {
+    const saved = localStorage.getItem("echr-card-mode");
+    if (saved === "compact" || saved === "detailed") {
+      state.cardMode = saved;
+    }
+  } catch {
+    // Ignore storage errors.
+  }
+}
+
+function setCardMode(mode) {
+  state.cardMode = mode === "detailed" ? "detailed" : "compact";
+  try {
+    localStorage.setItem("echr-card-mode", state.cardMode);
+  } catch {
+    // Ignore storage errors.
+  }
+  updateCardModeButton();
+  renderResultsPage();
+}
+
+function toggleCardMode() {
+  setCardMode(state.cardMode === "detailed" ? "compact" : "detailed");
+}
+
+function getOutcomeToneClass(outcomeKey) {
+  if (outcomeKey === "violation_only" || outcomeKey === "both") return "violation";
+  if (outcomeKey === "non_violation_only") return "non-violation";
+  return "neutral";
+}
+
+function getChamberLabel(category) {
+  if (category === "GRANDCHAMBER") return "Grand Chamber";
+  if (category === "CHAMBER") return "Chamber";
+  return "Other";
+}
+
 function setTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
   try {
@@ -583,6 +631,7 @@ function setSearchEnabled(enabled) {
   el.searchForm.classList.toggle("search-disabled", !enabled);
 
   el.exportBtn.disabled = !enabled || !state.currentOrderedCaseIds.length;
+  el.cardModeBtn.disabled = !enabled;
   el.clearBtn.disabled = !enabled;
   el.openClassifierBtn.disabled = !enabled;
   el.classifierQuickOpenBtn.disabled = !enabled;
@@ -2837,18 +2886,71 @@ function loadClassifierStateForDataset() {
   updateClassifierResumeNote();
 }
 
+function buildArticleChips(articles, maxVisible = 3) {
+  const clean = (articles || []).map((x) => String(x || "").trim()).filter(Boolean);
+  if (!clean.length) {
+    return '<span class="legal-chip muted">No articles listed</span>';
+  }
+
+  const visible = clean.slice(0, maxVisible);
+  const hiddenCount = Math.max(0, clean.length - visible.length);
+  const chips = visible.map((article) => `<span class="legal-chip article">Art. ${escapeHtml(article)}</span>`);
+  if (hiddenCount > 0) {
+    chips.push(`<span class="legal-chip muted">+${fmtInt.format(hiddenCount)} more</span>`);
+  }
+  return chips.join("");
+}
+
+function buildLegalStatusChips(caseObj) {
+  const chips = [];
+  if (caseObj.__hasInadmissibility) {
+    chips.push('<span class="legal-chip status">Inadmissibility</span>');
+  }
+  if (caseObj.__isStruckOut) {
+    chips.push('<span class="legal-chip status">Struck out</span>');
+  }
+  if (caseObj.__hasProceduralAspect) {
+    chips.push('<span class="legal-chip status">Procedural aspect</span>');
+  }
+  if (caseObj.__hasSubstantiveAspect) {
+    chips.push('<span class="legal-chip status">Substantive aspect</span>');
+  }
+
+  if (!chips.length) {
+    chips.push('<span class="legal-chip muted">No procedural flags</span>');
+  }
+  return chips.join("");
+}
+
+function toggleLegalDetails(caseId, triggerEl = null) {
+  const panel = byId(`legal-${caseId}`);
+  if (!panel) return;
+  const open = !panel.classList.contains("open");
+  panel.classList.toggle("open", open);
+  if (triggerEl) {
+    triggerEl.setAttribute("aria-expanded", open ? "true" : "false");
+    triggerEl.textContent = open ? "Hide legal details" : "Legal details";
+  }
+  if (open) {
+    state.openLegalDetails.add(caseId);
+  } else {
+    state.openLegalDetails.delete(caseId);
+  }
+}
+
 function buildCaseCard(caseId, row) {
   const c = row.case;
-  const defendantLabel = (c.__states || []).map((d) => COUNTRY_NAMES[d] || d).join(", ");
-  const topCitations = (c.__citationRefs || []).slice(0, 3);
-  const outcomeBits = [];
-  if (c.__hasInadmissibility) outcomeBits.push("Inadmissibility");
-  if (c.__isStruckOut) outcomeBits.push("Struck out");
-  if (c.__hasProceduralAspect) outcomeBits.push("Procedural aspect");
-  if (c.__hasSubstantiveAspect) outcomeBits.push("Substantive aspect");
-  const outcomeSummary = outcomeBits.length ? outcomeBits.join(", ") : "None";
-  const citationPreview = topCitations.length
-    ? `<div class="case-citation-preview"><strong>Top precedents:</strong> ${topCitations.map((item) => escapeHtml(item)).join(" · ")}</div>`
+  const stateNames = (c.__states || []).map((d) => COUNTRY_NAMES[d] || d).filter(Boolean);
+  const respondentSummary = stateNames.length > 1
+    ? `${stateNames[0]} +${stateNames.length - 1}`
+    : (stateNames[0] || "-");
+  const outcomeLabel = OUTCOME_LABELS[c.__outcomePrimary] || c.__outcomePrimary || "-";
+  const outcomeToneClass = getOutcomeToneClass(c.__outcomePrimary);
+  const chamberLabel = getChamberLabel(c.__chamberCategory);
+  const legalDetailsOpen = state.cardMode === "detailed" || state.openLegalDetails.has(caseId);
+  const legalToggleLabel = legalDetailsOpen ? "Hide legal details" : "Legal details";
+  const keyCaseChip = String(c.__importance || "").toLowerCase() === "key cases"
+    ? '<span class="legal-chip keycase">Key case</span>'
     : "";
 
   const paraBlocks = row.paragraphs
@@ -2873,38 +2975,75 @@ function buildCaseCard(caseId, row) {
 
   return `
     <div class="case-card" id="case-${escapeHtml(caseId)}">
-      <div class="case-header" data-action="toggle-case" data-case-id="${escapeHtml(caseId)}">
+      <div class="case-header">
         <div class="case-info">
           <h2 class="case-title">${escapeHtml(c.title || "Untitled case")}</h2>
-          <div class="case-actions-inline">
-            <button type="button" class="case-open-link" data-action="open-case" data-case-id="${escapeHtml(caseId)}">View full judgment</button>
-            ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="case-open-link" data-action="open-hudoc" target="_blank" rel="noopener noreferrer">Open in HUDOC ↗</a>` : ""}
+
+          <div class="case-primary-meta">
+            <span class="meta-chip">${escapeHtml(c.case_no || "-")}</span>
+            <span class="meta-chip">${escapeHtml(c.judgment_date || "-")}</span>
+            <span class="meta-chip">${escapeHtml(respondentSummary)}</span>
+            <span class="meta-chip outcome ${escapeHtml(outcomeToneClass)}">${escapeHtml(outcomeLabel)}</span>
           </div>
-          <div class="case-meta">
-            <span class="meta-item">📋 ${escapeHtml(c.case_no || "-")}</span>
-            <span class="meta-item">📅 ${escapeHtml(c.judgment_date || "-")}</span>
-            <span class="meta-item">🏳️ ${escapeHtml(defendantLabel || "-")}</span>
-            <span class="meta-item">🏛️ ${escapeHtml(c.__originatingBody || "-")}</span>
-            <span class="meta-item">📜 ${escapeHtml(c.article_no || "-")}</span>
-            <span class="meta-item">⭐ ${escapeHtml(c.__importance || "-")}</span>
-            <span class="meta-item">⚖️ ${escapeHtml(OUTCOME_LABELS[c.__outcomePrimary] || c.__outcomePrimary || "-")}</span>
-            <span class="meta-item">🧭 ${escapeHtml(outcomeSummary)}</span>
-            <span class="meta-item">📚 ${fmtInt.format((c.__citationRefs || []).length)} Strasbourg citations</span>
+
+          <div class="case-actions-inline compact-actions">
+            <button type="button" class="case-open-link primary" data-action="open-case" data-case-id="${escapeHtml(caseId)}">View judgment</button>
+            ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="case-open-secondary" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>` : ""}
+          </div>
+
+          <div class="legal-details-wrap">
+            <button
+              type="button"
+              id="legal-btn-${escapeHtml(caseId)}"
+              class="legal-toggle-btn"
+              data-action="toggle-legal-details"
+              data-case-id="${escapeHtml(caseId)}"
+              aria-expanded="${legalDetailsOpen ? "true" : "false"}">
+              ${legalToggleLabel}
+            </button>
+            <div class="legal-details${legalDetailsOpen ? " open" : ""}" id="legal-${escapeHtml(caseId)}">
+              <div class="legal-row">
+                <span class="legal-row-label">Articles</span>
+                <div class="legal-chip-row">${buildArticleChips(c.__articles)}</div>
+              </div>
+              <div class="legal-row">
+                <span class="legal-row-label">Body</span>
+                <div class="legal-chip-row">
+                  <span class="legal-chip">${escapeHtml(c.__originatingBody || "-")}</span>
+                  <span class="legal-chip">${escapeHtml(chamberLabel)}</span>
+                  <span class="legal-chip">Importance ${escapeHtml(c.__importance || "-")}</span>
+                  ${keyCaseChip}
+                </div>
+              </div>
+              <div class="legal-row">
+                <span class="legal-row-label">Legal flags</span>
+                <div class="legal-chip-row">${buildLegalStatusChips(c)}</div>
+              </div>
+              <div class="legal-row">
+                <span class="legal-row-label">Citations</span>
+                <div class="legal-chip-row">
+                  <span class="legal-chip citation">${fmtInt.format((c.__citationRefs || []).length)} Strasbourg citations</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="case-badge">
-          <span class="hit-count">${fmtInt.format(row.hitCount)}</span>
-          <span class="hit-label">${hitLabel}</span>
-          <span class="toggle-icon" id="icon-${escapeHtml(caseId)}">▶</span>
+          <button
+            type="button"
+            class="expand-paras-btn"
+            data-action="toggle-case"
+            data-case-id="${escapeHtml(caseId)}"
+            aria-expanded="false"
+            aria-label="Show or hide matched paragraphs">
+            <span class="hit-count">${fmtInt.format(row.hitCount)}</span>
+            <span class="hit-label">${hitLabel}</span>
+            <span class="toggle-icon" id="icon-${escapeHtml(caseId)}">▶</span>
+          </button>
         </div>
       </div>
       <div class="case-body" id="body-${escapeHtml(caseId)}">
         ${paraBlocks || '<div class="paragraph-item"><p class="para-text">No paragraphs for current filters.</p></div>'}
-        ${citationPreview}
-        <div class="case-footer">
-          <a href="#" class="view-full" data-action="open-case" data-case-id="${escapeHtml(caseId)}">View full judgment →</a>
-          ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="view-full" target="_blank" rel="noopener noreferrer">Open in HUDOC ↗</a>` : ""}
-        </div>
       </div>
     </div>
   `;
@@ -2968,6 +3107,8 @@ function renderPagination() {
 
 function renderResultsPage() {
   const totalCases = state.currentOrderedCaseIds.length;
+  el.casesList.classList.toggle("card-mode-detailed", state.cardMode === "detailed");
+  el.casesList.classList.toggle("card-mode-compact", state.cardMode !== "detailed");
 
   if (totalCases === 0) {
     el.casesList.innerHTML = "";
@@ -3309,6 +3450,11 @@ function toggleCase(caseId) {
 
   const isOpen = body.classList.toggle("open");
   icon.textContent = isOpen ? "▼" : "▶";
+
+  const toggleButtons = el.casesList.querySelectorAll(`button[data-action="toggle-case"][data-case-id="${caseId}"]`);
+  for (const btn of toggleButtons) {
+    btn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  }
 }
 
 function buildCaseMeta(caseObj) {
@@ -3483,6 +3629,7 @@ async function activateDataset(rawRows, sourceLabel, metaLine, invalidCount = 0)
 
   closeClassifierPane();
   loadClassifierStateForDataset();
+  state.openLegalDetails = new Set();
   setSearchEnabled(true);
 
   resetFiltersAndQuery();
@@ -3585,6 +3732,10 @@ function bindEvents() {
   });
 
   el.exportBtn.addEventListener("click", exportCsv);
+  el.cardModeBtn.addEventListener("click", () => {
+    if (!state.loaded) return;
+    toggleCardMode();
+  });
 
   el.backToSearch.addEventListener("click", (e) => {
     e.preventDefault();
@@ -3721,6 +3872,12 @@ function bindEvents() {
       return;
     }
 
+    if (action === "toggle-legal-details" && caseId) {
+      e.preventDefault();
+      toggleLegalDetails(caseId, clickable);
+      return;
+    }
+
     if (action === "copy-paragraph") {
       const text = clickable.getAttribute("data-text") || "";
       navigator.clipboard?.writeText(text).then(() => {
@@ -3797,6 +3954,8 @@ function bindEvents() {
 
 function init() {
   cacheElements();
+  loadCardModePreference();
+  updateCardModeButton();
   initTheme();
   bindEvents();
 
