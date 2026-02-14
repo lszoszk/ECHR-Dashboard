@@ -7,7 +7,8 @@ import argparse
 import json
 import re
 import shutil
-from collections import Counter
+import unicodedata
+from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -85,6 +86,10 @@ OUTCOME_LABELS = {
     "neither": "Neither",
 }
 
+OUTCOME_KEYS = ("violation_only", "non_violation_only", "both", "neither")
+SCHEMA_VERSION = "echr-dashboard-v2"
+PARSER_VERSION = "2.0.0"
+
 
 def parse_date(value: str):
     if not value:
@@ -95,6 +100,15 @@ def parse_date(value: str):
         except ValueError:
             continue
     return None
+
+
+def normalize_search_text(value: str) -> str:
+    text = str(value or "").strip().lower()
+    if not text:
+        return ""
+    text = unicodedata.normalize("NFKD", text)
+    text = "".join(ch for ch in text if not unicodedata.combining(ch))
+    return re.sub(r"\s+", " ", text)
 
 
 def percentile(sorted_values, q):
@@ -130,6 +144,59 @@ def normalize_list(value, split_text: bool = False):
     if split_text:
         return [x.strip() for x in re.split(r"[;,]", text) if x.strip()]
     return [text]
+
+
+def canonicalize_citation(value: str) -> str:
+    return re.sub(r"\s+", " ", str(value or "")).strip()
+
+
+def normalize_citations(value):
+    items = normalize_list(value, split_text=False)
+    out = []
+    seen = set()
+    for item in items:
+        clean = canonicalize_citation(item)
+        if not clean:
+            continue
+        key = normalize_search_text(clean)
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(clean)
+    return out
+
+
+def parse_conclusion_flags(conclusion: str):
+    text = normalize_search_text(conclusion)
+    return {
+        "has_inadmissibility": "inadmissible" in text,
+        "is_struck_out": "struck out" in text,
+        "has_procedural_aspect": "procedural aspect" in text,
+        "has_substantive_aspect": "substantive aspect" in text,
+    }
+
+
+def extract_inadmissibility_grounds(conclusion: str):
+    text = normalize_search_text(conclusion)
+    grounds = []
+    mapping = [
+        ("manifestly ill-founded", "Manifestly ill-founded"),
+        ("ratione materiae", "Ratione materiae"),
+        ("ratione personae", "Ratione personae"),
+        ("ratione temporis", "Ratione temporis"),
+        ("ratione loci", "Ratione loci"),
+        ("non-exhaustion", "Non-exhaustion of domestic remedies"),
+        ("exhaustion of domestic remedies", "Exhaustion of domestic remedies"),
+        ("six-month", "Six-month rule"),
+        ("four-month", "Four-month rule"),
+        ("no significant disadvantage", "No significant disadvantage"),
+    ]
+    for needle, label in mapping:
+        if needle in text:
+            grounds.append(label)
+    if "inadmissible" in text and not grounds:
+        grounds.append("Other / unspecified")
+    return grounds
 
 
 def normalize_section_key(raw_section: str) -> str:
@@ -227,8 +294,11 @@ def normalize_case(case):
     keywords = normalize_list(case.get("keywords"), split_text=False)
     violation = normalize_list(case.get("violation"), split_text=True)
     non_violation = normalize_list(case.get("non-violation"), split_text=True)
-    citations = normalize_list(case.get("strasbourg_caselaw"), split_text=False)
+    citations = normalize_citations(case.get("strasbourg_caselaw"))
     judges = normalize_list(case.get("chamber_composed_of"), split_text=False)
+    conclusion = str(case.get("conclusion") or "").strip()
+    conclusion_flags = parse_conclusion_flags(conclusion)
+    outcome_primary = derive_outcome_bucket(violation, non_violation)
     paragraphs = []
 
     for para in case.get("paragraphs", []):
@@ -251,10 +321,17 @@ def normalize_case(case):
         "paragraph_len": len(paragraphs),
         "violation": violation,
         "non_violation": non_violation,
-        "outcome_bucket": derive_outcome_bucket(violation, non_violation),
+        "outcome_bucket": outcome_primary,
+        "outcome_primary": outcome_primary,
+        "has_inadmissibility": conclusion_flags["has_inadmissibility"],
+        "is_struck_out": conclusion_flags["is_struck_out"],
+        "has_procedural_aspect": conclusion_flags["has_procedural_aspect"],
+        "has_substantive_aspect": conclusion_flags["has_substantive_aspect"],
+        "inadmissibility_grounds": extract_inadmissibility_grounds(conclusion),
         "keywords": keywords,
         "citations": citations,
         "judges": judges,
+        "conclusion": conclusion,
         "has_strasbourg_caselaw": len(citations) > 0,
         "has_domestic_law": is_present(case.get("domestic_law")),
         "has_international_law": is_present(case.get("international_law")),
@@ -303,6 +380,15 @@ def build_payload(cases, source_file: str):
     separate_opinion_by_body_cases = Counter()
     article_violation_counts = Counter()
     article_non_violation_counts = Counter()
+    article_case_counts = Counter()
+    article_violation_case_counts = Counter()
+    inadmissibility_ground_counts = Counter()
+    state_case_counts = Counter()
+    state_outcome_counts = defaultdict(Counter)
+    state_violation_counts = Counter()
+    outcomes_by_year = defaultdict(Counter)
+    procedural_vs_substantive_by_year = defaultdict(Counter)
+    precedent_to_cases = defaultdict(set)
 
     case_lengths = []
     parsed_dates = []
@@ -318,6 +404,10 @@ def build_payload(cases, source_file: str):
     cases_with_international_law = 0
     cases_with_rules_of_court = 0
     total_strasbourg_citations = 0
+    inadmissible_cases = 0
+    struck_out_cases = 0
+    procedural_aspect_cases = 0
+    substantive_aspect_cases = 0
 
     quality_fields = [
         "respondent_state",
@@ -343,6 +433,7 @@ def build_payload(cases, source_file: str):
 
     for case in cases:
         normalized = normalize_case(case)
+        case_id = str(case.get("case_id") or "").strip()
         paragraph_len = normalized["paragraph_len"]
 
         total_paragraphs += paragraph_len
@@ -356,18 +447,32 @@ def build_payload(cases, source_file: str):
             case_count_by_year[year_key] += 1
             paragraph_count_by_month[month_key] += paragraph_len
             parsed_dates.append(date_obj)
+            outcomes_by_year[year_key][normalized["outcome_primary"]] += 1
+            if normalized["has_procedural_aspect"]:
+                procedural_vs_substantive_by_year[year_key]["procedural"] += 1
+            if normalized["has_substantive_aspect"]:
+                procedural_vs_substantive_by_year[year_key]["substantive"] += 1
 
         for state in normalized["states"]:
             country_counts[state] += 1
+            state_case_counts[state] += 1
+            state_outcome_counts[state][normalized["outcome_primary"]] += 1
+            if normalized["violation"]:
+                state_violation_counts[state] += 1
 
+        case_articles = set()
         for article in normalized["articles"]:
             if article and not article.startswith("P") and len(article) < 10:
                 article_counts[article] += 1
                 unique_articles.add(article)
+                case_articles.add(article)
+        for article in case_articles:
+            article_case_counts[article] += 1
 
-        for article in normalized["violation"]:
+        for article in set(normalized["violation"]):
             article_violation_counts[article] += 1
-        for article in normalized["non_violation"]:
+            article_violation_case_counts[article] += 1
+        for article in set(normalized["non_violation"]):
             article_non_violation_counts[article] += 1
 
         if normalized["chamber_category"] == "GRANDCHAMBER":
@@ -400,11 +505,25 @@ def build_payload(cases, source_file: str):
         if normalized["has_rules_of_court"]:
             cases_with_rules_of_court += 1
 
+        if normalized["has_inadmissibility"]:
+            inadmissible_cases += 1
+            for ground in normalized["inadmissibility_grounds"]:
+                inadmissibility_ground_counts[ground] += 1
+
+        if normalized["is_struck_out"]:
+            struck_out_cases += 1
+
+        if normalized["has_procedural_aspect"]:
+            procedural_aspect_cases += 1
+
+        if normalized["has_substantive_aspect"]:
+            substantive_aspect_cases += 1
+
         total_strasbourg_citations += len(normalized["citations"])
 
         body = normalized["originating_body"]
         importance = normalized["importance"]
-        outcome = normalized["outcome_bucket"]
+        outcome = normalized["outcome_primary"]
         body_counts[body] += 1
         importance_counts[importance] += 1
         outcome_counts[outcome] += 1
@@ -420,6 +539,8 @@ def build_payload(cases, source_file: str):
 
         for citation in normalized["citations"]:
             citation_counts[citation] += 1
+            if case_id:
+                precedent_to_cases[citation].add(case_id)
 
         for judge in normalized["judges"]:
             judge_counts[judge] += 1
@@ -458,6 +579,42 @@ def build_payload(cases, source_file: str):
         article_outcomes.append([article, v_count, nv_count, v_count + nv_count])
     article_outcomes.sort(key=lambda row: row[3], reverse=True)
 
+    article_violation_rates = []
+    for article, denominator in article_case_counts.items():
+        if denominator <= 0:
+            continue
+        numerator = article_violation_case_counts.get(article, 0)
+        rate = numerator / denominator
+        article_violation_rates.append([article, round(rate, 4), numerator, denominator])
+    article_violation_rates.sort(key=lambda row: (row[1], row[3], row[2]), reverse=True)
+
+    state_outcomes = []
+    for state, total in state_case_counts.items():
+        if total < 5:
+            continue
+        counters = state_outcome_counts[state]
+        v_only = counters.get("violation_only", 0)
+        nv_only = counters.get("non_violation_only", 0)
+        both = counters.get("both", 0)
+        neither = counters.get("neither", 0)
+        v_rate = (state_violation_counts.get(state, 0) / total * 100) if total else 0
+        state_outcomes.append([state, total, v_only, nv_only, both, neither, round(v_rate, 2)])
+    state_outcomes.sort(key=lambda row: (row[1], row[6]), reverse=True)
+
+    precedent_to_citing_cases = [
+        [citation, len(case_ids)]
+        for citation, case_ids in precedent_to_cases.items()
+        if case_ids
+    ]
+    precedent_to_citing_cases.sort(key=lambda row: (row[1], citation_counts.get(row[0], 0)), reverse=True)
+
+    precedent_concentration = []
+    cumulative_share = 0.0
+    for citation, count in citation_counts.most_common(10):
+        share = (count / total_strasbourg_citations * 100) if total_strasbourg_citations else 0
+        cumulative_share += share
+        precedent_concentration.append([citation, count, round(share, 2), round(cumulative_share, 2)])
+
     field_completeness = {
         field: round((nonempty_field_counts[field] / total_cases), 4) if total_cases else 0
         for field in quality_fields
@@ -469,17 +626,42 @@ def build_payload(cases, source_file: str):
         share_pct = (separate_cases / total * 100) if total else 0
         separate_opinion_share_by_body.append([body, round(share_pct, 2), total, separate_cases])
 
+    outcomes_by_year_series = []
+    for year in sorted(outcomes_by_year.keys()):
+        counts = outcomes_by_year[year]
+        outcomes_by_year_series.append(
+            [
+                year,
+                counts.get("violation_only", 0),
+                counts.get("non_violation_only", 0),
+                counts.get("both", 0),
+                counts.get("neither", 0),
+            ]
+        )
+
+    procedural_vs_substantive_series = []
+    for year in sorted(procedural_vs_substantive_by_year.keys()):
+        counts = procedural_vs_substantive_by_year[year]
+        procedural_vs_substantive_series.append(
+            [year, counts.get("procedural", 0), counts.get("substantive", 0)]
+        )
+
     importance_breakdown = [[level, count] for level, count in importance_counts.most_common()]
     outcome_breakdown = [
         [OUTCOME_LABELS.get(key, key), outcome_counts.get(key, 0)]
-        for key in ("violation_only", "non_violation_only", "both", "neither")
+        for key in OUTCOME_KEYS
     ]
 
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "source_file": source_file,
+        "schema_version": SCHEMA_VERSION,
+        "parser_version": PARSER_VERSION,
         "summary": {
             "total_cases": total_cases,
+            "input_record_count": total_cases,
+            "schema_version": SCHEMA_VERSION,
+            "parser_version": PARSER_VERSION,
             "total_paragraphs": total_paragraphs,
             "dated_cases": dated_cases,
             "undated_cases": undated_cases,
@@ -504,6 +686,10 @@ def build_payload(cases, source_file: str):
             "cases_with_domestic_law": cases_with_domestic_law,
             "cases_with_international_law": cases_with_international_law,
             "cases_with_rules_of_court": cases_with_rules_of_court,
+            "inadmissible_cases": inadmissible_cases,
+            "struck_out_cases": struck_out_cases,
+            "procedural_aspect_cases": procedural_aspect_cases,
+            "substantive_aspect_cases": substantive_aspect_cases,
             "outcome_violation_only": outcome_counts.get("violation_only", 0),
             "outcome_non_violation_only": outcome_counts.get("non_violation_only", 0),
             "outcome_both": outcome_counts.get("both", 0),
@@ -527,6 +713,8 @@ def build_payload(cases, source_file: str):
             "importance_breakdown": importance_breakdown,
             "outcome_breakdown": outcome_breakdown,
             "separate_opinion_share_by_body": separate_opinion_share_by_body,
+            "outcomes_by_year": outcomes_by_year_series,
+            "procedural_vs_substantive_by_year": procedural_vs_substantive_series,
         },
         "rankings": {
             "countries_top": country_counts.most_common(20),
@@ -541,6 +729,11 @@ def build_payload(cases, source_file: str):
             "judges_top": judge_counts.most_common(30),
             "strasbourg_caselaw_top": citation_counts.most_common(20),
             "article_outcomes_top": article_outcomes[:20],
+            "article_violation_rates_top": article_violation_rates[:20],
+            "state_outcomes_top": state_outcomes[:30],
+            "inadmissibility_grounds_top": inadmissibility_ground_counts.most_common(20),
+            "precedent_concentration_top": precedent_concentration,
+            "precedent_to_citing_cases_top": precedent_to_citing_cases[:20],
             "outcomes": outcome_breakdown,
         },
         "quality": {
@@ -604,8 +797,11 @@ def main():
 
     if export_data_path:
         export_data_path.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(input_path, export_data_path)
-        print(f"Copied JSONL dataset for web app: {export_data_path}")
+        if input_path.resolve() == export_data_path.resolve():
+            print(f"Input dataset already in web app location: {export_data_path}")
+        else:
+            shutil.copyfile(input_path, export_data_path)
+            print(f"Copied JSONL dataset for web app: {export_data_path}")
 
     if sample_output_path:
         sample_output_path.parent.mkdir(parents=True, exist_ok=True)

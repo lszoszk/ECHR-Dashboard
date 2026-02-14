@@ -17,6 +17,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DATASET_PATH: docs/data/echr_cases.jsonl
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,8 +28,15 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Validate input dataset
+        run: |
+          if [ ! -f "$DATASET_PATH" ]; then
+            echo "::error file=$DATASET_PATH::Required build dataset not found: $DATASET_PATH"
+            exit 1
+          fi
+
       - name: Build static dashboard data
-        run: python scripts/build_pages_dashboard.py --input echr_cases_20260213_081310.jsonl
+        run: python scripts/build_pages_dashboard.py --input "$DATASET_PATH"
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

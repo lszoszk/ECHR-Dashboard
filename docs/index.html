@@ -72,6 +72,8 @@
             <span class="tip">Use <code>OR</code> between alternatives</span>
             <span class="tip-sep">·</span>
             <span class="tip">Multiple words = AND logic</span>
+            <span class="tip-sep">·</span>
+            <span class="tip">Metadata prefixes: <code>case:</code>, <code>ecli:</code>, <code>article:</code>, <code>state:</code></span>
           </div>
 
           <button type="button" class="filter-toggle" id="filterToggleBtn" aria-expanded="false" disabled>
@@ -109,6 +111,12 @@
                 <h3 class="filter-title">Outcome</h3>
                 <div class="checkbox-grid compact" id="outcomeFilters"></div>
 
+                <h3 class="filter-title inline-space">Procedural Outcome</h3>
+                <div class="checkbox-grid compact" id="legalOutcomeFilters">
+                  <label class="cb-label"><input type="checkbox" data-name="legalOutcomes" value="has_inadmissibility" disabled> <span>Inadmissibility</span></label>
+                  <label class="cb-label"><input type="checkbox" data-name="legalOutcomes" value="is_struck_out" disabled> <span>Struck out</span></label>
+                </div>
+
                 <h3 class="filter-title inline-space">Separate Opinion</h3>
                 <div class="checkbox-grid compact" id="separateOpinionFilters"></div>
               </div>
@@ -124,6 +132,9 @@
 
                 <h3 class="filter-title inline-space">Keyword Filter</h3>
                 <input type="text" id="keywordFilterInput" class="search-input compact" placeholder="e.g. proportionality" disabled>
+
+                <h3 class="filter-title inline-space">Cites Precedent</h3>
+                <input type="text" id="precedentFilterInput" class="search-input compact" placeholder="e.g. Magyar Helsinki Bizottság" disabled>
               </div>
 
               <div class="filter-group">
@@ -179,6 +190,7 @@
             <span class="meta-count"><strong id="resultsHits">0</strong> paragraphs in <strong id="resultsCases">0</strong> cases</span>
             <span class="meta-time" id="resultsTime">(0.000s)</span>
             <button type="button" class="export-btn" id="exportBtn" title="Export results to CSV" disabled>📥 Export CSV</button>
+            <label class="export-option"><input type="checkbox" id="exportIncludeClassifier" disabled> Include classifier labels</label>
             <button type="button" class="export-btn" id="classifierQuickOpenBtn" title="Open classifier panel" disabled>🏷️ Classifier</button>
             <button type="button" class="export-btn clear-btn" id="clearBtn" title="Clear current search" disabled>Clear</button>
           </div>
@@ -266,7 +278,7 @@
 
   <div class="classifier-pane" id="classifierPane">
     <div class="classifier-pane-header">
-      <h2>🏷️ Paragraph Classifier</h2>
+      <h2>🏷️ Experimental Paragraph Tagging</h2>
       <button type="button" id="closeClassifierBtn" class="classifier-pane-close" aria-label="Close classifier">×</button>
     </div>
 
@@ -300,6 +312,7 @@
 
       <section class="classifier-section">
         <h3><span class="step-number">3</span> Train And Predict</h3>
+        <p class="classifier-warning">Experimental support only: model tags are assistive and can be legally inaccurate. Always verify against full judgment text and HUDOC.</p>
         <div class="classifier-method-row">
           <label for="classifierMethod" class="classifier-method-label">Classifier Method</label>
           <select id="classifierMethod" class="classifier-select">
@@ -314,6 +327,7 @@
           <input type="range" id="classifierThresholdRange" min="0.05" max="0.8" step="0.01" value="0.22">
           <span id="classifierThresholdValue" class="classifier-threshold-value">0.22</span>
         </div>
+        <p class="classifier-help">Higher threshold means fewer but stricter model suggestions.</p>
         <div class="classifier-row">
           <button type="button" id="trainClassifierBtn" class="classifier-btn primary">Train Model</button>
         </div>

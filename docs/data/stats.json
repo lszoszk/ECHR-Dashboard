@@ -1,8 +1,13 @@
 {
-  "generated_at": "2026-02-14T22:05:22.239260+00:00",
-  "source_file": "echr_cases_20260213_081310.jsonl",
+  "generated_at": "2026-02-14T22:33:29.492818+00:00",
+  "source_file": "echr_cases.jsonl",
+  "schema_version": "echr-dashboard-v2",
+  "parser_version": "2.0.0",
   "summary": {
     "total_cases": 105,
+    "input_record_count": 105,
+    "schema_version": "echr-dashboard-v2",
+    "parser_version": "2.0.0",
     "total_paragraphs": 12897,
     "dated_cases": 105,
     "undated_cases": 0,
@@ -27,6 +32,10 @@
     "cases_with_domestic_law": 25,
     "cases_with_international_law": 26,
     "cases_with_rules_of_court": 17,
+    "inadmissible_cases": 29,
+    "struck_out_cases": 2,
+    "procedural_aspect_cases": 12,
+    "substantive_aspect_cases": 9,
     "outcome_violation_only": 69,
     "outcome_non_violation_only": 23,
     "outcome_both": 9,
@@ -211,6 +220,34 @@
         100.0,
         2,
         2
+      ]
+    ],
+    "outcomes_by_year": [
+      [
+        "2025",
+        54,
+        19,
+        6,
+        4
+      ],
+      [
+        "2026",
+        15,
+        4,
+        3,
+        0
+      ]
+    ],
+    "procedural_vs_substantive_by_year": [
+      [
+        "2025",
+        8,
+        6
+      ],
+      [
+        "2026",
+        4,
+        3
       ]
     ]
   },
@@ -863,15 +900,15 @@
         8
       ],
       [
-        "13",
-        6,
-        0,
-        6
-      ],
-      [
         "14",
         2,
         4,
+        6
+      ],
+      [
+        "13",
+        6,
+        0,
         6
       ],
       [
@@ -881,16 +918,28 @@
         5
       ],
       [
+        "18",
+        3,
+        0,
+        3
+      ],
+      [
         "5-4",
         3,
         0,
         3
       ],
       [
-        "18",
-        3,
+        "5-3",
+        2,
         0,
-        3
+        2
+      ],
+      [
+        "5-2",
+        1,
+        1,
+        2
       ],
       [
         "11-1",
@@ -903,18 +952,367 @@
         1,
         1,
         2
+      ]
+    ],
+    "article_violation_rates_top": [
+      [
+        "1",
+        5.5,
+        11,
+        2
       ],
       [
-        "5-2",
-        1,
-        1,
-        2
+        "13",
+        1.0,
+        6,
+        6
+      ],
+      [
+        "5-4",
+        1.0,
+        3,
+        3
+      ],
+      [
+        "18",
+        1.0,
+        3,
+        3
       ],
       [
         "11",
+        1.0,
+        2,
+        2
+      ],
+      [
+        "11-1",
+        1.0,
+        2,
+        2
+      ],
+      [
+        "5-3",
+        1.0,
+        2,
+        2
+      ],
+      [
+        "7-1",
+        1.0,
+        1,
+        1
+      ],
+      [
+        "9",
+        1.0,
+        1,
+        1
+      ],
+      [
+        "9-1",
+        1.0,
+        1,
+        1
+      ],
+      [
+        "2",
+        0.875,
+        7,
+        8
+      ],
+      [
+        "10",
+        0.8235,
+        14,
+        17
+      ],
+      [
+        "10-1",
+        0.8125,
+        13,
+        16
+      ],
+      [
+        "5",
+        0.8,
+        8,
+        10
+      ],
+      [
+        "5-1",
+        0.7778,
+        7,
+        9
+      ],
+      [
+        "3",
+        0.7143,
+        10,
+        14
+      ],
+      [
+        "6",
+        0.6286,
+        22,
+        35
+      ],
+      [
+        "8",
+        0.6286,
+        22,
+        35
+      ],
+      [
+        "2-1",
+        0.5,
+        4,
+        8
+      ],
+      [
+        "5-2",
+        0.5,
+        1,
+        2
+      ]
+    ],
+    "state_outcomes_top": [
+      [
+        "Türkiye",
+        9,
+        7,
+        1,
+        1,
+        0,
+        88.89
+      ],
+      [
+        "Serbia",
+        8,
+        6,
+        1,
+        1,
+        0,
+        87.5
+      ],
+      [
+        "Italy",
+        7,
+        5,
+        1,
+        1,
+        0,
+        85.71
+      ],
+      [
+        "Ukraine",
+        7,
+        5,
+        1,
+        1,
+        0,
+        85.71
+      ],
+      [
+        "Spain",
+        6,
+        4,
         2,
         0,
-        2
+        0,
+        66.67
+      ],
+      [
+        "Poland",
+        5,
+        5,
+        0,
+        0,
+        0,
+        100.0
+      ],
+      [
+        "Czech Republic",
+        5,
+        3,
+        2,
+        0,
+        0,
+        60.0
+      ]
+    ],
+    "inadmissibility_grounds_top": [
+      [
+        "Manifestly ill-founded",
+        15
+      ],
+      [
+        "Ratione materiae",
+        8
+      ],
+      [
+        "Exhaustion of domestic remedies",
+        8
+      ],
+      [
+        "Ratione personae",
+        4
+      ],
+      [
+        "Six-month rule",
+        3
+      ],
+      [
+        "Four-month rule",
+        3
+      ],
+      [
+        "Ratione loci",
+        1
+      ]
+    ],
+    "precedent_concentration_top": [
+      [
+        "Radomilja and Others v. Croatia [GC], nos. 37685/10 and 22768/12, §§ 114 and 126, 20 March 2018",
+        9,
+        0.33,
+        0.33
+      ],
+      [
+        "Centre for Legal Resources on behalf of Valentin Câmpeanu v. Romania [GC], no. 47848/08, § 156, ECHR 2014",
+        8,
+        0.3,
+        0.63
+      ],
+      [
+        "Grzęda v. Poland [GC], no. 43572/18, 15 March 2022",
+        5,
+        0.19,
+        0.82
+      ],
+      [
+        "Guðmundur Andri Ástráðsson v. Iceland [GC], no. 26374/18, 1 December 2020",
+        5,
+        0.19,
+        1.0
+      ],
+      [
+        "Eminağaoğlu v. Turkey, no. 76521/12, 9 March 2021",
+        5,
+        0.19,
+        1.19
+      ],
+      [
+        "Bilgen v. Turkey, no. 1571/07, 9 March 2021",
+        4,
+        0.15,
+        1.34
+      ],
+      [
+        "Xero Flor w Polsce sp. z o.o. v. Poland, no. 4907/18, § 252, 7 May 2021",
+        4,
+        0.15,
+        1.49
+      ],
+      [
+        "Baka v. Hungary [GC], no. 20261/12, 23 June 2016",
+        3,
+        0.11,
+        1.6
+      ],
+      [
+        "Molla Sali v. Greece [GC], no. 20452/14, § 133, 19 December 2018",
+        3,
+        0.11,
+        1.71
+      ],
+      [
+        "Tunikova and Others v. Russia, nos. 55974/16 and 3 others, 14 December 2021",
+        3,
+        0.11,
+        1.82
+      ]
+    ],
+    "precedent_to_citing_cases_top": [
+      [
+        "Radomilja and Others v. Croatia [GC], nos. 37685/10 and 22768/12, §§ 114 and 126, 20 March 2018",
+        9
+      ],
+      [
+        "Centre for Legal Resources on behalf of Valentin Câmpeanu v. Romania [GC], no. 47848/08, § 156, ECHR 2014",
+        8
+      ],
+      [
+        "Grzęda v. Poland [GC], no. 43572/18, 15 March 2022",
+        5
+      ],
+      [
+        "Guðmundur Andri Ástráðsson v. Iceland [GC], no. 26374/18, 1 December 2020",
+        5
+      ],
+      [
+        "Eminağaoğlu v. Turkey, no. 76521/12, 9 March 2021",
+        5
+      ],
+      [
+        "Bilgen v. Turkey, no. 1571/07, 9 March 2021",
+        4
+      ],
+      [
+        "Xero Flor w Polsce sp. z o.o. v. Poland, no. 4907/18, § 252, 7 May 2021",
+        4
+      ],
+      [
+        "Baka v. Hungary [GC], no. 20261/12, 23 June 2016",
+        3
+      ],
+      [
+        "Molla Sali v. Greece [GC], no. 20452/14, § 133, 19 December 2018",
+        3
+      ],
+      [
+        "Tunikova and Others v. Russia, nos. 55974/16 and 3 others, 14 December 2021",
+        3
+      ],
+      [
+        "Volodina v. Russia, no. 41261/17, 9 July 2019",
+        3
+      ],
+      [
+        "Vučković v. Croatia, no. 15798/20, 12 December 2023",
+        3
+      ],
+      [
+        "Hanovs v. Latvia, no. 40861/22, § 45, 18 July 2024",
+        3
+      ],
+      [
+        "J.L. v. Italy, no. 5671/16, 27 May 2021",
+        3
+      ],
+      [
+        "Mehmet Çiftci v. Turkey, no. 53208/19, § 26, 16 November 2021",
+        3
+      ],
+      [
+        "Z v. Bulgaria, no. 39257/17, § 67, 28 May 2020",
+        3
+      ],
+      [
+        "M.C. v. Bulgaria, no. 39272/98, ECHR 2003-XII",
+        3
+      ],
+      [
+        "Radomilja and Others v. Croatia [GC], nos. 37685/10 and 22768/12, § 126, 20 March 2018",
+        3
+      ],
+      [
+        "Hatton and Others v. the United Kingdom [GC], no. 36022/97, ECHR 2003-VIII",
+        3
+      ],
+      [
+        "Radomilja and Others v. Croatia [GC], nos. 37685/10 and 22768/12, § 149, 20 March 2018",
+        3
       ]
     ],
     "outcomes": [

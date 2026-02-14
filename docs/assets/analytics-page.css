@@ -20,6 +20,37 @@
   width: 100% !important;
 }
 
+#stateOutcomeTable {
+  overflow-x: auto;
+}
+
+.state-outcome-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.state-outcome-table th,
+.state-outcome-table td {
+  border-bottom: 1px solid var(--border);
+  padding: 7px 8px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.state-outcome-table th {
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+}
+
+.state-outcome-empty {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
 @media (max-width: 768px) {
   .analytics-meta {
     justify-content: flex-start;

@@ -70,6 +70,30 @@ const SECTION_COLORS = {
   appendix: "#A5A58D",
 };
 
+const SEARCH_SCORE_SECTION_WEIGHTS = {
+  merits: 1.3,
+  admissibility: 1.2,
+  legal_framework: 1.1,
+  legal_context: 1.1,
+  facts_background: 1.0,
+  facts_proceedings: 1.0,
+  appendix: 0.8,
+};
+
+const QUERY_PREFIX_KEYS = new Set(["case", "ecli", "hudoc", "article", "state", "body", "judge", "keyword"]);
+
+const LEGAL_OUTCOME_LABELS = {
+  has_inadmissibility: "Inadmissibility",
+  is_struck_out: "Struck out",
+};
+
+const OUTCOME_LABELS = {
+  violation_only: "Violation only",
+  non_violation_only: "Non-violation only",
+  both: "Both",
+  neither: "Neither",
+};
+
 const COUNTRY_NAMES = {
   ALB: "Albania",
   AND: "Andorra",
@@ -119,6 +143,10 @@ const COUNTRY_NAMES = {
   UKR: "Ukraine",
   GBR: "United Kingdom",
 };
+
+const COUNTRY_CODE_BY_NAME_NORM = Object.fromEntries(
+  Object.entries(COUNTRY_NAMES).map(([code, name]) => [normalizeSearchText(name), code])
+);
 
 const STOPWORDS = new Set([
   "the", "of", "and", "to", "in", "a", "that", "is", "was", "for", "it", "on", "with", "as", "by", "at", "an",
@@ -205,9 +233,11 @@ function cacheElements() {
   el.originatingBodyFilters = byId("originatingBodyFilters");
   el.importanceFilters = byId("importanceFilters");
   el.outcomeFilters = byId("outcomeFilters");
+  el.legalOutcomeFilters = byId("legalOutcomeFilters");
   el.separateOpinionFilters = byId("separateOpinionFilters");
   el.presenceFilters = byId("presenceFilters");
   el.keywordFilterInput = byId("keywordFilterInput");
+  el.precedentFilterInput = byId("precedentFilterInput");
   el.chamberFilters = byId("chamberFilters");
   el.dateFrom = byId("dateFrom");
   el.dateTo = byId("dateTo");
@@ -225,6 +255,7 @@ function cacheElements() {
   el.resultsCases = byId("resultsCases");
   el.resultsTime = byId("resultsTime");
   el.exportBtn = byId("exportBtn");
+  el.exportIncludeClassifier = byId("exportIncludeClassifier");
   el.classifierQuickOpenBtn = byId("classifierQuickOpenBtn");
   el.clearBtn = byId("clearBtn");
   el.activeFilters = byId("activeFilters");
@@ -289,6 +320,116 @@ function escapeHtml(text) {
 
 function escapeRegExp(text) {
   return String(text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function normalizeSearchText(value) {
+  const text = String(value || "").toLowerCase();
+  try {
+    return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  } catch {
+    return text;
+  }
+}
+
+function normalizeArticleToken(value) {
+  return normalizeSearchText(value).replace(/\s+/g, "");
+}
+
+function canonicalizeCitation(value) {
+  return String(value || "").replace(/\s+/g, " ").trim();
+}
+
+function normalizeCitationList(value) {
+  const out = [];
+  const seen = new Set();
+  for (const raw of normalizeListField(value, /[;\n]/)) {
+    const clean = canonicalizeCitation(raw);
+    if (!clean) continue;
+    const key = normalizeSearchText(clean);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(clean);
+  }
+  return out;
+}
+
+function parseConclusionFlags(conclusion) {
+  const norm = normalizeSearchText(conclusion);
+  return {
+    hasInadmissibility: norm.includes("inadmissible"),
+    isStruckOut: norm.includes("struck out"),
+    hasProceduralAspect: norm.includes("procedural aspect"),
+    hasSubstantiveAspect: norm.includes("substantive aspect"),
+  };
+}
+
+function sectionSearchWeight(section) {
+  return SEARCH_SCORE_SECTION_WEIGHTS[section] || 1;
+}
+
+function caseSearchBoost(caseObj) {
+  let boost = 1;
+  if (String(caseObj.__importance || "").toLowerCase() === "key cases") {
+    boost *= 1.1;
+  }
+  if (caseObj.__chamberCategory === "GRANDCHAMBER") {
+    boost *= 1.1;
+  }
+  return boost;
+}
+
+function parseQueryWithPrefixes(query) {
+  const meta = {
+    case: [],
+    ecli: [],
+    hudoc: [],
+    article: [],
+    state: [],
+    body: [],
+    judge: [],
+    keyword: [],
+  };
+
+  const prefixPattern = /(^|\s)(case|ecli|hudoc|article|state|body|judge|keyword):(?:"([^"]+)"|(\S+))/gi;
+  const stripped = String(query || "").replace(prefixPattern, (full, lead, key, quoted, plain) => {
+    const cleanKey = String(key || "").toLowerCase();
+    const value = String(quoted || plain || "").trim();
+    if (QUERY_PREFIX_KEYS.has(cleanKey) && value) {
+      const normalizedValue = cleanKey === "article" ? normalizeArticleToken(value) : normalizeSearchText(value);
+      meta[cleanKey].push(normalizedValue);
+    }
+    return lead || " ";
+  });
+
+  return {
+    textQuery: stripped.replace(/\s+/g, " ").trim(),
+    meta,
+  };
+}
+
+function arrayIncludesNorm(haystackValues, needleNorm) {
+  if (!needleNorm) return true;
+  for (const value of haystackValues) {
+    if (value.includes(needleNorm)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function matchesArticleToken(caseTokenNorm, queryTokenNorm) {
+  if (!caseTokenNorm || !queryTokenNorm) return false;
+  if (caseTokenNorm === queryTokenNorm || caseTokenNorm.startsWith(`${queryTokenNorm}-`)) {
+    return true;
+  }
+
+  const parts = caseTokenNorm.split("+");
+  for (const part of parts) {
+    if (part === queryTokenNorm || part.startsWith(`${queryTokenNorm}-`)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function parseDate(raw) {
@@ -429,9 +570,11 @@ function setSearchEnabled(enabled) {
   el.dateFrom.disabled = !enabled;
   el.dateTo.disabled = !enabled;
   el.keywordFilterInput.disabled = !enabled;
+  el.precedentFilterInput.disabled = !enabled;
+  el.exportIncludeClassifier.disabled = !enabled;
 
   const dynamicInputs = document.querySelectorAll(
-    "#sectionsFilters input, #countriesFilters input, #articlesFilters input, #originatingBodyFilters input, #importanceFilters input, #outcomeFilters input, #separateOpinionFilters input, #presenceFilters input, #chamberFilters input"
+    "#sectionsFilters input, #countriesFilters input, #articlesFilters input, #originatingBodyFilters input, #importanceFilters input, #outcomeFilters input, #legalOutcomeFilters input, #separateOpinionFilters input, #presenceFilters input, #chamberFilters input"
   );
   for (const input of dynamicInputs) {
     input.disabled = !enabled;
@@ -576,6 +719,30 @@ function deriveOutcomeBucket(violation, nonViolation) {
   return "neither";
 }
 
+function extractHudocId(hudocUrl) {
+  const text = String(hudocUrl || "").trim();
+  if (!text) return "";
+  const match = text.match(/[?&]i=([^&#]+)/i);
+  return match ? String(match[1] || "").trim() : "";
+}
+
+function buildStateSearchValues(states) {
+  const values = new Set();
+  for (const rawState of states) {
+    const stateText = String(rawState || "").trim();
+    if (!stateText) continue;
+
+    const stateUpper = stateText.toUpperCase();
+    const fromCode = COUNTRY_NAMES[stateUpper] || "";
+    const nameNorm = normalizeSearchText(fromCode || stateText);
+    if (nameNorm) values.add(nameNorm);
+
+    const codeFromName = COUNTRY_CODE_BY_NAME_NORM[nameNorm] || (COUNTRY_NAMES[stateUpper] ? stateUpper : "");
+    if (codeFromName) values.add(normalizeSearchText(codeFromName));
+  }
+  return [...values];
+}
+
 function normalizeCases(rawCases) {
   const usedIds = new Set();
   const normalized = [];
@@ -595,6 +762,7 @@ function normalizeCases(rawCases) {
 
     const defendants = normalizeListField(caseObj.defendants);
     const states = normalizeStateValues(caseObj);
+    const stateSearchValues = buildStateSearchValues(states);
     const documentType = normalizeDocumentTypes(caseObj);
     const originatingBody = String(caseObj.originating_body || "").trim();
     const importance = String(caseObj.importance || "").trim();
@@ -603,11 +771,17 @@ function normalizeCases(rawCases) {
     const violation = normalizeListField(caseObj.violation);
     const nonViolation = normalizeListField(caseObj["non-violation"]);
     const chamberComposedOf = normalizeListField(caseObj.chamber_composed_of);
-    const strasbourgCaselaw = normalizeListField(caseObj.strasbourg_caselaw);
+    const strasbourgCaselaw = normalizeCitationList(caseObj.strasbourg_caselaw);
     const representedBy = String(caseObj.represented_by || "").trim();
     const ecli = String(caseObj.ecli || "").trim();
     const hudocUrl = String(caseObj.hudoc_url || "").trim();
+    const hudocId = extractHudocId(hudocUrl);
+    const articleTokens = splitArticles(caseObj.article_no);
+    const articleTokensNorm = articleTokens.map((token) => normalizeArticleToken(token));
     const chamberCategory = deriveChamberCategory(documentType, originatingBody);
+    const conclusion = String(caseObj.conclusion || "").trim();
+    const outcomeFlags = parseConclusionFlags(conclusion);
+    const citationRefsNorm = strasbourgCaselaw.map((item) => normalizeSearchText(item));
 
     const rawParagraphs = Array.isArray(caseObj.paragraphs) ? caseObj.paragraphs : [];
     const parsedParagraphs = [];
@@ -627,10 +801,29 @@ function normalizeCases(rawCases) {
         localIdx: parsedParagraphs.length,
         text,
         textLower: text.toLowerCase(),
+        textNorm: normalizeSearchText(text),
       });
     }
 
     const ts = parseDateInput(caseObj.judgment_date);
+    const metadataSearchParts = [
+      caseId,
+      caseObj.case_no || "",
+      caseObj.title || "",
+      ecli,
+      hudocUrl,
+      hudocId,
+      originatingBody,
+      representedBy,
+      importance,
+      states.join(" "),
+      articleTokens.join(" "),
+      keywords.join(" "),
+      chamberComposedOf.join(" "),
+      strasbourgCaselaw.join(" "),
+      conclusion,
+    ];
+    const searchMetaText = normalizeSearchText(metadataSearchParts.join(" "));
 
     normalized.push({
       ...caseObj,
@@ -649,18 +842,36 @@ function normalizeCases(rawCases) {
       strasbourg_caselaw: strasbourgCaselaw,
       ecli,
       hudoc_url: hudocUrl,
-      __articles: splitArticles(caseObj.article_no),
+      __articles: articleTokens,
+      __articlesNorm: articleTokensNorm,
       __states: states,
+      __stateSearchValues: stateSearchValues,
       __originatingBody: originatingBody || "Unknown",
+      __originatingBodyNorm: normalizeSearchText(originatingBody || "Unknown"),
       __importance: importance || "Unspecified",
       __outcomeBucket: deriveOutcomeBucket(violation, nonViolation),
+      __outcomePrimary: deriveOutcomeBucket(violation, nonViolation),
+      __hasInadmissibility: outcomeFlags.hasInadmissibility,
+      __isStruckOut: outcomeFlags.isStruckOut,
+      __hasProceduralAspect: outcomeFlags.hasProceduralAspect,
+      __hasSubstantiveAspect: outcomeFlags.hasSubstantiveAspect,
       __hasSeparateOpinion: separateOpinion,
       __hasStrasbourgCaselaw: strasbourgCaselaw.length > 0,
       __hasDomesticLaw: isPresentValue(caseObj.domestic_law),
       __hasInternationalLaw: isPresentValue(caseObj.international_law),
       __hasRulesOfCourt: isPresentValue(caseObj.rules_of_court),
-      __keywordsNorm: keywords.map((k) => k.toLowerCase()),
-      __keywordsText: keywords.join(" ").toLowerCase(),
+      __keywordsNorm: keywords.map((k) => normalizeSearchText(k)),
+      __keywordsText: normalizeSearchText(keywords.join(" ")),
+      __judgesNorm: chamberComposedOf.map((judge) => normalizeSearchText(judge)),
+      __citationRefsNorm: citationRefsNorm,
+      __citationRefs: strasbourgCaselaw,
+      __searchMetaText: searchMetaText,
+      __caseNoNorm: normalizeSearchText(caseObj.case_no || ""),
+      __caseIdNorm: normalizeSearchText(caseId),
+      __titleNorm: normalizeSearchText(caseObj.title || ""),
+      __ecliNorm: normalizeSearchText(ecli),
+      __hudocNorm: normalizeSearchText(hudocUrl),
+      __hudocIdNorm: normalizeSearchText(hudocId),
       __chamberCategory: chamberCategory,
       __judgmentDateTs: ts,
       __sortTs: ts == null ? -Infinity : ts,
@@ -845,10 +1056,12 @@ function getCurrentFilters() {
     bodies: collectChecked("bodies"),
     importance: collectChecked("importance"),
     outcomes: collectChecked("outcomes"),
+    legalOutcomes: collectChecked("legalOutcomes"),
     separateOpinion: collectChecked("separateOpinion"),
     presence: collectChecked("presence"),
     caseTypes: collectCheckedValuesIn(el.chamberFilters),
-    keyword: String(el.keywordFilterInput.value || "").trim().toLowerCase(),
+    keyword: normalizeSearchText(String(el.keywordFilterInput.value || "").trim()),
+    precedent: normalizeSearchText(String(el.precedentFilterInput.value || "").trim()),
     dateFrom: parseDateInput(el.dateFrom.value),
     dateTo: parseDateInput(el.dateTo.value),
   };
@@ -889,7 +1102,14 @@ function passesCaseFilters(c, filters) {
     return false;
   }
 
-  if (filters.outcomes.size && !filters.outcomes.has(c.__outcomeBucket)) {
+  if (filters.outcomes.size && !filters.outcomes.has(c.__outcomePrimary)) {
+    return false;
+  }
+
+  if (filters.legalOutcomes.has("has_inadmissibility") && !c.__hasInadmissibility) {
+    return false;
+  }
+  if (filters.legalOutcomes.has("is_struck_out") && !c.__isStruckOut) {
     return false;
   }
 
@@ -912,6 +1132,10 @@ function passesCaseFilters(c, filters) {
   }
 
   if (filters.keyword && !c.__keywordsText.includes(filters.keyword)) {
+    return false;
+  }
+
+  if (filters.precedent && !arrayIncludesNorm(c.__citationRefsNorm || [], filters.precedent)) {
     return false;
   }
 
@@ -980,9 +1204,58 @@ function buildBrowseResults(filters) {
   };
 }
 
+function matchesPrefixedQuery(caseObj, metaQuery) {
+  for (const value of metaQuery.case) {
+    const matchesCase = (caseObj.__caseNoNorm || "").includes(value)
+      || (caseObj.__caseIdNorm || "").includes(value)
+      || (caseObj.__titleNorm || "").includes(value);
+    if (!matchesCase) return false;
+  }
+
+  for (const value of metaQuery.ecli) {
+    if (!(caseObj.__ecliNorm || "").includes(value)) return false;
+  }
+
+  for (const value of metaQuery.hudoc) {
+    const matchesHudoc = (caseObj.__hudocNorm || "").includes(value) || (caseObj.__hudocIdNorm || "").includes(value);
+    if (!matchesHudoc) return false;
+  }
+
+  for (const value of metaQuery.article) {
+    let found = false;
+    for (const articleToken of caseObj.__articlesNorm || []) {
+      if (matchesArticleToken(articleToken, value)) {
+        found = true;
+        break;
+      }
+    }
+    if (!found) return false;
+  }
+
+  for (const value of metaQuery.state) {
+    if (!arrayIncludesNorm(caseObj.__stateSearchValues || [], value)) return false;
+  }
+
+  for (const value of metaQuery.body) {
+    if (!(caseObj.__originatingBodyNorm || "").includes(value)) return false;
+  }
+
+  for (const value of metaQuery.judge) {
+    if (!arrayIncludesNorm(caseObj.__judgesNorm || [], value)) return false;
+  }
+
+  for (const value of metaQuery.keyword) {
+    if (!arrayIncludesNorm(caseObj.__keywordsNorm || [], value)) return false;
+  }
+
+  return true;
+}
+
 function buildQueryResults(query, filters) {
-  const parsed = parseQuery(query);
+  const advanced = parseQueryWithPrefixes(query);
+  const parsed = parseQuery(advanced.textQuery);
   const allTerms = [...parsed.andTerms, ...parsed.orGroups.flat()];
+  const hasTextTerms = allTerms.length > 0;
 
   const resultsById = new Map();
   let totalHits = 0;
@@ -997,37 +1270,43 @@ function buildQueryResults(query, filters) {
     if (!passesCaseFilters(c, filters)) {
       continue;
     }
-
-    let andOk = true;
-    for (const term of parsed.andTerms) {
-      if (!entry.textLower.includes(term)) {
-        andOk = false;
-        break;
-      }
+    if (!matchesPrefixedQuery(c, advanced.meta)) {
+      continue;
     }
-    if (!andOk) continue;
 
-    let orOk = true;
-    for (const group of parsed.orGroups) {
-      let groupOk = false;
-      for (const term of group) {
-        if (entry.textLower.includes(term)) {
-          groupOk = true;
+    if (hasTextTerms) {
+      let andOk = true;
+      for (const term of parsed.andTerms) {
+        if (!entry.textLower.includes(term)) {
+          andOk = false;
           break;
         }
       }
-      if (!groupOk) {
-        orOk = false;
-        break;
+      if (!andOk) continue;
+
+      let orOk = true;
+      for (const group of parsed.orGroups) {
+        let groupOk = false;
+        for (const term of group) {
+          if (entry.textLower.includes(term)) {
+            groupOk = true;
+            break;
+          }
+        }
+        if (!groupOk) {
+          orOk = false;
+          break;
+        }
       }
+      if (!orOk) continue;
     }
-    if (!orOk) continue;
 
     if (!resultsById.has(c.case_id)) {
       resultsById.set(c.case_id, {
         case: c,
         paragraphs: [],
         hitCount: 0,
+        score: 0,
       });
     }
 
@@ -1044,6 +1323,7 @@ function buildQueryResults(query, filters) {
       )
     );
     row.hitCount += 1;
+    row.score += sectionSearchWeight(entry.section) * caseSearchBoost(c);
 
     totalHits += 1;
     if (totalHits >= MAX_HITS) {
@@ -1054,6 +1334,9 @@ function buildQueryResults(query, filters) {
 
   const orderedCaseIds = [...resultsById.entries()]
     .sort((a, b) => {
+      if (b[1].score !== a[1].score) {
+        return b[1].score - a[1].score;
+      }
       if (b[1].hitCount !== a[1].hitCount) {
         return b[1].hitCount - a[1].hitCount;
       }
@@ -1090,12 +1373,11 @@ function renderActiveFilters(filters) {
     chips.push(`<span class="filter-chip">Importance: ${escapeHtml(level)}</span>`);
   }
   for (const outcome of filters.outcomes) {
-    const label = {
-      violation_only: "Violation only",
-      non_violation_only: "Non-violation only",
-      both: "Both",
-      neither: "Neither",
-    }[outcome] || outcome;
+    const label = OUTCOME_LABELS[outcome] || outcome;
+    chips.push(`<span class="filter-chip">${escapeHtml(label)}</span>`);
+  }
+  for (const legalOutcome of filters.legalOutcomes) {
+    const label = LEGAL_OUTCOME_LABELS[legalOutcome] || legalOutcome;
     chips.push(`<span class="filter-chip">${escapeHtml(label)}</span>`);
   }
   for (const value of filters.separateOpinion) {
@@ -1116,6 +1398,9 @@ function renderActiveFilters(filters) {
   }
   if (filters.keyword) {
     chips.push(`<span class="filter-chip">Keyword: ${escapeHtml(filters.keyword)}</span>`);
+  }
+  if (filters.precedent) {
+    chips.push(`<span class="filter-chip">Cites: ${escapeHtml(filters.precedent)}</span>`);
   }
   if (el.dateFrom.value) {
     chips.push(`<span class="filter-chip">From: ${escapeHtml(el.dateFrom.value)}</span>`);
@@ -2555,6 +2840,16 @@ function loadClassifierStateForDataset() {
 function buildCaseCard(caseId, row) {
   const c = row.case;
   const defendantLabel = (c.__states || []).map((d) => COUNTRY_NAMES[d] || d).join(", ");
+  const topCitations = (c.__citationRefs || []).slice(0, 3);
+  const outcomeBits = [];
+  if (c.__hasInadmissibility) outcomeBits.push("Inadmissibility");
+  if (c.__isStruckOut) outcomeBits.push("Struck out");
+  if (c.__hasProceduralAspect) outcomeBits.push("Procedural aspect");
+  if (c.__hasSubstantiveAspect) outcomeBits.push("Substantive aspect");
+  const outcomeSummary = outcomeBits.length ? outcomeBits.join(", ") : "None";
+  const citationPreview = topCitations.length
+    ? `<div class="case-citation-preview"><strong>Top precedents:</strong> ${topCitations.map((item) => escapeHtml(item)).join(" · ")}</div>`
+    : "";
 
   const paraBlocks = row.paragraphs
     .map((p) => {
@@ -2592,6 +2887,9 @@ function buildCaseCard(caseId, row) {
             <span class="meta-item">🏛️ ${escapeHtml(c.__originatingBody || "-")}</span>
             <span class="meta-item">📜 ${escapeHtml(c.article_no || "-")}</span>
             <span class="meta-item">⭐ ${escapeHtml(c.__importance || "-")}</span>
+            <span class="meta-item">⚖️ ${escapeHtml(OUTCOME_LABELS[c.__outcomePrimary] || c.__outcomePrimary || "-")}</span>
+            <span class="meta-item">🧭 ${escapeHtml(outcomeSummary)}</span>
+            <span class="meta-item">📚 ${fmtInt.format((c.__citationRefs || []).length)} Strasbourg citations</span>
           </div>
         </div>
         <div class="case-badge">
@@ -2602,6 +2900,7 @@ function buildCaseCard(caseId, row) {
       </div>
       <div class="case-body" id="body-${escapeHtml(caseId)}">
         ${paraBlocks || '<div class="paragraph-item"><p class="para-text">No paragraphs for current filters.</p></div>'}
+        ${citationPreview}
         <div class="case-footer">
           <a href="#" class="view-full" data-action="open-case" data-case-id="${escapeHtml(caseId)}">View full judgment →</a>
           ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="view-full" target="_blank" rel="noopener noreferrer">Open in HUDOC ↗</a>` : ""}
@@ -2715,7 +3014,7 @@ function computeAnalytics() {
 
     bodyCounts.set(data.case.__originatingBody, (bodyCounts.get(data.case.__originatingBody) || 0) + data.hitCount);
     importanceCounts.set(data.case.__importance, (importanceCounts.get(data.case.__importance) || 0) + data.hitCount);
-    outcomeCounts.set(data.case.__outcomeBucket, (outcomeCounts.get(data.case.__outcomeBucket) || 0) + data.hitCount);
+    outcomeCounts.set(data.case.__outcomePrimary, (outcomeCounts.get(data.case.__outcomePrimary) || 0) + data.hitCount);
 
     for (const a of data.case.__articles || []) {
       articleCounts.set(a, (articleCounts.get(a) || 0) + data.hitCount);
@@ -2832,12 +3131,7 @@ function renderAnalytics() {
   renderBarList(
     el.analyticsOutcomes,
     a.outcomes,
-    (label) => ({
-      violation_only: "Violation only",
-      non_violation_only: "Non-violation only",
-      both: "Both",
-      neither: "Neither",
-    })[label] || label,
+    (label) => OUTCOME_LABELS[label] || label,
     "country"
   );
 
@@ -2901,6 +3195,7 @@ function resetFiltersAndQuery() {
   el.dateFrom.value = "";
   el.dateTo.value = "";
   el.keywordFilterInput.value = "";
+  el.precedentFilterInput.value = "";
 
   const checks = document.querySelectorAll("#filtersPanel input[type='checkbox']");
   for (const c of checks) {
@@ -2912,38 +3207,47 @@ function resetFiltersAndQuery() {
 
 function exportCsv() {
   if (!state.currentOrderedCaseIds.length) return;
+  const includeClassifierLabels = !!el.exportIncludeClassifier?.checked;
 
-  const rows = [
-    [
-      "Case ID",
-      "Case No",
-      "Title",
-      "Judgment Date",
-      "Defendants",
-      "Articles",
-      "Respondent State",
-      "Originating Body",
-      "Importance",
-      "Outcome",
-      "Separate Opinion",
-      "ECLI",
-      "HUDOC URL",
-      "Violation",
-      "Non-violation",
-      "Keywords",
-      "Section",
-      "Paragraph",
-      "Assigned Labels",
-      "Text",
-    ],
+  const header = [
+    "Case ID",
+    "Case No",
+    "Title",
+    "Judgment Date",
+    "Defendants",
+    "Articles",
+    "Respondent State",
+    "Originating Body",
+    "Importance",
+    "Outcome Primary",
+    "Inadmissibility",
+    "Struck out",
+    "Procedural aspect",
+    "Substantive aspect",
+    "Separate Opinion",
+    "ECLI",
+    "HUDOC URL",
+    "Violation",
+    "Non-violation",
+    "Keywords",
+    "Strasbourg citation count",
+    "Top Strasbourg precedents",
+    "Section",
+    "Paragraph",
   ];
+  if (includeClassifierLabels) {
+    header.push("Assigned Labels");
+  }
+  header.push("Text");
+
+  const rows = [header];
 
   for (const caseId of state.currentOrderedCaseIds) {
     const data = state.currentResultsById.get(caseId);
     if (!data) continue;
 
     for (const p of data.paragraphs) {
-      rows.push([
+      const row = [
         caseId,
         data.case.case_no || "",
         data.case.title || "",
@@ -2953,18 +3257,28 @@ function exportCsv() {
         (data.case.__states || []).join(", "),
         data.case.__originatingBody || "",
         data.case.__importance || "",
-        data.case.__outcomeBucket || "",
+        data.case.__outcomePrimary || "",
+        data.case.__hasInadmissibility ? "yes" : "no",
+        data.case.__isStruckOut ? "yes" : "no",
+        data.case.__hasProceduralAspect ? "yes" : "no",
+        data.case.__hasSubstantiveAspect ? "yes" : "no",
         data.case.__hasSeparateOpinion ? "yes" : "no",
         data.case.ecli || "",
         data.case.hudoc_url || "",
         (data.case.violation || []).join("; "),
         (data.case["non-violation"] || []).join("; "),
         (data.case.keywords || []).join("; "),
+        String((data.case.__citationRefs || []).length),
+        (data.case.__citationRefs || []).slice(0, 3).join("; "),
         p.sectionLabel,
         String(p.paraIdx + 1),
-        getCombinedParagraphLabels(p.key).map((x) => x.label).join("; "),
-        p.rawText,
-      ]);
+      ];
+
+      if (includeClassifierLabels) {
+        row.push(getCombinedParagraphLabels(p.key).map((x) => x.label).join("; "));
+      }
+      row.push(p.rawText);
+      rows.push(row);
     }
   }
 
@@ -3006,8 +3320,14 @@ function buildCaseMeta(caseObj) {
   parts.push(`Respondent State: ${escapeHtml(states)}`);
   parts.push(`Originating Body: ${escapeHtml(caseObj.__originatingBody || "-")}`);
   parts.push(`Importance: ${escapeHtml(caseObj.__importance || "-")}`);
+  parts.push(`Outcome: ${escapeHtml(OUTCOME_LABELS[caseObj.__outcomePrimary] || caseObj.__outcomePrimary || "-")}`);
+  parts.push(`Inadmissibility: ${caseObj.__hasInadmissibility ? "Yes" : "No"}`);
+  parts.push(`Struck out: ${caseObj.__isStruckOut ? "Yes" : "No"}`);
+  parts.push(`Procedural aspect: ${caseObj.__hasProceduralAspect ? "Yes" : "No"}`);
+  parts.push(`Substantive aspect: ${caseObj.__hasSubstantiveAspect ? "Yes" : "No"}`);
   parts.push(`Separate Opinion: ${caseObj.__hasSeparateOpinion ? "Yes" : "No"}`);
   parts.push(`Articles: ${escapeHtml(caseObj.article_no || "-")}`);
+  parts.push(`Strasbourg citations: ${fmtInt.format((caseObj.__citationRefs || []).length)}`);
   if (caseObj.represented_by) {
     parts.push(`Represented by: ${escapeHtml(caseObj.represented_by)}`);
   }
@@ -3021,6 +3341,10 @@ function buildCaseMeta(caseObj) {
 
   if (Array.isArray(caseObj["non-violation"]) && caseObj["non-violation"].length) {
     parts.push(`No violation: ${escapeHtml(caseObj["non-violation"].join("; "))}`);
+  }
+
+  if (Array.isArray(caseObj.__citationRefs) && caseObj.__citationRefs.length) {
+    parts.push(`Top precedents: ${escapeHtml(caseObj.__citationRefs.slice(0, 3).join("; "))}`);
   }
 
   if (caseObj.hudoc_url) {
@@ -3246,6 +3570,11 @@ function bindEvents() {
   });
 
   el.keywordFilterInput.addEventListener("change", () => {
+    if (!state.loaded) return;
+    applySearch(true);
+  });
+
+  el.precedentFilterInput.addEventListener("change", () => {
     if (!state.loaded) return;
     applySearch(true);
   });

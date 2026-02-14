@@ -138,6 +138,84 @@ function createDoughnutChart(ctx, labels, values, colors = []) {
   });
 }
 
+function createGroupedBarChart(ctx, labels, datasets, options = {}) {
+  return new Chart(ctx, {
+    type: "bar",
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: "bottom" },
+      },
+      scales: {
+        x: { stacked: !!options.stacked, grid: { display: false } },
+        y: { beginAtZero: true, stacked: !!options.stacked },
+      },
+    },
+  });
+}
+
+function createMultiLineChart(ctx, labels, datasets) {
+  return new Chart(ctx, {
+    type: "line",
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: "bottom" },
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: { beginAtZero: true },
+      },
+    },
+  });
+}
+
+function renderStateOutcomeTable(container, rows) {
+  if (!container) return;
+  if (!rows.length) {
+    container.innerHTML = '<p class="state-outcome-empty">No state-level rows satisfy n ≥ 5.</p>';
+    return;
+  }
+
+  const bodyRows = rows
+    .slice(0, 20)
+    .map(
+      (row) => `
+        <tr>
+          <td>${row[0]}</td>
+          <td>${fmtInt.format(row[1] || 0)}</td>
+          <td>${fmtInt.format(row[2] || 0)}</td>
+          <td>${fmtInt.format(row[3] || 0)}</td>
+          <td>${fmtInt.format(row[4] || 0)}</td>
+          <td>${fmtInt.format(row[5] || 0)}</td>
+          <td>${Number(row[6] || 0).toFixed(1)}%</td>
+        </tr>
+      `
+    )
+    .join("");
+
+  container.innerHTML = `
+    <table class="state-outcome-table">
+      <thead>
+        <tr>
+          <th>State</th>
+          <th>Cases</th>
+          <th>Violation only</th>
+          <th>Non-violation only</th>
+          <th>Both</th>
+          <th>Neither</th>
+          <th>Violation rate</th>
+        </tr>
+      </thead>
+      <tbody>${bodyRows}</tbody>
+    </table>
+  `;
+}
+
 function rowsOrEmpty(value) {
   return Array.isArray(value) ? value : [];
 }
@@ -147,8 +225,8 @@ async function loadDashboard() {
   if (!res.ok) throw new Error(`Failed to load dashboard data (${res.status})`);
   const data = await res.json();
 
-  document.getElementById("metaSource").textContent = `Source: ${data.source_file || "-"}`;
-  document.getElementById("metaGenerated").textContent = `Generated: ${formatDateForMeta(data.generated_at)}`;
+  document.getElementById("metaSource").textContent = `Source: ${data.source_file || "-"} · Schema: ${data.schema_version || "-"}`;
+  document.getElementById("metaGenerated").textContent = `Generated: ${formatDateForMeta(data.generated_at)} · Parser: ${data.parser_version || "-"}`;
 
   const s = data.summary || {};
   const series = data.series || {};
@@ -168,6 +246,7 @@ async function loadDashboard() {
   const kpiGrid = document.getElementById("kpiGrid");
   kpiGrid.innerHTML = [
     makeKpi("Total Cases", fmtInt.format(s.total_cases || 0)),
+    makeKpi("Input Records", fmtInt.format(s.input_record_count || s.total_cases || 0)),
     makeKpi("Total Paragraphs", fmtInt.format(s.total_paragraphs || 0)),
     makeKpi(
       "Date Range",
@@ -191,6 +270,20 @@ async function loadDashboard() {
     makeKpi("With Domestic Law", fmtInt.format(s.cases_with_domestic_law || 0)),
     makeKpi("With International Law", fmtInt.format(s.cases_with_international_law || 0)),
     makeKpi("With Rules of Court", fmtInt.format(s.cases_with_rules_of_court || 0)),
+    makeKpi(
+      "Inadmissible Cases",
+      fmtInt.format(s.inadmissible_cases || 0),
+      `${Number((s.total_cases ? ((s.inadmissible_cases || 0) / s.total_cases) * 100 : 0)).toFixed(1)}% of corpus`
+    ),
+    makeKpi(
+      "Struck Out Cases",
+      fmtInt.format(s.struck_out_cases || 0),
+      `${Number((s.total_cases ? ((s.struck_out_cases || 0) / s.total_cases) * 100 : 0)).toFixed(1)}% of corpus`
+    ),
+    makeKpi(
+      "Procedural / Substantive",
+      `${fmtInt.format(s.procedural_aspect_cases || 0)} / ${fmtInt.format(s.substantive_aspect_cases || 0)}`
+    ),
     makeKpi("Metadata Completeness", `${coveragePct.toFixed(1)}%`),
     makeKpi(
       "Outcome Mix",
@@ -214,6 +307,13 @@ async function loadDashboard() {
   const separateShareByBody = rowsOrEmpty(series.separate_opinion_share_by_body);
   const keywordsTop = rowsOrEmpty(rankings.keywords_top);
   const citationsTop = rowsOrEmpty(rankings.strasbourg_caselaw_top);
+  const articleViolationRates = rowsOrEmpty(rankings.article_violation_rates_top);
+  const stateOutcomesTop = rowsOrEmpty(rankings.state_outcomes_top);
+  const inadmissibilityGroundsTop = rowsOrEmpty(rankings.inadmissibility_grounds_top);
+  const precedentConcentrationTop = rowsOrEmpty(rankings.precedent_concentration_top);
+  const precedentToCitingCasesTop = rowsOrEmpty(rankings.precedent_to_citing_cases_top);
+  const outcomesByYear = rowsOrEmpty(series.outcomes_by_year);
+  const proceduralVsSubstantiveByYear = rowsOrEmpty(series.procedural_vs_substantive_by_year);
 
   createBarChart(
     document.getElementById("casesMonthChart"),
@@ -285,6 +385,94 @@ async function loadDashboard() {
     ["#3c8d5a", "#245ea8", "#d97a2b", "#8c8c8c"]
   );
 
+  if (proceduralVsSubstantiveByYear.length) {
+    createGroupedBarChart(
+      document.getElementById("proceduralSubstantiveChart"),
+      proceduralVsSubstantiveByYear.map((d) => d[0]),
+      [
+        {
+          label: "Procedural aspect",
+          data: proceduralVsSubstantiveByYear.map((d) => d[1]),
+          backgroundColor: "#245ea8CC",
+          borderColor: "#245ea8",
+          borderWidth: 1,
+          borderRadius: 5,
+        },
+        {
+          label: "Substantive aspect",
+          data: proceduralVsSubstantiveByYear.map((d) => d[2]),
+          backgroundColor: "#d97a2bCC",
+          borderColor: "#d97a2b",
+          borderWidth: 1,
+          borderRadius: 5,
+        },
+      ]
+    );
+  } else {
+    createDoughnutChart(
+      document.getElementById("proceduralSubstantiveChart"),
+      ["Procedural aspect", "Substantive aspect"],
+      [s.procedural_aspect_cases || 0, s.substantive_aspect_cases || 0],
+      ["#245ea8", "#d97a2b"]
+    );
+  }
+
+  createBarChart(
+    document.getElementById("inadmissibilityChart"),
+    ["Inadmissible", "Struck out"],
+    [s.inadmissible_cases || 0, s.struck_out_cases || 0],
+    { colors: ["#b03e45", "#8c8c8c"] }
+  );
+
+  if (outcomesByYear.length) {
+    createMultiLineChart(
+      document.getElementById("outcomesYearChart"),
+      outcomesByYear.map((d) => d[0]),
+      [
+        {
+          label: "Violation only",
+          data: outcomesByYear.map((d) => d[1]),
+          borderColor: "#3c8d5a",
+          backgroundColor: "#3c8d5a33",
+          fill: false,
+          tension: 0.2,
+          pointRadius: 2.5,
+          pointHoverRadius: 4,
+        },
+        {
+          label: "Non-violation only",
+          data: outcomesByYear.map((d) => d[2]),
+          borderColor: "#245ea8",
+          backgroundColor: "#245ea833",
+          fill: false,
+          tension: 0.2,
+          pointRadius: 2.5,
+          pointHoverRadius: 4,
+        },
+        {
+          label: "Both",
+          data: outcomesByYear.map((d) => d[3]),
+          borderColor: "#d97a2b",
+          backgroundColor: "#d97a2b33",
+          fill: false,
+          tension: 0.2,
+          pointRadius: 2.5,
+          pointHoverRadius: 4,
+        },
+        {
+          label: "Neither",
+          data: outcomesByYear.map((d) => d[4]),
+          borderColor: "#8c8c8c",
+          backgroundColor: "#8c8c8c33",
+          fill: false,
+          tension: 0.2,
+          pointRadius: 2.5,
+          pointHoverRadius: 4,
+        },
+      ]
+    );
+  }
+
   createBarChart(
     document.getElementById("bodiesChart"),
     bodiesTop.map((d) => d[0]),
@@ -307,11 +495,44 @@ async function loadDashboard() {
   );
 
   createBarChart(
+    document.getElementById("articleViolationRateChart"),
+    articleViolationRates.slice(0, 15).map((d) => `Art. ${d[0]} (${d[2]}/${d[3]})`),
+    articleViolationRates.slice(0, 15).map((d) => Number(d[1]) * 100),
+    { horizontal: true, colors: ["#3c8d5a"] }
+  );
+
+  if (precedentConcentrationTop.length) {
+    createLineChart(
+      document.getElementById("precedentConcentrationChart"),
+      precedentConcentrationTop.map((d) => truncateLabel(d[0], 42)),
+      precedentConcentrationTop.map((d) => d[3]),
+      "#8d4f78"
+    );
+  } else {
+    createBarChart(
+      document.getElementById("precedentConcentrationChart"),
+      ["Top 10 cumulative share"],
+      [0],
+      { colors: ["#8d4f78"] }
+    );
+  }
+
+  const citationSourceRows = precedentToCitingCasesTop.length ? precedentToCitingCasesTop : citationsTop;
+  createBarChart(
     document.getElementById("citationsChart"),
-    citationsTop.slice(0, 15).map((d) => truncateLabel(d[0], 80)),
-    citationsTop.slice(0, 15).map((d) => d[1]),
+    citationSourceRows.slice(0, 15).map((d) => truncateLabel(d[0], 80)),
+    citationSourceRows.slice(0, 15).map((d) => d[1]),
     { horizontal: true, colors: ["#8d4f78"] }
   );
+
+  renderStateOutcomeTable(document.getElementById("stateOutcomeTable"), stateOutcomesTop);
+
+  if (inadmissibilityGroundsTop.length) {
+    document.getElementById("stateOutcomeTable").insertAdjacentHTML(
+      "beforeend",
+      `<p class="state-outcome-empty" style="margin-top:10px;">Top inadmissibility grounds: ${inadmissibilityGroundsTop.slice(0, 5).map((d) => `${d[0]} (${d[1]})`).join(" · ")}</p>`
+    );
+  }
 }
 
 loadDashboard().catch((err) => {
