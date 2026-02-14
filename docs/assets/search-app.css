@@ -113,6 +113,31 @@
   width: 100%;
 }
 
+.case-actions-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.case-open-link {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  color: var(--primary-accent);
+  background: var(--bg-card);
+  text-decoration: none;
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+
+.case-open-link:hover {
+  border-color: var(--primary-accent);
+  text-decoration: none;
+}
+
 button.export-btn {
   border: 1px solid var(--border);
   background: var(--bg-card);

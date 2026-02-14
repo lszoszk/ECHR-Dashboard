@@ -2581,6 +2581,10 @@ function buildCaseCard(caseId, row) {
       <div class="case-header" data-action="toggle-case" data-case-id="${escapeHtml(caseId)}">
         <div class="case-info">
           <h2 class="case-title">${escapeHtml(c.title || "Untitled case")}</h2>
+          <div class="case-actions-inline">
+            <button type="button" class="case-open-link" data-action="open-case" data-case-id="${escapeHtml(caseId)}">View full judgment</button>
+            ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="case-open-link" data-action="open-hudoc" target="_blank" rel="noopener noreferrer">Open in HUDOC ↗</a>` : ""}
+          </div>
           <div class="case-meta">
             <span class="meta-item">📋 ${escapeHtml(c.case_no || "-")}</span>
             <span class="meta-item">📅 ${escapeHtml(c.judgment_date || "-")}</span>
