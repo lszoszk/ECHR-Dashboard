@@ -341,7 +341,7 @@ def normalize_case(case):
 
 
 def select_input_file(root: Path):
-    preferred = root / "echr_cases_20260213_081310.jsonl"
+    preferred = root / "echr_cases_20260217_103005.jsonl"
     sample = root / "data" / "echr_decisions_sample.jsonl"
     option_b = root / "echr_cases_optionB.jsonl"
     fallback = root / "echr_cases_20260207_121847.jsonl"

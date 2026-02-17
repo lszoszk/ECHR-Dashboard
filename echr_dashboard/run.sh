@@ -25,6 +25,8 @@ fi
 DATA_FILE=""
 if [ -n "${ECHR_DATA_FILE:-}" ] && [ -f "$ECHR_DATA_FILE" ]; then
     DATA_FILE="$ECHR_DATA_FILE"
+elif [ -f "../echr_cases_20260217_103005.jsonl" ]; then
+    DATA_FILE="../echr_cases_20260217_103005.jsonl"
 elif [ -f "../data/echr_decisions_sample.jsonl" ]; then
     DATA_FILE="../data/echr_decisions_sample.jsonl"
 elif [ -f "../echr_cases_optionB.jsonl" ]; then
@@ -35,6 +37,7 @@ else
     echo "❌ No data file found."
     echo "   Expected one of:"
     echo "   - ECHR_DATA_FILE (environment variable)"
+    echo "   - ../echr_cases_20260217_103005.jsonl"
     echo "   - ../data/echr_decisions_sample.jsonl"
     echo "   - ../echr_cases_optionB.jsonl"
     echo "   - ../echr_cases_20260207_121847.jsonl"

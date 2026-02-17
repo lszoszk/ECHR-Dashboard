@@ -31,6 +31,7 @@ def resolve_data_file():
         print(f"Warning: ECHR_DATA_FILE was set but not found: {env_path}")
 
     candidates = [
+        os.path.join(base_dir, '..', 'echr_cases_20260217_103005.jsonl'),
         os.path.join(base_dir, '..', 'data', 'echr_decisions_sample.jsonl'),
         os.path.join(base_dir, '..', 'echr_cases_optionB.jsonl'),
         os.path.join(base_dir, '..', 'echr_cases_20260207_121847.jsonl'),

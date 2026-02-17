@@ -40,9 +40,10 @@ Open: `http://127.0.0.1:5001`
 The app resolves dataset files in this order:
 
 1. `ECHR_DATA_FILE` (if set)
-2. `data/echr_decisions_sample.jsonl`
-3. `echr_cases_optionB.jsonl`
-4. `echr_cases_20260207_121847.jsonl`
+2. `echr_cases_20260217_103005.jsonl`
+3. `data/echr_decisions_sample.jsonl`
+4. `echr_cases_optionB.jsonl`
+5. `echr_cases_20260207_121847.jsonl`
 
 Example with a custom dataset:
 

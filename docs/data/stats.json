@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-02-14T22:33:29.492818+00:00",
-  "source_file": "echr_cases.jsonl",
+  "generated_at": "2026-02-17T15:42:54.371211+00:00",
+  "source_file": "echr_cases_20260217_103005.jsonl",
   "schema_version": "echr-dashboard-v2",
   "parser_version": "2.0.0",
   "summary": {
@@ -8,48 +8,44 @@
     "input_record_count": 105,
     "schema_version": "echr-dashboard-v2",
     "parser_version": "2.0.0",
-    "total_paragraphs": 12897,
+    "total_paragraphs": 13022,
     "dated_cases": 105,
     "undated_cases": 0,
-    "date_range_label": "31 Jul 2025 – 10 Feb 2026",
+    "date_range_label": "26 Aug 2025 – 17 Feb 2026",
     "unique_countries": 34,
     "unique_articles": 64,
-    "avg_paragraphs_per_case": 122.82857142857142,
-    "median_paragraphs_per_case": 109.0,
-    "p90_paragraphs_per_case": 207.00000000000006,
+    "avg_paragraphs_per_case": 124.01904761904763,
+    "median_paragraphs_per_case": 107.0,
+    "p90_paragraphs_per_case": 223.00000000000006,
     "min_paragraphs_per_case": 9,
-    "max_paragraphs_per_case": 665,
-    "violation_cases": 78,
-    "non_violation_cases": 32,
+    "max_paragraphs_per_case": 660,
+    "violation_cases": 79,
+    "non_violation_cases": 31,
     "grand_chamber_share": 1.9047619047619049,
     "grand_chamber_cases": 2,
     "chamber_cases": 103,
     "other_cases": 0,
     "key_cases": 8,
-    "separate_opinion_cases": 26,
-    "cases_with_strasbourg_caselaw": 91,
-    "avg_strasbourg_citations_per_case": 25.6,
-    "cases_with_domestic_law": 25,
-    "cases_with_international_law": 26,
+    "separate_opinion_cases": 27,
+    "cases_with_strasbourg_caselaw": 90,
+    "avg_strasbourg_citations_per_case": 25.542857142857144,
+    "cases_with_domestic_law": 26,
+    "cases_with_international_law": 24,
     "cases_with_rules_of_court": 17,
-    "inadmissible_cases": 29,
+    "inadmissible_cases": 28,
     "struck_out_cases": 2,
-    "procedural_aspect_cases": 12,
-    "substantive_aspect_cases": 9,
-    "outcome_violation_only": 69,
-    "outcome_non_violation_only": 23,
+    "procedural_aspect_cases": 13,
+    "substantive_aspect_cases": 10,
+    "outcome_violation_only": 70,
+    "outcome_non_violation_only": 22,
     "outcome_both": 9,
     "outcome_neither": 4
   },
   "series": {
     "cases_by_month": [
       [
-        "2025-07",
-        1
-      ],
-      [
         "2025-08",
-        6
+        4
       ],
       [
         "2025-09",
@@ -73,51 +69,47 @@
       ],
       [
         "2026-02",
-        9
+        12
       ]
     ],
     "cases_by_year": [
       [
         "2025",
-        83
+        80
       ],
       [
         "2026",
-        22
+        25
       ]
     ],
     "paragraphs_by_month": [
       [
-        "2025-07",
-        126
-      ],
-      [
         "2025-08",
-        583
+        333
       ],
       [
         "2025-09",
-        1206
+        1205
       ],
       [
         "2025-10",
-        3293
+        3288
       ],
       [
         "2025-11",
-        2553
-      ],
-      [
-        "2025-12",
         2545
       ],
       [
+        "2025-12",
+        2534
+      ],
+      [
         "2026-01",
-        1473
+        1471
       ],
       [
         "2026-02",
-        1118
+        1646
       ]
     ],
     "chamber_breakdown": [
@@ -141,25 +133,25 @@
       ],
       [
         "Median",
-        109.0
+        107.0
       ],
       [
         "P90",
-        207.00000000000006
+        223.00000000000006
       ],
       [
         "Max",
-        665
+        660
       ]
     ],
     "importance_breakdown": [
       [
         "2",
-        82
+        81
       ],
       [
         "3",
-        15
+        16
       ],
       [
         "Key cases",
@@ -169,11 +161,11 @@
     "outcome_breakdown": [
       [
         "Violation only",
-        69
+        70
       ],
       [
         "Non-violation only",
-        23
+        22
       ],
       [
         "Both",
@@ -186,16 +178,10 @@
     ],
     "separate_opinion_share_by_body": [
       [
-        "Court (Second Section)",
-        12.0,
-        25,
-        3
-      ],
-      [
         "Court (Third Section)",
-        29.17,
-        24,
-        7
+        29.63,
+        27,
+        8
       ],
       [
         "Court (Fifth Section)",
@@ -204,9 +190,15 @@
         8
       ],
       [
+        "Court (Second Section)",
+        13.04,
+        23,
+        3
+      ],
+      [
         "Court (First Section)",
-        29.41,
-        17,
+        31.25,
+        16,
         5
       ],
       [
@@ -225,41 +217,41 @@
     "outcomes_by_year": [
       [
         "2025",
-        54,
-        19,
-        6,
+        53,
+        18,
+        5,
         4
       ],
       [
         "2026",
-        15,
+        17,
         4,
-        3,
+        4,
         0
       ]
     ],
     "procedural_vs_substantive_by_year": [
       [
         "2025",
-        8,
+        7,
         6
       ],
       [
         "2026",
-        4,
-        3
+        6,
+        4
       ]
     ]
   },
   "rankings": {
     "countries_top": [
       [
-        "Türkiye",
+        "Serbia",
         9
       ],
       [
-        "Serbia",
-        8
+        "Türkiye",
+        9
       ],
       [
         "Italy",
@@ -274,12 +266,12 @@
         6
       ],
       [
-        "Poland",
+        "Czech Republic",
         5
       ],
       [
-        "Czech Republic",
-        5
+        "Poland",
+        4
       ],
       [
         "Georgia",
@@ -290,16 +282,16 @@
         4
       ],
       [
-        "Iceland",
-        4
-      ],
-      [
         "Armenia",
         4
       ],
       [
         "Greece",
         4
+      ],
+      [
+        "Bulgaria",
+        3
       ],
       [
         "Azerbaijan",
@@ -326,11 +318,11 @@
         2
       ],
       [
-        "Finland",
+        "Iceland",
         2
       ],
       [
-        "Republic of Moldova",
+        "Finland",
         2
       ]
     ],
@@ -349,11 +341,11 @@
       ],
       [
         "8",
-        35
+        34
       ],
       [
         "8-1",
-        35
+        34
       ],
       [
         "6-1",
@@ -364,11 +356,11 @@
         31
       ],
       [
-        "10",
+        "35-1",
         17
       ],
       [
-        "35-1",
+        "10",
         17
       ],
       [
@@ -376,27 +368,31 @@
         16
       ],
       [
-        "3",
+        "8-2",
         14
       ],
       [
-        "8-2",
+        "34",
         13
       ],
       [
-        "34",
-        12
+        "3",
+        13
       ],
       [
         "10-2",
         11
       ],
       [
-        "5",
-        10
+        "2",
+        9
       ],
       [
-        "5-1",
+        "2-1",
+        9
+      ],
+      [
+        "5",
         9
       ],
       [
@@ -404,11 +400,7 @@
         9
       ],
       [
-        "2",
-        8
-      ],
-      [
-        "2-1",
+        "5-1",
         8
       ],
       [
@@ -419,39 +411,39 @@
     "sections": [
       [
         "Merits",
-        6091
+        6226
       ],
       [
         "Facts (Proceedings)",
-        3067
+        3144
       ],
       [
         "Legal Framework",
-        1942
+        1827
       ],
       [
         "Separate Opinion",
-        482
+        501
       ],
       [
         "Admissibility",
-        365
+        375
       ],
       [
         "Facts (Background)",
-        338
+        341
       ],
       [
         "Introduction",
-        258
+        260
       ],
       [
         "Operative Part",
-        175
+        174
       ],
       [
         "Appendix",
-        128
+        123
       ],
       [
         "Just Satisfaction",
@@ -468,20 +460,20 @@
     ],
     "originating_bodies_top": [
       [
-        "Court (Second Section)",
-        25
-      ],
-      [
         "Court (Third Section)",
-        24
+        27
       ],
       [
         "Court (Fifth Section)",
         24
       ],
       [
+        "Court (Second Section)",
+        23
+      ],
+      [
         "Court (First Section)",
-        17
+        16
       ],
       [
         "Court (Fourth Section)",
@@ -495,11 +487,11 @@
     "importance_distribution": [
       [
         "2",
-        82
+        81
       ],
       [
         "3",
-        15
+        16
       ],
       [
         "Key cases",
@@ -512,11 +504,11 @@
         65
       ],
       [
-        "(Art. 41) Just satisfaction",
+        "(Art. 41) Non-pecuniary damage",
         61
       ],
       [
-        "(Art. 41) Non-pecuniary damage",
+        "(Art. 41) Just satisfaction",
         61
       ],
       [
@@ -525,7 +517,7 @@
       ],
       [
         "(Art. 41) Pecuniary damage",
-        39
+        38
       ],
       [
         "(Art. 6) Right to a fair trial",
@@ -533,19 +525,19 @@
       ],
       [
         "(Art. 8) Right to respect for private and family life",
-        35
+        34
       ],
       [
         "(Art. 8-1) Respect for private life",
-        29
+        27
       ],
       [
         "Proportionality",
-        22
+        23
       ],
       [
         "Margin of appreciation",
-        22
+        20
       ],
       [
         "(Art. 6-1) Fair hearing",
@@ -560,6 +552,10 @@
         16
       ],
       [
+        "(Art. 35-1) Exhaustion of domestic remedies",
+        15
+      ],
+      [
         "(Art. 6) Civil proceedings",
         15
       ],
@@ -568,20 +564,16 @@
         15
       ],
       [
-        "(Art. 8) Positive obligations",
-        15
-      ],
-      [
-        "(Art. 35-1) Exhaustion of domestic remedies",
-        15
+        "(Art. 34) Individual applications",
+        13
       ],
       [
         "(Art. 3) Prohibition of torture",
-        14
+        13
       ],
       [
-        "(Art. 34) Individual applications",
-        12
+        "(Art. 8) Positive obligations",
+        13
       ],
       [
         "(Art. 35-3-a) Ratione materiae",
@@ -596,11 +588,7 @@
         11
       ],
       [
-        "(Art. 5) Right to liberty and security",
-        10
-      ],
-      [
-        "(Art. 3) Effective investigation",
+        "(Art. 34) Victim",
         10
       ],
       [
@@ -608,11 +596,19 @@
         10
       ],
       [
+        "(Art. 2) Right to life",
+        9
+      ],
+      [
+        "(Art. 3) Effective investigation",
+        9
+      ],
+      [
         "(Art. 6-1) Access to court",
         9
       ],
       [
-        "(Art. 34) Victim",
+        "(Art. 5) Right to liberty and security",
         9
       ],
       [
@@ -620,26 +616,22 @@
         9
       ],
       [
-        "(Art. 8-1) Respect for family life",
-        8
-      ],
-      [
-        "(Art. 2) Right to life",
+        "(Art. 8-2) Necessary in a democratic society",
         8
       ]
     ],
     "judges_top": [
       [
-        "Arnfinn Bårdsen",
-        27
-      ],
-      [
         "Ioannis Ktistakis",
-        26
+        29
       ],
       [
-        "Saadet Yüksel",
-        24
+        "Arnfinn Bårdsen",
+        25
+      ],
+      [
+        "Peeter Roosma",
+        23
       ],
       [
         "Kateřina Šimáčková",
@@ -650,23 +642,35 @@
         23
       ],
       [
+        "Saadet Yüksel",
+        22
+      ],
+      [
+        "Darian Pavli",
+        20
+      ],
+      [
+        "Mateja Đurović",
+        20
+      ],
+      [
+        "Canòlic Mingorance Cairat",
+        20
+      ],
+      [
         "Oddný Mjöll Arnardóttir",
-        21
-      ],
-      [
-        "Gediminas Sagatys",
         20
       ],
       [
-        "Peeter Roosma",
-        20
-      ],
-      [
-        "Jovan Ilievski",
+        "Úna Ní Raifeartaigh",
         19
       ],
       [
-        "Juha Lavapuro",
+        "Diana Kovatcheva",
+        19
+      ],
+      [
+        "Jovan Ilievski",
         19
       ],
       [
@@ -674,51 +678,27 @@
         19
       ],
       [
+        "Vasilka Sancin",
+        18
+      ],
+      [
+        "Gediminas Sagatys",
+        18
+      ],
+      [
+        "Juha Lavapuro",
+        17
+      ],
+      [
         "Ivana Jelić",
-        18
-      ],
-      [
-        "Darian Pavli",
-        18
-      ],
-      [
-        "Mateja Đurović",
-        18
-      ],
-      [
-        "Canòlic Mingorance Cairat",
-        18
-      ],
-      [
-        "Úna Ní Raifeartaigh",
         17
-      ],
-      [
-        "Diana Kovatcheva",
-        17
-      ],
-      [
-        "Erik Wennerström",
-        16
       ],
       [
         "Péter Paczolay",
         16
       ],
       [
-        "Stéphane Pisani",
-        16
-      ],
-      [
-        "Vasilka Sancin",
-        16
-      ],
-      [
-        "Frédéric Krenc",
-        15
-      ],
-      [
-        "Alain Chablais",
+        "Erik Wennerström",
         15
       ],
       [
@@ -730,15 +710,23 @@
         14
       ],
       [
+        "Frédéric Krenc",
+        14
+      ],
+      [
+        "Alain Chablais",
+        14
+      ],
+      [
         "Lorraine Schembri Orland",
         14
       ],
       [
-        "Hugh Mercer",
-        13
+        "Stéphane Pisani",
+        14
       ],
       [
-        "Anna Adamska",
+        "Hugh Mercer",
         13
       ],
       [
@@ -747,6 +735,10 @@
       ],
       [
         "Davor Derenčinović",
+        12
+      ],
+      [
+        "Anna Adamska",
         12
       ]
     ],
@@ -780,6 +772,10 @@
         4
       ],
       [
+        "Molla Sali v. Greece (just satisfaction) [GC], no. 20452/14, § 32, 18 June 2020",
+        3
+      ],
+      [
         "Baka v. Hungary [GC], no. 20261/12, 23 June 2016",
         3
       ],
@@ -788,35 +784,11 @@
         3
       ],
       [
-        "Tunikova and Others v. Russia, nos. 55974/16 and 3 others, 14 December 2021",
-        3
-      ],
-      [
-        "Volodina v. Russia, no. 41261/17, 9 July 2019",
-        3
-      ],
-      [
-        "Vučković v. Croatia, no. 15798/20, 12 December 2023",
-        3
-      ],
-      [
-        "Hanovs v. Latvia, no. 40861/22, § 45, 18 July 2024",
-        3
-      ],
-      [
         "J.L. v. Italy, no. 5671/16, 27 May 2021",
         3
       ],
       [
-        "Mehmet Çiftci v. Turkey, no. 53208/19, § 26, 16 November 2021",
-        3
-      ],
-      [
         "Z v. Bulgaria, no. 39257/17, § 67, 28 May 2020",
-        3
-      ],
-      [
-        "M.C. v. Bulgaria, no. 39272/98, ECHR 2003-XII",
         3
       ],
       [
@@ -830,6 +802,26 @@
       [
         "Radomilja and Others v. Croatia [GC], nos. 37685/10 and 22768/12, § 149, 20 March 2018",
         3
+      ],
+      [
+        "Lupeni Greek Catholic Parish and Others v. Romania [GC], no. 76943/11, § 86, 29 November 2016",
+        3
+      ],
+      [
+        "Xhoxhaj v. Albania, no. 15227/19, 9 February 2021",
+        3
+      ],
+      [
+        "Vučković and Others v. Serbia (preliminary objection) [GC], nos. 17153/11 and 29 others, 25 March 2014",
+        3
+      ],
+      [
+        "Mutu and Pechstein v. Switzerland, nos. 40575/10 and 67474/10, § 139, 2 October 2018",
+        3
+      ],
+      [
+        "Grosam v. the Czech Republic [GC], no. 19750/13, § 90, 1 June 2023",
+        3
       ]
     ],
     "article_outcomes_top": [
@@ -842,19 +834,19 @@
       [
         "8",
         22,
-        10,
-        32
+        8,
+        30
       ],
       [
         "8-1",
-        14,
+        15,
         3,
-        17
+        18
       ],
       [
         "3",
-        10,
-        6,
+        11,
+        5,
         16
       ],
       [
@@ -864,46 +856,40 @@
         15
       ],
       [
-        "10-1",
-        13,
-        1,
-        14
-      ],
-      [
         "1",
         11,
         3,
         14
       ],
       [
-        "5",
+        "10-1",
+        13,
+        1,
+        14
+      ],
+      [
+        "2",
         8,
         2,
         10
       ],
       [
-        "2",
-        7,
-        2,
-        9
+        "41",
+        10,
+        0,
+        10
       ],
       [
-        "41",
-        9,
-        0,
+        "5",
+        7,
+        2,
         9
       ],
       [
         "5-1",
-        7,
+        6,
         1,
-        8
-      ],
-      [
-        "14",
-        2,
-        4,
-        6
+        7
       ],
       [
         "13",
@@ -913,9 +899,21 @@
       ],
       [
         "2-1",
-        4,
+        5,
         1,
-        5
+        6
+      ],
+      [
+        "14",
+        2,
+        2,
+        4
+      ],
+      [
+        "5-4",
+        3,
+        0,
+        3
       ],
       [
         "18",
@@ -924,10 +922,10 @@
         3
       ],
       [
-        "5-4",
-        3,
+        "11",
+        2,
         0,
-        3
+        2
       ],
       [
         "5-3",
@@ -945,12 +943,6 @@
         "11-1",
         2,
         0,
-        2
-      ],
-      [
-        "38",
-        1,
-        1,
         2
       ]
     ],
@@ -980,13 +972,13 @@
         3
       ],
       [
-        "11",
+        "11-1",
         1.0,
         2,
         2
       ],
       [
-        "11-1",
+        "11",
         1.0,
         2,
         2
@@ -1017,9 +1009,15 @@
       ],
       [
         "2",
-        0.875,
-        7,
-        8
+        0.8889,
+        8,
+        9
+      ],
+      [
+        "3",
+        0.8462,
+        11,
+        13
       ],
       [
         "10",
@@ -1035,21 +1033,21 @@
       ],
       [
         "5",
-        0.8,
-        8,
-        10
-      ],
-      [
-        "5-1",
         0.7778,
         7,
         9
       ],
       [
-        "3",
-        0.7143,
-        10,
-        14
+        "5-1",
+        0.75,
+        6,
+        8
+      ],
+      [
+        "8",
+        0.6471,
+        22,
+        34
       ],
       [
         "6",
@@ -1058,16 +1056,10 @@
         35
       ],
       [
-        "8",
-        0.6286,
-        22,
-        35
-      ],
-      [
         "2-1",
-        0.5,
-        4,
-        8
+        0.5556,
+        5,
+        9
       ],
       [
         "5-2",
@@ -1078,7 +1070,7 @@
     ],
     "state_outcomes_top": [
       [
-        "Türkiye",
+        "Serbia",
         9,
         7,
         1,
@@ -1087,13 +1079,13 @@
         88.89
       ],
       [
-        "Serbia",
-        8,
-        6,
+        "Türkiye",
+        9,
+        7,
         1,
         1,
         0,
-        87.5
+        88.89
       ],
       [
         "Italy",
@@ -1123,15 +1115,6 @@
         66.67
       ],
       [
-        "Poland",
-        5,
-        5,
-        0,
-        0,
-        0,
-        100.0
-      ],
-      [
         "Czech Republic",
         5,
         3,
@@ -1152,7 +1135,7 @@
       ],
       [
         "Exhaustion of domestic remedies",
-        8
+        7
       ],
       [
         "Ratione personae",
@@ -1175,8 +1158,8 @@
       [
         "Radomilja and Others v. Croatia [GC], nos. 37685/10 and 22768/12, §§ 114 and 126, 20 March 2018",
         9,
-        0.33,
-        0.33
+        0.34,
+        0.34
       ],
       [
         "Centre for Legal Resources on behalf of Valentin Câmpeanu v. Romania [GC], no. 47848/08, § 156, ECHR 2014",
@@ -1194,7 +1177,7 @@
         "Guðmundur Andri Ástráðsson v. Iceland [GC], no. 26374/18, 1 December 2020",
         5,
         0.19,
-        1.0
+        1.01
       ],
       [
         "Eminağaoğlu v. Turkey, no. 76521/12, 9 March 2021",
@@ -1215,22 +1198,22 @@
         1.49
       ],
       [
-        "Baka v. Hungary [GC], no. 20261/12, 23 June 2016",
+        "Molla Sali v. Greece (just satisfaction) [GC], no. 20452/14, § 32, 18 June 2020",
         3,
         0.11,
         1.6
       ],
       [
+        "Baka v. Hungary [GC], no. 20261/12, 23 June 2016",
+        3,
+        0.11,
+        1.72
+      ],
+      [
         "Molla Sali v. Greece [GC], no. 20452/14, § 133, 19 December 2018",
         3,
         0.11,
-        1.71
-      ],
-      [
-        "Tunikova and Others v. Russia, nos. 55974/16 and 3 others, 14 December 2021",
-        3,
-        0.11,
-        1.82
+        1.83
       ]
     ],
     "precedent_to_citing_cases_top": [
@@ -1263,6 +1246,10 @@
         4
       ],
       [
+        "Molla Sali v. Greece (just satisfaction) [GC], no. 20452/14, § 32, 18 June 2020",
+        3
+      ],
+      [
         "Baka v. Hungary [GC], no. 20261/12, 23 June 2016",
         3
       ],
@@ -1271,35 +1258,11 @@
         3
       ],
       [
-        "Tunikova and Others v. Russia, nos. 55974/16 and 3 others, 14 December 2021",
-        3
-      ],
-      [
-        "Volodina v. Russia, no. 41261/17, 9 July 2019",
-        3
-      ],
-      [
-        "Vučković v. Croatia, no. 15798/20, 12 December 2023",
-        3
-      ],
-      [
-        "Hanovs v. Latvia, no. 40861/22, § 45, 18 July 2024",
-        3
-      ],
-      [
         "J.L. v. Italy, no. 5671/16, 27 May 2021",
         3
       ],
       [
-        "Mehmet Çiftci v. Turkey, no. 53208/19, § 26, 16 November 2021",
-        3
-      ],
-      [
         "Z v. Bulgaria, no. 39257/17, § 67, 28 May 2020",
-        3
-      ],
-      [
-        "M.C. v. Bulgaria, no. 39272/98, ECHR 2003-XII",
         3
       ],
       [
@@ -1313,16 +1276,36 @@
       [
         "Radomilja and Others v. Croatia [GC], nos. 37685/10 and 22768/12, § 149, 20 March 2018",
         3
+      ],
+      [
+        "Lupeni Greek Catholic Parish and Others v. Romania [GC], no. 76943/11, § 86, 29 November 2016",
+        3
+      ],
+      [
+        "Xhoxhaj v. Albania, no. 15227/19, 9 February 2021",
+        3
+      ],
+      [
+        "Vučković and Others v. Serbia (preliminary objection) [GC], nos. 17153/11 and 29 others, 25 March 2014",
+        3
+      ],
+      [
+        "Mutu and Pechstein v. Switzerland, nos. 40575/10 and 67474/10, § 139, 2 October 2018",
+        3
+      ],
+      [
+        "Grosam v. the Czech Republic [GC], no. 19750/13, § 90, 1 June 2023",
+        3
       ]
     ],
     "outcomes": [
       [
         "Violation only",
-        69
+        70
       ],
       [
         "Non-violation only",
-        23
+        22
       ],
       [
         "Both",
@@ -1345,13 +1328,13 @@
       "ecli": 1.0,
       "hudoc_url": 1.0,
       "represented_by": 0.9429,
-      "strasbourg_caselaw": 0.8667,
-      "domestic_law": 0.2381,
-      "international_law": 0.2476,
+      "strasbourg_caselaw": 0.8571,
+      "domestic_law": 0.2476,
+      "international_law": 0.2286,
       "rules_of_court": 0.1619,
-      "violation": 0.7429,
-      "non-violation": 0.3048,
-      "applicability": 0.2381,
+      "violation": 0.7524,
+      "non-violation": 0.2952,
+      "applicability": 0.2286,
       "conclusion": 1.0,
       "chamber_composed_of": 1.0
     }
