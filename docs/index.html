@@ -28,6 +28,9 @@
         <a href="./" class="nav-link active">Search</a>
         <a href="analytics.html" class="nav-link">Statistics</a>
       </div>
+      <button class="a11y-btn" id="accessibilityBtn" type="button" title="Accessibility settings" aria-label="Accessibility settings">
+        <span class="a11y-icon">Aa</span>
+      </button>
       <button class="theme-toggle" id="themeToggle" type="button" title="Toggle dark mode" aria-label="Toggle dark mode">
         <span class="theme-icon-light">☀️</span>
         <span class="theme-icon-dark">🌙</span>
@@ -366,6 +369,51 @@
   </div>
 
   <div class="classifier-backdrop" id="classifierBackdrop" hidden></div>
+
+  <!-- Accessibility Settings Panel -->
+  <div class="a11y-backdrop" id="a11yBackdrop" hidden></div>
+  <div class="a11y-panel" id="accessibilityPanel" hidden>
+    <div class="a11y-panel-header">
+      <h2>Accessibility Settings</h2>
+      <button type="button" id="a11yCloseBtn" class="a11y-panel-close" aria-label="Close">&times;</button>
+    </div>
+    <div class="a11y-panel-body">
+      <div class="a11y-group">
+        <label for="a11yFontSize">Font Size</label>
+        <div class="a11y-row">
+          <input type="range" id="a11yFontSize" min="80" max="150" step="5" value="100">
+          <span id="a11yFontSizeValue" class="a11y-value">100%</span>
+        </div>
+      </div>
+      <div class="a11y-group">
+        <label for="a11yLineHeight">Line Spacing</label>
+        <select id="a11yLineHeight" class="a11y-select">
+          <option value="normal">Normal</option>
+          <option value="1.6">Comfortable (1.6)</option>
+          <option value="1.8">Relaxed (1.8)</option>
+          <option value="2.0">Spacious (2.0)</option>
+        </select>
+      </div>
+      <div class="a11y-group">
+        <label class="a11y-check-label">
+          <input type="checkbox" id="a11yHighContrast"> High Contrast
+        </label>
+      </div>
+      <div class="a11y-group">
+        <label class="a11y-check-label">
+          <input type="checkbox" id="a11yDyslexia"> Dyslexia-Friendly Font
+        </label>
+      </div>
+      <div class="a11y-group">
+        <label class="a11y-check-label">
+          <input type="checkbox" id="a11yUnderlineLinks"> Underline All Links
+        </label>
+      </div>
+      <div class="a11y-group">
+        <button type="button" id="a11yResetBtn" class="a11y-reset-btn">Reset to Defaults</button>
+      </div>
+    </div>
+  </div>
 
   <script src="assets/search-app.js"></script>
 </body>

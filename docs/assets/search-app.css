@@ -1096,3 +1096,245 @@ button.export-btn:disabled {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Tier 1 Features ──────────────────────────────────────────────── */
+
+/* Accessibility font scaling */
+:root {
+  --a11y-font-scale: 1;
+}
+body {
+  font-size: calc(1rem * var(--a11y-font-scale, 1));
+}
+html[style*="--a11y-line-height"] body,
+html[style*="--a11y-line-height"] .para-text,
+html[style*="--a11y-line-height"] .modal-para {
+  line-height: var(--a11y-line-height);
+}
+
+/* High contrast mode */
+.a11y-high-contrast {
+  --bg-primary: #000 !important;
+  --text-primary: #fff !important;
+  --text-secondary: #eee !important;
+  --border-default: #fff !important;
+}
+.a11y-high-contrast[data-theme="light"] {
+  --bg-primary: #fff !important;
+  --text-primary: #000 !important;
+  --text-secondary: #111 !important;
+  --border-default: #000 !important;
+}
+.a11y-high-contrast a { color: #0066ff !important; }
+.a11y-high-contrast[data-theme="dark"] a { color: #ffff00 !important; }
+
+/* Dyslexia-friendly mode */
+.a11y-dyslexia body,
+.a11y-dyslexia .para-text,
+.a11y-dyslexia .modal-para,
+.a11y-dyslexia input,
+.a11y-dyslexia select,
+.a11y-dyslexia button {
+  font-family: "OpenDyslexic", "Comic Sans MS", Verdana, sans-serif !important;
+  letter-spacing: 0.05em;
+  word-spacing: 0.12em;
+}
+
+/* Underline links mode */
+.a11y-underline-links a { text-decoration: underline !important; }
+
+/* Accessibility button in navbar */
+.a11y-btn {
+  background: none;
+  border: 1.5px solid var(--border-default, #ccc);
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 4px 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary, #555);
+  transition: border-color 0.2s, color 0.2s;
+  margin-right: 4px;
+}
+.a11y-btn:hover {
+  border-color: var(--accent, #2563eb);
+  color: var(--accent, #2563eb);
+}
+.a11y-icon { font-variant: small-caps; }
+
+/* Accessibility settings panel */
+.a11y-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 9998;
+}
+.a11y-panel {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  background: var(--bg-primary, #fff);
+  border: 1px solid var(--border-default, #ddd);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  width: 360px;
+  max-width: 92vw;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.a11y-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-default, #eee);
+}
+.a11y-panel-header h2 {
+  font-size: 1.1rem;
+  margin: 0;
+  color: var(--text-primary, #222);
+}
+.a11y-panel-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-secondary, #666);
+  line-height: 1;
+}
+.a11y-panel-body {
+  padding: 16px 20px;
+}
+.a11y-group {
+  margin-bottom: 16px;
+}
+.a11y-group label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: var(--text-primary, #333);
+}
+.a11y-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.a11y-row input[type="range"] {
+  flex: 1;
+}
+.a11y-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  min-width: 42px;
+  text-align: right;
+  color: var(--text-secondary, #555);
+}
+.a11y-select {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-default, #ccc);
+  background: var(--bg-primary, #fff);
+  color: var(--text-primary, #333);
+  font-size: 0.88rem;
+}
+.a11y-check-label {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.a11y-check-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+.a11y-reset-btn {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-default, #ccc);
+  background: var(--bg-secondary, #f5f5f5);
+  color: var(--text-primary, #333);
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+.a11y-reset-btn:hover {
+  background: var(--bg-hover, #e8e8e8);
+}
+
+/* Cite + Info buttons in case card */
+.cite-btn, .info-btn {
+  font-size: 0.78rem !important;
+  padding: 3px 10px !important;
+  border: 1px solid var(--border-default, #ccc) !important;
+  border-radius: 4px !important;
+  background: var(--bg-primary, #fff) !important;
+  color: var(--text-secondary, #555) !important;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.cite-btn:hover, .info-btn:hover {
+  background: var(--accent-light, #eef2ff) !important;
+  color: var(--accent, #2563eb) !important;
+}
+.cite-btn.copied, .info-btn.copied {
+  background: #d4edda !important;
+  color: #155724 !important;
+  border-color: #c3e6cb !important;
+}
+
+/* Article guide links */
+.article-link {
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+}
+.article-link:hover {
+  opacity: 0.85;
+  text-decoration: underline;
+}
+
+/* Cited-by badge */
+.legal-chip.cited-by {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffc107;
+  font-weight: 600;
+  font-size: 0.72rem;
+}
+[data-theme="dark"] .legal-chip.cited-by {
+  background: #3d3200;
+  color: #ffc107;
+  border-color: #7a6400;
+}
+
+/* Modal action buttons */
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  padding: 8px 0 4px;
+}
+.modal-action-btn {
+  padding: 5px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border-default, #ccc);
+  background: var(--bg-primary, #fff);
+  color: var(--text-secondary, #555);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.modal-action-btn:hover {
+  background: var(--accent-light, #eef2ff);
+  color: var(--accent, #2563eb);
+  border-color: var(--accent, #2563eb);
+}
+.modal-action-btn.copied {
+  background: #d4edda;
+  color: #155724;
+  border-color: #c3e6cb;
+}

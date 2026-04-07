@@ -573,31 +573,227 @@ function getChamberLabel(category) {
   return "Other";
 }
 
-function setTheme(theme) {
-  document.documentElement.setAttribute("data-theme", theme);
+/* ── Accessibility settings ──────────────────────────────────────── */
+
+const ACCESSIBILITY_DEFAULTS = {
+  theme: "light",
+  fontSize: 100,
+  lineHeight: "normal",
+  highContrast: false,
+  dyslexiaFont: false,
+  underlineLinks: false,
+};
+
+function getAccessibilitySettings() {
   try {
-    localStorage.setItem("echr-theme", theme);
-  } catch {
-    // Ignore storage errors.
+    const saved = localStorage.getItem("echr-accessibility");
+    if (saved) return { ...ACCESSIBILITY_DEFAULTS, ...JSON.parse(saved) };
+  } catch { /* ignore */ }
+  return { ...ACCESSIBILITY_DEFAULTS };
+}
+
+function saveAccessibilitySettings(settings) {
+  try { localStorage.setItem("echr-accessibility", JSON.stringify(settings)); } catch { /* ignore */ }
+}
+
+function applyAccessibilitySettings(settings) {
+  document.documentElement.setAttribute("data-theme", settings.theme);
+  document.documentElement.style.setProperty("--a11y-font-scale", (settings.fontSize / 100).toFixed(2));
+  document.documentElement.classList.toggle("a11y-high-contrast", !!settings.highContrast);
+  document.documentElement.classList.toggle("a11y-dyslexia", !!settings.dyslexiaFont);
+  document.documentElement.classList.toggle("a11y-underline-links", !!settings.underlineLinks);
+  if (settings.lineHeight !== "normal") {
+    document.documentElement.style.setProperty("--a11y-line-height", settings.lineHeight);
+  } else {
+    document.documentElement.style.removeProperty("--a11y-line-height");
   }
+  saveAccessibilitySettings(settings);
+}
+
+function setTheme(theme) {
+  const settings = getAccessibilitySettings();
+  settings.theme = theme;
+  applyAccessibilitySettings(settings);
 }
 
 function initTheme() {
+  const settings = getAccessibilitySettings();
+  // Migrate old theme storage
   try {
-    const saved = localStorage.getItem("echr-theme");
-    if (saved === "dark" || saved === "light") {
-      setTheme(saved);
-      return;
+    const oldTheme = localStorage.getItem("echr-theme");
+    if (oldTheme && !localStorage.getItem("echr-accessibility")) {
+      settings.theme = oldTheme;
     }
-  } catch {
-    // Ignore storage errors.
-  }
-  setTheme("light");
+  } catch { /* ignore */ }
+  applyAccessibilitySettings(settings);
 }
 
 function toggleTheme() {
   const current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
   setTheme(current === "dark" ? "light" : "dark");
+}
+
+function openAccessibilityPanel() {
+  const panel = byId("accessibilityPanel");
+  if (panel) {
+    panel.hidden = false;
+    syncAccessibilityControls();
+  }
+}
+
+function closeAccessibilityPanel() {
+  const panel = byId("accessibilityPanel");
+  if (panel) panel.hidden = true;
+}
+
+function syncAccessibilityControls() {
+  const s = getAccessibilitySettings();
+  const fontSlider = byId("a11yFontSize");
+  const fontValue = byId("a11yFontSizeValue");
+  const lineSelect = byId("a11yLineHeight");
+  const contrastCb = byId("a11yHighContrast");
+  const dyslexiaCb = byId("a11yDyslexia");
+  const underlineCb = byId("a11yUnderlineLinks");
+  if (fontSlider) { fontSlider.value = s.fontSize; }
+  if (fontValue) { fontValue.textContent = s.fontSize + "%"; }
+  if (lineSelect) { lineSelect.value = s.lineHeight; }
+  if (contrastCb) { contrastCb.checked = !!s.highContrast; }
+  if (dyslexiaCb) { dyslexiaCb.checked = !!s.dyslexiaFont; }
+  if (underlineCb) { underlineCb.checked = !!s.underlineLinks; }
+}
+
+function onAccessibilityChange() {
+  const s = getAccessibilitySettings();
+  const fontSlider = byId("a11yFontSize");
+  const lineSelect = byId("a11yLineHeight");
+  const contrastCb = byId("a11yHighContrast");
+  const dyslexiaCb = byId("a11yDyslexia");
+  const underlineCb = byId("a11yUnderlineLinks");
+  const fontValue = byId("a11yFontSizeValue");
+  if (fontSlider) { s.fontSize = Number(fontSlider.value); }
+  if (fontValue) { fontValue.textContent = s.fontSize + "%"; }
+  if (lineSelect) { s.lineHeight = lineSelect.value; }
+  if (contrastCb) { s.highContrast = contrastCb.checked; }
+  if (dyslexiaCb) { s.dyslexiaFont = dyslexiaCb.checked; }
+  if (underlineCb) { s.underlineLinks = underlineCb.checked; }
+  applyAccessibilitySettings(s);
+}
+
+/* ── ECHR Article Guide URLs ─────────────────────────────────────── */
+
+const ARTICLE_GUIDE_URLS = {
+  "2": "https://www.echr.coe.int/documents/d/echr/guide_art_2_eng",
+  "3": "https://www.echr.coe.int/documents/d/echr/guide_art_3_eng",
+  "4": "https://www.echr.coe.int/documents/d/echr/guide_art_4_eng",
+  "5": "https://www.echr.coe.int/documents/d/echr/guide_art_5_eng",
+  "6": "https://www.echr.coe.int/documents/d/echr/guide_art_6_civil_eng",
+  "7": "https://www.echr.coe.int/documents/d/echr/guide_art_7_eng",
+  "8": "https://www.echr.coe.int/documents/d/echr/guide_art_8_eng",
+  "9": "https://www.echr.coe.int/documents/d/echr/guide_art_9_eng",
+  "10": "https://www.echr.coe.int/documents/d/echr/guide_art_10_eng",
+  "11": "https://www.echr.coe.int/documents/d/echr/guide_art_11_eng",
+  "12": "https://www.echr.coe.int/documents/d/echr/guide_art_12_eng",
+  "13": "https://www.echr.coe.int/documents/d/echr/guide_art_13_eng",
+  "14": "https://www.echr.coe.int/documents/d/echr/guide_art_14_eng",
+  "18": "https://www.echr.coe.int/documents/d/echr/guide_art_18_eng",
+  "34": "https://www.echr.coe.int/documents/d/echr/guide_art_34_eng",
+  "35": "https://www.echr.coe.int/documents/d/echr/guide_art_35_eng",
+  "41": "https://www.echr.coe.int/documents/d/echr/guide_art_41_eng",
+  "46": "https://www.echr.coe.int/documents/d/echr/guide_art_46_eng",
+  "1": "https://www.echr.coe.int/documents/d/echr/guide_art_1_eng",
+};
+
+/* ── Citation generation helpers ─────────────────────────────────── */
+
+function buildStandardCitation(caseObj) {
+  const title = (caseObj.title || "Untitled").replace(/^CASE OF\s+/i, "");
+  const appNo = caseObj.case_no || "";
+  const date = caseObj.judgment_date || "";
+  const year = date ? date.replace(/.*(\d{4}).*/, "$1") : "";
+  const parts = [title];
+  if (appNo) parts[0] += `, App. no. ${appNo}`;
+  if (year) parts[0] += ` (ECtHR ${year})`;
+  return parts.join("");
+}
+
+function buildEcliCitation(caseObj) {
+  return caseObj.ecli || buildStandardCitation(caseObj);
+}
+
+function buildKeyInfoBlock(caseObj) {
+  const lines = [];
+  const title = (caseObj.title || "Untitled").replace(/^CASE OF\s+/i, "");
+  const states = (caseObj.__states || []).map(d => COUNTRY_NAMES[d] || d).join(", ");
+  lines.push(`Case: ${title}`);
+  lines.push(`Application no.: ${caseObj.case_no || "-"}`);
+  lines.push(`Respondent State: ${states || "-"}`);
+  lines.push(`Judgment date: ${caseObj.judgment_date || "-"}`);
+  lines.push(`Originating body: ${caseObj.__originatingBody || "-"}`);
+  const chamberLabel = getChamberLabel(caseObj.__chamberCategory);
+  lines.push(`Chamber: ${chamberLabel}`);
+  if (caseObj.chamber_composed_of && caseObj.chamber_composed_of.length) {
+    lines.push(`Composition: ${caseObj.chamber_composed_of.join(", ")}`);
+  }
+  lines.push(`Articles: ${caseObj.article_no || "-"}`);
+  if (caseObj.violation && caseObj.violation.length) {
+    lines.push(`Violations found: ${caseObj.violation.join("; ")}`);
+  }
+  if (caseObj["non-violation"] && caseObj["non-violation"].length) {
+    lines.push(`No violation: ${caseObj["non-violation"].join("; ")}`);
+  }
+  lines.push(`Importance: ${caseObj.__importance || "-"}`);
+  if (caseObj.__hasSeparateOpinion) lines.push(`Separate opinion: Yes`);
+  if (caseObj.ecli) lines.push(`ECLI: ${caseObj.ecli}`);
+  if (caseObj.hudoc_url) lines.push(`HUDOC: ${caseObj.hudoc_url}`);
+  return lines.join("\n");
+}
+
+function copyToClipboardWithFeedback(text, buttonEl) {
+  navigator.clipboard?.writeText(text).then(() => {
+    const original = buttonEl.textContent;
+    buttonEl.textContent = "Copied!";
+    buttonEl.classList.add("copied");
+    setTimeout(() => {
+      buttonEl.textContent = original;
+      buttonEl.classList.remove("copied");
+    }, 1400);
+  });
+}
+
+/* ── Cited-by count computation ──────────────────────────────────── */
+
+function computeCitedByCounts(cases) {
+  // Build a map of title-fragments → case_id for cases in the dataset
+  const titleIndex = new Map();
+  for (const c of cases) {
+    const shortTitle = (c.title || "").replace(/^CASE OF\s+/i, "").trim().toLowerCase();
+    if (shortTitle) titleIndex.set(shortTitle, c.case_id);
+    // Also index by case_no
+    if (c.case_no) titleIndex.set(c.case_no.toLowerCase(), c.case_id);
+  }
+
+  const citedByMap = new Map(); // case_id → Set of citing case_ids
+
+  for (const c of cases) {
+    const refs = c.__citationRefs || c.strasbourg_caselaw || [];
+    for (const ref of refs) {
+      const refLower = ref.toLowerCase();
+      // Check if any case in dataset is referenced
+      for (const [titleFrag, targetId] of titleIndex) {
+        if (targetId === c.case_id) continue; // don't self-cite
+        if (refLower.includes(titleFrag)) {
+          if (!citedByMap.has(targetId)) citedByMap.set(targetId, new Set());
+          citedByMap.get(targetId).add(c.case_id);
+        }
+      }
+    }
+  }
+
+  // Attach count to each case
+  for (const c of cases) {
+    const citers = citedByMap.get(c.case_id);
+    c.__citedByCount = citers ? citers.size : 0;
+  }
 }
 
 function setDatasetStatus(message, isError = false) {
@@ -1025,6 +1221,7 @@ function preprocessDataset(cases) {
     if (bi !== -1) return 1;
     return a.localeCompare(b);
   });
+  computeCitedByCounts(cases);
   state.loaded = true;
 }
 
@@ -2894,7 +3091,15 @@ function buildArticleChips(articles, maxVisible = 3) {
 
   const visible = clean.slice(0, maxVisible);
   const hiddenCount = Math.max(0, clean.length - visible.length);
-  const chips = visible.map((article) => `<span class="legal-chip article">Art. ${escapeHtml(article)}</span>`);
+  const chips = visible.map((article) => {
+    // Extract base article number for guide lookup (e.g. "6-1" → "6")
+    const baseArt = article.split("-")[0].split("§")[0].replace(/[^0-9]/g, "");
+    const guideUrl = ARTICLE_GUIDE_URLS[baseArt];
+    if (guideUrl) {
+      return `<a href="${escapeHtml(guideUrl)}" class="legal-chip article article-link" target="_blank" rel="noopener noreferrer" title="View ECHR Guide on Article ${escapeHtml(baseArt)}">Art. ${escapeHtml(article)}</a>`;
+    }
+    return `<span class="legal-chip article">Art. ${escapeHtml(article)}</span>`;
+  });
   if (hiddenCount > 0) {
     chips.push(`<span class="legal-chip muted">+${fmtInt.format(hiddenCount)} more</span>`);
   }
@@ -2989,6 +3194,8 @@ function buildCaseCard(caseId, row) {
           <div class="case-actions-inline compact-actions">
             <button type="button" class="case-open-link primary" data-action="open-case" data-case-id="${escapeHtml(caseId)}">View judgment</button>
             ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="case-open-secondary" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>` : ""}
+            <button type="button" class="case-open-secondary cite-btn" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}" title="Copy citation to clipboard">Cite</button>
+            <button type="button" class="case-open-secondary info-btn" data-action="copy-info-card" data-case-id="${escapeHtml(caseId)}" title="Copy key info block to clipboard">Info</button>
           </div>
 
           <div class="legal-details-wrap">
@@ -3013,6 +3220,7 @@ function buildCaseCard(caseId, row) {
                   <span class="legal-chip">${escapeHtml(chamberLabel)}</span>
                   <span class="legal-chip">Importance ${escapeHtml(c.__importance || "-")}</span>
                   ${keyCaseChip}
+                  ${c.__citedByCount > 0 ? `<span class="legal-chip cited-by" title="Cited by ${c.__citedByCount} other case(s) in this dataset">Cited ${c.__citedByCount}×</span>` : ""}
                 </div>
               </div>
               <div class="legal-row">
@@ -3493,6 +3701,10 @@ function buildCaseMeta(caseObj) {
     parts.push(`Top precedents: ${escapeHtml(caseObj.__citationRefs.slice(0, 3).join("; "))}`);
   }
 
+  if (caseObj.__citedByCount > 0) {
+    parts.push(`<span class="legal-chip cited-by" title="Cited by ${caseObj.__citedByCount} other case(s) in this dataset">Cited ${caseObj.__citedByCount}×</span>`);
+  }
+
   if (caseObj.hudoc_url) {
     parts.push(`<a href="${escapeHtml(caseObj.hudoc_url)}" target="_blank" rel="noopener noreferrer">Open in HUDOC ↗</a>`);
   }
@@ -3528,6 +3740,26 @@ function openCaseModal(caseId) {
   if (!c) return;
 
   el.modalTitle.textContent = c.title || "Untitled case";
+
+  // Add modal action buttons (citation + info card)
+  let modalActions = byId("modalActions");
+  if (!modalActions) {
+    modalActions = document.createElement("div");
+    modalActions.id = "modalActions";
+    modalActions.className = "modal-actions";
+    el.modalMeta.parentNode.insertBefore(modalActions, el.modalMeta);
+  }
+  modalActions.innerHTML = `
+    <button type="button" class="modal-action-btn" id="modalCiteCopy" title="Copy standard ECHR citation">Copy Citation</button>
+    <button type="button" class="modal-action-btn" id="modalInfoCopy" title="Copy key info block">Copy Info Card</button>
+  `;
+  byId("modalCiteCopy").addEventListener("click", function() {
+    copyToClipboardWithFeedback(buildStandardCitation(c), this);
+  });
+  byId("modalInfoCopy").addEventListener("click", function() {
+    copyToClipboardWithFeedback(buildKeyInfoBlock(c), this);
+  });
+
   el.modalMeta.innerHTML = buildCaseMeta(c);
 
   const grouped = new Map();
@@ -3895,6 +4127,21 @@ function bindEvents() {
     if (action === "open-case" && caseId) {
       e.preventDefault();
       openCaseModal(caseId);
+      return;
+    }
+
+    if (action === "copy-citation" && caseId) {
+      e.preventDefault();
+      const caseObj = state.caseById.get(caseId);
+      if (caseObj) copyToClipboardWithFeedback(buildStandardCitation(caseObj), clickable);
+      return;
+    }
+
+    if (action === "copy-info-card" && caseId) {
+      e.preventDefault();
+      const caseObj = state.caseById.get(caseId);
+      if (caseObj) copyToClipboardWithFeedback(buildKeyInfoBlock(caseObj), clickable);
+      return;
     }
   });
 
@@ -3929,6 +4176,29 @@ function bindEvents() {
   el.modalBackdrop.addEventListener("click", closeCaseModal);
   el.modalQuery.addEventListener("input", filterModalParagraphs);
   el.modalSectionFilter.addEventListener("change", filterModalParagraphs);
+
+  // Accessibility panel events
+  const a11yBtn = byId("accessibilityBtn");
+  const a11yClose = byId("a11yCloseBtn");
+  const a11yBackdrop = byId("a11yBackdrop");
+  if (a11yBtn) a11yBtn.addEventListener("click", openAccessibilityPanel);
+  if (a11yClose) a11yClose.addEventListener("click", closeAccessibilityPanel);
+  if (a11yBackdrop) a11yBackdrop.addEventListener("click", closeAccessibilityPanel);
+
+  const a11yControls = ["a11yFontSize", "a11yLineHeight", "a11yHighContrast", "a11yDyslexia", "a11yUnderlineLinks"];
+  for (const id of a11yControls) {
+    const ctrl = byId(id);
+    if (ctrl) ctrl.addEventListener("input", onAccessibilityChange);
+    if (ctrl) ctrl.addEventListener("change", onAccessibilityChange);
+  }
+
+  const a11yReset = byId("a11yResetBtn");
+  if (a11yReset) a11yReset.addEventListener("click", () => {
+    const defaults = { ...ACCESSIBILITY_DEFAULTS };
+    defaults.theme = document.documentElement.getAttribute("data-theme") || "light";
+    applyAccessibilitySettings(defaults);
+    syncAccessibilityControls();
+  });
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
