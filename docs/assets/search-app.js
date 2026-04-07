@@ -86,7 +86,7 @@ const serverSearch = {
       __isStruckOut: false,
       __citedByCount: 0,
       __citationRefs: [],
-      __sortTs: apiCase.judgment_date ? new Date(apiCase.judgment_date).getTime() : 0,
+      __sortTs: apiCase.judgment_date ? (() => { const p = apiCase.judgment_date.split("/"); return p.length === 3 ? new Date(`${p[2]}-${p[1]}-${p[0]}`).getTime() : new Date(apiCase.judgment_date).getTime(); })() : 0,
     };
     return c;
   },
@@ -931,12 +931,18 @@ function computeCitedByCounts(cases) {
 }
 
 function setDatasetStatus(message, isError = false) {
+  // Preserve server connection note if present
+  const serverNote = el.datasetStatus.querySelector(".server-note");
   el.datasetStatus.textContent = message;
+  if (serverNote) el.datasetStatus.appendChild(serverNote);
   el.datasetStatus.classList.toggle("dataset-error", isError);
 }
 
 function setDatasetMeta(message) {
+  // Preserve server badge if it exists
+  const badge = el.datasetMeta.querySelector(".server-badge");
   el.datasetMeta.textContent = message;
+  if (badge) el.datasetMeta.appendChild(badge);
 }
 
 function setSearchEnabled(enabled) {
@@ -4858,15 +4864,20 @@ function init() {
   // Probe server-side search API (non-blocking)
   serverSearch.probe().then((available) => {
     if (available) {
-      setDatasetStatus("Server API connected — full-text search across 18,000+ cases available. Sample data also loaded for browsing.");
       setSearchEnabled(true);
-      // Add visual indicator
+      // Add persistent visual badge to dataset meta
       const badge = document.createElement("span");
       badge.className = "server-badge";
-      badge.textContent = "Full Dataset (Server)";
+      badge.textContent = `Full Dataset (${(serverSearch.serverStats?.cases || 18000).toLocaleString()} cases)`;
       badge.style.cssText = "display:inline-block;background:#2ecc71;color:#fff;font-size:0.75rem;padding:2px 8px;border-radius:10px;margin-left:8px;vertical-align:middle;";
       const metaEl = document.getElementById("datasetMeta");
       if (metaEl) metaEl.appendChild(badge);
+      // Add server note to status
+      const note = document.createElement("span");
+      note.className = "server-note";
+      note.textContent = " · Server API connected — type a query to search 18,000+ cases.";
+      note.style.cssText = "color:#2ecc71;font-weight:600;";
+      el.datasetStatus.appendChild(note);
     }
   });
 
