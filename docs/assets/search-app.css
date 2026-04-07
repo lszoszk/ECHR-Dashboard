@@ -1099,12 +1099,9 @@ button.export-btn:disabled {
 
 /* ── Tier 1 Features ──────────────────────────────────────────────── */
 
-/* Accessibility font scaling */
-:root {
-  --a11y-font-scale: 1;
-}
-body {
-  font-size: calc(1rem * var(--a11y-font-scale, 1));
+/* Accessibility font scaling — applied to html so all rem values scale */
+html {
+  font-size: calc(16px * var(--a11y-font-scale, 1));
 }
 html[style*="--a11y-line-height"] body,
 html[style*="--a11y-line-height"] .para-text,
@@ -1112,23 +1109,39 @@ html[style*="--a11y-line-height"] .modal-para {
   line-height: var(--a11y-line-height);
 }
 
-/* High contrast mode */
+/* High contrast mode — dark */
 .a11y-high-contrast {
-  --bg-primary: #000 !important;
+  --bg-page: #000 !important;
+  --bg-card: #0a0a0a !important;
+  --bg-header: #000 !important;
+  --bg-hero: #000 !important;
   --text-primary: #fff !important;
   --text-secondary: #eee !important;
-  --border-default: #fff !important;
+  --text-muted: #ddd !important;
+  --text-on-dark: #fff !important;
+  --border: #fff !important;
+  --border-light: #ccc !important;
 }
+/* High contrast mode — light */
 .a11y-high-contrast[data-theme="light"] {
-  --bg-primary: #fff !important;
+  --bg-page: #fff !important;
+  --bg-card: #fff !important;
+  --bg-header: #000 !important;
+  --bg-hero: #000 !important;
   --text-primary: #000 !important;
   --text-secondary: #111 !important;
-  --border-default: #000 !important;
+  --text-muted: #222 !important;
+  --border: #000 !important;
+  --border-light: #333 !important;
 }
 .a11y-high-contrast a { color: #0066ff !important; }
 .a11y-high-contrast[data-theme="dark"] a { color: #ffff00 !important; }
+.a11y-high-contrast .navbar,
+.a11y-high-contrast .hero { background: #000 !important; }
+.a11y-high-contrast .search-card,
+.a11y-high-contrast .chart-container { border: 2px solid var(--border) !important; }
 
-/* Dyslexia-friendly mode */
+/* Dyslexia-friendly font (loaded from CDN) */
 .a11y-dyslexia body,
 .a11y-dyslexia .para-text,
 .a11y-dyslexia .modal-para,

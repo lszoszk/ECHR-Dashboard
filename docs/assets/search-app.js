@@ -635,25 +635,31 @@ function toggleTheme() {
 
 function openAccessibilityPanel() {
   const panel = byId("accessibilityPanel");
+  const backdrop = byId("a11yBackdrop");
   if (panel) {
     panel.hidden = false;
+    if (backdrop) backdrop.hidden = false;
     syncAccessibilityControls();
   }
 }
 
 function closeAccessibilityPanel() {
   const panel = byId("accessibilityPanel");
+  const backdrop = byId("a11yBackdrop");
   if (panel) panel.hidden = true;
+  if (backdrop) backdrop.hidden = true;
 }
 
 function syncAccessibilityControls() {
   const s = getAccessibilitySettings();
+  const themeSelect = byId("a11yTheme");
   const fontSlider = byId("a11yFontSize");
   const fontValue = byId("a11yFontSizeValue");
   const lineSelect = byId("a11yLineHeight");
   const contrastCb = byId("a11yHighContrast");
   const dyslexiaCb = byId("a11yDyslexia");
   const underlineCb = byId("a11yUnderlineLinks");
+  if (themeSelect) { themeSelect.value = s.theme; }
   if (fontSlider) { fontSlider.value = s.fontSize; }
   if (fontValue) { fontValue.textContent = s.fontSize + "%"; }
   if (lineSelect) { lineSelect.value = s.lineHeight; }
@@ -664,12 +670,14 @@ function syncAccessibilityControls() {
 
 function onAccessibilityChange() {
   const s = getAccessibilitySettings();
+  const themeSelect = byId("a11yTheme");
   const fontSlider = byId("a11yFontSize");
   const lineSelect = byId("a11yLineHeight");
   const contrastCb = byId("a11yHighContrast");
   const dyslexiaCb = byId("a11yDyslexia");
   const underlineCb = byId("a11yUnderlineLinks");
   const fontValue = byId("a11yFontSizeValue");
+  if (themeSelect) { s.theme = themeSelect.value; }
   if (fontSlider) { s.fontSize = Number(fontSlider.value); }
   if (fontValue) { fontValue.textContent = s.fontSize + "%"; }
   if (lineSelect) { s.lineHeight = lineSelect.value; }
@@ -4185,7 +4193,7 @@ function bindEvents() {
   if (a11yClose) a11yClose.addEventListener("click", closeAccessibilityPanel);
   if (a11yBackdrop) a11yBackdrop.addEventListener("click", closeAccessibilityPanel);
 
-  const a11yControls = ["a11yFontSize", "a11yLineHeight", "a11yHighContrast", "a11yDyslexia", "a11yUnderlineLinks"];
+  const a11yControls = ["a11yTheme", "a11yFontSize", "a11yLineHeight", "a11yHighContrast", "a11yDyslexia", "a11yUnderlineLinks"];
   for (const id of a11yControls) {
     const ctrl = byId(id);
     if (ctrl) ctrl.addEventListener("input", onAccessibilityChange);
@@ -4202,6 +4210,11 @@ function bindEvents() {
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
+      const a11yPanel = byId("accessibilityPanel");
+      if (a11yPanel && !a11yPanel.hidden) {
+        closeAccessibilityPanel();
+        return;
+      }
       if (state.classifierOpen) {
         closeClassifierPane();
         return;
@@ -4211,6 +4224,18 @@ function bindEvents() {
         closeCaseModal();
         return;
       }
+    }
+
+    // Alt+A opens/closes accessibility panel
+    if (e.altKey && (e.key === "a" || e.key === "A")) {
+      e.preventDefault();
+      const a11yPanel = byId("accessibilityPanel");
+      if (a11yPanel && !a11yPanel.hidden) {
+        closeAccessibilityPanel();
+      } else {
+        openAccessibilityPanel();
+      }
+      return;
     }
 
     if (e.key === "/" && !["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)) {

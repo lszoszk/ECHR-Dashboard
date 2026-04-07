@@ -16,7 +16,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css">
+  <link rel="stylesheet" href="assets/search-app.css">
   <link rel="stylesheet" href="assets/analytics-page.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1"></script>
 </head>
 <body>
@@ -30,6 +32,9 @@
         <a href="./" class="nav-link">Search</a>
         <a href="analytics.html" class="nav-link active">Statistics</a>
       </div>
+      <button class="a11y-btn" id="accessibilityBtn" type="button" title="Accessibility settings (Alt+A)" aria-label="Accessibility settings">
+        <span class="a11y-icon">Aa</span>
+      </button>
       <button class="theme-toggle" id="themeToggle" type="button" title="Toggle dark mode" aria-label="Toggle dark mode">
         <span class="theme-icon-light">☀️</span>
         <span class="theme-icon-dark">🌙</span>
@@ -221,27 +226,166 @@
     </div>
   </footer>
 
-  <script>
-    (function initTheme() {
-      try {
-        const saved = localStorage.getItem("echr-theme");
-        if (saved === "dark" || saved === "light") {
-          document.documentElement.setAttribute("data-theme", saved);
-        }
-      } catch (err) {
-        console.warn("Theme init failed", err);
-      }
+  <!-- Accessibility Settings Panel -->
+  <div class="a11y-backdrop" id="a11yBackdrop" hidden></div>
+  <div class="a11y-panel" id="accessibilityPanel" hidden>
+    <div class="a11y-panel-header">
+      <h2>Accessibility Settings</h2>
+      <button type="button" id="a11yCloseBtn" class="a11y-panel-close" aria-label="Close">&times;</button>
+    </div>
+    <div class="a11y-panel-body">
+      <div class="a11y-group">
+        <label for="a11yTheme">Theme</label>
+        <select id="a11yTheme" class="a11y-select">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+      <div class="a11y-group">
+        <label for="a11yFontSize">Font Size</label>
+        <div class="a11y-row">
+          <input type="range" id="a11yFontSize" min="80" max="150" step="5" value="100">
+          <span id="a11yFontSizeValue" class="a11y-value">100%</span>
+        </div>
+      </div>
+      <div class="a11y-group">
+        <label for="a11yLineHeight">Line Spacing</label>
+        <select id="a11yLineHeight" class="a11y-select">
+          <option value="normal">Normal</option>
+          <option value="1.6">Comfortable (1.6)</option>
+          <option value="1.8">Relaxed (1.8)</option>
+          <option value="2.0">Spacious (2.0)</option>
+        </select>
+      </div>
+      <div class="a11y-group">
+        <label class="a11y-check-label">
+          <input type="checkbox" id="a11yHighContrast"> High Contrast
+        </label>
+      </div>
+      <div class="a11y-group">
+        <label class="a11y-check-label">
+          <input type="checkbox" id="a11yDyslexia"> Dyslexia-Friendly Font
+        </label>
+      </div>
+      <div class="a11y-group">
+        <label class="a11y-check-label">
+          <input type="checkbox" id="a11yUnderlineLinks"> Underline All Links
+        </label>
+      </div>
+      <div class="a11y-group">
+        <button type="button" id="a11yResetBtn" class="a11y-reset-btn">Reset to Defaults</button>
+      </div>
+    </div>
+  </div>
 
+  <script>
+    // Shared accessibility helpers for analytics page
+    const ACCESSIBILITY_DEFAULTS = {
+      theme: "light", fontSize: 100, lineHeight: "normal",
+      highContrast: false, dyslexiaFont: false, underlineLinks: false,
+    };
+
+    function getA11y() {
+      try {
+        const s = localStorage.getItem("echr-accessibility");
+        if (s) return { ...ACCESSIBILITY_DEFAULTS, ...JSON.parse(s) };
+      } catch {}
+      return { ...ACCESSIBILITY_DEFAULTS };
+    }
+
+    function saveA11y(s) {
+      try { localStorage.setItem("echr-accessibility", JSON.stringify(s)); } catch {}
+    }
+
+    function applyA11y(s) {
+      document.documentElement.setAttribute("data-theme", s.theme);
+      document.documentElement.style.setProperty("--a11y-font-scale", (s.fontSize / 100).toFixed(2));
+      document.documentElement.classList.toggle("a11y-high-contrast", !!s.highContrast);
+      document.documentElement.classList.toggle("a11y-dyslexia", !!s.dyslexiaFont);
+      document.documentElement.classList.toggle("a11y-underline-links", !!s.underlineLinks);
+      if (s.lineHeight !== "normal") {
+        document.documentElement.style.setProperty("--a11y-line-height", s.lineHeight);
+      } else {
+        document.documentElement.style.removeProperty("--a11y-line-height");
+      }
+      saveA11y(s);
+    }
+
+    function syncA11yControls() {
+      const s = getA11y();
+      const ids = { a11yTheme: "value", a11yFontSize: "value", a11yLineHeight: "value",
+                    a11yHighContrast: "checked", a11yDyslexia: "checked", a11yUnderlineLinks: "checked" };
+      for (const [id, prop] of Object.entries(ids)) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        if (prop === "checked") el.checked = !!s[{a11yHighContrast:"highContrast",a11yDyslexia:"dyslexiaFont",a11yUnderlineLinks:"underlineLinks"}[id]];
+        else if (id === "a11yTheme") el.value = s.theme;
+        else if (id === "a11yFontSize") el.value = s.fontSize;
+        else if (id === "a11yLineHeight") el.value = s.lineHeight;
+      }
+      const fv = document.getElementById("a11yFontSizeValue");
+      if (fv) fv.textContent = s.fontSize + "%";
+    }
+
+    function onA11yChange() {
+      const s = getA11y();
+      const el = (id) => document.getElementById(id);
+      if (el("a11yTheme")) s.theme = el("a11yTheme").value;
+      if (el("a11yFontSize")) s.fontSize = Number(el("a11yFontSize").value);
+      if (el("a11yLineHeight")) s.lineHeight = el("a11yLineHeight").value;
+      if (el("a11yHighContrast")) s.highContrast = el("a11yHighContrast").checked;
+      if (el("a11yDyslexia")) s.dyslexiaFont = el("a11yDyslexia").checked;
+      if (el("a11yUnderlineLinks")) s.underlineLinks = el("a11yUnderlineLinks").checked;
+      const fv = document.getElementById("a11yFontSizeValue");
+      if (fv) fv.textContent = s.fontSize + "%";
+      applyA11y(s);
+    }
+
+    (function init() {
+      // Apply saved settings
+      const s = getA11y();
+      try {
+        const old = localStorage.getItem("echr-theme");
+        if (old && !localStorage.getItem("echr-accessibility")) s.theme = old;
+      } catch {}
+      applyA11y(s);
+
+      // Theme toggle button
       const toggle = document.getElementById("themeToggle");
       toggle?.addEventListener("click", () => {
-        const current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
-        const next = current === "dark" ? "light" : "dark";
-        document.documentElement.setAttribute("data-theme", next);
-        try {
-          localStorage.setItem("echr-theme", next);
-        } catch (err) {
-          console.warn("Theme save failed", err);
-        }
+        const cur = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+        const s = getA11y(); s.theme = cur === "dark" ? "light" : "dark"; applyA11y(s);
+        syncA11yControls();
+      });
+
+      // Accessibility panel
+      const btn = document.getElementById("accessibilityBtn");
+      const panel = document.getElementById("accessibilityPanel");
+      const closeBtn = document.getElementById("a11yCloseBtn");
+      const backdrop = document.getElementById("a11yBackdrop");
+      const openPanel = () => { if (panel) { panel.hidden = false; if (backdrop) backdrop.hidden = false; syncA11yControls(); } };
+      const closePanel = () => { if (panel) panel.hidden = true; if (backdrop) backdrop.hidden = true; };
+      if (btn) btn.addEventListener("click", openPanel);
+      if (closeBtn) closeBtn.addEventListener("click", closePanel);
+      if (backdrop) backdrop.addEventListener("click", closePanel);
+
+      const controls = ["a11yTheme","a11yFontSize","a11yLineHeight","a11yHighContrast","a11yDyslexia","a11yUnderlineLinks"];
+      controls.forEach(id => {
+        const c = document.getElementById(id);
+        if (c) { c.addEventListener("input", onA11yChange); c.addEventListener("change", onA11yChange); }
+      });
+
+      const resetBtn = document.getElementById("a11yResetBtn");
+      if (resetBtn) resetBtn.addEventListener("click", () => {
+        const d = { ...ACCESSIBILITY_DEFAULTS };
+        d.theme = document.documentElement.getAttribute("data-theme") || "light";
+        applyA11y(d); syncA11yControls();
+      });
+
+      // Keyboard shortcuts
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && panel && !panel.hidden) { closePanel(); return; }
+        if (e.altKey && (e.key === "a" || e.key === "A")) { e.preventDefault(); panel && !panel.hidden ? closePanel() : openPanel(); }
       });
     })();
   </script>

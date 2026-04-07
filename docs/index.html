@@ -16,6 +16,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css">
   <link rel="stylesheet" href="assets/search-app.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
 </head>
 <body>
   <nav class="navbar">
@@ -28,7 +29,7 @@
         <a href="./" class="nav-link active">Search</a>
         <a href="analytics.html" class="nav-link">Statistics</a>
       </div>
-      <button class="a11y-btn" id="accessibilityBtn" type="button" title="Accessibility settings" aria-label="Accessibility settings">
+      <button class="a11y-btn" id="accessibilityBtn" type="button" title="Accessibility settings (Alt+A)" aria-label="Accessibility settings">
         <span class="a11y-icon">Aa</span>
       </button>
       <button class="theme-toggle" id="themeToggle" type="button" title="Toggle dark mode" aria-label="Toggle dark mode">
@@ -378,6 +379,13 @@
       <button type="button" id="a11yCloseBtn" class="a11y-panel-close" aria-label="Close">&times;</button>
     </div>
     <div class="a11y-panel-body">
+      <div class="a11y-group">
+        <label for="a11yTheme">Theme</label>
+        <select id="a11yTheme" class="a11y-select">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
       <div class="a11y-group">
         <label for="a11yFontSize">Font Size</label>
         <div class="a11y-row">
