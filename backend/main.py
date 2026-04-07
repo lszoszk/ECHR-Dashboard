@@ -222,6 +222,14 @@ def stats():
             cur.execute("SELECT count(*) FROM paragraphs")
             total_paragraphs = cur.fetchone()[0]
 
+            cur.execute("SELECT count(DISTINCT respondent_state) FROM cases WHERE respondent_state IS NOT NULL AND respondent_state != ''")
+            total_countries = cur.fetchone()[0]
+
+            cur.execute("SELECT MIN(judgment_date), MAX(judgment_date) FROM cases WHERE judgment_date IS NOT NULL AND judgment_date != ''")
+            row = cur.fetchone()
+            date_from = row[0] if row else None
+            date_to = row[1] if row else None
+
         db_size_mb = 0.0
         try:
             db_size_mb = round(Path(DB_PATH).stat().st_size / (1024 * 1024), 2)
@@ -231,6 +239,9 @@ def stats():
         return {
             "total_cases": total_cases,
             "total_paragraphs": total_paragraphs,
+            "total_countries": total_countries,
+            "date_from": date_from,
+            "date_to": date_to,
             "db_size_mb": db_size_mb,
             "version": "1.0",
         }

@@ -1404,6 +1404,9 @@ function renderFilters() {
 }
 
 function renderGlobalStats() {
+  // When server API is connected, KPI bar shows full server stats — don't overwrite
+  if (serverSearch.available) return;
+
   const dates = state.cases
     .map((c) => c.__judgmentDateTs)
     .filter((x) => Number.isFinite(x))
@@ -4380,11 +4383,14 @@ async function activateDataset(rawRows, sourceLabel, metaLine, invalidCount = 0)
 
   state.sourceLabel = sourceLabel;
 
-  setDatasetStatus(
-    `Loaded ${fmtInt.format(state.cases.length)} cases and ${fmtInt.format(state.paragraphIndex.length)} indexed paragraphs.` +
-    (invalidCount ? ` Skipped ${fmtInt.format(invalidCount)} invalid lines.` : "")
-  );
-  setDatasetMeta(metaLine);
+  // Don't overwrite server connection status when server is active
+  if (!serverSearch.available) {
+    setDatasetStatus(
+      `Loaded ${fmtInt.format(state.cases.length)} cases and ${fmtInt.format(state.paragraphIndex.length)} indexed paragraphs.` +
+      (invalidCount ? ` Skipped ${fmtInt.format(invalidCount)} invalid lines.` : "")
+    );
+    setDatasetMeta(metaLine);
+  }
 
   closeClassifierPane();
   loadClassifierStateForDataset();
@@ -4828,8 +4834,6 @@ function init() {
   bindEvents();
 
   setSearchEnabled(false);
-  setDatasetMeta("Dataset: not selected");
-  setDatasetStatus("No dataset loaded yet. Choose sample dataset or upload your JSONL file.");
   el.classifierResumeNote.classList.add("hidden");
   setClassifierPersistStatus("No saved state loaded.");
   setClassifierModelStatus("Model not trained yet.");
@@ -4846,43 +4850,69 @@ function init() {
   renderBarList(el.analyticsOutcomes, [], (x) => x);
   renderWordCloud([]);
 
-  // Pre-populate KPI bar from stats.json
-  fetch("data/stats.json").then(r => r.ok ? r.json() : null).then(data => {
-    if (!data || !data.summary) return;
-    const s = data.summary;
-    const fmt = new Intl.NumberFormat("en-US");
-    const statCases = document.getElementById("statTotalCases");
-    const statParas = document.getElementById("statTotalParagraphs");
-    const statCountries = document.getElementById("statTotalCountries");
-    const statDate = document.getElementById("statDateRange");
-    if (statCases && statCases.textContent === "-") statCases.textContent = fmt.format(s.total_cases || 0);
-    if (statParas && statParas.textContent === "-") statParas.textContent = fmt.format(s.total_paragraphs || 0);
-    if (statCountries && statCountries.textContent === "-") statCountries.textContent = fmt.format(s.unique_countries || 0);
-    if (statDate && statDate.textContent === "-") statDate.textContent = s.date_range_label || "-";
-  }).catch(() => {});
-
-  // Probe server-side search API (non-blocking)
-  serverSearch.probe().then((available) => {
+  // Probe server-side search API — this is the primary data source
+  serverSearch.probe().then(async (available) => {
     if (available) {
       setSearchEnabled(true);
-      // Add persistent visual badge to dataset meta
-      const badge = document.createElement("span");
-      badge.className = "server-badge";
-      badge.textContent = `Full Dataset (${(serverSearch.serverStats?.cases || 18000).toLocaleString()} cases)`;
-      badge.style.cssText = "display:inline-block;background:#2ecc71;color:#fff;font-size:0.75rem;padding:2px 8px;border-radius:10px;margin-left:8px;vertical-align:middle;";
-      const metaEl = document.getElementById("datasetMeta");
-      if (metaEl) metaEl.appendChild(badge);
-      // Add server note to status
-      const note = document.createElement("span");
-      note.className = "server-note";
-      note.textContent = " · Server API connected — type a query to search 18,000+ cases.";
-      note.style.cssText = "color:#2ecc71;font-weight:600;";
-      el.datasetStatus.appendChild(note);
+
+      // Fetch full stats from server for KPI bar
+      try {
+        const statsData = await serverSearch.getStats();
+        const fmt = new Intl.NumberFormat("en-US");
+        el.statTotalCases.textContent = fmt.format(statsData.total_cases || 0);
+        el.statTotalParagraphs.textContent = fmt.format(statsData.total_paragraphs || 0);
+        el.statTotalCountries.textContent = fmt.format(statsData.total_countries || 0);
+        // Parse DD/MM/YYYY dates into readable range
+        const parseDMY = (s) => { if (!s) return null; const p = s.split("/"); return p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : s; };
+        const df = parseDMY(statsData.date_from);
+        const dt = parseDMY(statsData.date_to);
+        if (df && dt) el.statDateRange.textContent = `${df} to ${dt}`;
+      } catch (e) {
+        console.warn("[Server Stats] Could not fetch stats:", e);
+      }
+
+      // Update data source panel
+      setDatasetStatus("Connected to ECHR Search Server — full-text search across all cases.");
+      const badgeEl = document.getElementById("serverBadgeHeader");
+      if (badgeEl) {
+        badgeEl.textContent = `Connected`;
+        badgeEl.style.cssText = "display:inline-block;background:#2ecc71;color:#fff;font-size:0.7rem;padding:1px 8px;border-radius:10px;margin-left:8px;vertical-align:middle;";
+      }
+
+      // Silently load sample dataset for local browse fallback (no query)
+      try {
+        const res = await fetch(SAMPLE_DATA_URL, { cache: "no-store" });
+        if (res.ok) {
+          const text = await res.text();
+          const parsed = parseJsonlText(text);
+          await activateDataset(parsed.rows, "Sample (local fallback)", `Local sample loaded for offline browsing`, parsed.invalidCount);
+        }
+      } catch (_) { /* sample load failure is OK when server is available */ }
+
+    } else {
+      // Server not available — fall back to sample dataset with file upload option
+      setDatasetStatus("Server unavailable — using local sample dataset.");
+      const sourceActions = document.getElementById("sourceActions");
+      if (sourceActions) sourceActions.classList.remove("hidden");
+      document.getElementById("loadSampleBtn")?.click();
+
+      // Try to populate KPI from stats.json
+      try {
+        const r = await fetch("data/stats.json");
+        if (r.ok) {
+          const data = await r.json();
+          if (data?.summary) {
+            const s = data.summary;
+            const fmt = new Intl.NumberFormat("en-US");
+            if (el.statTotalCases.textContent === "-") el.statTotalCases.textContent = fmt.format(s.total_cases || 0);
+            if (el.statTotalParagraphs.textContent === "-") el.statTotalParagraphs.textContent = fmt.format(s.total_paragraphs || 0);
+            if (el.statTotalCountries.textContent === "-") el.statTotalCountries.textContent = fmt.format(s.unique_countries || 0);
+            if (el.statDateRange.textContent === "-") el.statDateRange.textContent = s.date_range_label || "-";
+          }
+        }
+      } catch (_) {}
     }
   });
-
-  // Auto-load sample dataset
-  document.getElementById("loadSampleBtn")?.click();
 }
 
 init();

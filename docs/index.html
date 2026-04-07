@@ -55,23 +55,22 @@
         <h1 class="hero-title">European Court of Human Rights</h1>
         <p class="hero-subtitle">Search through judicial decisions at the paragraph level</p>
 
-        <section class="data-source-panel collapsible" id="dataSourcePanel" aria-labelledby="dataSourceTitle">
-          <h2 id="dataSourceTitle" class="data-source-title">Data Source</h2>
-          <p class="data-source-subtitle">Choose one option to start: load sample dataset (50 decisions) or upload your own JSONL file.</p>
+        <section class="data-source-panel collapsible collapsed" id="dataSourcePanel" aria-labelledby="dataSourceTitle">
+          <h2 id="dataSourceTitle" class="data-source-title">Data Source <span id="serverBadgeHeader" class="server-badge-header"></span></h2>
 
-          <div class="source-actions">
+          <div class="source-actions hidden" id="sourceActions">
             <button type="button" id="loadSampleBtn" class="source-btn">Load Sample Dataset (50)</button>
             <label class="source-upload-btn" for="fileInput">Choose JSONL File</label>
             <button type="button" id="openClassifierBtn" class="source-btn" disabled>Open Classifier</button>
             <input id="fileInput" type="file" accept=".jsonl,application/json,text/plain" hidden>
           </div>
 
-          <div id="dropZone" class="drop-zone" tabindex="0" role="button" aria-label="Drop JSONL file here or click to choose one">
+          <div id="dropZone" class="drop-zone hidden" tabindex="0" role="button" aria-label="Drop JSONL file here or click to choose one">
             Drag and drop your `.jsonl` file here
           </div>
 
-          <p id="datasetStatus" class="dataset-status">No dataset loaded yet.</p>
-          <p id="datasetMeta" class="dataset-note">Dataset: not selected</p>
+          <p id="datasetStatus" class="dataset-status">Connecting to server...</p>
+          <p id="datasetMeta" class="dataset-note hidden">Dataset: not selected</p>
           <p id="classifierResumeNote" class="dataset-note hidden">Classifier progress: not loaded</p>
         </section>
 

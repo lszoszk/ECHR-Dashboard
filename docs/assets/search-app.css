@@ -1478,8 +1478,21 @@ html[style*="--a11y-line-height"] .modal-para {
 /* Collapsible data source */
 .data-source-panel.collapsed .source-actions,
 .data-source-panel.collapsed .drop-zone,
-.data-source-panel.collapsed .data-source-subtitle { display: none; }
+.data-source-panel.collapsed .data-source-subtitle,
+.data-source-panel.collapsed .dataset-note,
+.data-source-panel.collapsed #classifierResumeNote { display: none; }
 .data-source-panel.collapsed { padding-bottom: 8px; }
+.server-badge-header {
+  display: inline-block;
+  background: #2ecc71;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 10px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
 .data-source-panel .collapse-toggle {
   background: none;
   border: none;
