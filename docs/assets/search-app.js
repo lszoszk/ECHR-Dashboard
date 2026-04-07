@@ -4103,6 +4103,21 @@ async function activateDataset(rawRows, sourceLabel, metaLine, invalidCount = 0)
   state.openLegalDetails = new Set();
   setSearchEnabled(true);
 
+  // Auto-collapse data source panel after load
+  const dsPanel = document.getElementById("dataSourcePanel");
+  if (dsPanel && !dsPanel.querySelector(".collapse-toggle")) {
+    const colBtn = document.createElement("button");
+    colBtn.type = "button";
+    colBtn.className = "collapse-toggle";
+    colBtn.textContent = "[collapse]";
+    colBtn.addEventListener("click", () => {
+      dsPanel.classList.toggle("collapsed");
+      colBtn.textContent = dsPanel.classList.contains("collapsed") ? "[expand]" : "[collapse]";
+    });
+    dsPanel.querySelector("#dataSourceTitle")?.appendChild(colBtn);
+  }
+  setTimeout(() => dsPanel?.classList.add("collapsed"), 500);
+
   resetFiltersAndQuery();
 }
 
@@ -4487,6 +4502,25 @@ function bindEvents() {
       }
     }
   });
+
+  // Hamburger menu
+  const hamburger = document.getElementById("navHamburger");
+  if (hamburger) hamburger.addEventListener("click", () => {
+    const links = document.querySelector(".nav-links");
+    const expanded = hamburger.getAttribute("aria-expanded") === "true";
+    hamburger.setAttribute("aria-expanded", !expanded);
+    links?.classList.toggle("open");
+  });
+
+  // Back to top
+  const backToTop = document.getElementById("backToTopBtn");
+  if (backToTop) {
+    window.addEventListener("scroll", () => {
+      backToTop.hidden = window.scrollY < 400;
+    }, { passive: true });
+    backToTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  }
+
 }
 
 function init() {
@@ -4514,6 +4548,24 @@ function init() {
   renderBarList(el.analyticsImportance, [], (x) => x);
   renderBarList(el.analyticsOutcomes, [], (x) => x);
   renderWordCloud([]);
+
+  // Pre-populate KPI bar from stats.json
+  fetch("data/stats.json").then(r => r.ok ? r.json() : null).then(data => {
+    if (!data || !data.summary) return;
+    const s = data.summary;
+    const fmt = new Intl.NumberFormat("en-US");
+    const statCases = document.getElementById("statTotalCases");
+    const statParas = document.getElementById("statTotalParagraphs");
+    const statCountries = document.getElementById("statTotalCountries");
+    const statDate = document.getElementById("statDateRange");
+    if (statCases && statCases.textContent === "-") statCases.textContent = fmt.format(s.total_cases || 0);
+    if (statParas && statParas.textContent === "-") statParas.textContent = fmt.format(s.total_paragraphs || 0);
+    if (statCountries && statCountries.textContent === "-") statCountries.textContent = fmt.format(s.unique_countries || 0);
+    if (statDate && statDate.textContent === "-") statDate.textContent = s.date_range_label || "-";
+  }).catch(() => {});
+
+  // Auto-load sample dataset
+  document.getElementById("loadSampleBtn")?.click();
 }
 
 init();

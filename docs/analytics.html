@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ECHR Analytics Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
+  <meta name="description" content="Search and analyze 18,000+ European Court of Human Rights judgments at the paragraph level. Full-text search, statistics dashboard, and comparative analysis.">
+  <meta property="og:title" content="ECHR Case Law Dashboard">
+  <meta property="og:description" content="Paragraph-level search and analytics for 18,000+ ECHR judgments.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://lszoszk.github.io/ECHR-Dashboard/">
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-F3XBX45HQC"></script>
   <script>
@@ -28,6 +34,9 @@
         <span class="brand-icon">⚖️</span>
         <span class="brand-text">ECHR Search</span>
       </a>
+      <button class="nav-hamburger" id="navHamburger" type="button" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
       <div class="nav-links">
         <a href="./" class="nav-link">Search</a>
         <a href="analytics.html" class="nav-link active">Statistics</a>
@@ -35,7 +44,7 @@
       <button class="a11y-btn" id="accessibilityBtn" type="button" title="Accessibility settings (Alt+A)" aria-label="Accessibility settings">
         <span class="a11y-icon">Aa</span>
       </button>
-      <button class="theme-toggle" id="themeToggle" type="button" title="Toggle dark mode" aria-label="Toggle dark mode">
+      <button class="theme-toggle" id="themeToggle" type="button" title="Toggle light/dark theme" aria-label="Toggle dark mode">
         <span class="theme-icon-light">☀️</span>
         <span class="theme-icon-dark">🌙</span>
       </button>
@@ -55,6 +64,11 @@
     </section>
 
     <div class="stats-page">
+      <nav class="chart-toc" id="chartToc" aria-label="Chart navigation">
+        <button class="toc-toggle" id="tocToggle" type="button" aria-label="Toggle table of contents">Contents</button>
+        <ul class="toc-list" id="tocList"></ul>
+      </nav>
+
       <div class="kpi-row" id="kpiGrid"></div>
 
       <section class="chart-row">
@@ -222,7 +236,11 @@
 
   <footer class="footer">
     <div class="footer-container">
-      <span>ECHR Case Law Database — Public Statistics</span>
+      <span>ECHR Case Law Dashboard</span>
+      <span class="footer-sep">·</span>
+      <span>Data source: <a href="https://hudoc.echr.coe.int" target="_blank" rel="noopener">HUDOC</a></span>
+      <span class="footer-sep">·</span>
+      <span>Built with open data</span>
     </div>
   </footer>
 
@@ -277,6 +295,8 @@
       </div>
     </div>
   </div>
+
+  <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
   <script>
     // Shared accessibility helpers for analytics page
@@ -387,6 +407,24 @@
         if (e.key === "Escape" && panel && !panel.hidden) { closePanel(); return; }
         if (e.altKey && (e.key === "a" || e.key === "A")) { e.preventDefault(); panel && !panel.hidden ? closePanel() : openPanel(); }
       });
+
+      // Hamburger menu
+      const hamburger = document.getElementById("navHamburger");
+      if (hamburger) hamburger.addEventListener("click", () => {
+        const links = document.querySelector(".nav-links");
+        const expanded = hamburger.getAttribute("aria-expanded") === "true";
+        hamburger.setAttribute("aria-expanded", !expanded);
+        links?.classList.toggle("open");
+      });
+
+      // Back to top
+      const backToTop = document.getElementById("backToTopBtn");
+      if (backToTop) {
+        window.addEventListener("scroll", () => {
+          backToTop.hidden = window.scrollY < 400;
+        }, { passive: true });
+        backToTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+      }
     })();
   </script>
 

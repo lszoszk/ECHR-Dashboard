@@ -1168,6 +1168,8 @@ html[style*="--a11y-line-height"] .modal-para {
   color: var(--text-secondary, #555);
   transition: border-color 0.2s, color 0.2s;
   margin-right: 4px;
+  min-width: 44px;
+  min-height: 44px;
 }
 .a11y-btn:hover {
   border-color: var(--accent, #2563eb);
@@ -1408,3 +1410,83 @@ html[style*="--a11y-line-height"] .modal-para {
   background: var(--border);
   flex-shrink: 0;
 }
+
+/* Hamburger menu */
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  margin-right: 8px;
+}
+.nav-hamburger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--text-on-dark, #fff);
+  border-radius: 1px;
+  transition: transform 0.2s, opacity 0.2s;
+}
+.nav-hamburger[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.nav-hamburger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.nav-hamburger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+@media (max-width: 600px) {
+  .nav-hamburger { display: flex; }
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg-header, #1a202c);
+    flex-direction: column;
+    padding: 8px 16px 12px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .nav-links.open { display: flex; }
+  .nav-container { position: relative; }
+}
+
+/* Footer enhancements */
+.footer-sep { margin: 0 8px; opacity: 0.5; }
+.footer a { color: inherit; text-decoration: underline; opacity: 0.85; }
+.footer a:hover { opacity: 1; }
+
+/* Back to top */
+.back-to-top {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 400;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-lg);
+  transition: opacity 0.2s, transform 0.2s;
+}
+.back-to-top:hover { transform: translateY(-2px); }
+
+/* Collapsible data source */
+.data-source-panel.collapsed .source-actions,
+.data-source-panel.collapsed .drop-zone,
+.data-source-panel.collapsed .data-source-subtitle { display: none; }
+.data-source-panel.collapsed { padding-bottom: 8px; }
+.data-source-panel .collapse-toggle {
+  background: none;
+  border: none;
+  color: var(--text-on-dark, #cbd5e0);
+  cursor: pointer;
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin-left: 12px;
+}
+.data-source-panel .collapse-toggle:hover { opacity: 1; }

@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ECHR Case Law — Paragraph-Level Search</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
+  <meta name="description" content="Search and analyze 18,000+ European Court of Human Rights judgments at the paragraph level. Full-text search, statistics dashboard, and comparative analysis.">
+  <meta property="og:title" content="ECHR Case Law Dashboard">
+  <meta property="og:description" content="Paragraph-level search and analytics for 18,000+ ECHR judgments.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://lszoszk.github.io/ECHR-Dashboard/">
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-F3XBX45HQC"></script>
   <script>
@@ -26,6 +32,9 @@
         <span class="brand-icon">⚖️</span>
         <span class="brand-text">ECHR Search</span>
       </a>
+      <button class="nav-hamburger" id="navHamburger" type="button" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
       <div class="nav-links">
         <a href="./" class="nav-link active">Search</a>
         <a href="analytics.html" class="nav-link">Statistics</a>
@@ -33,7 +42,7 @@
       <button class="a11y-btn" id="accessibilityBtn" type="button" title="Accessibility settings (Alt+A)" aria-label="Accessibility settings">
         <span class="a11y-icon">Aa</span>
       </button>
-      <button class="theme-toggle" id="themeToggle" type="button" title="Toggle dark mode" aria-label="Toggle dark mode">
+      <button class="theme-toggle" id="themeToggle" type="button" title="Toggle light/dark theme" aria-label="Toggle dark mode">
         <span class="theme-icon-light">☀️</span>
         <span class="theme-icon-dark">🌙</span>
       </button>
@@ -46,7 +55,7 @@
         <h1 class="hero-title">European Court of Human Rights</h1>
         <p class="hero-subtitle">Search through judicial decisions at the paragraph level</p>
 
-        <section class="data-source-panel" aria-labelledby="dataSourceTitle">
+        <section class="data-source-panel collapsible" id="dataSourcePanel" aria-labelledby="dataSourceTitle">
           <h2 id="dataSourceTitle" class="data-source-title">Data Source</h2>
           <p class="data-source-subtitle">Choose one option to start: load sample dataset (50 decisions) or upload your own JSONL file.</p>
 
@@ -265,7 +274,11 @@
 
   <footer class="footer">
     <div class="footer-container">
-      <span>ECHR Case Law Database — Paragraph-Level Search</span>
+      <span>ECHR Case Law Dashboard</span>
+      <span class="footer-sep">·</span>
+      <span>Data source: <a href="https://hudoc.echr.coe.int" target="_blank" rel="noopener">HUDOC</a></span>
+      <span class="footer-sep">·</span>
+      <span>Built with open data</span>
     </div>
   </footer>
 
@@ -434,6 +447,8 @@
       </div>
     </div>
   </div>
+
+  <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
   <script src="assets/search-app.js"></script>
 </body>

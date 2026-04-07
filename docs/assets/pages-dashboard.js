@@ -246,11 +246,11 @@ async function loadDashboard() {
   const kpiGrid = document.getElementById("kpiGrid");
   kpiGrid.innerHTML = [
     makeKpi("Total Cases", fmtInt.format(s.total_cases || 0)),
-    makeKpi("Input Records", fmtInt.format(s.input_record_count || s.total_cases || 0)),
+    makeKpi("Violation Rate", ((s.outcome_violation_only + s.outcome_both) / s.total_cases * 100).toFixed(1) + "%", (s.outcome_violation_only + s.outcome_both) + " of " + s.total_cases + " cases"),
     makeKpi("Total Paragraphs", fmtInt.format(s.total_paragraphs || 0)),
     makeKpi(
       "Date Range",
-      s.date_range_label || "-",
+      (s.date_range_label || "-").replace(/(\d{1,2}) (\w{3}) (\d{4})/g, "$2 $3"),
       `${fmtInt.format(s.dated_cases || 0)} dated · ${fmtInt.format(s.undated_cases || 0)} undated`
     ),
     makeKpi("Respondent States", fmtInt.format(s.unique_countries || 0)),
@@ -612,9 +612,12 @@ async function loadDashboard() {
       });
     });
 
-    // Default: top 2 states
-    if (compareSelects[0]) compareSelects[0].value = compareStateNames[0];
-    if (compareSelects[1]) compareSelects[1].value = compareStateNames[1];
+    // Pre-select top states for comparison
+    const topStates = countriesTop.slice(0, 4).map(d => d[0]);
+    ["compareState1","compareState2","compareState3","compareState4"].forEach((id, i) => {
+      const sel = document.getElementById(id);
+      if (sel && topStates[i]) sel.value = topStates[i];
+    });
 
     function getSelectedStates() {
       return compareSelects
@@ -700,6 +703,20 @@ async function loadDashboard() {
       `<p class="state-outcome-empty" style="margin-top:10px;">Top inadmissibility grounds: ${inadmissibilityGroundsTop.slice(0, 5).map((d) => `${d[0]} (${d[1]})`).join(" · ")}</p>`
     );
   }
+
+  // Build TOC
+  const tocList = document.getElementById("tocList");
+  const tocToggle = document.getElementById("tocToggle");
+  if (tocList) {
+    document.querySelectorAll(".chart-title").forEach((h3, i) => {
+      const id = "chart-sec-" + i;
+      h3.closest(".chart-container, article")?.setAttribute("id", id);
+      const li = document.createElement("li");
+      li.innerHTML = '<a href="#' + id + '">' + h3.textContent + '</a>';
+      tocList.appendChild(li);
+    });
+  }
+  if (tocToggle) tocToggle.addEventListener("click", () => tocList?.classList.toggle("open"));
 }
 
 loadDashboard().catch((err) => {
