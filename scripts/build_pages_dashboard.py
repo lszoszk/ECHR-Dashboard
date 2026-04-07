@@ -841,6 +841,18 @@ def main():
             sample_output_path = (repo_root / sample_output_path).resolve()
 
     cases = load_cases(input_path)
+
+    # Skip rebuild if existing stats.json was built from a larger dataset
+    if output_path.exists():
+        try:
+            existing = json.loads(output_path.read_text(encoding="utf-8"))
+            existing_count = existing.get("summary", {}).get("total_cases", 0)
+            if existing_count > len(cases):
+                print(f"Existing {output_path.name} has {existing_count} cases (input has {len(cases)}); keeping pre-built version.")
+                return
+        except (json.JSONDecodeError, KeyError):
+            pass
+
     payload = build_payload(cases, input_path.name)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
