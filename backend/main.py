@@ -21,7 +21,6 @@ from pathlib import Path
 from typing import Any, Optional
 
 from fastapi import FastAPI, HTTPException, Query, Request
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 # ---------------------------------------------------------------------------
@@ -79,13 +78,8 @@ app = FastAPI(
     description="Full-text search over European Court of Human Rights case law.",
 )
 
-# CORS — allow GitHub Pages production domain and local dev servers.
-app.add_middleware(
-    CORSMiddleware,
-    allow_origin_regex=r"^(https://lszoszk\.github\.io|http://(localhost|127\.0\.0\.1)(:\d+)?)$",
-    allow_methods=["GET"],
-    allow_headers=["*"],
-)
+# CORS is handled exclusively by the Nginx reverse proxy on the VM.
+# Do NOT add CORSMiddleware here — it causes duplicate headers.
 
 
 # ---------------------------------------------------------------------------
