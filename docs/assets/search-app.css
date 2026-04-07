@@ -1351,3 +1351,60 @@ html[style*="--a11y-line-height"] .modal-para {
   color: #155724;
   border-color: #c3e6cb;
 }
+
+/* Highlight tooltip */
+.highlight-tooltip {
+  position: absolute;
+  z-index: 600;
+  display: flex;
+  gap: 4px;
+  padding: 6px 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
+}
+.hl-color {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s;
+}
+.hl-color:hover {
+  transform: scale(1.2);
+  border-color: var(--primary-accent);
+}
+.hl-remove {
+  background: var(--bg-card) !important;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* User highlights in modal paragraphs */
+.modal-para mark {
+  border-radius: 2px;
+  padding: 1px 0;
+  color: inherit;
+}
+.modal-para mark[data-hl-color="#fef08a"] { background: #fef08a; }
+.modal-para mark[data-hl-color="#bbf7d0"] { background: #bbf7d0; }
+.modal-para mark[data-hl-color="#bfdbfe"] { background: #bfdbfe; }
+.modal-para mark[data-hl-color="#fecaca"] { background: #fecaca; }
+[data-theme="dark"] .modal-para mark[data-hl-color="#fef08a"] { background: rgba(254,240,138,0.35); }
+[data-theme="dark"] .modal-para mark[data-hl-color="#bbf7d0"] { background: rgba(187,247,208,0.3); }
+[data-theme="dark"] .modal-para mark[data-hl-color="#bfdbfe"] { background: rgba(191,219,254,0.3); }
+[data-theme="dark"] .modal-para mark[data-hl-color="#fecaca"] { background: rgba(254,202,202,0.3); }
+
+/* Separator in modal tools */
+.modal-tools-sep {
+  width: 1px;
+  height: 24px;
+  background: var(--border);
+  flex-shrink: 0;
+}

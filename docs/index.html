@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="assets/dashboard.css">
   <link rel="stylesheet" href="assets/search-app.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js" defer></script>
 </head>
 <body>
   <nav class="navbar">
@@ -283,6 +284,17 @@
           <option value="all">All sections</option>
         </select>
         <span id="modalCount" class="modal-count"></span>
+        <span class="modal-tools-sep"></span>
+        <button type="button" class="modal-action-btn" id="clearHighlightsBtn" title="Remove all highlights" hidden>Clear Highlights</button>
+        <button type="button" class="modal-action-btn" id="exportPdfBtn" title="Export highlighted paragraphs as PDF" hidden>Export PDF</button>
+      </div>
+
+      <div id="highlightTooltip" class="highlight-tooltip" hidden>
+        <button type="button" class="hl-color" data-color="#fef08a" title="Yellow" style="background:#fef08a"></button>
+        <button type="button" class="hl-color" data-color="#bbf7d0" title="Green" style="background:#bbf7d0"></button>
+        <button type="button" class="hl-color" data-color="#bfdbfe" title="Blue" style="background:#bfdbfe"></button>
+        <button type="button" class="hl-color" data-color="#fecaca" title="Red" style="background:#fecaca"></button>
+        <button type="button" class="hl-color hl-remove" data-color="" title="Remove highlight">✕</button>
       </div>
 
       <div id="modalBody" class="modal-body"></div>

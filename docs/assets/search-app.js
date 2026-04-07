@@ -285,6 +285,9 @@ function cacheElements() {
   el.modalSectionFilter = byId("modalSectionFilter");
   el.modalCount = byId("modalCount");
   el.modalBody = byId("modalBody");
+  el.highlightTooltip = byId("highlightTooltip");
+  el.clearHighlightsBtn = byId("clearHighlightsBtn");
+  el.exportPdfBtn = byId("exportPdfBtn");
 
   el.classifierPane = byId("classifierPane");
   el.classifierBackdrop = byId("classifierBackdrop");
@@ -3747,6 +3750,7 @@ function openCaseModal(caseId) {
   const c = state.caseById.get(caseId);
   if (!c) return;
 
+  modalCaseId = caseId;
   el.modalTitle.textContent = c.title || "Untitled case";
 
   // Add modal action buttons (citation + info card)
@@ -3810,6 +3814,9 @@ function openCaseModal(caseId) {
   el.modalQuery.value = "";
   el.modalCount.textContent = `${fmtInt.format(c.__paragraphs.length)} paragraphs`;
 
+  // Restore any saved highlights for this case
+  applyHighlightsToDOM();
+
   el.caseModal.hidden = false;
   document.body.style.overflow = "hidden";
 }
@@ -3817,6 +3824,230 @@ function openCaseModal(caseId) {
 function closeCaseModal() {
   el.caseModal.hidden = true;
   document.body.style.overflow = "";
+  hideHighlightTooltip();
+}
+
+/* ── Text Highlighting & PDF Export (Tier 2 #7) ── */
+
+// Highlights stored per case: Map<caseId, Array<{paraIdx, start, end, color}>>
+const highlightStore = new Map();
+let modalCaseId = null;
+let pendingSelection = null;
+
+function hideHighlightTooltip() {
+  el.highlightTooltip.hidden = true;
+}
+
+function updateHighlightButtons() {
+  const highlights = highlightStore.get(modalCaseId);
+  const hasAny = highlights && highlights.length > 0;
+  el.clearHighlightsBtn.hidden = !hasAny;
+  el.exportPdfBtn.hidden = !hasAny;
+}
+
+function getParaIndex(paraEl) {
+  const numEl = paraEl.querySelector(".modal-para-num");
+  if (!numEl) return -1;
+  const m = numEl.textContent.match(/(\d+)/);
+  return m ? parseInt(m[1], 10) - 1 : -1;
+}
+
+function getTextSpan(paraEl) {
+  // The text content span is the second child (after .modal-para-num)
+  const spans = paraEl.querySelectorAll(":scope > span");
+  return spans.length > 1 ? spans[1] : spans[0];
+}
+
+function applyHighlightsToDOM() {
+  const highlights = highlightStore.get(modalCaseId) || [];
+  // Group by paraIdx
+  const byPara = new Map();
+  for (const h of highlights) {
+    if (!byPara.has(h.paraIdx)) byPara.set(h.paraIdx, []);
+    byPara.get(h.paraIdx).push(h);
+  }
+
+  for (const paraEl of el.modalBody.querySelectorAll(".modal-para")) {
+    const idx = getParaIndex(paraEl);
+    const textSpan = getTextSpan(paraEl);
+    if (!textSpan) continue;
+
+    // Get the plain text (strip any existing marks)
+    const plainText = textSpan.textContent;
+
+    const paraHighlights = byPara.get(idx);
+    if (!paraHighlights || paraHighlights.length === 0) {
+      textSpan.textContent = plainText;
+      continue;
+    }
+
+    // Sort by start position, merge overlapping
+    const sorted = paraHighlights.slice().sort((a, b) => a.start - b.start);
+
+    // Build HTML with marks
+    let html = "";
+    let pos = 0;
+    for (const h of sorted) {
+      const s = Math.max(h.start, pos);
+      const e = Math.min(h.end, plainText.length);
+      if (s >= e) continue;
+      if (s > pos) html += escapeHtml(plainText.slice(pos, s));
+      html += `<mark data-hl-color="${escapeHtml(h.color)}">${escapeHtml(plainText.slice(s, e))}</mark>`;
+      pos = e;
+    }
+    if (pos < plainText.length) html += escapeHtml(plainText.slice(pos));
+    textSpan.innerHTML = html;
+  }
+
+  updateHighlightButtons();
+}
+
+function addHighlight(paraIdx, start, end, color) {
+  if (!highlightStore.has(modalCaseId)) highlightStore.set(modalCaseId, []);
+  const highlights = highlightStore.get(modalCaseId);
+  // Remove overlapping highlights in the same range
+  const filtered = highlights.filter(
+    (h) => h.paraIdx !== paraIdx || h.end <= start || h.start >= end
+  );
+  filtered.push({ paraIdx, start, end, color });
+  highlightStore.set(modalCaseId, filtered);
+  applyHighlightsToDOM();
+}
+
+function removeHighlight(paraIdx, start, end) {
+  const highlights = highlightStore.get(modalCaseId);
+  if (!highlights) return;
+  highlightStore.set(
+    modalCaseId,
+    highlights.filter(
+      (h) => h.paraIdx !== paraIdx || h.end <= start || h.start >= end
+    )
+  );
+  applyHighlightsToDOM();
+}
+
+function clearAllHighlights() {
+  highlightStore.delete(modalCaseId);
+  applyHighlightsToDOM();
+}
+
+// Selection handler — show tooltip near selected text
+function handleModalSelection() {
+  const sel = window.getSelection();
+  if (!sel || sel.isCollapsed || !sel.rangeCount) {
+    hideHighlightTooltip();
+    return;
+  }
+
+  const range = sel.getRangeAt(0);
+  // Find the paragraph element containing the selection
+  let paraEl = range.commonAncestorContainer;
+  while (paraEl && !paraEl.classList?.contains("modal-para")) {
+    paraEl = paraEl.parentElement;
+  }
+  if (!paraEl || !el.modalBody.contains(paraEl)) {
+    hideHighlightTooltip();
+    return;
+  }
+
+  const paraIdx = getParaIndex(paraEl);
+  const textSpan = getTextSpan(paraEl);
+  if (paraIdx < 0 || !textSpan) return;
+
+  // Compute character offsets relative to the text span's text content
+  const fullText = textSpan.textContent;
+  const preRange = document.createRange();
+  preRange.setStart(textSpan, 0);
+  preRange.setEnd(range.startContainer, range.startOffset);
+  const start = preRange.toString().length;
+  const end = start + sel.toString().length;
+
+  if (end <= start || end > fullText.length) return;
+
+  pendingSelection = { paraIdx, start, end };
+
+  // Position tooltip near the selection
+  const rect = range.getBoundingClientRect();
+  const modalRect = el.caseModal.getBoundingClientRect();
+  el.highlightTooltip.style.left = `${rect.left - modalRect.left + rect.width / 2 - 70}px`;
+  el.highlightTooltip.style.top = `${rect.top - modalRect.top - 40}px`;
+  el.highlightTooltip.hidden = false;
+}
+
+function handleHighlightColorClick(e) {
+  const btn = e.target.closest(".hl-color");
+  if (!btn || !pendingSelection) return;
+
+  const color = btn.dataset.color;
+  if (color) {
+    addHighlight(pendingSelection.paraIdx, pendingSelection.start, pendingSelection.end, color);
+  } else {
+    removeHighlight(pendingSelection.paraIdx, pendingSelection.start, pendingSelection.end);
+  }
+
+  window.getSelection().removeAllRanges();
+  hideHighlightTooltip();
+  pendingSelection = null;
+}
+
+async function exportHighlightsPdf() {
+  const c = state.caseById.get(modalCaseId);
+  if (!c) return;
+
+  const highlights = highlightStore.get(modalCaseId) || [];
+  if (!highlights.length) return;
+
+  const highlightedParaIdxs = new Set(highlights.map((h) => h.paraIdx));
+
+  // Build a clean HTML fragment for export
+  const container = document.createElement("div");
+  container.style.cssText = "font-family: 'Source Serif 4', Georgia, serif; font-size: 11pt; color: #1a1a1a; line-height: 1.7; max-width: 700px;";
+
+  // Header with case citation
+  const header = document.createElement("div");
+  header.style.cssText = "margin-bottom: 18px; padding-bottom: 12px; border-bottom: 2px solid #2563eb;";
+  header.innerHTML = `<h1 style="font-size:14pt;margin:0 0 6px">${escapeHtml(c.title || "Untitled")}</h1>
+    <p style="font-size:9pt;color:#666;margin:0">${escapeHtml(buildStandardCitation(c))}</p>
+    <p style="font-size:9pt;color:#666;margin:4px 0 0">Highlighted excerpts — exported ${new Date().toLocaleDateString("en-GB")}</p>`;
+  container.appendChild(header);
+
+  // Collect highlighted paragraphs
+  for (const paraEl of el.modalBody.querySelectorAll(".modal-para")) {
+    const idx = getParaIndex(paraEl);
+    if (!highlightedParaIdxs.has(idx)) continue;
+
+    const section = paraEl.getAttribute("data-section") || "";
+    const textSpan = getTextSpan(paraEl);
+    if (!textSpan) continue;
+
+    const div = document.createElement("div");
+    div.style.cssText = "margin-bottom: 12px; padding: 8px 10px; border-left: 3px solid #2563eb; background: #fafafa;";
+    div.innerHTML = `<span style="font-size:8pt;color:#888;font-weight:600">${escapeHtml(SECTION_LABELS[section] || section)} — ¶ ${idx + 1}</span><br>${textSpan.innerHTML}`;
+    container.appendChild(div);
+  }
+
+  // Use html2pdf.js
+  if (typeof html2pdf === "undefined") {
+    alert("PDF library not loaded. Please try again in a moment.");
+    return;
+  }
+
+  el.exportPdfBtn.textContent = "Generating…";
+  el.exportPdfBtn.disabled = true;
+
+  try {
+    const filename = (c.appno || c.title || "highlights").replace(/[^a-zA-Z0-9]/g, "_") + "_highlights.pdf";
+    await html2pdf().set({
+      margin: [15, 15, 15, 15],
+      filename,
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      pagebreak: { mode: ["avoid-all", "css", "legacy"] },
+    }).from(container).save();
+  } finally {
+    el.exportPdfBtn.textContent = "Export PDF";
+    el.exportPdfBtn.disabled = false;
+  }
 }
 
 function filterModalParagraphs() {
@@ -4184,6 +4415,17 @@ function bindEvents() {
   el.modalBackdrop.addEventListener("click", closeCaseModal);
   el.modalQuery.addEventListener("input", filterModalParagraphs);
   el.modalSectionFilter.addEventListener("change", filterModalParagraphs);
+
+  // Highlight & PDF export events
+  el.modalBody.addEventListener("mouseup", function () {
+    setTimeout(handleModalSelection, 10);
+  });
+  el.highlightTooltip.addEventListener("click", handleHighlightColorClick);
+  el.clearHighlightsBtn.addEventListener("click", clearAllHighlights);
+  el.exportPdfBtn.addEventListener("click", exportHighlightsPdf);
+  document.addEventListener("mousedown", function (e) {
+    if (!el.highlightTooltip.contains(e.target)) hideHighlightTooltip();
+  });
 
   // Accessibility panel events
   const a11yBtn = byId("accessibilityBtn");
