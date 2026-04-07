@@ -584,6 +584,114 @@ async function loadDashboard() {
     });
   }
 
+  // Comparative State Analysis
+  const compareData = crossTabs.compare || {};
+  const compareYears = compareData.years || [];
+  const stateProfiles = compareData.states || {};
+  const compareStateNames = Object.keys(stateProfiles).sort((a, b) => {
+    return (stateProfiles[b].total || 0) - (stateProfiles[a].total || 0);
+  });
+
+  const compareSelects = [1, 2, 3, 4].map((n) => document.getElementById(`compareState${n}`));
+  const compareSummaryEl = document.getElementById("compareSummaryTable");
+  const compareTrendCtx = document.getElementById("compareTrendChart");
+  const compareArticlesCtx = document.getElementById("compareArticlesChart");
+  let compareTrendChart = null;
+  let compareArticlesChart = null;
+
+  const COMPARE_COLORS = ["#245ea8", "#b03e45", "#3c8d5a", "#d97a2b"];
+
+  if (compareSelects[0] && compareTrendCtx && compareStateNames.length >= 2) {
+    compareStateNames.forEach((state) => {
+      compareSelects.forEach((sel, i) => {
+        if (!sel) return;
+        const opt = document.createElement("option");
+        opt.value = state;
+        opt.textContent = `${state} (${stateProfiles[state].total})`;
+        sel.appendChild(opt);
+      });
+    });
+
+    // Default: top 2 states
+    if (compareSelects[0]) compareSelects[0].value = compareStateNames[0];
+    if (compareSelects[1]) compareSelects[1].value = compareStateNames[1];
+
+    function getSelectedStates() {
+      return compareSelects
+        .map((sel) => sel ? sel.value : "")
+        .filter((v) => v && stateProfiles[v]);
+    }
+
+    function renderComparison() {
+      const selected = getSelectedStates();
+      if (selected.length < 2) return;
+
+      // Summary table
+      const headerCells = ["Metric", ...selected].map((h) => `<th>${h}</th>`).join("");
+      const rows = [
+        ["Total cases", ...selected.map((s) => fmtInt.format(stateProfiles[s].total))],
+        ["Violation rate", ...selected.map((s) => `${stateProfiles[s].violation_rate}%`)],
+        ["Violation only", ...selected.map((s) => fmtInt.format(stateProfiles[s].outcomes.violation_only))],
+        ["Non-violation only", ...selected.map((s) => fmtInt.format(stateProfiles[s].outcomes.non_violation_only))],
+        ["Both", ...selected.map((s) => fmtInt.format(stateProfiles[s].outcomes.both))],
+        ["Neither", ...selected.map((s) => fmtInt.format(stateProfiles[s].outcomes.neither))],
+      ];
+      const bodyRows = rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("");
+      compareSummaryEl.innerHTML = `<table class="compare-summary-table"><thead><tr>${headerCells}</tr></thead><tbody>${bodyRows}</tbody></table>`;
+
+      // Trend chart
+      if (compareTrendChart) compareTrendChart.destroy();
+      compareTrendChart = createMultiLineChart(
+        compareTrendCtx,
+        compareYears,
+        selected.map((state, i) => ({
+          label: state,
+          data: stateProfiles[state].cases_by_year,
+          borderColor: COMPARE_COLORS[i % COMPARE_COLORS.length],
+          backgroundColor: `${COMPARE_COLORS[i % COMPARE_COLORS.length]}33`,
+          fill: false,
+          tension: 0.2,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+        }))
+      );
+
+      // Articles chart — collect union of top articles across selected states
+      const articleSet = new Set();
+      selected.forEach((state) => {
+        (stateProfiles[state].top_violated_articles || []).forEach(([art]) => articleSet.add(art));
+      });
+      const articleLabels = [...articleSet].sort((a, b) => {
+        const na = parseInt(a, 10);
+        const nb = parseInt(b, 10);
+        if (!isNaN(na) && !isNaN(nb)) return na - nb;
+        return a.localeCompare(b);
+      });
+
+      if (compareArticlesChart) compareArticlesChart.destroy();
+      compareArticlesChart = createGroupedBarChart(
+        compareArticlesCtx,
+        articleLabels.map((a) => `Art. ${a}`),
+        selected.map((state, i) => {
+          const artMap = new Map((stateProfiles[state].top_violated_articles || []).map(([a, c]) => [a, c]));
+          return {
+            label: state,
+            data: articleLabels.map((a) => artMap.get(a) || 0),
+            backgroundColor: `${COMPARE_COLORS[i % COMPARE_COLORS.length]}CC`,
+            borderColor: COMPARE_COLORS[i % COMPARE_COLORS.length],
+            borderWidth: 1,
+            borderRadius: 5,
+          };
+        })
+      );
+    }
+
+    renderComparison();
+    compareSelects.forEach((sel) => {
+      if (sel) sel.addEventListener("change", renderComparison);
+    });
+  }
+
   renderStateOutcomeTable(document.getElementById("stateOutcomeTable"), stateOutcomesTop);
 
   if (inadmissibilityGroundsTop.length) {

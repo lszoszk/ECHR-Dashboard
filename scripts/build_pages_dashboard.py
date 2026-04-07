@@ -388,6 +388,8 @@ def build_payload(cases, source_file: str):
     state_violation_counts = Counter()
     article_state_counts = defaultdict(Counter)
     article_state_violation_counts = defaultdict(Counter)
+    state_article_violation_counts = defaultdict(Counter)
+    state_cases_by_year = defaultdict(Counter)
     outcomes_by_year = defaultdict(Counter)
     procedural_vs_substantive_by_year = defaultdict(Counter)
     precedent_to_cases = defaultdict(set)
@@ -461,6 +463,8 @@ def build_payload(cases, source_file: str):
             state_outcome_counts[state][normalized["outcome_primary"]] += 1
             if normalized["violation"]:
                 state_violation_counts[state] += 1
+            if date_obj:
+                state_cases_by_year[state][date_obj.strftime("%Y")] += 1
 
         case_articles = set()
         for article in normalized["articles"]:
@@ -476,6 +480,7 @@ def build_payload(cases, source_file: str):
         for article in set(normalized["violation"]):
             for state in normalized["states"]:
                 article_state_violation_counts[article][state] += 1
+                state_article_violation_counts[state][article] += 1
 
         for article in set(normalized["violation"]):
             article_violation_counts[article] += 1
@@ -634,6 +639,32 @@ def build_payload(cases, source_file: str):
         if state_rows:
             article_by_state[article] = state_rows
 
+    # Per-state comparison data (states with >= 3 cases)
+    all_years = sorted(set(y for counts in state_cases_by_year.values() for y in counts))
+    state_profiles = {}
+    for state, total in state_case_counts.items():
+        if total < 3:
+            continue
+        yearly = [state_cases_by_year[state].get(y, 0) for y in all_years]
+        top_articles = state_article_violation_counts[state].most_common(10)
+        counters = state_outcome_counts[state]
+        state_profiles[state] = {
+            "total": total,
+            "violation_rate": round(state_violation_counts.get(state, 0) / total * 100, 1),
+            "outcomes": {
+                "violation_only": counters.get("violation_only", 0),
+                "non_violation_only": counters.get("non_violation_only", 0),
+                "both": counters.get("both", 0),
+                "neither": counters.get("neither", 0),
+            },
+            "top_violated_articles": top_articles,
+            "cases_by_year": yearly,
+        }
+    compare_data = {
+        "years": all_years,
+        "states": state_profiles,
+    }
+
     field_completeness = {
         field: round((nonempty_field_counts[field] / total_cases), 4) if total_cases else 0
         for field in quality_fields
@@ -757,6 +788,7 @@ def build_payload(cases, source_file: str):
         },
         "cross_tabs": {
             "article_by_state": article_by_state,
+            "compare": compare_data,
         },
         "quality": {
             "field_completeness": field_completeness,

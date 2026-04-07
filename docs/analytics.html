@@ -177,6 +177,37 @@
 
       <section class="chart-row">
         <article class="chart-container full-width">
+          <h3 class="chart-title">Comparative State Analysis</h3>
+          <div class="chart-controls">
+            <label for="compareState1">State 1:</label>
+            <select id="compareState1" class="chart-select"></select>
+            <label for="compareState2">State 2:</label>
+            <select id="compareState2" class="chart-select"></select>
+            <label for="compareState3">State 3:</label>
+            <select id="compareState3" class="chart-select">
+              <option value="">(none)</option>
+            </select>
+            <label for="compareState4">State 4:</label>
+            <select id="compareState4" class="chart-select">
+              <option value="">(none)</option>
+            </select>
+          </div>
+          <div id="compareSummaryTable"></div>
+          <div class="compare-charts-grid">
+            <div class="compare-chart-wrap">
+              <h4 class="chart-subtitle">Cases by Year</h4>
+              <canvas id="compareTrendChart"></canvas>
+            </div>
+            <div class="compare-chart-wrap">
+              <h4 class="chart-subtitle">Top Violated Articles</h4>
+              <canvas id="compareArticlesChart"></canvas>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="chart-row">
+        <article class="chart-container full-width">
           <h3 class="chart-title">Outcome by Respondent State (n ≥ 5)</h3>
           <div id="stateOutcomeTable"></div>
         </article>

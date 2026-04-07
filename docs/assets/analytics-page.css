@@ -70,8 +70,55 @@
   min-width: 120px;
 }
 
+.compare-charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.compare-chart-wrap {
+  min-height: 280px;
+}
+
+.chart-subtitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0 0 8px;
+}
+
+.compare-summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  margin-bottom: 12px;
+}
+
+.compare-summary-table th,
+.compare-summary-table td {
+  border-bottom: 1px solid var(--border);
+  padding: 7px 10px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.compare-summary-table th {
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+}
+
 @media (max-width: 768px) {
   .analytics-meta {
     justify-content: flex-start;
+  }
+  .compare-charts-grid {
+    grid-template-columns: 1fr;
+  }
+  .chart-controls {
+    flex-wrap: wrap;
   }
 }
