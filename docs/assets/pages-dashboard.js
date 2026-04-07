@@ -525,6 +525,65 @@ async function loadDashboard() {
     { horizontal: true, colors: ["#8d4f78"] }
   );
 
+  // Article × State interactive chart
+  const crossTabs = data.cross_tabs || {};
+  const articleByState = crossTabs.article_by_state || {};
+  const articleStateSelect = document.getElementById("articleStateSelect");
+  const articleByStateCtx = document.getElementById("articleByStateChart");
+  let articleByStateChart = null;
+
+  if (articleStateSelect && articleByStateCtx && Object.keys(articleByState).length) {
+    const articleKeys = Object.keys(articleByState).sort((a, b) => {
+      const na = parseInt(a, 10);
+      const nb = parseInt(b, 10);
+      if (!isNaN(na) && !isNaN(nb)) return na - nb;
+      return a.localeCompare(b);
+    });
+
+    articleKeys.forEach((art) => {
+      const opt = document.createElement("option");
+      opt.value = art;
+      opt.textContent = `Art. ${art}`;
+      articleStateSelect.appendChild(opt);
+    });
+
+    function renderArticleByState(article) {
+      const rows = articleByState[article] || [];
+      const labels = rows.map((r) => r[0]);
+      const totalCases = rows.map((r) => r[1]);
+      const violations = rows.map((r) => r[2]);
+
+      if (articleByStateChart) articleByStateChart.destroy();
+      articleByStateChart = createGroupedBarChart(
+        articleByStateCtx,
+        labels,
+        [
+          {
+            label: "Total cases",
+            data: totalCases,
+            backgroundColor: "#245ea8CC",
+            borderColor: "#245ea8",
+            borderWidth: 1,
+            borderRadius: 5,
+          },
+          {
+            label: "Violations",
+            data: violations,
+            backgroundColor: "#b03e45CC",
+            borderColor: "#b03e45",
+            borderWidth: 1,
+            borderRadius: 5,
+          },
+        ]
+      );
+    }
+
+    renderArticleByState(articleKeys[0]);
+    articleStateSelect.addEventListener("change", () => {
+      renderArticleByState(articleStateSelect.value);
+    });
+  }
+
   renderStateOutcomeTable(document.getElementById("stateOutcomeTable"), stateOutcomesTop);
 
   if (inadmissibilityGroundsTop.length) {

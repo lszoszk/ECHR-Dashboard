@@ -51,6 +51,25 @@
   font-size: 0.82rem;
 }
 
+.chart-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.chart-select {
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg-primary, #fff);
+  color: var(--text-primary, #333);
+  font-size: 0.85rem;
+  min-width: 120px;
+}
+
 @media (max-width: 768px) {
   .analytics-meta {
     justify-content: flex-start;

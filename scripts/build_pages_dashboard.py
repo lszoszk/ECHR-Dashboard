@@ -386,6 +386,8 @@ def build_payload(cases, source_file: str):
     state_case_counts = Counter()
     state_outcome_counts = defaultdict(Counter)
     state_violation_counts = Counter()
+    article_state_counts = defaultdict(Counter)
+    article_state_violation_counts = defaultdict(Counter)
     outcomes_by_year = defaultdict(Counter)
     procedural_vs_substantive_by_year = defaultdict(Counter)
     precedent_to_cases = defaultdict(set)
@@ -468,6 +470,12 @@ def build_payload(cases, source_file: str):
                 case_articles.add(article)
         for article in case_articles:
             article_case_counts[article] += 1
+            for state in normalized["states"]:
+                article_state_counts[article][state] += 1
+
+        for article in set(normalized["violation"]):
+            for state in normalized["states"]:
+                article_state_violation_counts[article][state] += 1
 
         for article in set(normalized["violation"]):
             article_violation_counts[article] += 1
@@ -615,6 +623,17 @@ def build_payload(cases, source_file: str):
         cumulative_share += share
         precedent_concentration.append([citation, count, round(share, 2), round(cumulative_share, 2)])
 
+    # Article × State cross-tabulation (top 15 articles, top 15 states each)
+    top_articles_for_crosstab = [a for a, _ in article_counts.most_common(20)]
+    article_by_state = {}
+    for article in top_articles_for_crosstab:
+        state_rows = []
+        for state, count in article_state_counts[article].most_common(15):
+            v_count = article_state_violation_counts.get(article, {}).get(state, 0)
+            state_rows.append([state, count, v_count])
+        if state_rows:
+            article_by_state[article] = state_rows
+
     field_completeness = {
         field: round((nonempty_field_counts[field] / total_cases), 4) if total_cases else 0
         for field in quality_fields
@@ -735,6 +754,9 @@ def build_payload(cases, source_file: str):
             "precedent_concentration_top": precedent_concentration,
             "precedent_to_citing_cases_top": precedent_to_citing_cases[:20],
             "outcomes": outcome_breakdown,
+        },
+        "cross_tabs": {
+            "article_by_state": article_by_state,
         },
         "quality": {
             "field_completeness": field_completeness,
