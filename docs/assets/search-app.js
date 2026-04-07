@@ -3721,14 +3721,17 @@ async function applyServerSearch(query, filters, resetPage = true) {
       // Store adapted case for modal access
       state.caseById.set(c.case_id, c);
 
-      const paragraphs = (apiCase.paragraphs || []).map((p) => ({
-        key: `${c.case_id}:${p.section}:${p.para_idx}`,
-        section: p.section,
-        sectionLabel: SECTION_LABELS[p.section] || p.section,
-        paraIdx: p.para_idx,
-        rawText: (p.snippet || p.text || "").replace(/<\/?b>/g, ""),
-        textHtml: p.snippet || escapeHtml(p.text || ""),
-      }));
+      const paragraphs = (apiCase.paragraphs || []).map((p) => {
+        const sec = normalizeSectionKey(p.section);
+        return {
+          key: `${c.case_id}:${sec}:${p.para_idx}`,
+          section: sec,
+          sectionLabel: SECTION_LABELS[sec] || sec,
+          paraIdx: p.para_idx,
+          rawText: (p.snippet || p.text || "").replace(/<\/?b>/g, ""),
+          textHtml: p.snippet || escapeHtml(p.text || ""),
+        };
+      });
 
       resultsById.set(c.case_id, {
         case: c,
@@ -4094,9 +4097,10 @@ async function openCaseModalFromServer(caseId, caseStub) {
     const data = await serverSearch.getCase(caseId);
     // Update the cached case with full paragraphs
     const paragraphs = (data.paragraphs || []).map((p) => ({
-      section: p.section,
+      section: normalizeSectionKey(p.section),
       text: p.text,
-      para_idx: p.para_idx,
+      paraIdx: p.para_idx,
+      textLower: (p.text || "").toLowerCase(),
     }));
 
     const c = state.caseById.get(caseId) || caseStub;
@@ -4326,8 +4330,15 @@ async function exportHighlightsPdf() {
   el.exportPdfBtn.textContent = "Generating…";
   el.exportPdfBtn.disabled = true;
 
+  // html2canvas requires the element to be in the DOM to measure/render it
+  container.style.position = "fixed";
+  container.style.left = "-9999px";
+  container.style.top = "0";
+  container.style.width = "700px";
+  document.body.appendChild(container);
+
   try {
-    const filename = (c.appno || c.title || "highlights").replace(/[^a-zA-Z0-9]/g, "_") + "_highlights.pdf";
+    const filename = (c.case_no || c.title || "highlights").replace(/[^a-zA-Z0-9]/g, "_") + "_highlights.pdf";
     await html2pdf().set({
       margin: [15, 15, 15, 15],
       filename,
@@ -4336,6 +4347,7 @@ async function exportHighlightsPdf() {
       pagebreak: { mode: ["avoid-all", "css", "legacy"] },
     }).from(container).save();
   } finally {
+    document.body.removeChild(container);
     el.exportPdfBtn.textContent = "Export PDF";
     el.exportPdfBtn.disabled = false;
   }
