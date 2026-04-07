@@ -1,0 +1,11 @@
+services:
+  echr-api:
+    build: ./backend
+    container_name: echr-search-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
+    environment:
+      - ECHR_DB_PATH=/data/echr_search.db

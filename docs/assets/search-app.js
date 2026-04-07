@@ -1,6 +1,126 @@
 const SAMPLE_DATA_URL = "data/echr_cases_sample50.jsonl";
 const PAGE_SIZE = 20;
 const MAX_HITS = 5000;
+
+// ---------------------------------------------------------------------------
+// Server-side search API integration
+// ---------------------------------------------------------------------------
+const API_BASE_URL = "https://150.254.115.204/echr-api/api";
+const API_HEALTH_URL = "https://150.254.115.204/echr-api/health";
+
+const serverSearch = {
+  available: false,
+  checking: false,
+  serverStats: null,
+
+  /** Probe the API health endpoint once. */
+  async probe() {
+    if (this.checking) return this.available;
+    this.checking = true;
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 4000);
+      const r = await fetch(API_HEALTH_URL, { signal: ctrl.signal });
+      clearTimeout(timer);
+      if (r.ok) {
+        const data = await r.json();
+        this.available = data.status === "ok";
+        if (this.available) {
+          console.log(`[Server Search] API available — ${data.cases} cases indexed`);
+          this.serverStats = data;
+        }
+      }
+    } catch (_) {
+      this.available = false;
+    }
+    this.checking = false;
+    return this.available;
+  },
+
+  /** Build query params from the current UI filters. */
+  _buildParams(query, filters, page = 1) {
+    const p = new URLSearchParams();
+    if (query) p.set("q", query);
+    p.set("page", String(page));
+    p.set("page_size", String(PAGE_SIZE));
+    if (filters.sections.size) p.set("sections", [...filters.sections].join(","));
+    if (filters.articles.size) p.set("articles", [...filters.articles].join(","));
+    if (filters.countries.size) p.set("states", [...filters.countries].join(","));
+    if (filters.importance.size) p.set("importance", [...filters.importance].join(","));
+    if (filters.dateFrom) p.set("date_from", filters.dateFrom);
+    if (filters.dateTo) p.set("date_to", filters.dateTo);
+    return p;
+  },
+
+  /** Convert an API case result into the shape that buildCaseCard expects. */
+  _adaptCase(apiCase) {
+    const c = {
+      case_id: apiCase.case_id,
+      case_no: apiCase.case_no,
+      title: apiCase.title,
+      judgment_date: apiCase.judgment_date,
+      hudoc_url: apiCase.hudoc_url,
+      ecli: apiCase.ecli || "",
+      respondent_state: apiCase.respondent_state || "",
+      article_no: apiCase.articles || [],
+      originating_body: apiCase.originating_body || [],
+      importance: apiCase.importance || "",
+      conclusion: apiCase.conclusion || [],
+      violation: apiCase.violation || [],
+      non_violation: apiCase.non_violation || [],
+      keywords: apiCase.keywords || [],
+      __paragraphs: [],
+      // Normalized fields for rendering
+      __articles: apiCase.articles || [],
+      __states: [apiCase.respondent_state].filter(Boolean),
+      __importance: apiCase.importance || "",
+      __originatingBody: Array.isArray(apiCase.originating_body) ? apiCase.originating_body[0] || "" : (apiCase.originating_body || ""),
+      __outcomePrimary: deriveOutcomeBucket(apiCase.violation || [], apiCase.non_violation || []),
+      __chamberCategory: deriveChamberCategory([], Array.isArray(apiCase.originating_body) ? apiCase.originating_body.join(" ") : (apiCase.originating_body || "")),
+      __hasSeparateOpinion: false,
+      __hasStrasbourgCaselaw: false,
+      __hasDomesticLaw: false,
+      __hasInternationalLaw: false,
+      __hasRulesOfCourt: false,
+      __hasInadmissibility: false,
+      __isStruckOut: false,
+      __citedByCount: 0,
+      __citationRefs: [],
+      __sortTs: apiCase.judgment_date ? new Date(apiCase.judgment_date).getTime() : 0,
+    };
+    return c;
+  },
+
+  /** Full-text search via server API. */
+  async search(query, filters, page = 1) {
+    const params = this._buildParams(query, filters, page);
+    const endpoint = query ? "search" : "browse";
+    const r = await fetch(`${API_BASE_URL}/${endpoint}?${params}`);
+    if (!r.ok) throw new Error(`API ${r.status}`);
+    return r.json();
+  },
+
+  /** Fetch full case details from server. */
+  async getCase(caseId) {
+    const r = await fetch(`${API_BASE_URL}/cases/${encodeURIComponent(caseId)}`);
+    if (!r.ok) throw new Error(`API ${r.status}`);
+    return r.json();
+  },
+
+  /** Fetch facets from server. */
+  async getFacets() {
+    const r = await fetch(`${API_BASE_URL}/facets`);
+    if (!r.ok) throw new Error(`API ${r.status}`);
+    return r.json();
+  },
+
+  /** Fetch stats from server. */
+  async getStats() {
+    const r = await fetch(`${API_BASE_URL}/stats`);
+    if (!r.ok) throw new Error(`API ${r.status}`);
+    return r.json();
+  },
+};
 const CLASSIFIER_SAMPLE_SIZE = 30;
 const CLASSIFIER_STORAGE_PREFIX = "echr-classifier-v1:";
 const CLASSIFIER_DEFAULT_THRESHOLD = 0.22;
@@ -187,6 +307,9 @@ const state = {
   openLegalDetails: new Set(),
   classifierOpen: false,
   classifier: null,
+  serverMode: false,
+  serverTotalCases: 0,
+  serverTotalPages: 0,
 };
 
 const el = {};
@@ -3294,7 +3417,9 @@ function buildPageWindow(totalPages, currentPage) {
 }
 
 function renderPagination() {
-  const totalCases = state.currentOrderedCaseIds.length;
+  const totalCases = state.serverMode
+    ? (state.serverTotalCases || state.currentOrderedCaseIds.length)
+    : state.currentOrderedCaseIds.length;
   const totalPages = Math.ceil(totalCases / PAGE_SIZE);
 
   if (totalPages <= 1) {
@@ -3514,15 +3639,22 @@ function updateResultsHeader() {
 }
 
 function applySearch(resetPage = true) {
+  // Server-side search: used when API is available AND there is a text query
+  // (browse mode without query still uses local data for instant filtering)
+  const query = el.searchInput.value.trim();
+  const filters = getCurrentFilters();
+
+  if (serverSearch.available && query) {
+    applyServerSearch(query, filters, resetPage);
+    return;
+  }
+
   if (!state.loaded) {
     return;
   }
 
-  const query = el.searchInput.value.trim();
   state.query = query;
   el.inlineSearchInput.value = query;
-
-  const filters = getCurrentFilters();
   state.currentFilters = filters;
 
   const t0 = performance.now();
@@ -3538,6 +3670,7 @@ function applySearch(resetPage = true) {
   state.totalHits = result.totalHits;
   state.limited = result.limited;
   state.searchTimeMs = t1 - t0;
+  state.serverMode = false;
 
   if (resetPage) {
     state.currentPage = 1;
@@ -3547,6 +3680,111 @@ function applySearch(resetPage = true) {
   renderResultsPage();
   renderAnalytics();
   updateResultsHeader();
+}
+
+/** Server-side search — calls API and adapts results to local format. */
+async function applyServerSearch(query, filters, resetPage = true) {
+  state.query = query;
+  el.inlineSearchInput.value = query;
+  state.currentFilters = filters;
+
+  if (resetPage) state.currentPage = 1;
+
+  // Show loading state
+  el.casesList.innerHTML = '<div class="search-loading" style="text-align:center;padding:2rem;color:var(--text-secondary);">Searching 18,000+ cases…</div>';
+  el.noResults.hidden = true;
+  el.pagination.hidden = true;
+  el.resultsHeader.hidden = false;
+  el.resultsHits.textContent = "…";
+  el.resultsCases.textContent = "…";
+  el.resultsTime.textContent = "(searching server…)";
+
+  const t0 = performance.now();
+  try {
+    const data = await serverSearch.search(query, filters, state.currentPage);
+    const t1 = performance.now();
+
+    const resultsById = new Map();
+    const orderedCaseIds = [];
+
+    for (const apiCase of (data.cases || [])) {
+      const c = serverSearch._adaptCase(apiCase);
+      // Store adapted case for modal access
+      state.caseById.set(c.case_id, c);
+
+      const paragraphs = (apiCase.paragraphs || []).map((p) => ({
+        key: `${c.case_id}:${p.section}:${p.para_idx}`,
+        section: p.section,
+        sectionLabel: SECTION_LABELS[p.section] || p.section,
+        paraIdx: p.para_idx,
+        rawText: (p.snippet || p.text || "").replace(/<\/?b>/g, ""),
+        textHtml: p.snippet || escapeHtml(p.text || ""),
+      }));
+
+      resultsById.set(c.case_id, {
+        case: c,
+        paragraphs,
+        hitCount: apiCase.hit_count || paragraphs.length,
+        score: apiCase.score || 0,
+      });
+      orderedCaseIds.push(c.case_id);
+    }
+
+    state.currentMode = "search";
+    state.currentOrderedCaseIds = orderedCaseIds;
+    state.currentResultsById = resultsById;
+    state.currentTerms = query.toLowerCase().split(/\s+/).filter(Boolean);
+    state.totalHits = data.total_hits || 0;
+    state.limited = false;
+    state.searchTimeMs = data.search_time_ms || (t1 - t0);
+    state.serverMode = true;
+    state.serverTotalCases = data.total_cases || 0;
+    state.serverTotalPages = Math.ceil((data.total_cases || 0) / PAGE_SIZE);
+
+    renderActiveFilters(filters);
+    renderResultsPage();
+    // Skip local analytics in server mode — chart data comes from result set
+    updateResultsHeaderServer(data);
+  } catch (err) {
+    console.error("[Server Search] Error:", err);
+    // Fall back to local search
+    state.serverMode = false;
+    const t1 = performance.now();
+    if (state.loaded) {
+      const result = buildQueryResults(query, filters);
+      state.currentMode = result.mode;
+      state.currentOrderedCaseIds = result.orderedCaseIds;
+      state.currentResultsById = result.resultsById;
+      state.currentTerms = result.terms;
+      state.totalHits = result.totalHits;
+      state.limited = result.limited;
+      state.searchTimeMs = t1 - t0;
+      if (resetPage) state.currentPage = 1;
+      renderActiveFilters(filters);
+      renderResultsPage();
+      renderAnalytics();
+      updateResultsHeader();
+    } else {
+      el.casesList.innerHTML = '';
+      el.noResults.hidden = false;
+      el.noResults.textContent = "Server search failed and no local data loaded.";
+    }
+  }
+}
+
+/** Update results header for server-side search results. */
+function updateResultsHeaderServer(data) {
+  const totalCases = data.total_cases || state.currentOrderedCaseIds.length;
+  const totalPages = Math.ceil(totalCases / PAGE_SIZE) || 1;
+  const serverTag = "server · full dataset";
+
+  el.resultsHeader.hidden = false;
+  el.resultsHits.textContent = fmtInt.format(data.total_hits || 0);
+  el.resultsCases.textContent = fmtInt.format(totalCases);
+  el.resultsTime.textContent = `(${((data.search_time_ms || state.searchTimeMs) / 1000).toFixed(3)}s · page ${state.currentPage}/${totalPages} · ${serverTag})`;
+
+  el.exportBtn.disabled = !state.currentOrderedCaseIds.length;
+  el.clearBtn.disabled = false;
 }
 
 function resetFiltersAndQuery() {
@@ -3750,6 +3988,12 @@ function openCaseModal(caseId) {
   const c = state.caseById.get(caseId);
   if (!c) return;
 
+  // In server mode, paragraphs may not be fully loaded — fetch from API
+  if (state.serverMode && (!c.__paragraphs || c.__paragraphs.length === 0)) {
+    openCaseModalFromServer(caseId, c);
+    return;
+  }
+
   modalCaseId = caseId;
   el.modalTitle.textContent = c.title || "Untitled case";
 
@@ -3825,6 +4069,44 @@ function closeCaseModal() {
   el.caseModal.hidden = true;
   document.body.style.overflow = "";
   hideHighlightTooltip();
+}
+
+/** Open case modal by fetching full case from server API. */
+async function openCaseModalFromServer(caseId, caseStub) {
+  // Show modal with loading state
+  modalCaseId = caseId;
+  el.modalTitle.textContent = caseStub.title || "Loading…";
+  el.modalMeta.innerHTML = '<p style="color:var(--text-secondary)">Loading full judgment from server…</p>';
+  el.modalBody.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--text-secondary)">Loading paragraphs…</div>';
+  el.caseModal.hidden = false;
+  document.body.style.overflow = "hidden";
+
+  try {
+    const data = await serverSearch.getCase(caseId);
+    // Update the cached case with full paragraphs
+    const paragraphs = (data.paragraphs || []).map((p) => ({
+      section: p.section,
+      text: p.text,
+      para_idx: p.para_idx,
+    }));
+
+    const c = state.caseById.get(caseId) || caseStub;
+    c.__paragraphs = paragraphs;
+    c.ecli = data.ecli || c.ecli;
+    c.article_no = data.articles || c.article_no || [];
+    c.__articles = data.articles || c.__articles || [];
+    state.caseById.set(caseId, c);
+
+    // Now call the regular modal opener
+    closeCaseModal();
+    openCaseModal(caseId);
+  } catch (err) {
+    console.error("[Server Modal] Failed to load case:", err);
+    el.modalBody.innerHTML = `<div style="text-align:center;padding:3rem;color:var(--error-color)">
+      Failed to load case details: ${escapeHtml(err.message)}<br>
+      <a href="${escapeHtml(caseStub.hudoc_url || '')}" target="_blank" rel="noopener">Open on HUDOC ↗</a>
+    </div>`;
+  }
 }
 
 /* ── Text Highlighting & PDF Export (Tier 2 #7) ── */
@@ -4403,7 +4685,9 @@ function bindEvents() {
     const btn = e.target.closest("button[data-page]");
     if (!btn) return;
 
-    const totalPages = Math.ceil(state.currentOrderedCaseIds.length / PAGE_SIZE);
+    const totalPages = state.serverMode
+      ? (state.serverTotalPages || 1)
+      : Math.ceil(state.currentOrderedCaseIds.length / PAGE_SIZE);
     const page = btn.getAttribute("data-page");
 
     if (page === "prev") {
@@ -4419,6 +4703,13 @@ function bindEvents() {
       if (Number.isFinite(numericPage) && numericPage >= 1 && numericPage <= totalPages) {
         state.currentPage = numericPage;
       }
+    }
+
+    // In server mode, re-fetch the requested page from API
+    if (state.serverMode) {
+      applyServerSearch(state.query, state.currentFilters, false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
     }
 
     renderResultsPage();
@@ -4563,6 +4854,21 @@ function init() {
     if (statCountries && statCountries.textContent === "-") statCountries.textContent = fmt.format(s.unique_countries || 0);
     if (statDate && statDate.textContent === "-") statDate.textContent = s.date_range_label || "-";
   }).catch(() => {});
+
+  // Probe server-side search API (non-blocking)
+  serverSearch.probe().then((available) => {
+    if (available) {
+      setDatasetStatus("Server API connected — full-text search across 18,000+ cases available. Sample data also loaded for browsing.");
+      setSearchEnabled(true);
+      // Add visual indicator
+      const badge = document.createElement("span");
+      badge.className = "server-badge";
+      badge.textContent = "Full Dataset (Server)";
+      badge.style.cssText = "display:inline-block;background:#2ecc71;color:#fff;font-size:0.75rem;padding:2px 8px;border-radius:10px;margin-left:8px;vertical-align:middle;";
+      const metaEl = document.getElementById("datasetMeta");
+      if (metaEl) metaEl.appendChild(badge);
+    }
+  });
 
   // Auto-load sample dataset
   document.getElementById("loadSampleBtn")?.click();

@@ -11,6 +11,12 @@ __pycache__/
 .env.*
 *.log
 
+# Large files — kept locally / on VM only
+data/
+*.db
+*.db-shm
+*.db-wal
+
 # Keep repo lean (exclude non-essential local assets and tools)
 mysite/
 *.docx
