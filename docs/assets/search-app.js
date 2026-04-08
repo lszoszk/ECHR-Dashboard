@@ -161,7 +161,6 @@ const CLASSIFIER_METHODS = {
 };
 
 const SECTION_ORDER = [
-  "header",
   "introduction",
   "facts_background",
   "facts_proceedings",
@@ -177,7 +176,6 @@ const SECTION_ORDER = [
 ];
 
 const SECTION_LABELS = {
-  header: "Header",
   introduction: "Introduction",
   facts_background: "Facts (Background)",
   facts_proceedings: "Facts (Proceedings)",
@@ -193,7 +191,6 @@ const SECTION_LABELS = {
 };
 
 const SECTION_COLORS = {
-  header: "#718096",
   introduction: "#4C72B0",
   facts_background: "#DD8452",
   facts_proceedings: "#C44E52",
@@ -210,7 +207,6 @@ const SECTION_COLORS = {
 
 // Reverse map: normalized key → raw DB section name (as stored in SQLite)
 const SECTION_DB_NAMES = {
-  header: "Header",
   introduction: "Introduction",
   facts_background: "Facts Background",
   facts_proceedings: "Facts Proceedings",

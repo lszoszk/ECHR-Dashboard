@@ -270,13 +270,23 @@ def facets():
             )
             result["articles"] = [_row_to_dict(r) for r in cur.fetchall()]
 
-            # Respondent states
+            # Respondent states — split compound entries ("Italy, San Marino")
+            # into individual unique countries with aggregated counts
             cur.execute(
-                "SELECT respondent_state AS value, count(*) AS count "
-                "FROM cases WHERE respondent_state IS NOT NULL "
-                "GROUP BY respondent_state ORDER BY count DESC"
+                "SELECT respondent_state, count(*) AS count "
+                "FROM cases WHERE respondent_state IS NOT NULL AND respondent_state != '' "
+                "GROUP BY respondent_state"
             )
-            result["states"] = [_row_to_dict(r) for r in cur.fetchall()]
+            country_counts: dict[str, int] = {}
+            for row in cur.fetchall():
+                raw = row["respondent_state"]
+                parts = [p.strip() for p in raw.split(",") if p.strip()]
+                for part in parts:
+                    country_counts[part] = country_counts.get(part, 0) + row["count"]
+            result["states"] = sorted(
+                [{"value": k, "count": v} for k, v in country_counts.items()],
+                key=lambda x: -x["count"],
+            )
 
             # Importance
             cur.execute(
@@ -286,10 +296,10 @@ def facets():
             )
             result["importance"] = [_row_to_dict(r) for r in cur.fetchall()]
 
-            # Sections
+            # Sections (exclude Header — it's case metadata, not judgment content)
             cur.execute(
                 "SELECT section AS value, count(DISTINCT case_id) AS count "
-                "FROM paragraphs WHERE section IS NOT NULL "
+                "FROM paragraphs WHERE section IS NOT NULL AND section != 'Header' "
                 "GROUP BY section ORDER BY count DESC"
             )
             result["sections"] = [_row_to_dict(r) for r in cur.fetchall()]
@@ -370,9 +380,14 @@ def search(
         params.extend(art_list)
 
     if state_list:
-        placeholders = ",".join("?" for _ in state_list)
-        where_clauses.append(f"c.respondent_state IN ({placeholders})")
-        params.extend(state_list)
+        state_conditions = []
+        for st in state_list:
+            # Match both exact ("Italy") and compound ("Italy, San Marino")
+            state_conditions.append(
+                "(c.respondent_state = ? OR c.respondent_state LIKE ? OR c.respondent_state LIKE ? OR c.respondent_state LIKE ?)"
+            )
+            params.extend([st, f"{st}, %", f"%, {st}, %", f"%, {st}"])
+        where_clauses.append(f"({' OR '.join(state_conditions)})")
 
     if imp_list:
         placeholders = ",".join("?" for _ in imp_list)
@@ -653,9 +668,14 @@ def browse(
         params.extend(art_list)
 
     if state_list:
-        placeholders = ",".join("?" for _ in state_list)
-        where_clauses.append(f"c.respondent_state IN ({placeholders})")
-        params.extend(state_list)
+        state_conditions = []
+        for st in state_list:
+            # Match both exact ("Italy") and compound ("Italy, San Marino")
+            state_conditions.append(
+                "(c.respondent_state = ? OR c.respondent_state LIKE ? OR c.respondent_state LIKE ? OR c.respondent_state LIKE ?)"
+            )
+            params.extend([st, f"{st}, %", f"%, {st}, %", f"%, {st}"])
+        where_clauses.append(f"({' OR '.join(state_conditions)})")
 
     if imp_list:
         placeholders = ",".join("?" for _ in imp_list)
