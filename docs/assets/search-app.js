@@ -4010,6 +4010,7 @@ function openCaseModal(caseId) {
   }
 
   modalCaseId = caseId;
+  hideHighlightTooltip();
   el.modalTitle.textContent = c.title || "Untitled case";
 
   // Add modal action buttons (citation + info card)

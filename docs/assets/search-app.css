@@ -1424,6 +1424,9 @@ html[style*="--a11y-line-height"] .modal-para {
   border-radius: 8px;
   box-shadow: var(--shadow-lg);
 }
+.highlight-tooltip[hidden] {
+  display: none !important;
+}
 .hl-color {
   width: 24px;
   height: 24px;
