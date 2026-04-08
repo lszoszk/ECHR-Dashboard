@@ -4140,6 +4140,7 @@ let pendingSelection = null;
 
 function hideHighlightTooltip() {
   el.highlightTooltip.hidden = true;
+  pendingSelection = null;
 }
 
 function updateHighlightButtons() {
@@ -4281,11 +4282,17 @@ function handleModalSelection() {
 
   pendingSelection = { paraIdx, start, end };
 
-  // Position tooltip near the selection
+  // Position tooltip near the selection, relative to .modal-panel
+  // (the tooltip's CSS containing block via position:relative)
   const rect = range.getBoundingClientRect();
-  const modalRect = el.caseModal.getBoundingClientRect();
-  el.highlightTooltip.style.left = `${rect.left - modalRect.left + rect.width / 2 - 70}px`;
-  el.highlightTooltip.style.top = `${rect.top - modalRect.top - 40}px`;
+  const panelEl = el.highlightTooltip.parentElement; // .modal-panel
+  const panelRect = panelEl.getBoundingClientRect();
+  const tooltipW = 170; // approximate tooltip width
+  let left = rect.left - panelRect.left + rect.width / 2 - tooltipW / 2;
+  // Clamp so tooltip doesn't overflow panel edges
+  left = Math.max(8, Math.min(left, panelRect.width - tooltipW - 8));
+  el.highlightTooltip.style.left = `${left}px`;
+  el.highlightTooltip.style.top = `${rect.top - panelRect.top - 42}px`;
   el.highlightTooltip.hidden = false;
 }
 
@@ -4793,6 +4800,7 @@ function bindEvents() {
   el.highlightTooltip.addEventListener("click", handleHighlightColorClick);
   el.clearHighlightsBtn.addEventListener("click", clearAllHighlights);
   el.exportXlsxBtn.addEventListener("click", exportHighlightsXlsx);
+  el.modalBody.addEventListener("scroll", hideHighlightTooltip);
   document.addEventListener("mousedown", function (e) {
     if (!el.highlightTooltip.contains(e.target)) hideHighlightTooltip();
   });
