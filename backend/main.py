@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 # ---------------------------------------------------------------------------
@@ -78,8 +79,12 @@ app = FastAPI(
     description="Full-text search over European Court of Human Rights case law.",
 )
 
-# CORS is handled exclusively by the Nginx reverse proxy on the VM.
-# Do NOT add CORSMiddleware here — it causes duplicate headers.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://lszoszk.github.io"],
+    allow_methods=["GET", "OPTIONS"],
+    allow_headers=["Content-Type"],
+)
 
 
 # ---------------------------------------------------------------------------
@@ -288,6 +293,14 @@ def facets():
                 "GROUP BY section ORDER BY count DESC"
             )
             result["sections"] = [_row_to_dict(r) for r in cur.fetchall()]
+
+            # Originating bodies
+            cur.execute(
+                "SELECT originating_body AS value, count(*) AS count "
+                "FROM cases WHERE originating_body IS NOT NULL AND originating_body != '' "
+                "GROUP BY originating_body ORDER BY count DESC"
+            )
+            result["bodies"] = [_row_to_dict(r) for r in cur.fetchall()]
 
             # Date range
             cur.execute(

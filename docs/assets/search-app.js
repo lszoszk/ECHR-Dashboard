@@ -4997,6 +4997,60 @@ function init() {
         }
       } catch (_) { /* sample load failure is OK when server is available */ }
 
+      // Fetch full facets from server and override local sample filters
+      try {
+        const facets = await serverSearch.getFacets();
+        // Build reverse map: DB section name → normalized key
+        const DB_TO_NORM = {};
+        for (const [norm, db] of Object.entries(SECTION_DB_NAMES)) DB_TO_NORM[db] = norm;
+
+        if (facets.sections) {
+          state.sectionsInDataset = facets.sections
+            .map((f) => DB_TO_NORM[f.value] || f.value)
+            .filter((s) => SECTION_LABELS[s])
+            .sort((a, b) => {
+              const ai = SECTION_ORDER.indexOf(a);
+              const bi = SECTION_ORDER.indexOf(b);
+              if (ai !== -1 && bi !== -1) return ai - bi;
+              if (ai !== -1) return -1;
+              if (bi !== -1) return 1;
+              return a.localeCompare(b);
+            });
+        }
+        if (facets.states) {
+          state.countries = facets.states
+            .filter((f) => f.value)
+            .map((f) => f.value)
+            .sort((a, b) => a.localeCompare(b));
+        }
+        if (facets.articles) {
+          state.articles = facets.articles
+            .map((f) => f.value)
+            .sort((a, b) => (a.length - b.length) || a.localeCompare(b));
+        }
+        if (facets.bodies) {
+          state.bodies = facets.bodies
+            .map((f) => f.value)
+            .sort((a, b) => a.localeCompare(b));
+        }
+        if (facets.importance) {
+          state.importanceLevels = facets.importance
+            .filter((f) => f.value)
+            .map((f) => f.value)
+            .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+        }
+        renderFilters();
+        console.log("[Server Facets] Filters updated from server:", {
+          sections: state.sectionsInDataset.length,
+          countries: state.countries.length,
+          articles: state.articles.length,
+          bodies: state.bodies.length,
+          importance: state.importanceLevels.length,
+        });
+      } catch (e) {
+        console.warn("[Server Facets] Could not fetch facets:", e);
+      }
+
     } else {
       // Server not available — fall back to sample dataset with file upload option
       setDatasetStatus("Server unavailable — using local sample dataset.");
