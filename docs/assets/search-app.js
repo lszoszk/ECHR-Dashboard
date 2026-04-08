@@ -3730,7 +3730,7 @@ async function applyServerSearch(query, filters, resetPage = true) {
           sectionLabel: SECTION_LABELS[sec] || sec,
           paraIdx: p.para_idx,
           rawText: (p.snippet || p.text || "").replace(/<\/?b>/g, ""),
-          textHtml: p.snippet || escapeHtml(p.text || ""),
+          textHtml: p.snippet ? p.snippet.replace(/<b>/g, '<mark class="hl">').replace(/<\/b>/g, '</mark>') : escapeHtml(p.text || ""),
         };
       });
 

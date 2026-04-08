@@ -19,8 +19,8 @@
     --text-on-dark: #f7fafc;
     --border: #e2e8f0;
     --border-light: #edf2f7;
-    --highlight: #fefcbf;
-    --highlight-border: #ecc94b;
+    --highlight: rgba(250, 204, 21, 0.35);
+    --highlight-border: #eab308;
     --positive: #38a169;
     --negative: #e53e3e;
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
@@ -53,8 +53,8 @@
     --text-on-dark: #e2e8f0;
     --border: #2d3748;
     --border-light: #1e293b;
-    --highlight: #744210;
-    --highlight-border: #975a16;
+    --highlight: rgba(250, 204, 21, 0.25);
+    --highlight-border: #d97706;
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
     --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
     --shadow-lg: 0 10px 30px rgba(0,0,0,0.5);
@@ -523,9 +523,10 @@ body {
 .para-text mark.hl, mark.hl {
     background: var(--highlight);
     border-bottom: 2px solid var(--highlight-border);
-    padding: 1px 2px;
-    border-radius: 2px;
+    padding: 2px 3px;
+    border-radius: 3px;
     color: inherit;
+    font-weight: 600;
 }
 
 .case-footer {
