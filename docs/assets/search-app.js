@@ -4001,10 +4001,10 @@ function openCaseModal(caseId) {
   const c = state.caseById.get(caseId);
   if (!c) return;
 
-  // In server mode, always fetch fresh data from API (local sample may
-  // have stale/incomplete paragraphs).  Skip only if already fetched
+  // When server is available, always fetch fresh data from API (local
+  // sample has un-segmented sections).  Skip only if already fetched
   // from server in this session (marked by __serverLoaded flag).
-  if (state.serverMode && !c.__serverLoaded) {
+  if (serverSearch.available && !c.__serverLoaded) {
     openCaseModalFromServer(caseId, c);
     return;
   }
