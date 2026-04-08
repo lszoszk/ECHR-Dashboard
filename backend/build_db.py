@@ -171,6 +171,170 @@ def _normalize_articles(article_no) -> list:
 
 
 # ---------------------------------------------------------------------------
+# Section re-segmentation — fix misclassified paragraphs
+# ---------------------------------------------------------------------------
+
+import re
+
+# Patterns that indicate a section boundary when found at the START of a
+# short paragraph (< 150 chars).  Order matters: first match wins.
+# Each tuple: (compiled regex, new_section_name)
+_SECTION_BOUNDARY_PATTERNS = [
+    # ── Separate opinions (must come before operative part checks) ──
+    (re.compile(
+        r"^(PARTLY\s+)?(JOINT\s+)?(DISSENTING|CONCURRING|SEPARATE)\s+OPINION",
+        re.IGNORECASE,
+    ), "Separate Opinion"),
+
+    # ── Operative Part ──
+    (re.compile(r"^FOR\s+THESE\s+REASONS", re.IGNORECASE), "Operative Part"),
+    (re.compile(r"^OPERATIVE\s+PROVISIONS?", re.IGNORECASE), "Operative Part"),
+
+    # ── Just Satisfaction (old-style Art. 50 and modern Art. 41) ──
+    (re.compile(r"^APPLICATION\s+OF\s+ARTICLE\s+50\b", re.IGNORECASE), "Just Satisfaction"),
+    # Note: "APPLICATION OF ARTICLE 41" also appears as sub-heading inside
+    # Merits in modern judgments; only re-classify if it's a standalone heading.
+
+    # ── Merits / Law ──
+    (re.compile(r"^AS\s+TO\s+THE\s+LAW\b", re.IGNORECASE), "Merits"),
+    (re.compile(r"^THE\s+LAW\s*$", re.IGNORECASE), "Merits"),
+    # "THE LAW" followed by a section reference on the same line
+    (re.compile(r"^THE\s+LAW\s+I\.\s", re.IGNORECASE), "Merits"),
+
+    # ── Facts ──
+    (re.compile(r"^AS\s+TO\s+THE\s+FACTS\b", re.IGNORECASE), "Facts Background"),
+    (re.compile(r"^THE\s+FACTS\s*$", re.IGNORECASE), "Facts Background"),
+    (re.compile(r"^THE\s+FACTS\s+I\.\s", re.IGNORECASE), "Facts Background"),
+
+    # ── Circumstances of the case (Facts Proceedings sub-section) ──
+    (re.compile(
+        r"^I\.\s*(THE\s+)?CIRCUMSTANCES?\s+OF\s+THE\s+CASE",
+        re.IGNORECASE,
+    ), "Facts Proceedings"),
+
+    # ── Proceedings before the Commission ──
+    (re.compile(r"^PROCEEDINGS?\s+BEFORE\s+THE\s+COMMISSION", re.IGNORECASE), "Facts Proceedings"),
+
+    # ── Legal Framework (modern) ──
+    (re.compile(r"^RELEVANT\s+(DOMESTIC\s+|LEGAL\s+)?(LAW|FRAMEWORK|LEGISLATION)", re.IGNORECASE), "Legal Framework"),
+    (re.compile(r"^RELEVANT\s+LEGAL\s+FRAMEWORK\s+AND\s+PRACTICE", re.IGNORECASE), "Legal Framework"),
+
+    # ── Admissibility ──
+    # Careful: "A. Admissibility" is often a sub-heading inside Merits.
+    # Only trigger section change for standalone headings.
+    (re.compile(r"^([A-Z]\.\s+)?ADMISSIBILITY\s*(OF\s+THE\s+COMPLAINT)?", re.IGNORECASE), "Admissibility"),
+    (re.compile(r"^(I+\.\s*)?ADMISSIBILITY\b", re.IGNORECASE), "Admissibility"),
+
+    # ── Introduction / Procedure ──
+    (re.compile(r"^PROCEDURE\b", re.IGNORECASE), "Introduction"),
+    (re.compile(r"^INTRODUCTION\s*$", re.IGNORECASE), "Introduction"),
+
+    # ── Article 46 ──
+    (re.compile(r"^(APPLICATION\s+OF\s+)?ARTICLE\s+46\b", re.IGNORECASE), "Article 46"),
+
+    # ── Appendix ──
+    (re.compile(r"^APPENDIX\b", re.IGNORECASE), "Appendix"),
+]
+
+# Maximum text length for a paragraph to be treated as a potential section
+# heading.  Real headings are short; we don't want to re-classify body text.
+_HEADING_MAX_LEN = 200
+
+
+
+# Sections that are known to be "monolithic catch-alls" in older HUDOC data.
+# Only paragraphs originally tagged with these sections will be re-classified
+# by the flowing current_section.  Paragraphs with specific sections
+# (Admissibility, Just Satisfaction, Legal Framework, etc.) are preserved.
+_SUSPECT_SECTIONS = frozenset({
+    "Header",         # only for paras after a detected heading
+    "Introduction",   # the biggest catch-all in old judgments
+    "Operative Part", # often contains separate opinions
+})
+
+
+def _resegment_paragraphs(paragraphs: list[dict]) -> list[dict]:
+    """Re-classify paragraph sections based on textual heading patterns.
+
+    The HUDOC parser often dumps everything into "Introduction" or
+    "Facts Proceedings" for older judgments.  This function scans for
+    known section-heading patterns and re-assigns the ``section`` field.
+
+    Strategy:
+    1. Scan paragraphs in order for heading patterns.
+    2. When a heading is detected, update ``current_section``.
+    3. A paragraph is only re-classified if:
+       a) Its text matches a heading pattern (always applied), OR
+       b) Its original section is in _SUSPECT_SECTIONS (catch-all
+          sections that are known to be unreliable in old data).
+    4. Paragraphs originally tagged with specific sections like
+       Admissibility, Just Satisfaction, Legal Framework, Merits,
+       Separate Opinion, Article 46, Appendix are PRESERVED —
+       they act as authoritative and also reset current_section.
+    5. Header paragraphs are never re-classified.
+    """
+    if not paragraphs:
+        return paragraphs
+
+    # Sort by para_idx to ensure correct order
+    paragraphs = sorted(paragraphs, key=lambda p: p.get("para_idx", 0))
+
+    current_section = paragraphs[0].get("section", "Introduction")
+    changed = 0
+
+    for para in paragraphs:
+        orig_section = para.get("section", "")
+
+        # Never touch Header paragraphs at the start (true header block)
+        if orig_section == "Header":
+            current_section = "Header"
+            continue
+
+        text = (para.get("text") or "").strip()
+
+        # Check if this paragraph looks like a section heading
+        heading_match = None
+        if len(text) <= _HEADING_MAX_LEN:
+            for pattern, new_section in _SECTION_BOUNDARY_PATTERNS:
+                if pattern.search(text):
+                    heading_match = new_section
+                    break
+
+        if heading_match:
+            # Heading detected — always update current section
+            current_section = heading_match
+            para["section"] = current_section
+        elif orig_section in _SUSPECT_SECTIONS:
+            # No heading, but original section is unreliable — apply flow
+            if para["section"] != current_section:
+                para["section"] = current_section
+        else:
+            # Original section is specific/authoritative — trust it
+            # and let it set the current section for subsequent paragraphs
+            current_section = orig_section
+
+    return paragraphs
+
+
+# Global counter for logging
+_resegment_stats = {"cases_changed": 0, "paras_changed": 0}
+
+
+def _resegment_case(paragraphs: list[dict]) -> list[dict]:
+    """Wrapper that tracks statistics."""
+    orig_sections = [p.get("section") for p in paragraphs]
+    result = _resegment_paragraphs(paragraphs)
+    new_sections = [p.get("section") for p in result]
+
+    changes = sum(1 for a, b in zip(orig_sections, new_sections) if a != b)
+    if changes:
+        _resegment_stats["cases_changed"] += 1
+        _resegment_stats["paras_changed"] += changes
+
+    return result
+
+
+# ---------------------------------------------------------------------------
 # Progress wrapper (tqdm when available, fallback to plain logging)
 # ---------------------------------------------------------------------------
 
@@ -303,8 +467,9 @@ def build_database(input_path: Path, output_path: Path, batch_size: int) -> None
                 _json_field(record.get("originating_body")),
             ))
 
-            # Paragraphs
-            paragraphs = record.get("paragraphs") or []
+            # Paragraphs — with section re-segmentation
+            raw_paragraphs = record.get("paragraphs") or []
+            paragraphs = _resegment_case(raw_paragraphs)
             for para in paragraphs:
                 text = para.get("text", "")
                 if not text:
@@ -370,6 +535,9 @@ def build_database(input_path: Path, output_path: Path, batch_size: int) -> None
         log.info("  Total cases:      %d", total_cases)
         log.info("  Total paragraphs: %d", total_paragraphs)
         log.info("  Skipped records:  %d", skipped)
+        log.info("  Re-segmented:     %d cases, %d paragraphs changed",
+                 _resegment_stats["cases_changed"],
+                 _resegment_stats["paras_changed"])
         log.info("  Database size:    %s", size_str)
         log.info("  Output file:      %s", output_path.resolve())
         log.info("=" * 60)
