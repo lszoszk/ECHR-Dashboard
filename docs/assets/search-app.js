@@ -4297,6 +4297,13 @@ function handleModalSelection() {
 }
 
 function handleHighlightColorClick(e) {
+  // Close button — dismiss tooltip
+  if (e.target.closest(".hl-close")) {
+    window.getSelection().removeAllRanges();
+    hideHighlightTooltip();
+    return;
+  }
+
   const btn = e.target.closest(".hl-color");
   if (!btn || !pendingSelection) return;
 
@@ -4309,7 +4316,6 @@ function handleHighlightColorClick(e) {
 
   window.getSelection().removeAllRanges();
   hideHighlightTooltip();
-  pendingSelection = null;
 }
 
 function exportHighlightsXlsx() {
@@ -4797,12 +4803,11 @@ function bindEvents() {
   el.modalBody.addEventListener("mouseup", function () {
     setTimeout(handleModalSelection, 10);
   });
-  el.highlightTooltip.addEventListener("click", handleHighlightColorClick);
-  byId("hlCloseBtn").addEventListener("click", function (e) {
-    e.stopPropagation();
-    window.getSelection().removeAllRanges();
-    hideHighlightTooltip();
+  // Prevent mousedown on tooltip from collapsing the text selection
+  el.highlightTooltip.addEventListener("mousedown", function (e) {
+    e.preventDefault();
   });
+  el.highlightTooltip.addEventListener("click", handleHighlightColorClick);
   el.clearHighlightsBtn.addEventListener("click", clearAllHighlights);
   el.exportXlsxBtn.addEventListener("click", exportHighlightsXlsx);
   el.modalBody.addEventListener("scroll", hideHighlightTooltip);
