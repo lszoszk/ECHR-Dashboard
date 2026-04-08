@@ -144,6 +144,7 @@ const CLASSIFIER_METHODS = {
 };
 
 const SECTION_ORDER = [
+  "header",
   "introduction",
   "facts_background",
   "facts_proceedings",
@@ -4032,12 +4033,17 @@ function openCaseModal(caseId) {
 
   el.modalMeta.innerHTML = buildCaseMeta(c);
 
+  // Group paragraphs by section; skip "header" — its content (case title,
+  // "JUDGMENT", court composition) is already shown in the modal metadata.
   const grouped = new Map();
+  let totalDisplayed = 0;
   for (const para of c.__paragraphs) {
+    if (para.section === "header") continue;
     if (!grouped.has(para.section)) {
       grouped.set(para.section, []);
     }
     grouped.get(para.section).push(para);
+    totalDisplayed++;
   }
 
   const availableSections = [...grouped.keys()];
@@ -4070,7 +4076,7 @@ function openCaseModal(caseId) {
 
   el.modalBody.innerHTML = parts.join("");
   el.modalQuery.value = "";
-  el.modalCount.textContent = `${fmtInt.format(c.__paragraphs.length)} paragraphs`;
+  el.modalCount.textContent = `${fmtInt.format(totalDisplayed)} paragraphs`;
 
   // Restore any saved highlights for this case
   applyHighlightsToDOM();
