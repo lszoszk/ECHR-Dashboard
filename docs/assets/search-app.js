@@ -1175,7 +1175,7 @@ function normalizeCases(rawCases) {
       const para = rawParagraphs[p] || {};
       const section = normalizeSectionKey(para.section || "unknown");
       const text = String(para.text || "").trim();
-      if (!text || section === "header") continue;
+      if (!text) continue;
 
       const idx = Number(para.para_idx);
       const paraIdx = Number.isFinite(idx) ? idx : p;
@@ -4000,8 +4000,10 @@ function openCaseModal(caseId) {
   const c = state.caseById.get(caseId);
   if (!c) return;
 
-  // In server mode, paragraphs may not be fully loaded — fetch from API
-  if (state.serverMode && (!c.__paragraphs || c.__paragraphs.length === 0)) {
+  // In server mode, always fetch fresh data from API (local sample may
+  // have stale/incomplete paragraphs).  Skip only if already fetched
+  // from server in this session (marked by __serverLoaded flag).
+  if (state.serverMode && !c.__serverLoaded) {
     openCaseModalFromServer(caseId, c);
     return;
   }
@@ -4105,6 +4107,7 @@ async function openCaseModalFromServer(caseId, caseStub) {
 
     const c = state.caseById.get(caseId) || caseStub;
     c.__paragraphs = paragraphs;
+    c.__serverLoaded = true;
     c.ecli = data.ecli || c.ecli;
     c.article_no = data.articles || c.article_no || [];
     c.__articles = data.articles || c.__articles || [];
