@@ -313,6 +313,8 @@ def search(
     articles: Optional[str] = Query(None, description="Comma-separated article filter"),
     states: Optional[str] = Query(None, description="Comma-separated respondent_state filter"),
     importance: Optional[str] = Query(None, description="Comma-separated importance filter"),
+    bodies: Optional[str] = Query(None, description="Comma-separated originating_body filter"),
+    outcomes: Optional[str] = Query(None, description="Comma-separated outcome filter (violation_only,non_violation_only,both,neither)"),
     date_from: Optional[str] = Query(None, description="Earliest judgment_date (YYYY-MM-DD)"),
     date_to: Optional[str] = Query(None, description="Latest judgment_date (YYYY-MM-DD)"),
     sort: str = Query("relevance", pattern="^(relevance|date_desc|date_asc)$"),
@@ -328,6 +330,8 @@ def search(
     art_list = _parse_comma_param(articles)
     state_list = _parse_comma_param(states)
     imp_list = _parse_comma_param(importance)
+    body_list = _parse_comma_param(bodies)
+    outcome_list = _parse_comma_param(outcomes)
 
     # ------------------------------------------------------------------
     # Build the core query.  We join paragraphs_fts -> paragraphs -> cases
@@ -361,6 +365,27 @@ def search(
         placeholders = ",".join("?" for _ in imp_list)
         where_clauses.append(f"c.importance IN ({placeholders})")
         params.extend(imp_list)
+
+    if body_list:
+        body_conditions = []
+        for b in body_list:
+            body_conditions.append("c.originating_body LIKE ?")
+            params.append(f"%{b}%")
+        where_clauses.append(f"({' OR '.join(body_conditions)})")
+
+    if outcome_list:
+        oc_conditions = []
+        for oc in outcome_list:
+            if oc == "violation_only":
+                oc_conditions.append("(c.violation != '[]' AND c.violation != '' AND (c.non_violation = '[]' OR c.non_violation = ''))")
+            elif oc == "non_violation_only":
+                oc_conditions.append("((c.violation = '[]' OR c.violation = '') AND c.non_violation != '[]' AND c.non_violation != '')")
+            elif oc == "both":
+                oc_conditions.append("(c.violation != '[]' AND c.violation != '' AND c.non_violation != '[]' AND c.non_violation != '')")
+            elif oc == "neither":
+                oc_conditions.append("((c.violation = '[]' OR c.violation = '' OR c.violation IS NULL) AND (c.non_violation = '[]' OR c.non_violation = '' OR c.non_violation IS NULL))")
+        if oc_conditions:
+            where_clauses.append(f"({' OR '.join(oc_conditions)})")
 
     if date_from:
         where_clauses.append("c.judgment_date >= ?")
@@ -587,6 +612,8 @@ def browse(
     articles: Optional[str] = Query(None),
     states: Optional[str] = Query(None),
     importance: Optional[str] = Query(None),
+    bodies: Optional[str] = Query(None),
+    outcomes: Optional[str] = Query(None),
     date_from: Optional[str] = Query(None),
     date_to: Optional[str] = Query(None),
     sort: str = Query("date_desc", pattern="^(date_desc|date_asc)$"),
@@ -598,6 +625,8 @@ def browse(
     art_list = _parse_comma_param(articles)
     state_list = _parse_comma_param(states)
     imp_list = _parse_comma_param(importance)
+    body_list = _parse_comma_param(bodies)
+    outcome_list = _parse_comma_param(outcomes)
 
     where_clauses: list[str] = []
     joins: list[str] = []
@@ -619,6 +648,27 @@ def browse(
         placeholders = ",".join("?" for _ in imp_list)
         where_clauses.append(f"c.importance IN ({placeholders})")
         params.extend(imp_list)
+
+    if body_list:
+        body_conditions = []
+        for b in body_list:
+            body_conditions.append("c.originating_body LIKE ?")
+            params.append(f"%{b}%")
+        where_clauses.append(f"({' OR '.join(body_conditions)})")
+
+    if outcome_list:
+        oc_conditions = []
+        for oc in outcome_list:
+            if oc == "violation_only":
+                oc_conditions.append("(c.violation != '[]' AND c.violation != '' AND (c.non_violation = '[]' OR c.non_violation = ''))")
+            elif oc == "non_violation_only":
+                oc_conditions.append("((c.violation = '[]' OR c.violation = '') AND c.non_violation != '[]' AND c.non_violation != '')")
+            elif oc == "both":
+                oc_conditions.append("(c.violation != '[]' AND c.violation != '' AND c.non_violation != '[]' AND c.non_violation != '')")
+            elif oc == "neither":
+                oc_conditions.append("((c.violation = '[]' OR c.violation = '' OR c.violation IS NULL) AND (c.non_violation = '[]' OR c.non_violation = '' OR c.non_violation IS NULL))")
+        if oc_conditions:
+            where_clauses.append(f"({' OR '.join(oc_conditions)})")
 
     if date_from:
         where_clauses.append("c.judgment_date >= ?")

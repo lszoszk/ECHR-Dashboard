@@ -43,10 +43,16 @@ const serverSearch = {
     if (query) p.set("q", query);
     p.set("page", String(page));
     p.set("page_size", String(PAGE_SIZE));
-    if (filters.sections.size) p.set("sections", [...filters.sections].join(","));
+    // Convert normalized section keys back to raw DB names
+    if (filters.sections.size) {
+      const dbSections = [...filters.sections].map(s => SECTION_DB_NAMES[s] || s);
+      p.set("sections", dbSections.join(","));
+    }
     if (filters.articles.size) p.set("articles", [...filters.articles].join(","));
     if (filters.countries.size) p.set("states", [...filters.countries].join(","));
     if (filters.importance.size) p.set("importance", [...filters.importance].join(","));
+    if (filters.bodies.size) p.set("bodies", [...filters.bodies].join(","));
+    if (filters.outcomes.size) p.set("outcomes", [...filters.outcomes].join(","));
     if (filters.dateFrom) p.set("date_from", filters.dateFrom);
     if (filters.dateTo) p.set("date_to", filters.dateTo);
     return p;
@@ -54,6 +60,14 @@ const serverSearch = {
 
   /** Convert an API case result into the shape that buildCaseCard expects. */
   _adaptCase(apiCase) {
+    const origBody = Array.isArray(apiCase.originating_body)
+      ? apiCase.originating_body[0] || ""
+      : (apiCase.originating_body || "");
+    const violation = apiCase.violation || [];
+    const nonViolation = apiCase.non_violation || [];
+    const conclusion = Array.isArray(apiCase.conclusion) ? apiCase.conclusion.join(" ") : (apiCase.conclusion || "");
+    const conclusionUpper = conclusion.toUpperCase();
+    const keywords = apiCase.keywords || [];
     const c = {
       case_id: apiCase.case_id,
       case_no: apiCase.case_no,
@@ -66,26 +80,29 @@ const serverSearch = {
       originating_body: apiCase.originating_body || [],
       importance: apiCase.importance || "",
       conclusion: apiCase.conclusion || [],
-      violation: apiCase.violation || [],
-      non_violation: apiCase.non_violation || [],
-      keywords: apiCase.keywords || [],
+      violation,
+      non_violation: nonViolation,
+      keywords,
       __paragraphs: [],
-      // Normalized fields for rendering
+      // Normalized fields for rendering & filtering
       __articles: apiCase.articles || [],
       __states: [apiCase.respondent_state].filter(Boolean),
-      __importance: apiCase.importance || "",
-      __originatingBody: Array.isArray(apiCase.originating_body) ? apiCase.originating_body[0] || "" : (apiCase.originating_body || ""),
-      __outcomePrimary: deriveOutcomeBucket(apiCase.violation || [], apiCase.non_violation || []),
-      __chamberCategory: deriveChamberCategory([], Array.isArray(apiCase.originating_body) ? apiCase.originating_body.join(" ") : (apiCase.originating_body || "")),
-      __hasSeparateOpinion: false,
+      __importance: apiCase.importance || "Unspecified",
+      __originatingBody: origBody || "Unknown",
+      __outcomePrimary: deriveOutcomeBucket(violation, nonViolation),
+      __chamberCategory: deriveChamberCategory([], origBody),
+      __hasSeparateOpinion: parseBoolLike(apiCase.separate_opinion),
       __hasStrasbourgCaselaw: false,
       __hasDomesticLaw: false,
       __hasInternationalLaw: false,
       __hasRulesOfCourt: false,
-      __hasInadmissibility: false,
-      __isStruckOut: false,
+      __hasInadmissibility: conclusionUpper.includes("INADMISSIBL"),
+      __isStruckOut: conclusionUpper.includes("STRUCK OUT"),
+      __keywordsText: normalizeSearchText(keywords.join(" ")),
       __citedByCount: 0,
       __citationRefs: [],
+      __citationRefsNorm: [],
+      __judgmentDateTs: apiCase.judgment_date ? (() => { const p = apiCase.judgment_date.split("/"); return p.length === 3 ? new Date(`${p[2]}-${p[1]}-${p[0]}`).getTime() : new Date(apiCase.judgment_date).getTime(); })() : null,
       __sortTs: apiCase.judgment_date ? (() => { const p = apiCase.judgment_date.split("/"); return p.length === 3 ? new Date(`${p[2]}-${p[1]}-${p[0]}`).getTime() : new Date(apiCase.judgment_date).getTime(); })() : 0,
     };
     return c;
@@ -189,6 +206,23 @@ const SECTION_COLORS = {
   operative_part: "#64B5CD",
   separate_opinion: "#8C8C8C",
   appendix: "#A5A58D",
+};
+
+// Reverse map: normalized key → raw DB section name (as stored in SQLite)
+const SECTION_DB_NAMES = {
+  header: "Header",
+  introduction: "Introduction",
+  facts_background: "Facts Background",
+  facts_proceedings: "Facts Proceedings",
+  legal_framework: "Legal Framework",
+  legal_context: "Legal Context",
+  admissibility: "Admissibility",
+  merits: "Merits",
+  just_satisfaction: "Just Satisfaction",
+  article_46: "Article 46",
+  operative_part: "Operative Part",
+  separate_opinion: "Separate Opinion",
+  appendix: "Appendix",
 };
 
 const SEARCH_SCORE_SECTION_WEIGHTS = {
@@ -3733,6 +3767,9 @@ async function applyServerSearch(query, filters, resetPage = true) {
           textHtml: p.snippet ? p.snippet.replace(/<b>/g, '<mark class="hl">').replace(/<\/b>/g, '</mark>') : escapeHtml(p.text || ""),
         };
       });
+
+      // Client-side post-filter for filters the server doesn't support
+      if (!passesCaseFilters(c, filters)) continue;
 
       resultsById.set(c.case_id, {
         case: c,
