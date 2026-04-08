@@ -411,7 +411,7 @@ function cacheElements() {
   el.modalBody = byId("modalBody");
   el.highlightTooltip = byId("highlightTooltip");
   el.clearHighlightsBtn = byId("clearHighlightsBtn");
-  el.exportPdfBtn = byId("exportPdfBtn");
+  el.exportXlsxBtn = byId("exportXlsxBtn");
 
   el.classifierPane = byId("classifierPane");
   el.classifierBackdrop = byId("classifierBackdrop");
@@ -3991,7 +3991,7 @@ function renderModalSection(sectionKey, paragraphs) {
 
   return `
     <section class="modal-section" data-section="${escapeHtml(sectionKey)}">
-      <h3 style="border-bottom-color:${escapeHtml(color)}66">${escapeHtml(label)}</h3>
+      <h3 style="border-left-color:${escapeHtml(color)}">${escapeHtml(label)}</h3>
       ${paragraphsHtml}
     </section>
   `;
@@ -4131,7 +4131,7 @@ async function openCaseModalFromServer(caseId, caseStub) {
   }
 }
 
-/* ── Text Highlighting & PDF Export (Tier 2 #7) ── */
+/* ── Text Highlighting & XLSX Export (Tier 2 #7) ── */
 
 // Highlights stored per case: Map<caseId, Array<{paraIdx, start, end, color}>>
 const highlightStore = new Map();
@@ -4146,7 +4146,7 @@ function updateHighlightButtons() {
   const highlights = highlightStore.get(modalCaseId);
   const hasAny = highlights && highlights.length > 0;
   el.clearHighlightsBtn.hidden = !hasAny;
-  el.exportPdfBtn.hidden = !hasAny;
+  el.exportXlsxBtn.hidden = !hasAny;
 }
 
 function getParaIndex(paraEl) {
@@ -4209,24 +4209,35 @@ function applyHighlightsToDOM() {
 function addHighlight(paraIdx, start, end, color) {
   if (!highlightStore.has(modalCaseId)) highlightStore.set(modalCaseId, []);
   const highlights = highlightStore.get(modalCaseId);
-  // Remove overlapping highlights in the same range
-  const filtered = highlights.filter(
-    (h) => h.paraIdx !== paraIdx || h.end <= start || h.start >= end
-  );
-  filtered.push({ paraIdx, start, end, color });
-  highlightStore.set(modalCaseId, filtered);
+  // Split partially overlapping highlights — keep non-overlapping portions
+  const updated = [];
+  for (const h of highlights) {
+    if (h.paraIdx !== paraIdx || h.end <= start || h.start >= end) {
+      updated.push(h); // no overlap
+    } else {
+      if (h.start < start) updated.push({ ...h, end: start }); // left portion
+      if (h.end > end) updated.push({ ...h, start: end });     // right portion
+    }
+  }
+  updated.push({ paraIdx, start, end, color });
+  highlightStore.set(modalCaseId, updated);
   applyHighlightsToDOM();
 }
 
 function removeHighlight(paraIdx, start, end) {
   const highlights = highlightStore.get(modalCaseId);
   if (!highlights) return;
-  highlightStore.set(
-    modalCaseId,
-    highlights.filter(
-      (h) => h.paraIdx !== paraIdx || h.end <= start || h.start >= end
-    )
-  );
+  // Split partially overlapping highlights — keep non-overlapping portions
+  const updated = [];
+  for (const h of highlights) {
+    if (h.paraIdx !== paraIdx || h.end <= start || h.start >= end) {
+      updated.push(h);
+    } else {
+      if (h.start < start) updated.push({ ...h, end: start });
+      if (h.end > end) updated.push({ ...h, start: end });
+    }
+  }
+  highlightStore.set(modalCaseId, updated);
   applyHighlightsToDOM();
 }
 
@@ -4294,72 +4305,92 @@ function handleHighlightColorClick(e) {
   pendingSelection = null;
 }
 
-async function exportHighlightsPdf() {
+function exportHighlightsXlsx() {
   const c = state.caseById.get(modalCaseId);
   if (!c) return;
 
   const highlights = highlightStore.get(modalCaseId) || [];
   if (!highlights.length) return;
 
-  const highlightedParaIdxs = new Set(highlights.map((h) => h.paraIdx));
-
-  // Build a clean HTML fragment for export
-  const container = document.createElement("div");
-  container.style.cssText = "font-family: 'Source Serif 4', Georgia, serif; font-size: 11pt; color: #1a1a1a; line-height: 1.7; max-width: 700px;";
-
-  // Header with case citation
-  const header = document.createElement("div");
-  header.style.cssText = "margin-bottom: 18px; padding-bottom: 12px; border-bottom: 2px solid #2563eb;";
-  header.innerHTML = `<h1 style="font-size:14pt;margin:0 0 6px">${escapeHtml(c.title || "Untitled")}</h1>
-    <p style="font-size:9pt;color:#666;margin:0">${escapeHtml(buildStandardCitation(c))}</p>
-    <p style="font-size:9pt;color:#666;margin:4px 0 0">Highlighted excerpts — exported ${new Date().toLocaleDateString("en-GB")}</p>`;
-  container.appendChild(header);
-
-  // Collect highlighted paragraphs
-  for (const paraEl of el.modalBody.querySelectorAll(".modal-para")) {
-    const idx = getParaIndex(paraEl);
-    if (!highlightedParaIdxs.has(idx)) continue;
-
-    const section = paraEl.getAttribute("data-section") || "";
-    const textSpan = getTextSpan(paraEl);
-    if (!textSpan) continue;
-
-    const div = document.createElement("div");
-    div.style.cssText = "margin-bottom: 12px; padding: 8px 10px; border-left: 3px solid #2563eb; background: #fafafa;";
-    div.innerHTML = `<span style="font-size:8pt;color:#888;font-weight:600">${escapeHtml(SECTION_LABELS[section] || section)} — ¶ ${idx + 1}</span><br>${textSpan.innerHTML}`;
-    container.appendChild(div);
-  }
-
-  // Use html2pdf.js
-  if (typeof html2pdf === "undefined") {
-    alert("PDF library not loaded. Please try again in a moment.");
+  if (typeof XLSX === "undefined") {
+    alert("XLSX library not loaded. Please try again in a moment.");
     return;
   }
 
-  el.exportPdfBtn.textContent = "Generating…";
-  el.exportPdfBtn.disabled = true;
+  // Color label map for human-readable color names
+  const colorLabels = {
+    "#fef08a": "Yellow",
+    "#bbf7d0": "Green",
+    "#bfdbfe": "Blue",
+    "#fecaca": "Red",
+  };
 
-  // html2canvas requires the element to be in the DOM to measure/render it
-  container.style.position = "fixed";
-  container.style.left = "-9999px";
-  container.style.top = "0";
-  container.style.width = "700px";
-  document.body.appendChild(container);
-
-  try {
-    const filename = (c.case_no || c.title || "highlights").replace(/[^a-zA-Z0-9]/g, "_") + "_highlights.pdf";
-    await html2pdf().set({
-      margin: [15, 15, 15, 15],
-      filename,
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-      pagebreak: { mode: ["avoid-all", "css", "legacy"] },
-    }).from(container).save();
-  } finally {
-    document.body.removeChild(container);
-    el.exportPdfBtn.textContent = "Export PDF";
-    el.exportPdfBtn.disabled = false;
+  // Group highlights by paraIdx for context lookup
+  const byPara = new Map();
+  for (const h of highlights) {
+    if (!byPara.has(h.paraIdx)) byPara.set(h.paraIdx, []);
+    byPara.get(h.paraIdx).push(h);
   }
+
+  // Build rows from DOM paragraphs to preserve section order
+  const rows = [];
+  for (const paraEl of el.modalBody.querySelectorAll(".modal-para")) {
+    const idx = getParaIndex(paraEl);
+    if (!byPara.has(idx)) continue;
+
+    const section = paraEl.getAttribute("data-section") || "";
+    const sectionLabel = SECTION_LABELS[section] || section;
+    const textSpan = getTextSpan(paraEl);
+    if (!textSpan) continue;
+
+    const fullText = textSpan.textContent;
+    const paraHighlights = byPara.get(idx).slice().sort((a, b) => a.start - b.start);
+
+    for (const h of paraHighlights) {
+      const highlighted = fullText.slice(h.start, h.end);
+      rows.push({
+        "Section": sectionLabel,
+        "¶": idx + 1,
+        "Highlighted Text": highlighted,
+        "Color": colorLabels[h.color] || h.color,
+        "Full Paragraph": fullText,
+      });
+    }
+  }
+
+  if (!rows.length) return;
+
+  // Create workbook
+  const wb = XLSX.utils.book_new();
+
+  // Info sheet with case metadata
+  const infoRows = [
+    { "Field": "Case Title", "Value": c.title || "" },
+    { "Field": "Case Number", "Value": c.case_no || "" },
+    { "Field": "ECLI", "Value": c.ecli || "" },
+    { "Field": "Judgment Date", "Value": c.judgment_date || c.date || "" },
+    { "Field": "Citation", "Value": buildStandardCitation(c) },
+    { "Field": "Exported", "Value": new Date().toLocaleDateString("en-GB") + " " + new Date().toLocaleTimeString("en-GB") },
+    { "Field": "Total Highlights", "Value": rows.length },
+  ];
+  const wsInfo = XLSX.utils.json_to_sheet(infoRows);
+  wsInfo["!cols"] = [{ wch: 16 }, { wch: 80 }];
+  XLSX.utils.book_append_sheet(wb, wsInfo, "Case Info");
+
+  // Highlights sheet
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws["!cols"] = [
+    { wch: 20 },  // Section
+    { wch: 5 },   // ¶
+    { wch: 60 },  // Highlighted Text
+    { wch: 8 },   // Color
+    { wch: 80 },  // Full Paragraph
+  ];
+  XLSX.utils.book_append_sheet(wb, ws, "Highlights");
+
+  // Generate filename and download
+  const filename = (c.case_no || c.title || "highlights").replace(/[^a-zA-Z0-9]/g, "_") + "_highlights.xlsx";
+  XLSX.writeFile(wb, filename);
 }
 
 function filterModalParagraphs() {
@@ -4755,13 +4786,13 @@ function bindEvents() {
   el.modalQuery.addEventListener("input", filterModalParagraphs);
   el.modalSectionFilter.addEventListener("change", filterModalParagraphs);
 
-  // Highlight & PDF export events
+  // Highlight & XLSX export events
   el.modalBody.addEventListener("mouseup", function () {
     setTimeout(handleModalSelection, 10);
   });
   el.highlightTooltip.addEventListener("click", handleHighlightColorClick);
   el.clearHighlightsBtn.addEventListener("click", clearAllHighlights);
-  el.exportPdfBtn.addEventListener("click", exportHighlightsPdf);
+  el.exportXlsxBtn.addEventListener("click", exportHighlightsXlsx);
   document.addEventListener("mousedown", function (e) {
     if (!el.highlightTooltip.contains(e.target)) hideHighlightTooltip();
   });

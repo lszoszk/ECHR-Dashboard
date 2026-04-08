@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="assets/dashboard.css">
   <link rel="stylesheet" href="assets/search-app.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js" defer></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
 </head>
 <body>
   <nav class="navbar">
@@ -298,7 +298,7 @@
         <span id="modalCount" class="modal-count"></span>
         <span class="modal-tools-sep"></span>
         <button type="button" class="modal-action-btn" id="clearHighlightsBtn" title="Remove all highlights" hidden>Clear Highlights</button>
-        <button type="button" class="modal-action-btn" id="exportPdfBtn" title="Export highlighted paragraphs as PDF" hidden>Export PDF</button>
+        <button type="button" class="modal-action-btn" id="exportXlsxBtn" title="Export highlighted paragraphs as XLSX" hidden>Export XLSX</button>
       </div>
 
       <div id="highlightTooltip" class="highlight-tooltip" hidden>
