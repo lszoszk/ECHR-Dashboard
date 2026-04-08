@@ -271,7 +271,8 @@ def _resegment_paragraphs(paragraphs: list[dict]) -> list[dict]:
        Admissibility, Just Satisfaction, Legal Framework, Merits,
        Separate Opinion, Article 46, Appendix are PRESERVED —
        they act as authoritative and also reset current_section.
-    5. Header paragraphs are never re-classified.
+    5. Header paragraphs before the first heading stay as Header
+       naturally (since current_section starts as "Header").
     """
     if not paragraphs:
         return paragraphs
@@ -284,19 +285,16 @@ def _resegment_paragraphs(paragraphs: list[dict]) -> list[dict]:
 
     for para in paragraphs:
         orig_section = para.get("section", "")
-
-        # Never touch Header paragraphs at the start (true header block)
-        if orig_section == "Header":
-            current_section = "Header"
-            continue
-
         text = (para.get("text") or "").strip()
 
-        # Check if this paragraph looks like a section heading
+        # Check if this paragraph looks like a section heading.
+        # All patterns use ^ anchors, so we only need to check the
+        # beginning of the text — safe even for long paragraphs.
         heading_match = None
-        if len(text) <= _HEADING_MAX_LEN:
+        check_text = text[:_HEADING_MAX_LEN] if text else ""
+        if check_text:
             for pattern, new_section in _SECTION_BOUNDARY_PATTERNS:
-                if pattern.search(text):
+                if pattern.search(check_text):
                     heading_match = new_section
                     break
 
