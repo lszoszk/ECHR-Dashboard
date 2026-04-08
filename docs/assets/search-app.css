@@ -1445,6 +1445,26 @@ html[style*="--a11y-line-height"] .modal-para {
   align-items: center;
   justify-content: center;
 }
+.hl-close {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hl-close:hover {
+  color: var(--text-primary);
+  background: rgba(0,0,0,0.06);
+}
 
 /* User highlights in modal paragraphs */
 .modal-para mark {
