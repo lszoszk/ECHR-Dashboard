@@ -3843,7 +3843,7 @@ async function applyServerSearch(query, filters, resetPage = true) {
 
     renderActiveFilters(filters);
     renderResultsPage();
-    // Skip local analytics in server mode — chart data comes from result set
+    renderAnalytics();
     updateResultsHeaderServer(data);
   } catch (err) {
     console.error("[Server Search] Error:", err);
