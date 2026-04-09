@@ -233,6 +233,13 @@
   background: rgba(140, 140, 140, 0.12);
 }
 
+.meta-chip.press-release {
+  font-weight: 600;
+  color: #7c3aed;
+  border-color: rgba(124, 58, 237, 0.35);
+  background: rgba(124, 58, 237, 0.12);
+}
+
 .legal-details-wrap {
   margin-top: 2px;
 }

@@ -507,7 +507,7 @@ def search(
             cur.execute(
                 "SELECT case_id, case_no, title, judgment_date, hudoc_url, "
                 "respondent_state, importance, conclusion, violation, "
-                "non_violation, violation_inferred, non_violation_inferred, keywords, originating_body "
+                "non_violation, violation_inferred, non_violation_inferred, keywords, originating_body, document_type "
                 f"FROM cases WHERE case_id IN ({id_placeholders})",
                 case_ids,
             )
@@ -602,7 +602,7 @@ def get_case(case_id: str):
             cur.execute(
                 "SELECT case_id, case_no, title, judgment_date, hudoc_url, ecli, "
                 "respondent_state, importance, conclusion, violation, "
-                "non_violation, violation_inferred, non_violation_inferred, keywords, originating_body "
+                "non_violation, violation_inferred, non_violation_inferred, keywords, originating_body, document_type "
                 "FROM cases WHERE case_id = ?",
                 (case_id,),
             )
@@ -767,7 +767,7 @@ def browse(
             cur.execute(
                 "SELECT case_id, case_no, title, judgment_date, hudoc_url, "
                 "respondent_state, importance, conclusion, violation, "
-                "non_violation, violation_inferred, non_violation_inferred, keywords, originating_body "
+                "non_violation, violation_inferred, non_violation_inferred, keywords, originating_body, document_type "
                 f"FROM cases WHERE case_id IN ({id_ph})",
                 case_ids,
             )

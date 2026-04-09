@@ -102,6 +102,8 @@ const serverSearch = {
       __citedByCount: 0,
       __citationRefs: [],
       __citationRefsNorm: [],
+      __isPressRelease: (apiCase.document_type || "").toLowerCase().includes("press release"),
+      document_type: apiCase.document_type || "",
       __judgmentDateTs: apiCase.judgment_date ? (() => { const p = apiCase.judgment_date.split("/"); return p.length === 3 ? new Date(`${p[2]}-${p[1]}-${p[0]}`).getTime() : new Date(apiCase.judgment_date).getTime(); })() : null,
       __sortTs: apiCase.judgment_date ? (() => { const p = apiCase.judgment_date.split("/"); return p.length === 3 ? new Date(`${p[2]}-${p[1]}-${p[0]}`).getTime() : new Date(apiCase.judgment_date).getTime(); })() : 0,
     };
@@ -1289,6 +1291,7 @@ function normalizeCases(rawCases) {
       __hudocNorm: normalizeSearchText(hudocUrl),
       __hudocIdNorm: normalizeSearchText(hudocId),
       __chamberCategory: chamberCategory,
+      __isPressRelease: documentType.some(dt => dt.toLowerCase().includes("press release")),
       __judgmentDateTs: ts,
       __sortTs: ts == null ? -Infinity : ts,
       __paragraphs: parsedParagraphs,
@@ -3363,6 +3366,7 @@ function buildCaseCard(caseId, row) {
             <span class="meta-chip">${escapeHtml(c.judgment_date || "-")}</span>
             <span class="meta-chip">${escapeHtml(respondentSummary)}</span>
             <span class="meta-chip outcome ${escapeHtml(outcomeToneClass)}">${escapeHtml(outcomeLabel)}</span>
+            ${c.__isPressRelease ? '<span class="meta-chip press-release">Press Release</span>' : ''}
           </div>
 
           <div class="case-actions-inline compact-actions">

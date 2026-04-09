@@ -50,7 +50,8 @@ CREATE TABLE IF NOT EXISTS cases (
     violation_inferred   TEXT,  -- JSON array: articles inferred from conclusion text (not in HUDOC)
     non_violation_inferred TEXT, -- JSON array: articles inferred from conclusion text (not in HUDOC)
     keywords         TEXT,   -- JSON array stored as text
-    originating_body TEXT    -- JSON array stored as text
+    originating_body TEXT,   -- JSON array stored as text
+    document_type    TEXT    -- e.g. "Judgment (Merits and Just Satisfaction)", "Press Release - Chamber Judgments"
 );
 
 CREATE TABLE IF NOT EXISTS paragraphs (
@@ -544,8 +545,8 @@ def build_database(input_path: Path, output_path: Path, batch_size: int) -> None
                         ecli, respondent_state, importance,
                         conclusion, violation, non_violation,
                         violation_inferred, non_violation_inferred,
-                        keywords, originating_body)
-                       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                        keywords, originating_body, document_type)
+                       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                     case_rows,
                 )
             if para_rows:
@@ -621,6 +622,7 @@ def build_database(input_path: Path, output_path: Path, batch_size: int) -> None
                 _json_field(new_nv) if new_nv else "[]",   # non_violation_inferred
                 _json_field(record.get("keywords")),
                 _json_field(record.get("originating_body")),
+                record.get("document_type") or "",
             ))
 
             # Paragraphs — with section re-segmentation
