@@ -3504,14 +3504,24 @@ function renderResultsPage() {
 
   el.noResults.hidden = true;
 
-  const totalPages = Math.ceil(totalCases / PAGE_SIZE);
+  // In server mode, each API call returns only the current page's cases,
+  // so totalPages must come from the server's total count, not the local array.
+  const effectiveTotal = state.serverMode
+    ? (state.serverTotalCases || totalCases)
+    : totalCases;
+  const totalPages = Math.ceil(effectiveTotal / PAGE_SIZE);
   if (state.currentPage > totalPages) {
     state.currentPage = totalPages;
   }
 
-  const start = (state.currentPage - 1) * PAGE_SIZE;
-  const end = Math.min(start + PAGE_SIZE, totalCases);
-  const pageCaseIds = state.currentOrderedCaseIds.slice(start, end);
+  // In server mode, the API already returned the correct page — show all results.
+  // In local mode, slice the full array to the current page window.
+  const pageCaseIds = state.serverMode
+    ? state.currentOrderedCaseIds
+    : state.currentOrderedCaseIds.slice(
+        (state.currentPage - 1) * PAGE_SIZE,
+        Math.min(state.currentPage * PAGE_SIZE, totalCases)
+      );
 
   el.casesList.innerHTML = pageCaseIds
     .map((caseId) => buildCaseCard(caseId, state.currentResultsById.get(caseId)))
