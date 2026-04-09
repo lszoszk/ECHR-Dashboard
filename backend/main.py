@@ -344,6 +344,271 @@ def facets():
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
+# ---- /api/analytics --------------------------------------------------------
+
+def _build_case_filter_sql(
+    *,
+    fts_expr: str = "",
+    sec_list: list[str] | None = None,
+    art_list: list[str] | None = None,
+    state_list: list[str] | None = None,
+    imp_list: list[str] | None = None,
+    body_list: list[str] | None = None,
+    outcome_list: list[str] | None = None,
+    doc_type_list: list[str] | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
+) -> tuple[str, str, list[Any]]:
+    """Build shared WHERE/JOIN clauses for case queries.
+
+    Returns (join_sql, where_sql, params).
+    If fts_expr is given, includes FTS join and match condition.
+    """
+    where_clauses: list[str] = []
+    joins: list[str] = []
+    params: list[Any] = []
+
+    if fts_expr:
+        joins.append(
+            "JOIN paragraphs p ON p.case_id = c.case_id "
+            "JOIN paragraphs_fts pf ON pf.rowid = p.rowid"
+        )
+        where_clauses.append("pf.paragraphs_fts MATCH ?")
+        params.append(fts_expr)
+
+    if sec_list and fts_expr:
+        placeholders = ",".join("?" for _ in sec_list)
+        where_clauses.append(f"p.section IN ({placeholders})")
+        params.extend(sec_list)
+
+    if art_list:
+        placeholders = ",".join("?" for _ in art_list)
+        joins.append(
+            f"JOIN case_articles ca ON ca.case_id = c.case_id AND ca.article IN ({placeholders})"
+        )
+        params.extend(art_list)
+
+    if state_list:
+        state_conditions = []
+        for st in state_list:
+            state_conditions.append(
+                "(c.respondent_state = ? OR c.respondent_state LIKE ? "
+                "OR c.respondent_state LIKE ? OR c.respondent_state LIKE ?)"
+            )
+            params.extend([st, f"{st}, %", f"%, {st}, %", f"%, {st}"])
+        where_clauses.append(f"({' OR '.join(state_conditions)})")
+
+    if imp_list:
+        placeholders = ",".join("?" for _ in imp_list)
+        where_clauses.append(f"c.importance IN ({placeholders})")
+        params.extend(imp_list)
+
+    if body_list:
+        body_conditions = []
+        for b in body_list:
+            body_conditions.append("c.originating_body LIKE ?")
+            params.append(f"%{b}%")
+        where_clauses.append(f"({' OR '.join(body_conditions)})")
+
+    if outcome_list:
+        oc_conditions = []
+        for oc in outcome_list:
+            if oc == "violation_only":
+                oc_conditions.append("(c.violation != '[]' AND c.violation != '' AND (c.non_violation = '[]' OR c.non_violation = '') AND c.document_type NOT LIKE '%Press Release%')")
+            elif oc == "non_violation_only":
+                oc_conditions.append("((c.violation = '[]' OR c.violation = '') AND c.non_violation != '[]' AND c.non_violation != '' AND c.document_type NOT LIKE '%Press Release%')")
+            elif oc == "both":
+                oc_conditions.append("(c.violation != '[]' AND c.violation != '' AND c.non_violation != '[]' AND c.non_violation != '' AND c.document_type NOT LIKE '%Press Release%')")
+            elif oc == "neither":
+                oc_conditions.append("((c.violation = '[]' OR c.violation = '' OR c.violation IS NULL) AND (c.non_violation = '[]' OR c.non_violation = '' OR c.non_violation IS NULL) AND c.document_type NOT LIKE '%Press Release%')")
+            elif oc == "press_release":
+                oc_conditions.append("(c.document_type LIKE '%Press Release%')")
+        if oc_conditions:
+            where_clauses.append(f"({' OR '.join(oc_conditions)})")
+
+    if doc_type_list:
+        dt_conditions = []
+        for dt in doc_type_list:
+            if dt == "press_release":
+                dt_conditions.append("c.document_type LIKE '%Press Release%'")
+            elif dt == "judgment":
+                dt_conditions.append("c.document_type NOT LIKE '%Press Release%'")
+        if dt_conditions:
+            where_clauses.append(f"({' OR '.join(dt_conditions)})")
+
+    if date_from:
+        where_clauses.append("c.judgment_date >= ?")
+        params.append(date_from)
+
+    if date_to:
+        where_clauses.append("c.judgment_date <= ?")
+        params.append(date_to)
+
+    join_sql = " ".join(joins)
+    where_sql = " AND ".join(where_clauses) if where_clauses else "1=1"
+    return join_sql, where_sql, params
+
+
+@app.get("/api/analytics")
+def analytics(
+    q: Optional[str] = Query(None, description="Full-text search query"),
+    sections: Optional[str] = Query(None),
+    articles: Optional[str] = Query(None),
+    states: Optional[str] = Query(None),
+    importance: Optional[str] = Query(None),
+    bodies: Optional[str] = Query(None),
+    outcomes: Optional[str] = Query(None),
+    doc_types: Optional[str] = Query(None),
+    date_from: Optional[str] = Query(None),
+    date_to: Optional[str] = Query(None),
+):
+    """Return aggregated analytics for the given query/filters over ALL matching cases."""
+    t0 = time.perf_counter()
+
+    fts_expr = ""
+    if q and q.strip():
+        fts_expr = _build_fts_query(q)
+
+    join_sql, where_sql, params = _build_case_filter_sql(
+        fts_expr=fts_expr,
+        sec_list=_parse_comma_param(sections),
+        art_list=_parse_comma_param(articles),
+        state_list=_parse_comma_param(states),
+        imp_list=_parse_comma_param(importance),
+        body_list=_parse_comma_param(bodies),
+        outcome_list=_parse_comma_param(outcomes),
+        doc_type_list=_parse_comma_param(doc_types),
+        date_from=date_from,
+        date_to=date_to,
+    )
+
+    try:
+        result: dict[str, Any] = {}
+        with get_cursor() as cur:
+            # Step 1: Collect matching case_ids into a Python set (one FTS pass).
+            cur.execute(
+                f"SELECT DISTINCT c.case_id "
+                f"FROM cases c {join_sql} "
+                f"WHERE {where_sql}",
+                params,
+            )
+            matching_ids = [r["case_id"] for r in cur.fetchall()]
+            result["total_cases"] = len(matching_ids)
+
+            if not matching_ids:
+                elapsed = (time.perf_counter() - t0) * 1000
+                result.update(articles=[], countries=[], sections=[], bodies=[],
+                              importance=[], outcomes=[], doc_types=[],
+                              analytics_time_ms=round(elapsed, 1))
+                return result
+
+            # Build a json array param for efficient IN-filtering via json_each.
+            ids_json = json.dumps(matching_ids)
+
+            # Articles breakdown
+            cur.execute(
+                "SELECT ca.article AS value, count(DISTINCT ca.case_id) AS count "
+                "FROM case_articles ca "
+                "WHERE ca.case_id IN (SELECT value FROM json_each(?)) "
+                "GROUP BY ca.article ORDER BY count DESC LIMIT 15",
+                [ids_json],
+            )
+            result["articles"] = [_row_to_dict(r) for r in cur.fetchall()]
+
+            # Countries breakdown (split compound entries)
+            cur.execute(
+                "SELECT c.respondent_state, count(*) AS count "
+                "FROM cases c "
+                "WHERE c.case_id IN (SELECT value FROM json_each(?)) "
+                "AND c.respondent_state IS NOT NULL AND c.respondent_state != '' "
+                "GROUP BY c.respondent_state",
+                [ids_json],
+            )
+            country_counts: dict[str, int] = {}
+            for row in cur.fetchall():
+                raw = row["respondent_state"]
+                parts = [p.strip() for p in raw.split(",") if p.strip()]
+                for part in parts:
+                    country_counts[part] = country_counts.get(part, 0) + row["count"]
+            result["countries"] = sorted(
+                [{"value": k, "count": v} for k, v in country_counts.items()],
+                key=lambda x: -x["count"],
+            )[:15]
+
+            # Sections breakdown (case count per section)
+            cur.execute(
+                "SELECT p.section AS value, count(DISTINCT p.case_id) AS count "
+                "FROM paragraphs p "
+                "WHERE p.case_id IN (SELECT value FROM json_each(?)) "
+                "AND p.section IS NOT NULL AND p.section != 'Header' "
+                "GROUP BY p.section ORDER BY count DESC LIMIT 15",
+                [ids_json],
+            )
+            result["sections"] = [_row_to_dict(r) for r in cur.fetchall()]
+
+            # Originating bodies
+            cur.execute(
+                "SELECT c.originating_body AS value, count(*) AS count "
+                "FROM cases c "
+                "WHERE c.case_id IN (SELECT value FROM json_each(?)) "
+                "AND c.originating_body IS NOT NULL AND c.originating_body != '' "
+                "GROUP BY c.originating_body ORDER BY count DESC LIMIT 15",
+                [ids_json],
+            )
+            result["bodies"] = [_row_to_dict(r) for r in cur.fetchall()]
+
+            # Importance
+            cur.execute(
+                "SELECT c.importance AS value, count(*) AS count "
+                "FROM cases c "
+                "WHERE c.case_id IN (SELECT value FROM json_each(?)) "
+                "AND c.importance IS NOT NULL "
+                "GROUP BY c.importance ORDER BY count DESC",
+                [ids_json],
+            )
+            result["importance"] = [_row_to_dict(r) for r in cur.fetchall()]
+
+            # Outcomes (derived from violation / non_violation + doc type)
+            cur.execute(
+                "SELECT "
+                "  CASE "
+                "    WHEN c.document_type LIKE '%Press Release%' THEN 'press_release' "
+                "    WHEN c.violation != '[]' AND c.violation != '' "
+                "         AND c.non_violation != '[]' AND c.non_violation != '' THEN 'both' "
+                "    WHEN c.violation != '[]' AND c.violation != '' THEN 'violation_only' "
+                "    WHEN c.non_violation != '[]' AND c.non_violation != '' THEN 'non_violation_only' "
+                "    ELSE 'neither' "
+                "  END AS value, "
+                "  count(*) AS count "
+                "FROM cases c "
+                "WHERE c.case_id IN (SELECT value FROM json_each(?)) "
+                "GROUP BY value ORDER BY count DESC",
+                [ids_json],
+            )
+            result["outcomes"] = [_row_to_dict(r) for r in cur.fetchall()]
+
+            # Document types
+            cur.execute(
+                "SELECT c.document_type AS value, count(*) AS count "
+                "FROM cases c "
+                "WHERE c.case_id IN (SELECT value FROM json_each(?)) "
+                "AND c.document_type IS NOT NULL AND c.document_type != '' "
+                "GROUP BY c.document_type ORDER BY count DESC",
+                [ids_json],
+            )
+            result["doc_types"] = [_row_to_dict(r) for r in cur.fetchall()]
+
+        elapsed = (time.perf_counter() - t0) * 1000
+        result["analytics_time_ms"] = round(elapsed, 1)
+        return result
+    except sqlite3.OperationalError as exc:
+        logger.exception("Analytics query failed")
+        raise HTTPException(status_code=400, detail=f"Analytics error: {exc}") from exc
+    except Exception as exc:
+        logger.exception("Unexpected analytics error")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
 # ---- /api/search -----------------------------------------------------------
 
 @app.get("/api/search")

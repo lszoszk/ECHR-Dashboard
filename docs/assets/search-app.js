@@ -3664,7 +3664,10 @@ function renderWordCloud(rows) {
 
 function renderAnalytics() {
   const a = computeAnalytics();
+  _renderAnalyticsData(a);
+}
 
+function _renderAnalyticsData(a) {
   renderBarList(
     el.analyticsArticles,
     a.articles,
@@ -3714,7 +3717,59 @@ function renderAnalytics() {
     "section"
   );
 
-  renderWordCloud(a.words);
+  renderWordCloud(a.words || []);
+}
+
+/** Fetch full analytics from server for current query/filters and render. */
+async function fetchAndRenderServerAnalytics(query, filters) {
+  try {
+    const p = new URLSearchParams();
+    if (query) p.set("q", query);
+    if (filters.sections.size) {
+      const dbSections = [...filters.sections].map(s => SECTION_DB_NAMES[s] || s);
+      p.set("sections", dbSections.join(","));
+    }
+    if (filters.articles.size) p.set("articles", [...filters.articles].join(","));
+    if (filters.countries.size) p.set("states", [...filters.countries].join(","));
+    if (filters.importance.size) p.set("importance", [...filters.importance].join(","));
+    if (filters.bodies.size) p.set("bodies", [...filters.bodies].join(","));
+    if (filters.outcomes.size) p.set("outcomes", [...filters.outcomes].join(","));
+    if (filters.docTypes.size) p.set("doc_types", [...filters.docTypes].join(","));
+    if (filters.dateFrom) p.set("date_from", filters.dateFrom);
+    if (filters.dateTo) p.set("date_to", filters.dateTo);
+
+    const r = await fetch(`${API_BASE_URL}/analytics?${p}`);
+    if (!r.ok) throw new Error(`API ${r.status}`);
+    const data = await r.json();
+
+    // Convert server format [{value, count}] → [[label, count]]
+    const toEntries = (arr) => (arr || []).map(x => [x.value, x.count]);
+
+    // Section labels: map DB names → display names
+    const sectionEntries = (data.sections || []).map(x => {
+      const normKey = Object.entries(SECTION_DB_NAMES).find(([_, db]) => db === x.value)?.[0] || x.value;
+      const label = SECTION_LABELS[normKey] || normKey;
+      return [label, x.count];
+    });
+
+    // Importance: map empty value → "Unspecified"
+    const importanceEntries = (data.importance || []).map(x => [x.value || "Unspecified", x.count]);
+
+    _renderAnalyticsData({
+      articles: toEntries(data.articles),
+      countries: toEntries(data.countries),
+      sections: sectionEntries,
+      bodies: toEntries(data.bodies),
+      importance: importanceEntries,
+      outcomes: toEntries(data.outcomes),
+      docTypes: toEntries(data.doc_types),
+      words: [],  // word cloud only available from local paragraph text
+    });
+    console.log(`[Server Analytics] Rendered (${data.analytics_time_ms}ms, ${data.total_cases} cases)`);
+  } catch (e) {
+    console.warn("[Server Analytics] Failed, falling back to local:", e);
+    renderAnalytics();
+  }
 }
 
 function updateResultsHeader() {
@@ -3843,7 +3898,7 @@ async function applyServerSearch(query, filters, resetPage = true) {
 
     renderActiveFilters(filters);
     renderResultsPage();
-    renderAnalytics();
+    fetchAndRenderServerAnalytics(query, filters);  // full aggregates from server
     updateResultsHeaderServer(data);
   } catch (err) {
     console.error("[Server Search] Error:", err);
