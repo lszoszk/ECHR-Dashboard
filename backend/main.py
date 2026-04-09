@@ -178,8 +178,9 @@ def _build_fts_query(raw: str) -> str:
     return " ".join(parts)
 
 
-def _validate_page_size(page_size: int) -> int:
-    return max(1, min(page_size, 100))
+def _validate_page_size(page_size: int, *, allow_large: bool = False) -> int:
+    upper = 5000 if allow_large else 100
+    return max(1, min(page_size, upper))
 
 
 def _parse_comma_param(value: Optional[str]) -> list[str]:
@@ -331,7 +332,7 @@ def facets():
 def search(
     q: str = Query(..., min_length=1, description="Full-text search query"),
     page: int = Query(1, ge=1),
-    page_size: int = Query(20, ge=1, le=100),
+    page_size: int = Query(20, ge=1, le=5000),
     sections: Optional[str] = Query(None, description="Comma-separated section filter"),
     articles: Optional[str] = Query(None, description="Comma-separated article filter"),
     states: Optional[str] = Query(None, description="Comma-separated respondent_state filter"),
@@ -341,10 +342,11 @@ def search(
     date_from: Optional[str] = Query(None, description="Earliest judgment_date (YYYY-MM-DD)"),
     date_to: Optional[str] = Query(None, description="Latest judgment_date (YYYY-MM-DD)"),
     sort: str = Query("relevance", pattern="^(relevance|date_desc|date_asc)$"),
+    export: bool = Query(False, description="If true, allow large page_size for CSV export"),
 ):
     """Full-text search across case paragraphs using FTS5."""
     t0 = time.perf_counter()
-    page_size = _validate_page_size(page_size)
+    page_size = _validate_page_size(page_size, allow_large=export)
     fts_expr = _build_fts_query(q)
     if not fts_expr:
         raise HTTPException(status_code=400, detail="Empty search query after sanitisation.")

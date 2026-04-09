@@ -3859,7 +3859,7 @@ function resetFiltersAndQuery() {
   applySearch(true);
 }
 
-function exportCsv() {
+async function exportCsv() {
   if (!state.currentOrderedCaseIds.length) return;
   const includeClassifierLabels = !!el.exportIncludeClassifier?.checked;
 
@@ -3896,8 +3896,50 @@ function exportCsv() {
 
   const rows = [header];
 
-  for (const caseId of state.currentOrderedCaseIds) {
-    const data = state.currentResultsById.get(caseId);
+  // In server mode, fetch ALL results (not just current page)
+  let allCaseIds = state.currentOrderedCaseIds;
+  let allResultsById = state.currentResultsById;
+
+  if (state.serverMode && state.serverTotalCases > state.currentOrderedCaseIds.length) {
+    el.exportBtn.disabled = true;
+    el.exportBtn.textContent = "⏳ Exporting…";
+    try {
+      const params = serverSearch._buildParams(state.query, state.currentFilters, 1);
+      params.set("page_size", String(state.serverTotalCases));
+      params.set("export", "true");
+      const endpoint = state.query ? "search" : "browse";
+      const r = await fetch(`${API_BASE_URL}/${endpoint}?${params}`);
+      if (!r.ok) throw new Error(`API ${r.status}`);
+      const data = await r.json();
+
+      allCaseIds = [];
+      allResultsById = new Map();
+      for (const apiCase of (data.cases || [])) {
+        const c = serverSearch._adaptCase(apiCase);
+        const paragraphs = (apiCase.paragraphs || []).map((p) => {
+          const sec = normalizeSectionKey(p.section);
+          return {
+            key: `${c.case_id}:${sec}:${p.para_idx}`,
+            section: sec,
+            sectionLabel: SECTION_LABELS[sec] || sec,
+            paraIdx: p.para_idx,
+            rawText: (p.snippet || p.text || "").replace(/<\/?b>/g, ""),
+          };
+        });
+        allCaseIds.push(c.case_id);
+        allResultsById.set(c.case_id, { case: c, paragraphs });
+      }
+    } catch (e) {
+      console.error("[Export] Failed to fetch all results:", e);
+      // Fall back to current page data
+    } finally {
+      el.exportBtn.disabled = false;
+      el.exportBtn.innerHTML = "📥 Export CSV";
+    }
+  }
+
+  for (const caseId of allCaseIds) {
+    const data = allResultsById.get(caseId);
     if (!data) continue;
 
     for (const p of data.paragraphs) {
