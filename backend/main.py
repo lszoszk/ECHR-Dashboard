@@ -230,6 +230,12 @@ def stats():
             cur.execute("SELECT count(*) FROM paragraphs")
             total_paragraphs = cur.fetchone()[0]
 
+            cur.execute("SELECT count(*) FROM cases WHERE document_type NOT LIKE '%Press Release%'")
+            total_judgments = cur.fetchone()[0]
+
+            cur.execute("SELECT count(*) FROM cases WHERE document_type LIKE '%Press Release%'")
+            total_press_releases = cur.fetchone()[0]
+
             cur.execute("SELECT count(DISTINCT respondent_state) FROM cases WHERE respondent_state IS NOT NULL AND respondent_state != ''")
             total_countries = cur.fetchone()[0]
 
@@ -246,6 +252,8 @@ def stats():
 
         return {
             "total_cases": total_cases,
+            "total_judgments": total_judgments,
+            "total_press_releases": total_press_releases,
             "total_paragraphs": total_paragraphs,
             "total_countries": total_countries,
             "date_from": date_from,
@@ -315,6 +323,14 @@ def facets():
             )
             result["bodies"] = [_row_to_dict(r) for r in cur.fetchall()]
 
+            # Document types
+            cur.execute(
+                "SELECT document_type AS value, count(*) AS count "
+                "FROM cases WHERE document_type IS NOT NULL AND document_type != '' "
+                "GROUP BY document_type ORDER BY count DESC"
+            )
+            result["doc_types"] = [_row_to_dict(r) for r in cur.fetchall()]
+
             # Date range
             cur.execute(
                 "SELECT min(judgment_date) AS min, max(judgment_date) AS max FROM cases"
@@ -341,6 +357,7 @@ def search(
     importance: Optional[str] = Query(None, description="Comma-separated importance filter"),
     bodies: Optional[str] = Query(None, description="Comma-separated originating_body filter"),
     outcomes: Optional[str] = Query(None, description="Comma-separated outcome filter (violation_only,non_violation_only,both,neither)"),
+    doc_types: Optional[str] = Query(None, description="Comma-separated document type filter (judgment,press_release)"),
     date_from: Optional[str] = Query(None, description="Earliest judgment_date (YYYY-MM-DD)"),
     date_to: Optional[str] = Query(None, description="Latest judgment_date (YYYY-MM-DD)"),
     sort: str = Query("relevance", pattern="^(relevance|date_desc|date_asc)$"),
@@ -359,6 +376,7 @@ def search(
     imp_list = _parse_comma_param(importance)
     body_list = _parse_comma_param(bodies)
     outcome_list = _parse_comma_param(outcomes)
+    doc_type_list = _parse_comma_param(doc_types)
 
     # ------------------------------------------------------------------
     # Build the core query.  We join paragraphs_fts -> paragraphs -> cases
@@ -409,15 +427,27 @@ def search(
         oc_conditions = []
         for oc in outcome_list:
             if oc == "violation_only":
-                oc_conditions.append("(c.violation != '[]' AND c.violation != '' AND (c.non_violation = '[]' OR c.non_violation = ''))")
+                oc_conditions.append("(c.violation != '[]' AND c.violation != '' AND (c.non_violation = '[]' OR c.non_violation = '') AND c.document_type NOT LIKE '%Press Release%')")
             elif oc == "non_violation_only":
-                oc_conditions.append("((c.violation = '[]' OR c.violation = '') AND c.non_violation != '[]' AND c.non_violation != '')")
+                oc_conditions.append("((c.violation = '[]' OR c.violation = '') AND c.non_violation != '[]' AND c.non_violation != '' AND c.document_type NOT LIKE '%Press Release%')")
             elif oc == "both":
-                oc_conditions.append("(c.violation != '[]' AND c.violation != '' AND c.non_violation != '[]' AND c.non_violation != '')")
+                oc_conditions.append("(c.violation != '[]' AND c.violation != '' AND c.non_violation != '[]' AND c.non_violation != '' AND c.document_type NOT LIKE '%Press Release%')")
             elif oc == "neither":
-                oc_conditions.append("((c.violation = '[]' OR c.violation = '' OR c.violation IS NULL) AND (c.non_violation = '[]' OR c.non_violation = '' OR c.non_violation IS NULL))")
+                oc_conditions.append("((c.violation = '[]' OR c.violation = '' OR c.violation IS NULL) AND (c.non_violation = '[]' OR c.non_violation = '' OR c.non_violation IS NULL) AND c.document_type NOT LIKE '%Press Release%')")
+            elif oc == "press_release":
+                oc_conditions.append("(c.document_type LIKE '%Press Release%')")
         if oc_conditions:
             where_clauses.append(f"({' OR '.join(oc_conditions)})")
+
+    if doc_type_list:
+        dt_conditions = []
+        for dt in doc_type_list:
+            if dt == "press_release":
+                dt_conditions.append("c.document_type LIKE '%Press Release%'")
+            elif dt == "judgment":
+                dt_conditions.append("c.document_type NOT LIKE '%Press Release%'")
+        if dt_conditions:
+            where_clauses.append(f"({' OR '.join(dt_conditions)})")
 
     if date_from:
         where_clauses.append("c.judgment_date >= ?")
@@ -646,6 +676,7 @@ def browse(
     importance: Optional[str] = Query(None),
     bodies: Optional[str] = Query(None),
     outcomes: Optional[str] = Query(None),
+    doc_types: Optional[str] = Query(None),
     date_from: Optional[str] = Query(None),
     date_to: Optional[str] = Query(None),
     sort: str = Query("date_desc", pattern="^(date_desc|date_asc)$"),
@@ -659,6 +690,7 @@ def browse(
     imp_list = _parse_comma_param(importance)
     body_list = _parse_comma_param(bodies)
     outcome_list = _parse_comma_param(outcomes)
+    doc_type_list = _parse_comma_param(doc_types)
 
     where_clauses: list[str] = []
     joins: list[str] = []
@@ -697,15 +729,27 @@ def browse(
         oc_conditions = []
         for oc in outcome_list:
             if oc == "violation_only":
-                oc_conditions.append("(c.violation != '[]' AND c.violation != '' AND (c.non_violation = '[]' OR c.non_violation = ''))")
+                oc_conditions.append("(c.violation != '[]' AND c.violation != '' AND (c.non_violation = '[]' OR c.non_violation = '') AND c.document_type NOT LIKE '%Press Release%')")
             elif oc == "non_violation_only":
-                oc_conditions.append("((c.violation = '[]' OR c.violation = '') AND c.non_violation != '[]' AND c.non_violation != '')")
+                oc_conditions.append("((c.violation = '[]' OR c.violation = '') AND c.non_violation != '[]' AND c.non_violation != '' AND c.document_type NOT LIKE '%Press Release%')")
             elif oc == "both":
-                oc_conditions.append("(c.violation != '[]' AND c.violation != '' AND c.non_violation != '[]' AND c.non_violation != '')")
+                oc_conditions.append("(c.violation != '[]' AND c.violation != '' AND c.non_violation != '[]' AND c.non_violation != '' AND c.document_type NOT LIKE '%Press Release%')")
             elif oc == "neither":
-                oc_conditions.append("((c.violation = '[]' OR c.violation = '' OR c.violation IS NULL) AND (c.non_violation = '[]' OR c.non_violation = '' OR c.non_violation IS NULL))")
+                oc_conditions.append("((c.violation = '[]' OR c.violation = '' OR c.violation IS NULL) AND (c.non_violation = '[]' OR c.non_violation = '' OR c.non_violation IS NULL) AND c.document_type NOT LIKE '%Press Release%')")
+            elif oc == "press_release":
+                oc_conditions.append("(c.document_type LIKE '%Press Release%')")
         if oc_conditions:
             where_clauses.append(f"({' OR '.join(oc_conditions)})")
+
+    if doc_type_list:
+        dt_conditions = []
+        for dt in doc_type_list:
+            if dt == "press_release":
+                dt_conditions.append("c.document_type LIKE '%Press Release%'")
+            elif dt == "judgment":
+                dt_conditions.append("c.document_type NOT LIKE '%Press Release%'")
+        if dt_conditions:
+            where_clauses.append(f"({' OR '.join(dt_conditions)})")
 
     if date_from:
         where_clauses.append("c.judgment_date >= ?")

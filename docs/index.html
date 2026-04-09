@@ -129,7 +129,10 @@
               </div>
 
               <div class="filter-group">
-                <h3 class="filter-title">Outcome</h3>
+                <h3 class="filter-title">Document Type</h3>
+                <div class="checkbox-grid compact" id="docTypeFilters"></div>
+
+                <h3 class="filter-title inline-space">Outcome</h3>
                 <div class="checkbox-grid compact" id="outcomeFilters"></div>
 
                 <h3 class="filter-title inline-space">Procedural Outcome</h3>
@@ -184,6 +187,14 @@
         <div class="stat-chip">
           <span class="stat-value" id="statTotalCases">-</span>
           <span class="stat-label">Cases</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-value" id="statTotalJudgments">-</span>
+          <span class="stat-label">Judgments</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-value" id="statTotalPressReleases">-</span>
+          <span class="stat-label">Press Releases</span>
         </div>
         <div class="stat-chip">
           <span class="stat-value" id="statTotalParagraphs">-</span>
@@ -261,6 +272,11 @@
         <div class="sidebar-section">
           <h4>Outcomes</h4>
           <div class="bar-list" id="analyticsOutcomes"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <h4>Document Type</h4>
+          <div class="bar-list" id="analyticsDocTypes"></div>
         </div>
 
         <div class="sidebar-section">

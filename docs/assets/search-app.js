@@ -53,6 +53,7 @@ const serverSearch = {
     if (filters.importance.size) p.set("importance", [...filters.importance].join(","));
     if (filters.bodies.size) p.set("bodies", [...filters.bodies].join(","));
     if (filters.outcomes.size) p.set("outcomes", [...filters.outcomes].join(","));
+    if (filters.docTypes.size) p.set("doc_types", [...filters.docTypes].join(","));
     if (filters.dateFrom) p.set("date_from", filters.dateFrom);
     if (filters.dateTo) p.set("date_to", filters.dateTo);
     return p;
@@ -107,6 +108,8 @@ const serverSearch = {
       __judgmentDateTs: apiCase.judgment_date ? (() => { const p = apiCase.judgment_date.split("/"); return p.length === 3 ? new Date(`${p[2]}-${p[1]}-${p[0]}`).getTime() : new Date(apiCase.judgment_date).getTime(); })() : null,
       __sortTs: apiCase.judgment_date ? (() => { const p = apiCase.judgment_date.split("/"); return p.length === 3 ? new Date(`${p[2]}-${p[1]}-${p[0]}`).getTime() : new Date(apiCase.judgment_date).getTime(); })() : 0,
     };
+    // Press releases get their own outcome bucket instead of polluting "neither"
+    if (c.__isPressRelease) c.__outcomePrimary = "press_release";
     return c;
   },
 
@@ -245,6 +248,7 @@ const OUTCOME_LABELS = {
   non_violation_only: "Non-violation only",
   both: "Both",
   neither: "Neither",
+  press_release: "Press Release",
 };
 
 const COUNTRY_NAMES = {
@@ -390,6 +394,7 @@ function cacheElements() {
   el.articlesFilters = byId("articlesFilters");
   el.originatingBodyFilters = byId("originatingBodyFilters");
   el.importanceFilters = byId("importanceFilters");
+  el.docTypeFilters = byId("docTypeFilters");
   el.outcomeFilters = byId("outcomeFilters");
   el.legalOutcomeFilters = byId("legalOutcomeFilters");
   el.separateOpinionFilters = byId("separateOpinionFilters");
@@ -401,6 +406,8 @@ function cacheElements() {
   el.dateTo = byId("dateTo");
 
   el.statTotalCases = byId("statTotalCases");
+  el.statTotalJudgments = byId("statTotalJudgments");
+  el.statTotalPressReleases = byId("statTotalPressReleases");
   el.statTotalParagraphs = byId("statTotalParagraphs");
   el.statTotalCountries = byId("statTotalCountries");
   el.statDateRange = byId("statDateRange");
@@ -430,6 +437,7 @@ function cacheElements() {
   el.analyticsBodies = byId("analyticsBodies");
   el.analyticsImportance = byId("analyticsImportance");
   el.analyticsOutcomes = byId("analyticsOutcomes");
+  el.analyticsDocTypes = byId("analyticsDocTypes");
   el.analyticsWords = byId("analyticsWords");
 
   el.caseModal = byId("caseModal");
@@ -723,6 +731,7 @@ function toggleCardMode() {
 function getOutcomeToneClass(outcomeKey) {
   if (outcomeKey === "violation_only" || outcomeKey === "both") return "violation";
   if (outcomeKey === "non_violation_only") return "non-violation";
+  if (outcomeKey === "press_release") return "press-release";
   return "neutral";
 }
 
@@ -1268,7 +1277,6 @@ function normalizeCases(rawCases) {
       __originatingBodyNorm: normalizeSearchText(originatingBody || "Unknown"),
       __importance: importance || "Unspecified",
       __outcomeBucket: deriveOutcomeBucket(violation, nonViolation),
-      __outcomePrimary: deriveOutcomeBucket(violation, nonViolation),
       __hasInadmissibility: outcomeFlags.hasInadmissibility,
       __isStruckOut: outcomeFlags.isStruckOut,
       __hasProceduralAspect: outcomeFlags.hasProceduralAspect,
@@ -1292,6 +1300,7 @@ function normalizeCases(rawCases) {
       __hudocIdNorm: normalizeSearchText(hudocId),
       __chamberCategory: chamberCategory,
       __isPressRelease: documentType.some(dt => dt.toLowerCase().includes("press release")),
+      __outcomePrimary: documentType.some(dt => dt.toLowerCase().includes("press release")) ? "press_release" : deriveOutcomeBucket(violation, nonViolation),
       __judgmentDateTs: ts,
       __sortTs: ts == null ? -Infinity : ts,
       __paragraphs: parsedParagraphs,
@@ -1424,6 +1433,11 @@ function renderFilters() {
     .map((level) => makeCheckbox(level, level, "importance"))
     .join("");
 
+  el.docTypeFilters.innerHTML = [
+    makeCheckbox("Judgments", "judgment", "docTypes"),
+    makeCheckbox("Press Releases", "press_release", "docTypes"),
+  ].join("");
+
   el.outcomeFilters.innerHTML = [
     makeCheckbox("Violation only", "violation_only", "outcomes"),
     makeCheckbox("Non-violation only", "non_violation_only", "outcomes"),
@@ -1453,7 +1467,11 @@ function renderGlobalStats() {
     dateRange = `${first} to ${last}`;
   }
 
+  const pressCount = state.cases.filter(c => c.__isPressRelease).length;
+  const judgmentCount = state.cases.length - pressCount;
   el.statTotalCases.textContent = fmtInt.format(state.cases.length);
+  el.statTotalJudgments.textContent = fmtInt.format(judgmentCount);
+  el.statTotalPressReleases.textContent = fmtInt.format(pressCount);
   el.statTotalParagraphs.textContent = fmtInt.format(state.paragraphIndex.length);
   el.statTotalCountries.textContent = fmtInt.format(state.countries.length);
   el.statDateRange.textContent = dateRange;
@@ -1479,6 +1497,7 @@ function getCurrentFilters() {
     bodies: collectChecked("bodies"),
     importance: collectChecked("importance"),
     outcomes: collectChecked("outcomes"),
+    docTypes: collectChecked("docTypes"),
     legalOutcomes: collectChecked("legalOutcomes"),
     separateOpinion: collectChecked("separateOpinion"),
     presence: collectChecked("presence"),
@@ -1527,6 +1546,11 @@ function passesCaseFilters(c, filters) {
 
   if (filters.outcomes.size && !filters.outcomes.has(c.__outcomePrimary)) {
     return false;
+  }
+
+  if (filters.docTypes.size) {
+    const dtKey = c.__isPressRelease ? "press_release" : "judgment";
+    if (!filters.docTypes.has(dtKey)) return false;
   }
 
   if (filters.legalOutcomes.has("has_inadmissibility") && !c.__hasInadmissibility) {
@@ -1797,6 +1821,10 @@ function renderActiveFilters(filters) {
   }
   for (const outcome of filters.outcomes) {
     const label = OUTCOME_LABELS[outcome] || outcome;
+    chips.push(`<span class="filter-chip">${escapeHtml(label)}</span>`);
+  }
+  for (const dt of filters.docTypes) {
+    const label = dt === "press_release" ? "Press Releases" : "Judgments";
     chips.push(`<span class="filter-chip">${escapeHtml(label)}</span>`);
   }
   for (const legalOutcome of filters.legalOutcomes) {
@@ -3366,7 +3394,6 @@ function buildCaseCard(caseId, row) {
             <span class="meta-chip">${escapeHtml(c.judgment_date || "-")}</span>
             <span class="meta-chip">${escapeHtml(respondentSummary)}</span>
             <span class="meta-chip outcome ${escapeHtml(outcomeToneClass)}">${escapeHtml(outcomeLabel)}</span>
-            ${c.__isPressRelease ? '<span class="meta-chip press-release">Press Release</span>' : ''}
           </div>
 
           <div class="case-actions-inline compact-actions">
@@ -3541,6 +3568,7 @@ function computeAnalytics() {
   const bodyCounts = new Map();
   const importanceCounts = new Map();
   const outcomeCounts = new Map();
+  const docTypeCounts = new Map();
   const wordCounts = new Map();
 
   for (const caseId of state.currentOrderedCaseIds) {
@@ -3554,6 +3582,10 @@ function computeAnalytics() {
     bodyCounts.set(data.case.__originatingBody, (bodyCounts.get(data.case.__originatingBody) || 0) + data.hitCount);
     importanceCounts.set(data.case.__importance, (importanceCounts.get(data.case.__importance) || 0) + data.hitCount);
     outcomeCounts.set(data.case.__outcomePrimary, (outcomeCounts.get(data.case.__outcomePrimary) || 0) + data.hitCount);
+
+    // Document type
+    const docTypeLabel = data.case.__isPressRelease ? "Press Release" : (data.case.document_type || "Judgment");
+    docTypeCounts.set(docTypeLabel, (docTypeCounts.get(docTypeLabel) || 0) + 1);
 
     for (const a of data.case.__articles || []) {
       articleCounts.set(a, (articleCounts.get(a) || 0) + data.hitCount);
@@ -3579,6 +3611,7 @@ function computeAnalytics() {
     bodies: [...bodyCounts.entries()].sort(sortDesc).slice(0, 10),
     importance: [...importanceCounts.entries()].sort(sortDesc).slice(0, 10),
     outcomes: [...outcomeCounts.entries()].sort(sortDesc).slice(0, 10),
+    docTypes: [...docTypeCounts.entries()].sort(sortDesc).slice(0, 10),
     words: [...wordCounts.entries()].sort(sortDesc).slice(0, 25),
   };
 }
@@ -3672,6 +3705,13 @@ function renderAnalytics() {
     a.outcomes,
     (label) => OUTCOME_LABELS[label] || label,
     "country"
+  );
+
+  renderBarList(
+    el.analyticsDocTypes,
+    a.docTypes,
+    (label) => label,
+    "section"
   );
 
   renderWordCloud(a.words);
@@ -3877,6 +3917,7 @@ async function exportCsv() {
     "Respondent State",
     "Originating Body",
     "Importance",
+    "Document Type",
     "Outcome Primary",
     "Inadmissibility",
     "Struck out",
@@ -3957,6 +3998,7 @@ async function exportCsv() {
         (data.case.__states || []).join(", "),
         data.case.__originatingBody || "",
         data.case.__importance || "",
+        data.case.__isPressRelease ? "Press Release" : (data.case.document_type || "Judgment"),
         data.case.__outcomePrimary || "",
         data.case.__hasInadmissibility ? "yes" : "no",
         data.case.__isStruckOut ? "yes" : "no",
@@ -5008,6 +5050,7 @@ function init() {
   renderBarList(el.analyticsBodies, [], (x) => x);
   renderBarList(el.analyticsImportance, [], (x) => x);
   renderBarList(el.analyticsOutcomes, [], (x) => x);
+  renderBarList(el.analyticsDocTypes, [], (x) => x);
   renderWordCloud([]);
 
   // Probe server-side search API — this is the primary data source
@@ -5020,6 +5063,8 @@ function init() {
         const statsData = await serverSearch.getStats();
         const fmt = new Intl.NumberFormat("en-US");
         el.statTotalCases.textContent = fmt.format(statsData.total_cases || 0);
+        el.statTotalJudgments.textContent = fmt.format(statsData.total_judgments || 0);
+        el.statTotalPressReleases.textContent = fmt.format(statsData.total_press_releases || 0);
         el.statTotalParagraphs.textContent = fmt.format(statsData.total_paragraphs || 0);
         el.statTotalCountries.textContent = fmt.format(statsData.total_countries || 0);
         // Parse DD/MM/YYYY dates into readable range
@@ -5119,6 +5164,8 @@ function init() {
             const s = data.summary;
             const fmt = new Intl.NumberFormat("en-US");
             if (el.statTotalCases.textContent === "-") el.statTotalCases.textContent = fmt.format(s.total_cases || 0);
+            if (el.statTotalJudgments.textContent === "-") el.statTotalJudgments.textContent = fmt.format(s.total_judgments || 0);
+            if (el.statTotalPressReleases.textContent === "-") el.statTotalPressReleases.textContent = fmt.format(s.total_press_releases || 0);
             if (el.statTotalParagraphs.textContent === "-") el.statTotalParagraphs.textContent = fmt.format(s.total_paragraphs || 0);
             if (el.statTotalCountries.textContent === "-") el.statTotalCountries.textContent = fmt.format(s.unique_countries || 0);
             if (el.statDateRange.textContent === "-") el.statDateRange.textContent = s.date_range_label || "-";
