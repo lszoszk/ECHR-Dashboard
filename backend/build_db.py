@@ -45,8 +45,10 @@ CREATE TABLE IF NOT EXISTS cases (
     respondent_state TEXT,
     importance       TEXT,
     conclusion       TEXT,   -- JSON array stored as text
-    violation        TEXT,   -- JSON array stored as text
-    non_violation    TEXT,   -- JSON array stored as text
+    violation        TEXT,   -- JSON array stored as text (HUDOC + inferred)
+    non_violation    TEXT,   -- JSON array stored as text (HUDOC + inferred)
+    violation_inferred   TEXT,  -- JSON array: articles inferred from conclusion text (not in HUDOC)
+    non_violation_inferred TEXT, -- JSON array: articles inferred from conclusion text (not in HUDOC)
     keywords         TEXT,   -- JSON array stored as text
     originating_body TEXT    -- JSON array stored as text
 );
@@ -171,10 +173,133 @@ def _normalize_articles(article_no) -> list:
 
 
 # ---------------------------------------------------------------------------
-# Section re-segmentation — fix misclassified paragraphs
+# Infer violation / non-violation from conclusion text
 # ---------------------------------------------------------------------------
 
 import re
+
+# Regex to extract an article reference after "Violation of" / "No violation of"
+# Handles:
+#   "Violation of Art. 6-1"
+#   "Violation of Article 3 - Prohibition of torture ..."
+#   "Violation of Article 1 of Protocol No. 1 - ..."
+#   "Violation de l'art. 6-1" (French)
+#   "Vilation of Art. 6-1" (HUDOC typo)
+_RE_ARTICLE_REF = re.compile(
+    r"(?:Article|Art\.?)\s+"
+    r"(\d+(?:-\d+)?(?:-[a-z])?)"           # e.g. "6-1", "5-3", "6-1-c"
+    r"(?:\s+of\s+Protocol\s+No\.?\s*(\d+))?"  # optional " of Protocol No. 1"
+    , re.IGNORECASE,
+)
+
+_RE_PROTOCOL_SHORT = re.compile(
+    r"(P\d+-\d+(?:-\d+)?(?:-[a-z])?)",      # e.g. "P1-1", "P4-2", "P7-4"
+    re.IGNORECASE,
+)
+
+
+def _extract_article(part: str) -> str | None:
+    """Extract a normalised article reference from a conclusion clause.
+
+    Returns e.g. "6-1", "P1-1", "3", or None if no article found.
+    """
+    # Try short protocol form first: "P1-1", "P4-2"
+    m = _RE_PROTOCOL_SHORT.search(part)
+    if m:
+        return m.group(1).upper()
+
+    # Try long form: "Article 6-1" or "Article 1 of Protocol No. 1"
+    m = _RE_ARTICLE_REF.search(part)
+    if m:
+        art_num = m.group(1)
+        proto_num = m.group(2)
+        if proto_num:
+            return f"P{proto_num}-{art_num}"
+        return art_num
+
+    # Fallback: bare article ref like "Violation of 6-1" (no "Art." prefix)
+    m = re.search(
+        r"(?:Violation|Vilation|violation)\s+(?:of|de)\s+(\d+(?:-\d+)?(?:-[a-z])?)",
+        part, re.IGNORECASE,
+    )
+    if m:
+        return m.group(1)
+
+    return None
+
+
+def _infer_violations_from_conclusion(conclusion_text: str) -> tuple[list[str], list[str]]:
+    """Parse conclusion text to extract violation / no-violation article lists.
+
+    Returns (violations, non_violations) — each a deduplicated list of article refs.
+    """
+    if not conclusion_text:
+        return [], []
+
+    violations: list[str] = []
+    non_violations: list[str] = []
+    seen_v: set[str] = set()
+    seen_nv: set[str] = set()
+
+    parts = [p.strip() for p in conclusion_text.split(";")]
+    for part in parts:
+        pu = part.upper()
+
+        # Skip non-violation/non-resolution clauses
+        skip_phrases = (
+            "FINDING OF VIOLATION SUFFICIENT",
+            "PECUNIARY DAMAGE",
+            "NON-PECUNIARY DAMAGE",
+            "COSTS AND EXPENSES",
+            "JUST SATISFACTION RESERVED",
+            "NOT NECESSARY TO EXAMINE",
+            "NO SEPARATE ISSUE",
+            "REMAINDER INADMISSIBLE",
+            "PRELIMINARY OBJECTION",
+            "STRUCK OUT",
+            "FRIENDLY SETTLEMENT",
+            "QUESTIONS OF PROCEDURE",
+        )
+        # If clause is purely about remedies / procedure, skip
+        if any(pu.startswith(phrase) for phrase in skip_phrases):
+            continue
+
+        # Detect "No violation" / "Non-violation" (incl. French)
+        is_no_viol = bool(re.match(
+            r"(?:No violation|Non-violation|Non violation|non-violation)",
+            part, re.IGNORECASE,
+        ))
+
+        # Detect positive "Violation" (but NOT "No violation")
+        is_viol = False
+        if not is_no_viol:
+            is_viol = bool(re.match(
+                r"(?:Violation|Vilation)",  # HUDOC typo "Vilation"
+                part, re.IGNORECASE,
+            ))
+
+        if not is_viol and not is_no_viol:
+            continue
+
+        art = _extract_article(part)
+        if not art:
+            continue
+
+        if is_no_viol:
+            if art not in seen_nv:
+                seen_nv.add(art)
+                non_violations.append(art)
+        else:
+            if art not in seen_v:
+                seen_v.add(art)
+                violations.append(art)
+
+    return violations, non_violations
+
+
+# ---------------------------------------------------------------------------
+# Section re-segmentation — fix misclassified paragraphs
+# ---------------------------------------------------------------------------
 
 # Patterns that indicate a section boundary when found at the START of a
 # short paragraph (< 150 chars).  Order matters: first match wins.
@@ -418,8 +543,9 @@ def build_database(input_path: Path, output_path: Path, batch_size: int) -> None
                        (case_id, case_no, title, hudoc_url, judgment_date,
                         ecli, respondent_state, importance,
                         conclusion, violation, non_violation,
+                        violation_inferred, non_violation_inferred,
                         keywords, originating_body)
-                       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                     case_rows,
                 )
             if para_rows:
@@ -449,6 +575,36 @@ def build_database(input_path: Path, output_path: Path, batch_size: int) -> None
                 skipped += 1
                 continue
 
+            # --- Violation / non-violation enrichment ---
+            hudoc_violation = record.get("violation") or []
+            hudoc_non_violation = record.get("non-violation") or record.get("non_violation") or []
+            if isinstance(hudoc_violation, str):
+                try: hudoc_violation = json.loads(hudoc_violation)
+                except: hudoc_violation = []
+            if isinstance(hudoc_non_violation, str):
+                try: hudoc_non_violation = json.loads(hudoc_non_violation)
+                except: hudoc_non_violation = []
+
+            # Parse conclusion text to find articles missing from HUDOC fields
+            conclusion_raw = record.get("conclusion")
+            conclusion_text = ""
+            if isinstance(conclusion_raw, list):
+                conclusion_text = "; ".join(str(x) for x in conclusion_raw)
+            elif isinstance(conclusion_raw, str):
+                conclusion_text = conclusion_raw
+
+            inferred_v, inferred_nv = _infer_violations_from_conclusion(conclusion_text)
+
+            # Determine which inferred articles are truly new (not already in HUDOC)
+            hudoc_v_set = set(hudoc_violation)
+            hudoc_nv_set = set(hudoc_non_violation)
+            new_v = [a for a in inferred_v if a not in hudoc_v_set]
+            new_nv = [a for a in inferred_nv if a not in hudoc_nv_set]
+
+            # Merge: final fields = HUDOC + inferred
+            merged_violation = list(hudoc_violation) + new_v
+            merged_non_violation = list(hudoc_non_violation) + new_nv
+
             case_rows.append((
                 case_id,
                 record.get("case_no"),
@@ -458,9 +614,11 @@ def build_database(input_path: Path, output_path: Path, batch_size: int) -> None
                 record.get("ecli"),
                 record.get("respondent_state"),
                 str(record.get("importance", "")) if record.get("importance") is not None else None,
-                _json_field(record.get("conclusion")),
-                _json_field(record.get("violation")),
-                _json_field(record.get("non-violation") or record.get("non_violation")),
+                _json_field(conclusion_raw),
+                _json_field(merged_violation),
+                _json_field(merged_non_violation),
+                _json_field(new_v) if new_v else "[]",     # violation_inferred
+                _json_field(new_nv) if new_nv else "[]",   # non_violation_inferred
                 _json_field(record.get("keywords")),
                 _json_field(record.get("originating_body")),
             ))

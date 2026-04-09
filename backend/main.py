@@ -192,7 +192,9 @@ def _parse_comma_param(value: Optional[str]) -> list[str]:
 
 def _enrich_case_row(row: dict[str, Any]) -> dict[str, Any]:
     """Parse JSON text fields in a case row into native Python objects."""
-    for field in ("conclusion", "violation", "non_violation", "keywords", "originating_body"):
+    for field in ("conclusion", "violation", "non_violation",
+                   "violation_inferred", "non_violation_inferred",
+                   "keywords", "originating_body"):
         if field in row:
             row[field] = _parse_json_field(row[field])
     return row
@@ -505,7 +507,7 @@ def search(
             cur.execute(
                 "SELECT case_id, case_no, title, judgment_date, hudoc_url, "
                 "respondent_state, importance, conclusion, violation, "
-                "non_violation, keywords, originating_body "
+                "non_violation, violation_inferred, non_violation_inferred, keywords, originating_body "
                 f"FROM cases WHERE case_id IN ({id_placeholders})",
                 case_ids,
             )
@@ -600,7 +602,7 @@ def get_case(case_id: str):
             cur.execute(
                 "SELECT case_id, case_no, title, judgment_date, hudoc_url, ecli, "
                 "respondent_state, importance, conclusion, violation, "
-                "non_violation, keywords, originating_body "
+                "non_violation, violation_inferred, non_violation_inferred, keywords, originating_body "
                 "FROM cases WHERE case_id = ?",
                 (case_id,),
             )
@@ -765,7 +767,7 @@ def browse(
             cur.execute(
                 "SELECT case_id, case_no, title, judgment_date, hudoc_url, "
                 "respondent_state, importance, conclusion, violation, "
-                "non_violation, keywords, originating_body "
+                "non_violation, violation_inferred, non_violation_inferred, keywords, originating_body "
                 f"FROM cases WHERE case_id IN ({id_ph})",
                 case_ids,
             )
