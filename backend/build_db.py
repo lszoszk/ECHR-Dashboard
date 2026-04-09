@@ -460,7 +460,7 @@ def build_database(input_path: Path, output_path: Path, batch_size: int) -> None
                 str(record.get("importance", "")) if record.get("importance") is not None else None,
                 _json_field(record.get("conclusion")),
                 _json_field(record.get("violation")),
-                _json_field(record.get("non_violation")),
+                _json_field(record.get("non-violation") or record.get("non_violation")),
                 _json_field(record.get("keywords")),
                 _json_field(record.get("originating_body")),
             ))
