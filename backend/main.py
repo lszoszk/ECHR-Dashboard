@@ -847,25 +847,25 @@ def search(
                 }
 
             # ----------------------------------------------------------
-            # Step 2: Get paginated case IDs.
+            # Step 2: Get case IDs + per-case scores.
             # ----------------------------------------------------------
             # bm25() returns a NEGATIVE float — more-negative = better match.
-            # We negate it so the per-case sum is "higher = better", which
-            # rewards both quality (big positive summands from strong matches)
-            # and quantity (many summands from many matching paragraphs).
+            # We negate it so the per-case score is "higher = better", which
+            # rewards both quality (big positive max from a strong match)
+            # and quantity (the ln(1+hit_count) density factor).
             # Column weights: title=5.0, keywords=3.0, body=1.0 (BM25F-style).
             #
-            # On page 1 of a relevance sort we over-fetch a larger candidate
-            # pool (page_size * 3, capped) and then hand it to
-            # ranking.rerank_candidates() for metadata-aware re-ordering.
-            # For pages 2+ and date sorts we keep the straight SQL order.
-            rerank_active = ranking.should_rerank(sort, page)
-            if rerank_active:
-                sql_limit = ranking.candidate_pool_size(page_size)
-                sql_offset = 0
-            else:
-                sql_limit = page_size
-                sql_offset = (page - 1) * page_size
+            # On relevance sort we fetch **every** matching case together
+            # with the metadata needed for the boost pass, then rerank
+            # the full set in Python, and only then slice the requested
+            # page.  This makes pagination invariant under page_size
+            # changes: the ranking function sees the entire corpus of
+            # matches, not an arbitrary candidate pool whose size would
+            # otherwise let high-boost cases fall off the edge.
+            #
+            # On date sorts we delegate ordering and pagination to SQL
+            # and skip the metadata rerank entirely.
+            rerank_active = ranking.should_rerank(sort)
 
             # NOTE on the `-pf.rank` trick:
             #
@@ -887,70 +887,98 @@ def search(
             # score and IS aggregatable without materialisation.  We
             # negate so higher = better.
             # MAX-dominated relevance_score is pre-computed in SQL so we
-            # can ORDER BY it and paginate efficiently on the DB side.
-            case_ids_sql = (
-                "SELECT c.case_id, "
-                "       sum(-pf.rank) AS sum_bm25, "
-                "       max(-pf.rank) AS best_bm25, "
-                "       count(*) AS hit_count, "
-                "       max(-pf.rank) * (1.0 + 0.3 * ln(1.0 + count(*))) AS relevance_score "
-                "FROM paragraphs_fts pf "
-                "JOIN paragraphs p ON p.rowid = pf.rowid "
-                "JOIN cases c ON c.case_id = p.case_id "
-                f"{join_sql} "
-                f"WHERE {where_sql} "
-                "GROUP BY c.case_id "
-                f"ORDER BY {order_sql} "
-                "LIMIT ? OFFSET ?"
-            )
-            cur.execute(case_ids_sql, params + [sql_limit, sql_offset])
-            case_rows = cur.fetchall()
-            case_ids = [r["case_id"] for r in case_rows]
-            case_meta = {
-                r["case_id"]: {
-                    "sum_bm25": r["sum_bm25"],
-                    "best_bm25": r["best_bm25"],
-                    "relevance_score": r["relevance_score"],
-                    "score": r["relevance_score"],  # may be overwritten by reranker
-                    "hit_count": r["hit_count"],
-                }
-                for r in case_rows
-            }
-
-            # ----------------------------------------------------------
-            # Step 2b: Metadata-aware re-ranking of the candidate pool.
-            # ----------------------------------------------------------
-            # Do a tiny metadata lookup on the candidate set (≤ 300 rows)
-            # BEFORE fetching full case details and snippets.  This way
-            # the expensive Step 3 / Step 4 queries only run on the final
-            # page_size cases rather than on the over-fetched pool.
-            if rerank_active and case_ids:
-                meta_placeholders = ",".join("?" for _ in case_ids)
-                cur.execute(
-                    "SELECT case_id, importance, originating_body, document_type "
-                    f"FROM cases WHERE case_id IN ({meta_placeholders})",
-                    case_ids,
+            # can ORDER BY it (and pull importance / body / doc_type in
+            # the same pass for the Python-side rerank).
+            if rerank_active:
+                # Fetch ALL matching cases + the metadata needed for the
+                # boost pass in a single query.  No LIMIT — reranking
+                # must see every match.
+                case_ids_sql = (
+                    "SELECT c.case_id, "
+                    "       c.importance, "
+                    "       c.originating_body, "
+                    "       c.document_type, "
+                    "       sum(-pf.rank) AS sum_bm25, "
+                    "       max(-pf.rank) AS best_bm25, "
+                    "       count(*) AS hit_count, "
+                    "       max(-pf.rank) * (1.0 + 0.3 * ln(1.0 + count(*))) AS relevance_score "
+                    "FROM paragraphs_fts pf "
+                    "JOIN paragraphs p ON p.rowid = pf.rowid "
+                    "JOIN cases c ON c.case_id = p.case_id "
+                    f"{join_sql} "
+                    f"WHERE {where_sql} "
+                    "GROUP BY c.case_id "
+                    f"ORDER BY {order_sql}"
                 )
-                boost_meta = {r["case_id"]: dict(r) for r in cur.fetchall()}
+                cur.execute(case_ids_sql, params)
+                case_rows = cur.fetchall()
+                case_meta = {
+                    r["case_id"]: {
+                        "sum_bm25": r["sum_bm25"],
+                        "best_bm25": r["best_bm25"],
+                        "relevance_score": r["relevance_score"],
+                        "score": r["relevance_score"],  # overwritten below
+                        "hit_count": r["hit_count"],
+                    }
+                    for r in case_rows
+                }
 
+                # Rerank the full match set, then slice the requested
+                # page.  Step 3 / Step 4 only pay for the final
+                # page_size cases.
                 candidates = [
                     {
-                        "case_id": cid,
+                        "case_id": r["case_id"],
                         # Feed the max*ln relevance score into ranking,
                         # not the raw sum_bm25.  sum_bm25 is kept only
                         # for diagnostics / downstream display.
-                        "sum_bm25": case_meta[cid]["relevance_score"],
-                        "hit_count": case_meta[cid]["hit_count"],
-                        "importance": boost_meta.get(cid, {}).get("importance"),
-                        "originating_body": boost_meta.get(cid, {}).get("originating_body"),
-                        "document_type": boost_meta.get(cid, {}).get("document_type"),
+                        "sum_bm25": r["relevance_score"],
+                        "hit_count": r["hit_count"],
+                        "importance": r["importance"],
+                        "originating_body": r["originating_body"],
+                        "document_type": r["document_type"],
                     }
-                    for cid in case_ids
+                    for r in case_rows
                 ]
-                reranked = ranking.rerank_candidates(candidates, page_size=page_size)
-                case_ids = [c["case_id"] for c in reranked]
+                reranked = ranking.rerank_candidates(candidates)
                 for c in reranked:
                     case_meta[c["case_id"]]["score"] = c["final_score"]
+                ordered_case_ids = [c["case_id"] for c in reranked]
+
+                page_start = max(0, (page - 1) * page_size)
+                case_ids = ordered_case_ids[page_start : page_start + page_size]
+            else:
+                # Date sort: let SQL order and paginate.
+                sql_limit = page_size
+                sql_offset = (page - 1) * page_size
+                case_ids_sql = (
+                    "SELECT c.case_id, "
+                    "       sum(-pf.rank) AS sum_bm25, "
+                    "       max(-pf.rank) AS best_bm25, "
+                    "       count(*) AS hit_count, "
+                    "       max(-pf.rank) * (1.0 + 0.3 * ln(1.0 + count(*))) AS relevance_score "
+                    "FROM paragraphs_fts pf "
+                    "JOIN paragraphs p ON p.rowid = pf.rowid "
+                    "JOIN cases c ON c.case_id = p.case_id "
+                    f"{join_sql} "
+                    f"WHERE {where_sql} "
+                    "GROUP BY c.case_id "
+                    f"ORDER BY {order_sql} "
+                    "LIMIT ? OFFSET ?"
+                )
+                cur.execute(case_ids_sql, params + [sql_limit, sql_offset])
+                case_rows = cur.fetchall()
+                case_ids = [r["case_id"] for r in case_rows]
+                case_meta = {
+                    r["case_id"]: {
+                        "sum_bm25": r["sum_bm25"],
+                        "best_bm25": r["best_bm25"],
+                        "relevance_score": r["relevance_score"],
+                        "score": r["relevance_score"],
+                        "hit_count": r["hit_count"],
+                    }
+                    for r in case_rows
+                }
 
             if not case_ids:
                 elapsed = (time.perf_counter() - t0) * 1000

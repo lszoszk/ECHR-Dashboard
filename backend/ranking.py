@@ -80,10 +80,16 @@ BM25_WEIGHT_BODY: float = 1.0
 # ---------------------------------------------------------------------------
 
 #: HUDOC ``importance`` field → multiplicative boost.
-#: 1 = "Key cases" (highest precedential value in HUDOC taxonomy).
-#: Unknown / missing values fall through to ``IMPORTANCE_DEFAULT_BOOST``.
+#: 1 / "Key cases" = highest precedential value in HUDOC taxonomy.
+#: Two label conventions coexist in the underlying HUDOC metadata: the
+#: numeric codes ("1"–"4") and the human-readable "Key cases" tag which
+#: HUDOC applies to the highest-importance subset.  Both surface in our
+#: ``cases.importance`` column, so we map them equivalently here.
+#: Lookup is case-insensitive; unknown / missing values fall through to
+#: ``IMPORTANCE_DEFAULT_BOOST``.
 IMPORTANCE_BOOST: dict[str, float] = {
     "1": 1.40,
+    "key cases": 1.40,
     "2": 1.15,
     "3": 1.00,
     "4": 0.90,
@@ -111,18 +117,28 @@ DOC_TYPE_BOOST_JUDGMENT: float = 1.00
 
 
 # ---------------------------------------------------------------------------
-# Rerank window — how aggressively to over-fetch on page 1.
+# Rerank scope
 # ---------------------------------------------------------------------------
-
-#: Multiplier applied to ``page_size`` when fetching candidates for
-#: re-ranking.  A 3× overshoot lets metadata boosts meaningfully shuffle
-#: the first page without over-burdening Step 3 / Step 4 of the search
-#: pipeline (case detail + snippet fetch).
-RERANK_CANDIDATE_MULTIPLIER: int = 3
-
-#: Absolute ceiling on candidate pool size.  Keeps worst-case latency
-#: bounded even for unusually large ``page_size`` values.
-RERANK_MAX_CANDIDATES: int = 300
+#
+# As of the ranking-consistency fix (April 2026), the rerank pass applies
+# to **every case that matches the FTS query**, not just an over-fetched
+# candidate pool.  The previous candidate-pool approach broke whenever a
+# high-boost case (e.g. imp=1 Grand Chamber, ×1.75) had a pre-boost score
+# low enough to fall outside a small ``page_size × 3`` window — it would
+# simply never get a chance to climb.  Reranking the full match set is
+# the only way to make the page-1 (and indeed every-page) ordering
+# invariant under ``page_size`` changes.
+#
+# Scaling note: even broad queries ("article", "torture") return at most
+# a few thousand matching cases; the total corpus is ~18k cases, so the
+# absolute worst case is an ~18k-row Python sort.  timsort on a list of
+# ~20k small dicts runs in single-digit milliseconds — negligible next
+# to SQLite FTS5 latency, and cheaper than the old over-fetch +
+# metadata round-trip.
+#
+# Date sorts still skip rerank entirely — they are deterministic by
+# definition and must never be touched by boosts.
+# ---------------------------------------------------------------------------
 
 
 # ---------------------------------------------------------------------------
@@ -130,15 +146,18 @@ RERANK_MAX_CANDIDATES: int = 300
 # ---------------------------------------------------------------------------
 
 
-def should_rerank(sort: str, page: int) -> bool:
+def should_rerank(sort: str) -> bool:
     """Return True iff metadata re-ranking should run for this request.
 
-    We only rerank on page 1 of a relevance sort.  For pages 2+, we keep
-    the straight ``sum_bm25 DESC`` ordering to avoid result-jumping
-    across pagination.  Date sorts are deterministic by definition and
-    must never be touched by boosts.
+    Only relevance sorts are reranked.  Date sorts are deterministic by
+    definition and must never be touched by boosts.
+
+    Unlike the previous implementation, this function no longer takes a
+    ``page`` argument: reranking applies uniformly to every page of a
+    relevance sort so that pagination is stable (page 2 of a reranked
+    result set is still the rerank-ordered continuation of page 1).
     """
-    return sort == "relevance" and page == 1
+    return sort == "relevance"
 
 
 def _resolve_body_boost(originating_body: Any) -> float:
@@ -178,7 +197,12 @@ def _resolve_body_boost(originating_body: Any) -> float:
 def _resolve_importance_boost(importance: Any) -> float:
     if importance is None:
         return IMPORTANCE_DEFAULT_BOOST
-    key = str(importance).strip()
+    # Case-insensitive: HUDOC ships both "1" and "Key cases" forms,
+    # and we want operators to be able to write the boost keys in any
+    # casing without silently dropping to the default.
+    key = str(importance).strip().lower()
+    if not key:
+        return IMPORTANCE_DEFAULT_BOOST
     return IMPORTANCE_BOOST.get(key, IMPORTANCE_DEFAULT_BOOST)
 
 
@@ -218,12 +242,8 @@ def compute_final_score(
     return base * imp_mult * body_mult * doc_mult
 
 
-def rerank_candidates(
-    candidates: Iterable[dict],
-    *,
-    page_size: int,
-) -> list[dict]:
-    """Sort ``candidates`` by their computed final score and truncate.
+def rerank_candidates(candidates: Iterable[dict]) -> list[dict]:
+    """Sort ``candidates`` by their computed final score.
 
     Each candidate dict is expected to carry at minimum::
 
@@ -237,7 +257,8 @@ def rerank_candidates(
 
     A ``final_score`` key is attached to each returned dict so the
     caller can inspect / log the post-boost score.  Returns a new list
-    (does not mutate the input order).
+    (does not mutate the input order) containing **every** candidate —
+    callers are responsible for their own pagination/slicing.
     """
     scored: list[dict] = []
     for cand in candidates:
@@ -252,9 +273,4 @@ def rerank_candidates(
         scored.append(enriched)
 
     scored.sort(key=lambda c: c["final_score"], reverse=True)
-    return scored[: max(1, page_size)]
-
-
-def candidate_pool_size(page_size: int) -> int:
-    """Compute the SQL LIMIT for the over-fetched candidate pool."""
-    return min(RERANK_MAX_CANDIDATES, max(1, page_size) * RERANK_CANDIDATE_MULTIPLIER)
+    return scored
