@@ -306,8 +306,26 @@ def stats():
             cur.execute("SELECT count(*) FROM cases WHERE document_type LIKE '%Press Release%'")
             total_press_releases = cur.fetchone()[0]
 
-            cur.execute("SELECT count(DISTINCT respondent_state) FROM cases WHERE respondent_state IS NOT NULL AND respondent_state != ''")
-            total_countries = cur.fetchone()[0]
+            # respondent_state is stored as a single string; inter-state
+            # cases collapse multiple countries into one cell
+            # (e.g. "Republic of Moldova, Russia",
+            # "Bulgaria, Romania", or the 1960s mega-inter-state cases
+            # with 15+ co-respondents).  A naive COUNT(DISTINCT ...)
+            # returns 79 for the ECHR corpus because every combination
+            # is counted as its own "country".  Split on commas and
+            # count distinct trimmed values instead — the ECHR has 46
+            # member states historically so that is the expected result.
+            cur.execute(
+                "SELECT respondent_state FROM cases "
+                "WHERE respondent_state IS NOT NULL AND respondent_state != ''"
+            )
+            unique_states: set[str] = set()
+            for (raw,) in cur.fetchall():
+                for part in raw.split(","):
+                    name = part.strip()
+                    if name:
+                        unique_states.add(name)
+            total_countries = len(unique_states)
 
             # judgment_date is stored as DD/MM/YYYY strings, so naive
             # MIN/MAX does lexicographic (DD-first) comparison and
