@@ -4231,7 +4231,11 @@ function buildCaseMeta(caseObj) {
  *
  * Conservative: anything with a lowercase letter passes through as normal content.
  */
-const HEADING_ONLY_RE = /^[A-ZÉÀÈÙÂÊÎÔÛÇ0-9\s.\-\(\)"'\/\:,–—\u201C\u201D\u2018\u2019\u2013\u2014]+$/u;
+// NOTE: in Unicode mode (/u), identity escapes inside a character class
+// are illegal — \-, \(, \), \/, \: all raise SyntaxError: "Invalid escape".
+// None of those characters are special inside [...] anyway, so drop the
+// backslashes; keep the `-` at the END of the class so it stays literal.
+const HEADING_ONLY_RE = /^[A-ZÉÀÈÙÂÊÎÔÛÇ0-9\s.()"'/:,\u201C\u201D\u2018\u2019\u2013\u2014-]+$/u;
 const NUMBERED_PARA_RE = /^\d+\s*[.)]\s+\S/;
 
 function isStructuralHeading(text) {
