@@ -602,6 +602,24 @@ button.export-btn:disabled {
   user-select: none;
 }
 
+/* Structural heading paragraphs (section/sub-section titles embedded in judgment text).
+   Rendered without a ¶ number to distinguish them from substantive content. */
+.modal-para-heading {
+  margin: 10px 0 2px;
+  padding: 2px 14px;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  user-select: text;
+}
+
+[data-theme="dark"] .modal-para-heading {
+  color: rgba(255, 255, 255, 0.38);
+}
+
 .hidden {
   display: none !important;
 }

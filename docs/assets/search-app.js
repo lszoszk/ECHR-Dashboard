@@ -4216,12 +4216,44 @@ function buildCaseMeta(caseObj) {
   return parts.join(" · ");
 }
 
+/**
+ * Detect structural heading paragraphs — lines that are pure section/sub-section
+ * titles (e.g. "THE FACTS", "I. THE APPLICANT ASSOCIATION", "A. Background")
+ * with no actual numbered-paragraph content.  These should be rendered as
+ * styled sub-headings rather than as ¶ N content paragraphs.
+ *
+ * Rules (all must pass):
+ *   1. Short — under 220 characters (real paragraphs are much longer)
+ *   2. Does NOT start with an Arabic-numeral paragraph marker ("1.", "2)", "12 .")
+ *   3. Text is composed of only: uppercase letters, Roman-numeral chars, spaces,
+ *      dots, hyphens, parentheses, quotes, slashes, colons, commas, and digits
+ *      that appear inside a heading (e.g. "ARTICLE 8", "SECTION 1").
+ *
+ * Conservative: anything with a lowercase letter passes through as normal content.
+ */
+const HEADING_ONLY_RE = /^[A-ZÉÀÈÙÂÊÎÔÛÇ0-9\s.\-\(\)"'\/\:,–—\u201C\u201D\u2018\u2019\u2013\u2014]+$/u;
+const NUMBERED_PARA_RE = /^\d+\s*[.)]\s+\S/;
+
+function isStructuralHeading(text) {
+  if (!text) return false;
+  const t = text.trim();
+  if (t.length === 0 || t.length > 220) return false;
+  if (NUMBERED_PARA_RE.test(t)) return false;       // real numbered paragraph
+  return HEADING_ONLY_RE.test(t);
+}
+
 function renderModalSection(sectionKey, paragraphs) {
   const label = SECTION_LABELS[sectionKey] || sectionKey;
   const color = SECTION_COLORS[sectionKey] || "#4C72B0";
 
   const paragraphsHtml = paragraphs
     .map((p) => {
+      if (isStructuralHeading(p.text)) {
+        // Render as a styled sub-heading — no ¶ number, distinct visual weight
+        return `
+          <p class="modal-para-heading" data-section="${escapeHtml(sectionKey)}" data-text="${escapeHtml(p.textLower)}">${escapeHtml(p.text)}</p>
+        `;
+      }
       return `
         <p class="modal-para" data-section="${escapeHtml(sectionKey)}" data-text="${escapeHtml(p.textLower)}">
           <span class="modal-para-num">¶ ${p.paraIdx + 1}</span>
