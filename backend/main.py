@@ -24,6 +24,8 @@ from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+import ranking
+
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
@@ -139,37 +141,105 @@ def _row_to_dict(row: sqlite3.Row) -> dict[str, Any]:
 
 _OR_RE = re.compile(r"\bOR\b", re.IGNORECASE)
 
+# Characters that are special in FTS5 query syntax and must be stripped
+# from bare tokens to avoid MATCH parser errors.  Apostrophes are also
+# stripped: the FTS5 query parser rejects bare-token apostrophes with a
+# syntax error, and because the ``unicode61`` tokenizer splits on them at
+# index time anyway, ``O'Halloran`` indexed as ``o`` + ``halloran`` still
+# matches a query emitted as ``OHalloran`` (or equivalently ``O Halloran``
+# via subsequent splitting by whitespace further upstream — but we emit
+# it as a single cleaned token here).
+# Double-quotes are handled separately as phrase delimiters.
+_FTS5_DANGEROUS_CHARS = re.compile(r"[\^*(){}:+\-~.,;!?/\\|<>=&']+")
+
+# Reserved FTS5 operator keywords (uppercase).  Users who accidentally
+# type them as bare words would otherwise produce malformed MATCH expressions.
+_FTS5_RESERVED_OPERATORS = {"AND", "OR", "NOT", "NEAR"}
+
+
+def _extract_phrases(raw: str) -> tuple[list[str], str]:
+    """
+    Pull balanced ``"..."`` substrings out of ``raw`` and return them as
+    sanitised phrase strings alongside the remaining (non-phrase) text.
+
+    Unbalanced stray quotes are dropped.  Phrase contents are themselves
+    sanitised of FTS5-dangerous characters but whitespace is preserved so
+    the tokenizer can split them at MATCH time.
+    """
+    phrases: list[str] = []
+    remainder_parts: list[str] = []
+    i = 0
+    n = len(raw)
+    while i < n:
+        ch = raw[i]
+        if ch == '"':
+            end = raw.find('"', i + 1)
+            if end == -1:
+                # Unbalanced — drop the stray quote and keep scanning.
+                i += 1
+                continue
+            inner = raw[i + 1:end]
+            inner = _FTS5_DANGEROUS_CHARS.sub(" ", inner).strip()
+            if inner:
+                phrases.append(inner)
+            i = end + 1
+            continue
+        remainder_parts.append(ch)
+        i += 1
+    return phrases, "".join(remainder_parts)
+
 
 def _build_fts_query(raw: str) -> str:
     """
     Convert a user query string into an FTS5 MATCH expression.
 
-    Strategy: split on whitespace, wrap each token in double-quotes for exact
-    matching, join with AND.  If the user explicitly writes ``OR`` between
-    tokens, honour that operator instead.
+    Strategy:
+        1. Extract balanced ``"phrases"`` verbatim so the user can force
+           exact-order matching for multi-word terms.
+        2. Split the remaining text on whitespace into bare tokens.
+        3. Strip characters that would confuse the FTS5 parser, but keep
+           apostrophes and digits so names like ``O'Halloran`` and article
+           numbers like ``3`` survive.
+        4. Emit each bare token **without** surrounding double-quotes — this
+           is critical: quoted tokens are treated as phrase literals by
+           FTS5 and bypass the Porter stemmer, so ``detention`` would not
+           match ``detained``.  Bare tokens are stemmed normally.
+        5. Join everything with ``AND`` by default; honour an explicit
+           uppercase ``OR`` between tokens as a disjunction.
     """
-    raw = raw.strip()
+    raw = (raw or "").strip()
     if not raw:
         return ""
 
-    # Split but keep OR as an operator.
-    tokens = raw.split()
+    phrases, remainder = _extract_phrases(raw)
+
     parts: list[str] = []
-    i = 0
-    while i < len(tokens):
-        tok = tokens[i]
-        if tok.upper() == "OR":
-            # Replace last AND (implicit) with OR.
+
+    # Quoted phrases always come first and join with AND — they are
+    # high-precision user intent.
+    for phrase in phrases:
+        parts.append(f'"{phrase}"')
+        parts.append("AND")
+
+    # Replace problematic characters with spaces BEFORE splitting, so
+    # ``O'Halloran`` becomes two tokens (``O`` ``Halloran``) that align
+    # with how unicode61 tokenized them at index time.  Then split on
+    # whitespace to get clean bare tokens.
+    normalised = _FTS5_DANGEROUS_CHARS.sub(" ", remainder).replace('"', " ")
+    tokens = normalised.split()
+    for tok in tokens:
+        upper = tok.upper()
+        if upper == "OR":
             if parts and parts[-1] == "AND":
                 parts[-1] = "OR"
-            i += 1
             continue
-        # Strip characters that are special in FTS5 query syntax.
-        clean = re.sub(r'["\'^*(){}:]+', "", tok).strip()
-        if clean:
-            parts.append(f'"{clean}"')
-            parts.append("AND")
-        i += 1
+        if upper in _FTS5_RESERVED_OPERATORS:
+            # Swallow stray AND/NOT/NEAR — they're implicit or unsupported.
+            continue
+        if not tok:
+            continue
+        parts.append(tok)
+        parts.append("AND")
 
     # Remove trailing operator.
     if parts and parts[-1] in ("AND", "OR"):
@@ -726,12 +796,16 @@ def search(
     join_sql = " ".join(joins)
 
     # Determine sort clause at the case-group level.
+    # For relevance sort we use sum_bm25 DESC — higher = better — which
+    # rewards cases with both strong single-paragraph matches (quality)
+    # and many matching paragraphs (quantity).  See ranking.py for the
+    # rationale behind the BM25F column weights (5.0, 3.0, 1.0).
     if sort == "date_desc":
         order_sql = "c.judgment_date DESC"
     elif sort == "date_asc":
         order_sql = "c.judgment_date ASC"
     else:
-        order_sql = "score ASC"  # lower bm25 = better in FTS5; using alias from SELECT
+        order_sql = "sum_bm25 DESC"
 
     # ------------------------------------------------------------------
     # Step 1: Count distinct cases + total hits.
@@ -765,11 +839,29 @@ def search(
             # ----------------------------------------------------------
             # Step 2: Get paginated case IDs.
             # ----------------------------------------------------------
-            offset = (page - 1) * page_size
+            # bm25() returns a NEGATIVE float — more-negative = better match.
+            # We negate it so the per-case sum is "higher = better", which
+            # rewards both quality (big positive summands from strong matches)
+            # and quantity (many summands from many matching paragraphs).
+            # Column weights: title=5.0, keywords=3.0, body=1.0 (BM25F-style).
+            #
+            # On page 1 of a relevance sort we over-fetch a larger candidate
+            # pool (page_size * 3, capped) and then hand it to
+            # ranking.rerank_candidates() for metadata-aware re-ordering.
+            # For pages 2+ and date sorts we keep the straight SQL order.
+            rerank_active = ranking.should_rerank(sort, page)
+            if rerank_active:
+                sql_limit = ranking.candidate_pool_size(page_size)
+                sql_offset = 0
+            else:
+                sql_limit = page_size
+                sql_offset = (page - 1) * page_size
 
             case_ids_sql = (
-                "SELECT c.case_id, min(pf.rank) AS score, "
-                "count(*) AS hit_count "
+                "SELECT c.case_id, "
+                "       sum(-bm25(paragraphs_fts, 5.0, 3.0, 1.0)) AS sum_bm25, "
+                "       min(-bm25(paragraphs_fts, 5.0, 3.0, 1.0)) AS best_bm25, "
+                "       count(*) AS hit_count "
                 "FROM paragraphs_fts pf "
                 "JOIN paragraphs p ON p.rowid = pf.rowid "
                 "JOIN cases c ON c.case_id = p.case_id "
@@ -779,10 +871,50 @@ def search(
                 f"ORDER BY {order_sql} "
                 "LIMIT ? OFFSET ?"
             )
-            cur.execute(case_ids_sql, params + [page_size, offset])
+            cur.execute(case_ids_sql, params + [sql_limit, sql_offset])
             case_rows = cur.fetchall()
             case_ids = [r["case_id"] for r in case_rows]
-            case_meta = {r["case_id"]: {"score": r["score"], "hit_count": r["hit_count"]} for r in case_rows}
+            case_meta = {
+                r["case_id"]: {
+                    "sum_bm25": r["sum_bm25"],
+                    "best_bm25": r["best_bm25"],
+                    "score": r["sum_bm25"],  # may be overwritten by reranker
+                    "hit_count": r["hit_count"],
+                }
+                for r in case_rows
+            }
+
+            # ----------------------------------------------------------
+            # Step 2b: Metadata-aware re-ranking of the candidate pool.
+            # ----------------------------------------------------------
+            # Do a tiny metadata lookup on the candidate set (≤ 300 rows)
+            # BEFORE fetching full case details and snippets.  This way
+            # the expensive Step 3 / Step 4 queries only run on the final
+            # page_size cases rather than on the over-fetched pool.
+            if rerank_active and case_ids:
+                meta_placeholders = ",".join("?" for _ in case_ids)
+                cur.execute(
+                    "SELECT case_id, importance, originating_body, document_type "
+                    f"FROM cases WHERE case_id IN ({meta_placeholders})",
+                    case_ids,
+                )
+                boost_meta = {r["case_id"]: dict(r) for r in cur.fetchall()}
+
+                candidates = [
+                    {
+                        "case_id": cid,
+                        "sum_bm25": case_meta[cid]["sum_bm25"],
+                        "hit_count": case_meta[cid]["hit_count"],
+                        "importance": boost_meta.get(cid, {}).get("importance"),
+                        "originating_body": boost_meta.get(cid, {}).get("originating_body"),
+                        "document_type": boost_meta.get(cid, {}).get("document_type"),
+                    }
+                    for cid in case_ids
+                ]
+                reranked = ranking.rerank_candidates(candidates, page_size=page_size)
+                case_ids = [c["case_id"] for c in reranked]
+                for c in reranked:
+                    case_meta[c["case_id"]]["score"] = c["final_score"]
 
             if not case_ids:
                 elapsed = (time.perf_counter() - t0) * 1000
@@ -830,15 +962,20 @@ def search(
             snippet_params.append(fts_expr)
             snippet_params.extend(case_ids)
 
+            # snippet() column index: text is column 2 in the multi-column
+            # paragraphs_fts (title=0, keywords_text=1, text=2).
+            # bm25() uses the same field weights as the case-level aggregate
+            # so that within-case paragraph ordering is consistent with
+            # cross-case ranking.
             snippet_sql = (
                 "SELECT p.case_id, p.section, p.para_idx, "
-                "snippet(paragraphs_fts, 0, '<b>', '</b>', '...', 80) AS snippet, "
-                "bm25(paragraphs_fts) AS para_score "
+                "snippet(paragraphs_fts, 2, '<b>', '</b>', '...', 80) AS snippet, "
+                "bm25(paragraphs_fts, 5.0, 3.0, 1.0) AS para_score "
                 "FROM paragraphs_fts pf "
                 "JOIN paragraphs p ON p.rowid = pf.rowid "
                 f"WHERE pf.paragraphs_fts MATCH ? {sec_where} "
                 f"AND p.case_id IN (SELECT value FROM json_each(?) ) "
-                f"ORDER BY bm25(paragraphs_fts)"
+                f"ORDER BY bm25(paragraphs_fts, 5.0, 3.0, 1.0)"
             )
             # Use json array to pass case_ids safely.
             snippet_params_final: list[Any] = [fts_expr]
