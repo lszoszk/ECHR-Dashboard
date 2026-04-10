@@ -309,10 +309,30 @@ def stats():
             cur.execute("SELECT count(DISTINCT respondent_state) FROM cases WHERE respondent_state IS NOT NULL AND respondent_state != ''")
             total_countries = cur.fetchone()[0]
 
-            cur.execute("SELECT MIN(judgment_date), MAX(judgment_date) FROM cases WHERE judgment_date IS NOT NULL AND judgment_date != ''")
+            # judgment_date is stored as DD/MM/YYYY strings, so naive
+            # MIN/MAX does lexicographic (DD-first) comparison and
+            # returns nonsense like "01/02/2000" → "31/10/2023" instead
+            # of the true corpus range.  Build a YYYYMMDD sort key from
+            # substr() and pick the first / last actual date strings.
+            iso_key = (
+                "substr(judgment_date,7,4) || "
+                "substr(judgment_date,4,2) || "
+                "substr(judgment_date,1,2)"
+            )
+            cur.execute(
+                f"SELECT judgment_date FROM cases "
+                f"WHERE judgment_date IS NOT NULL AND length(judgment_date) = 10 "
+                f"ORDER BY {iso_key} ASC LIMIT 1"
+            )
             row = cur.fetchone()
             date_from = row[0] if row else None
-            date_to = row[1] if row else None
+            cur.execute(
+                f"SELECT judgment_date FROM cases "
+                f"WHERE judgment_date IS NOT NULL AND length(judgment_date) = 10 "
+                f"ORDER BY {iso_key} DESC LIMIT 1"
+            )
+            row = cur.fetchone()
+            date_to = row[0] if row else None
 
         db_size_mb = 0.0
         try:
@@ -401,12 +421,29 @@ def facets():
             )
             result["doc_types"] = [_row_to_dict(r) for r in cur.fetchall()]
 
-            # Date range
-            cur.execute(
-                "SELECT min(judgment_date) AS min, max(judgment_date) AS max FROM cases"
+            # Date range — judgment_date is DD/MM/YYYY, so naive MIN/MAX
+            # is lexicographic-by-DD, not chronological.  Sort by an
+            # ISO-style YYYYMMDD key and pick the first / last rows.
+            iso_key = (
+                "substr(judgment_date,7,4) || "
+                "substr(judgment_date,4,2) || "
+                "substr(judgment_date,1,2)"
             )
-            date_row = cur.fetchone()
-            result["date_range"] = {"min": date_row["min"], "max": date_row["max"]}
+            cur.execute(
+                f"SELECT judgment_date FROM cases "
+                f"WHERE judgment_date IS NOT NULL AND length(judgment_date) = 10 "
+                f"ORDER BY {iso_key} ASC LIMIT 1"
+            )
+            _r = cur.fetchone()
+            min_date = _r["judgment_date"] if _r else None
+            cur.execute(
+                f"SELECT judgment_date FROM cases "
+                f"WHERE judgment_date IS NOT NULL AND length(judgment_date) = 10 "
+                f"ORDER BY {iso_key} DESC LIMIT 1"
+            )
+            _r = cur.fetchone()
+            max_date = _r["judgment_date"] if _r else None
+            result["date_range"] = {"min": min_date, "max": max_date}
 
         return result
     except Exception as exc:
