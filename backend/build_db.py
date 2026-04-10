@@ -55,34 +55,44 @@ CREATE TABLE IF NOT EXISTS cases (
 );
 
 CREATE TABLE IF NOT EXISTS paragraphs (
-    rowid    INTEGER PRIMARY KEY,
-    case_id  TEXT NOT NULL REFERENCES cases(case_id),
-    section  TEXT,
-    para_idx INTEGER,
-    text     TEXT
+    rowid         INTEGER PRIMARY KEY,
+    case_id       TEXT NOT NULL REFERENCES cases(case_id),
+    section       TEXT,
+    para_idx      INTEGER,
+    title         TEXT,   -- denormalized from cases.title for BM25F title weight
+    keywords_text TEXT,   -- denormalized, " ; "-joined from cases.keywords for BM25F keyword weight
+    text          TEXT
 );
 
+-- Multi-column FTS5 index enabling BM25F-style field weighting.
+-- Column order matters: bm25(paragraphs_fts, w0, w1, w2) and
+-- snippet(paragraphs_fts, col_index, ...) both reference columns by
+-- position, so DO NOT reorder without updating main.py accordingly.
 CREATE VIRTUAL TABLE IF NOT EXISTS paragraphs_fts USING fts5(
-    text,
-    content   = 'paragraphs',
+    title,           -- col 0 — boosted heavily (case title signal)
+    keywords_text,   -- col 1 — boosted moderately (HUDOC thesaurus signal)
+    text,            -- col 2 — baseline (paragraph body)
+    content       = 'paragraphs',
     content_rowid = 'rowid',
-    tokenize  = 'porter unicode61'
+    tokenize      = 'porter unicode61'
 );
 
 -- Triggers to keep the FTS index in sync with the content table.
 CREATE TRIGGER IF NOT EXISTS paragraphs_ai AFTER INSERT ON paragraphs BEGIN
-    INSERT INTO paragraphs_fts(rowid, text) VALUES (new.rowid, new.text);
+    INSERT INTO paragraphs_fts(rowid, title, keywords_text, text)
+        VALUES (new.rowid, new.title, new.keywords_text, new.text);
 END;
 
 CREATE TRIGGER IF NOT EXISTS paragraphs_ad AFTER DELETE ON paragraphs BEGIN
-    INSERT INTO paragraphs_fts(paragraphs_fts, rowid, text)
-        VALUES ('delete', old.rowid, old.text);
+    INSERT INTO paragraphs_fts(paragraphs_fts, rowid, title, keywords_text, text)
+        VALUES ('delete', old.rowid, old.title, old.keywords_text, old.text);
 END;
 
 CREATE TRIGGER IF NOT EXISTS paragraphs_au AFTER UPDATE ON paragraphs BEGIN
-    INSERT INTO paragraphs_fts(paragraphs_fts, rowid, text)
-        VALUES ('delete', old.rowid, old.text);
-    INSERT INTO paragraphs_fts(rowid, text) VALUES (new.rowid, new.text);
+    INSERT INTO paragraphs_fts(paragraphs_fts, rowid, title, keywords_text, text)
+        VALUES ('delete', old.rowid, old.title, old.keywords_text, old.text);
+    INSERT INTO paragraphs_fts(rowid, title, keywords_text, text)
+        VALUES (new.rowid, new.title, new.keywords_text, new.text);
 END;
 
 CREATE TABLE IF NOT EXISTS case_articles (
@@ -551,8 +561,9 @@ def build_database(input_path: Path, output_path: Path, batch_size: int) -> None
                 )
             if para_rows:
                 conn.executemany(
-                    """INSERT INTO paragraphs (case_id, section, para_idx, text)
-                       VALUES (?,?,?,?)""",
+                    """INSERT INTO paragraphs
+                       (case_id, section, para_idx, title, keywords_text, text)
+                       VALUES (?,?,?,?,?,?)""",
                     para_rows,
                 )
             if article_rows:
@@ -625,7 +636,22 @@ def build_database(input_path: Path, output_path: Path, batch_size: int) -> None
                 record.get("document_type") or "",
             ))
 
-            # Paragraphs — with section re-segmentation
+            # Paragraphs — with section re-segmentation.
+            # Denormalize the case-level title and keywords into every
+            # paragraph row so the multi-column FTS5 index can apply
+            # per-field BM25F weights.  The memory/storage cost of
+            # redundancy is bounded and acceptable (~+200MB for 18k cases).
+            case_title = record.get("title") or ""
+            raw_keywords = record.get("keywords") or []
+            if isinstance(raw_keywords, str):
+                try:
+                    raw_keywords = json.loads(raw_keywords)
+                except Exception:
+                    raw_keywords = [raw_keywords]
+            if not isinstance(raw_keywords, list):
+                raw_keywords = []
+            case_keywords_text = " ; ".join(str(k) for k in raw_keywords if k)
+
             raw_paragraphs = record.get("paragraphs") or []
             paragraphs = _resegment_case(raw_paragraphs)
             for para in paragraphs:
@@ -636,6 +662,8 @@ def build_database(input_path: Path, output_path: Path, batch_size: int) -> None
                     case_id,
                     para.get("section"),
                     para.get("para_idx"),
+                    case_title,
+                    case_keywords_text,
                     text,
                 ))
                 total_paragraphs += 1
