@@ -5139,15 +5139,19 @@ function init() {
         badgeEl.style.cssText = "display:inline-block;background:#2ecc71;color:#fff;font-size:0.7rem;padding:1px 8px;border-radius:10px;margin-left:8px;vertical-align:middle;";
       }
 
-      // Silently load sample dataset for local browse fallback (no query)
-      try {
-        const res = await fetch(SAMPLE_DATA_URL, { cache: "no-store" });
-        if (res.ok) {
-          const text = await res.text();
-          const parsed = parseJsonlText(text);
-          await activateDataset(parsed.rows, "Sample (local fallback)", `Local sample loaded for offline browsing`, parsed.invalidCount);
-        }
-      } catch (_) { /* sample load failure is OK when server is available */ }
+      // NOTE: intentionally do NOT load the 50-row sample dataset here.
+      //
+      // Earlier versions of this code silently fetched SAMPLE_DATA_URL
+      // "for local browse fallback", but activateDataset() calls
+      // preprocessDataset() which REPLACES state.cases with whatever
+      // rows it's handed — so loading the sample after a successful
+      // server connection would overwrite the 18k+ cases the dashboard
+      // had just connected to with only 50 rows, which the user would
+      // see as "18000+ → 50" flicker on page load.  When the server
+      // is available, all queries flow through serverSearch; there is
+      // no in-memory dataset to "fall back to".  If the server later
+      // becomes unavailable mid-session, the existing offline-reload
+      // path (loadSampleBtn) handles it explicitly.
 
       // Fetch full facets from server and override local sample filters
       try {
