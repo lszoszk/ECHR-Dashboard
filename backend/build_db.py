@@ -637,10 +637,25 @@ def build_database(input_path: Path, output_path: Path, batch_size: int) -> None
             ))
 
             # Paragraphs — with section re-segmentation.
-            # Denormalize the case-level title and keywords into every
-            # paragraph row so the multi-column FTS5 index can apply
-            # per-field BM25F weights.  The memory/storage cost of
-            # redundancy is bounded and acceptable (~+200MB for 18k cases).
+            #
+            # Title + keywords are stored on EXACTLY ONE "metadata" row per
+            # case (the first body paragraph), NOT replicated on every row.
+            # Why: replicating title/keywords_text into every paragraph row
+            # blew up the FTS5 match count — e.g. "torture" matched 338k
+            # paragraphs (every paragraph of every case whose title contains
+            # "torture") instead of ~13k.  That killed both latency and
+            # ranking semantics (irrelevant paragraphs of torture-titled
+            # cases were returned as hits).
+            #
+            # With the "metadata row" layout, BM25F still works correctly:
+            #   - Title-only hit: matches exactly ONE row per case → adds
+            #     one high-weight summand to sum_bm25 (title column weight
+            #     = 5.0) without flooding the hit set.
+            #   - Body hit: matches N rows per case, each contributing a
+            #     body-column summand (weight = 1.0).
+            #   - Both: naturally composes via sum aggregation.
+            # The metadata row's text is the first body paragraph so
+            # snippet() still returns meaningful context for title hits.
             case_title = record.get("title") or ""
             raw_keywords = record.get("keywords") or []
             if isinstance(raw_keywords, str):
@@ -654,16 +669,24 @@ def build_database(input_path: Path, output_path: Path, batch_size: int) -> None
 
             raw_paragraphs = record.get("paragraphs") or []
             paragraphs = _resegment_case(raw_paragraphs)
+            first_populated = True
             for para in paragraphs:
                 text = para.get("text", "")
                 if not text:
                     continue
+                if first_populated:
+                    row_title = case_title
+                    row_kw = case_keywords_text
+                    first_populated = False
+                else:
+                    row_title = ""
+                    row_kw = ""
                 para_rows.append((
                     case_id,
                     para.get("section"),
                     para.get("para_idx"),
-                    case_title,
-                    case_keywords_text,
+                    row_title,
+                    row_kw,
                     text,
                 ))
                 total_paragraphs += 1
@@ -691,6 +714,19 @@ def build_database(input_path: Path, output_path: Path, batch_size: int) -> None
         # ------------------------------------------------------------------
         log.info("Creating indexes ...")
         conn.executescript(_INDEXES_SQL)
+
+        log.info("Configuring BM25F column weights on FTS5 rank ...")
+        # Persist BM25F weights (title=5, keywords_text=3, text=1) directly
+        # into the FTS5 table config so that the hidden `rank` column
+        # exposes pre-weighted scores.  This lets the search endpoint use
+        # `sum(-pf.rank)` inside an aggregate without tripping the
+        # "unable to use function bm25 in the requested context" error
+        # that SQLite 3.51 raises when bm25() appears inside sum() over
+        # a JOIN chain.  See backend/main.py::search for the query shape.
+        conn.execute(
+            "INSERT INTO paragraphs_fts(paragraphs_fts, rank) VALUES ('rank', 'bm25(5.0, 3.0, 1.0)')"
+        )
+        conn.commit()
 
         log.info("Optimizing FTS index ...")
         conn.execute("INSERT INTO paragraphs_fts(paragraphs_fts) VALUES ('optimize')")

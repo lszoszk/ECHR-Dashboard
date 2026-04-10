@@ -13,6 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY main.py .
 COPY build_db.py .
+COPY ranking.py .
 COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh
 

@@ -796,16 +796,26 @@ def search(
     join_sql = " ".join(joins)
 
     # Determine sort clause at the case-group level.
-    # For relevance sort we use sum_bm25 DESC — higher = better — which
-    # rewards cases with both strong single-paragraph matches (quality)
-    # and many matching paragraphs (quantity).  See ranking.py for the
-    # rationale behind the BM25F column weights (5.0, 3.0, 1.0).
+    # For relevance sort we order by a MAX-DOMINATED score:
+    #     max(-rank) * (1 + 0.3 * ln(1 + hit_count))
+    # where `max(-rank)` is the strongest single-paragraph BM25F hit in
+    # the case (the most distinctive match) and the `ln(1+hit_count)`
+    # factor adds a mild density bonus so that a case which mentions the
+    # query several times slightly outranks one with a single lucky hit.
+    #
+    # Why not raw sum(-rank)?  Pilot A/B on golden queries showed strong
+    # long-judgment bias — e.g. "torture" placed 1800-paragraph mega
+    # inter-state cases above Ireland v. UK, and "Hirst" placed HORA
+    # (which cites Hirst 59×) above HIRST v. UK itself (which only
+    # mentions its own name 3×).  max*ln damps the "long-document wins"
+    # pathology while still rewarding topical density.  See ranking.py
+    # for BM25F column weights (title=5, keywords=3, text=1).
     if sort == "date_desc":
         order_sql = "c.judgment_date DESC"
     elif sort == "date_asc":
         order_sql = "c.judgment_date ASC"
     else:
-        order_sql = "sum_bm25 DESC"
+        order_sql = "relevance_score DESC"
 
     # ------------------------------------------------------------------
     # Step 1: Count distinct cases + total hits.
@@ -857,11 +867,33 @@ def search(
                 sql_limit = page_size
                 sql_offset = (page - 1) * page_size
 
+            # NOTE on the `-pf.rank` trick:
+            #
+            # SQLite 3.51 refuses to evaluate `bm25(paragraphs_fts, ...)`
+            # inside a `sum()` aggregate when the query contains a
+            # GROUP BY + JOIN chain — the planner flattens the subquery
+            # and loses the FTS5 cursor context, raising "unable to use
+            # function bm25 in the requested context".  A MATERIALIZED
+            # CTE workaround exists but forces the planner to build a
+            # 300k+ row temp table on every search, which adds ~2–10s
+            # of latency on broad queries ("torture", "detention", …).
+            #
+            # The fast path: FTS5 exposes a hidden `rank` column that
+            # returns the raw bm25 score for the current row.  By
+            # persisting BM25F weights via
+            #   INSERT INTO paragraphs_fts(paragraphs_fts, rank)
+            #   VALUES ('rank', 'bm25(5.0, 3.0, 1.0)');
+            # in build_db.py, `pf.rank` becomes the pre-weighted BM25F
+            # score and IS aggregatable without materialisation.  We
+            # negate so higher = better.
+            # MAX-dominated relevance_score is pre-computed in SQL so we
+            # can ORDER BY it and paginate efficiently on the DB side.
             case_ids_sql = (
                 "SELECT c.case_id, "
-                "       sum(-bm25(paragraphs_fts, 5.0, 3.0, 1.0)) AS sum_bm25, "
-                "       min(-bm25(paragraphs_fts, 5.0, 3.0, 1.0)) AS best_bm25, "
-                "       count(*) AS hit_count "
+                "       sum(-pf.rank) AS sum_bm25, "
+                "       max(-pf.rank) AS best_bm25, "
+                "       count(*) AS hit_count, "
+                "       max(-pf.rank) * (1.0 + 0.3 * ln(1.0 + count(*))) AS relevance_score "
                 "FROM paragraphs_fts pf "
                 "JOIN paragraphs p ON p.rowid = pf.rowid "
                 "JOIN cases c ON c.case_id = p.case_id "
@@ -878,7 +910,8 @@ def search(
                 r["case_id"]: {
                     "sum_bm25": r["sum_bm25"],
                     "best_bm25": r["best_bm25"],
-                    "score": r["sum_bm25"],  # may be overwritten by reranker
+                    "relevance_score": r["relevance_score"],
+                    "score": r["relevance_score"],  # may be overwritten by reranker
                     "hit_count": r["hit_count"],
                 }
                 for r in case_rows
@@ -903,7 +936,10 @@ def search(
                 candidates = [
                     {
                         "case_id": cid,
-                        "sum_bm25": case_meta[cid]["sum_bm25"],
+                        # Feed the max*ln relevance score into ranking,
+                        # not the raw sum_bm25.  sum_bm25 is kept only
+                        # for diagnostics / downstream display.
+                        "sum_bm25": case_meta[cid]["relevance_score"],
                         "hit_count": case_meta[cid]["hit_count"],
                         "importance": boost_meta.get(cid, {}).get("importance"),
                         "originating_body": boost_meta.get(cid, {}).get("originating_body"),
@@ -964,18 +1000,18 @@ def search(
 
             # snippet() column index: text is column 2 in the multi-column
             # paragraphs_fts (title=0, keywords_text=1, text=2).
-            # bm25() uses the same field weights as the case-level aggregate
-            # so that within-case paragraph ordering is consistent with
-            # cross-case ranking.
+            # Within-case paragraph ordering uses `pf.rank` (which is the
+            # stored BM25F-weighted score, via the rank config set in
+            # build_db.py) so it stays consistent with cross-case ranking.
             snippet_sql = (
                 "SELECT p.case_id, p.section, p.para_idx, "
                 "snippet(paragraphs_fts, 2, '<b>', '</b>', '...', 80) AS snippet, "
-                "bm25(paragraphs_fts, 5.0, 3.0, 1.0) AS para_score "
+                "pf.rank AS para_score "
                 "FROM paragraphs_fts pf "
                 "JOIN paragraphs p ON p.rowid = pf.rowid "
                 f"WHERE pf.paragraphs_fts MATCH ? {sec_where} "
                 f"AND p.case_id IN (SELECT value FROM json_each(?) ) "
-                f"ORDER BY bm25(paragraphs_fts, 5.0, 3.0, 1.0)"
+                "ORDER BY pf.rank"
             )
             # Use json array to pass case_ids safely.
             snippet_params_final: list[Any] = [fts_expr]

@@ -7,25 +7,50 @@ unit-tested, and adjusted without touching the SQL layer in ``main.py``.
 
 Two layers of ranking are used in ``/api/search``:
 
-1. **SQL layer (BM25F)** — ``paragraphs_fts`` is a multi-column FTS5
-   index over ``(title, keywords_text, text)``.  ``main.py`` calls
-   ``bm25(paragraphs_fts, 5.0, 3.0, 1.0)`` using the constants
-   ``BM25_WEIGHT_TITLE``, ``BM25_WEIGHT_KEYWORDS``, ``BM25_WEIGHT_BODY``
-   defined here as the single source of truth.  The per-case aggregate
-   is ``sum(-bm25(...))`` so that a higher number means a better match
-   (reward both quality and quantity of hits).
+1. **SQL layer (BM25F → MAX-dominated aggregate)** — ``paragraphs_fts``
+   is a multi-column FTS5 index over ``(title, keywords_text, text)``
+   with column weights persisted via ``INSERT INTO paragraphs_fts
+   (paragraphs_fts, rank) VALUES ('rank', 'bm25(5.0, 3.0, 1.0)')``
+   inside ``build_db.py``.  The constants ``BM25_WEIGHT_TITLE``,
+   ``BM25_WEIGHT_KEYWORDS``, ``BM25_WEIGHT_BODY`` defined here are the
+   single source of truth and must stay in sync with that rank config.
+
+   Because the weights are stored on the FTS5 table, the hidden
+   ``pf.rank`` column exposes the pre-weighted BM25F score for each
+   matching row and is aggregatable without materialisation (avoids
+   the "unable to use function bm25 in the requested context" error).
+
+   The per-case aggregate is a **max-dominated** formula:
+
+       relevance_score = max(-pf.rank) * (1 + 0.3 * ln(1 + hit_count))
+
+   * ``max(-pf.rank)`` is the strongest single-paragraph hit — the
+     most distinctive match (typically the metadata row when the
+     query appears in the case title).
+   * ``(1 + 0.3 * ln(1 + hit_count))`` is a gentle density bonus so
+     a case with several matches slightly outranks one lucky hit.
+
+   Why not raw ``sum(-pf.rank)``?  Pilot A/B on golden queries showed
+   severe long-judgment bias — e.g. "torture" placed an 1800-paragraph
+   mega inter-state case above Ireland v. UK, and "Hirst" placed HORA
+   (which cites Hirst 59x) above HIRST v. UK itself (which only
+   mentions its own name 3x).  max*ln damps the "long-document wins"
+   pathology while still rewarding topical density.
 
 2. **Python layer (metadata boosts)** — on page 1 of a relevance sort,
    the endpoint fetches a slightly larger candidate pool and passes it
    through :func:`rerank_candidates`, which applies multiplicative
    boosts based on case importance, the originating body (Grand Chamber
    carries more precedential weight than a Committee), and document
-   type (press releases are demoted relative to judgments).
+   type (press releases are demoted relative to judgments).  The input
+   score to this layer is ``relevance_score`` (the SQL max*ln value),
+   passed via the ``sum_bm25`` candidate key for historical reasons.
 
-Why multiplicative, not additive?  The raw ``sum_bm25`` magnitude varies
-by an order of magnitude across queries (one rare token vs several
-common tokens), so additive boosts would need per-query normalisation.
-Multiplicative boosts are scale-invariant and compose cleanly.
+Why multiplicative metadata boosts, not additive?  The raw score
+magnitude varies by an order of magnitude across queries (one rare
+token vs several common tokens), so additive boosts would need
+per-query normalisation.  Multiplicative boosts are scale-invariant
+and compose cleanly.
 
 All constants in this module are intentionally conservative first
 guesses.  Expect one round of tuning after the golden-query A/B.
