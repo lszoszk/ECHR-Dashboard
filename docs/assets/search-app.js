@@ -38,11 +38,12 @@ const serverSearch = {
   },
 
   /** Build query params from the current UI filters. */
-  _buildParams(query, filters, page = 1) {
+  _buildParams(query, filters, page = 1, sort = null) {
     const p = new URLSearchParams();
     if (query) p.set("q", query);
     p.set("page", String(page));
     p.set("page_size", String(PAGE_SIZE));
+    if (sort) p.set("sort", sort);
     // Convert normalized section keys back to raw DB names
     if (filters.sections.size) {
       const dbSections = [...filters.sections].map(s => SECTION_DB_NAMES[s] || s);
@@ -114,8 +115,8 @@ const serverSearch = {
   },
 
   /** Full-text search via server API. */
-  async search(query, filters, page = 1) {
-    const params = this._buildParams(query, filters, page);
+  async search(query, filters, page = 1, sort = null) {
+    const params = this._buildParams(query, filters, page, sort);
     const endpoint = query ? "search" : "browse";
     const r = await fetch(`${API_BASE_URL}/${endpoint}?${params}`);
     if (!r.ok) throw new Error(`API ${r.status}`);
@@ -347,6 +348,12 @@ const state = {
   serverMode: false,
   serverTotalCases: 0,
   serverTotalPages: 0,
+  // "Default view" = empty query, date-desc, cap at 100 most recent cases
+  // (5 pages of PAGE_SIZE).  Flipped on by the init block after facets
+  // load, and flipped off as soon as the user types a query or applies
+  // filters that would make the 100-cap meaningless.
+  defaultView: false,
+  defaultViewCap: 100,
 };
 
 const el = {};
@@ -3788,13 +3795,34 @@ function updateResultsHeader() {
 }
 
 function applySearch(resetPage = true) {
-  // Server-side search: used when API is available AND there is a text query
-  // (browse mode without query still uses local data for instant filtering)
+  // When the server is available, route EVERYTHING through it — both
+  // full-text queries (/api/search) and empty-query browse (/api/browse).
+  // The previous behaviour ("empty query uses local data") was a dead
+  // path: since the sample50 preload was removed, state.cases is empty
+  // when the server is live, so empty-query browse would render nothing.
   const query = el.searchInput.value.trim();
   const filters = getCurrentFilters();
 
-  if (serverSearch.available && query) {
-    applyServerSearch(query, filters, resetPage);
+  if (serverSearch.available) {
+    // Default-view mode stays on only while the user hasn't typed a
+    // query and hasn't applied filters.  As soon as they do either,
+    // the 100-case cap lifts and we show the full result set.
+    const hasActiveFilters =
+      filters.sections.size ||
+      filters.articles.size ||
+      filters.countries.size ||
+      filters.importance.size ||
+      filters.bodies.size ||
+      filters.outcomes.size ||
+      filters.docTypes.size ||
+      filters.dateFrom ||
+      filters.dateTo;
+    const isDefaultView = !query && !hasActiveFilters;
+    state.defaultView = isDefaultView;
+    applyServerSearch(query, filters, resetPage, {
+      sort: isDefaultView ? "date_desc" : null,
+      defaultView: isDefaultView,
+    });
     return;
   }
 
@@ -3832,7 +3860,10 @@ function applySearch(resetPage = true) {
 }
 
 /** Server-side search — calls API and adapts results to local format. */
-async function applyServerSearch(query, filters, resetPage = true) {
+async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
+  const sort = opts.sort || null;
+  const defaultView = !!opts.defaultView;
+
   state.query = query;
   el.inlineSearchInput.value = query;
   state.currentFilters = filters;
@@ -3840,17 +3871,20 @@ async function applyServerSearch(query, filters, resetPage = true) {
   if (resetPage) state.currentPage = 1;
 
   // Show loading state
-  el.casesList.innerHTML = '<div class="search-loading" style="text-align:center;padding:2rem;color:var(--text-secondary);">Searching 18,000+ cases…</div>';
+  const loadingMsg = defaultView
+    ? "Loading 100 most recent cases…"
+    : (query ? "Searching 18,000+ cases…" : "Browsing cases…");
+  el.casesList.innerHTML = `<div class="search-loading" style="text-align:center;padding:2rem;color:var(--text-secondary);">${loadingMsg}</div>`;
   el.noResults.hidden = true;
   el.pagination.hidden = true;
   el.resultsHeader.hidden = false;
   el.resultsHits.textContent = "…";
   el.resultsCases.textContent = "…";
-  el.resultsTime.textContent = "(searching server…)";
+  el.resultsTime.textContent = defaultView ? "(loading recent cases…)" : "(searching server…)";
 
   const t0 = performance.now();
   try {
-    const data = await serverSearch.search(query, filters, state.currentPage);
+    const data = await serverSearch.search(query, filters, state.currentPage, sort);
     const t1 = performance.now();
 
     const resultsById = new Map();
@@ -3885,7 +3919,7 @@ async function applyServerSearch(query, filters, resetPage = true) {
       orderedCaseIds.push(c.case_id);
     }
 
-    state.currentMode = "search";
+    state.currentMode = defaultView ? "browse" : "search";
     state.currentOrderedCaseIds = orderedCaseIds;
     state.currentResultsById = resultsById;
     state.currentTerms = query.toLowerCase().split(/\s+/).filter(Boolean);
@@ -3893,13 +3927,27 @@ async function applyServerSearch(query, filters, resetPage = true) {
     state.limited = false;
     state.searchTimeMs = data.search_time_ms || (t1 - t0);
     state.serverMode = true;
-    state.serverTotalCases = data.total_cases || 0;
-    state.serverTotalPages = Math.ceil((data.total_cases || 0) / PAGE_SIZE);
+    // Default view: cap visible total at 100 cases / 5 pages even though
+    // the server knows about the full 18k+ corpus.
+    const rawTotalCases = data.total_cases || 0;
+    if (defaultView) {
+      state.serverTotalCases = Math.min(state.defaultViewCap, rawTotalCases);
+      state.serverTotalPages = Math.ceil(state.serverTotalCases / PAGE_SIZE) || 1;
+    } else {
+      state.serverTotalCases = rawTotalCases;
+      state.serverTotalPages = Math.ceil(rawTotalCases / PAGE_SIZE);
+    }
 
     renderActiveFilters(filters);
     renderResultsPage();
-    fetchAndRenderServerAnalytics(query, filters);  // full aggregates from server
-    updateResultsHeaderServer(data);
+    // Skip the expensive analytics aggregation call on the initial
+    // default view — it's not tied to a user query and would just
+    // recompute the corpus-wide totals we've already shown in the KPI
+    // bar.  It re-runs as soon as the user enters a query or filter.
+    if (!defaultView) {
+      fetchAndRenderServerAnalytics(query, filters);
+    }
+    updateResultsHeaderServer(data, { defaultView });
   } catch (err) {
     console.error("[Server Search] Error:", err);
     // Fall back to local search
@@ -3928,10 +3976,18 @@ async function applyServerSearch(query, filters, resetPage = true) {
 }
 
 /** Update results header for server-side search results. */
-function updateResultsHeaderServer(data) {
-  const totalCases = data.total_cases || state.currentOrderedCaseIds.length;
-  const totalPages = Math.ceil(totalCases / PAGE_SIZE) || 1;
-  const serverTag = "server · full dataset";
+function updateResultsHeaderServer(data, opts = {}) {
+  const defaultView = !!opts.defaultView;
+  // In default view, the "cases" count is the 100-cap, not the full corpus.
+  const totalCases = defaultView
+    ? (state.serverTotalCases || 0)
+    : (data.total_cases || state.currentOrderedCaseIds.length);
+  const totalPages = defaultView
+    ? (state.serverTotalPages || 1)
+    : (Math.ceil(totalCases / PAGE_SIZE) || 1);
+  const serverTag = defaultView
+    ? "server · 100 most recent"
+    : "server · full dataset";
 
   el.resultsHeader.hidden = false;
   el.resultsHits.textContent = fmtInt.format(data.total_hits || 0);
@@ -4969,9 +5025,14 @@ function bindEvents() {
       }
     }
 
-    // In server mode, re-fetch the requested page from API
+    // In server mode, re-fetch the requested page from API.  Preserve
+    // default-view mode (and its sort=date_desc + 100-cap) across page
+    // clicks so "next page" in the recent-cases view stays in that view.
     if (state.serverMode) {
-      applyServerSearch(state.query, state.currentFilters, false);
+      applyServerSearch(state.query, state.currentFilters, false, {
+        sort: state.defaultView ? "date_desc" : null,
+        defaultView: state.defaultView,
+      });
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
@@ -5205,6 +5266,16 @@ function init() {
         });
       } catch (e) {
         console.warn("[Server Facets] Could not fetch facets:", e);
+      }
+
+      // Default view: load the 100 most recent cases (date_desc),
+      // paginated across 5 pages of PAGE_SIZE.  Empty query + no
+      // filters → applySearch() will route through applyServerSearch
+      // with { sort: "date_desc", defaultView: true }.
+      try {
+        applySearch(true);
+      } catch (e) {
+        console.warn("[Default View] Could not load recent cases:", e);
       }
 
     } else {

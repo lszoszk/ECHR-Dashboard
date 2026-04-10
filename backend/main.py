@@ -847,10 +847,19 @@ def search(
     # mentions its own name 3×).  max*ln damps the "long-document wins"
     # pathology while still rewarding topical density.  See ranking.py
     # for BM25F column weights (title=5, keywords=3, text=1).
+    # judgment_date is stored as DD/MM/YYYY; a raw ORDER BY on that
+    # column is lexicographic-by-DD, not chronological.  Sort by an
+    # ISO-style YYYYMMDD key derived from substr() to get the true
+    # chronological order.
+    date_sort_key = (
+        "(substr(c.judgment_date,7,4) || "
+        "substr(c.judgment_date,4,2) || "
+        "substr(c.judgment_date,1,2))"
+    )
     if sort == "date_desc":
-        order_sql = "c.judgment_date DESC"
+        order_sql = f"{date_sort_key} DESC"
     elif sort == "date_asc":
-        order_sql = "c.judgment_date ASC"
+        order_sql = f"{date_sort_key} ASC"
     else:
         order_sql = "relevance_score DESC"
 
@@ -1265,7 +1274,14 @@ def browse(
     where_sql = (" WHERE " + " AND ".join(where_clauses)) if where_clauses else ""
     join_sql = " ".join(joins)
 
-    order_sql = "c.judgment_date DESC" if sort == "date_desc" else "c.judgment_date ASC"
+    # judgment_date is DD/MM/YYYY; sort by an ISO YYYYMMDD key, not
+    # by raw lex order (which would sort by DD first).
+    date_sort_key = (
+        "(substr(c.judgment_date,7,4) || "
+        "substr(c.judgment_date,4,2) || "
+        "substr(c.judgment_date,1,2))"
+    )
+    order_sql = f"{date_sort_key} DESC" if sort == "date_desc" else f"{date_sort_key} ASC"
     offset = (page - 1) * page_size
 
     try:
