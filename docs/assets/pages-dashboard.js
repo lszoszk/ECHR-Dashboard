@@ -494,25 +494,20 @@ async function loadDashboard() {
     { horizontal: true, colors: ["#b28a2f"] }
   );
 
+  const articleViolationRatesFiltered = articleViolationRates.filter(d => d[1] <= 1.0);
   createBarChart(
     document.getElementById("articleViolationRateChart"),
-    articleViolationRates.filter(d => d[1] <= 1.0).slice(0, 15).map((d) => `Art. ${d[0]} (${d[2]}/${d[3]})`),
-    articleViolationRates.filter(d => d[1] <= 1.0).slice(0, 15).map((d) => Number(d[1]) * 100),
+    articleViolationRatesFiltered.slice(0, 15).map((d) => `Art. ${d[0]} (${d[2]}/${d[3]})`),
+    articleViolationRatesFiltered.slice(0, 15).map((d) => Number(d[1]) * 100),
     { horizontal: true, colors: ["#3c8d5a"] }
   );
 
   if (precedentConcentrationTop.length) {
-    const pcCanvas = document.getElementById("precedentConcentrationChart");
-    if (pcCanvas && pcCanvas.parentElement) {
-      pcCanvas.parentElement.style.height = "560px";
-    }
-    const sortedPrecedents = [...precedentConcentrationTop]
-      .sort((a, b) => b[3] - a[3])
-      .slice(0, 20);
+    const precTop = precedentConcentrationTop.slice(0, 20).slice().sort((a, b) => b[1] - a[1]);
     createBarChart(
-      pcCanvas,
-      sortedPrecedents.map((d) => truncateLabel(d[0], 42)),
-      sortedPrecedents.map((d) => d[3]),
+      document.getElementById("precedentConcentrationChart"),
+      precTop.map((d) => truncateLabel(d[0], 42)),
+      precTop.map((d) => d[1]),
       { horizontal: true, colors: ["#8d4f78"] }
     );
   } else {
