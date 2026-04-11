@@ -64,180 +64,305 @@
     </section>
 
     <div class="stats-page">
-      <nav class="chart-toc" id="chartToc" aria-label="Chart navigation">
-        <button class="toc-toggle" id="tocToggle" type="button" aria-label="Toggle table of contents">Contents</button>
-        <ul class="toc-list" id="tocList"></ul>
-      </nav>
+      <div class="stats-dashboard">
 
-      <div class="kpi-row" id="kpiGrid"></div>
+        <!-- ── Sidebar Navigation ────────────────────────────────────── -->
+        <nav class="stats-sidebar" id="statsSidebar" aria-label="Dashboard sections">
+          <div class="stats-sidebar-inner">
 
-      <section class="chart-row">
-        <article class="chart-container">
-          <h3 class="chart-title">Cases by Year</h3>
-          <canvas id="casesYearChart"></canvas>
-        </article>
-      </section>
-
-      <section class="chart-row">
-        <article class="chart-container full-width">
-          <h3 class="chart-title">Violation Rate by Year (%)</h3>
-          <canvas id="violationRateYearChart" style="height:400px"></canvas>
-        </article>
-      </section>
-
-      <section class="chart-row">
-        <article class="chart-container">
-          <h3 class="chart-title">Top Respondent States</h3>
-          <canvas id="countriesChart"></canvas>
-        </article>
-        <article class="chart-container">
-          <h3 class="chart-title">Most Cited Convention Articles</h3>
-          <canvas id="articlesChart"></canvas>
-        </article>
-      </section>
-
-      <section class="chart-row">
-        <article class="chart-container full-width">
-          <h3 class="chart-title">Paragraph Distribution by Section</h3>
-          <canvas id="sectionsChart"></canvas>
-        </article>
-      </section>
-
-      <section class="chart-row">
-        <article class="chart-container">
-          <h3 class="chart-title">Chamber Split</h3>
-          <canvas id="chamberChart"></canvas>
-        </article>
-      </section>
-
-      <section class="chart-row">
-        <article class="chart-container">
-          <h3 class="chart-title">Importance Distribution</h3>
-          <canvas id="importanceChart"></canvas>
-        </article>
-        <article class="chart-container">
-          <h3 class="chart-title">Outcome Composition</h3>
-          <canvas id="outcomesChart"></canvas>
-        </article>
-      </section>
-
-      <section class="chart-row">
-        <article class="chart-container">
-          <h3 class="chart-title">Procedural vs Substantive Aspects</h3>
-          <canvas id="proceduralSubstantiveChart"></canvas>
-        </article>
-        <article class="chart-container">
-          <h3 class="chart-title">Inadmissibility and Struck Out</h3>
-          <canvas id="inadmissibilityChart"></canvas>
-        </article>
-      </section>
-
-      <section class="chart-row">
-        <article class="chart-container full-width">
-          <h3 class="chart-title">Top Inadmissibility Grounds</h3>
-          <canvas id="inadmissibilityGroundsChart" style="height:500px"></canvas>
-        </article>
-      </section>
-
-      <section class="chart-row">
-        <article class="chart-container full-width">
-          <h3 class="chart-title">Outcome Trend by Year</h3>
-          <canvas id="outcomesYearChart"></canvas>
-        </article>
-      </section>
-
-      <section class="chart-row">
-        <article class="chart-container">
-          <h3 class="chart-title">Originating Bodies</h3>
-          <canvas id="bodiesChart"></canvas>
-        </article>
-        <article class="chart-container">
-          <h3 class="chart-title">Separate Opinion Share by Body</h3>
-          <canvas id="separateByBodyChart"></canvas>
-        </article>
-      </section>
-
-      <section class="chart-row">
-        <article class="chart-container full-width">
-          <h3 class="chart-title">Top Keywords</h3>
-          <canvas id="keywordsChart"></canvas>
-        </article>
-      </section>
-
-      <section class="chart-row">
-        <article class="chart-container">
-          <h3 class="chart-title">Article Violation Rates</h3>
-          <canvas id="articleViolationRateChart"></canvas>
-        </article>
-        <article class="chart-container">
-          <h3 class="chart-title">Precedent Concentration (Top 10)</h3>
-          <canvas id="precedentConcentrationChart"></canvas>
-        </article>
-      </section>
-
-      <section class="chart-row">
-        <article class="chart-container full-width">
-          <h3 class="chart-title">Violation vs Non-violation Counts by Article</h3>
-          <canvas id="articleOutcomesCountChart" style="height:450px"></canvas>
-        </article>
-      </section>
-
-      <section class="chart-row">
-        <article class="chart-container full-width">
-          <h3 class="chart-title">Most Cited Strasbourg Precedents</h3>
-          <canvas id="citationsChart"></canvas>
-        </article>
-      </section>
-
-      <section class="chart-row">
-        <article class="chart-container full-width">
-          <h3 class="chart-title">Top Respondent States per Article</h3>
-          <div class="chart-controls">
-            <label for="articleStateSelect">Convention Article:</label>
-            <select id="articleStateSelect" class="chart-select"></select>
-          </div>
-          <canvas id="articleByStateChart"></canvas>
-        </article>
-      </section>
-
-      <section class="chart-row">
-        <article class="chart-container full-width">
-          <h3 class="chart-title">Comparative State Analysis</h3>
-          <div class="chart-controls">
-            <label for="compareState1">State 1:</label>
-            <select id="compareState1" class="chart-select"></select>
-            <label for="compareState2">State 2:</label>
-            <select id="compareState2" class="chart-select"></select>
-            <label for="compareState3">State 3:</label>
-            <select id="compareState3" class="chart-select">
-              <option value="">(none)</option>
-            </select>
-            <label for="compareState4">State 4:</label>
-            <select id="compareState4" class="chart-select">
-              <option value="">(none)</option>
-            </select>
-          </div>
-          <div id="compareSummaryTable"></div>
-          <div class="compare-charts-grid">
-            <div class="compare-chart-wrap">
-              <h4 class="chart-subtitle">Cases by Year</h4>
-              <canvas id="compareTrendChart"></canvas>
+            <div class="sidebar-category">
+              <span class="sidebar-category-label">Overview</span>
+              <a class="sidebar-link active" data-target="stats-kpi" href="#">Key Statistics</a>
             </div>
-            <div class="compare-chart-wrap">
-              <h4 class="chart-subtitle">Top Violated Articles</h4>
-              <canvas id="compareArticlesChart"></canvas>
-            </div>
-          </div>
-        </article>
-      </section>
 
-      <section class="chart-row">
-        <article class="chart-container full-width">
-          <h3 class="chart-title">Outcome by Respondent State (n ≥ 5)</h3>
-          <div id="stateOutcomeTable"></div>
-        </article>
-      </section>
-    </div>
+            <div class="sidebar-category">
+              <span class="sidebar-category-label">Temporal Trends</span>
+              <a class="sidebar-link" data-target="stats-cases-year" href="#">Cases by Year</a>
+              <a class="sidebar-link" data-target="stats-violation-rate-year" href="#">Violation Rate %</a>
+              <a class="sidebar-link" data-target="stats-outcomes-year" href="#">Outcomes by Year</a>
+            </div>
+
+            <div class="sidebar-category">
+              <span class="sidebar-category-label">Convention Articles</span>
+              <a class="sidebar-link" data-target="stats-article-rates" href="#">Article Violation Rates</a>
+              <a class="sidebar-link" data-target="stats-article-counts" href="#">Article Outcome Counts</a>
+              <a class="sidebar-link" data-target="stats-precedents" href="#">Most Cited Precedents</a>
+            </div>
+
+            <div class="sidebar-category">
+              <span class="sidebar-category-label">Respondent States</span>
+              <a class="sidebar-link" data-target="stats-country-cases" href="#">Cases by Country</a>
+              <a class="sidebar-link coming-soon" data-target="stats-country-rates" href="#">Violation Rate by Country</a>
+              <a class="sidebar-link" data-target="stats-state-outcomes" href="#">State Outcome Table</a>
+            </div>
+
+            <div class="sidebar-category">
+              <span class="sidebar-category-label">Case Characteristics</span>
+              <a class="sidebar-link coming-soon" data-target="stats-duration" href="#">Case Duration</a>
+              <a class="sidebar-link" data-target="stats-judgment-types" href="#">Judgment Types</a>
+            </div>
+
+            <div class="sidebar-category">
+              <span class="sidebar-category-label">Admissibility</span>
+              <a class="sidebar-link" data-target="stats-inadmissibility" href="#">Inadmissibility Grounds</a>
+              <a class="sidebar-link" data-target="stats-admissibility-overview" href="#">Inadmissibility &amp; Struck Out</a>
+            </div>
+
+            <div class="sidebar-category">
+              <span class="sidebar-category-label">Legal Culture</span>
+              <a class="sidebar-link" data-target="stats-citations-country" href="#">Citations by Country</a>
+              <a class="sidebar-link" data-target="stats-precedent-concentration" href="#">Precedent Concentration</a>
+            </div>
+
+            <div class="sidebar-category">
+              <span class="sidebar-category-label">Corpus Quality</span>
+              <a class="sidebar-link" data-target="stats-paragraphs" href="#">Paragraph Distribution</a>
+              <a class="sidebar-link coming-soon" data-target="stats-coverage" href="#">Coverage Notes</a>
+            </div>
+
+          </div>
+        </nav>
+        <!-- ── End Sidebar ───────────────────────────────────────────── -->
+
+        <!-- ── Main Content ──────────────────────────────────────────── -->
+        <div class="stats-main" id="statsMain">
+
+          <!-- ① Key Statistics (KPIs) -->
+          <section class="chart-section" id="stats-kpi">
+            <h2 class="chart-section-title">Key Statistics</h2>
+            <p class="chart-section-desc">Summary metrics across the full ECHR case corpus — case counts, violation rates, coverage of metadata fields, and corpus composition at a glance.</p>
+            <div id="kpiGrid" class="kpi-row"></div>
+          </section>
+
+          <!-- ② Cases by Year -->
+          <section class="chart-section" id="stats-cases-year">
+            <h2 class="chart-section-title">Cases by Year</h2>
+            <p class="chart-section-desc">Number of ECHR judgments delivered per calendar year since the Court's inception, illustrating the steady growth of the Strasbourg docket over six decades.</p>
+            <div class="chart-canvas-wrap">
+              <canvas id="casesYearChart"></canvas>
+            </div>
+          </section>
+
+          <!-- ③ Violation Rate by Year -->
+          <section class="chart-section" id="stats-violation-rate-year">
+            <h2 class="chart-section-title">Violation Rate by Year (%)</h2>
+            <p class="chart-section-desc">Percentage of cases with at least one violation finding in each calendar year. Tracks structural shifts in the Court's adjudicative outcomes and reveals periods of systemic non-compliance by respondent states.</p>
+            <div class="chart-canvas-wrap">
+              <canvas id="violationRateYearChart" style="height:400px"></canvas>
+            </div>
+          </section>
+
+          <!-- ④ Outcomes by Year -->
+          <section class="chart-section" id="stats-outcomes-year">
+            <h2 class="chart-section-title">Outcomes by Year</h2>
+            <p class="chart-section-desc">Annual breakdown of case outcomes — violation only, non-violation only, mixed findings, and no finding — showing how the Court's caseload composition has evolved over time.</p>
+            <div class="chart-canvas-wrap">
+              <canvas id="outcomesYearChart"></canvas>
+            </div>
+          </section>
+
+          <!-- ⑤ Article Violation Rates -->
+          <section class="chart-section" id="stats-article-rates">
+            <h2 class="chart-section-title">Article Violation Rates</h2>
+            <p class="chart-section-desc">Proportion of cases resulting in a violation finding per Convention article (among cases where the article was invoked), highlighting which rights are most frequently found to have been breached.</p>
+            <div class="chart-canvas-wrap">
+              <canvas id="articleViolationRateChart"></canvas>
+            </div>
+            <h3 class="chart-section-subtitle" style="margin-top:32px; margin-bottom:6px;">Most Cited Convention Articles</h3>
+            <p class="chart-section-desc">Raw frequency of article invocations across the corpus, showing which Convention provisions are most often pleaded before the Court — regardless of outcome.</p>
+            <div class="chart-canvas-wrap">
+              <canvas id="articlesChart"></canvas>
+            </div>
+          </section>
+
+          <!-- ⑥ Article Outcome Counts -->
+          <section class="chart-section" id="stats-article-counts">
+            <h2 class="chart-section-title">Article Outcome Counts</h2>
+            <p class="chart-section-desc">Side-by-side violation and non-violation counts for each Convention article, providing an absolute measure of the Court's jurisprudential output per protected right.</p>
+            <div class="chart-canvas-wrap">
+              <canvas id="articleOutcomesCountChart" style="height:450px"></canvas>
+            </div>
+          </section>
+
+          <!-- ⑦ Most Cited Precedents -->
+          <section class="chart-section" id="stats-precedents">
+            <h2 class="chart-section-title">Most Cited Strasbourg Precedents</h2>
+            <p class="chart-section-desc">The judgments most frequently cited across the corpus, reflecting the landmark cases that have most profoundly shaped ECHR jurisprudence and the reasoning patterns of the Court.</p>
+            <div class="chart-canvas-wrap">
+              <canvas id="citationsChart"></canvas>
+            </div>
+          </section>
+
+          <!-- ⑧ Cases by Country -->
+          <section class="chart-section" id="stats-country-cases">
+            <h2 class="chart-section-title">Cases by Country</h2>
+            <p class="chart-section-desc">Number of ECHR judgments by respondent state, identifying which countries face the highest litigation volumes before the Court and where systemic human rights issues are most prevalent.</p>
+            <div class="chart-canvas-wrap">
+              <canvas id="countriesChart"></canvas>
+            </div>
+          </section>
+
+          <!-- ⑨ Violation Rate by Country (placeholder) -->
+          <section class="chart-section" id="stats-country-rates">
+            <h2 class="chart-section-title">Violation Rate by Country</h2>
+            <p class="chart-section-desc">Proportion of cases resulting in at least one violation finding per respondent state, normalising raw case counts to reveal which states have the highest per-case breach rates.</p>
+            <div class="coming-soon-placeholder">
+              <span class="coming-soon-badge">Coming soon</span>
+              <p style="margin-top:12px;">Per-country violation rate chart is under development.</p>
+            </div>
+          </section>
+
+          <!-- ⑩ State Outcome Table + Comparative Analysis -->
+          <section class="chart-section" id="stats-state-outcomes">
+            <h2 class="chart-section-title">State Outcome Table</h2>
+            <p class="chart-section-desc">Detailed breakdown of outcome categories (violation only, non-violation only, both, neither) and overall violation rates for each respondent state with at least 5 cases in the corpus.</p>
+            <div id="stateOutcomeTable"></div>
+
+            <h3 class="chart-section-subtitle" style="margin-top:40px; margin-bottom:6px;">Comparative State Analysis</h3>
+            <p class="chart-section-desc">Compare caseload trends and the most frequently violated articles across up to four respondent states simultaneously. Pre-populated with the four highest-volume states.</p>
+            <div class="chart-controls">
+              <label for="compareState1">State 1:</label>
+              <select id="compareState1" class="chart-select"></select>
+              <label for="compareState2">State 2:</label>
+              <select id="compareState2" class="chart-select"></select>
+              <label for="compareState3">State 3:</label>
+              <select id="compareState3" class="chart-select">
+                <option value="">(none)</option>
+              </select>
+              <label for="compareState4">State 4:</label>
+              <select id="compareState4" class="chart-select">
+                <option value="">(none)</option>
+              </select>
+            </div>
+            <div id="compareSummaryTable"></div>
+            <div class="compare-charts-grid">
+              <div class="compare-chart-wrap">
+                <h4 class="chart-subtitle">Cases by Year</h4>
+                <canvas id="compareTrendChart"></canvas>
+              </div>
+              <div class="compare-chart-wrap">
+                <h4 class="chart-subtitle">Top Violated Articles</h4>
+                <canvas id="compareArticlesChart"></canvas>
+              </div>
+            </div>
+          </section>
+
+          <!-- ⑪ Case Duration (placeholder) -->
+          <section class="chart-section" id="stats-duration">
+            <h2 class="chart-section-title">Case Duration</h2>
+            <p class="chart-section-desc">Distribution of time from application lodging to final judgment, reflecting the Court's processing efficiency and the impact of backlog-reduction reforms over time.</p>
+            <div class="coming-soon-placeholder">
+              <span class="coming-soon-badge">Coming soon</span>
+              <p style="margin-top:12px;">Case duration distribution chart is under development.</p>
+            </div>
+          </section>
+
+          <!-- ⑫ Judgment Types -->
+          <section class="chart-section" id="stats-judgment-types">
+            <h2 class="chart-section-title">Judgment Types</h2>
+            <p class="chart-section-desc">Structural breakdown of the corpus by chamber composition, ECHR importance classification, outcome category, procedural versus substantive aspects, and originating body.</p>
+            <div class="chart-row">
+              <article class="chart-container">
+                <h3 class="chart-title">Chamber Split</h3>
+                <canvas id="chamberChart"></canvas>
+              </article>
+              <article class="chart-container">
+                <h3 class="chart-title">Importance Distribution</h3>
+                <canvas id="importanceChart"></canvas>
+              </article>
+            </div>
+            <div class="chart-row" style="margin-top: var(--gap);">
+              <article class="chart-container">
+                <h3 class="chart-title">Outcome Composition</h3>
+                <canvas id="outcomesChart"></canvas>
+              </article>
+              <article class="chart-container">
+                <h3 class="chart-title">Procedural vs Substantive Aspects</h3>
+                <canvas id="proceduralSubstantiveChart"></canvas>
+              </article>
+            </div>
+            <div class="chart-row" style="margin-top: var(--gap);">
+              <article class="chart-container">
+                <h3 class="chart-title">Originating Bodies</h3>
+                <canvas id="bodiesChart"></canvas>
+              </article>
+              <article class="chart-container">
+                <h3 class="chart-title">Separate Opinion Share by Body</h3>
+                <canvas id="separateByBodyChart"></canvas>
+              </article>
+            </div>
+          </section>
+
+          <!-- ⑬ Inadmissibility Grounds -->
+          <section class="chart-section" id="stats-inadmissibility">
+            <h2 class="chart-section-title">Inadmissibility Grounds</h2>
+            <p class="chart-section-desc">The most frequently cited grounds for declaring applications inadmissible, showing the procedural and substantive barriers applicants most often fail to satisfy before the Court.</p>
+            <div class="chart-canvas-wrap">
+              <canvas id="inadmissibilityGroundsChart" style="height:500px"></canvas>
+            </div>
+          </section>
+
+          <!-- ⑭ Inadmissibility & Struck Out -->
+          <section class="chart-section" id="stats-admissibility-overview">
+            <h2 class="chart-section-title">Inadmissibility &amp; Struck Out</h2>
+            <p class="chart-section-desc">Total counts of inadmissible cases and cases struck out of the list, providing an overview of the non-merits portion of the Court's caseload and the scope of early-stage filtering.</p>
+            <div class="chart-canvas-wrap">
+              <canvas id="inadmissibilityChart"></canvas>
+            </div>
+          </section>
+
+          <!-- ⑮ Citations by Country (interactive article × state) + Keywords -->
+          <section class="chart-section" id="stats-citations-country">
+            <h2 class="chart-section-title">Citations by Country</h2>
+            <p class="chart-section-desc">Top respondent states in cases involving a given Convention article — select an article to see which countries are most litigated under that provision, with total case counts and violation counts side by side.</p>
+            <div class="chart-controls">
+              <label for="articleStateSelect">Convention Article:</label>
+              <select id="articleStateSelect" class="chart-select"></select>
+            </div>
+            <div class="chart-canvas-wrap">
+              <canvas id="articleByStateChart"></canvas>
+            </div>
+
+            <h3 class="chart-section-subtitle" style="margin-top:40px; margin-bottom:6px;">Top Keywords</h3>
+            <p class="chart-section-desc">Most frequently occurring thematic keywords across the corpus, offering a high-level map of the legal issues at the heart of ECHR jurisprudence.</p>
+            <div class="chart-canvas-wrap">
+              <canvas id="keywordsChart"></canvas>
+            </div>
+          </section>
+
+          <!-- ⑯ Precedent Concentration -->
+          <section class="chart-section" id="stats-precedent-concentration">
+            <h2 class="chart-section-title">Precedent Concentration</h2>
+            <p class="chart-section-desc">Cumulative citation share of the most-cited precedents, illustrating the degree to which ECHR reasoning relies on a concentrated set of landmark rulings. A steep curve signals high concentration.</p>
+            <div class="chart-canvas-wrap">
+              <canvas id="precedentConcentrationChart"></canvas>
+            </div>
+          </section>
+
+          <!-- ⑰ Paragraph Distribution -->
+          <section class="chart-section" id="stats-paragraphs">
+            <h2 class="chart-section-title">Paragraph Distribution</h2>
+            <p class="chart-section-desc">Number of indexed paragraphs broken down by judgment section (Facts, Law, Operative provisions, etc.), reflecting how textual content is distributed across the structural parts of ECHR judgments.</p>
+            <div class="chart-canvas-wrap">
+              <canvas id="sectionsChart"></canvas>
+            </div>
+          </section>
+
+          <!-- ⑱ Coverage Notes (placeholder) -->
+          <section class="chart-section" id="stats-coverage">
+            <h2 class="chart-section-title">Coverage Notes</h2>
+            <p class="chart-section-desc">Metadata completeness rates by field — respondent state, Convention articles, keywords, originating body — and notes on known gaps or limitations of the current corpus build.</p>
+            <div class="coming-soon-placeholder">
+              <span class="coming-soon-badge">Coming soon</span>
+              <p style="margin-top:12px;">Detailed coverage and metadata completeness report is under development.</p>
+            </div>
+          </section>
+
+        </div>
+        <!-- ── End Main Content ──────────────────────────────────────── -->
+
+      </div><!-- /.stats-dashboard -->
+    </div><!-- /.stats-page -->
   </main>
 
   <footer class="footer">

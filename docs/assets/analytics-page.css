@@ -12,8 +12,11 @@
   white-space: nowrap;
 }
 
+/* Phase 3: override default stats-page for two-pane layout */
 .stats-page {
-  padding-top: 26px;
+  max-width: 1480px;
+  padding: 0;
+  margin: 0 auto;
 }
 
 .chart-container canvas {

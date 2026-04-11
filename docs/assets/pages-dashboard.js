@@ -772,3 +772,39 @@ loadDashboard().catch((err) => {
     `<div style="max-width:1220px;margin:16px auto;color:#b03e45;padding:0 20px;">Failed to load dashboard: ${err.message}</div>`
   );
 });
+
+// ── Stats Sidebar Navigation (Phase 3) ──────────────────────────────────
+(function initSidebarNav() {
+  // Click to scroll to section
+  document.querySelectorAll(".sidebar-link").forEach((link) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const targetId = link.dataset.target;
+      const section = document.getElementById(targetId);
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      document.querySelectorAll(".sidebar-link").forEach((l) => l.classList.remove("active"));
+      link.classList.add("active");
+    });
+  });
+
+  // Scroll-spy: highlight sidebar item when its section enters the viewport
+  const chartSections = document.querySelectorAll(".chart-section");
+  if (chartSections.length && "IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            document.querySelectorAll(".sidebar-link").forEach((l) => {
+              l.classList.toggle("active", l.dataset.target === id);
+            });
+          }
+        });
+      },
+      { rootMargin: "-20% 0px -70% 0px", threshold: 0 }
+    );
+    chartSections.forEach((s) => observer.observe(s));
+  }
+})();
