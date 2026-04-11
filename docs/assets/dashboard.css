@@ -1241,6 +1241,21 @@ body {
     .state-outcome-table {
         min-width: 560px;       /* readable; wrapper scrolls */
     }
+    /* country comparison summary table: same treatment */
+    .compare-summary-wrap {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+    .compare-summary-table {
+        min-width: 420px;
+    }
+    /* compare dropdowns row: wrap on mobile */
+    .compare-controls, .chart-controls {
+        flex-wrap: wrap;
+    }
+    .compare-controls select, .chart-controls select {
+        max-width: 100%;
+    }
     /* meta source line: break long URLs */
     #metaSource, .data-meta, .meta-row {
         word-break: break-word;
