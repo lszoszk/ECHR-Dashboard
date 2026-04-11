@@ -206,8 +206,8 @@ function renderStateOutcomeTable(container, rows) {
           <th>Cases</th>
           <th>Violation only</th>
           <th>Non-violation only</th>
-          <th>Mixed</th>
-          <th>No finding</th>
+          <th>Both</th>
+          <th>Neither</th>
           <th>Violation rate</th>
         </tr>
       </thead>
@@ -288,15 +288,12 @@ async function loadDashboard() {
     makeKpi(
       "Outcome Mix",
       `${fmtInt.format(s.outcome_violation_only || 0)} / ${fmtInt.format(s.outcome_non_violation_only || 0)} / ${fmtInt.format(s.outcome_both || 0)} / ${fmtInt.format(s.outcome_neither || 0)}`,
-      "Violation only · Non-violation only · Mixed · No finding"
+      "Violation only · Non-violation only · Both · Neither"
     ),
   ].join("");
 
-  const casesByMonth = rowsOrEmpty(series.cases_by_month);
   const casesByYear = rowsOrEmpty(series.cases_by_year);
-  const paragraphsByMonth = rowsOrEmpty(series.paragraphs_by_month);
   const chamberBreakdown = rowsOrEmpty(series.chamber_breakdown);
-  const caseLengthSnapshot = rowsOrEmpty(series.case_length_snapshot);
   const countriesTop = rowsOrEmpty(rankings.countries_top);
   const articlesTop = rowsOrEmpty(rankings.articles_top);
   const sections = rowsOrEmpty(rankings.sections);
@@ -314,13 +311,6 @@ async function loadDashboard() {
   const precedentToCitingCasesTop = rowsOrEmpty(rankings.precedent_to_citing_cases_top);
   const outcomesByYear = rowsOrEmpty(series.outcomes_by_year);
   const proceduralVsSubstantiveByYear = rowsOrEmpty(series.procedural_vs_substantive_by_year);
-
-  createBarChart(
-    document.getElementById("casesMonthChart"),
-    casesByMonth.map((d) => d[0]),
-    casesByMonth.map((d) => d[1]),
-    { colors: ["#245ea8"] }
-  );
 
   createLineChart(
     document.getElementById("casesYearChart"),
@@ -350,25 +340,11 @@ async function loadDashboard() {
     { horizontal: true }
   );
 
-  createLineChart(
-    document.getElementById("paragraphsMonthChart"),
-    paragraphsByMonth.map((d) => d[0]),
-    paragraphsByMonth.map((d) => d[1]),
-    "#6c5db5"
-  );
-
   createDoughnutChart(
     document.getElementById("chamberChart"),
     chamberBreakdown.map((d) => d[0]),
     chamberBreakdown.map((d) => d[1]),
     ["#245ea8", "#3c8d5a", "#8c8c8c"]
-  );
-
-  createBarChart(
-    document.getElementById("lengthChart"),
-    caseLengthSnapshot.map((d) => d[0]),
-    caseLengthSnapshot.map((d) => Math.round(d[1])),
-    { colors: ["#4f7ca6", "#245ea8", "#d97a2b", "#b03e45"] }
   );
 
   createBarChart(
@@ -494,21 +470,19 @@ async function loadDashboard() {
     { horizontal: true, colors: ["#b28a2f"] }
   );
 
-  const articleViolationRatesFiltered = articleViolationRates.filter(d => d[1] <= 1.0);
   createBarChart(
     document.getElementById("articleViolationRateChart"),
-    articleViolationRatesFiltered.slice(0, 15).map((d) => `Art. ${d[0]} (${d[2]}/${d[3]})`),
-    articleViolationRatesFiltered.slice(0, 15).map((d) => Number(d[1]) * 100),
+    articleViolationRates.slice(0, 15).map((d) => `Art. ${d[0]} (${d[2]}/${d[3]})`),
+    articleViolationRates.slice(0, 15).map((d) => Number(d[1]) * 100),
     { horizontal: true, colors: ["#3c8d5a"] }
   );
 
   if (precedentConcentrationTop.length) {
-    const precTop = precedentConcentrationTop.slice(0, 20).slice().sort((a, b) => b[1] - a[1]);
-    createBarChart(
+    createLineChart(
       document.getElementById("precedentConcentrationChart"),
-      precTop.map((d) => truncateLabel(d[0], 42)),
-      precTop.map((d) => d[1]),
-      { horizontal: true, colors: ["#8d4f78"] }
+      precedentConcentrationTop.map((d) => truncateLabel(d[0], 42)),
+      precedentConcentrationTop.map((d) => d[3]),
+      "#8d4f78"
     );
   } else {
     createBarChart(
@@ -526,6 +500,83 @@ async function loadDashboard() {
     citationSourceRows.slice(0, 15).map((d) => d[1]),
     { horizontal: true, colors: ["#8d4f78"] }
   );
+
+  // Violation Rate by Year (%)
+  if (outcomesByYear.length) {
+    const vrYears = [];
+    const vrRates = [];
+    for (const d of outcomesByYear) {
+      const vOnly = d[1] || 0, nvOnly = d[2] || 0, both = d[3] || 0, neither = d[4] || 0;
+      const denom = vOnly + nvOnly + both + neither;
+      if (denom > 5) {
+        vrYears.push(d[0]);
+        vrRates.push(((vOnly + both) / denom) * 100);
+      }
+    }
+    new Chart(document.getElementById("violationRateYearChart"), {
+      type: "line",
+      data: {
+        labels: vrYears,
+        datasets: [{
+          data: vrRates,
+          borderColor: "rgba(220, 80, 60, 0.85)",
+          backgroundColor: "rgba(220, 80, 60, 0.15)",
+          fill: true,
+          tension: 0.3,
+          pointRadius: 2.5,
+          pointHoverRadius: 4,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false } },
+          y: { beginAtZero: true, min: 0, max: 100, ticks: { callback: (v) => v + "%" } },
+        },
+      },
+    });
+  }
+
+  // Top Inadmissibility Grounds
+  if (inadmissibilityGroundsTop.length) {
+    const igData = inadmissibilityGroundsTop.slice(0, 12);
+    createBarChart(
+      document.getElementById("inadmissibilityGroundsChart"),
+      igData.map((d) => truncateLabel(d[0], 45)),
+      igData.map((d) => d[1]),
+      { horizontal: true, colors: ["#6478b4"] }
+    );
+  }
+
+  // Article Outcomes — Violation vs Non-violation Counts
+  const articleOutcomesTop = rowsOrEmpty(rankings.article_outcomes_top);
+  if (articleOutcomesTop.length) {
+    const aocData = articleOutcomesTop.slice(0, 15);
+    createGroupedBarChart(
+      document.getElementById("articleOutcomesCountChart"),
+      aocData.map((d) => `Art. ${d[0]}`),
+      [
+        {
+          label: "Violation",
+          data: aocData.map((d) => d[1]),
+          backgroundColor: "rgba(220, 80, 60, 0.8)",
+          borderColor: "rgba(220, 80, 60, 1)",
+          borderWidth: 1,
+          borderRadius: 5,
+        },
+        {
+          label: "Non-violation",
+          data: aocData.map((d) => d[2]),
+          backgroundColor: "rgba(100, 120, 180, 0.8)",
+          borderColor: "rgba(100, 120, 180, 1)",
+          borderWidth: 1,
+          borderRadius: 5,
+        },
+      ]
+    );
+  }
 
   // Article × State interactive chart
   const crossTabs = data.cross_tabs || {};
@@ -698,13 +749,6 @@ async function loadDashboard() {
   }
 
   renderStateOutcomeTable(document.getElementById("stateOutcomeTable"), stateOutcomesTop);
-
-  if (inadmissibilityGroundsTop.length) {
-    document.getElementById("stateOutcomeTable").insertAdjacentHTML(
-      "beforeend",
-      `<p class="state-outcome-empty" style="margin-top:10px;">Top inadmissibility grounds: ${inadmissibilityGroundsTop.slice(0, 5).map((d) => `${d[0]} (${d[1]})`).join(" · ")}</p>`
-    );
-  }
 
   // Build TOC
   const tocList = document.getElementById("tocList");

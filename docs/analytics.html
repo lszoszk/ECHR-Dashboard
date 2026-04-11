@@ -73,12 +73,15 @@
 
       <section class="chart-row">
         <article class="chart-container">
-          <h3 class="chart-title">Cases by Month</h3>
-          <canvas id="casesMonthChart"></canvas>
-        </article>
-        <article class="chart-container">
           <h3 class="chart-title">Cases by Year</h3>
           <canvas id="casesYearChart"></canvas>
+        </article>
+      </section>
+
+      <section class="chart-row">
+        <article class="chart-container full-width">
+          <h3 class="chart-title">Violation Rate by Year (%)</h3>
+          <canvas id="violationRateYearChart" style="height:400px"></canvas>
         </article>
       </section>
 
@@ -102,19 +105,8 @@
 
       <section class="chart-row">
         <article class="chart-container">
-          <h3 class="chart-title">Indexed Paragraph Volume by Month</h3>
-          <canvas id="paragraphsMonthChart"></canvas>
-        </article>
-        <article class="chart-container">
           <h3 class="chart-title">Chamber Split</h3>
           <canvas id="chamberChart"></canvas>
-        </article>
-      </section>
-
-      <section class="chart-row">
-        <article class="chart-container full-width">
-          <h3 class="chart-title">Case Length Snapshot</h3>
-          <canvas id="lengthChart"></canvas>
         </article>
       </section>
 
@@ -137,6 +129,13 @@
         <article class="chart-container">
           <h3 class="chart-title">Inadmissibility and Struck Out</h3>
           <canvas id="inadmissibilityChart"></canvas>
+        </article>
+      </section>
+
+      <section class="chart-row">
+        <article class="chart-container full-width">
+          <h3 class="chart-title">Top Inadmissibility Grounds</h3>
+          <canvas id="inadmissibilityGroundsChart" style="height:500px"></canvas>
         </article>
       </section>
 
@@ -173,6 +172,13 @@
         <article class="chart-container">
           <h3 class="chart-title">Precedent Concentration (Top 10)</h3>
           <canvas id="precedentConcentrationChart"></canvas>
+        </article>
+      </section>
+
+      <section class="chart-row">
+        <article class="chart-container full-width">
+          <h3 class="chart-title">Violation vs Non-violation Counts by Article</h3>
+          <canvas id="articleOutcomesCountChart" style="height:450px"></canvas>
         </article>
       </section>
 
