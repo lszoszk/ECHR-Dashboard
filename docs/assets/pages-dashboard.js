@@ -450,7 +450,7 @@ async function loadDashboard() {
           pointHoverRadius: 4,
         },
         {
-          label: "Both",
+          label: "Mixed",
           data: outcomesByYear.map((d) => d[3]),
           borderColor: "#d97a2b",
           backgroundColor: "#d97a2b33",
@@ -460,7 +460,7 @@ async function loadDashboard() {
           pointHoverRadius: 4,
         },
         {
-          label: "Neither",
+          label: "No finding",
           data: outcomesByYear.map((d) => d[4]),
           borderColor: "#8c8c8c",
           backgroundColor: "#8c8c8c33",
@@ -636,8 +636,8 @@ async function loadDashboard() {
         ["Violation rate", ...selected.map((s) => `${stateProfiles[s].violation_rate}%`)],
         ["Violation only", ...selected.map((s) => fmtInt.format(stateProfiles[s].outcomes.violation_only))],
         ["Non-violation only", ...selected.map((s) => fmtInt.format(stateProfiles[s].outcomes.non_violation_only))],
-        ["Both", ...selected.map((s) => fmtInt.format(stateProfiles[s].outcomes.both))],
-        ["Neither", ...selected.map((s) => fmtInt.format(stateProfiles[s].outcomes.neither))],
+        ["Mixed", ...selected.map((s) => fmtInt.format(stateProfiles[s].outcomes.both))],
+        ["No finding", ...selected.map((s) => fmtInt.format(stateProfiles[s].outcomes.neither))],
       ];
       const bodyRows = rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("");
       compareSummaryEl.innerHTML = `<table class="compare-summary-table"><thead><tr>${headerCells}</tr></thead><tbody>${bodyRows}</tbody></table>`;

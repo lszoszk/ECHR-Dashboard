@@ -256,8 +256,8 @@ const QUERY_PREFIX_KEYS = new Set(["case", "ecli", "hudoc", "article", "state", 
 const OUTCOME_LABELS = {
   violation_only: "Violation only",
   non_violation_only: "Non-violation only",
-  both: "Both",
-  neither: "Neither",
+  both: "Mixed",
+  neither: "No finding",
   press_release: "Press Release",
   has_inadmissibility: "Inadmissibility",
   is_struck_out: "Struck out",
@@ -1466,8 +1466,8 @@ function renderFilters() {
   el.outcomeFilters.innerHTML = [
     makeCheckbox("Violation only", "violation_only", "outcomes"),
     makeCheckbox("Non-violation only", "non_violation_only", "outcomes"),
-    makeCheckbox("Both", "both", "outcomes"),
-    makeCheckbox("Neither", "neither", "outcomes"),
+    makeCheckbox("Mixed (violation + non-violation)", "both", "outcomes"),
+    makeCheckbox("No finding", "neither", "outcomes"),
     makeCheckbox("Inadmissibility", "has_inadmissibility", "outcomes"),
     makeCheckbox("Struck out", "is_struck_out", "outcomes"),
   ].join("");
