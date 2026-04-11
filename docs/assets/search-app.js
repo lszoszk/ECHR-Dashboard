@@ -421,7 +421,6 @@ function cacheElements() {
   el.presenceFilters = byId("presenceFilters");
   el.keywordFilterInput = byId("keywordFilterInput");
   el.precedentFilterInput = byId("precedentFilterInput");
-  el.chamberFilters = byId("chamberFilters");
   el.dateFrom = byId("dateFrom");
   el.dateTo = byId("dateTo");
 
@@ -1020,7 +1019,7 @@ function setSearchEnabled(enabled) {
   el.exportIncludeClassifier.disabled = !enabled;
 
   const dynamicInputs = document.querySelectorAll(
-    "#sectionsFilters input, #countriesFilters input, #articlesFilters input, #originatingBodyFilters input, #importanceFilters input, #outcomeFilters input, #legalOutcomeFilters input, #separateOpinionFilters input, #presenceFilters input, #chamberFilters input"
+    "#sectionsFilters input, #countriesFilters input, #articlesFilters input, #originatingBodyFilters input, #importanceFilters input, #outcomeFilters input, #legalOutcomeFilters input, #separateOpinionFilters input, #presenceFilters input"
   );
   for (const input of dynamicInputs) {
     input.disabled = !enabled;
@@ -1526,7 +1525,6 @@ function getCurrentFilters() {
     legalOutcomes: collectChecked("legalOutcomes"),
     separateOpinion: collectChecked("separateOpinion"),
     presence: collectChecked("presence"),
-    caseTypes: collectCheckedValuesIn(el.chamberFilters),
     keyword: normalizeSearchText(String(el.keywordFilterInput.value || "").trim()),
     precedent: normalizeSearchText(String(el.precedentFilterInput.value || "").trim()),
     dateFrom: parseDateInput(el.dateFrom.value),
@@ -1555,10 +1553,6 @@ function passesCaseFilters(c, filters) {
       }
     }
     if (!ok) return false;
-  }
-
-  if (filters.caseTypes.size) {
-    if (!filters.caseTypes.has(c.__chamberCategory)) return false;
   }
 
   if (filters.bodies.size && !filters.bodies.has(c.__originatingBody)) {
@@ -1866,10 +1860,6 @@ function renderActiveFilters(filters) {
       has_international_law: "Has international law",
       has_rules_of_court: "Has rules of court",
     }[key] || key;
-    chips.push(`<span class="filter-chip">${escapeHtml(label)}</span>`);
-  }
-  for (const t of filters.caseTypes) {
-    const label = t === "GRANDCHAMBER" ? "Grand Chamber" : (t === "CHAMBER" ? "Chamber" : "Other");
     chips.push(`<span class="filter-chip">${escapeHtml(label)}</span>`);
   }
   if (filters.keyword) {
