@@ -1135,6 +1135,11 @@ body {
 
 /* Mobile: horizontal scrollable pill bar + full-width main */
 @media (max-width: 768px) {
+    /* safety net: prevent phantom page-level horizontal scrollbars caused
+       by descendant overflow containers (e.g. sidebar pill bar) */
+    body, .stats-page {
+        overflow-x: hidden;
+    }
     .stats-dashboard {
         flex-direction: column;
     }
