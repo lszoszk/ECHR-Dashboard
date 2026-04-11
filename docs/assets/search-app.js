@@ -55,7 +55,8 @@ const serverSearch = {
     if (filters.countries.size) p.set("states", [...filters.countries].join(","));
     if (filters.importance.size) p.set("importance", [...filters.importance].join(","));
     if (filters.bodies.size) p.set("bodies", [...filters.bodies].join(","));
-    if (filters.outcomes.size) p.set("outcomes", [...filters.outcomes].join(","));
+    const serverOutcomes = [...filters.outcomes].filter(v => PRIMARY_OUTCOMES.has(v));
+    if (serverOutcomes.length) p.set("outcomes", serverOutcomes.join(","));
     if (filters.docTypes.size) p.set("doc_types", [...filters.docTypes].join(","));
     if (filters.dateFrom) p.set("date_from", filters.dateFrom);
     if (filters.dateTo) p.set("date_to", filters.dateTo);
@@ -252,18 +253,19 @@ const SEARCH_SCORE_SECTION_WEIGHTS = {
 
 const QUERY_PREFIX_KEYS = new Set(["case", "ecli", "hudoc", "article", "state", "body", "judge", "keyword"]);
 
-const LEGAL_OUTCOME_LABELS = {
-  has_inadmissibility: "Inadmissibility",
-  is_struck_out: "Struck out",
-};
-
 const OUTCOME_LABELS = {
   violation_only: "Violation only",
   non_violation_only: "Non-violation only",
   both: "Both",
   neither: "Neither",
   press_release: "Press Release",
+  has_inadmissibility: "Inadmissibility",
+  is_struck_out: "Struck out",
 };
+
+/** Outcome values that map to __outcomePrimary (sent to server API).
+ *  Flag-based values (has_inadmissibility, is_struck_out) are client-side only. */
+const PRIMARY_OUTCOMES = new Set(["violation_only", "non_violation_only", "both", "neither", "press_release"]);
 
 const COUNTRY_NAMES = {
   ALB: "Albania",
@@ -416,7 +418,6 @@ function cacheElements() {
   el.importanceFilters = byId("importanceFilters");
   el.docTypeFilters = byId("docTypeFilters");
   el.outcomeFilters = byId("outcomeFilters");
-  el.legalOutcomeFilters = byId("legalOutcomeFilters");
   el.separateOpinionFilters = byId("separateOpinionFilters");
   el.presenceFilters = byId("presenceFilters");
   el.keywordFilterInput = byId("keywordFilterInput");
@@ -1019,7 +1020,7 @@ function setSearchEnabled(enabled) {
   el.exportIncludeClassifier.disabled = !enabled;
 
   const dynamicInputs = document.querySelectorAll(
-    "#sectionsFilters input, #countriesFilters input, #articlesFilters input, #originatingBodyFilters input, #importanceFilters input, #outcomeFilters input, #legalOutcomeFilters input, #separateOpinionFilters input, #presenceFilters input"
+    "#sectionsFilters input, #countriesFilters input, #articlesFilters input, #originatingBodyFilters input, #importanceFilters input, #outcomeFilters input, #separateOpinionFilters input, #presenceFilters input"
   );
   for (const input of dynamicInputs) {
     input.disabled = !enabled;
@@ -1467,6 +1468,8 @@ function renderFilters() {
     makeCheckbox("Non-violation only", "non_violation_only", "outcomes"),
     makeCheckbox("Both", "both", "outcomes"),
     makeCheckbox("Neither", "neither", "outcomes"),
+    makeCheckbox("Inadmissibility", "has_inadmissibility", "outcomes"),
+    makeCheckbox("Struck out", "is_struck_out", "outcomes"),
   ].join("");
 
   el.separateOpinionFilters.innerHTML = [
@@ -1522,7 +1525,6 @@ function getCurrentFilters() {
     importance: collectChecked("importance"),
     outcomes: collectChecked("outcomes"),
     docTypes: collectChecked("docTypes"),
-    legalOutcomes: collectChecked("legalOutcomes"),
     separateOpinion: collectChecked("separateOpinion"),
     presence: collectChecked("presence"),
     keyword: normalizeSearchText(String(el.keywordFilterInput.value || "").trim()),
@@ -1563,20 +1565,21 @@ function passesCaseFilters(c, filters) {
     return false;
   }
 
-  if (filters.outcomes.size && !filters.outcomes.has(c.__outcomePrimary)) {
-    return false;
+  if (filters.outcomes.size) {
+    // OR semantics across all outcome options.
+    // Primary outcomes (violation_only etc.) match __outcomePrimary;
+    // flag-based options (has_inadmissibility, is_struck_out) match boolean fields.
+    const primaryMatch = [...filters.outcomes].some(
+      v => PRIMARY_OUTCOMES.has(v) && v === c.__outcomePrimary
+    );
+    const inadmissibleMatch = filters.outcomes.has("has_inadmissibility") && c.__hasInadmissibility;
+    const struckOutMatch = filters.outcomes.has("is_struck_out") && c.__isStruckOut;
+    if (!primaryMatch && !inadmissibleMatch && !struckOutMatch) return false;
   }
 
   if (filters.docTypes.size) {
     const dtKey = c.__isPressRelease ? "press_release" : "judgment";
     if (!filters.docTypes.has(dtKey)) return false;
-  }
-
-  if (filters.legalOutcomes.has("has_inadmissibility") && !c.__hasInadmissibility) {
-    return false;
-  }
-  if (filters.legalOutcomes.has("is_struck_out") && !c.__isStruckOut) {
-    return false;
   }
 
   if (filters.separateOpinion.size) {
@@ -1844,10 +1847,6 @@ function renderActiveFilters(filters) {
   }
   for (const dt of filters.docTypes) {
     const label = dt === "press_release" ? "Press Releases" : "Judgments";
-    chips.push(`<span class="filter-chip">${escapeHtml(label)}</span>`);
-  }
-  for (const legalOutcome of filters.legalOutcomes) {
-    const label = LEGAL_OUTCOME_LABELS[legalOutcome] || legalOutcome;
     chips.push(`<span class="filter-chip">${escapeHtml(label)}</span>`);
   }
   for (const value of filters.separateOpinion) {
@@ -3748,7 +3747,8 @@ async function fetchAndRenderServerAnalytics(query, filters) {
     if (filters.countries.size) p.set("states", [...filters.countries].join(","));
     if (filters.importance.size) p.set("importance", [...filters.importance].join(","));
     if (filters.bodies.size) p.set("bodies", [...filters.bodies].join(","));
-    if (filters.outcomes.size) p.set("outcomes", [...filters.outcomes].join(","));
+    const serverOutcomes = [...filters.outcomes].filter(v => PRIMARY_OUTCOMES.has(v));
+    if (serverOutcomes.length) p.set("outcomes", serverOutcomes.join(","));
     if (filters.docTypes.size) p.set("doc_types", [...filters.docTypes].join(","));
     if (filters.dateFrom) p.set("date_from", filters.dateFrom);
     if (filters.dateTo) p.set("date_to", filters.dateTo);
