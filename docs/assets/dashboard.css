@@ -201,6 +201,80 @@ body {
 }
 .tip-sep { color: rgba(255,255,255,0.3); }
 
+/* ── Advanced Query Bar (R5: keyword + cites precedent near search) ──── */
+.advanced-query-bar {
+    margin-top: 10px;
+    text-align: center;
+}
+.advanced-query-toggle {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.5);
+    font-size: 0.78rem;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    padding: 3px 12px;
+    border-radius: 12px;
+    transition: color 0.15s, background 0.15s;
+    letter-spacing: 0.2px;
+}
+.advanced-query-toggle:hover:not(:disabled) {
+    color: rgba(255,255,255,0.9);
+    background: rgba(255,255,255,0.08);
+}
+.advanced-query-toggle:disabled { opacity: 0.35; cursor: default; }
+.advanced-query-panel {
+    margin-top: 8px;
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.05);
+    border-radius: var(--radius);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.advanced-query-panel.hidden { display: none; }
+.advanced-query-fields {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+.adv-field { display: flex; align-items: center; gap: 8px; }
+.adv-label {
+    color: rgba(255,255,255,0.6);
+    font-size: 0.73rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.45px;
+    white-space: nowrap;
+    font-family: var(--font-sans);
+}
+.adv-input { max-width: 220px; }
+
+/* ── Power-user Toggle (R4: metadata presence, collapsed by default) ─── */
+.power-user-toggle {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: 1px dashed rgba(255,255,255,0.18);
+    color: rgba(255,255,255,0.45);
+    font-size: 0.73rem;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    letter-spacing: 0.2px;
+}
+.power-user-toggle:hover:not(:disabled) {
+    color: rgba(255,255,255,0.8);
+    border-color: rgba(255,255,255,0.35);
+}
+.power-user-toggle:disabled { opacity: 0.3; cursor: default; }
+.power-user-toggle[aria-expanded="true"] { color: rgba(255,255,255,0.75); border-style: solid; }
+.power-user-panel.hidden { display: none; }
+
 /* ── Filter Toggle & Panel ───────────────────────────────────────────── */
 .filter-toggle {
     display: block;

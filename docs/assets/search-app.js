@@ -422,6 +422,10 @@ function cacheElements() {
   el.presenceFilters = byId("presenceFilters");
   el.keywordFilterInput = byId("keywordFilterInput");
   el.precedentFilterInput = byId("precedentFilterInput");
+  el.advancedQueryToggle = byId("advancedQueryToggle");
+  el.advancedQueryPanel = byId("advancedQueryPanel");
+  el.powerUserToggle = byId("powerUserToggle");
+  el.powerUserPanel = byId("powerUserPanel");
   el.dateFrom = byId("dateFrom");
   el.dateTo = byId("dateTo");
 
@@ -1013,6 +1017,8 @@ function setSearchEnabled(enabled) {
   el.inlineSearchInput.disabled = !enabled;
   el.inlineSearchBtn.disabled = !enabled;
   el.filterToggleBtn.disabled = !enabled;
+  el.advancedQueryToggle.disabled = !enabled;
+  el.powerUserToggle.disabled = !enabled;
   el.dateFrom.disabled = !enabled;
   el.dateTo.disabled = !enabled;
   el.keywordFilterInput.disabled = !enabled;
@@ -4843,6 +4849,24 @@ function bindEvents() {
     if (el.filterToggleBtn.disabled) return;
     const open = el.filtersPanel.classList.toggle("open");
     el.filterToggleBtn.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+
+  el.advancedQueryToggle.addEventListener("click", () => {
+    if (el.advancedQueryToggle.disabled) return;
+    const open = el.advancedQueryPanel.classList.toggle("hidden");
+    // classList.toggle returns true when class was ADDED (panel now hidden)
+    const isOpen = !open;
+    el.advancedQueryToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    el.advancedQueryToggle.querySelector(".adv-toggle-label").textContent =
+      isOpen ? "− Query options" : "+ Query options";
+  });
+
+  el.powerUserToggle.addEventListener("click", () => {
+    if (el.powerUserToggle.disabled) return;
+    const hidden = el.powerUserPanel.classList.toggle("hidden");
+    const isOpen = !hidden;
+    el.powerUserToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    el.powerUserToggle.textContent = isOpen ? "⚙ Metadata filters ▲" : "⚙ Metadata filters";
   });
 
   el.searchForm.addEventListener("submit", (e) => {
