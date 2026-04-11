@@ -44,9 +44,11 @@ const serverSearch = {
     p.set("page", String(page));
     p.set("page_size", String(PAGE_SIZE));
     if (sort) p.set("sort", sort);
-    // Convert normalized section keys back to raw DB names
+    // Convert normalized section keys back to raw DB names.
+    // SECTION_DB_NAMES values are arrays (one UI bucket may cover multiple
+    // raw DB values — e.g. "facts" → ["Facts Background", "Facts Proceedings"]).
     if (filters.sections.size) {
-      const dbSections = [...filters.sections].map(s => SECTION_DB_NAMES[s] || s);
+      const dbSections = [...filters.sections].flatMap(s => SECTION_DB_NAMES[s] || [s]);
       p.set("sections", dbSections.join(","));
     }
     if (filters.articles.size) p.set("articles", [...filters.articles].join(","));
@@ -166,10 +168,17 @@ const CLASSIFIER_METHODS = {
   },
 };
 
+// NOTE: facts_background + facts_proceedings are merged into a single
+// "facts" bucket in the UI. Rationale: the upstream pipeline labels are
+// semantically inverted vs HUDOC convention (classical HUDOC: PROCEDURE =
+// short admin section, THE FACTS → I. CIRCUMSTANCES OF THE CASE = narrative)
+// and since 1 Sept 2021 the Court itself merges facts+procedure for
+// Committee cases into "SUBJECT MATTER OF THE CASE" / "FACTS AND PROCEDURE".
+// Lawyers cite by paragraph number, not sub-section. See CHANGES-FROM-ORIGINAL.md
+// and docs/TODO-facts-reclassify.md for the deferred Phase 2 reclassifier.
 const SECTION_ORDER = [
   "introduction",
-  "facts_background",
-  "facts_proceedings",
+  "facts",
   "legal_framework",
   "legal_context",
   "admissibility",
@@ -183,8 +192,7 @@ const SECTION_ORDER = [
 
 const SECTION_LABELS = {
   introduction: "Introduction",
-  facts_background: "Facts (Background)",
-  facts_proceedings: "Facts (Proceedings)",
+  facts: "Facts of the case",
   legal_framework: "Legal Framework",
   legal_context: "Legal Context",
   admissibility: "Admissibility",
@@ -198,8 +206,7 @@ const SECTION_LABELS = {
 
 const SECTION_COLORS = {
   introduction: "#4C72B0",
-  facts_background: "#DD8452",
-  facts_proceedings: "#C44E52",
+  facts: "#DD8452",
   legal_framework: "#937860",
   legal_context: "#8B6A9C",
   admissibility: "#8172B3",
@@ -211,20 +218,21 @@ const SECTION_COLORS = {
   appendix: "#A5A58D",
 };
 
-// Reverse map: normalized key → raw DB section name (as stored in SQLite)
+// Reverse map: normalized key → raw DB section name(s) (as stored in SQLite).
+// Values are ARRAYS because one UI bucket may cover multiple raw DB values
+// (e.g. "facts" covers both "Facts Background" and "Facts Proceedings").
 const SECTION_DB_NAMES = {
-  introduction: "Introduction",
-  facts_background: "Facts Background",
-  facts_proceedings: "Facts Proceedings",
-  legal_framework: "Legal Framework",
-  legal_context: "Legal Context",
-  admissibility: "Admissibility",
-  merits: "Merits",
-  just_satisfaction: "Just Satisfaction",
-  article_46: "Article 46",
-  operative_part: "Operative Part",
-  separate_opinion: "Separate Opinion",
-  appendix: "Appendix",
+  introduction: ["Introduction"],
+  facts: ["Facts Background", "Facts Proceedings"],
+  legal_framework: ["Legal Framework"],
+  legal_context: ["Legal Context"],
+  admissibility: ["Admissibility"],
+  merits: ["Merits"],
+  just_satisfaction: ["Just Satisfaction"],
+  article_46: ["Article 46"],
+  operative_part: ["Operative Part"],
+  separate_opinion: ["Separate Opinion"],
+  appendix: ["Appendix"],
 };
 
 const SEARCH_SCORE_SECTION_WEIGHTS = {
@@ -232,8 +240,7 @@ const SEARCH_SCORE_SECTION_WEIGHTS = {
   admissibility: 1.2,
   legal_framework: 1.1,
   legal_context: 1.1,
-  facts_background: 1.0,
-  facts_proceedings: 1.0,
+  facts: 1.0,
   appendix: 0.8,
 };
 
@@ -1081,10 +1088,13 @@ function normalizeSectionKey(rawSection) {
   const aliases = {
     header: "header",
     introduction: "introduction",
-    "facts background": "facts_background",
-    facts_background: "facts_background",
-    "facts proceedings": "facts_proceedings",
-    facts_proceedings: "facts_proceedings",
+    // Both raw DB labels collapse into the unified "facts" bucket.
+    // See the note above SECTION_ORDER for the rationale.
+    "facts background": "facts",
+    facts_background: "facts",
+    "facts proceedings": "facts",
+    facts_proceedings: "facts",
+    facts: "facts",
     "legal framework": "legal_framework",
     legal_framework: "legal_framework",
     "legal context": "legal_context",
@@ -3733,7 +3743,7 @@ async function fetchAndRenderServerAnalytics(query, filters) {
     const p = new URLSearchParams();
     if (query) p.set("q", query);
     if (filters.sections.size) {
-      const dbSections = [...filters.sections].map(s => SECTION_DB_NAMES[s] || s);
+      const dbSections = [...filters.sections].flatMap(s => SECTION_DB_NAMES[s] || [s]);
       p.set("sections", dbSections.join(","));
     }
     if (filters.articles.size) p.set("articles", [...filters.articles].join(","));
@@ -3752,11 +3762,24 @@ async function fetchAndRenderServerAnalytics(query, filters) {
     // Convert server format [{value, count}] → [[label, count]]
     const toEntries = (arr) => (arr || []).map(x => [x.value, x.count]);
 
-    // Section labels: map DB names → display names
-    const sectionEntries = (data.sections || []).map(x => {
-      const normKey = Object.entries(SECTION_DB_NAMES).find(([_, db]) => db === x.value)?.[0] || x.value;
+    // Section labels: map DB names → display names. Multiple DB values may
+    // collapse into a single normalized bucket (e.g. "Facts Background" and
+    // "Facts Proceedings" both → "facts"), so aggregate counts by label.
+    const sectionCounts = new Map();
+    for (const x of data.sections || []) {
+      const normKey = Object.entries(SECTION_DB_NAMES)
+        .find(([_, dbArr]) => dbArr.includes(x.value))?.[0] || x.value;
       const label = SECTION_LABELS[normKey] || normKey;
-      return [label, x.count];
+      sectionCounts.set(label, (sectionCounts.get(label) || 0) + (x.count || 0));
+    }
+    // Preserve SECTION_ORDER when rendering.
+    const sectionEntries = [...sectionCounts.entries()].sort((a, b) => {
+      const ka = Object.entries(SECTION_LABELS).find(([_, lbl]) => lbl === a[0])?.[0];
+      const kb = Object.entries(SECTION_LABELS).find(([_, lbl]) => lbl === b[0])?.[0];
+      const ia = ka ? SECTION_ORDER.indexOf(ka) : -1;
+      const ib = kb ? SECTION_ORDER.indexOf(kb) : -1;
+      if (ia !== -1 && ib !== -1) return ia - ib;
+      return b[1] - a[1];
     });
 
     // Importance: map empty value → "Unspecified"
@@ -5253,14 +5276,21 @@ function init() {
       // Fetch full facets from server and override local sample filters
       try {
         const facets = await serverSearch.getFacets();
-        // Build reverse map: DB section name → normalized key
+        // Build reverse map: DB section name → normalized key. Multiple DB
+        // values may point at the same normalized key (e.g. both "Facts
+        // Background" and "Facts Proceedings" → "facts"), so expand arrays.
         const DB_TO_NORM = {};
-        for (const [norm, db] of Object.entries(SECTION_DB_NAMES)) DB_TO_NORM[db] = norm;
+        for (const [norm, dbArr] of Object.entries(SECTION_DB_NAMES)) {
+          for (const db of dbArr) DB_TO_NORM[db] = norm;
+        }
 
         if (facets.sections) {
-          state.sectionsInDataset = facets.sections
+          // Dedupe: two raw DB values may collapse into the same normalized
+          // key, which would otherwise render a duplicate filter checkbox.
+          const normalized = facets.sections
             .map((f) => DB_TO_NORM[f.value] || f.value)
-            .filter((s) => SECTION_LABELS[s])
+            .filter((s) => SECTION_LABELS[s]);
+          state.sectionsInDataset = [...new Set(normalized)]
             .sort((a, b) => {
               const ai = SECTION_ORDER.indexOf(a);
               const bi = SECTION_ORDER.indexOf(b);
