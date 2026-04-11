@@ -1133,31 +1133,7 @@ body {
     font-size: 0.88rem;
 }
 
-/* Share Button for Sections (Phase 4) */
-.section-share-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    opacity: 0;
-    margin-left: 8px;
-    vertical-align: middle;
-    transition: opacity 0.2s;
-    padding: 2px 4px;
-    border-radius: 4px;
-}
-.chart-section-title:hover .section-share-btn {
-    opacity: 0.6;
-}
-.section-share-btn:hover {
-    opacity: 1 !important;
-}
-.section-share-btn.copied {
-    opacity: 1;
-    color: #2a7a4f;
-}
-
-/* Mobile: stack vertically */
+/* Mobile: horizontal scrollable pill bar + full-width main */
 @media (max-width: 768px) {
     .stats-dashboard {
         flex-direction: column;
@@ -1169,23 +1145,22 @@ body {
         max-height: none;
         border-right: none;
         border-bottom: 1px solid var(--border);
-        padding: 8px 0;
+        padding: 0;
+        /* horizontal scroll strip */
         overflow-x: auto;
         overflow-y: hidden;
         -webkit-overflow-scrolling: touch;
         scroll-snap-type: x proximity;
         scrollbar-width: none;
     }
-    .stats-sidebar::-webkit-scrollbar {
-        display: none;
-    }
+    .stats-sidebar::-webkit-scrollbar { display: none; }
     .stats-sidebar-inner {
         flex-direction: row;
-        flex-wrap: nowrap;
+        flex-wrap: nowrap;      /* single row — scroll, don't wrap */
         align-items: center;
-        padding: 0 8px;
         gap: 0;
-        width: max-content;
+        padding: 0 8px;
+        width: max-content;     /* let it grow beyond viewport */
     }
     .sidebar-category {
         flex-direction: row;
@@ -1197,20 +1172,33 @@ body {
         display: none;
     }
     .sidebar-link {
-        white-space: nowrap;
-        scroll-snap-align: start;
         border-left: none;
         border-bottom: 3px solid transparent;
-        padding: 10px 14px;
+        padding: 10px 12px;
         font-size: 12px;
+        white-space: nowrap;
+        scroll-snap-align: start;
     }
     .sidebar-link.active {
+        border-bottom-color: var(--primary-accent);
         border-left: none;
-        border-bottom: 3px solid var(--primary-accent);
+        background: none;
     }
     .stats-main {
         padding: 20px 16px;
         gap: 40px;
+    }
+    /* KPI cards: 2 per row on mobile */
+    .kpi-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    /* chart section title: smaller on mobile */
+    .chart-section-title {
+        font-size: 16px;
+    }
+    /* share button always visible on mobile (no hover) */
+    .section-share-btn {
+        opacity: 0.5;
     }
 }
 
