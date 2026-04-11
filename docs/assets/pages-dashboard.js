@@ -206,8 +206,8 @@ function renderStateOutcomeTable(container, rows) {
           <th>Cases</th>
           <th>Violation only</th>
           <th>Non-violation only</th>
-          <th>Both</th>
-          <th>Neither</th>
+          <th>Mixed</th>
+          <th>No finding</th>
           <th>Violation rate</th>
         </tr>
       </thead>
@@ -288,7 +288,7 @@ async function loadDashboard() {
     makeKpi(
       "Outcome Mix",
       `${fmtInt.format(s.outcome_violation_only || 0)} / ${fmtInt.format(s.outcome_non_violation_only || 0)} / ${fmtInt.format(s.outcome_both || 0)} / ${fmtInt.format(s.outcome_neither || 0)}`,
-      "Violation only · Non-violation only · Both · Neither"
+      "Violation only · Non-violation only · Mixed · No finding"
     ),
   ].join("");
 
@@ -496,17 +496,24 @@ async function loadDashboard() {
 
   createBarChart(
     document.getElementById("articleViolationRateChart"),
-    articleViolationRates.slice(0, 15).map((d) => `Art. ${d[0]} (${d[2]}/${d[3]})`),
-    articleViolationRates.slice(0, 15).map((d) => Number(d[1]) * 100),
+    articleViolationRates.filter(d => d[1] <= 1.0).slice(0, 15).map((d) => `Art. ${d[0]} (${d[2]}/${d[3]})`),
+    articleViolationRates.filter(d => d[1] <= 1.0).slice(0, 15).map((d) => Number(d[1]) * 100),
     { horizontal: true, colors: ["#3c8d5a"] }
   );
 
   if (precedentConcentrationTop.length) {
-    createLineChart(
-      document.getElementById("precedentConcentrationChart"),
-      precedentConcentrationTop.map((d) => truncateLabel(d[0], 42)),
-      precedentConcentrationTop.map((d) => d[3]),
-      "#8d4f78"
+    const pcCanvas = document.getElementById("precedentConcentrationChart");
+    if (pcCanvas && pcCanvas.parentElement) {
+      pcCanvas.parentElement.style.height = "560px";
+    }
+    const sortedPrecedents = [...precedentConcentrationTop]
+      .sort((a, b) => b[3] - a[3])
+      .slice(0, 20);
+    createBarChart(
+      pcCanvas,
+      sortedPrecedents.map((d) => truncateLabel(d[0], 42)),
+      sortedPrecedents.map((d) => d[3]),
+      { horizontal: true, colors: ["#8d4f78"] }
     );
   } else {
     createBarChart(
