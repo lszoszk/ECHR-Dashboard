@@ -1137,8 +1137,9 @@ body {
 @media (max-width: 768px) {
     /* safety net: prevent phantom page-level horizontal scrollbars caused
        by descendant overflow containers (e.g. sidebar pill bar) */
-    body, .stats-page {
+    html, body, .stats-page, .main-content {
         overflow-x: hidden;
+        max-width: 100%;
     }
     .stats-dashboard {
         flex-direction: column;
