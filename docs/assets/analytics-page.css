@@ -27,6 +27,17 @@
   overflow-x: auto;
 }
 
+/* Scrollable table wrapper — caps height so it doesn't balloon the section */
+.state-outcome-scroll {
+  max-height: 480px;
+  overflow-y: auto;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
 .state-outcome-table {
   width: 100%;
   border-collapse: collapse;
@@ -57,10 +68,15 @@
 .chart-controls {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-bottom: 16px;
   font-size: 0.85rem;
   color: var(--text-secondary);
+  background: var(--bg-page, #f8f9fa);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
 }
 
 .chart-select {
@@ -81,7 +97,15 @@
 }
 
 .compare-chart-wrap {
-  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fixed-height canvas wrappers inside comparison grid */
+.compare-chart-wrap .chart-canvas-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
 }
 
 .chart-subtitle {
@@ -89,6 +113,12 @@
   font-weight: 600;
   color: var(--text-secondary);
   margin: 0 0 8px;
+}
+
+/* Summary table wrapper with scroll for many states */
+.compare-summary-wrap {
+  overflow-x: auto;
+  margin-bottom: 16px;
 }
 
 .compare-summary-table {

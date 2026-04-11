@@ -199,20 +199,22 @@ function renderStateOutcomeTable(container, rows) {
     .join("");
 
   container.innerHTML = `
-    <table class="state-outcome-table">
-      <thead>
-        <tr>
-          <th>State</th>
-          <th>Cases</th>
-          <th>Violation only</th>
-          <th>Non-violation only</th>
-          <th>Both</th>
-          <th>Neither</th>
-          <th>Violation rate</th>
-        </tr>
-      </thead>
-      <tbody>${bodyRows}</tbody>
-    </table>
+    <div class="state-outcome-scroll">
+      <table class="state-outcome-table">
+        <thead>
+          <tr>
+            <th>State</th>
+            <th>Cases</th>
+            <th>Violation only</th>
+            <th>Non-violation only</th>
+            <th>Mixed</th>
+            <th>No finding</th>
+            <th>Violation rate</th>
+          </tr>
+        </thead>
+        <tbody>${bodyRows}</tbody>
+      </table>
+    </div>
   `;
 }
 
@@ -750,9 +752,6 @@ async function loadDashboard() {
 
   renderStateOutcomeTable(document.getElementById("stateOutcomeTable"), stateOutcomesTop);
 
-  // Render Judges Chart (Phase 4)
-  renderJudgesChart(data);
-
   // Build TOC
   const tocList = document.getElementById("tocList");
   const tocToggle = document.getElementById("tocToggle");
@@ -776,102 +775,38 @@ loadDashboard().catch((err) => {
   );
 });
 
-// ── Copy Section Link (Phase 4) ───────────────────────────────────────
-function copySectionLink(btn, sectionId) {
-  const url = window.location.href.split('#')[0] + '#' + sectionId;
-  navigator.clipboard.writeText(url).then(() => {
-    btn.textContent = '✓';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = '🔗'; btn.classList.remove('copied'); }, 1800);
-  });
-}
-
-// ── Render Judges Chart (Phase 4) ─────────────────────────────────────
-function renderJudgesChart(data) {
-  const judgesTop = rowsOrEmpty(data.rankings.judges_top);
-  const judgesCtx = document.getElementById("judgesChart");
-
-  if (!judgesCtx || !judgesTop.length) return;
-
-  // Take top 20, deduplicate by trimming whitespace and merging counts
-  const judgeMap = new Map();
-  judgesTop.slice(0, 20).forEach((row) => {
-    const name = String(row[0]).trim();
-    const count = row[1] || 0;
-    if (name) {
-      judgeMap.set(name, (judgeMap.get(name) || 0) + count);
-    }
-  });
-
-  // Sort descending by count
-  const judges = Array.from(judgeMap.entries())
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 20);
-
-  createBarChart(
-    judgesCtx,
-    judges.map((d) => truncateLabel(d[0], 42)),
-    judges.map((d) => d[1]),
-    { horizontal: true, colors: ["rgba(80, 140, 100, 0.8)"] }
-  );
-}
-
-// ── Stats Sidebar Navigation (Phase 4) ──────────────────────────────────
-function initSidebarNav() {
-  const links = document.querySelectorAll('.sidebar-link');
-  const sections = document.querySelectorAll('.chart-section');
-
-  // Click handler — scroll + update URL hash
-  links.forEach(link => {
-    link.addEventListener('click', e => {
+// ── Stats Sidebar Navigation (Phase 3) ──────────────────────────────────
+(function initSidebarNav() {
+  // Click to scroll to section
+  document.querySelectorAll(".sidebar-link").forEach((link) => {
+    link.addEventListener("click", (e) => {
       e.preventDefault();
       const targetId = link.dataset.target;
       const section = document.getElementById(targetId);
       if (section) {
-        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        history.replaceState(null, '', '#' + targetId);
+        section.scrollIntoView({ behavior: "smooth", block: "start" });
       }
-      links.forEach(l => l.classList.remove('active'));
-      link.classList.add('active');
-      scrollLinkIntoView(link);
+      document.querySelectorAll(".sidebar-link").forEach((l) => l.classList.remove("active"));
+      link.classList.add("active");
     });
   });
 
-  // On load — restore from hash
-  const hash = window.location.hash.slice(1);
-  if (hash) {
-    const target = document.getElementById(hash);
-    const matchingLink = document.querySelector(`.sidebar-link[data-target="${hash}"]`);
-    if (target) {
-      setTimeout(() => target.scrollIntoView({ behavior: 'auto', block: 'start' }), 100);
-    }
-    if (matchingLink) {
-      links.forEach(l => l.classList.remove('active'));
-      matchingLink.classList.add('active');
-      scrollLinkIntoView(matchingLink);
-    }
+  // Scroll-spy: highlight sidebar item when its section enters the viewport
+  const chartSections = document.querySelectorAll(".chart-section");
+  if (chartSections.length && "IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            document.querySelectorAll(".sidebar-link").forEach((l) => {
+              l.classList.toggle("active", l.dataset.target === id);
+            });
+          }
+        });
+      },
+      { rootMargin: "-20% 0px -70% 0px", threshold: 0 }
+    );
+    chartSections.forEach((s) => observer.observe(s));
   }
-
-  // IntersectionObserver — update hash on scroll
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const id = entry.target.id;
-        links.forEach(l => l.classList.toggle('active', l.dataset.target === id));
-        history.replaceState(null, '', '#' + id);
-      }
-    });
-  }, { rootMargin: '-10% 0px -75% 0px', threshold: 0 });
-
-  sections.forEach(s => observer.observe(s));
-
-  // Mobile: scroll active link into view horizontally
-  function scrollLinkIntoView(link) {
-    const sidebar = document.querySelector('.stats-sidebar');
-    if (sidebar && window.innerWidth <= 768) {
-      sidebar.scrollTo({ left: link.offsetLeft - 16, behavior: 'smooth' });
-    }
-  }
-}
-
-initSidebarNav();
+})();
