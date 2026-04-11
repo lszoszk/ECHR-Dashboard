@@ -103,42 +103,63 @@
 
           <div class="filters-panel" id="filtersPanel">
             <div class="filters-grid">
-              <div class="filter-group">
-                <h3 class="filter-title">Case Sections</h3>
-                <div class="checkbox-grid compact" id="sectionsFilters"></div>
-              </div>
 
+              <!-- 1. Respondent State — most general, primary who-dimension -->
               <div class="filter-group">
                 <h3 class="filter-title">Respondent State</h3>
                 <div class="checkbox-grid scrollable" id="countriesFilters"></div>
               </div>
 
+              <!-- 2. Convention Articles — primary what-dimension -->
               <div class="filter-group">
                 <h3 class="filter-title">Convention Articles</h3>
                 <div class="checkbox-grid scrollable" id="articlesFilters"></div>
               </div>
 
+              <!-- 3. Judgment Date — temporal scope -->
               <div class="filter-group">
-                <h3 class="filter-title">Originating Body</h3>
-                <div class="checkbox-grid scrollable" id="originatingBodyFilters"></div>
+                <h3 class="filter-title">Judgment Date</h3>
+                <div class="date-range">
+                  <input type="date" id="dateFrom" class="date-input" disabled>
+                  <span class="date-sep">to</span>
+                  <input type="date" id="dateTo" class="date-input" disabled>
+                </div>
               </div>
 
+              <!-- 4. Importance — ECHR classification -->
               <div class="filter-group">
                 <h3 class="filter-title">Importance</h3>
                 <div class="checkbox-grid compact" id="importanceFilters"></div>
               </div>
 
+              <!-- 5. Originating Body — court composition (includes Grand Chamber) -->
               <div class="filter-group">
-                <h3 class="filter-title">Document Type</h3>
-                <div class="checkbox-grid compact" id="docTypeFilters"></div>
+                <h3 class="filter-title">Originating Body</h3>
+                <div class="checkbox-grid scrollable" id="originatingBodyFilters"></div>
+              </div>
 
-                <h3 class="filter-title inline-space">Outcome</h3>
+              <!-- 6. Outcome + Document Type — result of proceedings -->
+              <div class="filter-group">
+                <h3 class="filter-title">Outcome</h3>
                 <div class="checkbox-grid compact" id="outcomeFilters"></div>
 
-                <h3 class="filter-title inline-space">Separate Opinion</h3>
+                <h3 class="filter-title inline-space">Document Type</h3>
+                <div class="checkbox-grid compact" id="docTypeFilters"></div>
+              </div>
+
+              <!-- 7. Case Sections — paragraph-level, specific to this tool -->
+              <div class="filter-group">
+                <h3 class="filter-title">Case Sections</h3>
+                <div class="checkbox-grid compact" id="sectionsFilters"></div>
+              </div>
+
+              <!-- 8. Separate Opinion -->
+              <div class="filter-group">
+                <h3 class="filter-title">Separate Opinion</h3>
                 <div class="checkbox-grid compact" id="separateOpinionFilters"></div>
               </div>
 
+              <!-- 9. Power-user filters: metadata flags + query refinements -->
               <div class="filter-group">
                 <h3 class="filter-title">Metadata Presence</h3>
                 <div class="checkbox-grid compact" id="presenceFilters">
@@ -155,15 +176,6 @@
                 <input type="text" id="precedentFilterInput" class="search-input compact" placeholder="e.g. Magyar Helsinki Bizottság" disabled>
               </div>
 
-              <div class="filter-group">
-                <h3 class="filter-title">Judgment Date</h3>
-                <div class="date-range">
-                  <input type="date" id="dateFrom" class="date-input" disabled>
-                  <span class="date-sep">to</span>
-                  <input type="date" id="dateTo" class="date-input" disabled>
-                </div>
-
-              </div>
             </div>
           </div>
         </form>
