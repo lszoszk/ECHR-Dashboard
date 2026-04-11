@@ -328,6 +328,74 @@ async function loadDashboard() {
     { horizontal: true }
   );
 
+  // Violation Rate by Country — horizontal bar, sorted descending by rate,
+  // filtered to states with at least 10 cases, top 25 shown.
+  const countryRatesEl = document.getElementById("countryRatesChart");
+  if (countryRatesEl && stateOutcomesTop.length) {
+    const MIN_CASES = 10;
+    const TOP_N = 25;
+    const rateRows = stateOutcomesTop
+      .filter((r) => Number(r[1]) >= MIN_CASES)
+      .slice()
+      .sort((a, b) => Number(b[6]) - Number(a[6]))
+      .slice(0, TOP_N);
+
+    const rateColor = (rate) => {
+      // Green (low rate) → amber → red (high rate)
+      if (rate >= 85) return "#c0392b";
+      if (rate >= 70) return "#e67e22";
+      if (rate >= 50) return "#d4a017";
+      if (rate >= 30) return "#3c8d5a";
+      return "#245ea8";
+    };
+
+    const labels = rateRows.map((r) => r[0]);
+    const values = rateRows.map((r) => Number(r[6]));
+    const totals = rateRows.map((r) => Number(r[1]));
+    const colors = values.map(rateColor);
+
+    new Chart(countryRatesEl, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [
+          {
+            data: values,
+            backgroundColor: colors.map((c) => `${c}CC`),
+            borderColor: colors,
+            borderWidth: 1,
+            borderRadius: 6,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: "y",
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => {
+                const idx = ctx.dataIndex;
+                return `${values[idx].toFixed(1)}% violation rate (${totals[idx]} cases)`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            max: 100,
+            ticks: { callback: (v) => `${v}%` },
+            grid: { display: true },
+          },
+          y: { grid: { display: false } },
+        },
+      },
+    });
+  }
+
   createBarChart(
     document.getElementById("articlesChart"),
     articlesTop.map((d) => `Art. ${d[0]}`),

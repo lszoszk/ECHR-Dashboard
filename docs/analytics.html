@@ -92,7 +92,7 @@
             <div class="sidebar-category">
               <span class="sidebar-category-label">Respondent States</span>
               <a class="sidebar-link" data-target="stats-country-cases" href="#">Cases by Country</a>
-              <a class="sidebar-link coming-soon" data-target="stats-country-rates" href="#">Violation Rate by Country</a>
+              <a class="sidebar-link" data-target="stats-country-rates" href="#">Violation Rate by Country</a>
               <a class="sidebar-link" data-target="stats-state-outcomes" href="#">State Outcome Table</a>
               <a class="sidebar-link" data-target="stats-country-compare" href="#">Country Comparison</a>
             </div>
@@ -203,13 +203,14 @@
             </div>
           </section>
 
-          <!-- ⑨ Violation Rate by Country (placeholder) -->
+          <!-- ⑨ Violation Rate by Country -->
           <section class="chart-section" id="stats-country-rates">
-            <h2 class="chart-section-title">Violation Rate by Country</h2>
-            <p class="chart-section-desc">Proportion of cases resulting in at least one violation finding per respondent state, normalising raw case counts to reveal which states have the highest per-case breach rates.</p>
-            <div class="coming-soon-placeholder">
-              <span class="coming-soon-badge">Coming soon</span>
-              <p style="margin-top:12px;">Per-country violation rate chart is under development.</p>
+            <h2 class="chart-section-title">Violation Rate by Country
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-country-rates')">🔗</button>
+            </h2>
+            <p class="chart-section-desc">Proportion of cases resulting in at least one violation finding per respondent state (top 25 by caseload, minimum 10 cases). Normalises raw case counts to reveal which states have the highest per-case breach rates.</p>
+            <div class="chart-canvas-wrap" style="height:620px;">
+              <canvas id="countryRatesChart"></canvas>
             </div>
           </section>
 
