@@ -168,19 +168,28 @@ const CLASSIFIER_METHODS = {
   },
 };
 
-// NOTE: facts_background + facts_proceedings are merged into a single
-// "facts" bucket in the UI. Rationale: the upstream pipeline labels are
-// semantically inverted vs HUDOC convention (classical HUDOC: PROCEDURE =
-// short admin section, THE FACTS → I. CIRCUMSTANCES OF THE CASE = narrative)
-// and since 1 Sept 2021 the Court itself merges facts+procedure for
-// Committee cases into "SUBJECT MATTER OF THE CASE" / "FACTS AND PROCEDURE".
-// Lawyers cite by paragraph number, not sub-section. See CHANGES-FROM-ORIGINAL.md
+// NOTE: Two upstream classes are merged into unified UI buckets:
+//   * facts_background + facts_proceedings → "facts" ("Facts of the case")
+//   * legal_framework  + legal_context     → "legal_framework" ("Relevant legal framework")
+// Rationale (facts): the upstream labels are semantically inverted vs HUDOC
+// convention (classical HUDOC: PROCEDURE = short admin section, THE FACTS →
+// I. CIRCUMSTANCES OF THE CASE = narrative) and since 1 Sept 2021 the Court
+// itself merges facts+procedure for Committee cases into "SUBJECT MATTER OF
+// THE CASE" / "FACTS AND PROCEDURE".
+// Rationale (legal framework): "Legal Context" is an orphan bucket — only 6
+// paragraphs across 2 2026 Polish judicial-overhaul cases (Morawiec, Biliński)
+// where the Third Section Registry introduced a novel "LEGAL CONTEXT OF THE
+// CASE" heading that simply points at Wałęsa v. Poland as the series anchor.
+// Both judgments ALSO have a real "RELEVANT LEGAL FRAMEWORK AND PRACTICE"
+// section, so the two labels are parallel — not overlapping — and under
+// Hick's law a filter checkbox returning 6 paragraphs from 2 cases fails the
+// NN/g rule "not more facets than the results listed" by ~3 orders of
+// magnitude. Lawyers cite by paragraph number. See CHANGES-FROM-ORIGINAL.md
 // and docs/TODO-facts-reclassify.md for the deferred Phase 2 reclassifier.
 const SECTION_ORDER = [
   "introduction",
   "facts",
   "legal_framework",
-  "legal_context",
   "admissibility",
   "merits",
   "just_satisfaction",
@@ -193,8 +202,7 @@ const SECTION_ORDER = [
 const SECTION_LABELS = {
   introduction: "Introduction",
   facts: "Facts of the case",
-  legal_framework: "Legal Framework",
-  legal_context: "Legal Context",
+  legal_framework: "Relevant legal framework",
   admissibility: "Admissibility",
   merits: "Merits",
   just_satisfaction: "Just Satisfaction",
@@ -208,7 +216,6 @@ const SECTION_COLORS = {
   introduction: "#4C72B0",
   facts: "#DD8452",
   legal_framework: "#937860",
-  legal_context: "#8B6A9C",
   admissibility: "#8172B3",
   merits: "#55A868",
   just_satisfaction: "#DA8BC3",
@@ -220,12 +227,12 @@ const SECTION_COLORS = {
 
 // Reverse map: normalized key → raw DB section name(s) (as stored in SQLite).
 // Values are ARRAYS because one UI bucket may cover multiple raw DB values
-// (e.g. "facts" covers both "Facts Background" and "Facts Proceedings").
+// (e.g. "facts" covers both "Facts Background" and "Facts Proceedings";
+// "legal_framework" also absorbs the orphan "Legal Context" bucket).
 const SECTION_DB_NAMES = {
   introduction: ["Introduction"],
   facts: ["Facts Background", "Facts Proceedings"],
-  legal_framework: ["Legal Framework"],
-  legal_context: ["Legal Context"],
+  legal_framework: ["Legal Framework", "Legal Context"],
   admissibility: ["Admissibility"],
   merits: ["Merits"],
   just_satisfaction: ["Just Satisfaction"],
@@ -239,7 +246,6 @@ const SEARCH_SCORE_SECTION_WEIGHTS = {
   merits: 1.3,
   admissibility: 1.2,
   legal_framework: 1.1,
-  legal_context: 1.1,
   facts: 1.0,
   appendix: 0.8,
 };
@@ -1095,10 +1101,12 @@ function normalizeSectionKey(rawSection) {
     "facts proceedings": "facts",
     facts_proceedings: "facts",
     facts: "facts",
+    // "Legal Context" is an orphan (6 paragraphs in 2 Polish 2026 cases) —
+    // collapse into legal_framework. See SECTION_ORDER note above.
     "legal framework": "legal_framework",
     legal_framework: "legal_framework",
-    "legal context": "legal_context",
-    legal_context: "legal_context",
+    "legal context": "legal_framework",
+    legal_context: "legal_framework",
     admissibility: "admissibility",
     merits: "merits",
     "just satisfaction": "just_satisfaction",

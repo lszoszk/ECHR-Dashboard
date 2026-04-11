@@ -60,6 +60,37 @@ Added a `document_type` field so press releases are labelled and bucketed separa
 
 When the API is available, the advanced-filter dropdowns (articles, states, importance, bodies, outcomes, sections) are populated from `/api/facets` rather than from the locally-loaded JSONL sample, ensuring that the filters always reflect the full 18,429-case corpus rather than the 50-case offline sample.
 
+### 1.6 Merged `Legal Framework` and `Legal Context` into a single `legal_framework` bucket
+**Commit:** `20260411-legalmerge` (frontend-only; no database rewrite)
+**Files:** `docs/assets/search-app.js`, `docs/index.html`
+
+**Rationale.** Corpus-wide tally of the upstream segmenter's section labels revealed a 4,147 : 1 imbalance:
+
+| Label | Paragraphs | Distinct cases | % of corpus |
+|---|---|---|---|
+| `Legal Framework` | 24,882 | 1,361 | 1.81% |
+| `Legal Context` | **6** | **2** | 0.0004% |
+
+The 6 `Legal Context` paragraphs live in exactly two 2026 Polish judicial-overhaul judgments — Morawiec v. Poland (5 Feb 2026) and Biliński v. Poland (15 Jan 2026) — where the Third Section Registry introduced a novel uppercase heading "LEGAL CONTEXT OF THE CASE" as a short case-series breadcrumb pointing at Wałęsa v. Poland (no. 50849/21) as the anchor judgment. Both cases also contain a full `RELEVANT LEGAL FRAMEWORK AND PRACTICE` section (6 and 16 paragraphs respectively), so the two labels are **parallel — not overlapping**. `Legal Context` is not an alternative legal-framework category; it is a "see also" breadcrumb.
+
+**HUDOC convention check.** `Legal Context` is not part of the classical HUDOC template (`II. RELEVANT DOMESTIC LAW AND PRACTICE` + `III. RELEVANT INTERNATIONAL MATERIALS`), nor of the modern merged form (`RELEVANT LEGAL FRAMEWORK AND PRACTICE`) used by the Court since ~2019. It is not in the *Note explaining the mode of citation*, not in OSCOLA, not in practitioner research guides. It is a 2026 Registry experiment appearing in two judgments.
+
+**Hick's law UX analysis.** A filter checkbox that returns 6 paragraphs across the entire corpus fails the Nielsen Norman Group rule "not more facets than the results listed" by ~3 orders of magnitude. The real cost is compounded by semantic near-confusability: `Legal Framework` vs `Legal Context` share the same morphology (adjective + "Legal" + noun) and differ only in the head noun, forcing users to spend extra decision-time disambiguating a distinction that doesn't exist in the data. Under Hick's law (T = a + b·log₂(n+1)), each filter row costs attention even when it's never ticked, and a near-empty, near-confusable label is the most expensive kind.
+
+**What changed.**
+
+- The two raw DB values `Legal Framework` and `Legal Context` are still stored verbatim in the SQLite `paragraphs` table. No paragraph has been deleted or renamed. The merge is purely presentational.
+- The frontend collapses both raw values into a single normalized UI key `legal_framework`, now **labelled "Relevant legal framework"** (aligned with the Court's modern heading convention and closer to lawyer vocabulary than the older generic "Legal Framework").
+- `SECTION_DB_NAMES["legal_framework"] = ["Legal Framework", "Legal Context"]`, so when the user ticks the merged filter, both raw values are forwarded to the server in the `sections=` query parameter.
+- `normalizeSectionKey()` now maps both `"legal framework"` and `"legal context"` aliases to `"legal_framework"`, so paragraphs from the local JSONL and from server-side case detail fetches both collapse into the same bucket on preprocessing.
+- Filter checkbox count drops from 11 to 10 (Hick's law gain ≈ log₂(12) → log₂(11)).
+- CSV export continues to include the raw `section` field per paragraph, so the 6 "Legal Context" breadcrumb paragraphs remain reachable via full-text search and via the exported raw column.
+- Cache-buster bumped from `v=20260410-factsmerge` to `v=20260411-legalmerge`.
+
+**What did NOT change.** No change to `backend/main.py`, `backend/build_db.py`, `backend/ranking.py`, the SQLite schema, the `paragraphs` table contents, or any stored facets.
+
+**Deferred.** If the Court expands the `LEGAL CONTEXT OF THE CASE` heading into other case-law series (rule-of-law Russia cases, Turkey post-coup cases, Article 18 abuse-of-power series), Phase 2 — see `docs/TODO-facts-reclassify.md` — should split `Legal Context` back out as a dedicated "Case-series breadcrumb" bucket. Until there is enough volume to justify a checkbox, the merge is the right default.
+
 ---
 
 ## 2. Ranking changes (relevance & sort)
