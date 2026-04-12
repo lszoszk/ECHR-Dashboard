@@ -233,6 +233,18 @@ def normalize_doc_types(case):
     return normalize_list(case.get("document_type"), split_text=False)
 
 
+def is_press_release(case) -> bool:
+    """Return True if this record is a press release, not a judgment.
+
+    Press releases are a distinct document type that should be excluded from
+    all judgment-related statistics (case counts, violation rates, article
+    breakdowns, country rankings, etc.).  The check mirrors the logic used in
+    search-app.js: document_type contains "press release" (case-insensitive).
+    """
+    doc_type = str(case.get("document_type") or "").lower()
+    return "press release" in doc_type
+
+
 def normalize_states(case):
     respondent = str(case.get("respondent_state") or "").strip()
     if respondent:
@@ -399,6 +411,7 @@ def build_payload(cases, source_file: str):
     unique_articles = set()
 
     total_paragraphs = 0
+    press_release_count = 0
     violation_cases = 0
     non_violation_cases = 0
     key_cases = 0
@@ -436,6 +449,14 @@ def build_payload(cases, source_file: str):
     nonempty_field_counts = Counter()
 
     for case in cases:
+        # Exclude press releases from all judgment-related statistics.
+        # They are a different document type and should not inflate case counts,
+        # violation rates, article breakdowns, country stats, or any other
+        # metric that describes judicial outcomes.
+        if is_press_release(case):
+            press_release_count += 1
+            continue
+
         normalized = normalize_case(case)
         case_id = str(case.get("case_id") or "").strip()
         paragraph_len = normalized["paragraph_len"]
@@ -563,7 +584,8 @@ def build_payload(cases, source_file: str):
                 nonempty_field_counts[field] += 1
 
     sorted_lengths = sorted(case_lengths)
-    total_cases = len(cases)
+    # total_cases counts only judgments — press releases are excluded
+    total_cases = len(cases) - press_release_count
 
     avg_len = (sum(sorted_lengths) / total_cases) if total_cases else 0
     med_len = percentile(sorted_lengths, 0.5)
@@ -709,7 +731,8 @@ def build_payload(cases, source_file: str):
         "parser_version": PARSER_VERSION,
         "summary": {
             "total_cases": total_cases,
-            "input_record_count": total_cases,
+            "total_press_releases": press_release_count,
+            "input_record_count": total_cases + press_release_count,
             "schema_version": SCHEMA_VERSION,
             "parser_version": PARSER_VERSION,
             "total_paragraphs": total_paragraphs,
@@ -859,7 +882,7 @@ def main():
     output_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
     print(f"Wrote dashboard data: {output_path}")
-    print(f"Cases: {payload['summary']['total_cases']}, paragraphs: {payload['summary']['total_paragraphs']}")
+    print(f"Judgments: {payload['summary']['total_cases']}, press releases excluded: {payload['summary']['total_press_releases']}, paragraphs: {payload['summary']['total_paragraphs']}")
 
     if export_data_path:
         export_data_path.parent.mkdir(parents=True, exist_ok=True)
