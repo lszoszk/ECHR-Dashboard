@@ -199,6 +199,118 @@ def extract_inadmissibility_grounds(conclusion: str):
     return grounds
 
 
+def _award_stats(amounts: list[float]) -> dict:
+    """Compute summary stats for a list of award amounts."""
+    if not amounts:
+        return {"count": 0, "min": 0, "max": 0, "median": 0, "mean": 0, "total": 0}
+    sorted_a = sorted(amounts)
+    n = len(sorted_a)
+    return {
+        "count": n,
+        "min": round(sorted_a[0], 2),
+        "max": round(sorted_a[-1], 2),
+        "median": round(sorted_a[n // 2], 2),
+        "mean": round(sum(sorted_a) / n, 2),
+        "total": round(sum(sorted_a), 2),
+    }
+
+
+def parse_conclusion_clauses(conclusion: str) -> dict:
+    """Parse conclusion string into structured outcome categories.
+
+    Returns a dict with:
+      clause_types: Counter of clause categories
+      just_satisfaction: dict with award stats (pecuniary, non_pecuniary, costs)
+      preliminary_objections: dict with accepted/rejected counts
+    """
+    clause_types = Counter()
+    awards = {"pecuniary": [], "non_pecuniary": [], "costs": []}
+    prelim = {"rejected": 0, "accepted": 0, "joined_to_merits": 0}
+
+    if not conclusion or not conclusion.strip():
+        return {"clause_types": clause_types, "awards": awards, "preliminary_objections": prelim}
+
+    for clause in conclusion.split(";"):
+        clause = clause.strip()
+        if not clause:
+            continue
+        cl = clause.lower()
+
+        if re.match(r"violation of art", cl):
+            clause_types["Violation finding"] += 1
+        elif re.match(r"no violation of art", cl):
+            clause_types["No violation finding"] += 1
+        elif "not necessary to examine" in cl:
+            clause_types["Not necessary to examine"] += 1
+        elif re.match(r"preliminary objection", cl):
+            if "rejected" in cl or "dismissed" in cl:
+                clause_types["Preliminary objection rejected"] += 1
+                prelim["rejected"] += 1
+            elif "allowed" in cl or "accepted" in cl or "upheld" in cl:
+                clause_types["Preliminary objection accepted"] += 1
+                prelim["accepted"] += 1
+            elif "joined to merits" in cl:
+                clause_types["Preliminary objection joined to merits"] += 1
+                prelim["joined_to_merits"] += 1
+            else:
+                clause_types["Preliminary objection other"] += 1
+        elif "just satisfaction" in cl:
+            clause_types["Just satisfaction reserved"] += 1
+        elif "pecuniary damage" in cl and "non-pecuniary" not in cl:
+            if "financial award" in cl or ("award" in cl and "dismiss" not in cl):
+                clause_types["Pecuniary damage awarded"] += 1
+                m = re.search(r"EUR\s+([\d,]+(?:\.\d+)?)", clause)
+                if m:
+                    try:
+                        awards["pecuniary"].append(float(m.group(1).replace(",", "")))
+                    except ValueError:
+                        pass
+            elif "dismissed" in cl or "claim dismissed" in cl:
+                clause_types["Pecuniary damage dismissed"] += 1
+            else:
+                clause_types["Pecuniary damage other"] += 1
+        elif "non-pecuniary damage" in cl:
+            if "financial award" in cl:
+                clause_types["Non-pecuniary damage awarded"] += 1
+                m = re.search(r"EUR\s+([\d,]+(?:\.\d+)?)", clause)
+                if m:
+                    try:
+                        awards["non_pecuniary"].append(float(m.group(1).replace(",", "")))
+                    except ValueError:
+                        pass
+            elif "finding of violation sufficient" in cl:
+                clause_types["Non-pecuniary: violation sufficient"] += 1
+            elif "dismissed" in cl:
+                clause_types["Non-pecuniary damage dismissed"] += 1
+            else:
+                clause_types["Non-pecuniary damage other"] += 1
+        elif "costs and expenses" in cl:
+            if "award" in cl and "dismiss" not in cl:
+                clause_types["Costs & expenses awarded"] += 1
+                m = re.search(r"EUR\s+([\d,]+(?:\.\d+)?)", clause)
+                if m:
+                    try:
+                        awards["costs"].append(float(m.group(1).replace(",", "")))
+                    except ValueError:
+                        pass
+            elif "dismissed" in cl:
+                clause_types["Costs & expenses dismissed"] += 1
+            else:
+                clause_types["Costs & expenses other"] += 1
+        elif "struck out" in cl:
+            clause_types["Struck out"] += 1
+        elif "friendly settlement" in cl:
+            clause_types["Friendly settlement"] += 1
+        elif "inadmissible" in cl:
+            clause_types["Inadmissible"] += 1
+
+    return {
+        "clause_types": clause_types,
+        "awards": awards,
+        "preliminary_objections": prelim,
+    }
+
+
 def normalize_section_key(raw_section: str) -> str:
     key = str(raw_section or "").strip().lower().replace("-", " ")
     aliases = {
@@ -406,6 +518,20 @@ def build_payload(cases, source_file: str):
     procedural_vs_substantive_by_year = defaultdict(Counter)
     precedent_to_cases = defaultdict(set)
 
+    # Conclusion/Outcome analytics
+    conclusion_clause_counts = Counter()
+    all_pecuniary_awards = []
+    all_non_pecuniary_awards = []
+    all_costs_awards = []
+    prelim_obj_rejected = 0
+    prelim_obj_accepted = 0
+    prelim_obj_joined = 0
+    cases_with_pecuniary_award = 0
+    cases_with_non_pecuniary_award = 0
+    cases_with_costs_award = 0
+    just_satisfaction_by_year = defaultdict(lambda: {"count": 0, "total_eur": 0.0})
+    conclusion_outcome_by_year = defaultdict(Counter)
+
     case_lengths = []
     parsed_dates = []
     unique_articles = set()
@@ -582,6 +708,46 @@ def build_payload(cases, source_file: str):
         for field in quality_fields:
             if is_present(case.get(field)):
                 nonempty_field_counts[field] += 1
+
+        # Parse conclusion clauses for outcome analytics
+        parsed_conc = parse_conclusion_clauses(normalized["conclusion"])
+        for ct, cnt in parsed_conc["clause_types"].items():
+            conclusion_clause_counts[ct] += cnt
+        conc_awards = parsed_conc["awards"]
+        if conc_awards["pecuniary"]:
+            cases_with_pecuniary_award += 1
+            all_pecuniary_awards.extend(conc_awards["pecuniary"])
+        if conc_awards["non_pecuniary"]:
+            cases_with_non_pecuniary_award += 1
+            all_non_pecuniary_awards.extend(conc_awards["non_pecuniary"])
+        if conc_awards["costs"]:
+            cases_with_costs_award += 1
+            all_costs_awards.extend(conc_awards["costs"])
+        pobj = parsed_conc["preliminary_objections"]
+        prelim_obj_rejected += pobj["rejected"]
+        prelim_obj_accepted += pobj["accepted"]
+        prelim_obj_joined += pobj["joined_to_merits"]
+
+        # Just satisfaction awards by year
+        if date_obj:
+            yr = date_obj.strftime("%Y")
+            total_award_eur = sum(conc_awards["pecuniary"]) + sum(conc_awards["non_pecuniary"]) + sum(conc_awards["costs"])
+            if total_award_eur > 0:
+                just_satisfaction_by_year[yr]["count"] += 1
+                just_satisfaction_by_year[yr]["total_eur"] += total_award_eur
+            # Conclusion outcome categories by year
+            has_v_clause = parsed_conc["clause_types"].get("Violation finding", 0) > 0
+            has_nv_clause = parsed_conc["clause_types"].get("No violation finding", 0) > 0
+            has_award = any(conc_awards[k] for k in conc_awards)
+            has_inadm = parsed_conc["clause_types"].get("Inadmissible", 0) > 0
+            if has_v_clause:
+                conclusion_outcome_by_year[yr]["violation"] += 1
+            if has_nv_clause:
+                conclusion_outcome_by_year[yr]["no_violation"] += 1
+            if has_award:
+                conclusion_outcome_by_year[yr]["award_granted"] += 1
+            if has_inadm:
+                conclusion_outcome_by_year[yr]["inadmissible"] += 1
 
     sorted_lengths = sorted(case_lengths)
     # total_cases counts only judgments — press releases are excluded
@@ -815,6 +981,35 @@ def build_payload(cases, source_file: str):
         },
         "quality": {
             "field_completeness": field_completeness,
+        },
+        "conclusion_analytics": {
+            "clause_breakdown": conclusion_clause_counts.most_common(20),
+            "preliminary_objections": {
+                "rejected": prelim_obj_rejected,
+                "accepted": prelim_obj_accepted,
+                "joined_to_merits": prelim_obj_joined,
+            },
+            "just_satisfaction": {
+                "cases_with_pecuniary_award": cases_with_pecuniary_award,
+                "cases_with_non_pecuniary_award": cases_with_non_pecuniary_award,
+                "cases_with_costs_award": cases_with_costs_award,
+                "pecuniary_stats": _award_stats(all_pecuniary_awards),
+                "non_pecuniary_stats": _award_stats(all_non_pecuniary_awards),
+                "costs_stats": _award_stats(all_costs_awards),
+                "by_year": [
+                    [yr, just_satisfaction_by_year[yr]["count"],
+                     round(just_satisfaction_by_year[yr]["total_eur"], 2)]
+                    for yr in sorted(just_satisfaction_by_year.keys())
+                ],
+            },
+            "conclusion_outcomes_by_year": [
+                [yr,
+                 conclusion_outcome_by_year[yr].get("violation", 0),
+                 conclusion_outcome_by_year[yr].get("no_violation", 0),
+                 conclusion_outcome_by_year[yr].get("award_granted", 0),
+                 conclusion_outcome_by_year[yr].get("inadmissible", 0)]
+                for yr in sorted(conclusion_outcome_by_year.keys())
+            ],
         },
     }
 

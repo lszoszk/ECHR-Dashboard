@@ -99,6 +99,14 @@
             </div>
 
             <div class="sidebar-category">
+              <span class="sidebar-category-label">Conclusion &amp; Outcomes</span>
+              <a class="sidebar-link" data-target="stats-conclusion-clauses" href="#">Conclusion Clauses</a>
+              <a class="sidebar-link" data-target="stats-conclusion-trends" href="#">Outcome Trends</a>
+              <a class="sidebar-link" data-target="stats-preliminary-obj" href="#">Preliminary Objections</a>
+              <a class="sidebar-link" data-target="stats-just-satisfaction" href="#">Just Satisfaction</a>
+            </div>
+
+            <div class="sidebar-category">
               <span class="sidebar-category-label">Case Characteristics</span>
               <a class="sidebar-link coming-soon" data-target="stats-duration" href="#">Case Duration</a>
               <a class="sidebar-link" data-target="stats-judgment-types" href="#">Judgment Types</a>
@@ -259,6 +267,55 @@
                 </div>
               </div>
             </div>
+          </section>
+
+          <!-- Conclusion Clause Breakdown -->
+          <section class="chart-section" id="stats-conclusion-clauses">
+            <h2 class="chart-section-title">Conclusion Clause Breakdown
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-conclusion-clauses')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Distribution of structured conclusion clauses across all judgments. Each case conclusion is split into individual clauses (violation finding, damages, preliminary objections, etc.), showing how the Court's dispositive decisions break down in aggregate.</p>
+            <div class="chart-canvas-wrap" style="height:560px;">
+              <canvas id="conclusionClausesChart"></canvas>
+            </div>
+          </section>
+
+          <!-- Conclusion Outcome Trends by Year -->
+          <section class="chart-section" id="stats-conclusion-trends">
+            <h2 class="chart-section-title">Conclusion Outcome Trends
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-conclusion-trends')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Annual trends in key conclusion outcomes: violation findings, no-violation findings, financial awards granted, and inadmissibility declarations. Tracks how the Court's dispositive patterns have evolved over time.</p>
+            <div class="chart-canvas-wrap">
+              <canvas id="conclusionTrendsChart"></canvas>
+            </div>
+          </section>
+
+          <!-- Preliminary Objections -->
+          <section class="chart-section" id="stats-preliminary-obj">
+            <h2 class="chart-section-title">Preliminary Objections
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-preliminary-obj')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Outcome of preliminary objections raised by respondent states. Shows the proportion rejected, accepted, and joined to the merits — reflecting how often procedural barriers succeed in preventing substantive examination.</p>
+            <div class="chart-row">
+              <article class="chart-container">
+                <h3 class="chart-title">Preliminary Objection Outcomes</h3>
+                <canvas id="prelimObjChart"></canvas>
+              </article>
+              <article class="chart-container">
+                <h3 class="chart-title">Damages &amp; Costs Disposition</h3>
+                <canvas id="damagesDispositionChart"></canvas>
+              </article>
+            </div>
+          </section>
+
+          <!-- Just Satisfaction -->
+          <section class="chart-section" id="stats-just-satisfaction">
+            <h2 class="chart-section-title">Just Satisfaction Overview
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-just-satisfaction')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Overview of how the Court handles just satisfaction (Article 41) claims. Shows the disposition of pecuniary damages, non-pecuniary damages, and costs and expenses claims across the entire corpus.</p>
+            <div id="justSatisfactionKpis" class="kpi-row"></div>
           </section>
 
           <!-- ⑪ Case Duration (placeholder) -->
@@ -444,6 +501,16 @@
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
   <script>
+    function copySectionLink(btn, sectionId) {
+      const url = new URL(window.location.href);
+      url.hash = sectionId;
+      navigator.clipboard.writeText(url.toString()).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = '\u2713';
+        setTimeout(() => { btn.textContent = orig; }, 1500);
+      }).catch(() => {});
+    }
+
     // Shared accessibility helpers for analytics page
     const ACCESSIBILITY_DEFAULTS = {
       theme: "light", fontSize: 100, lineHeight: "normal",

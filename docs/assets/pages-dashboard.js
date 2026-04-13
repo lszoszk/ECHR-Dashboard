@@ -820,6 +820,151 @@ async function loadDashboard() {
 
   renderStateOutcomeTable(document.getElementById("stateOutcomeTable"), stateOutcomesTop);
 
+  // ── Conclusion / Outcome Analytics ──────────────────────────────────
+  const conclusionAnalytics = data.conclusion_analytics || {};
+
+  // Clause breakdown chart
+  const clauseBreakdown = rowsOrEmpty(conclusionAnalytics.clause_breakdown);
+  if (clauseBreakdown.length) {
+    const cbData = clauseBreakdown.slice(0, 18);
+    createBarChart(
+      document.getElementById("conclusionClausesChart"),
+      cbData.map((d) => d[0]),
+      cbData.map((d) => d[1]),
+      { horizontal: true, colors: ["#245ea8"] }
+    );
+  }
+
+  // Conclusion outcome trends by year
+  const conclusionTrends = rowsOrEmpty(conclusionAnalytics.conclusion_outcomes_by_year);
+  if (conclusionTrends.length) {
+    createMultiLineChart(
+      document.getElementById("conclusionTrendsChart"),
+      conclusionTrends.map((d) => d[0]),
+      [
+        {
+          label: "Violation finding",
+          data: conclusionTrends.map((d) => d[1]),
+          borderColor: "#b03e45",
+          backgroundColor: "#b03e4533",
+          fill: false,
+          tension: 0.2,
+          pointRadius: 2.5,
+          pointHoverRadius: 4,
+        },
+        {
+          label: "No violation finding",
+          data: conclusionTrends.map((d) => d[2]),
+          borderColor: "#245ea8",
+          backgroundColor: "#245ea833",
+          fill: false,
+          tension: 0.2,
+          pointRadius: 2.5,
+          pointHoverRadius: 4,
+        },
+        {
+          label: "Award granted",
+          data: conclusionTrends.map((d) => d[3]),
+          borderColor: "#3c8d5a",
+          backgroundColor: "#3c8d5a33",
+          fill: false,
+          tension: 0.2,
+          pointRadius: 2.5,
+          pointHoverRadius: 4,
+        },
+        {
+          label: "Inadmissible",
+          data: conclusionTrends.map((d) => d[4]),
+          borderColor: "#8c8c8c",
+          backgroundColor: "#8c8c8c33",
+          fill: false,
+          tension: 0.2,
+          pointRadius: 2.5,
+          pointHoverRadius: 4,
+        },
+      ]
+    );
+  }
+
+  // Preliminary objections doughnut
+  const prelimObj = conclusionAnalytics.preliminary_objections || {};
+  const prelimTotal = (prelimObj.rejected || 0) + (prelimObj.accepted || 0) + (prelimObj.joined_to_merits || 0);
+  if (prelimTotal > 0) {
+    createDoughnutChart(
+      document.getElementById("prelimObjChart"),
+      ["Rejected", "Accepted", "Joined to merits"],
+      [prelimObj.rejected || 0, prelimObj.accepted || 0, prelimObj.joined_to_merits || 0],
+      ["#3c8d5a", "#b03e45", "#d97a2b"]
+    );
+  }
+
+  // Damages & costs disposition
+  const damagesCtx = document.getElementById("damagesDispositionChart");
+  if (damagesCtx && clauseBreakdown.length) {
+    const damageLabels = [];
+    const damageValues = [];
+    const damageColors = [];
+    const colorMap = {
+      "Pecuniary damage awarded": "#3c8d5a",
+      "Pecuniary damage dismissed": "#b03e45",
+      "Pecuniary damage other": "#8c8c8c",
+      "Non-pecuniary damage awarded": "#245ea8",
+      "Non-pecuniary: violation sufficient": "#6c5db5",
+      "Non-pecuniary damage dismissed": "#d97a2b",
+      "Costs & expenses awarded": "#4f7ca6",
+      "Costs & expenses dismissed": "#b28a2f",
+    };
+    for (const [label, count] of clauseBreakdown) {
+      if (label in colorMap) {
+        damageLabels.push(label);
+        damageValues.push(count);
+        damageColors.push(colorMap[label]);
+      }
+    }
+    if (damageLabels.length) {
+      createBarChart(
+        damagesCtx,
+        damageLabels,
+        damageValues,
+        { horizontal: true, colors: damageColors }
+      );
+    }
+  }
+
+  // Just Satisfaction KPIs
+  const justSat = conclusionAnalytics.just_satisfaction || {};
+  const jsKpiGrid = document.getElementById("justSatisfactionKpis");
+  if (jsKpiGrid) {
+    const pStats = justSat.pecuniary_stats || {};
+    const npStats = justSat.non_pecuniary_stats || {};
+    const cStats = justSat.costs_stats || {};
+
+    // Compute totals from clause breakdown
+    const getClauseCount = (name) => {
+      const found = clauseBreakdown.find((d) => d[0] === name);
+      return found ? found[1] : 0;
+    };
+
+    const pecAwarded = getClauseCount("Pecuniary damage awarded");
+    const pecDismissed = getClauseCount("Pecuniary damage dismissed");
+    const npAwarded = getClauseCount("Non-pecuniary damage awarded");
+    const npSufficient = getClauseCount("Non-pecuniary: violation sufficient");
+    const npDismissed = getClauseCount("Non-pecuniary damage dismissed");
+    const costsAwarded = getClauseCount("Costs & expenses awarded");
+    const costsDismissed = getClauseCount("Costs & expenses dismissed");
+    const justSatReserved = getClauseCount("Just satisfaction reserved");
+
+    jsKpiGrid.innerHTML = [
+      makeKpi("Pecuniary Damage Awarded", fmtInt.format(pecAwarded), `${fmtInt.format(pecDismissed)} dismissed`),
+      makeKpi("Non-pecuniary Awarded", fmtInt.format(npAwarded), `${fmtInt.format(npSufficient)} violation sufficient`),
+      makeKpi("Non-pecuniary Dismissed", fmtInt.format(npDismissed)),
+      makeKpi("Costs & Expenses Awarded", fmtInt.format(costsAwarded), `${fmtInt.format(costsDismissed)} dismissed`),
+      makeKpi("Just Satisfaction Reserved", fmtInt.format(justSatReserved), "For separate proceedings"),
+      makeKpi("Prelim. Objections", fmtInt.format(prelimTotal),
+        `${((prelimObj.rejected || 0) / Math.max(prelimTotal, 1) * 100).toFixed(0)}% rejected`),
+    ].join("");
+  }
+
   // Build TOC
   const tocList = document.getElementById("tocList");
   const tocToggle = document.getElementById("tocToggle");
