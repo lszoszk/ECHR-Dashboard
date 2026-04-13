@@ -15590,5 +15590,1176 @@
         7
       ]
     ]
+  },
+  "citation_network": {
+    "summary": {
+      "total_nodes": 12882,
+      "total_edges": 151241,
+      "cases_with_citations": 12230,
+      "cases_cited": 9222,
+      "avg_forward_citations": 12.4,
+      "avg_backward_citations": 16.4,
+      "median_forward": 9,
+      "median_backward": 5,
+      "max_forward": 203,
+      "max_backward": 1622,
+      "gini_coefficient": 0.7901,
+      "pct_cases_for_50pct_citations": 4.65,
+      "pct_cases_for_80pct_citations": 18.19,
+      "mean_citation_age_years": 8.3,
+      "median_citation_age_years": 6.6,
+      "self_citation_rate_overall": 28.0
+    },
+    "landmark_cases": [
+      {
+        "appno": "30210/96",
+        "title": "CASE OF KUDLA v. POLAND",
+        "year": 2000,
+        "state": "Poland",
+        "article": "5-3",
+        "cited_by": 1622,
+        "cites": 31
+      },
+      {
+        "appno": "30979/96",
+        "title": "CASE OF FRYDLENDER v. FRANCE",
+        "year": 2000,
+        "state": "France",
+        "article": "6-1",
+        "cited_by": 1490,
+        "cites": 5
+      },
+      {
+        "appno": "26772/95",
+        "title": "CASE OF LABITA v. ITALY",
+        "year": 2000,
+        "state": "Italy",
+        "article": "5-3",
+        "cited_by": 1124,
+        "cites": 29
+      },
+      {
+        "appno": "25803/94",
+        "title": "CASE OF SELMOUNI v. FRANCE",
+        "year": 1999,
+        "state": "France",
+        "article": "3",
+        "cited_by": 805,
+        "cites": 5
+      },
+      {
+        "appno": "21986/93",
+        "title": "CASE OF SALMAN v. TURKEY",
+        "year": 2000,
+        "state": "Türkiye",
+        "article": "3",
+        "cited_by": 579,
+        "cites": 10
+      },
+      {
+        "appno": "36813/97",
+        "title": "CASE OF SCORDINO v. ITALY (No. 1)",
+        "year": 2004,
+        "state": "Italy",
+        "article": "6-1",
+        "cited_by": 541,
+        "cites": 47
+      },
+      {
+        "appno": "59498/00",
+        "title": "CASE OF BURDOV v. RUSSIA",
+        "year": 2002,
+        "state": "Russia",
+        "article": "6-1",
+        "cited_by": 509,
+        "cites": 6
+      },
+      {
+        "appno": "31107/96",
+        "title": "CASE OF IATRIDIS v. GREECE",
+        "year": 1999,
+        "state": "Greece",
+        "article": "13",
+        "cited_by": 500,
+        "cites": 12
+      },
+      {
+        "appno": "25444/94",
+        "title": "CASE OF PÉLISSIER AND SASSI v. FRANCE",
+        "year": 1999,
+        "state": "France",
+        "article": "6-1",
+        "cited_by": 497,
+        "cites": 14
+      },
+      {
+        "appno": "5310/71",
+        "title": "CASE OF IRELAND v. THE UNITED KINGDOM",
+        "year": 1978,
+        "state": "United Kingdom",
+        "article": "3",
+        "cited_by": 449,
+        "cites": 21
+      },
+      {
+        "appno": "30544/96",
+        "title": "CASE OF GARCÍA RUIZ v. SPAIN",
+        "year": 1999,
+        "state": "Spain",
+        "article": "",
+        "cited_by": 410,
+        "cites": 6
+      },
+      {
+        "appno": "47095/99",
+        "title": "CASE OF KALASHNIKOV v. RUSSIA",
+        "year": 2002,
+        "state": "Russia",
+        "article": "5-3",
+        "cited_by": 382,
+        "cites": 13
+      },
+      {
+        "appno": "31195/96",
+        "title": "CASE OF NIKOLOVA v. BULGARIA",
+        "year": 1999,
+        "state": "Bulgaria",
+        "article": "5-3",
+        "cited_by": 370,
+        "cites": 19
+      },
+      {
+        "appno": "22978/05",
+        "title": "CASE OF GÄFGEN v. GERMANY",
+        "year": 2008,
+        "state": "Germany",
+        "article": "3",
+        "cited_by": 366,
+        "cites": 67
+      },
+      {
+        "appno": "23763/94",
+        "title": "CASE OF TANRIKULU v. TURKEY",
+        "year": 1999,
+        "state": "Türkiye",
+        "article": "25-1",
+        "cited_by": 366,
+        "cites": 8
+      },
+      {
+        "appno": "543/03",
+        "title": "CASE OF McKAY v. THE UNITED KINGDOM",
+        "year": 2006,
+        "state": "United Kingdom",
+        "article": "",
+        "cited_by": 362,
+        "cites": 19
+      },
+      {
+        "appno": "28342/95",
+        "title": "CASE OF BRUMARESCU v. ROMANIA",
+        "year": 1999,
+        "state": "Romania",
+        "article": "6-1",
+        "cited_by": 353,
+        "cites": 5
+      },
+      {
+        "appno": "31443/96",
+        "title": "BRONIOWSKI v. POLAND",
+        "year": 2002,
+        "state": "Poland",
+        "article": "",
+        "cited_by": 338,
+        "cites": 3
+      },
+      {
+        "appno": "37685/10",
+        "title": "CASE OF RADOMILJA AND OTHERS v. CROATIA",
+        "year": 2016,
+        "state": "Croatia",
+        "article": "1",
+        "cited_by": 335,
+        "cites": 43
+      },
+      {
+        "appno": "46477/99",
+        "title": "CASE OF PAUL AND AUDREY EDWARDS v. THE UNITED KINGDOM",
+        "year": 2002,
+        "state": "United Kingdom",
+        "article": "13",
+        "cited_by": 328,
+        "cites": 19
+      },
+      {
+        "appno": "22774/93",
+        "title": "CASE OF IMMOBILIARE SAFFI v. ITALY",
+        "year": 1999,
+        "state": "Italy",
+        "article": "6-1",
+        "cited_by": 319,
+        "cites": 12
+      },
+      {
+        "appno": "46221/99",
+        "title": "CASE OF ÖCALAN v. TURKEY",
+        "year": 2003,
+        "state": "Türkiye",
+        "article": "3",
+        "cited_by": 318,
+        "cites": 65
+      },
+      {
+        "appno": "33977/96",
+        "title": "CASE OF ILIJKOV v. BULGARIA",
+        "year": 2001,
+        "state": "Bulgaria",
+        "article": "5-3",
+        "cited_by": 316,
+        "cites": 8
+      },
+      {
+        "appno": "21987/93",
+        "title": "CASE OF AKSOY v. TURKEY",
+        "year": 1996,
+        "state": "Türkiye",
+        "article": "5-3",
+        "cited_by": 312,
+        "cites": 9
+      },
+      {
+        "appno": "24760/94",
+        "title": "CASE OF ASSENOV AND OTHERS v. BULGARIA",
+        "year": 1998,
+        "state": "Bulgaria",
+        "article": "3",
+        "cited_by": 312,
+        "cites": 19
+      },
+      {
+        "appno": "33202/96",
+        "title": "CASE OF BEYELER v. ITALY",
+        "year": 2000,
+        "state": "Italy",
+        "article": "P1-1",
+        "cited_by": 308,
+        "cites": 9
+      },
+      {
+        "appno": "25656/94",
+        "title": "CASE OF ORHAN v. TURKEY",
+        "year": 2002,
+        "state": "Türkiye",
+        "article": "3",
+        "cited_by": 306,
+        "cites": 24
+      },
+      {
+        "appno": "25657/94",
+        "title": "CASE OF AVSAR v. TURKEY",
+        "year": 2001,
+        "state": "Türkiye",
+        "article": "13",
+        "cited_by": 302,
+        "cites": 15
+      },
+      {
+        "appno": "48939/99",
+        "title": "CASE OF ÖNERYILDIZ v. TURKEY",
+        "year": 2002,
+        "state": "Türkiye",
+        "article": "2-1",
+        "cited_by": 294,
+        "cites": 49
+      },
+      {
+        "appno": "56581/00",
+        "title": "CASE OF SEJDOVIC v. ITALY",
+        "year": 2004,
+        "state": "Italy",
+        "article": "6",
+        "cited_by": 293,
+        "cites": 27
+      }
+    ],
+    "in_degree_histogram": [
+      [
+        "1",
+        1606
+      ],
+      [
+        "2",
+        1100
+      ],
+      [
+        "3-4",
+        1535
+      ],
+      [
+        "5-9",
+        1893
+      ],
+      [
+        "10-19",
+        1405
+      ],
+      [
+        "20-49",
+        1026
+      ],
+      [
+        "50-99",
+        401
+      ],
+      [
+        "100-199",
+        184
+      ],
+      [
+        "200-499",
+        64
+      ],
+      [
+        "500-999",
+        5
+      ],
+      [
+        "1000-1622",
+        3
+      ]
+    ],
+    "citation_age_histogram": [
+      [
+        "0yr",
+        9148
+      ],
+      [
+        "1yr",
+        13094
+      ],
+      [
+        "2yr",
+        13437
+      ],
+      [
+        "3-4yr",
+        23893
+      ],
+      [
+        "5-7yr",
+        28991
+      ],
+      [
+        "8-9yr",
+        15657
+      ],
+      [
+        "10-14yr",
+        24643
+      ],
+      [
+        "15-19yr",
+        11493
+      ],
+      [
+        "20-29yr",
+        7366
+      ],
+      [
+        "30-49yr",
+        2716
+      ],
+      [
+        "50-99yr",
+        47
+      ]
+    ],
+    "citations_by_decade": [
+      [
+        "1960s",
+        7,
+        1.1,
+        48.7,
+        8,
+        341
+      ],
+      [
+        "1970s",
+        20,
+        5.7,
+        123.0,
+        114,
+        2461
+      ],
+      [
+        "1980s",
+        134,
+        6.5,
+        46.6,
+        876,
+        6244
+      ],
+      [
+        "1990s",
+        708,
+        4.9,
+        33.2,
+        3437,
+        23511
+      ],
+      [
+        "2000s",
+        5747,
+        7.7,
+        13.7,
+        44113,
+        78861
+      ],
+      [
+        "2010s",
+        4742,
+        16.2,
+        7.7,
+        76893,
+        36714
+      ],
+      [
+        "2020s",
+        1524,
+        16.9,
+        2.0,
+        25800,
+        3109
+      ]
+    ],
+    "cross_article_heatmap": {
+      "articles": [
+        "6-1",
+        "6",
+        "3",
+        "13",
+        "8",
+        "5",
+        "1",
+        "5-1",
+        "2",
+        "5-3",
+        "10",
+        "5-4"
+      ],
+      "matrix": [
+        [
+          12275,
+          1699,
+          1777,
+          2694,
+          1454,
+          381,
+          373,
+          842,
+          312,
+          2261,
+          706,
+          1158
+        ],
+        [
+          10194,
+          5567,
+          3691,
+          3287,
+          2214,
+          1440,
+          1040,
+          1774,
+          722,
+          2213,
+          1087,
+          1599
+        ],
+        [
+          5220,
+          2068,
+          20119,
+          10484,
+          4814,
+          5055,
+          553,
+          6235,
+          6901,
+          5926,
+          519,
+          4850
+        ],
+        [
+          5014,
+          1294,
+          7528,
+          8458,
+          2617,
+          3154,
+          598,
+          2714,
+          5161,
+          2293,
+          385,
+          1608
+        ],
+        [
+          2755,
+          1381,
+          3226,
+          2946,
+          7495,
+          1195,
+          477,
+          1324,
+          1145,
+          1711,
+          799,
+          1293
+        ],
+        [
+          3215,
+          1678,
+          8554,
+          5794,
+          2755,
+          5338,
+          407,
+          6266,
+          4335,
+          5056,
+          627,
+          5048
+        ],
+        [
+          2395,
+          1242,
+          737,
+          1317,
+          739,
+          430,
+          1528,
+          366,
+          480,
+          254,
+          250,
+          238
+        ],
+        [
+          2318,
+          1325,
+          6000,
+          3644,
+          1926,
+          3422,
+          279,
+          5468,
+          2210,
+          3128,
+          550,
+          4295
+        ],
+        [
+          901,
+          497,
+          5779,
+          6235,
+          1341,
+          3187,
+          389,
+          2138,
+          8926,
+          576,
+          192,
+          461
+        ],
+        [
+          3239,
+          865,
+          3505,
+          1504,
+          1656,
+          1453,
+          93,
+          2494,
+          417,
+          5623,
+          284,
+          3454
+        ],
+        [
+          1282,
+          710,
+          483,
+          522,
+          690,
+          446,
+          149,
+          478,
+          162,
+          331,
+          4864,
+          276
+        ],
+        [
+          2122,
+          688,
+          3579,
+          1656,
+          1295,
+          1465,
+          95,
+          3060,
+          347,
+          3327,
+          218,
+          4546
+        ]
+      ]
+    },
+    "self_citation_rates": [
+      [
+        "Türkiye",
+        43.7,
+        5398,
+        12366
+      ],
+      [
+        "Russia",
+        42.1,
+        13828,
+        32862
+      ],
+      [
+        "United Kingdom",
+        39.4,
+        1822,
+        4624
+      ],
+      [
+        "Poland",
+        39.0,
+        3566,
+        9143
+      ],
+      [
+        "Ukraine",
+        35.2,
+        3622,
+        10303
+      ],
+      [
+        "Republic of Moldova",
+        26.9,
+        869,
+        3229
+      ],
+      [
+        "Bulgaria",
+        26.1,
+        1692,
+        6474
+      ],
+      [
+        "Slovakia",
+        25.8,
+        651,
+        2524
+      ],
+      [
+        "Austria",
+        25.4,
+        719,
+        2827
+      ],
+      [
+        "Italy",
+        25.1,
+        989,
+        3947
+      ],
+      [
+        "Slovenia",
+        25.0,
+        619,
+        2478
+      ],
+      [
+        "North Macedonia",
+        21.5,
+        446,
+        2072
+      ],
+      [
+        "France",
+        21.1,
+        511,
+        2423
+      ],
+      [
+        "Sweden",
+        19.8,
+        221,
+        1114
+      ],
+      [
+        "Germany",
+        19.5,
+        650,
+        3326
+      ],
+      [
+        "Malta",
+        18.9,
+        423,
+        2240
+      ],
+      [
+        "Croatia",
+        18.7,
+        1117,
+        5979
+      ],
+      [
+        "Azerbaijan",
+        18.6,
+        606,
+        3264
+      ],
+      [
+        "Romania",
+        17.2,
+        857,
+        4986
+      ],
+      [
+        "Republic of Moldova, Russia",
+        16.2,
+        42,
+        260
+      ]
+    ],
+    "cross_state_most_cited": [
+      [
+        "United Kingdom",
+        12821
+      ],
+      [
+        "Türkiye",
+        9759
+      ],
+      [
+        "France",
+        8978
+      ],
+      [
+        "Italy",
+        7104
+      ],
+      [
+        "Russia",
+        7103
+      ],
+      [
+        "Poland",
+        5162
+      ],
+      [
+        "Bulgaria",
+        4800
+      ],
+      [
+        "Germany",
+        4484
+      ],
+      [
+        "Austria",
+        3706
+      ],
+      [
+        "Greece",
+        3036
+      ],
+      [
+        "Romania",
+        3015
+      ],
+      [
+        "Croatia",
+        2759
+      ],
+      [
+        "Switzerland",
+        2752
+      ],
+      [
+        "Belgium",
+        2575
+      ],
+      [
+        "Netherlands",
+        2532
+      ]
+    ],
+    "pagerank_ranking": [
+      {
+        "appno": "332/57",
+        "title": "CASE OF LAWLESS v. IRELAND (No. 1)",
+        "year": 1960,
+        "state": "Ireland",
+        "article": "",
+        "pagerank": 28359.06,
+        "cited_by": 42,
+        "rank_by_citations": 790
+      },
+      {
+        "appno": "4451/70",
+        "title": "CASE OF GOLDER v. THE UNITED KINGDOM",
+        "year": 1975,
+        "state": "United Kingdom",
+        "article": "8",
+        "pagerank": 17271.63,
+        "cited_by": 232,
+        "rank_by_citations": 50
+      },
+      {
+        "appno": "1936/63",
+        "title": "CASE OF NEUMEISTER v. AUSTRIA",
+        "year": 1968,
+        "state": "Austria",
+        "article": "5-3",
+        "pagerank": 14968.1,
+        "cited_by": 120,
+        "rank_by_citations": 194
+      },
+      {
+        "appno": "2832/66",
+        "title": "CASE OF DE WILDE, OOMS AND VERSYP v. BELGIUM",
+        "year": 1970,
+        "state": "Belgium",
+        "article": "",
+        "pagerank": 14661.07,
+        "cited_by": 187,
+        "rank_by_citations": 86
+      },
+      {
+        "appno": "214/56",
+        "title": "CASE OF DE BECKER v. BELGIUM",
+        "year": 1962,
+        "state": "Belgium",
+        "article": "",
+        "pagerank": 12470.15,
+        "cited_by": 16,
+        "rank_by_citations": 1973
+      },
+      {
+        "appno": "2122/64",
+        "title": "CASE OF WEMHOFF v. GERMANY",
+        "year": 1968,
+        "state": "Germany",
+        "article": "",
+        "pagerank": 12143.46,
+        "cited_by": 85,
+        "rank_by_citations": 336
+      },
+      {
+        "appno": "5310/71",
+        "title": "CASE OF IRELAND v. THE UNITED KINGDOM",
+        "year": 1978,
+        "state": "United Kingdom",
+        "article": "3",
+        "pagerank": 11643.42,
+        "cited_by": 449,
+        "rank_by_citations": 10
+      },
+      {
+        "appno": "2614/65",
+        "title": "CASE OF RINGEISEN v. AUSTRIA",
+        "year": 1971,
+        "state": "Austria",
+        "article": "5-3",
+        "pagerank": 9755.53,
+        "cited_by": 95,
+        "rank_by_citations": 279
+      },
+      {
+        "appno": "30979/96",
+        "title": "CASE OF FRYDLENDER v. FRANCE",
+        "year": 2000,
+        "state": "France",
+        "article": "6-1",
+        "pagerank": 9152.17,
+        "cited_by": 1490,
+        "rank_by_citations": 2
+      },
+      {
+        "appno": "2689/65",
+        "title": "CASE OF DELCOURT v. BELGIUM",
+        "year": 1970,
+        "state": "Belgium",
+        "article": "",
+        "pagerank": 7413.89,
+        "cited_by": 87,
+        "rank_by_citations": 318
+      },
+      {
+        "appno": "5493/72",
+        "title": "CASE OF HANDYSIDE v. THE UNITED KINGDOM",
+        "year": 1976,
+        "state": "United Kingdom",
+        "article": "",
+        "pagerank": 7128.01,
+        "cited_by": 192,
+        "rank_by_citations": 77
+      },
+      {
+        "appno": "6232/73",
+        "title": "CASE OF KÖNIG v. GERMANY",
+        "year": 1978,
+        "state": "Germany",
+        "article": "6-1",
+        "pagerank": 6370.19,
+        "cited_by": 101,
+        "rank_by_citations": 249
+      },
+      {
+        "appno": "2178/64",
+        "title": "CASE OF MATZNETTER v. AUSTRIA",
+        "year": 1969,
+        "state": "Austria",
+        "article": "",
+        "pagerank": 6033.29,
+        "cited_by": 24,
+        "rank_by_citations": 1386
+      },
+      {
+        "appno": "6289/73",
+        "title": "CASE OF AIREY v. IRELAND",
+        "year": 1979,
+        "state": "Ireland",
+        "article": "8",
+        "pagerank": 5478.11,
+        "cited_by": 165,
+        "rank_by_citations": 115
+      },
+      {
+        "appno": "7367/76",
+        "title": "CASE OF GUZZARDI v. ITALY",
+        "year": 1980,
+        "state": "Italy",
+        "article": "5",
+        "pagerank": 5308.6,
+        "cited_by": 130,
+        "rank_by_citations": 171
+      },
+      {
+        "appno": "6833/74",
+        "title": "CASE OF MARCKX v. BELGIUM",
+        "year": 1979,
+        "state": "Belgium",
+        "article": "14",
+        "pagerank": 5295.56,
+        "cited_by": 147,
+        "rank_by_citations": 144
+      },
+      {
+        "appno": "5029/71",
+        "title": "CASE OF KLASS AND OTHERS v. GERMANY",
+        "year": 1978,
+        "state": "Germany",
+        "article": "",
+        "pagerank": 5268.07,
+        "cited_by": 114,
+        "rank_by_citations": 206
+      },
+      {
+        "appno": "6694/74",
+        "title": "CASE OF ARTICO v. ITALY",
+        "year": 1980,
+        "state": "Italy",
+        "article": "6-3",
+        "pagerank": 4993.91,
+        "cited_by": 146,
+        "rank_by_citations": 146
+      },
+      {
+        "appno": "30210/96",
+        "title": "CASE OF KUDLA v. POLAND",
+        "year": 2000,
+        "state": "Poland",
+        "article": "5-3",
+        "pagerank": 4981.54,
+        "cited_by": 1622,
+        "rank_by_citations": 1
+      },
+      {
+        "appno": "6903/75",
+        "title": "CASE OF DEWEER v. BELGIUM",
+        "year": 1980,
+        "state": "Belgium",
+        "article": "6-1",
+        "pagerank": 4925.69,
+        "cited_by": 95,
+        "rank_by_citations": 280
+      },
+      {
+        "appno": "7151/75",
+        "title": "CASE OF SPORRONG AND LÖNNROTH v. SWEDEN",
+        "year": 1982,
+        "state": "Sweden",
+        "article": "1",
+        "pagerank": 4868.49,
+        "cited_by": 189,
+        "rank_by_citations": 84
+      },
+      {
+        "appno": "1602/62",
+        "title": "CASE OF STÖGMÜLLER v. AUSTRIA",
+        "year": 1969,
+        "state": "Austria",
+        "article": "5-3",
+        "pagerank": 4390.6,
+        "cited_by": 47,
+        "rank_by_citations": 689
+      },
+      {
+        "appno": "8793/79",
+        "title": "CASE OF JAMES AND OTHERS v. THE UNITED KINGDOM",
+        "year": 1986,
+        "state": "United Kingdom",
+        "article": "",
+        "pagerank": 4007.54,
+        "cited_by": 207,
+        "rank_by_citations": 61
+      },
+      {
+        "appno": "4464/70",
+        "title": "CASE OF NATIONAL UNION OF BELGIAN POLICE v. BELGIUM",
+        "year": 1975,
+        "state": "Belgium",
+        "article": "",
+        "pagerank": 3906.33,
+        "cited_by": 28,
+        "rank_by_citations": 1201
+      },
+      {
+        "appno": "11761/85",
+        "title": "CASE OF OBERMEIER v. AUSTRIA",
+        "year": 1990,
+        "state": "Austria",
+        "article": "6-1",
+        "pagerank": 3899.01,
+        "cited_by": 62,
+        "rank_by_citations": 513
+      }
+    ],
+    "betweenness_ranking": [
+      {
+        "appno": "5310/71",
+        "title": "CASE OF IRELAND v. THE UNITED KINGDOM",
+        "year": 1978,
+        "betweenness": 226719.5,
+        "cited_by": 449
+      },
+      {
+        "appno": "39630/09",
+        "title": "CASE OF EL-MASRI v. \"THE FORMER YUGOSLAV REPUBLIC OF MACEDONIA\"",
+        "year": 2012,
+        "betweenness": 133060.18,
+        "cited_by": 224
+      },
+      {
+        "appno": "32457/04",
+        "title": "CASE OF BRECKNELL v. THE UNITED KINGDOM",
+        "year": 2007,
+        "betweenness": 113133.99,
+        "cited_by": 52
+      },
+      {
+        "appno": "22077/19",
+        "title": "CASE OF GREEN v. THE UNITED KINGDOM",
+        "year": 2025,
+        "betweenness": 113044.89,
+        "cited_by": 1
+      },
+      {
+        "appno": "16064/90",
+        "title": "CASE OF VARNAVA AND OTHERS v. TURKEY",
+        "year": 2008,
+        "betweenness": 90786.92,
+        "cited_by": 204
+      },
+      {
+        "appno": "14139/21",
+        "title": "CASE OF NARBUTAS v. LITHUANIA",
+        "year": 2023,
+        "betweenness": 83817.98,
+        "cited_by": 2
+      },
+      {
+        "appno": "22978/05",
+        "title": "CASE OF GÄFGEN v. GERMANY",
+        "year": 2008,
+        "betweenness": 75359.77,
+        "cited_by": 366
+      },
+      {
+        "appno": "11236/09",
+        "title": "CASE OF ALTAY v. TURKEY (No. 2)",
+        "year": 2019,
+        "betweenness": 70994.3,
+        "cited_by": 12
+      },
+      {
+        "appno": "28490/95",
+        "title": "CASE OF HULKİ GÜNEŞ v. TURKEY [Extracts]",
+        "year": 2003,
+        "betweenness": 62803.55,
+        "cited_by": 10
+      },
+      {
+        "appno": "14319/17",
+        "title": "CASE OF X v. THE NETHERLANDS",
+        "year": 2018,
+        "betweenness": 60100.35,
+        "cited_by": 6
+      },
+      {
+        "appno": "43611/11",
+        "title": "CASE OF F.G. v. SWEDEN",
+        "year": 2014,
+        "betweenness": 37497.03,
+        "cited_by": 50
+      },
+      {
+        "appno": "11209/84",
+        "title": "CASE OF BROGAN AND OTHERS v. THE UNITED KINGDOM",
+        "year": 1988,
+        "betweenness": 36199.96,
+        "cited_by": 133
+      },
+      {
+        "appno": "14594/07",
+        "title": "CASE OF BERDZENISHVILI AND OTHERS v. RUSSIA",
+        "year": 2016,
+        "betweenness": 30368.45,
+        "cited_by": 21
+      },
+      {
+        "appno": "9990/82",
+        "title": "CASE OF BOZANO v. FRANCE",
+        "year": 1986,
+        "betweenness": 24820.9,
+        "cited_by": 77
+      },
+      {
+        "appno": "31195/96",
+        "title": "CASE OF NIKOLOVA v. BULGARIA",
+        "year": 1999,
+        "betweenness": 21709.4,
+        "cited_by": 370
+      }
+    ]
   }
 }

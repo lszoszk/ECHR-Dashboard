@@ -1053,6 +1053,247 @@ async function loadDashboard() {
     ].join("");
   }
 
+  // ── Citation Network Analytics ──────────────────────────────────────────
+  const citNet = data.citation_network || {};
+  const citSummary = citNet.summary || {};
+
+  // — Landmark Cases —
+  const landmarkCases = citNet.landmark_cases || [];
+  const landmarkKpiEl = document.getElementById("landmarkKpis");
+  if (landmarkKpiEl && citSummary.total_nodes) {
+    landmarkKpiEl.innerHTML = [
+      makeKpi("Network Nodes", fmtInt.format(citSummary.total_nodes), "cases in graph"),
+      makeKpi("Directed Edges", fmtInt.format(citSummary.total_edges), "citation links"),
+      makeKpi("Top Landmark", landmarkCases.length ? landmarkCases[0].title.replace("CASE OF ", "") : "-",
+        landmarkCases.length ? `${fmtInt.format(landmarkCases[0].cited_by)} citations` : ""),
+      makeKpi("Avg Forward Cites", citSummary.avg_forward_citations || "-", `median ${citSummary.median_forward || "-"}`),
+    ].join("");
+  }
+
+  if (landmarkCases.length) {
+    const lcData = landmarkCases.slice(0, 25);
+    createBarChart(
+      document.getElementById("landmarkCasesChart"),
+      lcData.map((d) => truncateLabel(d.title.replace("CASE OF ", ""), 45)),
+      lcData.map((d) => d.cited_by),
+      { horizontal: true, colors: ["#245ea8"] }
+    );
+
+    // Landmark table
+    const ltEl = document.getElementById("landmarkTable");
+    if (ltEl) {
+      const hdr = "<tr><th>#</th><th>Case</th><th>Year</th><th>State</th><th>Article</th><th>Cited By</th><th>Cites</th></tr>";
+      const rows = landmarkCases.map((c, i) =>
+        `<tr><td>${i + 1}</td><td>${c.title.replace("CASE OF ", "")}</td><td>${c.year}</td><td>${c.state}</td><td>${c.article || "-"}</td><td>${fmtInt.format(c.cited_by)}</td><td>${c.cites}</td></tr>`
+      ).join("");
+      ltEl.innerHTML = `<table class="compare-summary-table"><thead>${hdr}</thead><tbody>${rows}</tbody></table>`;
+    }
+  }
+
+  // — Citation Distribution —
+  const inDegreeHist = citNet.in_degree_histogram || [];
+  const citDistKpiEl = document.getElementById("citDistKpis");
+  if (citDistKpiEl && citSummary.gini_coefficient != null) {
+    citDistKpiEl.innerHTML = [
+      makeKpi("Gini Coefficient", citSummary.gini_coefficient.toFixed(4), "0 = equal, 1 = max concentration"),
+      makeKpi("Top 5% → Citations", `${citSummary.pct_cases_for_50pct_citations}%`, "of cases hold 50% of citations"),
+      makeKpi("Top 18% → Citations", `${citSummary.pct_cases_for_80pct_citations}%`, "of cases hold 80% of citations"),
+      makeKpi("Max In-Degree", fmtInt.format(citSummary.max_backward), "citations to single case"),
+    ].join("");
+  }
+
+  if (inDegreeHist.length) {
+    createBarChart(
+      document.getElementById("citationDistChart"),
+      inDegreeHist.map((d) => d[0] + " citations"),
+      inDegreeHist.map((d) => d[1]),
+      { colors: ["#6c5db5"] }
+    );
+  }
+
+  // — Citation Age —
+  const citAgeHist = citNet.citation_age_histogram || [];
+  const citsByDecade = citNet.citations_by_decade || [];
+  const citAgeKpiEl = document.getElementById("citAgeKpis");
+  if (citAgeKpiEl && citSummary.mean_citation_age_years != null) {
+    citAgeKpiEl.innerHTML = [
+      makeKpi("Mean Citation Age", `${citSummary.mean_citation_age_years} yr`, "gap between citing & cited"),
+      makeKpi("Median Citation Age", `${citSummary.median_citation_age_years} yr`),
+      makeKpi("Self-Citation Rate", `${citSummary.self_citation_rate_overall}%`, "same-state citations"),
+    ].join("");
+  }
+
+  if (citAgeHist.length) {
+    createBarChart(
+      document.getElementById("citationAgeChart"),
+      citAgeHist.map((d) => d[0]),
+      citAgeHist.map((d) => d[1]),
+      { colors: ["#3d95a8"] }
+    );
+  }
+
+  if (citsByDecade.length) {
+    // citations_by_decade: [decade, cases, avg_fwd, avg_bwd, total_fwd, total_bwd]
+    createGroupedBarChart(
+      document.getElementById("citationDecadeChart"),
+      citsByDecade.map((d) => d[0]),
+      [
+        {
+          label: "Avg forward citations",
+          data: citsByDecade.map((d) => d[2]),
+          backgroundColor: "#245ea8CC",
+          borderColor: "#245ea8",
+          borderWidth: 1,
+          borderRadius: 5,
+        },
+        {
+          label: "Avg backward citations",
+          data: citsByDecade.map((d) => d[3]),
+          backgroundColor: "#b03e45CC",
+          borderColor: "#b03e45",
+          borderWidth: 1,
+          borderRadius: 5,
+        },
+      ]
+    );
+  }
+
+  // — Cross-Article Heatmap —
+  const heatmap = citNet.cross_article_heatmap || {};
+  const heatmapCtx = document.getElementById("citationHeatmapChart");
+  if (heatmapCtx && heatmap.articles && heatmap.matrix) {
+    const articles = heatmap.articles.map((a) => `Art. ${a}`);
+    const matrix = heatmap.matrix;
+    // Flatten to find max for color scaling
+    const allVals = matrix.flat().filter((v) => v > 0);
+    const maxVal = Math.max(...allVals, 1);
+
+    // Build bubble-style scatter data
+    const scatterData = [];
+    for (let r = 0; r < matrix.length; r++) {
+      for (let c = 0; c < matrix[r].length; c++) {
+        if (matrix[r][c] > 0) {
+          scatterData.push({ x: c, y: r, v: matrix[r][c] });
+        }
+      }
+    }
+
+    new Chart(heatmapCtx, {
+      type: "bubble",
+      data: {
+        datasets: [{
+          data: scatterData.map((d) => ({
+            x: d.x,
+            y: d.y,
+            r: Math.max(3, Math.sqrt(d.v / maxVal) * 28),
+          })),
+          backgroundColor: scatterData.map((d) => {
+            const intensity = Math.min(d.v / maxVal, 1);
+            const r = Math.round(36 + (180 - 36) * (1 - intensity));
+            const g = Math.round(94 + (180 - 94) * (1 - intensity));
+            const b = Math.round(168 + (180 - 168) * (1 - intensity));
+            return `rgba(${r},${g},${b},0.8)`;
+          }),
+          borderColor: "#24508899",
+          borderWidth: 1,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            type: "linear",
+            min: -0.5,
+            max: articles.length - 0.5,
+            ticks: {
+              stepSize: 1,
+              callback: (val) => articles[val] || "",
+            },
+            title: { display: true, text: "Cited article" },
+          },
+          y: {
+            type: "linear",
+            min: -0.5,
+            max: articles.length - 0.5,
+            ticks: {
+              stepSize: 1,
+              callback: (val) => articles[val] || "",
+            },
+            title: { display: true, text: "Citing article" },
+            reverse: true,
+          },
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => {
+                const idx = ctx.dataIndex;
+                const d = scatterData[idx];
+                return `${articles[d.y]} → ${articles[d.x]}: ${fmtInt.format(d.v)} citations`;
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  // — Cross-State Influence —
+  const crossStateCited = citNet.cross_state_most_cited || [];
+  if (crossStateCited.length) {
+    createBarChart(
+      document.getElementById("crossStateCitedChart"),
+      crossStateCited.map((d) => d[0]),
+      crossStateCited.map((d) => d[1]),
+      { horizontal: true, colors: ["#245ea8"] }
+    );
+  }
+
+  const selfCitRates = citNet.self_citation_rates || [];
+  if (selfCitRates.length) {
+    // self_citation_rates: [state, rate%, self_cites, total_cites]
+    const scData = selfCitRates.slice(0, 15);
+    createBarChart(
+      document.getElementById("selfCitationChart"),
+      scData.map((d) => d[0]),
+      scData.map((d) => d[1]),
+      { horizontal: true, colors: ["#d97a2b"] }
+    );
+  }
+
+  // — PageRank & Betweenness —
+  const prRanking = citNet.pagerank_ranking || [];
+  if (prRanking.length) {
+    createBarChart(
+      document.getElementById("pagerankChart"),
+      prRanking.map((d) => truncateLabel(d.title.replace("CASE OF ", ""), 35)),
+      prRanking.map((d) => d.pagerank),
+      { horizontal: true, colors: ["#3c8d5a"] }
+    );
+  }
+
+  const bwRanking = citNet.betweenness_ranking || [];
+  if (bwRanking.length) {
+    createBarChart(
+      document.getElementById("betweennessChart"),
+      bwRanking.map((d) => truncateLabel(d.title.replace("CASE OF ", ""), 35)),
+      bwRanking.map((d) => d.betweenness),
+      { horizontal: true, colors: ["#8d4f78"] }
+    );
+  }
+
+  // PageRank comparison table
+  const prTableEl = document.getElementById("pagerankTable");
+  if (prTableEl && prRanking.length) {
+    const hdr = "<tr><th>#</th><th>Case</th><th>Year</th><th>State</th><th>PageRank</th><th>Cited By</th><th>Citation Rank</th></tr>";
+    const rows = prRanking.map((c, i) =>
+      `<tr><td>${i + 1}</td><td>${c.title.replace("CASE OF ", "")}</td><td>${c.year}</td><td>${c.state}</td><td>${c.pagerank.toLocaleString()}</td><td>${fmtInt.format(c.cited_by)}</td><td>#${c.rank_by_citations}</td></tr>`
+    ).join("");
+    prTableEl.innerHTML = `<details><summary style="cursor:pointer;font-weight:600;margin-bottom:8px;">PageRank vs Citation Rank — Full Table (click to expand)</summary><table class="compare-summary-table"><thead>${hdr}</thead><tbody>${rows}</tbody></table></details>`;
+  }
+
   // Build TOC
   const tocList = document.getElementById("tocList");
   const tocToggle = document.getElementById("tocToggle");

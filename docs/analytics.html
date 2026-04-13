@@ -115,6 +115,16 @@
             </div>
 
             <div class="sidebar-category">
+              <span class="sidebar-category-label">Citation Network</span>
+              <a class="sidebar-link" data-target="stats-citation-landmarks" href="#">Landmark Cases</a>
+              <a class="sidebar-link" data-target="stats-citation-distribution" href="#">Citation Distribution</a>
+              <a class="sidebar-link" data-target="stats-citation-age" href="#">Citation Age</a>
+              <a class="sidebar-link" data-target="stats-citation-heatmap" href="#">Cross-Article Citations</a>
+              <a class="sidebar-link" data-target="stats-citation-cross-state" href="#">Cross-State Influence</a>
+              <a class="sidebar-link" data-target="stats-citation-pagerank" href="#">Network Importance</a>
+            </div>
+
+            <div class="sidebar-category">
               <span class="sidebar-category-label">Case Characteristics</span>
               <a class="sidebar-link coming-soon" data-target="stats-duration" href="#">Case Duration</a>
               <a class="sidebar-link" data-target="stats-judgment-types" href="#">Judgment Types</a>
@@ -372,6 +382,98 @@
             </h2>
             <p class="chart-section-desc">Overview of how the Court handles just satisfaction (Article 41) claims. Shows the disposition of pecuniary damages, non-pecuniary damages, and costs and expenses claims across the entire corpus.</p>
             <div id="justSatisfactionKpis" class="kpi-row"></div>
+          </section>
+
+          <!-- Citation Network: Landmark Cases -->
+          <section class="chart-section" id="stats-citation-landmarks">
+            <h2 class="chart-section-title">Landmark Cases by Citation Count
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-citation-landmarks')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">The 30 most-cited cases in the ECHR citation network (by in-degree). These are the judgments most frequently relied upon by later decisions, representing the backbone of Strasbourg jurisprudence (Fowler et al. 2007).</p>
+            <div id="landmarkKpis" class="kpi-row"></div>
+            <div class="chart-canvas-wrap" style="height:700px;">
+              <canvas id="landmarkCasesChart"></canvas>
+            </div>
+            <div id="landmarkTable" class="state-outcome-wrap" style="margin-top:20px;"></div>
+          </section>
+
+          <!-- Citation Network: Citation Distribution -->
+          <section class="chart-section" id="stats-citation-distribution">
+            <h2 class="chart-section-title">Citation Distribution
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-citation-distribution')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Distribution of incoming citation counts across all cases. A high Gini coefficient indicates extreme citation concentration — a small fraction of landmark cases attract a disproportionate share of all citations (Leitão et al. 2019).</p>
+            <div id="citDistKpis" class="kpi-row"></div>
+            <div class="chart-canvas-wrap">
+              <canvas id="citationDistChart"></canvas>
+            </div>
+          </section>
+
+          <!-- Citation Network: Citation Age -->
+          <section class="chart-section" id="stats-citation-age">
+            <h2 class="chart-section-title">Citation Age Distribution
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-citation-age')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">How old are the precedents the Court cites? Shows the time gap (in years) between citing and cited judgments. A short average age suggests the Court favours recent authority; longer tails reveal enduring foundational precedents (Lupu &amp; Voeten 2012).</p>
+            <div id="citAgeKpis" class="kpi-row"></div>
+            <div class="chart-row">
+              <article class="chart-container" style="flex:1.3;">
+                <h3 class="chart-title">Citation Age (years between judgments)</h3>
+                <canvas id="citationAgeChart"></canvas>
+              </article>
+              <article class="chart-container" style="flex:1;">
+                <h3 class="chart-title">Citations by Decade of Cited Case</h3>
+                <canvas id="citationDecadeChart"></canvas>
+              </article>
+            </div>
+          </section>
+
+          <!-- Citation Network: Cross-Article Heatmap -->
+          <section class="chart-section" id="stats-citation-heatmap">
+            <h2 class="chart-section-title">Cross-Article Citation Heatmap
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-citation-heatmap')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">How often cases involving one Convention article cite cases involving another article. Strong off-diagonal values reveal "polymorph principles" — legal concepts that bridge multiple rights (Olsen &amp; Esmark 2019). Matrix shows the top 12 articles by caseload.</p>
+            <div class="chart-canvas-wrap" style="height:520px;">
+              <canvas id="citationHeatmapChart"></canvas>
+            </div>
+          </section>
+
+          <!-- Citation Network: Cross-State Influence -->
+          <section class="chart-section" id="stats-citation-cross-state">
+            <h2 class="chart-section-title">Cross-State Influence &amp; Self-Citation
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-citation-cross-state')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Which respondent states produce the most-cited case law? Self-citation rate measures how often the Court cites its own prior decisions against the same state — high rates suggest recurring systemic issues (Derlen &amp; Lindholm 2017).</p>
+            <div class="chart-row">
+              <article class="chart-container" style="flex:1;">
+                <h3 class="chart-title">Most-Cited States (total incoming citations)</h3>
+                <canvas id="crossStateCitedChart"></canvas>
+              </article>
+              <article class="chart-container" style="flex:1;">
+                <h3 class="chart-title">Self-Citation Rates by State</h3>
+                <canvas id="selfCitationChart"></canvas>
+              </article>
+            </div>
+          </section>
+
+          <!-- Citation Network: PageRank & Betweenness -->
+          <section class="chart-section" id="stats-citation-pagerank">
+            <h2 class="chart-section-title">Network Importance (PageRank &amp; Betweenness)
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-citation-pagerank')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">PageRank measures a case's authority by weighing citations from other highly-cited cases (Google-style recursive prestige). Betweenness centrality identifies cases that serve as "bridges" between different clusters of jurisprudence — gatekeepers of legal reasoning (Fowler et al. 2007).</p>
+            <div class="chart-row">
+              <article class="chart-container" style="flex:1;">
+                <h3 class="chart-title">Top 25 by PageRank</h3>
+                <canvas id="pagerankChart"></canvas>
+              </article>
+              <article class="chart-container" style="flex:1;">
+                <h3 class="chart-title">Top 15 by Betweenness Centrality</h3>
+                <canvas id="betweennessChart"></canvas>
+              </article>
+            </div>
+            <div id="pagerankTable" class="state-outcome-wrap" style="margin-top:20px;"></div>
           </section>
 
           <!-- ⑪ Case Duration (placeholder) -->
