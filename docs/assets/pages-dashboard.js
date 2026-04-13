@@ -252,7 +252,7 @@ async function loadDashboard() {
     makeKpi("Total Paragraphs", fmtInt.format(s.total_paragraphs || 0)),
     makeKpi(
       "Date Range",
-      (s.date_range_label || "-").replace(/(\d{1,2}) (\w{3}) (\d{4})/g, "$2 $3"),
+      (s.date_range_label || "-").replace(/(\d{1,2}) (\w{3}) (\d{4})/g, "$3"),
       `${fmtInt.format(s.dated_cases || 0)} dated · ${fmtInt.format(s.undated_cases || 0)} undated`
     ),
     makeKpi("Respondent States", fmtInt.format(s.unique_countries || 0)),
