@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About — ECHR Case Law Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
+  <meta name="description" content="About the ECHR Case Law Dashboard — authors, data sources, methodology, and acknowledgements.">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-F3XBX45HQC"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-F3XBX45HQC');
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/dashboard.css">
+  <link rel="stylesheet" href="assets/search-app.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
+  <style>
+    .about-content {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+    }
+    .about-section {
+      margin-bottom: 2.5rem;
+    }
+    .about-section h2 {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--border-color, #e2e8f0);
+    }
+    .about-section p,
+    .about-section li {
+      font-size: 1rem;
+      line-height: 1.75;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+    }
+    .about-section ul {
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .about-section li {
+      margin-bottom: 0.5rem;
+    }
+    .about-section a {
+      color: var(--link-color, #2c5282);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .about-section a:hover {
+      color: var(--link-hover-color, #1a365d);
+    }
+    .author-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+    .author-card {
+      background: var(--card-bg, #fff);
+      border: 1px solid var(--border-color, #e2e8f0);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .author-card h3 {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+    .author-card .author-role {
+      font-size: 0.9rem;
+      color: var(--text-muted, #718096);
+    }
+    .dataset-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.95rem;
+    }
+    .dataset-table th,
+    .dataset-table td {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-color, #e2e8f0);
+    }
+    .dataset-table th {
+      font-weight: 600;
+      color: var(--text-primary);
+      background: var(--table-header-bg, #f7fafc);
+    }
+    .dataset-table td {
+      color: var(--text-secondary);
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 0.15rem 0.55rem;
+      border-radius: 6px;
+      background: var(--badge-bg, #ebf4ff);
+      color: var(--badge-color, #2c5282);
+    }
+    .badge-primary { background: #ebf4ff; color: #2c5282; }
+    .badge-enrichment { background: #f0fff4; color: #276749; }
+
+    [data-theme="dark"] .author-card {
+      background: var(--card-bg, #1e2d3d);
+    }
+    [data-theme="dark"] .dataset-table th {
+      background: var(--table-header-bg, #1e2d3d);
+    }
+    [data-theme="dark"] .about-section a {
+      color: #63b3ed;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="./" class="nav-brand">
+        <span class="brand-icon">⚖️</span>
+        <span class="brand-text">ECHR Search</span>
+      </a>
+      <button class="nav-hamburger" id="navHamburger" type="button" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="nav-links">
+        <a href="./" class="nav-link">Search</a>
+        <a href="analytics.html" class="nav-link">Statistics</a>
+        <a href="about.html" class="nav-link active">About</a>
+      </div>
+      <button class="a11y-btn" id="accessibilityBtn" type="button" title="Accessibility settings (Alt+A)" aria-label="Accessibility settings">
+        <span class="a11y-icon">Aa</span>
+      </button>
+      <button class="theme-toggle" id="themeToggle" type="button" title="Toggle light/dark theme" aria-label="Toggle dark mode">
+        <span class="theme-icon-light">☀️</span>
+        <span class="theme-icon-dark">🌙</span>
+      </button>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <section class="hero">
+      <div class="hero-inner">
+        <h1 class="hero-title">About the Project</h1>
+        <p class="hero-subtitle">ECHR Case Law Dashboard &mdash; search, analytics, and open data for human rights research</p>
+      </div>
+    </section>
+
+    <div class="about-content">
+
+      <section class="about-section">
+        <h2>Authors</h2>
+        <div class="author-cards">
+          <div class="author-card">
+            <h3>Dr. Łukasz Szoszkiewicz</h3>
+            <p class="author-role">Co-author &amp; Lead Developer</p>
+          </div>
+          <div class="author-card">
+            <h3>Dr. Sebastian Marcisz</h3>
+            <p class="author-role">Co-author</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="about-section">
+        <h2>What Is This?</h2>
+        <p>
+          The ECHR Case Law Dashboard is a free, open-source tool for exploring
+          decisions of the European Court of Human Rights. It offers paragraph-level
+          full-text search across thousands of judgments, an interactive statistics
+          dashboard, and comparative country analysis &mdash; all running entirely in
+          the browser with no server required.
+        </p>
+        <p>
+          The project aims to make ECHR case law more accessible to researchers,
+          legal practitioners, students, and anyone interested in the protection of
+          human rights in Europe.
+        </p>
+      </section>
+
+      <section class="about-section">
+        <h2>Data Sources</h2>
+        <p>
+          The dataset is assembled from public ECHR sources and enriched with
+          structured citation-network data from the research community.
+        </p>
+        <table class="dataset-table">
+          <thead>
+            <tr>
+              <th>Source</th>
+              <th>Description</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <a href="https://hudoc.echr.coe.int" target="_blank" rel="noopener">
+                  HUDOC
+                </a>
+              </td>
+              <td>
+                Official database of the European Court of Human Rights. Primary
+                source for all judgments, metadata (respondent state, articles,
+                conclusions, importance, keywords, chamber composition), and
+                full-text paragraphs with section tags.
+              </td>
+              <td><span class="badge badge-primary">Primary</span></td>
+            </tr>
+            <tr>
+              <td>
+                <a href="https://huggingface.co/datasets/RashidHaddad/ECTHR-PCR" target="_blank" rel="noopener">
+                  ECTHR-PCR
+                </a>
+              </td>
+              <td>
+                Prior Case Retrieval dataset by Rashid Haddad et al.
+                (<a href="https://github.com/TUMLegalTech/ECHR-PCR" target="_blank" rel="noopener">TUM Legal Tech</a>).
+                Provides structured citation networks mapping each case to its cited
+                precedents (15,729 cases). Used to enrich the
+                <code>pcr_citations</code> and <code>pcr_cited_by</code> fields in
+                our dataset, enabling precedent-graph analysis that goes beyond the
+                free-text <code>strasbourg_caselaw</code> field from HUDOC.
+                <br>
+                <em>
+                  Reference: Haddad, R., Bayer, S. and Habernal, I. (2024).
+                  "ECHR-PCR: A Dataset for Precedent Understanding and Prior Case
+                  Retrieval in the European Court of Human Rights."
+                  <a href="https://aclanthology.org/2024.lrec-main.486/" target="_blank" rel="noopener">
+                    Proceedings of LREC-COLING 2024</a>.
+                </em>
+              </td>
+              <td><span class="badge badge-enrichment">Enrichment</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="about-section">
+        <h2>Dataset Fields</h2>
+        <p>Each case record contains the following structured data:</p>
+        <table class="dataset-table">
+          <thead>
+            <tr><th>Field</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>case_id</code></td><td>Unique HUDOC identifier (e.g. 001-57516)</td></tr>
+            <tr><td><code>case_no</code></td><td>Application number(s)</td></tr>
+            <tr><td><code>title</code></td><td>Full case name</td></tr>
+            <tr><td><code>judgment_date</code></td><td>Date of judgment</td></tr>
+            <tr><td><code>respondent_state</code></td><td>Respondent country</td></tr>
+            <tr><td><code>originating_body</code></td><td>Chamber, Grand Chamber, etc.</td></tr>
+            <tr><td><code>importance</code></td><td>Case importance level</td></tr>
+            <tr><td><code>article_no</code></td><td>Convention articles at issue</td></tr>
+            <tr><td><code>violation</code> / <code>non-violation</code></td><td>Articles found violated or not</td></tr>
+            <tr><td><code>conclusion</code></td><td>Operative conclusion text</td></tr>
+            <tr><td><code>separate_opinion</code></td><td>Whether the case includes a separate opinion</td></tr>
+            <tr><td><code>keywords</code></td><td>HUDOC subject keywords</td></tr>
+            <tr><td><code>chamber_composed_of</code></td><td>Names of judges</td></tr>
+            <tr><td><code>strasbourg_caselaw</code></td><td>Free-text citations to Strasbourg case law</td></tr>
+            <tr><td><code>paragraphs</code></td><td>Full text, section-tagged at paragraph level</td></tr>
+            <tr><td><code>pcr_citations</code></td><td>Structured precedent links (from ECTHR-PCR)</td></tr>
+            <tr><td><code>pcr_cited_by</code></td><td>Cases that cite this one (from ECTHR-PCR)</td></tr>
+            <tr><td><code>pcr_citation_count</code></td><td>Number of cited precedents</td></tr>
+            <tr><td><code>pcr_cited_by_count</code></td><td>Influence score (how often cited)</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="about-section">
+        <h2>Methodology</h2>
+        <p>
+          Judgments are sourced from HUDOC and parsed into paragraph-level records
+          with section tags (Facts, Legal Framework, Merits, etc.). Violation and
+          non-violation findings are extracted from the structured HUDOC metadata
+          where available and supplemented by text-based inference where metadata is
+          incomplete.
+        </p>
+        <p>
+          Citation-network enrichment uses the ECTHR-PCR dataset, joined on
+          application number (<code>case_no</code> / <code>appno</code>). Forward
+          links (what a case cites) and reverse links (what cites a case) are
+          computed to create a full precedent graph.
+        </p>
+        <p>
+          Press releases are identified by <code>document_type</code> and excluded
+          from all judgment-related statistics (case counts, violation rates, article
+          breakdowns, country rankings). They are tracked separately for
+          completeness.
+        </p>
+      </section>
+
+      <section class="about-section">
+        <h2>Open Source</h2>
+        <p>
+          The source code, build scripts, and dataset are available on GitHub:
+        </p>
+        <p>
+          <a href="https://github.com/lszoszk/ECHR-Dashboard" target="_blank" rel="noopener">
+            github.com/lszoszk/ECHR-Dashboard
+          </a>
+        </p>
+        <p>
+          Contributions, bug reports, and suggestions are welcome.
+        </p>
+      </section>
+
+      <section class="about-section">
+        <h2>Acknowledgements</h2>
+        <ul>
+          <li>
+            <strong>HUDOC</strong> &mdash; the European Court of Human Rights for
+            making case law publicly accessible.
+          </li>
+          <li>
+            <strong>ECTHR-PCR</strong> &mdash;
+            <a href="https://huggingface.co/datasets/RashidHaddad/ECTHR-PCR" target="_blank" rel="noopener">
+              Rashid Haddad, Sean Bayer, and Ivan Habernal (TUM Legal Tech)
+            </a>
+            for the structured citation-network dataset.
+          </li>
+          <li>
+            <strong>HURIDOCS</strong> &mdash; for inspiration and leadership in
+            human rights information management.
+          </li>
+        </ul>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <span>ECHR Case Law Dashboard</span>
+      <span class="footer-sep">&middot;</span>
+      <span>Data source: <a href="https://hudoc.echr.coe.int" target="_blank" rel="noopener">HUDOC</a></span>
+      <span class="footer-sep">&middot;</span>
+      <span>Built with open data</span>
+    </div>
+  </footer>
+
+  <script>
+    /* Theme toggle (mirrors index.html / analytics.html) */
+    (function () {
+      const html = document.documentElement;
+      const toggle = document.getElementById('themeToggle');
+      const stored = localStorage.getItem('theme');
+      if (stored) html.setAttribute('data-theme', stored);
+      else if (window.matchMedia('(prefers-color-scheme: dark)').matches) html.setAttribute('data-theme', 'dark');
+      if (toggle) toggle.addEventListener('click', function () {
+        const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+      });
+      /* Hamburger menu */
+      const hamburger = document.getElementById('navHamburger');
+      const navLinks = document.querySelector('.nav-links');
+      if (hamburger && navLinks) hamburger.addEventListener('click', function () {
+        const expanded = hamburger.getAttribute('aria-expanded') === 'true';
+        hamburger.setAttribute('aria-expanded', String(!expanded));
+        navLinks.classList.toggle('open');
+      });
+    })();
+  </script>
+</body>
+</html>
