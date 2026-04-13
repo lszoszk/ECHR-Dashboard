@@ -37,8 +37,14 @@ jobs:
             exit 1
           fi
 
+      - name: Install Python dependencies
+        run: pip install networkx
+
       - name: Build static dashboard data
         run: python scripts/build_pages_dashboard.py --input "$DATASET_PATH"
+
+      - name: Build citation network analytics
+        run: python scripts/build_citation_analytics.py --input "$DATASET_PATH" --stats docs/data/stats.json
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
