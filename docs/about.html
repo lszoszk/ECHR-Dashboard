@@ -272,10 +272,13 @@
             <tr><td><code>chamber_composed_of</code></td><td>Names of judges</td></tr>
             <tr><td><code>strasbourg_caselaw</code></td><td>Free-text citations to Strasbourg case law</td></tr>
             <tr><td><code>paragraphs</code></td><td>Full text, section-tagged at paragraph level</td></tr>
-            <tr><td><code>pcr_citations</code></td><td>Structured precedent links (from ECTHR-PCR)</td></tr>
+            <tr><td><code>pcr_citations</code></td><td>Structured precedent links (from ECTHR-PCR + self-resolved)</td></tr>
             <tr><td><code>pcr_cited_by</code></td><td>Cases that cite this one (from ECTHR-PCR)</td></tr>
             <tr><td><code>pcr_citation_count</code></td><td>Number of cited precedents</td></tr>
             <tr><td><code>pcr_cited_by_count</code></td><td>Influence score (how often cited)</td></tr>
+            <tr><td><code>resolved_citations</code></td><td>Self-resolved citations with appno, title, and original text</td></tr>
+            <tr><td><code>resolved_citation_count</code></td><td>Number of successfully resolved citations</td></tr>
+            <tr><td><code>resolution_rate</code></td><td>Fraction of free-text citations that were resolved</td></tr>
           </tbody>
         </table>
       </section>
@@ -290,11 +293,26 @@
           incomplete.
         </p>
         <p>
-          Citation-network enrichment uses the ECTHR-PCR dataset, joined on
-          application number (<code>case_no</code> / <code>appno</code>). Forward
-          links (what a case cites) and reverse links (what cites a case) are
-          computed to create a full precedent graph.
+          Citation-network enrichment uses a two-stage pipeline:
         </p>
+        <ul>
+          <li>
+            <strong>Stage 1 &mdash; ECTHR-PCR merge</strong>
+            (<code>scripts/merge_ecthr_pcr.py</code>):
+            joins the ECTHR-PCR dataset on application number, adding structured
+            forward and reverse citation links for 12,500+ cases.
+          </li>
+          <li>
+            <strong>Stage 2 &mdash; Self-resolution</strong>
+            (<code>scripts/resolve_citations.py</code>):
+            parses the free-text <code>strasbourg_caselaw</code> field to extract
+            case names and application numbers, then resolves them against a
+            lookup index built from the dataset itself. This extends citation
+            coverage to 760+ additional cases (mostly post-2022) not in ECTHR-PCR.
+            Validated against PCR ground truth: <strong>94% precision, 79% recall,
+            86% F1</strong>.
+          </li>
+        </ul>
         <p>
           Press releases are identified by <code>document_type</code> and excluded
           from all judgment-related statistics (case counts, violation rates, article
