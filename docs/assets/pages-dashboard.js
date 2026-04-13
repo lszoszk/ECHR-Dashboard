@@ -1182,6 +1182,7 @@ async function loadDashboard() {
       type: "bubble",
       data: {
         datasets: [{
+          label: "Cross-article citations",
           data: scatterData.map((d) => ({
             x: d.x,
             y: d.y,
@@ -1201,37 +1202,60 @@ async function loadDashboard() {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        layout: { padding: { left: 10, right: 20, top: 0, bottom: 10 } },
         scales: {
           x: {
             type: "linear",
-            min: -0.5,
-            max: articles.length - 0.5,
+            min: 0,
+            max: articles.length - 1,
+            position: "bottom",
             ticks: {
               stepSize: 1,
-              callback: (val) => articles[val] || "",
+              autoSkip: false,
+              callback: (val) => articles[Math.round(val)] || "",
+              font: { size: 11, weight: "bold" },
+              maxRotation: 45,
+              minRotation: 45,
             },
-            title: { display: true, text: "Cited article" },
+            title: { display: true, text: "Cited article (target)", font: { size: 13, weight: "600" }, padding: { top: 6 } },
+            grid: { color: "#e0e0e0", drawTicks: true },
           },
           y: {
             type: "linear",
-            min: -0.5,
-            max: articles.length - 0.5,
+            min: 0,
+            max: articles.length - 1,
             ticks: {
               stepSize: 1,
-              callback: (val) => articles[val] || "",
+              autoSkip: false,
+              callback: (val) => articles[Math.round(val)] || "",
+              font: { size: 11, weight: "bold" },
             },
-            title: { display: true, text: "Citing article" },
+            title: { display: true, text: "Citing article (source)", font: { size: 13, weight: "600" }, padding: { bottom: 6 } },
             reverse: true,
+            grid: { color: "#e0e0e0", drawTicks: true },
           },
         },
         plugins: {
           legend: { display: false },
+          title: {
+            display: true,
+            text: "Bubble size = citation volume between article pairs  •  Darker = more citations",
+            font: { size: 12, weight: "normal", style: "italic" },
+            padding: { bottom: 16 },
+            color: "#666",
+          },
           tooltip: {
             callbacks: {
+              title: () => "",
               label: (ctx) => {
                 const idx = ctx.dataIndex;
                 const d = scatterData[idx];
-                return `${articles[d.y]} → ${articles[d.x]}: ${fmtInt.format(d.v)} citations`;
+                const pct = ((d.v / citSummary.total_edges) * 100).toFixed(1);
+                return [
+                  `${articles[d.y]} → ${articles[d.x]}`,
+                  `${fmtInt.format(d.v)} citations (${pct}% of all edges)`,
+                  d.x === d.y ? "⬤ Same-article (diagonal)" : "◉ Cross-article",
+                ];
               },
             },
           },
