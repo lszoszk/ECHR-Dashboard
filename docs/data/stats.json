@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-13T14:35:44.669156+00:00",
+  "generated_at": "2026-04-13T15:02:08.534697+00:00",
   "source_file": "echr_cases_enriched_final.jsonl",
   "schema_version": "echr-dashboard-v2",
   "parser_version": "2.0.0",
@@ -8158,11 +8158,11 @@
               1
             ],
             [
-              "5-5",
+              "5-1",
               1
             ],
             [
-              "5-1",
+              "5-5",
               1
             ]
           ],
@@ -12222,11 +12222,11 @@
           },
           "top_violated_articles": [
             [
-              "5",
+              "3",
               9
             ],
             [
-              "3",
+              "5",
               9
             ],
             [
@@ -12922,15 +12922,15 @@
               2
             ],
             [
+              "5-1",
+              2
+            ],
+            [
               "6",
               2
             ],
             [
               "5",
-              2
-            ],
-            [
-              "5-1",
               2
             ],
             [
@@ -12946,11 +12946,11 @@
               1
             ],
             [
-              "1",
+              "8",
               1
             ],
             [
-              "8",
+              "1",
               1
             ]
           ],
@@ -13502,11 +13502,11 @@
               1
             ],
             [
-              "6",
+              "13",
               1
             ],
             [
-              "13",
+              "6",
               1
             ]
           ],
@@ -13715,6 +13715,1368 @@
       "conclusion": 1.0,
       "chamber_composed_of": 0.8552
     }
+  },
+  "thesaurus_analytics": {
+    "cases_with_thesaurus": 13239,
+    "unique_terms": 482,
+    "top_terms": [
+      [
+        "(Art. 6) Right to a fair trial",
+        6769
+      ],
+      [
+        "(Art. 41) Just satisfaction",
+        6157
+      ],
+      [
+        "(Art. 35) Admissibility criteria",
+        2728
+      ],
+      [
+        "(Art. 3) Prohibition of torture",
+        2262
+      ],
+      [
+        "(Art. 6-1) Reasonable time",
+        2226
+      ],
+      [
+        "(Art. P1-1) Protection of property",
+        2181
+      ],
+      [
+        "(Art. 5) Right to liberty and security",
+        2123
+      ],
+      [
+        "(Art. 6) Civil proceedings",
+        2096
+      ],
+      [
+        "(Art. 8) Right to respect for private and family life",
+        1972
+      ],
+      [
+        "(Art. 13) Right to an effective remedy",
+        1838
+      ],
+      [
+        "(Art. 41) Pecuniary damage",
+        1741
+      ],
+      [
+        "(Art. 41) Non-pecuniary damage – award",
+        1726
+      ],
+      [
+        "(Art. 6-1) Fair hearing",
+        1709
+      ],
+      [
+        "(Art. 41) Non-pecuniary damage",
+        1695
+      ],
+      [
+        "(Art. 6) Criminal proceedings",
+        1547
+      ],
+      [
+        "(Art. 35-1) Exhaustion of domestic remedies",
+        1398
+      ],
+      [
+        "(Art. 13) Effective remedy",
+        1287
+      ],
+      [
+        "(Art. 41) Costs and expenses",
+        1216
+      ],
+      [
+        "(Art. 3) Degrading treatment",
+        1211
+      ],
+      [
+        "(Art. 6-1) Access to court",
+        1170
+      ],
+      [
+        "(Art. P1-1-1) Peaceful enjoyment of possessions",
+        1128
+      ],
+      [
+        "(Art. 3) Inhuman treatment",
+        1120
+      ],
+      [
+        "(Art. 8-1) Respect for private life",
+        967
+      ],
+      [
+        "(Art. 10) Freedom of expression",
+        952
+      ],
+      [
+        "(Art. 2) Right to life",
+        893
+      ],
+      [
+        "(Art. 34) Individual applications",
+        890
+      ],
+      [
+        "(Art. 14) Prohibition of discrimination",
+        884
+      ],
+      [
+        "(Art. 5-1) Lawful arrest or detention",
+        773
+      ],
+      [
+        "(Art. 8-1) Respect for family life",
+        762
+      ],
+      [
+        "(Art. 10-1) Freedom of expression",
+        752
+      ]
+    ],
+    "top_cooccurrences": [
+      [
+        [
+          "(Art. 41) Just satisfaction",
+          "(Art. 6) Right to a fair trial"
+        ],
+        2104
+      ],
+      [
+        [
+          "(Art. 6) Right to a fair trial",
+          "(Art. 6-1) Reasonable time"
+        ],
+        2033
+      ],
+      [
+        [
+          "(Art. 6) Civil proceedings",
+          "(Art. 6) Right to a fair trial"
+        ],
+        2016
+      ],
+      [
+        [
+          "(Art. 6) Right to a fair trial",
+          "(Art. 6-1) Fair hearing"
+        ],
+        1526
+      ],
+      [
+        [
+          "(Art. 6) Criminal proceedings",
+          "(Art. 6) Right to a fair trial"
+        ],
+        1457
+      ],
+      [
+        [
+          "(Art. 41) Just satisfaction",
+          "(Art. 6-1) Reasonable time"
+        ],
+        1218
+      ],
+      [
+        [
+          "(Art. 6) Right to a fair trial",
+          "(Art. P1-1) Protection of property"
+        ],
+        1203
+      ],
+      [
+        [
+          "(Art. 3) Degrading treatment",
+          "(Art. 3) Prohibition of torture"
+        ],
+        1181
+      ],
+      [
+        [
+          "(Art. 35) Admissibility criteria",
+          "(Art. 35-1) Exhaustion of domestic remedies"
+        ],
+        1175
+      ],
+      [
+        [
+          "(Art. 6) Right to a fair trial",
+          "(Art. 6-1) Access to court"
+        ],
+        1104
+      ],
+      [
+        [
+          "(Art. 41) Just satisfaction",
+          "(Art. 6) Civil proceedings"
+        ],
+        1080
+      ],
+      [
+        [
+          "(Art. 3) Inhuman treatment",
+          "(Art. 3) Prohibition of torture"
+        ],
+        1072
+      ],
+      [
+        [
+          "(Art. 6) Civil proceedings",
+          "(Art. 6-1) Reasonable time"
+        ],
+        1054
+      ],
+      [
+        [
+          "(Art. P1-1) Protection of property",
+          "(Art. P1-1-1) Peaceful enjoyment of possessions"
+        ],
+        972
+      ],
+      [
+        [
+          "(Art. 35) Admissibility criteria",
+          "(Art. 6) Right to a fair trial"
+        ],
+        964
+      ]
+    ],
+    "top_terms_by_country": {
+      "Russia": [
+        [
+          "(Art. 6) Right to a fair trial",
+          876
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          757
+        ],
+        [
+          "(Art. 3) Prohibition of torture",
+          700
+        ],
+        [
+          "(Art. 5) Right to liberty and security",
+          576
+        ],
+        [
+          "(Art. P1-1) Protection of property",
+          445
+        ],
+        [
+          "(Art. 13) Right to an effective remedy",
+          405
+        ],
+        [
+          "(Art. 35) Admissibility criteria",
+          362
+        ],
+        [
+          "(Art. 3) Degrading treatment",
+          355
+        ],
+        [
+          "(Art. 3) Inhuman treatment",
+          348
+        ],
+        [
+          "(Art. 2) Right to life",
+          326
+        ]
+      ],
+      "Türkiye": [
+        [
+          "(Art. 6) Right to a fair trial",
+          700
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          609
+        ],
+        [
+          "(Art. 35) Admissibility criteria",
+          315
+        ],
+        [
+          "(Art. 3) Prohibition of torture",
+          310
+        ],
+        [
+          "(Art. 5) Right to liberty and security",
+          290
+        ],
+        [
+          "(Art. 6) Criminal proceedings",
+          250
+        ],
+        [
+          "(Art. P1-1) Protection of property",
+          207
+        ],
+        [
+          "(Art. 13) Right to an effective remedy",
+          196
+        ],
+        [
+          "(Art. 6-1) Reasonable time",
+          172
+        ],
+        [
+          "(Art. 3) Inhuman treatment",
+          170
+        ]
+      ],
+      "Ukraine": [
+        [
+          "(Art. 6) Right to a fair trial",
+          671
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          450
+        ],
+        [
+          "(Art. P1-1) Protection of property",
+          280
+        ],
+        [
+          "(Art. 35) Admissibility criteria",
+          237
+        ],
+        [
+          "(Art. 6-1) Reasonable time",
+          192
+        ],
+        [
+          "(Art. 3) Prohibition of torture",
+          188
+        ],
+        [
+          "(Art. 13) Right to an effective remedy",
+          182
+        ],
+        [
+          "(Art. 6) Enforcement proceedings",
+          176
+        ],
+        [
+          "(Art. 6) Civil proceedings",
+          175
+        ],
+        [
+          "(Art. 6-1) Access to court",
+          165
+        ]
+      ],
+      "Poland": [
+        [
+          "(Art. 6) Right to a fair trial",
+          515
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          435
+        ],
+        [
+          "(Art. 5) Right to liberty and security",
+          261
+        ],
+        [
+          "(Art. 6-1) Reasonable time",
+          241
+        ],
+        [
+          "(Art. 6) Civil proceedings",
+          214
+        ],
+        [
+          "(Art. 8) Right to respect for private and family life",
+          146
+        ],
+        [
+          "(Art. 35) Admissibility criteria",
+          137
+        ],
+        [
+          "(Art. 35-1) Exhaustion of domestic remedies",
+          92
+        ],
+        [
+          "(Art. 6) Criminal proceedings",
+          84
+        ],
+        [
+          "#227",
+          79
+        ]
+      ],
+      "Italy": [
+        [
+          "(Art. 6) Right to a fair trial",
+          485
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          371
+        ],
+        [
+          "(Art. P1-1) Protection of property",
+          255
+        ],
+        [
+          "(Art. 6-1) Access to court",
+          233
+        ],
+        [
+          "(Art. 6) Civil proceedings",
+          227
+        ],
+        [
+          "(Art. 6-1) Reasonable time",
+          197
+        ],
+        [
+          "(Art. P1-1-1) Peaceful enjoyment of possessions",
+          188
+        ],
+        [
+          "(Art. 6) Enforcement proceedings",
+          169
+        ],
+        [
+          "(Art. 37) Struck out of list",
+          125
+        ],
+        [
+          "(Art. 37-1) Striking out applications",
+          120
+        ]
+      ],
+      "United Kingdom": [
+        [
+          "(Art. 41) Just satisfaction",
+          257
+        ],
+        [
+          "(Art. 6) Right to a fair trial",
+          193
+        ],
+        [
+          "(Art. 8) Right to respect for private and family life",
+          160
+        ],
+        [
+          "(Art. 14) Prohibition of discrimination",
+          141
+        ],
+        [
+          "(Art. 13) Right to an effective remedy",
+          106
+        ],
+        [
+          "(Art. 8-1) Respect for private life",
+          101
+        ],
+        [
+          "(Art. 5) Right to liberty and security",
+          89
+        ],
+        [
+          "(Art. P1-1) Protection of property",
+          88
+        ],
+        [
+          "(Art. 13) Effective remedy",
+          85
+        ],
+        [
+          "(Art. 8-2) Necessary in a democratic society",
+          83
+        ]
+      ],
+      "Bulgaria": [
+        [
+          "(Art. 41) Just satisfaction",
+          242
+        ],
+        [
+          "(Art. 6) Right to a fair trial",
+          186
+        ],
+        [
+          "(Art. 13) Right to an effective remedy",
+          120
+        ],
+        [
+          "(Art. 35) Admissibility criteria",
+          86
+        ],
+        [
+          "(Art. P1-1) Protection of property",
+          82
+        ],
+        [
+          "(Art. 5) Right to liberty and security",
+          80
+        ],
+        [
+          "(Art. 3) Prohibition of torture",
+          78
+        ],
+        [
+          "(Art. 13) Effective remedy",
+          78
+        ],
+        [
+          "(Art. 41) Non-pecuniary damage – award",
+          73
+        ],
+        [
+          "(Art. 41) Non-pecuniary damage",
+          70
+        ]
+      ],
+      "Romania": [
+        [
+          "(Art. 6) Right to a fair trial",
+          162
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          155
+        ],
+        [
+          "(Art. 3) Prohibition of torture",
+          113
+        ],
+        [
+          "(Art. 35) Admissibility criteria",
+          92
+        ],
+        [
+          "(Art. 41) Pecuniary damage",
+          87
+        ],
+        [
+          "(Art. 3) Degrading treatment",
+          83
+        ],
+        [
+          "(Art. 8) Right to respect for private and family life",
+          79
+        ],
+        [
+          "(Art. 41) Non-pecuniary damage – award",
+          74
+        ],
+        [
+          "(Art. 41) Non-pecuniary damage",
+          73
+        ],
+        [
+          "(Art. P1-1) Protection of property",
+          72
+        ]
+      ],
+      "Croatia": [
+        [
+          "(Art. 6) Right to a fair trial",
+          261
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          203
+        ],
+        [
+          "(Art. 35) Admissibility criteria",
+          134
+        ],
+        [
+          "(Art. 6) Civil proceedings",
+          132
+        ],
+        [
+          "(Art. 6-1) Access to court",
+          79
+        ],
+        [
+          "(Art. 6-1) Reasonable time",
+          73
+        ],
+        [
+          "(Art. 35-1) Exhaustion of domestic remedies",
+          72
+        ],
+        [
+          "(Art. 8) Right to respect for private and family life",
+          68
+        ],
+        [
+          "(Art. 13) Right to an effective remedy",
+          67
+        ],
+        [
+          "(Art. 6-1) Fair hearing",
+          67
+        ]
+      ],
+      "Hungary": [
+        [
+          "(Art. 6) Right to a fair trial",
+          202
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          188
+        ],
+        [
+          "(Art. 6-1) Reasonable time",
+          97
+        ],
+        [
+          "(Art. 6) Civil proceedings",
+          88
+        ],
+        [
+          "(Art. 41) Pecuniary damage",
+          65
+        ],
+        [
+          "(Art. 41) Non-pecuniary damage – award",
+          65
+        ],
+        [
+          "(Art. 41) Non-pecuniary damage",
+          58
+        ],
+        [
+          "(Art. 35) Admissibility criteria",
+          57
+        ],
+        [
+          "(Art. 8) Right to respect for private and family life",
+          49
+        ],
+        [
+          "(Art. 41) Costs and expenses",
+          47
+        ]
+      ],
+      "Austria": [
+        [
+          "(Art. 6) Right to a fair trial",
+          209
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          204
+        ],
+        [
+          "(Art. 6-1) Reasonable time",
+          121
+        ],
+        [
+          "(Art. 10) Freedom of expression",
+          63
+        ],
+        [
+          "(Art. 35) Admissibility criteria",
+          56
+        ],
+        [
+          "(Art. 8) Right to respect for private and family life",
+          55
+        ],
+        [
+          "#13",
+          50
+        ],
+        [
+          "(Art. 10-1) Freedom of expression",
+          49
+        ],
+        [
+          "(Art. 41) Pecuniary damage",
+          48
+        ],
+        [
+          "(Art. 10) Press freedom",
+          47
+        ]
+      ],
+      "Slovakia": [
+        [
+          "(Art. 6) Right to a fair trial",
+          230
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          170
+        ],
+        [
+          "(Art. 6) Civil proceedings",
+          119
+        ],
+        [
+          "(Art. 6-1) Reasonable time",
+          112
+        ],
+        [
+          "(Art. 35) Admissibility criteria",
+          81
+        ],
+        [
+          "(Art. 35-1) Exhaustion of domestic remedies",
+          58
+        ],
+        [
+          "(Art. 13) Right to an effective remedy",
+          57
+        ],
+        [
+          "(Art. 6-1) Fair hearing",
+          42
+        ],
+        [
+          "(Art. 8) Right to respect for private and family life",
+          40
+        ],
+        [
+          "(Art. 5) Right to liberty and security",
+          40
+        ]
+      ],
+      "Republic of Moldova": [
+        [
+          "(Art. 41) Just satisfaction",
+          157
+        ],
+        [
+          "(Art. 6) Right to a fair trial",
+          138
+        ],
+        [
+          "(Art. 3) Prohibition of torture",
+          96
+        ],
+        [
+          "(Art. P1-1) Protection of property",
+          87
+        ],
+        [
+          "(Art. 35) Admissibility criteria",
+          54
+        ],
+        [
+          "(Art. 3) Degrading treatment",
+          51
+        ],
+        [
+          "(Art. 5) Right to liberty and security",
+          51
+        ],
+        [
+          "(Art. 6) Civil proceedings",
+          49
+        ],
+        [
+          "(Art. 3) Inhuman treatment",
+          49
+        ],
+        [
+          "(Art. 13) Right to an effective remedy",
+          47
+        ]
+      ],
+      "Germany": [
+        [
+          "(Art. 6) Right to a fair trial",
+          148
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          107
+        ],
+        [
+          "(Art. 8) Right to respect for private and family life",
+          68
+        ],
+        [
+          "(Art. 35) Admissibility criteria",
+          63
+        ],
+        [
+          "(Art. 41) Pecuniary damage",
+          63
+        ],
+        [
+          "(Art. 5) Right to liberty and security",
+          50
+        ],
+        [
+          "(Art. 6-1) Fair hearing",
+          49
+        ],
+        [
+          "(Art. 6-1) Reasonable time",
+          47
+        ],
+        [
+          "(Art. 41) Costs and expenses",
+          43
+        ],
+        [
+          "(Art. 6) Civil proceedings",
+          39
+        ]
+      ],
+      "Slovenia": [
+        [
+          "(Art. 6) Right to a fair trial",
+          241
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          196
+        ],
+        [
+          "(Art. 13) Right to an effective remedy",
+          194
+        ],
+        [
+          "(Art. 6-1) Reasonable time",
+          191
+        ],
+        [
+          "(Art. 6) Civil proceedings",
+          191
+        ],
+        [
+          "(Art. 13) Effective remedy",
+          175
+        ],
+        [
+          "(Art. 35) Admissibility criteria",
+          42
+        ],
+        [
+          "(Art. 41) Pecuniary damage",
+          28
+        ],
+        [
+          "(Art. 41) Non-pecuniary damage – award",
+          27
+        ],
+        [
+          "(Art. 35-1) Exhaustion of domestic remedies",
+          26
+        ]
+      ]
+    },
+    "terms_by_year": [
+      [
+        "1961",
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        "1962",
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        "1967",
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        "1968",
+        2,
+        0,
+        1,
+        0,
+        0
+      ],
+      [
+        "1969",
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        "1970",
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        "1971",
+        2,
+        1,
+        1,
+        0,
+        0
+      ],
+      [
+        "1972",
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        "1973",
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        "1974",
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        "1975",
+        1,
+        0,
+        1,
+        0,
+        0
+      ],
+      [
+        "1976",
+        1,
+        0,
+        1,
+        1,
+        0
+      ],
+      [
+        "1978",
+        4,
+        2,
+        1,
+        0,
+        0
+      ],
+      [
+        "1979",
+        2,
+        1,
+        2,
+        1,
+        0
+      ],
+      [
+        "1980",
+        3,
+        1,
+        1,
+        1,
+        0
+      ],
+      [
+        "1981",
+        2,
+        1,
+        2,
+        0,
+        0
+      ],
+      [
+        "1982",
+        6,
+        1,
+        0,
+        1,
+        0
+      ],
+      [
+        "1983",
+        7,
+        1,
+        1,
+        1,
+        0
+      ],
+      [
+        "1984",
+        10,
+        0,
+        3,
+        0,
+        0
+      ],
+      [
+        "1985",
+        7,
+        2,
+        2,
+        0,
+        0
+      ],
+      [
+        "1986",
+        8,
+        0,
+        3,
+        5,
+        0
+      ],
+      [
+        "1987",
+        21,
+        0,
+        6,
+        4,
+        0
+      ],
+      [
+        "1988",
+        9,
+        2,
+        6,
+        0,
+        0
+      ],
+      [
+        "1989",
+        17,
+        1,
+        4,
+        4,
+        1
+      ],
+      [
+        "1990",
+        16,
+        1,
+        6,
+        3,
+        0
+      ],
+      [
+        "1991",
+        57,
+        4,
+        4,
+        7,
+        0
+      ],
+      [
+        "1992",
+        63,
+        5,
+        11,
+        1,
+        0
+      ],
+      [
+        "1993",
+        37,
+        2,
+        10,
+        2,
+        0
+      ],
+      [
+        "1994",
+        33,
+        3,
+        9,
+        8,
+        1
+      ],
+      [
+        "1995",
+        31,
+        2,
+        4,
+        8,
+        2
+      ],
+      [
+        "1996",
+        43,
+        7,
+        16,
+        13,
+        2
+      ],
+      [
+        "1997",
+        67,
+        9,
+        14,
+        7,
+        4
+      ],
+      [
+        "1998",
+        60,
+        12,
+        22,
+        7,
+        11
+      ],
+      [
+        "1999",
+        75,
+        7,
+        12,
+        12,
+        4
+      ],
+      [
+        "2000",
+        138,
+        24,
+        32,
+        15,
+        13
+      ],
+      [
+        "2001",
+        201,
+        27,
+        34,
+        59,
+        16
+      ],
+      [
+        "2002",
+        203,
+        25,
+        47,
+        88,
+        17
+      ],
+      [
+        "2003",
+        293,
+        32,
+        56,
+        120,
+        6
+      ],
+      [
+        "2004",
+        302,
+        37,
+        46,
+        75,
+        21
+      ],
+      [
+        "2005",
+        420,
+        66,
+        56,
+        192,
+        47
+      ],
+      [
+        "2006",
+        698,
+        60,
+        88,
+        226,
+        20
+      ],
+      [
+        "2007",
+        608,
+        98,
+        73,
+        224,
+        33
+      ],
+      [
+        "2008",
+        549,
+        120,
+        62,
+        222,
+        57
+      ],
+      [
+        "2009",
+        575,
+        151,
+        83,
+        221,
+        83
+      ],
+      [
+        "2010",
+        412,
+        166,
+        76,
+        42,
+        60
+      ],
+      [
+        "2011",
+        236,
+        143,
+        80,
+        66,
+        47
+      ],
+      [
+        "2012",
+        207,
+        209,
+        102,
+        71,
+        51
+      ],
+      [
+        "2013",
+        163,
+        178,
+        77,
+        47,
+        50
+      ],
+      [
+        "2014",
+        133,
+        145,
+        85,
+        40,
+        41
+      ],
+      [
+        "2015",
+        138,
+        162,
+        66,
+        46,
+        53
+      ],
+      [
+        "2016",
+        143,
+        119,
+        70,
+        57,
+        39
+      ],
+      [
+        "2017",
+        121,
+        91,
+        87,
+        46,
+        39
+      ],
+      [
+        "2018",
+        115,
+        61,
+        82,
+        43,
+        18
+      ],
+      [
+        "2019",
+        80,
+        41,
+        52,
+        32,
+        13
+      ],
+      [
+        "2020",
+        89,
+        42,
+        65,
+        33,
+        23
+      ],
+      [
+        "2021",
+        84,
+        44,
+        89,
+        30,
+        31
+      ],
+      [
+        "2022",
+        73,
+        36,
+        77,
+        29,
+        23
+      ],
+      [
+        "2023",
+        55,
+        41,
+        77,
+        20,
+        22
+      ],
+      [
+        "2024",
+        58,
+        43,
+        71,
+        23,
+        24
+      ],
+      [
+        "2025",
+        80,
+        31,
+        87,
+        28,
+        18
+      ],
+      [
+        "2026",
+        8,
+        5,
+        9,
+        0,
+        3
+      ]
+    ],
+    "terms_by_year_labels": [
+      "(Art. 6) Right to a fair trial",
+      "(Art. 3) Prohibition of torture",
+      "(Art. 8) Right to respect for private and family life",
+      "(Art. P1-1) Protection of property",
+      "(Art. 2) Right to life"
+    ]
   },
   "conclusion_analytics": {
     "clause_breakdown": [

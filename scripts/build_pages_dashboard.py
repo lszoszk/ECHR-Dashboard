@@ -13,6 +13,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
+# Load KP thesaurus labels
+_KPT_LABELS_PATH = Path(__file__).resolve().parent / "kpthesaurus_labels.json"
+KPT_LABELS: dict[str, str] = {}
+if _KPT_LABELS_PATH.exists():
+    KPT_LABELS = json.loads(_KPT_LABELS_PATH.read_text(encoding="utf-8"))
+
+
 COUNTRY_NAMES = {
     "ALB": "Albania",
     "AND": "Andorra",
@@ -518,6 +525,13 @@ def build_payload(cases, source_file: str):
     procedural_vs_substantive_by_year = defaultdict(Counter)
     precedent_to_cases = defaultdict(set)
 
+    # KP Thesaurus analytics
+    kpt_term_counts = Counter()
+    kpt_cases_count = 0
+    kpt_by_country = defaultdict(Counter)  # state -> kpt Counter
+    kpt_by_year = defaultdict(Counter)  # year -> kpt Counter
+    kpt_cooccurrence = Counter()  # (kpt_a, kpt_b) pairs
+
     # Conclusion/Outcome analytics
     conclusion_clause_counts = Counter()
     all_pecuniary_awards = []
@@ -748,6 +762,25 @@ def build_payload(cases, source_file: str):
                 conclusion_outcome_by_year[yr]["award_granted"] += 1
             if has_inadm:
                 conclusion_outcome_by_year[yr]["inadmissible"] += 1
+
+        # KP Thesaurus processing
+        kpt_raw = str(case.get("hudoc_kpthesaurus") or "").strip()
+        if kpt_raw:
+            kpt_cases_count += 1
+            kpt_ids = [k.strip() for k in kpt_raw.split(";") if k.strip()]
+            for kid in kpt_ids:
+                label = KPT_LABELS.get(kid, f"#{kid}")
+                kpt_term_counts[label] += 1
+                for state in normalized["states"]:
+                    kpt_by_country[state][label] += 1
+                if date_obj:
+                    kpt_by_year[date_obj.strftime("%Y")][label] += 1
+            # Co-occurrence pairs (top-level only, limit to first 8 terms)
+            labels_list = [KPT_LABELS.get(k.strip(), f"#{k.strip()}") for k in kpt_ids[:8]]
+            for i in range(len(labels_list)):
+                for j in range(i + 1, len(labels_list)):
+                    pair = tuple(sorted([labels_list[i], labels_list[j]]))
+                    kpt_cooccurrence[pair] += 1
 
     sorted_lengths = sorted(case_lengths)
     # total_cases counts only judgments — press releases are excluded
@@ -981,6 +1014,40 @@ def build_payload(cases, source_file: str):
         },
         "quality": {
             "field_completeness": field_completeness,
+        },
+        "thesaurus_analytics": {
+            "cases_with_thesaurus": kpt_cases_count,
+            "unique_terms": len(kpt_term_counts),
+            "top_terms": kpt_term_counts.most_common(30),
+            "top_cooccurrences": [
+                [list(pair), count]
+                for pair, count in kpt_cooccurrence.most_common(15)
+            ],
+            "top_terms_by_country": {
+                state: kpt_by_country[state].most_common(10)
+                for state in sorted(
+                    kpt_by_country.keys(),
+                    key=lambda s: state_case_counts.get(s, 0),
+                    reverse=True,
+                )[:15]
+            },
+            "terms_by_year": [
+                [yr] + [kpt_by_year[yr].get(t, 0) for t in [
+                    KPT_LABELS.get("445", "#445"),
+                    KPT_LABELS.get("350", "#350"),
+                    KPT_LABELS.get("451", "#451"),
+                    KPT_LABELS.get("369", "#369"),
+                    KPT_LABELS.get("449", "#449"),
+                ]]
+                for yr in sorted(kpt_by_year.keys())
+            ],
+            "terms_by_year_labels": [
+                KPT_LABELS.get("445", "#445"),
+                KPT_LABELS.get("350", "#350"),
+                KPT_LABELS.get("451", "#451"),
+                KPT_LABELS.get("369", "#369"),
+                KPT_LABELS.get("449", "#449"),
+            ],
         },
         "conclusion_analytics": {
             "clause_breakdown": conclusion_clause_counts.most_common(20),

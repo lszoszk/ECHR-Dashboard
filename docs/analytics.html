@@ -99,6 +99,14 @@
             </div>
 
             <div class="sidebar-category">
+              <span class="sidebar-category-label">Thesaurus Topics</span>
+              <a class="sidebar-link" data-target="stats-thesaurus-top" href="#">Top Topics</a>
+              <a class="sidebar-link" data-target="stats-thesaurus-trends" href="#">Topic Trends</a>
+              <a class="sidebar-link" data-target="stats-thesaurus-country" href="#">Topics by Country</a>
+              <a class="sidebar-link" data-target="stats-thesaurus-cooccurrence" href="#">Topic Co-occurrence</a>
+            </div>
+
+            <div class="sidebar-category">
               <span class="sidebar-category-label">Conclusion &amp; Outcomes</span>
               <a class="sidebar-link" data-target="stats-conclusion-clauses" href="#">Conclusion Clauses</a>
               <a class="sidebar-link" data-target="stats-conclusion-trends" href="#">Outcome Trends</a>
@@ -266,6 +274,54 @@
                   <canvas id="compareArticlesChart"></canvas>
                 </div>
               </div>
+            </div>
+          </section>
+
+          <!-- Thesaurus: Top Topics -->
+          <section class="chart-section" id="stats-thesaurus-top">
+            <h2 class="chart-section-title">HUDOC Thesaurus Topics
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-thesaurus-top')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Distribution of HUDOC thesaurus keywords across all judgments. These controlled-vocabulary tags are assigned by the Court's registry and capture the legal themes, Convention articles, and procedural aspects of each case (98.2% coverage).</p>
+            <div class="chart-canvas-wrap" style="height:680px;">
+              <canvas id="thesaurusTopChart"></canvas>
+            </div>
+          </section>
+
+          <!-- Thesaurus: Topic Trends -->
+          <section class="chart-section" id="stats-thesaurus-trends">
+            <h2 class="chart-section-title">Topic Trends Over Time
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-thesaurus-trends')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Annual frequency of the five most common thesaurus topics, tracking how the Court's docket composition has shifted across core Convention rights over the decades.</p>
+            <div class="chart-canvas-wrap">
+              <canvas id="thesaurusTrendsChart"></canvas>
+            </div>
+          </section>
+
+          <!-- Thesaurus: Topics by Country -->
+          <section class="chart-section" id="stats-thesaurus-country">
+            <h2 class="chart-section-title">Top Topics by Country
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-thesaurus-country')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Select a respondent state to see which thesaurus topics dominate its caseload. Reveals which legal issues are most litigated in each country.</p>
+            <div class="chart-controls">
+              <label for="thesaurusCountrySelect">Respondent State:</label>
+              <select id="thesaurusCountrySelect" class="chart-select"></select>
+            </div>
+            <div class="chart-canvas-wrap" style="height:400px;">
+              <canvas id="thesaurusCountryChart"></canvas>
+            </div>
+          </section>
+
+          <!-- Thesaurus: Co-occurrence -->
+          <section class="chart-section" id="stats-thesaurus-cooccurrence">
+            <h2 class="chart-section-title">Topic Co-occurrence
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-thesaurus-cooccurrence')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Most frequently co-occurring thesaurus topic pairs, showing which legal themes tend to appear together in the same case. Reveals structural relationships between Convention rights in the Court's jurisprudence.</p>
+            <div class="chart-canvas-wrap" style="height:480px;">
+              <canvas id="thesaurusCooccurrenceChart"></canvas>
             </div>
           </section>
 

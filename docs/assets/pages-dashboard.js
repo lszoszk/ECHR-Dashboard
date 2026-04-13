@@ -820,6 +820,94 @@ async function loadDashboard() {
 
   renderStateOutcomeTable(document.getElementById("stateOutcomeTable"), stateOutcomesTop);
 
+  // ── Thesaurus Topic Analytics ────────────────────────────────────────
+  const thesaurusAnalytics = data.thesaurus_analytics || {};
+
+  // Top Topics bar chart
+  const topTerms = rowsOrEmpty(thesaurusAnalytics.top_terms);
+  if (topTerms.length) {
+    const ttData = topTerms.slice(0, 25);
+    createBarChart(
+      document.getElementById("thesaurusTopChart"),
+      ttData.map((d) => truncateLabel(d[0], 50)),
+      ttData.map((d) => d[1]),
+      { horizontal: true, colors: ["#6c5db5"] }
+    );
+  }
+
+  // Topic Trends multi-line chart
+  const termsByYear = rowsOrEmpty(thesaurusAnalytics.terms_by_year);
+  const termsByYearLabels = thesaurusAnalytics.terms_by_year_labels || [];
+  const TREND_COLORS = ["#245ea8", "#b03e45", "#3c8d5a", "#d97a2b", "#6c5db5"];
+  if (termsByYear.length && termsByYearLabels.length) {
+    createMultiLineChart(
+      document.getElementById("thesaurusTrendsChart"),
+      termsByYear.map((d) => d[0]),
+      termsByYearLabels.map((label, i) => ({
+        label: truncateLabel(label, 40),
+        data: termsByYear.map((d) => d[i + 1] || 0),
+        borderColor: TREND_COLORS[i % TREND_COLORS.length],
+        backgroundColor: `${TREND_COLORS[i % TREND_COLORS.length]}33`,
+        fill: false,
+        tension: 0.2,
+        pointRadius: 2.5,
+        pointHoverRadius: 4,
+      }))
+    );
+  }
+
+  // Topics by Country interactive
+  const topTermsByCountry = thesaurusAnalytics.top_terms_by_country || {};
+  const thesCountrySelect = document.getElementById("thesaurusCountrySelect");
+  const thesCountryCtx = document.getElementById("thesaurusCountryChart");
+  let thesCountryChart = null;
+
+  if (thesCountrySelect && thesCountryCtx && Object.keys(topTermsByCountry).length) {
+    const countryKeys = Object.keys(topTermsByCountry).sort((a, b) => {
+      const aTotal = (topTermsByCountry[a] || []).reduce((s, d) => s + d[1], 0);
+      const bTotal = (topTermsByCountry[b] || []).reduce((s, d) => s + d[1], 0);
+      return bTotal - aTotal;
+    });
+
+    countryKeys.forEach((country) => {
+      const opt = document.createElement("option");
+      opt.value = country;
+      opt.textContent = country;
+      thesCountrySelect.appendChild(opt);
+    });
+
+    function renderThesaurusCountry(country) {
+      const rows = topTermsByCountry[country] || [];
+      if (thesCountryChart) thesCountryChart.destroy();
+      thesCountryChart = createBarChart(
+        thesCountryCtx,
+        rows.map((d) => truncateLabel(d[0], 45)),
+        rows.map((d) => d[1]),
+        { horizontal: true, colors: ["#4f7ca6"] }
+      );
+    }
+
+    renderThesaurusCountry(countryKeys[0]);
+    thesCountrySelect.addEventListener("change", () => {
+      renderThesaurusCountry(thesCountrySelect.value);
+    });
+  }
+
+  // Co-occurrence chart
+  const topCooccurrences = rowsOrEmpty(thesaurusAnalytics.top_cooccurrences);
+  if (topCooccurrences.length) {
+    const coData = topCooccurrences.slice(0, 12);
+    createBarChart(
+      document.getElementById("thesaurusCooccurrenceChart"),
+      coData.map((d) => {
+        const pair = d[0] || [];
+        return truncateLabel(`${pair[0] || "?"} + ${pair[1] || "?"}`, 70);
+      }),
+      coData.map((d) => d[1]),
+      { horizontal: true, colors: ["#8d4f78"] }
+    );
+  }
+
   // ── Conclusion / Outcome Analytics ──────────────────────────────────
   const conclusionAnalytics = data.conclusion_analytics || {};
 
