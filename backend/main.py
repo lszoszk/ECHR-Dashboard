@@ -83,7 +83,13 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://lszoszk.github.io"],
+    allow_origins=[
+        "https://lszoszk.github.io",
+        "http://localhost:4731",
+        "http://localhost:8080",
+        "http://127.0.0.1:4731",
+        "http://127.0.0.1:8080",
+    ],
     allow_methods=["GET", "OPTIONS"],
     allow_headers=["Content-Type"],
 )
