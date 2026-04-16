@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-04-16T10:26:28.786850+00:00",
-  "source_file": "echr_cases.jsonl",
+  "generated_at": "2026-04-16T12:39:00.061238+00:00",
+  "source_file": "echr_cases_enriched_final.jsonl",
   "schema_version": "echr-dashboard-v2",
   "parser_version": "2.0.0",
   "summary": {
@@ -20,8 +20,8 @@
     "p90_paragraphs_per_case": 166.0,
     "min_paragraphs_per_case": 0,
     "max_paragraphs_per_case": 3585,
-    "violation_cases": 16634,
-    "non_violation_cases": 3331,
+    "violation_cases": 16637,
+    "non_violation_cases": 3334,
     "grand_chamber_share": 2.789046653144016,
     "grand_chamber_cases": 550,
     "chamber_cases": 12826,
@@ -32,15 +32,15 @@
     "avg_strasbourg_citations_per_case": 6.34421906693712,
     "cases_with_domestic_law": 1200,
     "cases_with_international_law": 813,
-    "cases_with_rules_of_court": 684,
-    "inadmissible_cases": 2205,
-    "struck_out_cases": 691,
+    "cases_with_rules_of_court": 686,
+    "inadmissible_cases": 2207,
+    "struck_out_cases": 730,
     "procedural_aspect_cases": 1138,
     "substantive_aspect_cases": 1585,
-    "outcome_violation_only": 14939,
-    "outcome_non_violation_only": 1636,
-    "outcome_both": 1695,
-    "outcome_neither": 1450
+    "outcome_violation_only": 14940,
+    "outcome_non_violation_only": 1637,
+    "outcome_both": 1697,
+    "outcome_neither": 1446
   },
   "series": {
     "cases_by_month": [
@@ -4554,19 +4554,19 @@
     "outcome_breakdown": [
       [
         "Violation only",
-        14939
+        14940
       ],
       [
         "Non-violation only",
-        1636
+        1637
       ],
       [
         "Both",
-        1695
+        1697
       ],
       [
         "Neither",
-        1450
+        1446
       ]
     ],
     "separate_opinion_share_by_body": [
@@ -4869,10 +4869,10 @@
       ],
       [
         "1996",
-        21,
+        22,
         27,
         13,
-        11
+        10
       ],
       [
         "1997",
@@ -4939,24 +4939,24 @@
       ],
       [
         "2006",
-        720,
+        719,
         42,
-        53,
+        54,
         98
       ],
       [
         "2007",
         723,
         53,
-        66,
-        105
+        67,
+        104
       ],
       [
         "2008",
-        740,
+        741,
         40,
         72,
-        50
+        49
       ],
       [
         "2009",
@@ -4975,9 +4975,9 @@
       [
         "2011",
         546,
+        81,
         80,
-        80,
-        58
+        57
       ],
       [
         "2012",
@@ -5866,21 +5866,21 @@
     "article_outcomes_top": [
       [
         "6-1",
-        6119,
-        451,
-        6570
+        6121,
+        452,
+        6573
       ],
       [
         "6",
-        5339,
-        630,
-        5969
+        5341,
+        631,
+        5972
       ],
       [
         "3",
-        3360,
+        3361,
         735,
-        4095
+        4096
       ],
       [
         "Article 6",
@@ -5890,21 +5890,21 @@
       ],
       [
         "5",
-        2668,
+        2669,
         316,
-        2984
+        2985
       ],
       [
         "13",
         2696,
-        220,
-        2916
+        221,
+        2917
       ],
       [
         "8",
         1780,
-        549,
-        2329
+        550,
+        2330
       ],
       [
         "5-1",
@@ -6078,8 +6078,8 @@
       ],
       [
         "6-1",
-        1.0857,
-        6119,
+        1.0861,
+        6121,
         5636
       ],
       [
@@ -6167,9 +6167,9 @@
         683,
         420,
         46,
-        34,
-        183,
-        66.47
+        35,
+        182,
+        66.62
       ],
       [
         "Bulgaria",
@@ -6318,9 +6318,9 @@
       [
         "Finland",
         197,
-        115,
+        114,
         40,
-        25,
+        26,
         17,
         71.07
       ],
@@ -6382,7 +6382,7 @@
     "inadmissibility_grounds_top": [
       [
         "Other / unspecified",
-        1478
+        1479
       ],
       [
         "Exhaustion of domestic remedies",
@@ -6390,7 +6390,7 @@
       ],
       [
         "Manifestly ill-founded",
-        275
+        276
       ],
       [
         "Ratione materiae",
@@ -6572,19 +6572,19 @@
     "outcomes": [
       [
         "Violation only",
-        14939
+        14940
       ],
       [
         "Non-violation only",
-        1636
+        1637
       ],
       [
         "Both",
-        1695
+        1697
       ],
       [
         "Neither",
-        1450
+        1446
       ]
     ]
   },
@@ -6691,7 +6691,7 @@
         [
           "Italy",
           528,
-          94
+          95
         ],
         [
           "Croatia",
@@ -6840,7 +6840,7 @@
         [
           "Italy",
           479,
-          281
+          282
         ],
         [
           "Poland",
@@ -8315,25 +8315,25 @@
         },
         "Belgium": {
           "total": 102,
-          "violation_rate": 57.8,
+          "violation_rate": 59.8,
           "outcomes": {
-            "violation_only": 37,
-            "non_violation_only": 20,
+            "violation_only": 39,
+            "non_violation_only": 21,
             "both": 22,
-            "neither": 23
+            "neither": 20
           },
           "top_violated_articles": [
             [
               "6-1",
-              19
+              20
             ],
             [
               "6",
-              12
+              13
             ],
             [
               "3",
-              12
+              13
             ],
             [
               "5-4",
@@ -8356,11 +8356,11 @@
               4
             ],
             [
-              "14",
-              3
+              "5",
+              4
             ],
             [
-              "10",
+              "14",
               3
             ]
           ],
@@ -8800,11 +8800,11 @@
               4
             ],
             [
-              "41",
+              "3",
               4
             ],
             [
-              "3",
+              "41",
               4
             ],
             [
@@ -9243,28 +9243,28 @@
         },
         "Italy": {
           "total": 683,
-          "violation_rate": 66.5,
+          "violation_rate": 66.6,
           "outcomes": {
             "violation_only": 420,
             "non_violation_only": 46,
-            "both": 34,
-            "neither": 183
+            "both": 35,
+            "neither": 182
           },
           "top_violated_articles": [
             [
               "6-1",
-              281
+              282
             ],
             [
               "6",
-              94
-            ],
-            [
-              "Article 6",
-              42
+              95
             ],
             [
               "Article 1",
+              42
+            ],
+            [
+              "Article 6",
               42
             ],
             [
@@ -9272,11 +9272,11 @@
               40
             ],
             [
-              "P1-1",
+              "P1-1-1",
               40
             ],
             [
-              "P1-1-1",
+              "P1-1",
               40
             ],
             [
@@ -10204,11 +10204,11 @@
               10
             ],
             [
-              "5-1",
+              "5-4",
               10
             ],
             [
-              "5-4",
+              "5-1",
               10
             ],
             [
@@ -10289,9 +10289,9 @@
           "total": 197,
           "violation_rate": 71.1,
           "outcomes": {
-            "violation_only": 115,
+            "violation_only": 114,
             "non_violation_only": 40,
-            "both": 25,
+            "both": 26,
             "neither": 17
           },
           "top_violated_articles": [
@@ -11524,11 +11524,11 @@
               1
             ],
             [
-              "8-1",
+              "8",
               1
             ],
             [
-              "8",
+              "8-1",
               1
             ],
             [
@@ -12312,11 +12312,11 @@
           },
           "top_violated_articles": [
             [
-              "5",
+              "3",
               9
             ],
             [
-              "3",
+              "5",
               9
             ],
             [
@@ -12792,7 +12792,7 @@
               29
             ],
             [
-              "P1-1",
+              "P1-1-1",
               21
             ],
             [
@@ -12800,7 +12800,7 @@
               21
             ],
             [
-              "P1-1-1",
+              "P1-1",
               21
             ],
             [
@@ -13012,10 +13012,6 @@
               2
             ],
             [
-              "5",
-              2
-            ],
-            [
               "6",
               2
             ],
@@ -13024,11 +13020,11 @@
               2
             ],
             [
-              "13",
-              1
+              "5",
+              2
             ],
             [
-              "5-2",
+              "13",
               1
             ],
             [
@@ -13036,11 +13032,15 @@
               1
             ],
             [
-              "1",
+              "5-2",
               1
             ],
             [
               "8",
+              1
+            ],
+            [
+              "1",
               1
             ]
           ],
@@ -13152,7 +13152,7 @@
               51
             ],
             [
-              "P1-1",
+              "P1-1-1",
               47
             ],
             [
@@ -13252,11 +13252,11 @@
               49
             ],
             [
-              "P1-1",
+              "P1-1-1",
               47
             ],
             [
-              "P1-1-1",
+              "P1-1",
               47
             ],
             [
@@ -13364,15 +13364,15 @@
               115
             ],
             [
+              "P1-1-1",
+              62
+            ],
+            [
               "P1-1",
               62
             ],
             [
               "Article 1",
-              62
-            ],
-            [
-              "P1-1-1",
               62
             ],
             [
@@ -13504,7 +13504,7 @@
               23
             ],
             [
-              "P1-1",
+              "P1-1-1",
               23
             ]
           ],
@@ -13684,7 +13684,7 @@
               35
             ],
             [
-              "P1-1",
+              "P1-1-1",
               8
             ],
             [
@@ -13692,7 +13692,7 @@
               8
             ],
             [
-              "P1-1-1",
+              "P1-1",
               8
             ],
             [
@@ -13788,6 +13788,10 @@
           },
           "top_violated_articles": [
             [
+              "6",
+              160
+            ],
+            [
               "Article 6",
               160
             ],
@@ -13796,15 +13800,11 @@
               160
             ],
             [
-              "6",
-              160
-            ],
-            [
-              "5",
+              "Article 5",
               69
             ],
             [
-              "Article 5",
+              "5",
               69
             ],
             [
@@ -13904,6 +13904,10 @@
           },
           "top_violated_articles": [
             [
+              "6",
+              71
+            ],
+            [
               "Article 6",
               71
             ],
@@ -13912,8 +13916,8 @@
               71
             ],
             [
-              "6",
-              71
+              "P1-1-1",
+              42
             ],
             [
               "P1-1",
@@ -13924,23 +13928,19 @@
               42
             ],
             [
-              "P1-1-1",
-              42
+              "Article 5",
+              25
             ],
             [
               "5",
               25
             ],
             [
-              "Article 5",
-              25
-            ],
-            [
-              "3",
+              "Article 3",
               24
             ],
             [
-              "Article 3",
+              "3",
               24
             ]
           ],
@@ -14036,19 +14036,19 @@
               12
             ],
             [
-              "5",
-              11
-            ],
-            [
               "Article 5",
               11
             ],
             [
-              "3",
-              10
+              "5",
+              11
             ],
             [
               "5-1",
+              10
+            ],
+            [
+              "3",
               10
             ],
             [
@@ -14056,7 +14056,7 @@
               10
             ],
             [
-              "Article 2",
+              "Article 8",
               7
             ]
           ],
@@ -14138,16 +14138,3062 @@
       "separate_opinion": 1.0,
       "ecli": 0.6835,
       "hudoc_url": 1.0,
-      "represented_by": 0.6307,
+      "represented_by": 0.89,
       "strasbourg_caselaw": 0.3959,
       "domestic_law": 0.0609,
       "international_law": 0.0412,
-      "rules_of_court": 0.0347,
-      "violation": 0.8435,
-      "non-violation": 0.1689,
+      "rules_of_court": 0.0348,
+      "violation": 0.8437,
+      "non-violation": 0.1691,
       "applicability": 0.0498,
-      "conclusion": 0.9889,
+      "conclusion": 0.9933,
       "chamber_composed_of": 0.9008
     }
+  },
+  "thesaurus_analytics": {
+    "cases_with_thesaurus": 19471,
+    "unique_terms": 483,
+    "top_terms": [
+      [
+        "(Art. 6) Right to a fair trial",
+        9889
+      ],
+      [
+        "(Art. 41) Just satisfaction",
+        6224
+      ],
+      [
+        "(Art. 3) Prohibition of torture",
+        3821
+      ],
+      [
+        "(Art. 5) Right to liberty and security",
+        3741
+      ],
+      [
+        "(Art. 6-1) Reasonable time",
+        3479
+      ],
+      [
+        "(Art. 13) Right to an effective remedy",
+        3190
+      ],
+      [
+        "(Art. 6) Civil proceedings",
+        3114
+      ],
+      [
+        "(Art. P1-1) Protection of property",
+        2977
+      ],
+      [
+        "(Art. 35) Admissibility criteria",
+        2742
+      ],
+      [
+        "(Art. 6) Criminal proceedings",
+        2736
+      ],
+      [
+        "(Art. 13) Effective remedy",
+        2595
+      ],
+      [
+        "(Art. 3) Degrading treatment",
+        2594
+      ],
+      [
+        "(Art. 8) Right to respect for private and family life",
+        2524
+      ],
+      [
+        "(Art. 6-1) Fair hearing",
+        2356
+      ],
+      [
+        "(Art. P1-1-1) Peaceful enjoyment of possessions",
+        1843
+      ],
+      [
+        "(Art. 41) Non-pecuniary damage – award",
+        1778
+      ],
+      [
+        "(Art. 41) Pecuniary damage",
+        1772
+      ],
+      [
+        "(Art. 41) Non-pecuniary damage",
+        1731
+      ],
+      [
+        "(Art. 6-1) Access to court",
+        1713
+      ],
+      [
+        "(Art. 5-1) Lawful arrest or detention",
+        1650
+      ],
+      [
+        "(Art. 3) Inhuman treatment",
+        1644
+      ],
+      [
+        "(Art. 35-1) Exhaustion of domestic remedies",
+        1400
+      ],
+      [
+        "(Art. 10) Freedom of expression",
+        1298
+      ],
+      [
+        "(Art. 8-1) Respect for private life",
+        1245
+      ],
+      [
+        "(Art. 41) Costs and expenses",
+        1216
+      ],
+      [
+        "(Art. 10-1) Freedom of expression",
+        1089
+      ],
+      [
+        "(Art. 2) Right to life",
+        1088
+      ],
+      [
+        "(Art. 6) Enforcement proceedings",
+        997
+      ],
+      [
+        "(Art. 34) Individual applications",
+        988
+      ],
+      [
+        "(Art. 8-1) Respect for family life",
+        964
+      ]
+    ],
+    "top_cooccurrences": [
+      [
+        [
+          "(Art. 6) Right to a fair trial",
+          "(Art. 6-1) Reasonable time"
+        ],
+        3241
+      ],
+      [
+        [
+          "(Art. 6) Civil proceedings",
+          "(Art. 6) Right to a fair trial"
+        ],
+        3030
+      ],
+      [
+        [
+          "(Art. 6) Criminal proceedings",
+          "(Art. 6) Right to a fair trial"
+        ],
+        2593
+      ],
+      [
+        [
+          "(Art. 3) Degrading treatment",
+          "(Art. 3) Prohibition of torture"
+        ],
+        2547
+      ],
+      [
+        [
+          "(Art. 6) Right to a fair trial",
+          "(Art. 6-1) Fair hearing"
+        ],
+        2141
+      ],
+      [
+        [
+          "(Art. 41) Just satisfaction",
+          "(Art. 6) Right to a fair trial"
+        ],
+        2116
+      ],
+      [
+        [
+          "(Art. 13) Effective remedy",
+          "(Art. 13) Right to an effective remedy"
+        ],
+        2079
+      ],
+      [
+        [
+          "(Art. 6) Civil proceedings",
+          "(Art. 6-1) Reasonable time"
+        ],
+        1698
+      ],
+      [
+        [
+          "(Art. P1-1) Protection of property",
+          "(Art. P1-1-1) Peaceful enjoyment of possessions"
+        ],
+        1675
+      ],
+      [
+        [
+          "(Art. 6) Right to a fair trial",
+          "(Art. 6-1) Access to court"
+        ],
+        1647
+      ],
+      [
+        [
+          "(Art. 6) Right to a fair trial",
+          "(Art. P1-1) Protection of property"
+        ],
+        1624
+      ],
+      [
+        [
+          "(Art. 3) Inhuman treatment",
+          "(Art. 3) Prohibition of torture"
+        ],
+        1585
+      ],
+      [
+        [
+          "(Art. 5) Right to liberty and security",
+          "(Art. 5-1) Lawful arrest or detention"
+        ],
+        1529
+      ],
+      [
+        [
+          "(Art. 13) Right to an effective remedy",
+          "(Art. 6) Right to a fair trial"
+        ],
+        1451
+      ],
+      [
+        [
+          "(Art. 3) Degrading treatment",
+          "(Art. 3) Inhuman treatment"
+        ],
+        1299
+      ]
+    ],
+    "top_terms_by_country": {
+      "Russia": [
+        [
+          "(Art. 6) Right to a fair trial",
+          1760
+        ],
+        [
+          "(Art. 5) Right to liberty and security",
+          1503
+        ],
+        [
+          "(Art. 3) Prohibition of torture",
+          1403
+        ],
+        [
+          "(Art. 3) Degrading treatment",
+          988
+        ],
+        [
+          "(Art. 13) Right to an effective remedy",
+          867
+        ],
+        [
+          "(Art. 5-1) Lawful arrest or detention",
+          805
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          770
+        ],
+        [
+          "(Art. 13) Effective remedy",
+          695
+        ],
+        [
+          "(Art. 6) Criminal proceedings",
+          679
+        ],
+        [
+          "(Art. 3) Inhuman treatment",
+          642
+        ]
+      ],
+      "Ukraine": [
+        [
+          "(Art. 6) Right to a fair trial",
+          1324
+        ],
+        [
+          "(Art. 13) Right to an effective remedy",
+          682
+        ],
+        [
+          "(Art. 6-1) Reasonable time",
+          624
+        ],
+        [
+          "(Art. 13) Effective remedy",
+          609
+        ],
+        [
+          "(Art. 3) Prohibition of torture",
+          551
+        ],
+        [
+          "(Art. 5) Right to liberty and security",
+          478
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          459
+        ],
+        [
+          "(Art. 3) Degrading treatment",
+          439
+        ],
+        [
+          "(Art. 6) Criminal proceedings",
+          435
+        ],
+        [
+          "(Art. 6) Civil proceedings",
+          410
+        ]
+      ],
+      "Türkiye": [
+        [
+          "(Art. 6) Right to a fair trial",
+          700
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          609
+        ],
+        [
+          "(Art. 35) Admissibility criteria",
+          315
+        ],
+        [
+          "(Art. 3) Prohibition of torture",
+          310
+        ],
+        [
+          "(Art. 5) Right to liberty and security",
+          290
+        ],
+        [
+          "(Art. 6) Criminal proceedings",
+          250
+        ],
+        [
+          "(Art. P1-1) Protection of property",
+          207
+        ],
+        [
+          "(Art. 13) Right to an effective remedy",
+          196
+        ],
+        [
+          "(Art. 6-1) Reasonable time",
+          172
+        ],
+        [
+          "(Art. 3) Inhuman treatment",
+          170
+        ]
+      ],
+      "Poland": [
+        [
+          "(Art. 6) Right to a fair trial",
+          617
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          439
+        ],
+        [
+          "(Art. 6-1) Reasonable time",
+          305
+        ],
+        [
+          "(Art. 5) Right to liberty and security",
+          299
+        ],
+        [
+          "(Art. 6) Civil proceedings",
+          245
+        ],
+        [
+          "(Art. 8) Right to respect for private and family life",
+          163
+        ],
+        [
+          "(Art. 35) Admissibility criteria",
+          137
+        ],
+        [
+          "(Art. 6) Criminal proceedings",
+          119
+        ],
+        [
+          "#227",
+          102
+        ],
+        [
+          "(Art. 35-1) Exhaustion of domestic remedies",
+          92
+        ]
+      ],
+      "Romania": [
+        [
+          "(Art. 3) Prohibition of torture",
+          333
+        ],
+        [
+          "(Art. 3) Degrading treatment",
+          295
+        ],
+        [
+          "(Art. 6) Right to a fair trial",
+          238
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          162
+        ],
+        [
+          "(Art. P1-1) Protection of property",
+          110
+        ],
+        [
+          "(Art. 8) Right to respect for private and family life",
+          101
+        ],
+        [
+          "(Art. 35) Admissibility criteria",
+          95
+        ],
+        [
+          "(Art. 41) Pecuniary damage",
+          89
+        ],
+        [
+          "(Art. 6-1) Fair hearing",
+          82
+        ],
+        [
+          "(Art. 41) Non-pecuniary damage – award",
+          81
+        ]
+      ],
+      "Hungary": [
+        [
+          "(Art. 6) Right to a fair trial",
+          420
+        ],
+        [
+          "(Art. 6-1) Reasonable time",
+          287
+        ],
+        [
+          "(Art. 6) Civil proceedings",
+          216
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          188
+        ],
+        [
+          "(Art. 13) Right to an effective remedy",
+          108
+        ],
+        [
+          "(Art. 5) Right to liberty and security",
+          101
+        ],
+        [
+          "(Art. 13) Effective remedy",
+          100
+        ],
+        [
+          "(Art. 3) Prohibition of torture",
+          88
+        ],
+        [
+          "(Art. 6) Criminal proceedings",
+          83
+        ],
+        [
+          "(Art. P1-1) Protection of property",
+          76
+        ]
+      ],
+      "Italy": [
+        [
+          "(Art. 6) Right to a fair trial",
+          527
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          371
+        ],
+        [
+          "(Art. P1-1) Protection of property",
+          297
+        ],
+        [
+          "(Art. 6) Civil proceedings",
+          250
+        ],
+        [
+          "(Art. 6-1) Access to court",
+          248
+        ],
+        [
+          "(Art. P1-1-1) Peaceful enjoyment of possessions",
+          227
+        ],
+        [
+          "(Art. 6-1) Reasonable time",
+          214
+        ],
+        [
+          "(Art. 6) Enforcement proceedings",
+          185
+        ],
+        [
+          "(Art. 37) Struck out of list",
+          125
+        ],
+        [
+          "(Art. 37-1) Striking out applications",
+          120
+        ]
+      ],
+      "Bulgaria": [
+        [
+          "(Art. 41) Just satisfaction",
+          245
+        ],
+        [
+          "(Art. 6) Right to a fair trial",
+          229
+        ],
+        [
+          "(Art. 13) Right to an effective remedy",
+          149
+        ],
+        [
+          "(Art. P1-1) Protection of property",
+          140
+        ],
+        [
+          "(Art. 13) Effective remedy",
+          96
+        ],
+        [
+          "(Art. P1-1-1) Peaceful enjoyment of possessions",
+          94
+        ],
+        [
+          "(Art. 3) Prohibition of torture",
+          93
+        ],
+        [
+          "(Art. 35) Admissibility criteria",
+          86
+        ],
+        [
+          "(Art. 5) Right to liberty and security",
+          84
+        ],
+        [
+          "(Art. 8) Right to respect for private and family life",
+          81
+        ]
+      ],
+      "United Kingdom": [
+        [
+          "(Art. 41) Just satisfaction",
+          257
+        ],
+        [
+          "(Art. 6) Right to a fair trial",
+          195
+        ],
+        [
+          "(Art. 8) Right to respect for private and family life",
+          160
+        ],
+        [
+          "(Art. 14) Prohibition of discrimination",
+          141
+        ],
+        [
+          "(Art. 13) Right to an effective remedy",
+          106
+        ],
+        [
+          "(Art. 8-1) Respect for private life",
+          101
+        ],
+        [
+          "(Art. 5) Right to liberty and security",
+          92
+        ],
+        [
+          "(Art. P1-1) Protection of property",
+          88
+        ],
+        [
+          "(Art. 13) Effective remedy",
+          85
+        ],
+        [
+          "(Art. 8-2) Necessary in a democratic society",
+          83
+        ]
+      ],
+      "Croatia": [
+        [
+          "(Art. 6) Right to a fair trial",
+          335
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          203
+        ],
+        [
+          "(Art. 6) Civil proceedings",
+          175
+        ],
+        [
+          "(Art. 35) Admissibility criteria",
+          134
+        ],
+        [
+          "(Art. 6-1) Reasonable time",
+          100
+        ],
+        [
+          "(Art. 6-1) Access to court",
+          99
+        ],
+        [
+          "(Art. 6-1) Fair hearing",
+          92
+        ],
+        [
+          "(Art. P1-1) Protection of property",
+          81
+        ],
+        [
+          "(Art. 8) Right to respect for private and family life",
+          79
+        ],
+        [
+          "(Art. 13) Right to an effective remedy",
+          74
+        ]
+      ],
+      "Slovakia": [
+        [
+          "(Art. 6) Right to a fair trial",
+          317
+        ],
+        [
+          "(Art. 6-1) Reasonable time",
+          175
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          173
+        ],
+        [
+          "(Art. 6) Civil proceedings",
+          173
+        ],
+        [
+          "(Art. 35) Admissibility criteria",
+          81
+        ],
+        [
+          "(Art. 13) Right to an effective remedy",
+          71
+        ],
+        [
+          "(Art. 35-1) Exhaustion of domestic remedies",
+          58
+        ],
+        [
+          "(Art. 13) Effective remedy",
+          50
+        ],
+        [
+          "(Art. 5) Right to liberty and security",
+          49
+        ],
+        [
+          "(Art. 6-1) Fair hearing",
+          47
+        ]
+      ],
+      "Austria": [
+        [
+          "(Art. 6) Right to a fair trial",
+          250
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          205
+        ],
+        [
+          "(Art. 6-1) Reasonable time",
+          157
+        ],
+        [
+          "(Art. 10) Freedom of expression",
+          64
+        ],
+        [
+          "(Art. 8) Right to respect for private and family life",
+          59
+        ],
+        [
+          "(Art. 6) Civil proceedings",
+          58
+        ],
+        [
+          "#13",
+          58
+        ],
+        [
+          "(Art. 35) Admissibility criteria",
+          56
+        ],
+        [
+          "(Art. 6) Criminal proceedings",
+          51
+        ],
+        [
+          "(Art. 10-1) Freedom of expression",
+          50
+        ]
+      ],
+      "Azerbaijan": [
+        [
+          "(Art. 6) Right to a fair trial",
+          158
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          100
+        ],
+        [
+          "(Art. 5) Right to liberty and security",
+          98
+        ],
+        [
+          "(Art. 6-1) Fair hearing",
+          89
+        ],
+        [
+          "(Art. P1-1) Protection of property",
+          75
+        ],
+        [
+          "(Art. 41) Non-pecuniary damage – award",
+          74
+        ],
+        [
+          "(Art. 6) Criminal proceedings",
+          70
+        ],
+        [
+          "(Art. 41) Non-pecuniary damage",
+          69
+        ],
+        [
+          "(Art. 5-1) Lawful arrest or detention",
+          65
+        ],
+        [
+          "(Art. 11) Freedom of assembly and association",
+          53
+        ]
+      ],
+      "Slovenia": [
+        [
+          "(Art. 6) Right to a fair trial",
+          274
+        ],
+        [
+          "(Art. 13) Right to an effective remedy",
+          231
+        ],
+        [
+          "(Art. 6-1) Reasonable time",
+          219
+        ],
+        [
+          "(Art. 6) Civil proceedings",
+          215
+        ],
+        [
+          "(Art. 13) Effective remedy",
+          210
+        ],
+        [
+          "(Art. 41) Just satisfaction",
+          196
+        ],
+        [
+          "(Art. 35) Admissibility criteria",
+          42
+        ],
+        [
+          "(Art. 3) Prohibition of torture",
+          29
+        ],
+        [
+          "(Art. 6-1) Fair hearing",
+          29
+        ],
+        [
+          "(Art. 6) Criminal proceedings",
+          28
+        ]
+      ],
+      "Republic of Moldova": [
+        [
+          "(Art. 41) Just satisfaction",
+          157
+        ],
+        [
+          "(Art. 6) Right to a fair trial",
+          138
+        ],
+        [
+          "(Art. 3) Prohibition of torture",
+          96
+        ],
+        [
+          "(Art. P1-1) Protection of property",
+          87
+        ],
+        [
+          "(Art. 35) Admissibility criteria",
+          54
+        ],
+        [
+          "(Art. 3) Degrading treatment",
+          51
+        ],
+        [
+          "(Art. 5) Right to liberty and security",
+          51
+        ],
+        [
+          "(Art. 6) Civil proceedings",
+          49
+        ],
+        [
+          "(Art. 3) Inhuman treatment",
+          49
+        ],
+        [
+          "(Art. 13) Right to an effective remedy",
+          47
+        ]
+      ]
+    },
+    "terms_by_year": [
+      [
+        "1961",
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        "1962",
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        "1967",
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        "1968",
+        2,
+        0,
+        1,
+        0,
+        0
+      ],
+      [
+        "1969",
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        "1970",
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        "1971",
+        2,
+        1,
+        1,
+        0,
+        0
+      ],
+      [
+        "1972",
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        "1973",
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        "1974",
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        "1975",
+        1,
+        0,
+        1,
+        0,
+        0
+      ],
+      [
+        "1976",
+        1,
+        0,
+        1,
+        1,
+        0
+      ],
+      [
+        "1978",
+        4,
+        2,
+        1,
+        0,
+        0
+      ],
+      [
+        "1979",
+        2,
+        1,
+        2,
+        1,
+        0
+      ],
+      [
+        "1980",
+        3,
+        1,
+        1,
+        1,
+        0
+      ],
+      [
+        "1981",
+        2,
+        1,
+        2,
+        0,
+        0
+      ],
+      [
+        "1982",
+        6,
+        1,
+        0,
+        1,
+        0
+      ],
+      [
+        "1983",
+        7,
+        1,
+        1,
+        1,
+        0
+      ],
+      [
+        "1984",
+        10,
+        0,
+        3,
+        0,
+        0
+      ],
+      [
+        "1985",
+        7,
+        2,
+        2,
+        0,
+        0
+      ],
+      [
+        "1986",
+        8,
+        0,
+        3,
+        5,
+        0
+      ],
+      [
+        "1987",
+        21,
+        0,
+        6,
+        4,
+        0
+      ],
+      [
+        "1988",
+        9,
+        2,
+        6,
+        0,
+        0
+      ],
+      [
+        "1989",
+        17,
+        1,
+        4,
+        4,
+        1
+      ],
+      [
+        "1990",
+        16,
+        1,
+        6,
+        3,
+        0
+      ],
+      [
+        "1991",
+        57,
+        4,
+        4,
+        7,
+        0
+      ],
+      [
+        "1992",
+        63,
+        5,
+        11,
+        1,
+        0
+      ],
+      [
+        "1993",
+        37,
+        2,
+        10,
+        2,
+        0
+      ],
+      [
+        "1994",
+        33,
+        3,
+        9,
+        8,
+        1
+      ],
+      [
+        "1995",
+        31,
+        2,
+        4,
+        8,
+        2
+      ],
+      [
+        "1996",
+        43,
+        7,
+        16,
+        13,
+        2
+      ],
+      [
+        "1997",
+        67,
+        9,
+        14,
+        7,
+        4
+      ],
+      [
+        "1998",
+        60,
+        12,
+        22,
+        7,
+        11
+      ],
+      [
+        "1999",
+        75,
+        7,
+        12,
+        12,
+        4
+      ],
+      [
+        "2000",
+        138,
+        24,
+        32,
+        15,
+        13
+      ],
+      [
+        "2001",
+        201,
+        27,
+        34,
+        59,
+        16
+      ],
+      [
+        "2002",
+        203,
+        25,
+        47,
+        88,
+        17
+      ],
+      [
+        "2003",
+        293,
+        32,
+        56,
+        120,
+        6
+      ],
+      [
+        "2004",
+        302,
+        37,
+        46,
+        75,
+        21
+      ],
+      [
+        "2005",
+        420,
+        66,
+        56,
+        192,
+        47
+      ],
+      [
+        "2006",
+        698,
+        60,
+        88,
+        226,
+        20
+      ],
+      [
+        "2007",
+        608,
+        98,
+        73,
+        224,
+        33
+      ],
+      [
+        "2008",
+        549,
+        120,
+        62,
+        222,
+        57
+      ],
+      [
+        "2009",
+        577,
+        151,
+        83,
+        221,
+        83
+      ],
+      [
+        "2010",
+        505,
+        166,
+        77,
+        44,
+        60
+      ],
+      [
+        "2011",
+        402,
+        143,
+        81,
+        72,
+        47
+      ],
+      [
+        "2012",
+        314,
+        209,
+        104,
+        89,
+        51
+      ],
+      [
+        "2013",
+        300,
+        180,
+        78,
+        85,
+        51
+      ],
+      [
+        "2014",
+        232,
+        173,
+        88,
+        81,
+        43
+      ],
+      [
+        "2015",
+        221,
+        178,
+        67,
+        86,
+        62
+      ],
+      [
+        "2016",
+        278,
+        160,
+        73,
+        109,
+        50
+      ],
+      [
+        "2017",
+        371,
+        213,
+        102,
+        131,
+        47
+      ],
+      [
+        "2018",
+        309,
+        207,
+        113,
+        120,
+        29
+      ],
+      [
+        "2019",
+        280,
+        153,
+        79,
+        102,
+        42
+      ],
+      [
+        "2020",
+        239,
+        135,
+        88,
+        89,
+        48
+      ],
+      [
+        "2021",
+        291,
+        230,
+        155,
+        87,
+        66
+      ],
+      [
+        "2022",
+        299,
+        302,
+        186,
+        76,
+        40
+      ],
+      [
+        "2023",
+        336,
+        223,
+        163,
+        83,
+        35
+      ],
+      [
+        "2024",
+        466,
+        271,
+        173,
+        81,
+        32
+      ],
+      [
+        "2025",
+        371,
+        140,
+        150,
+        100,
+        32
+      ],
+      [
+        "2026",
+        99,
+        33,
+        27,
+        14,
+        15
+      ]
+    ],
+    "terms_by_year_labels": [
+      "(Art. 6) Right to a fair trial",
+      "(Art. 3) Prohibition of torture",
+      "(Art. 8) Right to respect for private and family life",
+      "(Art. P1-1) Protection of property",
+      "(Art. 2) Right to life"
+    ]
+  },
+  "conclusion_analytics": {
+    "clause_breakdown": [
+      [
+        "Violation finding",
+        26027
+      ],
+      [
+        "No violation finding",
+        4657
+      ],
+      [
+        "Non-pecuniary damage other",
+        2656
+      ],
+      [
+        "Costs & expenses awarded",
+        2475
+      ],
+      [
+        "Just satisfaction reserved",
+        2454
+      ],
+      [
+        "Inadmissible",
+        2234
+      ],
+      [
+        "Non-pecuniary damage awarded",
+        2151
+      ],
+      [
+        "Pecuniary damage dismissed",
+        2000
+      ],
+      [
+        "Preliminary objection rejected",
+        1485
+      ],
+      [
+        "Non-pecuniary: violation sufficient",
+        785
+      ],
+      [
+        "Struck out",
+        721
+      ],
+      [
+        "Not necessary to examine",
+        677
+      ],
+      [
+        "Pecuniary damage awarded",
+        676
+      ],
+      [
+        "Costs & expenses dismissed",
+        393
+      ],
+      [
+        "Pecuniary damage other",
+        358
+      ],
+      [
+        "Preliminary objection accepted",
+        101
+      ],
+      [
+        "Non-pecuniary damage dismissed",
+        101
+      ],
+      [
+        "Preliminary objection joined to merits",
+        66
+      ],
+      [
+        "Costs & expenses other",
+        16
+      ],
+      [
+        "Preliminary objection other",
+        5
+      ]
+    ],
+    "preliminary_objections": {
+      "rejected": 1485,
+      "accepted": 101,
+      "joined_to_merits": 66
+    },
+    "just_satisfaction": {
+      "cases_with_pecuniary_award": 0,
+      "cases_with_non_pecuniary_award": 0,
+      "cases_with_costs_award": 0,
+      "pecuniary_stats": {
+        "count": 0,
+        "min": 0,
+        "max": 0,
+        "median": 0,
+        "mean": 0,
+        "total": 0
+      },
+      "non_pecuniary_stats": {
+        "count": 0,
+        "min": 0,
+        "max": 0,
+        "median": 0,
+        "mean": 0,
+        "total": 0
+      },
+      "costs_stats": {
+        "count": 0,
+        "min": 0,
+        "max": 0,
+        "median": 0,
+        "mean": 0,
+        "total": 0
+      },
+      "by_year": []
+    },
+    "conclusion_outcomes_by_year": [
+      [
+        "1961",
+        0,
+        1,
+        0,
+        0
+      ],
+      [
+        "1968",
+        2,
+        2,
+        0,
+        0
+      ],
+      [
+        "1969",
+        1,
+        1,
+        0,
+        0
+      ],
+      [
+        "1970",
+        0,
+        1,
+        0,
+        0
+      ],
+      [
+        "1971",
+        2,
+        2,
+        0,
+        0
+      ],
+      [
+        "1975",
+        1,
+        1,
+        0,
+        0
+      ],
+      [
+        "1976",
+        1,
+        5,
+        0,
+        0
+      ],
+      [
+        "1978",
+        4,
+        2,
+        0,
+        0
+      ],
+      [
+        "1979",
+        4,
+        3,
+        0,
+        0
+      ],
+      [
+        "1980",
+        3,
+        1,
+        0,
+        0
+      ],
+      [
+        "1981",
+        4,
+        4,
+        0,
+        0
+      ],
+      [
+        "1982",
+        6,
+        4,
+        0,
+        0
+      ],
+      [
+        "1983",
+        5,
+        3,
+        0,
+        0
+      ],
+      [
+        "1984",
+        12,
+        5,
+        0,
+        0
+      ],
+      [
+        "1985",
+        6,
+        1,
+        0,
+        0
+      ],
+      [
+        "1986",
+        8,
+        7,
+        0,
+        0
+      ],
+      [
+        "1987",
+        18,
+        9,
+        0,
+        1
+      ],
+      [
+        "1988",
+        12,
+        10,
+        0,
+        0
+      ],
+      [
+        "1989",
+        18,
+        9,
+        0,
+        0
+      ],
+      [
+        "1990",
+        22,
+        7,
+        0,
+        0
+      ],
+      [
+        "1991",
+        43,
+        16,
+        0,
+        1
+      ],
+      [
+        "1992",
+        57,
+        22,
+        0,
+        0
+      ],
+      [
+        "1993",
+        31,
+        19,
+        0,
+        0
+      ],
+      [
+        "1994",
+        26,
+        24,
+        0,
+        0
+      ],
+      [
+        "1995",
+        30,
+        20,
+        0,
+        3
+      ],
+      [
+        "1996",
+        35,
+        40,
+        0,
+        3
+      ],
+      [
+        "1997",
+        51,
+        32,
+        0,
+        0
+      ],
+      [
+        "1998",
+        68,
+        32,
+        0,
+        0
+      ],
+      [
+        "1999",
+        68,
+        24,
+        0,
+        2
+      ],
+      [
+        "2000",
+        137,
+        54,
+        0,
+        2
+      ],
+      [
+        "2001",
+        154,
+        63,
+        0,
+        2
+      ],
+      [
+        "2002",
+        178,
+        51,
+        0,
+        5
+      ],
+      [
+        "2003",
+        272,
+        49,
+        0,
+        7
+      ],
+      [
+        "2004",
+        305,
+        60,
+        0,
+        43
+      ],
+      [
+        "2005",
+        474,
+        81,
+        0,
+        109
+      ],
+      [
+        "2006",
+        761,
+        96,
+        0,
+        237
+      ],
+      [
+        "2007",
+        781,
+        119,
+        0,
+        93
+      ],
+      [
+        "2008",
+        807,
+        112,
+        0,
+        99
+      ],
+      [
+        "2009",
+        898,
+        129,
+        0,
+        138
+      ],
+      [
+        "2010",
+        764,
+        135,
+        0,
+        168
+      ],
+      [
+        "2011",
+        617,
+        159,
+        0,
+        172
+      ],
+      [
+        "2012",
+        642,
+        234,
+        0,
+        184
+      ],
+      [
+        "2013",
+        560,
+        144,
+        0,
+        136
+      ],
+      [
+        "2014",
+        528,
+        145,
+        0,
+        101
+      ],
+      [
+        "2015",
+        526,
+        150,
+        0,
+        96
+      ],
+      [
+        "2016",
+        642,
+        175,
+        0,
+        88
+      ],
+      [
+        "2017",
+        776,
+        177,
+        0,
+        50
+      ],
+      [
+        "2018",
+        743,
+        157,
+        0,
+        58
+      ],
+      [
+        "2019",
+        595,
+        107,
+        0,
+        38
+      ],
+      [
+        "2020",
+        580,
+        115,
+        0,
+        39
+      ],
+      [
+        "2021",
+        791,
+        119,
+        0,
+        77
+      ],
+      [
+        "2022",
+        907,
+        110,
+        0,
+        76
+      ],
+      [
+        "2023",
+        784,
+        89,
+        0,
+        57
+      ],
+      [
+        "2024",
+        906,
+        88,
+        0,
+        57
+      ],
+      [
+        "2025",
+        726,
+        93,
+        0,
+        58
+      ],
+      [
+        "2026",
+        188,
+        11,
+        0,
+        7
+      ]
+    ]
+  },
+  "citation_network": {
+    "summary": {
+      "total_nodes": 19036,
+      "total_edges": 174689,
+      "cases_with_citations": 15707,
+      "cases_cited": 10183,
+      "avg_forward_citations": 11.1,
+      "avg_backward_citations": 17.2,
+      "median_forward": 8,
+      "median_backward": 5,
+      "max_forward": 203,
+      "max_backward": 2248,
+      "gini_coefficient": 0.8454,
+      "pct_cases_for_50pct_citations": 3.39,
+      "pct_cases_for_80pct_citations": 13.51,
+      "mean_citation_age_years": 8.3,
+      "median_citation_age_years": 6.6,
+      "self_citation_rate_overall": 31.4
+    },
+    "landmark_cases": [
+      {
+        "appno": "30979/96",
+        "title": "CASE OF FRYDLENDER v. FRANCE",
+        "year": 2000,
+        "state": "France",
+        "article": "6-1",
+        "cited_by": 2248,
+        "cites": 5
+      },
+      {
+        "appno": "30210/96",
+        "title": "CASE OF KUDLA v. POLAND",
+        "year": 2000,
+        "state": "Poland",
+        "article": "5-3",
+        "cited_by": 2074,
+        "cites": 31
+      },
+      {
+        "appno": "26772/95",
+        "title": "CASE OF LABITA v. ITALY",
+        "year": 2000,
+        "state": "Italy",
+        "article": "5-3",
+        "cited_by": 1185,
+        "cites": 29
+      },
+      {
+        "appno": "25803/94",
+        "title": "CASE OF SELMOUNI v. FRANCE",
+        "year": 1999,
+        "state": "France",
+        "article": "3",
+        "cited_by": 827,
+        "cites": 5
+      },
+      {
+        "appno": "25444/94",
+        "title": "CASE OF PÉLISSIER AND SASSI v. FRANCE",
+        "year": 1999,
+        "state": "France",
+        "article": "6-1",
+        "cited_by": 723,
+        "cites": 14
+      },
+      {
+        "appno": "36813/97",
+        "title": "CASE OF SCORDINO v. ITALY (No. 1)",
+        "year": 2004,
+        "state": "Italy",
+        "article": "6-1",
+        "cited_by": 670,
+        "cites": 47
+      },
+      {
+        "appno": "42525/07",
+        "title": "CASE OF ANANYEV AND OTHERS v. RUSSIA",
+        "year": 2012,
+        "state": "Russia",
+        "article": "3",
+        "cited_by": 621,
+        "cites": 117
+      },
+      {
+        "appno": "21986/93",
+        "title": "CASE OF SALMAN v. TURKEY",
+        "year": 2000,
+        "state": "Türkiye",
+        "article": "3",
+        "cited_by": 595,
+        "cites": 10
+      },
+      {
+        "appno": "31107/96",
+        "title": "CASE OF IATRIDIS v. GREECE",
+        "year": 1999,
+        "state": "Greece",
+        "article": "13",
+        "cited_by": 591,
+        "cites": 12
+      },
+      {
+        "appno": "59498/00",
+        "title": "CASE OF BURDOV v. RUSSIA",
+        "year": 2002,
+        "state": "Russia",
+        "article": "6-1",
+        "cited_by": 589,
+        "cites": 6
+      },
+      {
+        "appno": "543/03",
+        "title": "CASE OF McKAY v. THE UNITED KINGDOM",
+        "year": 2006,
+        "state": "United Kingdom",
+        "article": "",
+        "cited_by": 574,
+        "cites": 19
+      },
+      {
+        "appno": "30544/96",
+        "title": "CASE OF GARCÍA RUIZ v. SPAIN",
+        "year": 1999,
+        "state": "Spain",
+        "article": "",
+        "cited_by": 477,
+        "cites": 6
+      },
+      {
+        "appno": "5310/71",
+        "title": "CASE OF IRELAND v. THE UNITED KINGDOM",
+        "year": 1978,
+        "state": "United Kingdom",
+        "article": "3",
+        "cited_by": 449,
+        "cites": 21
+      },
+      {
+        "appno": "22978/05",
+        "title": "CASE OF GÄFGEN v. GERMANY",
+        "year": 2008,
+        "state": "Germany",
+        "article": "3",
+        "cited_by": 425,
+        "cites": 67
+      },
+      {
+        "appno": "7334/13",
+        "title": "CASE OF MURŠIĆ v. CROATIA",
+        "year": 2015,
+        "state": "Croatia",
+        "article": "",
+        "cited_by": 416,
+        "cites": 84
+      },
+      {
+        "appno": "28342/95",
+        "title": "CASE OF BRUMARESCU v. ROMANIA",
+        "year": 1999,
+        "state": "Romania",
+        "article": "6-1",
+        "cited_by": 404,
+        "cites": 5
+      },
+      {
+        "appno": "47095/99",
+        "title": "CASE OF KALASHNIKOV v. RUSSIA",
+        "year": 2002,
+        "state": "Russia",
+        "article": "5-3",
+        "cited_by": 403,
+        "cites": 13
+      },
+      {
+        "appno": "37685/10",
+        "title": "CASE OF RADOMILJA AND OTHERS v. CROATIA",
+        "year": 2016,
+        "state": "Croatia",
+        "article": "1",
+        "cited_by": 402,
+        "cites": 43
+      },
+      {
+        "appno": "47848/08",
+        "title": "CASE OF CENTRE FOR LEGAL RESOURCES ON BEHALF OF VALENTIN CÂMPEANU v. ROMANIA",
+        "year": 2014,
+        "state": "Romania",
+        "article": "2-1",
+        "cited_by": 400,
+        "cites": 64
+      },
+      {
+        "appno": "31195/96",
+        "title": "CASE OF NIKOLOVA v. BULGARIA",
+        "year": 1999,
+        "state": "Bulgaria",
+        "article": "5-3",
+        "cited_by": 377,
+        "cites": 19
+      },
+      {
+        "appno": "23763/94",
+        "title": "CASE OF TANRIKULU v. TURKEY",
+        "year": 1999,
+        "state": "Türkiye",
+        "article": "25-1",
+        "cited_by": 371,
+        "cites": 8
+      },
+      {
+        "appno": "26307/95",
+        "title": "CASE OF T.A. v. TURKEY",
+        "year": 2002,
+        "state": "Türkiye",
+        "article": "",
+        "cited_by": 360,
+        "cites": 25
+      },
+      {
+        "appno": "33202/96",
+        "title": "CASE OF BEYELER v. ITALY",
+        "year": 2000,
+        "state": "Italy",
+        "article": "",
+        "cited_by": 355,
+        "cites": 9
+      },
+      {
+        "appno": "31443/96",
+        "title": "BRONIOWSKI v. POLAND",
+        "year": 2002,
+        "state": "Poland",
+        "article": "",
+        "cited_by": 354,
+        "cites": 3
+      },
+      {
+        "appno": "46477/99",
+        "title": "CASE OF PAUL AND AUDREY EDWARDS v. THE UNITED KINGDOM",
+        "year": 2002,
+        "state": "United Kingdom",
+        "article": "13",
+        "cited_by": 354,
+        "cites": 19
+      },
+      {
+        "appno": "5826/03",
+        "title": "CASE OF IDALOV v. RUSSIA",
+        "year": 2012,
+        "state": "Russia",
+        "article": "8-1",
+        "cited_by": 348,
+        "cites": 69
+      },
+      {
+        "appno": "46221/99",
+        "title": "CASE OF ÖCALAN v. TURKEY",
+        "year": 2003,
+        "state": "Türkiye",
+        "article": "3",
+        "cited_by": 342,
+        "cites": 65
+      },
+      {
+        "appno": "25656/94",
+        "title": "CASE OF ORHAN v. TURKEY",
+        "year": 2002,
+        "state": "Türkiye",
+        "article": "3",
+        "cited_by": 329,
+        "cites": 24
+      },
+      {
+        "appno": "33977/96",
+        "title": "CASE OF ILIJKOV v. BULGARIA",
+        "year": 2001,
+        "state": "Bulgaria",
+        "article": "5-3",
+        "cited_by": 325,
+        "cites": 8
+      },
+      {
+        "appno": "22774/93",
+        "title": "CASE OF IMMOBILIARE SAFFI v. ITALY",
+        "year": 1999,
+        "state": "Italy",
+        "article": "6-1",
+        "cited_by": 324,
+        "cites": 12
+      }
+    ],
+    "in_degree_histogram": [
+      [
+        "1",
+        1835
+      ],
+      [
+        "2",
+        1172
+      ],
+      [
+        "3-4",
+        1574
+      ],
+      [
+        "5-9",
+        2019
+      ],
+      [
+        "10-19",
+        1642
+      ],
+      [
+        "20-49",
+        1200
+      ],
+      [
+        "50-99",
+        447
+      ],
+      [
+        "100-199",
+        203
+      ],
+      [
+        "200-499",
+        80
+      ],
+      [
+        "500-999",
+        8
+      ],
+      [
+        "1000-2248",
+        3
+      ]
+    ],
+    "citation_age_histogram": [
+      [
+        "0yr",
+        10186
+      ],
+      [
+        "1yr",
+        14775
+      ],
+      [
+        "2yr",
+        15181
+      ],
+      [
+        "3-4yr",
+        27888
+      ],
+      [
+        "5-7yr",
+        34246
+      ],
+      [
+        "8-9yr",
+        18112
+      ],
+      [
+        "10-14yr",
+        28884
+      ],
+      [
+        "15-19yr",
+        13729
+      ],
+      [
+        "20-29yr",
+        8033
+      ],
+      [
+        "30-49yr",
+        2720
+      ],
+      [
+        "50-99yr",
+        47
+      ]
+    ],
+    "citations_by_decade": [
+      [
+        "1960s",
+        7,
+        1.1,
+        48.7,
+        8,
+        341
+      ],
+      [
+        "1970s",
+        20,
+        5.7,
+        123.2,
+        114,
+        2465
+      ],
+      [
+        "1980s",
+        134,
+        6.5,
+        46.6,
+        876,
+        6246
+      ],
+      [
+        "1990s",
+        708,
+        4.9,
+        34.3,
+        3437,
+        24257
+      ],
+      [
+        "2000s",
+        5749,
+        7.7,
+        15.3,
+        44159,
+        87879
+      ],
+      [
+        "2010s",
+        7180,
+        12.8,
+        6.9,
+        91660,
+        49886
+      ],
+      [
+        "2020s",
+        5238,
+        6.6,
+        0.7,
+        34435,
+        3615
+      ]
+    ],
+    "cross_article_heatmap": {
+      "articles": [
+        "6-1",
+        "6",
+        "3",
+        "Article 6",
+        "13",
+        "5",
+        "8",
+        "5-1",
+        "Article 5",
+        "Article 3",
+        "5-3",
+        "8-1"
+      ],
+      "matrix": [
+        [
+          16497,
+          5088,
+          3071,
+          409,
+          4631,
+          1152,
+          1823,
+          1611,
+          43,
+          47,
+          3090,
+          310
+        ],
+        [
+          14427,
+          9060,
+          5005,
+          526,
+          5235,
+          2274,
+          2578,
+          2583,
+          75,
+          57,
+          3059,
+          893
+        ],
+        [
+          5830,
+          2815,
+          24667,
+          62,
+          12854,
+          6729,
+          5567,
+          7734,
+          134,
+          216,
+          7035,
+          1492
+        ],
+        [
+          4309,
+          3507,
+          1334,
+          402,
+          1975,
+          822,
+          382,
+          806,
+          44,
+          35,
+          873,
+          205
+        ],
+        [
+          6412,
+          2147,
+          9665,
+          160,
+          10939,
+          4091,
+          3141,
+          3552,
+          43,
+          102,
+          3020,
+          933
+        ],
+        [
+          4051,
+          2539,
+          11177,
+          62,
+          7318,
+          7904,
+          3328,
+          8384,
+          189,
+          103,
+          7390,
+          1193
+        ],
+        [
+          2903,
+          1567,
+          3590,
+          30,
+          3286,
+          1440,
+          8345,
+          1503,
+          24,
+          24,
+          1868,
+          2252
+        ],
+        [
+          2594,
+          1710,
+          7463,
+          45,
+          4446,
+          4764,
+          2198,
+          6896,
+          109,
+          69,
+          3731,
+          692
+        ],
+        [
+          850,
+          941,
+          2633,
+          45,
+          1524,
+          2571,
+          588,
+          2129,
+          148,
+          77,
+          2364,
+          363
+        ],
+        [
+          591,
+          793,
+          4624,
+          30,
+          2354,
+          1680,
+          761,
+          1493,
+          96,
+          153,
+          1117,
+          412
+        ],
+        [
+          3864,
+          1318,
+          4764,
+          22,
+          2308,
+          2712,
+          1960,
+          3360,
+          78,
+          38,
+          7543,
+          443
+        ],
+        [
+          1379,
+          1178,
+          2202,
+          20,
+          2018,
+          1094,
+          4537,
+          1058,
+          20,
+          20,
+          986,
+          1741
+        ]
+      ]
+    },
+    "self_citation_rates": [
+      [
+        "Russia",
+        47.5,
+        19530,
+        41105
+      ],
+      [
+        "Türkiye",
+        43.5,
+        5398,
+        12406
+      ],
+      [
+        "Ukraine",
+        41.9,
+        6247,
+        14908
+      ],
+      [
+        "Poland",
+        41.4,
+        4186,
+        10102
+      ],
+      [
+        "United Kingdom",
+        39.6,
+        1846,
+        4657
+      ],
+      [
+        "Bulgaria",
+        28.6,
+        2020,
+        7063
+      ],
+      [
+        "Slovenia",
+        28.6,
+        813,
+        2847
+      ],
+      [
+        "Serbia",
+        28.3,
+        859,
+        3039
+      ],
+      [
+        "Slovakia",
+        28.1,
+        802,
+        2857
+      ],
+      [
+        "Austria",
+        27.8,
+        846,
+        3047
+      ],
+      [
+        "Republic of Moldova",
+        26.9,
+        869,
+        3234
+      ],
+      [
+        "Italy",
+        25.4,
+        1018,
+        4005
+      ],
+      [
+        "Bosnia and Herzegovina",
+        24.7,
+        229,
+        928
+      ],
+      [
+        "Azerbaijan",
+        24.1,
+        957,
+        3977
+      ],
+      [
+        "North Macedonia",
+        22.2,
+        524,
+        2356
+      ],
+      [
+        "Malta",
+        21.6,
+        517,
+        2399
+      ],
+      [
+        "France",
+        21.1,
+        511,
+        2424
+      ],
+      [
+        "Croatia",
+        20.9,
+        1352,
+        6480
+      ],
+      [
+        "Germany",
+        20.8,
+        716,
+        3443
+      ],
+      [
+        "Romania",
+        20.2,
+        1225,
+        6072
+      ]
+    ],
+    "cross_state_most_cited": [
+      [
+        "United Kingdom",
+        13462
+      ],
+      [
+        "Türkiye",
+        10970
+      ],
+      [
+        "France",
+        10195
+      ],
+      [
+        "Russia",
+        8243
+      ],
+      [
+        "Italy",
+        7712
+      ],
+      [
+        "Poland",
+        5876
+      ],
+      [
+        "Bulgaria",
+        5172
+      ],
+      [
+        "Germany",
+        4752
+      ],
+      [
+        "Austria",
+        3793
+      ],
+      [
+        "Romania",
+        3439
+      ],
+      [
+        "Croatia",
+        3423
+      ],
+      [
+        "Greece",
+        3301
+      ],
+      [
+        "Switzerland",
+        2860
+      ],
+      [
+        "Ukraine",
+        2848
+      ],
+      [
+        "Belgium",
+        2723
+      ]
+    ],
+    "pagerank_ranking": [
+      {
+        "appno": "332/57",
+        "title": "CASE OF LAWLESS v. IRELAND (No. 1)",
+        "year": 1960,
+        "state": "Ireland",
+        "article": "",
+        "pagerank": 27652.01,
+        "cited_by": 42,
+        "rank_by_citations": 896
+      },
+      {
+        "appno": "4451/70",
+        "title": "CASE OF GOLDER v. THE UNITED KINGDOM",
+        "year": 1975,
+        "state": "United Kingdom",
+        "article": "8",
+        "pagerank": 16400.93,
+        "cited_by": 232,
+        "rank_by_citations": 68
+      },
+      {
+        "appno": "1936/63",
+        "title": "CASE OF NEUMEISTER v. AUSTRIA",
+        "year": 1968,
+        "state": "Austria",
+        "article": "5-3",
+        "pagerank": 14452.31,
+        "cited_by": 120,
+        "rank_by_citations": 218
+      },
+      {
+        "appno": "2832/66",
+        "title": "CASE OF DE WILDE, OOMS AND VERSYP v. BELGIUM",
+        "year": 1970,
+        "state": "Belgium",
+        "article": "",
+        "pagerank": 14081.29,
+        "cited_by": 187,
+        "rank_by_citations": 107
+      },
+      {
+        "appno": "214/56",
+        "title": "CASE OF DE BECKER v. BELGIUM",
+        "year": 1962,
+        "state": "Belgium",
+        "article": "",
+        "pagerank": 12082.79,
+        "cited_by": 16,
+        "rank_by_citations": 2265
+      },
+      {
+        "appno": "2122/64",
+        "title": "CASE OF WEMHOFF v. GERMANY",
+        "year": 1968,
+        "state": "Germany",
+        "article": "",
+        "pagerank": 11774.73,
+        "cited_by": 85,
+        "rank_by_citations": 376
+      },
+      {
+        "appno": "5310/71",
+        "title": "CASE OF IRELAND v. THE UNITED KINGDOM",
+        "year": 1978,
+        "state": "United Kingdom",
+        "article": "3",
+        "pagerank": 10869.18,
+        "cited_by": 449,
+        "rank_by_citations": 13
+      },
+      {
+        "appno": "30979/96",
+        "title": "CASE OF FRYDLENDER v. FRANCE",
+        "year": 2000,
+        "state": "France",
+        "article": "6-1",
+        "pagerank": 10738.78,
+        "cited_by": 2248,
+        "rank_by_citations": 1
+      },
+      {
+        "appno": "2614/65",
+        "title": "CASE OF RINGEISEN v. AUSTRIA",
+        "year": 1971,
+        "state": "Austria",
+        "article": "5-3",
+        "pagerank": 9313.12,
+        "cited_by": 95,
+        "rank_by_citations": 311
+      },
+      {
+        "appno": "2689/65",
+        "title": "CASE OF DELCOURT v. BELGIUM",
+        "year": 1970,
+        "state": "Belgium",
+        "article": "",
+        "pagerank": 7052.29,
+        "cited_by": 87,
+        "rank_by_citations": 361
+      },
+      {
+        "appno": "5493/72",
+        "title": "CASE OF HANDYSIDE v. THE UNITED KINGDOM",
+        "year": 1976,
+        "state": "United Kingdom",
+        "article": "",
+        "pagerank": 6524.69,
+        "cited_by": 192,
+        "rank_by_citations": 99
+      },
+      {
+        "appno": "6232/73",
+        "title": "CASE OF KÖNIG v. GERMANY",
+        "year": 1978,
+        "state": "Germany",
+        "article": "6-1",
+        "pagerank": 6032.73,
+        "cited_by": 102,
+        "rank_by_citations": 281
+      },
+      {
+        "appno": "2178/64",
+        "title": "CASE OF MATZNETTER v. AUSTRIA",
+        "year": 1969,
+        "state": "Austria",
+        "article": "",
+        "pagerank": 5808.33,
+        "cited_by": 24,
+        "rank_by_citations": 1582
+      },
+      {
+        "appno": "30210/96",
+        "title": "CASE OF KUDLA v. POLAND",
+        "year": 2000,
+        "state": "Poland",
+        "article": "5-3",
+        "pagerank": 5527.18,
+        "cited_by": 2074,
+        "rank_by_citations": 2
+      },
+      {
+        "appno": "6289/73",
+        "title": "CASE OF AIREY v. IRELAND",
+        "year": 1979,
+        "state": "Ireland",
+        "article": "8",
+        "pagerank": 5054.1,
+        "cited_by": 165,
+        "rank_by_citations": 141
+      },
+      {
+        "appno": "7367/76",
+        "title": "CASE OF GUZZARDI v. ITALY",
+        "year": 1980,
+        "state": "Italy",
+        "article": "5",
+        "pagerank": 5017.83,
+        "cited_by": 130,
+        "rank_by_citations": 198
+      },
+      {
+        "appno": "6833/74",
+        "title": "CASE OF MARCKX v. BELGIUM",
+        "year": 1979,
+        "state": "Belgium",
+        "article": "14",
+        "pagerank": 4828.62,
+        "cited_by": 147,
+        "rank_by_citations": 165
+      },
+      {
+        "appno": "5029/71",
+        "title": "CASE OF KLASS AND OTHERS v. GERMANY",
+        "year": 1978,
+        "state": "Germany",
+        "article": "",
+        "pagerank": 4806.17,
+        "cited_by": 114,
+        "rank_by_citations": 231
+      },
+      {
+        "appno": "6694/74",
+        "title": "CASE OF ARTICO v. ITALY",
+        "year": 1980,
+        "state": "Italy",
+        "article": "6-3",
+        "pagerank": 4716.14,
+        "cited_by": 146,
+        "rank_by_citations": 168
+      },
+      {
+        "appno": "6903/75",
+        "title": "CASE OF DEWEER v. BELGIUM",
+        "year": 1980,
+        "state": "Belgium",
+        "article": "6-1",
+        "pagerank": 4676.26,
+        "cited_by": 95,
+        "rank_by_citations": 312
+      },
+      {
+        "appno": "7151/75",
+        "title": "CASE OF SPORRONG AND LÖNNROTH v. SWEDEN",
+        "year": 1982,
+        "state": "Sweden",
+        "article": "1",
+        "pagerank": 4460.78,
+        "cited_by": 189,
+        "rank_by_citations": 103
+      },
+      {
+        "appno": "1602/62",
+        "title": "CASE OF STÖGMÜLLER v. AUSTRIA",
+        "year": 1969,
+        "state": "Austria",
+        "article": "5-3",
+        "pagerank": 4220.8,
+        "cited_by": 47,
+        "rank_by_citations": 782
+      },
+      {
+        "appno": "11761/85",
+        "title": "CASE OF OBERMEIER v. AUSTRIA",
+        "year": 1990,
+        "state": "Austria",
+        "article": "6-1",
+        "pagerank": 4072.43,
+        "cited_by": 62,
+        "rank_by_citations": 577
+      },
+      {
+        "appno": "4464/70",
+        "title": "CASE OF NATIONAL UNION OF BELGIAN POLICE v. BELGIUM",
+        "year": 1975,
+        "state": "Belgium",
+        "article": "",
+        "pagerank": 3652.05,
+        "cited_by": 28,
+        "rank_by_citations": 1383
+      },
+      {
+        "appno": "8793/79",
+        "title": "CASE OF JAMES AND OTHERS v. THE UNITED KINGDOM",
+        "year": 1986,
+        "state": "United Kingdom",
+        "article": "",
+        "pagerank": 3616.41,
+        "cited_by": 207,
+        "rank_by_citations": 80
+      }
+    ],
+    "betweenness_ranking": [
+      {
+        "appno": "5310/71",
+        "title": "CASE OF IRELAND v. THE UNITED KINGDOM",
+        "year": 1978,
+        "betweenness": 117361.56,
+        "cited_by": 449
+      },
+      {
+        "appno": "39630/09",
+        "title": "CASE OF EL-MASRI v. \"THE FORMER YUGOSLAV REPUBLIC OF MACEDONIA\"",
+        "year": 2012,
+        "betweenness": 72813.07,
+        "cited_by": 289
+      },
+      {
+        "appno": "32457/04",
+        "title": "CASE OF BRECKNELL v. THE UNITED KINGDOM",
+        "year": 2007,
+        "betweenness": 63451.7,
+        "cited_by": 54
+      },
+      {
+        "appno": "22077/19",
+        "title": "CASE OF GREEN v. THE UNITED KINGDOM",
+        "year": 2025,
+        "betweenness": 63404.51,
+        "cited_by": 1
+      },
+      {
+        "appno": "16064/90",
+        "title": "CASE OF VARNAVA AND OTHERS v. TURKEY",
+        "year": 2008,
+        "betweenness": 51087.77,
+        "cited_by": 260
+      },
+      {
+        "appno": "14139/21",
+        "title": "CASE OF NARBUTAS v. LITHUANIA",
+        "year": 2023,
+        "betweenness": 49149.35,
+        "cited_by": 2
+      },
+      {
+        "appno": "22978/05",
+        "title": "CASE OF GÄFGEN v. GERMANY",
+        "year": 2008,
+        "betweenness": 37642.2,
+        "cited_by": 425
+      },
+      {
+        "appno": "11236/09",
+        "title": "CASE OF ALTAY v. TURKEY (No. 2)",
+        "year": 2019,
+        "betweenness": 34728.44,
+        "cited_by": 15
+      },
+      {
+        "appno": "14319/17",
+        "title": "CASE OF X v. THE NETHERLANDS",
+        "year": 2018,
+        "betweenness": 32480.12,
+        "cited_by": 6
+      },
+      {
+        "appno": "28490/95",
+        "title": "CASE OF HULKİ GÜNEŞ v. TURKEY [Extracts]",
+        "year": 2003,
+        "betweenness": 31110.01,
+        "cited_by": 10
+      },
+      {
+        "appno": "43611/11",
+        "title": "CASE OF F.G. v. SWEDEN",
+        "year": 2014,
+        "betweenness": 20772.95,
+        "cited_by": 66
+      },
+      {
+        "appno": "11209/84",
+        "title": "CASE OF BROGAN AND OTHERS v. THE UNITED KINGDOM",
+        "year": 1988,
+        "betweenness": 19320.82,
+        "cited_by": 133
+      },
+      {
+        "appno": "14594/07",
+        "title": "CASE OF BERDZENISHVILI AND OTHERS v. RUSSIA",
+        "year": 2016,
+        "betweenness": 16930.72,
+        "cited_by": 21
+      },
+      {
+        "appno": "9990/82",
+        "title": "CASE OF BOZANO v. FRANCE",
+        "year": 1986,
+        "betweenness": 14121.18,
+        "cited_by": 77
+      },
+      {
+        "appno": "30210/96",
+        "title": "CASE OF KUDLA v. POLAND",
+        "year": 2000,
+        "betweenness": 10574.5,
+        "cited_by": 2074
+      }
+    ]
   }
 }
