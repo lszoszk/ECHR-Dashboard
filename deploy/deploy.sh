@@ -14,8 +14,8 @@
 
 set -euo pipefail
 
-VM_HOST="amuvuser@150.254.115.204"
-VM_DIR="/home/amuvuser/echr-search"
+VM_HOST="amuvmuser@150.254.115.204"
+VM_DIR="/home/amuvmuser/echr-search"
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SSHPASS_BIN="/opt/homebrew/bin/sshpass"
 
