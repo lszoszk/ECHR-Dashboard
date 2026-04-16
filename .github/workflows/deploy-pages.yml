@@ -17,8 +17,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      DATASET_PATH: docs/data/echr_cases.jsonl
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,21 +28,23 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Validate input dataset
+      - name: Validate pre-built stats
         run: |
-          if [ ! -f "$DATASET_PATH" ]; then
-            echo "::error file=$DATASET_PATH::Required build dataset not found: $DATASET_PATH"
+          if [ ! -f "docs/data/stats.json" ]; then
+            echo "::error::Pre-built stats.json not found. Run the enrichment pipeline locally first."
             exit 1
           fi
-
-      - name: Install Python dependencies
-        run: pip install networkx
-
-      - name: Build static dashboard data
-        run: python scripts/build_pages_dashboard.py --input "$DATASET_PATH"
-
-      - name: Build citation network analytics
-        run: python scripts/build_citation_analytics.py --input "$DATASET_PATH" --stats docs/data/stats.json
+          python3 -c "
+          import json, sys
+          data = json.load(open('docs/data/stats.json'))
+          cases = data.get('summary', {}).get('total_cases', 0)
+          pr = len(data.get('citation_network', {}).get('pagerank_ranking', []))
+          th = data.get('thesaurus_analytics', {}).get('cases_with_thesaurus', 0)
+          print(f'stats.json: {cases} cases, {pr} PageRank entries, {th} thesaurus cases')
+          if cases == 0:
+              print('::error::stats.json has 0 cases — rebuild locally first')
+              sys.exit(1)
+          "
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
