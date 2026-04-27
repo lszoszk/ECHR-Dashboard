@@ -241,6 +241,29 @@
   background: rgba(124, 58, 237, 0.12);
 }
 
+.meta-chip.doc-type.committee {
+  font-weight: 600;
+  color: #0f766e;
+  border-color: rgba(15, 118, 110, 0.35);
+  background: rgba(15, 118, 110, 0.1);
+}
+
+.meta-chip.doc-type.grand-chamber {
+  font-weight: 600;
+  color: #92400e;
+  border-color: rgba(146, 64, 14, 0.35);
+  background: rgba(146, 64, 14, 0.1);
+}
+
+.section-hint-icon {
+  margin-left: 4px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  cursor: help;
+  opacity: 0.7;
+  vertical-align: middle;
+}
+
 .legal-details-wrap {
   margin-top: 2px;
 }

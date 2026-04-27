@@ -108,6 +108,8 @@ const serverSearch = {
       __citationRefs: [],
       __citationRefsNorm: [],
       __isPressRelease: (apiCase.document_type || "").toLowerCase().includes("press release"),
+      __isCommittee: (apiCase.document_type || "").toLowerCase().includes("committee"),
+      __isGrandChamber: (apiCase.document_type || "").toLowerCase().includes("grand chamber") || (apiCase.originating_body || "").toLowerCase().includes("grand chamber"),
       document_type: apiCase.document_type || "",
       __judgmentDateTs: apiCase.judgment_date ? (() => { const p = apiCase.judgment_date.split("/"); return p.length === 3 ? new Date(`${p[2]}-${p[1]}-${p[0]}`).getTime() : new Date(apiCase.judgment_date).getTime(); })() : null,
       __sortTs: apiCase.judgment_date ? (() => { const p = apiCase.judgment_date.split("/"); return p.length === 3 ? new Date(`${p[2]}-${p[1]}-${p[0]}`).getTime() : new Date(apiCase.judgment_date).getTime(); })() : 0,
@@ -1453,7 +1455,16 @@ function makeCheckbox(label, value, name) {
 
 function renderFilters() {
   el.sectionsFilters.innerHTML = state.sectionsInDataset
-    .map((sec) => makeCheckbox(SECTION_LABELS[sec] || sec, sec, "sections"))
+    .map((sec) => {
+      const cb = makeCheckbox(SECTION_LABELS[sec] || sec, sec, "sections");
+      if (sec === "introduction") {
+        return cb + '<span class="section-hint-icon" title="In Committee and joined cases, this section may contain applicant name lists rather than procedural history">ⓘ</span>';
+      }
+      if (sec === "facts") {
+        return cb + '<span class="section-hint-icon" title="In Committee cases, this section may also contain legal analysis (ALLEGED VIOLATION headings)">ⓘ</span>';
+      }
+      return cb;
+    })
     .join("");
 
   el.countriesFilters.innerHTML = state.countries
@@ -3422,6 +3433,7 @@ function buildCaseCard(caseId, row) {
             <span class="meta-chip">${escapeHtml(c.judgment_date || "-")}</span>
             <span class="meta-chip">${escapeHtml(respondentSummary)}</span>
             <span class="meta-chip outcome ${escapeHtml(outcomeToneClass)}">${escapeHtml(outcomeLabel)}</span>
+            ${c.__isGrandChamber ? '<span class="meta-chip doc-type grand-chamber" title="Grand Chamber judgment">Grand Chamber</span>' : c.__isCommittee ? '<span class="meta-chip doc-type committee" title="Committee judgment — Introduction section may contain applicant lists in joined cases">Committee</span>' : c.__isPressRelease ? '' : ''}
           </div>
 
           <div class="case-actions-inline compact-actions">
