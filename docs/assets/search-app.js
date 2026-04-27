@@ -169,24 +169,30 @@ const CLASSIFIER_METHODS = {
   },
 };
 
-// NOTE: Two upstream classes are merged into unified UI buckets:
-//   * facts_background + facts_proceedings → "facts" ("Facts of the case")
-//   * legal_framework  + legal_context     → "legal_framework" ("Relevant legal framework")
+// NOTE: Several upstream raw labels are merged into unified UI buckets:
+//   * Facts Background + Facts Proceedings + Facts          → "facts"
+//   * Legal Framework  + Legal Context + Relevant legal framework → "legal_framework"
+//   * Operative Part   + Operative part (lowercase)         → "operative_part"
 // Rationale (facts): the upstream labels are semantically inverted vs HUDOC
 // convention (classical HUDOC: PROCEDURE = short admin section, THE FACTS →
 // I. CIRCUMSTANCES OF THE CASE = narrative) and since 1 Sept 2021 the Court
 // itself merges facts+procedure for Committee cases into "SUBJECT MATTER OF
-// THE CASE" / "FACTS AND PROCEDURE".
-// Rationale (legal framework): "Legal Context" is an orphan bucket — only 6
-// paragraphs across 2 2026 Polish judicial-overhaul cases (Morawiec, Biliński)
-// where the Third Section Registry introduced a novel "LEGAL CONTEXT OF THE
-// CASE" heading that simply points at Wałęsa v. Poland as the series anchor.
-// Both judgments ALSO have a real "RELEVANT LEGAL FRAMEWORK AND PRACTICE"
-// section, so the two labels are parallel — not overlapping — and under
-// Hick's law a filter checkbox returning 6 paragraphs from 2 cases fails the
-// NN/g rule "not more facets than the results listed" by ~3 orders of
-// magnitude. Lawyers cite by paragraph number. See CHANGES-FROM-ORIGINAL.md
-// and docs/TODO-facts-reclassify.md for the deferred Phase 2 reclassifier.
+// THE CASE" / "FACTS AND PROCEDURE". The third raw label "Facts" (~246k
+// paragraphs concentrated in 2017-2025) is the modern segmenter's output for
+// circumstances-of-the-case content; it is mutually exclusive with the older
+// "Facts Background"/"Facts Proceedings" splits at the case level.
+// Rationale (legal framework): "Legal Context" is an orphan bucket (6 paragraphs,
+// 2 cases). "Relevant legal framework" (~16k paragraphs, 1.8k cases) is the
+// modern label for what older cases called "Legal Framework" (~25k paragraphs,
+// 1.4k cases) — only 2 cases use both, so they are parallel post-2021 vs older
+// segmenter outputs, not overlapping.
+// Rationale (operative_part): "Operative Part" (titlecase) was the segmenter
+// output until ~2016; from 2017 onwards the same content is emitted as
+// "Operative part" (lowercase 'p'). Without merging, the lowercase variant
+// (~62k paragraphs, dominant since 2020) would be invisible to the filter.
+// Empirically verified via scripts/harvest_headings.py — see docs/phase2/.
+// docs/TODO-facts-reclassify.md remains the plan for proper Phase 2
+// procedure/circumstances re-segmentation.
 const SECTION_ORDER = [
   "introduction",
   "facts",
@@ -232,13 +238,13 @@ const SECTION_COLORS = {
 // "legal_framework" also absorbs the orphan "Legal Context" bucket).
 const SECTION_DB_NAMES = {
   introduction: ["Introduction"],
-  facts: ["Facts Background", "Facts Proceedings"],
-  legal_framework: ["Legal Framework", "Legal Context"],
+  facts: ["Facts Background", "Facts Proceedings", "Facts"],
+  legal_framework: ["Legal Framework", "Legal Context", "Relevant legal framework"],
   admissibility: ["Admissibility"],
   merits: ["Merits"],
   just_satisfaction: ["Just Satisfaction"],
   article_46: ["Article 46"],
-  operative_part: ["Operative Part"],
+  operative_part: ["Operative Part", "Operative part"],
   separate_opinion: ["Separate Opinion"],
   appendix: ["Appendix"],
 };
@@ -1113,6 +1119,8 @@ function normalizeSectionKey(rawSection) {
     legal_framework: "legal_framework",
     "legal context": "legal_framework",
     legal_context: "legal_framework",
+    "relevant legal framework": "legal_framework",
+    relevant_legal_framework: "legal_framework",
     admissibility: "admissibility",
     merits: "merits",
     "just satisfaction": "just_satisfaction",
