@@ -559,6 +559,17 @@ def _build_case_filter_sql(
                 dt_conditions.append("c.document_type LIKE '%Press Release%'")
             elif dt == "judgment":
                 dt_conditions.append("c.document_type NOT LIKE '%Press Release%'")
+            elif dt == "committee":
+                dt_conditions.append("c.document_type LIKE '%Committee%'")
+            elif dt == "grand_chamber":
+                dt_conditions.append("c.originating_body LIKE '%Grand Chamber%'")
+            elif dt == "chamber":
+                dt_conditions.append(
+                    "(c.document_type NOT LIKE '%Press Release%' "
+                    "AND c.document_type NOT LIKE '%Committee%' "
+                    "AND (c.originating_body IS NULL "
+                    "OR c.originating_body NOT LIKE '%Grand Chamber%'))"
+                )
         if dt_conditions:
             where_clauses.append(f"({' OR '.join(dt_conditions)})")
 
@@ -748,7 +759,7 @@ def search(
     importance: Optional[str] = Query(None, description="Comma-separated importance filter"),
     bodies: Optional[str] = Query(None, description="Comma-separated originating_body filter"),
     outcomes: Optional[str] = Query(None, description="Comma-separated outcome filter (violation_only,non_violation_only,both,neither)"),
-    doc_types: Optional[str] = Query(None, description="Comma-separated document type filter (judgment,press_release)"),
+    doc_types: Optional[str] = Query(None, description="Comma-separated document type filter (judgment,press_release,committee,chamber,grand_chamber)"),
     date_from: Optional[str] = Query(None, description="Earliest judgment_date (YYYY-MM-DD)"),
     date_to: Optional[str] = Query(None, description="Latest judgment_date (YYYY-MM-DD)"),
     sort: str = Query("relevance", pattern="^(relevance|date_desc|date_asc)$"),
@@ -837,6 +848,17 @@ def search(
                 dt_conditions.append("c.document_type LIKE '%Press Release%'")
             elif dt == "judgment":
                 dt_conditions.append("c.document_type NOT LIKE '%Press Release%'")
+            elif dt == "committee":
+                dt_conditions.append("c.document_type LIKE '%Committee%'")
+            elif dt == "grand_chamber":
+                dt_conditions.append("c.originating_body LIKE '%Grand Chamber%'")
+            elif dt == "chamber":
+                dt_conditions.append(
+                    "(c.document_type NOT LIKE '%Press Release%' "
+                    "AND c.document_type NOT LIKE '%Committee%' "
+                    "AND (c.originating_body IS NULL "
+                    "OR c.originating_body NOT LIKE '%Grand Chamber%'))"
+                )
         if dt_conditions:
             where_clauses.append(f"({' OR '.join(dt_conditions)})")
 
@@ -1279,6 +1301,17 @@ def browse(
                 dt_conditions.append("c.document_type LIKE '%Press Release%'")
             elif dt == "judgment":
                 dt_conditions.append("c.document_type NOT LIKE '%Press Release%'")
+            elif dt == "committee":
+                dt_conditions.append("c.document_type LIKE '%Committee%'")
+            elif dt == "grand_chamber":
+                dt_conditions.append("c.originating_body LIKE '%Grand Chamber%'")
+            elif dt == "chamber":
+                dt_conditions.append(
+                    "(c.document_type NOT LIKE '%Press Release%' "
+                    "AND c.document_type NOT LIKE '%Committee%' "
+                    "AND (c.originating_body IS NULL "
+                    "OR c.originating_body NOT LIKE '%Grand Chamber%'))"
+                )
         if dt_conditions:
             where_clauses.append(f"({' OR '.join(dt_conditions)})")
 

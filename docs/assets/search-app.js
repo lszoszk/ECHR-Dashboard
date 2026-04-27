@@ -1484,7 +1484,9 @@ function renderFilters() {
     .join("");
 
   el.docTypeFilters.innerHTML = [
-    makeCheckbox("Judgments", "judgment", "docTypes"),
+    makeCheckbox("Chamber", "chamber", "docTypes"),
+    makeCheckbox("Grand Chamber", "grand_chamber", "docTypes"),
+    makeCheckbox("Committee", "committee", "docTypes"),
     makeCheckbox("Press Releases", "press_release", "docTypes"),
   ].join("");
 
@@ -1603,8 +1605,14 @@ function passesCaseFilters(c, filters) {
   }
 
   if (filters.docTypes.size) {
-    const dtKey = c.__isPressRelease ? "press_release" : "judgment";
-    if (!filters.docTypes.has(dtKey)) return false;
+    const dtKeys = c.__isPressRelease
+      ? ["press_release"]
+      : c.__isGrandChamber
+        ? ["grand_chamber", "judgment"]
+        : c.__isCommittee
+          ? ["committee", "judgment"]
+          : ["chamber", "judgment"];
+    if (!dtKeys.some(k => filters.docTypes.has(k))) return false;
   }
 
   if (filters.separateOpinion.size) {
@@ -4901,22 +4909,22 @@ function bindEvents() {
   });
 
   el.filtersPanel.addEventListener("change", () => {
-    if (!state.loaded) return;
+    if (!state.loaded && !serverSearch.available) return;
     applySearch(true);
   });
 
   el.keywordFilterInput.addEventListener("change", () => {
-    if (!state.loaded) return;
+    if (!state.loaded && !serverSearch.available) return;
     applySearch(true);
   });
 
   el.precedentFilterInput.addEventListener("change", () => {
-    if (!state.loaded) return;
+    if (!state.loaded && !serverSearch.available) return;
     applySearch(true);
   });
 
   el.clearBtn.addEventListener("click", () => {
-    if (!state.loaded) return;
+    if (!state.loaded && !serverSearch.available) return;
     resetFiltersAndQuery();
   });
 
