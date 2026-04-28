@@ -1119,7 +1119,7 @@ def search(
             # stored BM25F-weighted score, via the rank config set in
             # build_db.py) so it stays consistent with cross-case ranking.
             snippet_sql = (
-                "SELECT p.case_id, p.section, p.para_idx, p.hudoc_para_no, "
+                "SELECT p.case_id, p.section, p.para_idx, p.hudoc_para_no, p.numbering_block, "
                 "snippet(paragraphs_fts, 2, '<b>', '</b>', '...', 80) AS snippet, "
                 "pf.rank AS para_score "
                 "FROM paragraphs_fts pf "
@@ -1141,6 +1141,7 @@ def search(
                     "section": r["section"],
                     "para_idx": r["para_idx"],
                     "hudoc_para_no": r["hudoc_para_no"],
+                    "numbering_block": r["numbering_block"],
                     "snippet": r["snippet"],
                 })
 
@@ -1203,9 +1204,11 @@ def get_case(case_id: str):
             )
             case["articles"] = [r["article"] for r in cur.fetchall()]
 
-            # All paragraphs (includes hudoc_para_no — see P10 / data-cleaning-full.md §11)
+            # All paragraphs (includes hudoc_para_no from P10 and numbering_block from P12 —
+            # see data-cleaning-full.md §11 for the para_idx / hudoc_para_no / numbering_block
+            # disambiguation rationale).
             cur.execute(
-                "SELECT section, para_idx, hudoc_para_no, text "
+                "SELECT section, para_idx, hudoc_para_no, numbering_block, text "
                 "FROM paragraphs WHERE case_id = ? ORDER BY para_idx",
                 (case_id,),
             )

@@ -1276,11 +1276,13 @@ function normalizeCases(rawCases) {
       const paraIdx = Number.isFinite(idx) ? idx : p;
       const hudocParaNo = (para.hudoc_para_no != null && Number.isFinite(Number(para.hudoc_para_no)))
         ? Number(para.hudoc_para_no) : null;
+      const numberingBlock = para.numbering_block || null;
 
       parsedParagraphs.push({
         section,
         paraIdx,
         hudocParaNo,
+        numberingBlock,
         localIdx: parsedParagraphs.length,
         text,
         textLower: text.toLowerCase(),
@@ -1423,6 +1425,7 @@ function preprocessDataset(cases) {
         section: para.section,
         paraIdx: para.paraIdx,
         hudocParaNo: para.hudocParaNo,
+        numberingBlock: para.numberingBlock,
         text: para.text,
         textLower: para.textLower,
       });
@@ -1435,6 +1438,7 @@ function preprocessDataset(cases) {
         section: para.section,
         paraIdx: para.paraIdx,
         hudocParaNo: para.hudocParaNo,
+        numberingBlock: para.numberingBlock,
         text: para.text,
         textLower: para.textLower,
       });
@@ -1677,26 +1681,48 @@ function passesCaseFilters(c, filters) {
 /**
  * Format a paragraph number for display.
  *
- * Prefers the canonical HUDOC paragraph number (`hudocParaNo`) when available,
- * because that is what the source judgment actually prints (e.g. "56." in the
- * HUDOC document).
+ * HUDOC has multiple independent numbering schemes within a single judgment:
+ *   - main_judgment        — paragraphs 1..N of the body
+ *   - operative_dispositif — numbered ruling clauses ("1. Decides", "2. Holds")
+ *   - separate_opinion_N   — paragraph M within the Nth separate opinion
  *
- * Falls back to our internal sequential row counter (`paraIdx + 1`) when HUDOC
- * couldn't be extracted — typically section headings ("III. APPLICATION OF
- * ARTICLE 41"), sub-section labels ("A. Damage"), or paragraphs in committee/
- * mass cases (Population C) where the segmenter didn't preserve numbering.
+ * To disambiguate, this helper reads `numberingBlock` (set by P12) and adds
+ * a prefix where appropriate:
+ *   "¶ 56"            → main judgment paragraph 56
+ *   "Op. ¶ 1"         → operative dispositif clause 1
+ *   "SO 2 · ¶ 5"      → 5th paragraph of the 2nd separate opinion
+ *   "¶ 76*"           → fallback (no HUDOC number — heading, fragment, or
+ *                       committee-case paragraph without preserved numbering)
  *
- * The `*` suffix marks the fallback path so users know this is our internal
- * row number, not the HUDOC paragraph number, and can be ignored when
- * cross-referencing against the source judgment.
- *
- * Discovered during expert manual review M3/M4 (2026-04-28). See
- * methodology-internal/data-cleaning-full.md §11 for full discussion.
+ * Discovered during expert manual review M3/M4 (2026-04-28).
+ * See methodology-internal/data-cleaning-full.md §11.
  */
 function formatParaNum(p) {
   if (!p) return "¶ ?";
-  if (p.hudocParaNo != null) return `¶ ${p.hudocParaNo}`;
-  return `¶ ${(p.paraIdx ?? 0) + 1}*`;
+  const num = p.hudocParaNo != null ? `¶ ${p.hudocParaNo}` : `¶ ${(p.paraIdx ?? 0) + 1}*`;
+  const block = p.numberingBlock;
+  if (!block || block === "main_judgment") return num;
+  if (block === "operative_dispositif") return `Op. ${num}`;
+  if (block.startsWith("separate_opinion_")) {
+    const n = block.split("_")[2];
+    return `SO ${n} · ${num}`;
+  }
+  return num;
+}
+
+function formatParaNumTitle(p) {
+  if (!p) return "";
+  const block = p.numberingBlock;
+  const baseDesc = p.hudocParaNo != null
+    ? `HUDOC paragraph ${p.hudocParaNo}`
+    : `Internal index ¶${(p.paraIdx ?? 0) + 1} (no HUDOC number)`;
+  if (!block || block === "main_judgment") return baseDesc;
+  if (block === "operative_dispositif") return `Operative Part dispositif clause ${p.hudocParaNo ?? "(no number)"}`;
+  if (block.startsWith("separate_opinion_")) {
+    const n = block.split("_")[2];
+    return `${n}${{1:"st",2:"nd",3:"rd"}[n] || "th"} separate opinion, ${baseDesc.toLowerCase()}`;
+  }
+  return baseDesc;
 }
 
 function buildParagraphResult(para, terms) {
@@ -1707,6 +1733,7 @@ function buildParagraphResult(para, terms) {
     sectionColor: SECTION_COLORS[para.section] || "#718096",
     paraIdx: para.paraIdx,
     hudocParaNo: para.hudocParaNo,
+    numberingBlock: para.numberingBlock,
     rawText: para.text,
     textHtml: terms.length ? highlightTerms(para.text, terms) : escapeHtml(para.text),
   };
@@ -2536,7 +2563,7 @@ function renderClassifierSampleCard() {
   el.classifierSampleCard.innerHTML = `
     <div class="classifier-sample-meta">
       <span><strong>${escapeHtml(SECTION_LABELS[paragraph.section] || paragraph.section)}</strong></span>
-      <span title="${paragraph.hudocParaNo != null ? 'HUDOC paragraph number' : 'Internal sequential index (no HUDOC number; likely a heading)'}">${escapeHtml(formatParaNum(paragraph))}</span>
+      <span title="${escapeHtml(formatParaNumTitle(paragraph))}">${escapeHtml(formatParaNum(paragraph))}</span>
       <span>${escapeHtml(paragraph.caseId)}</span>
     </div>
     <p class="classifier-sample-text">${escapeHtml(paragraph.text)}</p>
@@ -3459,22 +3486,17 @@ function buildCaseCard(caseId, row) {
     : "";
 
   const paraBlocks = row.paragraphs
-    .map((p) => {
-      const paraNumTitle = p.hudocParaNo != null
-        ? `HUDOC paragraph ${p.hudocParaNo}`
-        : `Internal index ¶${(p.paraIdx ?? 0) + 1} — no HUDOC number (likely a section heading)`;
-      return `
+    .map((p) => `
         <div class="paragraph-item">
           <div class="para-header">
             <span class="para-section">${escapeHtml(p.sectionLabel)}</span>
-            <span class="para-num" title="${escapeHtml(paraNumTitle)}">${escapeHtml(formatParaNum(p))}</span>
+            <span class="para-num" title="${escapeHtml(formatParaNumTitle(p))}">${escapeHtml(formatParaNum(p))}</span>
             ${buildParagraphLabelBadgesHtml(p.key)}
             <button class="copy-btn" data-action="copy-paragraph" data-text="${escapeHtml(p.rawText)}">Copy</button>
           </div>
           <p class="para-text">${p.textHtml}</p>
         </div>
-      `;
-    })
+      `)
     .join("");
 
   const hitLabel = state.currentMode === "browse"
@@ -4009,6 +4031,7 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
           sectionLabel: SECTION_LABELS[sec] || sec,
           paraIdx: p.para_idx,
           hudocParaNo: (p.hudoc_para_no != null) ? Number(p.hudoc_para_no) : null,
+          numberingBlock: p.numbering_block || null,
           rawText: (p.snippet || p.text || "").replace(/<\/?b>/g, ""),
           textHtml: p.snippet ? p.snippet.replace(/<b>/g, '<mark class="hl">').replace(/<\/b>/g, '</mark>') : escapeHtml(p.text || ""),
         };
@@ -4189,6 +4212,7 @@ async function exportCsv() {
             sectionLabel: SECTION_LABELS[sec] || sec,
             paraIdx: p.para_idx,
             hudocParaNo: (p.hudoc_para_no != null) ? Number(p.hudoc_para_no) : null,
+          numberingBlock: p.numbering_block || null,
             rawText: (p.snippet || p.text || "").replace(/<\/?b>/g, ""),
           };
         });
@@ -4372,12 +4396,9 @@ function renderModalSection(sectionKey, paragraphs) {
           <p class="modal-para-heading" data-section="${escapeHtml(sectionKey)}" data-text="${escapeHtml(p.textLower)}">${escapeHtml(p.text)}</p>
         `;
       }
-      const paraNumTitle = p.hudocParaNo != null
-        ? `HUDOC paragraph ${p.hudocParaNo}`
-        : `Internal index ¶${(p.paraIdx ?? 0) + 1} — no HUDOC number`;
       return `
         <p class="modal-para" data-section="${escapeHtml(sectionKey)}" data-text="${escapeHtml(p.textLower)}">
-          <span class="modal-para-num" title="${escapeHtml(paraNumTitle)}">${escapeHtml(formatParaNum(p))}</span>
+          <span class="modal-para-num" title="${escapeHtml(formatParaNumTitle(p))}">${escapeHtml(formatParaNum(p))}</span>
           <span>${escapeHtml(p.text)}</span>
         </p>
       `;
@@ -4505,6 +4526,7 @@ async function openCaseModalFromServer(caseId, caseStub) {
       text: p.text,
       paraIdx: p.para_idx,
       hudocParaNo: (p.hudoc_para_no != null) ? Number(p.hudoc_para_no) : null,
+      numberingBlock: p.numbering_block || null,
       textLower: (p.text || "").toLowerCase(),
     }));
 
