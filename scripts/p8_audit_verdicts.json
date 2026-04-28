@@ -1,0 +1,422 @@
+[
+  {
+    "rowid": 1567430,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 18 rejects remaining complaints on admissibility grounds ('do not meet admissibility criteria') — this is genuine Merits/admissibility analysis, not Just Satisfaction reasoning, even though the surrounding paragraphs were already relabeled JS."
+  },
+  {
+    "rowid": 1466138,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: the fragment '3. (a) and 4 of the Convention.' belongs to a merits analysis about detention conditions (ECHR 2016 line of cases), not to the Article 41 Just Satisfaction block."
+  },
+  {
+    "rowid": 1683743,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation into Facts: para 36 narrates a domestic procedural event (lawyer lodging objection) — it is factual background content, not Article 41 Just Satisfaction reasoning."
+  },
+  {
+    "rowid": 1668453,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 214 introduces the Article 10 complaint and quotes the Convention text — this is the opening of a Merits sub-section, not Just Satisfaction content."
+  },
+  {
+    "rowid": 1651012,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: fragment '6. §' belongs to the Article 6 §1 / Article 13 merits analysis section (Frydlender citation context), not to the Article 41 Just Satisfaction block."
+  },
+  {
+    "rowid": 1588488,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 11 discusses admissibility of other complaints ('not manifestly ill-founded') — genuine Merits/admissibility content that precedes the Article 41 trigger."
+  },
+  {
+    "rowid": 1561278,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: 'Centre for Legal Resources on behalf of Valentin Câmpeanu' is a case citation within the Merits section supporting dismissal of other complaints; it sits before the Article 41 heading and belongs in Merits."
+  },
+  {
+    "rowid": 1548072,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation into Facts/Introduction: fragment 'on Non' belongs to a sentence describing an NGO name in the factual background, not to Article 41 Just Satisfaction reasoning."
+  },
+  {
+    "rowid": 1856460,
+    "pass": "_p8_backup",
+    "verdict": "correct",
+    "reason": "Para 36 discusses what form of redress is appropriate under Article 41 (trial de novo, reopening) — it is genuine Just Satisfaction reasoning sitting between the Article 41 quote and the Court's award."
+  },
+  {
+    "rowid": 1497106,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 5 states the applicant's pre-trial detention complaint and the Article 5 §3 basis — this is the opening paragraph of the Merits ALLEGED VIOLATION section, not Just Satisfaction."
+  },
+  {
+    "rowid": 1484535,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: the fragment '149. ‑ 159, 10 January 2012).' is a case citation tail (Ananyev v. Russia) within the merits analysis of detention conditions, not Article 41 content."
+  },
+  {
+    "rowid": 1554670,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 6 combines the JOINDER result with the 'ALLEGED VIOLATION OF ARTICLE 5 §1' heading — both are Merits content; R3 swept this paragraph along with the Article 41 trigger downstream."
+  },
+  {
+    "rowid": 1648691,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 33 is the Court's substantive analysis of burden of proof under Article 3 ('Government have failed to discharge their burden of proof') — genuine Merits reasoning, not Just Satisfaction."
+  },
+  {
+    "rowid": 1659041,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: fragment '1. (c) of this Article shall be... entitled to trial within a reasonable time' is the Article 5 §3 Convention text quoted in the Merits section, not Article 41 content."
+  },
+  {
+    "rowid": 1987635,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 30 announces the violation finding ('breach of Article 6 §1') within the Merits section; the context before and after is Merits analysis, not Article 41 reasoning."
+  },
+  {
+    "rowid": 1473430,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 8 cites the leading case (Barta and Drajkó) as the basis for a violation finding — this is Merits analysis (violation already found at para 10), not Just Satisfaction."
+  },
+  {
+    "rowid": 1633996,
+    "pass": "_p8_backup",
+    "verdict": "correct",
+    "reason": "Para 63 assesses pecuniary damage under Article 41 ('Court considers that the applicants must have suffered pecuniary damage... dismisses Government's argument on temporal scope') — genuine Just Satisfaction reasoning."
+  },
+  {
+    "rowid": 1851879,
+    "pass": "_p8_backup",
+    "verdict": "correct",
+    "reason": "Para 14 sets the default interest rate (ECB + 3 pp) — a canonical Just Satisfaction paragraph sitting between the Art 41 award paragraph and the Operative Part."
+  },
+  {
+    "rowid": 1649660,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation into Facts: para 1 describes the factual circumstances of the road accident incident — it is factual background, not Article 41 Just Satisfaction reasoning."
+  },
+  {
+    "rowid": 1902585,
+    "pass": "_p8_backup",
+    "verdict": "correct",
+    "reason": "Text 'C. Default interest 41.' plus ECB rate standard formula is a canonical Just Satisfaction paragraph immediately preceding the Operative Part."
+  },
+  {
+    "rowid": 1685629,
+    "pass": "_p8_backup",
+    "verdict": "correct",
+    "reason": "Para 62 notes no costs claim and introduces the default interest sub-heading — canonical Just Satisfaction content positioned between the non-pecuniary award and the Operative Part."
+  },
+  {
+    "rowid": 1404883,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: the text combines an admissibility/violation finding with 'REMAINING COMPLAINTS' heading — both belong to the Merits section of a Pop-C judgment, not to Just Satisfaction."
+  },
+  {
+    "rowid": 1605060,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 9 is a violation finding ('conditions of detention were inadequate') in the Merits section; R3 swept backward past the Art 41 anchor and captured this Merits paragraph."
+  },
+  {
+    "rowid": 1857883,
+    "pass": "_p8_backup",
+    "verdict": "correct",
+    "reason": "Para 42 determines the scope of the Article 41 pecuniary damage award using the criteria from Bukovčanová — genuine Just Satisfaction damage-assessment reasoning."
+  },
+  {
+    "rowid": 1720939,
+    "pass": "_p8_backup",
+    "verdict": "correct",
+    "reason": "Para 68 opens the Article 41 Just Satisfaction section with 'A. The applicant's claim' and itemises the applicant's pecuniary and non-pecuniary damage claims — canonical Just Satisfaction content."
+  },
+  {
+    "rowid": 1685587,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: Article 11 §1 Convention text (freedom of assembly and association) is quoted within the Merits section as the applicable legal standard — it is Merits content, not Just Satisfaction."
+  },
+  {
+    "rowid": 1601279,
+    "pass": "_p8_backup",
+    "verdict": "correct",
+    "reason": "Para 14 contains the canonical Article 41 quote ('If the Court finds that there has been a violation...') immediately following the 'APPLICATION OF ARTICLE 41' heading — correct JS label."
+  },
+  {
+    "rowid": 1645127,
+    "pass": "_p8_backup",
+    "verdict": "correct",
+    "reason": "Para 33 presents a costs-and-expenses claims table (legal fees, postage) in the Just Satisfaction section — correct JS label, confirmed by the surrounding JS context and proximity to Operative Part."
+  },
+  {
+    "rowid": 1716982,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: Article 6 §3(a) rights text ('to be informed promptly... of the nature and cause of the accusation') is quoted in the Merits section on fair trial complaints, not in the Article 41 block."
+  },
+  {
+    "rowid": 1560959,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 6 states the applicant's detention-conditions complaint with the Article 3 text — this is the opening of the Merits ALLEGED VIOLATION section, not Just Satisfaction content."
+  },
+  {
+    "rowid": 1553728,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 6 combines the JOINDER finding with the 'ALLEGED VIOLATION OF ARTICLE 5 §1' section heading — both are Merits structural elements, not Article 41 content."
+  },
+  {
+    "rowid": 1774970,
+    "pass": "_p8_backup",
+    "verdict": "correct",
+    "reason": "Para 311 awards amounts from the appended table plus tax, referencing the preceding Article 41 damage assessment paragraphs — canonical Just Satisfaction content."
+  },
+  {
+    "rowid": 1556743,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: Article 5 §1(c) Convention text is quoted in the Merits section as the legal standard for the unlawful-detention complaint — it belongs in Merits, not Just Satisfaction."
+  },
+  {
+    "rowid": 1739155,
+    "pass": "_p8_backup",
+    "verdict": "correct",
+    "reason": "R1 correctly relabeled 'Dismisses the remainder of the applicants' claims for just satisfaction' — a numbered dispositif clause surrounded entirely by Operative Part clauses."
+  },
+  {
+    "rowid": 1724371,
+    "pass": "_p8_backup",
+    "verdict": "correct",
+    "reason": "Para 74 awards EUR 22,500 in pecuniary damage in the Just Satisfaction section — canonical Just Satisfaction content confirmed by surrounding damage-assessment context."
+  },
+  {
+    "rowid": 1678172,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: 'H. M. v. Switzerland' is a case citation within the Merits general principles on deprivation of liberty — it belongs in Merits, not the Article 41 block."
+  },
+  {
+    "rowid": 1516549,
+    "pass": "_p8_backup",
+    "verdict": "ambiguous",
+    "reason": "Applicant table entry (1975, Magomedova detention review, EUR 8,000 award) — these structured data rows are classified as Appendix in some cases and Just Satisfaction in others across the corpus; the label is internally consistent with surrounding JS-labeled table entries but the Appendix label would also be defensible."
+  },
+  {
+    "rowid": 1917757,
+    "pass": "_p8_backup",
+    "verdict": "correct",
+    "reason": "Para 25 opens the 'A. Damage' sub-section with the applicant's claims — canonical Just Satisfaction content following the Article 41 heading and quote."
+  },
+  {
+    "rowid": 1576600,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 6 introduces the applicant's complaint and quotes Article 6 §1 and Protocol No. 1 Art 1 as the legal basis — this is the opening of the Merits section, not Just Satisfaction."
+  },
+  {
+    "rowid": 1772266,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation into Facts: para 6 narrates the domestic procedural event (applicant's 2007 objection to his detention order) — factual background content, not Article 41 Just Satisfaction reasoning."
+  },
+  {
+    "rowid": 1539305,
+    "pass": "_p8_backup",
+    "verdict": "ambiguous",
+    "reason": "Para 13 concludes that remaining complaints need no separate examination and closes with 'APPLICATION OF ARTICLE 41 OF THE CONVENTION' glued at the end — the paragraph body is Merits but the glued JS heading makes the boundary genuinely ambiguous."
+  },
+  {
+    "rowid": 1693518,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation into Facts: para 126 narrates investigation steps (officer D.R. questioned, phone numbers disclosed) — factual investigation background, not Article 41 Just Satisfaction content."
+  },
+  {
+    "rowid": 1742398,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation into Facts: para 175 narrates a domestic investigation suspension — factual background content, not Article 41 Just Satisfaction reasoning."
+  },
+  {
+    "rowid": 1629440,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 10 notes the absence of an effective remedy — this is a Merits conclusion (Article 13 finding) that immediately precedes the Article 41 trigger, not Just Satisfaction content."
+  },
+  {
+    "rowid": 1531328,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 12 announces the violation finding ('admissible and disclose a breach of Article 3. Remaining complaints') — this is a Merits conclusion, not Article 41 Just Satisfaction reasoning."
+  },
+  {
+    "rowid": 1517440,
+    "pass": "_p8_backup",
+    "verdict": "ambiguous",
+    "reason": "Applicant table entry (1985, train transport detention conditions) — structured data rows of this type sit at the Appendix/Just Satisfaction boundary depending on corpus conventions; the label is consistent with the surrounding JS-labeled table entries."
+  },
+  {
+    "rowid": 1654760,
+    "pass": "_p8_backup",
+    "verdict": "correct",
+    "reason": "Para 13 awards the sum indicated in the appended table under Article 41 — canonical Just Satisfaction award paragraph, confirmed by Art 41 quote immediately before and default interest / Operative Part immediately after."
+  },
+  {
+    "rowid": 1691485,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 8 is the Merits violation finding ('pre-trial detention was excessive') in a Pop-C judgment — it belongs in Merits, not Just Satisfaction."
+  },
+  {
+    "rowid": 1540201,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 13 states that remaining Article 5/6 complaints need not be examined separately — a Merits conclusion paragraph that precedes the Article 41 trigger, not Just Satisfaction content."
+  },
+  {
+    "rowid": 1659104,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "Para 41 contains dispositif language ('Holds that the matter... has been resolved', 'Declares the complaint admissible', 'Holds that there has been a violation', 'Done in English') — this is Operative Part content, mislabeled as Just Satisfaction by R3 and not corrected by R1."
+  },
+  {
+    "rowid": 1559849,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: the fragment declares admissibility and finds violations 'in the light of its findings in Svinarenko' — this is Merits/admissibility analysis in a Pop-C judgment, not Article 41 Just Satisfaction content."
+  },
+  {
+    "rowid": 1775095,
+    "pass": "_p8_backup",
+    "verdict": "correct",
+    "reason": "Para 44 awards EUR 6,000 for non-pecuniary damage and dismisses the remainder of claims — canonical Just Satisfaction award paragraph, confirmed by costs/default interest paragraphs following immediately."
+  },
+  {
+    "rowid": 1685600,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 40 declares the application admissible and introduces the 'Merits General principles' heading — this is the admissibility conclusion and Merits opening, not Just Satisfaction content."
+  },
+  {
+    "rowid": 1907339,
+    "pass": "_p8_backup",
+    "verdict": "correct",
+    "reason": "Para 87 assesses pecuniary damage using property valuation maps under Article 41 — genuine Just Satisfaction damage-assessment reasoning confirmed by surrounding JS context."
+  },
+  {
+    "rowid": 1746853,
+    "pass": "_p8_backup",
+    "verdict": "correct",
+    "reason": "Para 15 notes the State's outstanding obligation to enforce judgments as part of the Article 41 analysis — canonical Just Satisfaction content positioned between the award paragraph and the default interest paragraph."
+  },
+  {
+    "rowid": 1608552,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 25 concludes that separate examination of deprivation consequences is unnecessary and introduces 'OTHER ALLEGED VIOLATIONS' — a Merits conclusion heading, not Just Satisfaction content."
+  },
+  {
+    "rowid": 1757712,
+    "pass": "_p8_backup",
+    "verdict": "correct",
+    "reason": "Para 63 awards EUR 17,200 covering all heads of damage under Article 41 — canonical Just Satisfaction award paragraph, confirmed by surrounding 'A. Damage' / 'B. Costs and expenses' JS context."
+  },
+  {
+    "rowid": 1733534,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 26 states the applicant's merits argument ('Article 6 §1 had been breached by domestic courts') following the 'Merits' heading — genuine Merits content, not Article 41 Just Satisfaction reasoning."
+  },
+  {
+    "rowid": 1640947,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 19 is the applicant's merits submission (detention not documented) following the 'Admissibility / Merits' structure — genuine Merits content, not Just Satisfaction."
+  },
+  {
+    "rowid": 1679597,
+    "pass": "_p8_backup",
+    "verdict": "correct",
+    "reason": "R1 correctly relabeled para 11 ('Holds that there has been no violation of Article 11 §2 in respect of Mr Ivanov') — a dispositif Holds clause surrounded entirely by Operative Part clauses."
+  },
+  {
+    "rowid": 1533223,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 11 is a Merits violation finding ('pre-trial detention was excessive') — it belongs in Merits, not Just Satisfaction."
+  },
+  {
+    "rowid": 1616298,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 6 states the applicant's complaint ('pre-trial detention had been unreasonably long') after the ALLEGED VIOLATION Art 5 §3 heading — this is the opening of the Merits section, not Just Satisfaction."
+  },
+  {
+    "rowid": 1668442,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 204 is substantive Merits analysis of the eighth applicant's injuries and evidence under Article 3 — the preceding paragraphs are also Merits findings for other applicants."
+  },
+  {
+    "rowid": 1609120,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: the fragment '124. ‑ 25... Court does not see any reason to reach a different conclusion' is part of the Merits analysis on test purchases, confirmed by the Operative Part paragraphs visible in context_after."
+  },
+  {
+    "rowid": 1921316,
+    "pass": "_p8_backup",
+    "verdict": "correct",
+    "reason": "Para 46 contains the canonical Article 41 Convention quote following the 'APPLICATION OF ARTICLE 41' heading — correct JS label."
+  },
+  {
+    "rowid": 1773418,
+    "pass": "_p8_backup",
+    "verdict": "correct",
+    "reason": "Text opens with 'V. APPLICATION OF ARTICLE 41 OF THE CONVENTION' heading followed by the canonical Art 41 quote — correct JS label for the section heading and quote paragraph."
+  },
+  {
+    "rowid": 1680782,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation into Facts: para 30 describes the status of domestic enforcement proceedings and introduces the second applicant's administrative proceedings — factual background content, not Article 41 Just Satisfaction reasoning."
+  },
+  {
+    "rowid": 1649237,
+    "pass": "_p8_backup",
+    "verdict": "ambiguous",
+    "reason": "Applicant table entry (1977, Odessa Regional Court case details) — structured data rows of this type sit at the Appendix/Just Satisfaction boundary; the label is consistent with surrounding JS-labeled table entries but Appendix would also be defensible."
+  },
+  {
+    "rowid": 1710415,
+    "pass": "_p8_backup",
+    "verdict": "incorrect",
+    "reason": "R3 over-propagation: para 56 is the Court's substantive analysis of the detention decision's deficiencies under Article 5 — genuine Merits reasoning, not Just Satisfaction."
+  },
+  {
+    "rowid": 1523109,
+    "pass": "_p8_backup",
+    "verdict": "ambiguous",
+    "reason": "Applicant table entry (1969, IK-3 Ryazan detention details) — same Appendix/Just Satisfaction boundary ambiguity as other large Russian mass-case table rows; internally consistent with surrounding JS-labeled entries."
+  }
+]

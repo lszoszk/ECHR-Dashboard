@@ -121,3 +121,51 @@ No human re-check was performed on the AI verdicts. Results should be interprete
 ### Confidence interval note
 
 With 490 samples and an observed precision of 97.6 % (478/490), the 95 % Wilson confidence interval for the true precision is approximately **[96.2 %, 98.6 %]**. This estimate assumes the 70-sample draws per pass are representative of the pass's full output, which was enforced by random sampling at corpus generation time.
+
+---
+
+## 5. P8 Re-Audit (post-fix verification)
+
+**P8 sampled at 70; observed precision: 30.0 % (21 correct, 44 incorrect, 5 ambiguous)**
+
+### Per-rule breakdown
+
+| Rule | Direction | Samples identified | Correct | Incorrect | Ambiguous | Rule precision |
+|------|-----------|--------------------|---------|-----------|-----------|----------------|
+| R1 | JS → Operative Part (dispositif clauses) | 2 | 2 | 0 | 0 | 100 % |
+| R2 | Merits → Operative Part (payment sub-clauses) | 0 | — | — | — | n/a (not sampled) |
+| R3 | Merits → Just Satisfaction (stranded Art. 41 blocks + propagation) | 68 | 19 | 44 | 5 | 27.9 % |
+
+Rule identification is inferred from the relabeling direction: R1 is JS→Operative Part; R3 is Merits→JS (the dominant direction in the sample). No R2 Merits→Operative Part samples appeared in the 70-row draw.
+
+### Incorrect examples
+
+**Example 1** — rowid 1567430, *Kozhakhmetovy and Others v. Russia* (001-219658)  
+Original: `Merits` → New: `Just Satisfaction`  
+Paragraph text (para 18): *"The Court has examined the applications and considers that, in the light of all the material in its possession... these complaints either do not meet the admissibility criteria set out in Articles 34 and 35... or do not disclose any appearance of a violation..."*  
+Reasoning: This is an admissibility rejection paragraph at the end of the Merits section of a compact Pop-C judgment. R3 forward propagation swept it into Just Satisfaction because the Article 41 heading appears a few paragraphs later, but the content is genuine Merits/admissibility analysis.
+
+**Example 2** — rowid 1659104, *Sakhanenko v. Ukraine* (001-206362)  
+Original: `Merits` → New: `Just Satisfaction`  
+Paragraph text (para 41): *"Holds that the matter giving rise to the applicant's complaint under Article 1 of Protocol No. 1 has been resolved and decides to strike the application out... Declares the complaint under Article 6 § 1 admissible; Holds that there has been a violation of Article 6 § 1. Done in English..."*  
+Reasoning: This paragraph contains dispositif language (Holds, Declares, Done in English) — it belongs to the Operative Part, not Just Satisfaction. P8 R3 applied the JS label without checking whether R1 had already or should have addressed it, and R1 did not fire because the paragraph did not originate from JS.
+
+**Example 3** — rowid 1693518, *Ugurchiyev and Others v. Russia* (001-200730)  
+Original: `Merits` → New: `Just Satisfaction`  
+Paragraph text (para 126): *"On 4 March 2014 Officer D.R. was additionally questioned. His statements concerned the phone numbers he had contacted on 23 August 2013..."*  
+Reasoning: R3 forward propagation reached deep into the factual background section, labeling a chronological investigation-narrative paragraph as Just Satisfaction. The content is clearly Facts/procedural background.
+
+### Assessment of P8
+
+P8 successfully addressed the two narrow error patterns it was designed for: R1 correctly relabels dispositif clauses (e.g., "Dismisses the remainder of the applicants' claims for just satisfaction", "Holds that there has been no violation") that were stranded in the wrong section, achieving 100 % precision on the two R1 samples observed. However, R3 — the rule intended to recover stranded Article 41 reasoning from the Merits section — exhibits severe over-propagation. The rule appears to fire on an Article 41 trigger and then propagate forward (or backward) through large blocks of text without adequate stopping conditions, assigning Just Satisfaction to genuine Merits analysis, Convention text quotations, factual narrative, and in one case an Operative Part dispositif paragraph. The 27.9 % precision for R3 means roughly seven in ten R3 relabelings are errors, introducing new labeling noise that likely exceeds in volume any improvement from the correct cases.
+
+### P8 rolled back
+
+Given the 30 % precision (vs 97.6 % baseline), **P8 was rolled back in full** by restoring all 67,709 paragraphs from `_p8_backup` to their pre-P8 sections. The current corpus state is therefore equivalent to post-P7. The `_p8_backup` table is retained as audit evidence; no future pass should re-apply the P8 rules without redesign.
+
+For future work, fixing the stranded Article 41 blocks would require:
+1. **Window-bounded propagation** — only relabel the next N≤10 paragraphs after a confirmed Article 41 heading, not until end-of-block.
+2. **Per-paragraph content check** — each propagated paragraph must independently contain Article 41 vocabulary (Damage / Costs / Pecuniary / EUR / default interest / award).
+3. **Restrict to cases without Just Satisfaction anchor** — only run on cases where no JS-labeled paragraph already exists, since cases with a JS anchor were already handled by P5/P6.
+
+A rule-based redesign meeting these constraints is feasible but was deferred. Accepting the residual ~3 % imprecision from P1–P7 and moving on to richer analytical tasks (Merits sub-typing, recall audit) is the better near-term direction.
