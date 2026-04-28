@@ -1,0 +1,3502 @@
+[
+  {
+    "rowid": 1420480,
+    "case_id": "001-242855",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1469664,
+    "case_id": "001-234003",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1824629,
+    "case_id": "001-179868",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1462623,
+    "case_id": "001-234455",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1887195,
+    "case_id": "001-168863",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1430889,
+    "case_id": "001-238822",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "CAO data fragment in strong table context."
+  },
+  {
+    "rowid": 1590692,
+    "case_id": "001-217614",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1514109,
+    "case_id": "001-228847",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Moderate-to-high procedural signals."
+  },
+  {
+    "rowid": 1403464,
+    "case_id": "001-245215",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1479919,
+    "case_id": "001-232050",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1388015,
+    "case_id": "001-247548",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1684570,
+    "case_id": "001-202221",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1432339,
+    "case_id": "001-238840",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Domestic proceedings column header."
+  },
+  {
+    "rowid": 1566255,
+    "case_id": "001-220161",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1719703,
+    "case_id": "001-196151",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Table row: sequential number + amount + app-no."
+  },
+  {
+    "rowid": 1835865,
+    "case_id": "001-178374",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1593201,
+    "case_id": "001-217122",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1912035,
+    "case_id": "001-159758",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1560228,
+    "case_id": "001-220551",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1471615,
+    "case_id": "001-233632",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1569613,
+    "case_id": "001-219681",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions data row with m² measurements."
+  },
+  {
+    "rowid": 1845050,
+    "case_id": "001-177393",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Multiple application numbers with low procedural signal."
+  },
+  {
+    "rowid": 1998597,
+    "case_id": "001-101006",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1538622,
+    "case_id": "001-224373",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1916661,
+    "case_id": "001-158180",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1452836,
+    "case_id": "001-235544",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1805994,
+    "case_id": "001-182600",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1685218,
+    "case_id": "001-201889",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1423772,
+    "case_id": "001-242086",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1435995,
+    "case_id": "001-238379",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1588985,
+    "case_id": "001-218026",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1466505,
+    "case_id": "001-234335",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1409765,
+    "case_id": "001-244724",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Numbered factual paragraph beginning with \"On [date]\"."
+  },
+  {
+    "rowid": 1517858,
+    "case_id": "001-228372",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions data row with m² measurements."
+  },
+  {
+    "rowid": 1471322,
+    "case_id": "001-233649",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numeric-prefixed row beginning with date, no procedural language."
+  },
+  {
+    "rowid": 1843805,
+    "case_id": "001-177433",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1405878,
+    "case_id": "001-245153",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1711282,
+    "case_id": "001-198466",
+    "category": "unclear",
+    "confidence": "low",
+    "reason": "Very short text with no context signals."
+  },
+  {
+    "rowid": 1809788,
+    "case_id": "001-181833",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1511782,
+    "case_id": "001-228997",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1477372,
+    "case_id": "001-233237",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1614063,
+    "case_id": "001-212819",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Numbered applicant-name row; moderate table context."
+  },
+  {
+    "rowid": 1646087,
+    "case_id": "001-208890",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1429354,
+    "case_id": "001-240185",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1467907,
+    "case_id": "001-234131",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1614478,
+    "case_id": "001-212694",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1994364,
+    "case_id": "001-102137",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1808235,
+    "case_id": "001-182166",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1489351,
+    "case_id": "001-231339",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1659156,
+    "case_id": "001-206525",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1605822,
+    "case_id": "001-214043",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1573976,
+    "case_id": "001-219486",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1699951,
+    "case_id": "001-200321",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1537507,
+    "case_id": "001-224553",
+    "category": "procedural",
+    "confidence": "high",
+    "reason": "High density of procedural language markers."
+  },
+  {
+    "rowid": 1502715,
+    "case_id": "001-229921",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1433231,
+    "case_id": "001-238569",
+    "category": "procedural",
+    "confidence": "high",
+    "reason": "High density of procedural language markers."
+  },
+  {
+    "rowid": 1713955,
+    "case_id": "001-196883",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1572708,
+    "case_id": "001-219721",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1392129,
+    "case_id": "001-247849",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1446997,
+    "case_id": "001-236047",
+    "category": "unclear",
+    "confidence": "low",
+    "reason": "Mixed procedural and table signals."
+  },
+  {
+    "rowid": 1434396,
+    "case_id": "001-238518",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1762925,
+    "case_id": "001-189407",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1858287,
+    "case_id": "001-174436",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1458575,
+    "case_id": "001-234612",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1484585,
+    "case_id": "001-231748",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1528834,
+    "case_id": "001-225888",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1469399,
+    "case_id": "001-233998",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1460246,
+    "case_id": "001-234618",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1673165,
+    "case_id": "001-203810",
+    "category": "procedural",
+    "confidence": "high",
+    "reason": "Dispositif sub-paragraph (a/b/c/d)."
+  },
+  {
+    "rowid": 1509660,
+    "case_id": "001-229165",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered row with footnote marker."
+  },
+  {
+    "rowid": 1489318,
+    "case_id": "001-231339",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1681174,
+    "case_id": "001-202640",
+    "category": "procedural",
+    "confidence": "high",
+    "reason": "High density of procedural language markers."
+  },
+  {
+    "rowid": 1455387,
+    "case_id": "001-235028",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1858310,
+    "case_id": "001-174436",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1569592,
+    "case_id": "001-219681",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions data row with m² measurements."
+  },
+  {
+    "rowid": 1587219,
+    "case_id": "001-218120",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Moderate procedural language, minimal table context."
+  },
+  {
+    "rowid": 1567006,
+    "case_id": "001-219654",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1497732,
+    "case_id": "001-230270",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1387167,
+    "case_id": "001-247639",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1801651,
+    "case_id": "001-183586",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1375404,
+    "case_id": "001-249530",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Moderate-to-high procedural signals."
+  },
+  {
+    "rowid": 1808546,
+    "case_id": "001-182168",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1840275,
+    "case_id": "001-177654",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1551596,
+    "case_id": "001-222781",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Moderate-to-high procedural signals."
+  },
+  {
+    "rowid": 1447184,
+    "case_id": "001-236048",
+    "category": "unclear",
+    "confidence": "low",
+    "reason": "Mixed procedural and table signals."
+  },
+  {
+    "rowid": 1759669,
+    "case_id": "001-189732",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1493650,
+    "case_id": "001-230890",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions enumeration in table context."
+  },
+  {
+    "rowid": 1810037,
+    "case_id": "001-181836",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1394569,
+    "case_id": "001-247432",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Moderate procedural language, minimal table context."
+  },
+  {
+    "rowid": 1683824,
+    "case_id": "001-202430",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1464799,
+    "case_id": "001-234413",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1799608,
+    "case_id": "001-183546",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1660683,
+    "case_id": "001-206202",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1814986,
+    "case_id": "001-181279",
+    "category": "procedural",
+    "confidence": "high",
+    "reason": "Operative part / dispositif paragraph."
+  },
+  {
+    "rowid": 1481931,
+    "case_id": "001-232024",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1638950,
+    "case_id": "001-209453",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1672781,
+    "case_id": "001-203972",
+    "category": "unclear",
+    "confidence": "low",
+    "reason": "Mixed procedural and table signals."
+  },
+  {
+    "rowid": 1465743,
+    "case_id": "001-234331",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1853884,
+    "case_id": "001-174954",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Standalone application number in table context."
+  },
+  {
+    "rowid": 1500003,
+    "case_id": "001-230301",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1413588,
+    "case_id": "001-243884",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1523314,
+    "case_id": "001-227745",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1444785,
+    "case_id": "001-237429",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1535787,
+    "case_id": "001-224937",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1588017,
+    "case_id": "001-217798",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions data row with m² measurements."
+  },
+  {
+    "rowid": 1541169,
+    "case_id": "001-223976",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "CAO data fragment in strong table context."
+  },
+  {
+    "rowid": 1724829,
+    "case_id": "001-195865",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1515179,
+    "case_id": "001-228676",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1410222,
+    "case_id": "001-244615",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1719509,
+    "case_id": "001-196143",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Standalone application number in table context."
+  },
+  {
+    "rowid": 1571682,
+    "case_id": "001-219705",
+    "category": "unclear",
+    "confidence": "low",
+    "reason": "Very short text with no context signals."
+  },
+  {
+    "rowid": 1377291,
+    "case_id": "001-249130",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1396927,
+    "case_id": "001-246020",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1490602,
+    "case_id": "001-231094",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numeric-prefixed row beginning with date, no procedural language."
+  },
+  {
+    "rowid": 1813268,
+    "case_id": "001-181392",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions data row with m² measurements."
+  },
+  {
+    "rowid": 1562982,
+    "case_id": "001-220523",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1429658,
+    "case_id": "001-238843",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1632410,
+    "case_id": "001-210317",
+    "category": "unclear",
+    "confidence": "low",
+    "reason": "Mixed procedural and table signals."
+  },
+  {
+    "rowid": 1510354,
+    "case_id": "001-229147",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1851511,
+    "case_id": "001-175497",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1658429,
+    "case_id": "001-206373",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1465016,
+    "case_id": "001-234413",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1865379,
+    "case_id": "001-173382",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1449777,
+    "case_id": "001-235687",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions data row with m² measurements."
+  },
+  {
+    "rowid": 1649926,
+    "case_id": "001-208450",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1422909,
+    "case_id": "001-242078",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions data row with m² measurements."
+  },
+  {
+    "rowid": 1426799,
+    "case_id": "001-241585",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1441196,
+    "case_id": "001-237950",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1793015,
+    "case_id": "001-185214",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1582703,
+    "case_id": "001-219044",
+    "category": "unclear",
+    "confidence": "low",
+    "reason": "Could not determine category from available signals."
+  },
+  {
+    "rowid": 1423856,
+    "case_id": "001-242087",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Numbered applicant row without procedural language."
+  },
+  {
+    "rowid": 1639647,
+    "case_id": "001-209631",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1387424,
+    "case_id": "001-247548",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1808553,
+    "case_id": "001-182168",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1486264,
+    "case_id": "001-231761",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1780369,
+    "case_id": "001-187464",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1413050,
+    "case_id": "001-243975",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Conflicting procedural and table signals."
+  },
+  {
+    "rowid": 1436203,
+    "case_id": "001-238384",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1486070,
+    "case_id": "001-231744",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions data row with m² measurements."
+  },
+  {
+    "rowid": 1446315,
+    "case_id": "001-236185",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1933156,
+    "case_id": "001-145579",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1694052,
+    "case_id": "001-200734",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1411116,
+    "case_id": "001-244077",
+    "category": "procedural",
+    "confidence": "high",
+    "reason": "High density of procedural language markers."
+  },
+  {
+    "rowid": 1443445,
+    "case_id": "001-237531",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions data row with m² measurements."
+  },
+  {
+    "rowid": 1390419,
+    "case_id": "001-247550",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1507166,
+    "case_id": "001-229329",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "CAO data fragment in strong table context."
+  },
+  {
+    "rowid": 1403865,
+    "case_id": "001-245251",
+    "category": "unclear",
+    "confidence": "low",
+    "reason": "Mixed procedural and table signals."
+  },
+  {
+    "rowid": 1573710,
+    "case_id": "001-219673",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Moderate procedural language, minimal table context."
+  },
+  {
+    "rowid": 1566043,
+    "case_id": "001-220156",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1416575,
+    "case_id": "001-243554",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1573622,
+    "case_id": "001-219714",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "CAO data fragment in strong table context."
+  },
+  {
+    "rowid": 1507027,
+    "case_id": "001-229328",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1481743,
+    "case_id": "001-232021",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1768340,
+    "case_id": "001-188398",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1546458,
+    "case_id": "001-223288",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1392012,
+    "case_id": "001-247849",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1441142,
+    "case_id": "001-237950",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1766073,
+    "case_id": "001-189087",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1402494,
+    "case_id": "001-245266",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1581966,
+    "case_id": "001-219099",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1501859,
+    "case_id": "001-229946",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1428326,
+    "case_id": "001-240195",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1816016,
+    "case_id": "001-181070",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1516817,
+    "case_id": "001-228539",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1390064,
+    "case_id": "001-247550",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1380071,
+    "case_id": "001-248705",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1543093,
+    "case_id": "001-223717",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1643331,
+    "case_id": "001-209185",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Numbered applicant-name row; moderate table context."
+  },
+  {
+    "rowid": 1408208,
+    "case_id": "001-244847",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Moderate procedural language, minimal table context."
+  },
+  {
+    "rowid": 1434316,
+    "case_id": "001-238518",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1454879,
+    "case_id": "001-235020",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1516259,
+    "case_id": "001-228534",
+    "category": "unclear",
+    "confidence": "low",
+    "reason": "Mixed procedural and table signals."
+  },
+  {
+    "rowid": 1405723,
+    "case_id": "001-245154",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1645697,
+    "case_id": "001-208881",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1567161,
+    "case_id": "001-219656",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1529603,
+    "case_id": "001-225895",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1450789,
+    "case_id": "001-235620",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1433396,
+    "case_id": "001-238570",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1824363,
+    "case_id": "001-179865",
+    "category": "unclear",
+    "confidence": "low",
+    "reason": "Very short text with no context signals."
+  },
+  {
+    "rowid": 1815548,
+    "case_id": "001-181079",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1863050,
+    "case_id": "001-173491",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1478115,
+    "case_id": "001-233121",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1487215,
+    "case_id": "001-231623",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "CAO data fragment in strong table context."
+  },
+  {
+    "rowid": 1437323,
+    "case_id": "001-238268",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1520717,
+    "case_id": "001-228020",
+    "category": "procedural",
+    "confidence": "high",
+    "reason": "High density of procedural language markers."
+  },
+  {
+    "rowid": 1444388,
+    "case_id": "001-237515",
+    "category": "procedural",
+    "confidence": "high",
+    "reason": "High density of procedural language markers."
+  },
+  {
+    "rowid": 1734251,
+    "case_id": "001-194005",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Duration fragment (day(s)...) in table context."
+  },
+  {
+    "rowid": 1496824,
+    "case_id": "001-230630",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1388077,
+    "case_id": "001-247548",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1446736,
+    "case_id": "001-236137",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Moderate procedural language, minimal table context."
+  },
+  {
+    "rowid": 1899932,
+    "case_id": "001-164947",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1422710,
+    "case_id": "001-242085",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1389788,
+    "case_id": "001-247550",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1692675,
+    "case_id": "001-200726",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1466080,
+    "case_id": "001-234325",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Prison conditions enumeration without clear table context."
+  },
+  {
+    "rowid": 1523333,
+    "case_id": "001-227745",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1441080,
+    "case_id": "001-237950",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1616338,
+    "case_id": "001-212140",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1448569,
+    "case_id": "001-235609",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1666583,
+    "case_id": "001-204824",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1845325,
+    "case_id": "001-177393",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Multiple application numbers with low procedural signal."
+  },
+  {
+    "rowid": 1377642,
+    "case_id": "001-248953",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1501632,
+    "case_id": "001-229969",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1497622,
+    "case_id": "001-230310",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1494897,
+    "case_id": "001-230722",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions enumeration in table context."
+  },
+  {
+    "rowid": 1579877,
+    "case_id": "001-219108",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "CAO data fragment in strong table context."
+  },
+  {
+    "rowid": 1447996,
+    "case_id": "001-235890",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1387172,
+    "case_id": "001-247639",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1895684,
+    "case_id": "001-166952",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1421629,
+    "case_id": "001-242434",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Moderate procedural language, minimal table context."
+  },
+  {
+    "rowid": 1865963,
+    "case_id": "001-173388",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1566598,
+    "case_id": "001-219942",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1403476,
+    "case_id": "001-245215",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1518488,
+    "case_id": "001-228380",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1898201,
+    "case_id": "001-166746",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1612620,
+    "case_id": "001-213217",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numeric-prefixed row beginning with date, no procedural language."
+  },
+  {
+    "rowid": 1667870,
+    "case_id": "001-204683",
+    "category": "procedural",
+    "confidence": "high",
+    "reason": "High density of procedural language markers."
+  },
+  {
+    "rowid": 1469855,
+    "case_id": "001-234005",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1902403,
+    "case_id": "001-163919",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1724703,
+    "case_id": "001-195861",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1615152,
+    "case_id": "001-212373",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1512759,
+    "case_id": "001-229020",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1776835,
+    "case_id": "001-187821",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1837719,
+    "case_id": "001-178357",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Standalone application number in table context."
+  },
+  {
+    "rowid": 1445098,
+    "case_id": "001-237429",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1906084,
+    "case_id": "001-162764",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1583643,
+    "case_id": "001-218552",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1526259,
+    "case_id": "001-226481",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions enumeration in table context."
+  },
+  {
+    "rowid": 1615848,
+    "case_id": "001-212395",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1538881,
+    "case_id": "001-224259",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1559571,
+    "case_id": "001-221234",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Numbered applicant-name row; moderate table context."
+  },
+  {
+    "rowid": 1616192,
+    "case_id": "001-212135",
+    "category": "unclear",
+    "confidence": "low",
+    "reason": "Mixed procedural and table signals."
+  },
+  {
+    "rowid": 1452320,
+    "case_id": "001-235537",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Disability condition row in table context."
+  },
+  {
+    "rowid": 1558062,
+    "case_id": "001-221551",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1645561,
+    "case_id": "001-208881",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Standalone date in table context."
+  },
+  {
+    "rowid": 1446731,
+    "case_id": "001-236137",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Conflicting procedural and table signals."
+  },
+  {
+    "rowid": 1725128,
+    "case_id": "001-195867",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Duration fragment in table context."
+  },
+  {
+    "rowid": 1507158,
+    "case_id": "001-229329",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1563127,
+    "case_id": "001-220510",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1489002,
+    "case_id": "001-231562",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1944361,
+    "case_id": "001-139906",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1440899,
+    "case_id": "001-237951",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1511370,
+    "case_id": "001-228994",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1526674,
+    "case_id": "001-226483",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions data row with m² measurements."
+  },
+  {
+    "rowid": 1375723,
+    "case_id": "001-249345",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1381465,
+    "case_id": "001-248398",
+    "category": "procedural",
+    "confidence": "high",
+    "reason": "High density of procedural language markers."
+  },
+  {
+    "rowid": 1755281,
+    "case_id": "001-189952",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1542306,
+    "case_id": "001-223710",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1487079,
+    "case_id": "001-231621",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "CAO data fragment in strong table context."
+  },
+  {
+    "rowid": 1555629,
+    "case_id": "001-221557",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Conflicting procedural and table signals."
+  },
+  {
+    "rowid": 1538861,
+    "case_id": "001-224259",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1514614,
+    "case_id": "001-228673",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Column header in administrative offence table."
+  },
+  {
+    "rowid": 1800900,
+    "case_id": "001-183560",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1755949,
+    "case_id": "001-189959",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1864718,
+    "case_id": "001-173372",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1482755,
+    "case_id": "001-232052",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1810377,
+    "case_id": "001-181841",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1699503,
+    "case_id": "001-200321",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1699594,
+    "case_id": "001-200321",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Conflicting procedural and table signals."
+  },
+  {
+    "rowid": 1834836,
+    "case_id": "001-178744",
+    "category": "procedural",
+    "confidence": "high",
+    "reason": "Operative part / dispositif paragraph."
+  },
+  {
+    "rowid": 1493864,
+    "case_id": "001-230725",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1832673,
+    "case_id": "001-178868",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1672293,
+    "case_id": "001-203981",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1883663,
+    "case_id": "001-169647",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1502665,
+    "case_id": "001-229921",
+    "category": "procedural",
+    "confidence": "high",
+    "reason": "High density of procedural language markers."
+  },
+  {
+    "rowid": 1577668,
+    "case_id": "001-219732",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1409888,
+    "case_id": "001-244726",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1524395,
+    "case_id": "001-227643",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1452135,
+    "case_id": "001-235534",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Conflicting procedural and table signals."
+  },
+  {
+    "rowid": 1504687,
+    "case_id": "001-229414",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1540104,
+    "case_id": "001-224085",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1580496,
+    "case_id": "001-219116",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1610860,
+    "case_id": "001-213735",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1434951,
+    "case_id": "001-238389",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1689988,
+    "case_id": "001-201090",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1520123,
+    "case_id": "001-228169",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1415230,
+    "case_id": "001-243576",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1672780,
+    "case_id": "001-203972",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1947892,
+    "case_id": "001-138921",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1527335,
+    "case_id": "001-226426",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1397178,
+    "case_id": "001-246017",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1666651,
+    "case_id": "001-204825",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1528118,
+    "case_id": "001-226053",
+    "category": "unclear",
+    "confidence": "low",
+    "reason": "Very short text with no context signals."
+  },
+  {
+    "rowid": 1842212,
+    "case_id": "001-177417",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1908103,
+    "case_id": "001-161410",
+    "category": "procedural",
+    "confidence": "high",
+    "reason": "Operative part / dispositif paragraph."
+  },
+  {
+    "rowid": 1629473,
+    "case_id": "001-210497",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Conflicting procedural and table signals."
+  },
+  {
+    "rowid": 1438631,
+    "case_id": "001-238132",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1579033,
+    "case_id": "001-219308",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1499111,
+    "case_id": "001-230278",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1514675,
+    "case_id": "001-228673",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1562193,
+    "case_id": "001-220550",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1882775,
+    "case_id": "001-170283",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Multiple application numbers with low procedural signal."
+  },
+  {
+    "rowid": 1554953,
+    "case_id": "001-222164",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1810997,
+    "case_id": "001-181846",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Standalone application number in table context."
+  },
+  {
+    "rowid": 1863317,
+    "case_id": "001-173494",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1933016,
+    "case_id": "001-145579",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1501993,
+    "case_id": "001-229971",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions data row with m² measurements."
+  },
+  {
+    "rowid": 1768737,
+    "case_id": "001-188394",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1666677,
+    "case_id": "001-204825",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1404080,
+    "case_id": "001-245251",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1856097,
+    "case_id": "001-174642",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1535788,
+    "case_id": "001-224937",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Moderate-to-high procedural signals."
+  },
+  {
+    "rowid": 1493858,
+    "case_id": "001-230725",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1874601,
+    "case_id": "001-171482",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1390181,
+    "case_id": "001-247550",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1613778,
+    "case_id": "001-212842",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1651889,
+    "case_id": "001-211797",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1534093,
+    "case_id": "001-225036",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Administrative offence (CAO) applicant row."
+  },
+  {
+    "rowid": 1690122,
+    "case_id": "001-201090",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Standalone date in table context."
+  },
+  {
+    "rowid": 1536088,
+    "case_id": "001-224784",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1455032,
+    "case_id": "001-235022",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Numbered applicant-name row; moderate table context."
+  },
+  {
+    "rowid": 1663943,
+    "case_id": "001-205176",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1881173,
+    "case_id": "001-170137",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1453298,
+    "case_id": "001-235549",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "CAO data fragment in strong table context."
+  },
+  {
+    "rowid": 1403699,
+    "case_id": "001-245256",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1495874,
+    "case_id": "001-230713",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Moderate procedural language, minimal table context."
+  },
+  {
+    "rowid": 1385458,
+    "case_id": "001-247918",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1573442,
+    "case_id": "001-219665",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1911773,
+    "case_id": "001-159766",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1487908,
+    "case_id": "001-231347",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1592596,
+    "case_id": "001-217254",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1601437,
+    "case_id": "001-214767",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions data row with m² measurements."
+  },
+  {
+    "rowid": 1806028,
+    "case_id": "001-182600",
+    "category": "unclear",
+    "confidence": "low",
+    "reason": "Mixed procedural and table signals."
+  },
+  {
+    "rowid": 1512943,
+    "case_id": "001-229021",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions enumeration in table context."
+  },
+  {
+    "rowid": 1809864,
+    "case_id": "001-181834",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1672823,
+    "case_id": "001-203972",
+    "category": "procedural",
+    "confidence": "high",
+    "reason": "Very high procedural signal despite some table context."
+  },
+  {
+    "rowid": 1662613,
+    "case_id": "001-205987",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1855312,
+    "case_id": "001-174969",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1613650,
+    "case_id": "001-212845",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1387978,
+    "case_id": "001-247548",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1949886,
+    "case_id": "001-138583",
+    "category": "procedural",
+    "confidence": "high",
+    "reason": "Operative part / dispositif paragraph."
+  },
+  {
+    "rowid": 1439642,
+    "case_id": "001-237970",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Column header in administrative offence table."
+  },
+  {
+    "rowid": 1392934,
+    "case_id": "001-247451",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1440370,
+    "case_id": "001-237974",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1519563,
+    "case_id": "001-228352",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1719933,
+    "case_id": "001-196178",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1941385,
+    "case_id": "001-140783",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1624396,
+    "case_id": "001-211131",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1879777,
+    "case_id": "001-170650",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Multiple application numbers with low procedural signal."
+  },
+  {
+    "rowid": 1915708,
+    "case_id": "001-158478",
+    "category": "unclear",
+    "confidence": "low",
+    "reason": "Could not determine category from available signals."
+  },
+  {
+    "rowid": 1448980,
+    "case_id": "001-235693",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1526028,
+    "case_id": "001-226479",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Conflicting procedural and table signals."
+  },
+  {
+    "rowid": 1837500,
+    "case_id": "001-178357",
+    "category": "unclear",
+    "confidence": "low",
+    "reason": "Could not determine category from available signals."
+  },
+  {
+    "rowid": 1388146,
+    "case_id": "001-247548",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1594030,
+    "case_id": "001-216638",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Multiple application numbers with low procedural signal."
+  },
+  {
+    "rowid": 1672826,
+    "case_id": "001-203972",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Duration fragment starting with number."
+  },
+  {
+    "rowid": 1499974,
+    "case_id": "001-230301",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1507311,
+    "case_id": "001-229330",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1842925,
+    "case_id": "001-177424",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1413148,
+    "case_id": "001-243975",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1414676,
+    "case_id": "001-243660",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1756112,
+    "case_id": "001-189959",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1377421,
+    "case_id": "001-249131",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 2001345,
+    "case_id": "001-96430",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1694169,
+    "case_id": "001-200735",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1550475,
+    "case_id": "001-222909",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1670295,
+    "case_id": "001-204193",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1381163,
+    "case_id": "001-248592",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1450151,
+    "case_id": "001-235689",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1734096,
+    "case_id": "001-194004",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1540506,
+    "case_id": "001-224089",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1402391,
+    "case_id": "001-245265",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1413893,
+    "case_id": "001-243663",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1604778,
+    "case_id": "001-214209",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1612614,
+    "case_id": "001-213217",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1535315,
+    "case_id": "001-224991",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Numbered applicant-name row; moderate table context."
+  },
+  {
+    "rowid": 1484330,
+    "case_id": "001-231742",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1714258,
+    "case_id": "001-196884",
+    "category": "unclear",
+    "confidence": "low",
+    "reason": "Could not determine category from available signals."
+  },
+  {
+    "rowid": 1554855,
+    "case_id": "001-222156",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1485138,
+    "case_id": "001-231756",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1505329,
+    "case_id": "001-229416",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1550016,
+    "case_id": "001-222926",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1523921,
+    "case_id": "001-227640",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1514621,
+    "case_id": "001-228673",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1781269,
+    "case_id": "001-187241",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Standalone date in table context."
+  },
+  {
+    "rowid": 1674152,
+    "case_id": "001-203945",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Moderate procedural language, minimal table context."
+  },
+  {
+    "rowid": 1459415,
+    "case_id": "001-234606",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1544038,
+    "case_id": "001-223658",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1948010,
+    "case_id": "001-138921",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1964998,
+    "case_id": "001-115885",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1546792,
+    "case_id": "001-223273",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1612718,
+    "case_id": "001-213221",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered row with footnote marker."
+  },
+  {
+    "rowid": 1390233,
+    "case_id": "001-247550",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1495540,
+    "case_id": "001-230730",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1865492,
+    "case_id": "001-173383",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1792685,
+    "case_id": "001-185213",
+    "category": "unclear",
+    "confidence": "low",
+    "reason": "Very short text with no context signals."
+  },
+  {
+    "rowid": 1463325,
+    "case_id": "001-234443",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1449243,
+    "case_id": "001-235682",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1778985,
+    "case_id": "001-187394",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1552116,
+    "case_id": "001-222309",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Moderate-to-high procedural signals."
+  },
+  {
+    "rowid": 1465256,
+    "case_id": "001-234412",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1405153,
+    "case_id": "001-245140",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1451813,
+    "case_id": "001-235489",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Numbered applicant row without procedural language."
+  },
+  {
+    "rowid": 1462615,
+    "case_id": "001-234455",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1496465,
+    "case_id": "001-230634",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1533433,
+    "case_id": "001-225313",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Legal provision explanation paragraph."
+  },
+  {
+    "rowid": 1574162,
+    "case_id": "001-219490",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1632945,
+    "case_id": "001-210337",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1437318,
+    "case_id": "001-238268",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1799923,
+    "case_id": "001-183549",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1531478,
+    "case_id": "001-225677",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1570754,
+    "case_id": "001-219692",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1404630,
+    "case_id": "001-245123",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1663990,
+    "case_id": "001-205179",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1464968,
+    "case_id": "001-234413",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1427296,
+    "case_id": "001-241596",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1416277,
+    "case_id": "001-243559",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1482863,
+    "case_id": "001-233158",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1765519,
+    "case_id": "001-189091",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1484053,
+    "case_id": "001-231741",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1725264,
+    "case_id": "001-195869",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1816231,
+    "case_id": "001-181073",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1558732,
+    "case_id": "001-221256",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Conflicting procedural and table signals."
+  },
+  {
+    "rowid": 1405539,
+    "case_id": "001-245143",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1781347,
+    "case_id": "001-187241",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1500992,
+    "case_id": "001-229932",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions enumeration in table context."
+  },
+  {
+    "rowid": 1517840,
+    "case_id": "001-228372",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1476928,
+    "case_id": "001-233232",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1801074,
+    "case_id": "001-183562",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1945706,
+    "case_id": "001-138918",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1460553,
+    "case_id": "001-234623",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1404495,
+    "case_id": "001-245111",
+    "category": "procedural",
+    "confidence": "high",
+    "reason": "High density of procedural language markers."
+  },
+  {
+    "rowid": 1403441,
+    "case_id": "001-245215",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1375397,
+    "case_id": "001-249530",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Moderate-to-high procedural signals."
+  },
+  {
+    "rowid": 1417936,
+    "case_id": "001-243120",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1811021,
+    "case_id": "001-181846",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1434051,
+    "case_id": "001-238518",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1429787,
+    "case_id": "001-238835",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Numbered applicant-name row; moderate table context."
+  },
+  {
+    "rowid": 1413979,
+    "case_id": "001-243667",
+    "category": "unclear",
+    "confidence": "low",
+    "reason": "Could not determine category from available signals."
+  },
+  {
+    "rowid": 1438835,
+    "case_id": "001-238029",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1582988,
+    "case_id": "001-219048",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Moderate procedural language, minimal table context."
+  },
+  {
+    "rowid": 1517333,
+    "case_id": "001-228369",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1882876,
+    "case_id": "001-170284",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Duration fragment in table context."
+  },
+  {
+    "rowid": 1530460,
+    "case_id": "001-225765",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1947612,
+    "case_id": "001-138921",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1506414,
+    "case_id": "001-229392",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1403413,
+    "case_id": "001-245215",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered app-no list entry."
+  },
+  {
+    "rowid": 1964934,
+    "case_id": "001-115885",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1408880,
+    "case_id": "001-244815",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1739806,
+    "case_id": "001-193479",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions data row with m² measurements."
+  },
+  {
+    "rowid": 1582048,
+    "case_id": "001-219103",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1500767,
+    "case_id": "001-230252",
+    "category": "procedural",
+    "confidence": "high",
+    "reason": "High density of procedural language markers."
+  },
+  {
+    "rowid": 1858478,
+    "case_id": "001-174437",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Standalone application number in table context."
+  },
+  {
+    "rowid": 1764315,
+    "case_id": "001-189406",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1441520,
+    "case_id": "001-237949",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1428534,
+    "case_id": "001-240196",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1518833,
+    "case_id": "001-228382",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions data row with m² measurements."
+  },
+  {
+    "rowid": 1449765,
+    "case_id": "001-235687",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1433549,
+    "case_id": "001-238521",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1806100,
+    "case_id": "001-182602",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1855094,
+    "case_id": "001-174967",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Conflicting procedural and table signals."
+  },
+  {
+    "rowid": 1766424,
+    "case_id": "001-189093",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1465624,
+    "case_id": "001-234330",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Multiple application numbers with low procedural signal."
+  },
+  {
+    "rowid": 1752781,
+    "case_id": "001-191362",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1516496,
+    "case_id": "001-228536",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1594293,
+    "case_id": "001-216469",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1377269,
+    "case_id": "001-249130",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1810867,
+    "case_id": "001-181845",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1879017,
+    "case_id": "001-170647",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1396037,
+    "case_id": "001-247135",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1382109,
+    "case_id": "001-248089",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Procedural language + procedural context."
+  },
+  {
+    "rowid": 1557049,
+    "case_id": "001-221521",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1423119,
+    "case_id": "001-242066",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Moderate-to-high procedural signals."
+  },
+  {
+    "rowid": 1405159,
+    "case_id": "001-245140",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1388119,
+    "case_id": "001-247548",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1593374,
+    "case_id": "001-216936",
+    "category": "procedural",
+    "confidence": "medium",
+    "reason": "Moderate procedural language, minimal table context."
+  },
+  {
+    "rowid": 1388156,
+    "case_id": "001-247548",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1506613,
+    "case_id": "001-229324",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Multiple application numbers with low procedural signal."
+  },
+  {
+    "rowid": 1478652,
+    "case_id": "001-233119",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions data row with m² measurements."
+  },
+  {
+    "rowid": 1524949,
+    "case_id": "001-226569",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1472596,
+    "case_id": "001-233643",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1395677,
+    "case_id": "001-247138",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions data row with m² measurements."
+  },
+  {
+    "rowid": 1418006,
+    "case_id": "001-243121",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered row with footnote marker."
+  },
+  {
+    "rowid": 1844701,
+    "case_id": "001-177401",
+    "category": "procedural",
+    "confidence": "high",
+    "reason": "High density of procedural language markers."
+  },
+  {
+    "rowid": 1541274,
+    "case_id": "001-223977",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "CAO data fragment in strong table context."
+  },
+  {
+    "rowid": 1691863,
+    "case_id": "001-200714",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1426110,
+    "case_id": "001-241726",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1689911,
+    "case_id": "001-201090",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1555037,
+    "case_id": "001-222136",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1433545,
+    "case_id": "001-238521",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1489165,
+    "case_id": "001-231563",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1389612,
+    "case_id": "001-247550",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1460827,
+    "case_id": "001-234647",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1601171,
+    "case_id": "001-214764",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions data row with m² measurements."
+  },
+  {
+    "rowid": 1492115,
+    "case_id": "001-231116",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1601769,
+    "case_id": "001-214770",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Prison conditions data row with m² measurements."
+  },
+  {
+    "rowid": 1463339,
+    "case_id": "001-234443",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1818137,
+    "case_id": "001-180651",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1836120,
+    "case_id": "001-178378",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1900722,
+    "case_id": "001-164944",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1462756,
+    "case_id": "001-234459",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1416527,
+    "case_id": "001-243560",
+    "category": "unclear",
+    "confidence": "low",
+    "reason": "Very short text with no context signals."
+  },
+  {
+    "rowid": 1606467,
+    "case_id": "001-214048",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1523913,
+    "case_id": "001-227640",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Numbered applicant-name row with date/app-no data."
+  },
+  {
+    "rowid": 1731048,
+    "case_id": "001-194315",
+    "category": "unclear",
+    "confidence": "medium",
+    "reason": "Insufficient signals for confident classification."
+  },
+  {
+    "rowid": 1478601,
+    "case_id": "001-233119",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Exact column header / footer text."
+  },
+  {
+    "rowid": 1700150,
+    "case_id": "001-200321",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  },
+  {
+    "rowid": 1583738,
+    "case_id": "001-218553",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Short fragment in moderate table context."
+  },
+  {
+    "rowid": 1847389,
+    "case_id": "001-177122",
+    "category": "applicant_table",
+    "confidence": "high",
+    "reason": "Short fragment in strong table context."
+  },
+  {
+    "rowid": 1522020,
+    "case_id": "001-227730",
+    "category": "applicant_table",
+    "confidence": "medium",
+    "reason": "Court/location name fragment in table context."
+  }
+]
