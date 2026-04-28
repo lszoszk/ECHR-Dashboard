@@ -264,6 +264,14 @@
   vertical-align: middle;
 }
 
+.filter-count {
+  margin-left: 6px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+}
+
 .legal-details-wrap {
   margin-top: 2px;
 }

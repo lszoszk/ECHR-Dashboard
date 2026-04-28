@@ -1449,14 +1449,19 @@ function preprocessDataset(cases) {
   state.loaded = true;
 }
 
-function makeCheckbox(label, value, name) {
-  return `<label class="cb-label"><input type="checkbox" data-name="${name}" value="${escapeHtml(value)}"> <span>${escapeHtml(label)}</span></label>`;
+function makeCheckbox(label, value, name, count = null) {
+  const countSuffix = (count != null && count > 0)
+    ? ` <span class="filter-count">${fmtInt.format(count)}</span>`
+    : "";
+  return `<label class="cb-label"><input type="checkbox" data-name="${name}" value="${escapeHtml(value)}"> <span>${escapeHtml(label)}${countSuffix}</span></label>`;
 }
 
 function renderFilters() {
+  const fc = state.facetCounts || { sections: {}, articles: {}, countries: {}, bodies: {}, importance: {}, docTypes: {} };
+
   el.sectionsFilters.innerHTML = state.sectionsInDataset
     .map((sec) => {
-      const cb = makeCheckbox(SECTION_LABELS[sec] || sec, sec, "sections");
+      const cb = makeCheckbox(SECTION_LABELS[sec] || sec, sec, "sections", fc.sections[sec]);
       if (sec === "introduction") {
         return cb + '<span class="section-hint-icon" title="In Committee and joined cases, this section may contain applicant name lists rather than procedural history">ⓘ</span>';
       }
@@ -1468,26 +1473,26 @@ function renderFilters() {
     .join("");
 
   el.countriesFilters.innerHTML = state.countries
-    .map((code) => makeCheckbox(COUNTRY_NAMES[code] || code, code, "countries"))
+    .map((code) => makeCheckbox(COUNTRY_NAMES[code] || code, code, "countries", fc.countries[code]))
     .join("");
 
   el.articlesFilters.innerHTML = state.articles
-    .map((article) => makeCheckbox(`Art. ${article}`, article, "articles"))
+    .map((article) => makeCheckbox(`Art. ${article}`, article, "articles", fc.articles[article]))
     .join("");
 
   el.originatingBodyFilters.innerHTML = state.bodies
-    .map((body) => makeCheckbox(body, body, "bodies"))
+    .map((body) => makeCheckbox(body, body, "bodies", fc.bodies[body]))
     .join("");
 
   el.importanceFilters.innerHTML = state.importanceLevels
-    .map((level) => makeCheckbox(level, level, "importance"))
+    .map((level) => makeCheckbox(level, level, "importance", fc.importance[level]))
     .join("");
 
   el.docTypeFilters.innerHTML = [
-    makeCheckbox("Chamber", "chamber", "docTypes"),
-    makeCheckbox("Grand Chamber", "grand_chamber", "docTypes"),
-    makeCheckbox("Committee", "committee", "docTypes"),
-    makeCheckbox("Press Releases", "press_release", "docTypes"),
+    makeCheckbox("Chamber", "chamber", "docTypes", fc.docTypes.chamber),
+    makeCheckbox("Grand Chamber", "grand_chamber", "docTypes", fc.docTypes.grand_chamber),
+    makeCheckbox("Committee", "committee", "docTypes", fc.docTypes.committee),
+    makeCheckbox("Press Releases", "press_release", "docTypes", fc.docTypes.press_release),
   ].join("");
 
   el.outcomeFilters.innerHTML = [
@@ -5334,7 +5339,23 @@ function init() {
           for (const db of dbArr) DB_TO_NORM[db] = norm;
         }
 
+        // Build facet count maps so renderFilters can show "(N)" beside each checkbox.
+        // Section counts merge multiple DB labels into one normalized bucket.
+        state.facetCounts = { sections: {}, articles: {}, countries: {}, bodies: {}, importance: {}, docTypes: {} };
+
         if (facets.sections) {
+          // Use MAX (not SUM) per bucket: a single case may have paragraphs in
+          // multiple raw DB sections (e.g. Facts Background AND Facts Proceedings)
+          // that collapse to the same bucket. Sum would double-count cases.
+          // Max gives a lower bound: at least this many cases have ≥1 paragraph
+          // in the bucket. This is approximate but never exceeds total cases.
+          for (const f of facets.sections) {
+            const key = DB_TO_NORM[f.value] || f.value;
+            if (SECTION_LABELS[key]) {
+              const prev = state.facetCounts.sections[key] || 0;
+              state.facetCounts.sections[key] = Math.max(prev, f.count || 0);
+            }
+          }
           // Dedupe: two raw DB values may collapse into the same normalized
           // key, which would otherwise render a duplicate filter checkbox.
           const normalized = facets.sections
@@ -5351,26 +5372,47 @@ function init() {
             });
         }
         if (facets.states) {
+          for (const f of facets.states) if (f.value) state.facetCounts.countries[f.value] = f.count || 0;
           state.countries = facets.states
             .filter((f) => f.value)
             .map((f) => f.value)
             .sort((a, b) => a.localeCompare(b));
         }
         if (facets.articles) {
+          for (const f of facets.articles) state.facetCounts.articles[f.value] = f.count || 0;
           state.articles = facets.articles
             .map((f) => f.value)
             .sort((a, b) => (a.length - b.length) || a.localeCompare(b));
         }
         if (facets.bodies) {
+          for (const f of facets.bodies) state.facetCounts.bodies[f.value] = f.count || 0;
           state.bodies = facets.bodies
             .map((f) => f.value)
             .sort((a, b) => a.localeCompare(b));
         }
         if (facets.importance) {
+          for (const f of facets.importance) if (f.value) state.facetCounts.importance[f.value] = f.count || 0;
           state.importanceLevels = facets.importance
             .filter((f) => f.value)
             .map((f) => f.value)
             .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+        }
+        if (facets.doc_types) {
+          // Map raw doc_type values into our 4 frontend buckets.
+          const dt = state.facetCounts.docTypes;
+          for (const f of facets.doc_types) {
+            const v = (f.value || "").toLowerCase();
+            if (v.includes("press release")) dt.press_release = (dt.press_release || 0) + f.count;
+            else if (v.includes("committee")) dt.committee = (dt.committee || 0) + f.count;
+            else dt.chamber = (dt.chamber || 0) + f.count;
+          }
+          // Grand Chamber count comes from bodies facet (originating_body)
+          const gcBody = (facets.bodies || []).find(b => (b.value || "").toLowerCase().includes("grand chamber"));
+          if (gcBody) {
+            dt.grand_chamber = gcBody.count;
+            // Subtract from chamber bucket (grand chamber would otherwise be double-counted there)
+            dt.chamber = Math.max(0, (dt.chamber || 0) - gcBody.count);
+          }
         }
         renderFilters();
         console.log("[Server Facets] Filters updated from server:", {
