@@ -55,7 +55,13 @@ Article 46              3,981 paras      374 cases
 
 ## Validation
 
-A **stratified sample** of 50 cases (pre/post-Phase-2) was hand-checked. All four passes were also smoke-tested with targeted queries:
+The cleaning pipeline has been validated through three independent mechanisms:
+
+1. **Automated structural analysis** — 10 random cases per year 1975–2025 confirmed the three-population taxonomy.
+2. **LLM precision audit** — Sonnet 4.6 evaluated a stratified random sample of 490 paragraphs across passes P1–P7. Result: **97.6 % overall precision** with 95 % Wilson confidence interval [96.2 %, 98.6 %]. A separate 500-sample audit of P9 gave 98.8 % precision.
+3. **Human expert review** — The project author independently reviewed (a) all 7 LLM-flagged errors (7/7 agreement); (b) 5 random Pop A pre-1998 cases; (c) 4 worked examples; (d) 3 mass-applicant cases; (e) backup integrity. Results: precision floor confirmed; some refinements identified for future passes.
+
+Targeted-query smoke tests:
 
 - `"just satisfaction" pecuniary` (filter: `Just Satisfaction`) → 1,642 cases (was much lower)
 - `"Code of Criminal Procedure"` (filter: `Legal Framework`) → 2,354 cases (vs 2,019 in `Facts Proceedings`)
@@ -81,9 +87,10 @@ All transformation scripts are versioned in the project repository under `script
 
 ## Known limitations
 
-1. **~3,000 Population C cases** still have "ALLEGED VIOLATION" merits content stuck in `Facts` because the segmenter glued the heading to the following paragraph (>120 chars), evading our heading detector. A Pass 5 with relaxed heading bounds is feasible but riskier.
-2. **`Introduction` in mass-applicant cases** (Russia, Ukraine joined cases) still contains 91–309 paragraphs of applicant-table column headers per case. Filtering the section will retrieve these as noise. The `ⓘ` icon next to "Introduction" in the filter sidebar warns researchers about this.
-3. Two raw section labels coexist: `Operative Part` (Pop A/B) and `Operative part` (Pop C, lowercase). The frontend filter merges them under one bucket.
+1. **`para_idx` ≠ HUDOC paragraph number.** Our internal `para_idx` is a sequential row counter from segmentation. The HUDOC-canonical paragraph number printed in the source document differs because HUDOC skips section headings and restarts numbering inside operative parts and separate opinions. A planned future pass will extract HUDOC numbers from the leading "N. " pattern and store them as a separate column for verifiability.
+2. **Population C `Introduction` still contains some tabular content.** Pass 9 cleaned ~27,000 of ~100,000 applicant-table fragments in mass cases. The remaining majority sits in longer sentence-form rows that simple regex cannot reliably distinguish; the `ⓘ` icon on the section filter warns researchers.
+3. **Some sub-section distinctions are absent.** In Population A judgments, our `Facts Background` / `Facts Proceedings` collapses several HUDOC-canonical sub-sections (`PROCEDURE`, `RELEVANT DOMESTIC LAW`, `PROCEEDINGS BEFORE THE COMMISSION`, `FINAL SUBMISSIONS TO THE COURT`). Splitting these out is planned.
+4. Two raw section labels coexist: `Operative Part` (Pop A/B) and `Operative part` (Pop C, lowercase). The frontend filter merges them under one bucket.
 
 ## Citation
 

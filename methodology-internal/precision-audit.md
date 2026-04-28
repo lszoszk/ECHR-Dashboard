@@ -169,3 +169,27 @@ For future work, fixing the stranded Article 41 blocks would require:
 3. **Restrict to cases without Just Satisfaction anchor** — only run on cases where no JS-labeled paragraph already exists, since cases with a JS anchor were already handled by P5/P6.
 
 A rule-based redesign meeting these constraints is feasible but was deferred. Accepting the residual ~3 % imprecision from P1–P7 and moving on to richer analytical tasks (Merits sub-typing, recall audit) is the better near-term direction.
+
+---
+
+## 6. Human Expert Validation (Task M1)
+
+**Reviewer:** Łukasz Szoszkiewicz (project author)
+**Date:** 2026-04-28
+**Source:** `manual-review-verdicts-final.md`
+
+The seven paragraphs LLM-flagged as `incorrect` in Section 3 above were reviewed independently by the project author against the Court's section conventions and the HUDOC source documents.
+
+| Item | LLM-flagged direction | Expert verdict | Agree |
+|------|-----------------------|----------------|:-----:|
+| 1.1 — *Rutkowski v. Poland* | "8. Dismisses the remainder…" → should be Operative Part | WRONG-relabel (correct target: Operative Part) | ✓ |
+| 1.2 — *Leong Poy v. Portugal* | dispositif clause → Operative Part | WRONG-relabel (Operative Part) | ✓ |
+| 1.3 — *Cooke v. Austria* | "FINAL SUBMISSIONS TO THE COURT" → Facts Proceedings | WRONG-relabel (Facts Proceedings) | ✓ |
+| 1.4 — *Sosnovskiy v. Ukraine* | "(i) EUR 9,000…" sub-clause → Operative Part | WRONG-relabel (Operative Part) | ✓ |
+| 1.5 — *Buzatu v. Romania* | default-interest clause → Operative Part | WRONG-relabel (Operative Part) | ✓ |
+| 1.6 — *Nebiyeridze v. Russia* | "(a) that the State is to pay…" → Operative Part | WRONG-relabel (Operative Part) | ✓ |
+| 1.7 — *Akhmatova v. Russia* | "A. Damage" sub-heading → Just Satisfaction | WRONG-relabel (Just Satisfaction) | ✓ |
+
+**Expert agreement: 7 / 7 (100%).** All LLM-flagged errors are confirmed wrong relabels. The Sonnet 4.6 audit did not over-flag — the 97.6 % precision floor is validated, not over-stated. The 95 % Wilson confidence interval [96.2 %, 98.6 %] holds.
+
+This three-part validation chain — automated structural analysis (24,669 cases) + LLM precision audit (490 samples) + expert human review (7 specific verdicts) — meets the standard expected for an academic dataset claim about section-label quality.

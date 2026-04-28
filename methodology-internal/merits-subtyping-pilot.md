@@ -245,3 +245,40 @@ The DITA AND OTHERS case confirms that revision judgments under Rule 80 are enti
 ### Schema stability
 
 The seven-category schema is stable. No substantive eighth category emerged from 229 paragraphs across three structurally distinct populations. The only optional addition warranted by the pilot is a `parties_submissions` sub-category under `application_to_facts` to distinguish substantive party argument from bare one-line denials — but this distinction does not affect the primary taxonomy and can be deferred.
+
+---
+
+## 8. Human Expert Validation (Task M2) — schema rejected
+
+**Reviewer:** Łukasz Szoszkiewicz (project author)
+**Date:** 2026-04-28
+**Source:** `manual-review-verdicts-final.md`
+
+A 10-sample subset of the LLM-classified pilot was reviewed independently. The expert's verdicts:
+
+| Item | LLM category | Expert verdict | Note |
+|------|--------------|---------------|------|
+| 2.1 — *Raschupkin v. Russia* | application_to_facts | WRONG → should be Merits | Expert: paragraph belongs to Merits as a whole, not as a sub-type |
+| 2.2 — *Maksymenko v. Ukraine* | application_to_facts | WRONG → Merits | Same |
+| 2.3 — *Young, James and Webster* | admissibility_within_merits | WRONG → Merits | Same |
+| 2.4 — *S.H. v. Italy* "Government contested" | application_to_facts | WRONG → Facts (likely Proceedings) | **Section misassignment, not sub-type issue** |
+| 2.5 — *Fetisov v. Russia* | violation_finding | WRONG → "I can't find it in the judgment, double check" | Possibly fragment from PDF extraction |
+| 2.6 — *Brannigan v. UK* | application_to_facts | CORRECT (Merits) | Only agreement |
+| 2.7 — *Zander v. Sweden* (sub-section heading) | boundary_or_unclear | WRONG → Merits | Expert: header IS Merits content |
+| 2.8 — *Maksymenko v. Ukraine* | admissibility_within_merits | WRONG → Merits | Same |
+| 2.9 — *Szűcs v. Hungary* (II. ALLEGED VIOLATION header) | boundary_or_unclear | DEFENSIBLE-BUT-MARGINAL | Expert: "It's header from the merits" |
+| 2.10 — *Diță v. Romania* | joinder_or_procedural | DEFENSIBLE-BUT-MARGINAL | — |
+
+**Agreement: 1 / 10 (10%) plus 2 marginal.** The expert systematically rejected the fine-grained sub-typing in favour of treating most paragraphs as plain "Merits". Several findings:
+
+1. **The schema is too granular.** The Court's Merits section is rarely structured into the cleanly separable buckets the schema posits. Most paragraphs are a hybrid of principle-citation and fact-application, and the LLM forces a category that doesn't reflect how legal experts read these texts.
+
+2. **Item 2.4 reveals a deeper issue.** A bare "Government contested that argument" was flagged as section-misassignment (should be in Facts, not Merits). This is not a sub-type problem — it's evidence that some paragraphs in our `Merits` section may belong elsewhere entirely.
+
+3. **Item 2.5 — paragraph not found in source.** The expert could not locate the LLM-classified text in the actual judgment, suggesting either a PDF-extraction artefact (fragment from a different paragraph reattached) or a database-side text corruption. Worth investigating.
+
+### Decision
+
+**The Merits sub-typing schema as designed (B2 pilot) is rejected.** It will NOT be applied to the full corpus. With 10 % expert agreement, scaling to ~500k Merits paragraphs would introduce significant labelling noise rather than analytical signal.
+
+A future redesigned schema might attempt only the cleanest categories — `violation_finding` / `no_violation_finding` (which have ~99 % structural marker reliability via "There has been a violation of Article X") — as a binary tag, leaving the rest as plain Merits. This narrower scope is deferred pending stakeholder discussion.

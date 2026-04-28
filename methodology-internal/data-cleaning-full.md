@@ -601,7 +601,24 @@ TOTAL                       2,001,447 paras  24,669 cases
 
 Each pass took 1–10 minutes to dry-run and another 1–3 minutes to apply. The full cleaning pipeline can be re-executed from a fresh DB in approximately 30 minutes.
 
-## 11. Citation
+## 11. Critical caveat: `para_idx` is an internal counter, not a HUDOC paragraph number
+
+Discovered during expert manual review (2026-04-28).
+
+**The `para_idx` column in our `paragraphs` table is a sequential row counter assigned during PDF segmentation, NOT the canonical paragraph number printed in the HUDOC source document.** They sometimes coincide for early classical-format judgments, but in general they diverge:
+
+- HUDOC numbering starts at "1" for the first PROCEDURE paragraph and skips section headings ("PROCEDURE", "AS TO THE FACTS", "I. ALLEGED VIOLATION OF ARTICLE 6", etc.) which do not get a number.
+- Our `para_idx` starts at 0 for the case-name header and increments for every paragraph including section headings and structural fragments.
+- In separate-opinion blocks, HUDOC restarts numbering at "1" within each opinion. Our `para_idx` continues monotonically.
+- In Operative Part dispositions, HUDOC uses "1.", "2.", "3." for each numbered ruling; our `para_idx` continues from the merits.
+
+**Consequence for methodology examples:** Sections 5.1–5.4 above cite paragraphs as "¶76" or "¶28" — these are our internal `para_idx` values, not the numbers a reader would find by searching HUDOC for "paragraph 76" of the case. For example, in *Wainwright v. United Kingdom* (001-76999), our `¶76` contains the heading text "III. APPLICATION OF ARTICLE 41 OF THE CONVENTION" — which in HUDOC has no paragraph number; the surrounding numbered HUDOC paragraphs are 56 (our `¶75`) and 57 (our `¶77`).
+
+**For verifiability, examples cite paragraphs by their text content (first 80 characters quoted), not by para_idx alone.** Anyone re-checking against HUDOC should search for the quoted text, not the index number.
+
+**Future fix (P10 — planned):** Extract the HUDOC paragraph number from the leading "N. " pattern in each paragraph text where present, and store as a separate `hudoc_para_no` column. This will allow the dashboard to display HUDOC-aligned numbering alongside our internal `para_idx`, restoring full verifiability against the source corpus.
+
+## 12. Citation
 
 > Szoszkiewicz, Ł. (2026). *ECHR Dashboard: tier-1 paragraph-level search across European Court of Human Rights case law.* Adam Mickiewicz University, Poznań.
 > Source: <https://github.com/lszoszk/ECHR-Dashboard>
