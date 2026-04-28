@@ -229,6 +229,9 @@
     <div class="meth-tabs" role="tablist">
       <button class="meth-tab active" data-target="summary" role="tab" aria-selected="true">Summary</button>
       <button class="meth-tab" data-target="full" role="tab" aria-selected="false">Full specification</button>
+      <button class="meth-tab" data-target="audit" role="tab" aria-selected="false">Precision audit</button>
+      <button class="meth-tab" data-target="merits" role="tab" aria-selected="false">Merits sub-typing</button>
+      <button class="meth-tab" data-target="manual" role="tab" aria-selected="false">Manual review</button>
       <button class="meth-tab" data-target="changelog" role="tab" aria-selected="false">Change log</button>
     </div>
 
@@ -250,6 +253,39 @@
       <p class="meth-source-link">
         Source:
         <a href="https://github.com/lszoszk/ECHR-Dashboard/blob/main/docs/methodology/data-cleaning-full.md" target="_blank" rel="noopener">methodology/data-cleaning-full.md</a>
+        on GitHub
+      </p>
+    </div>
+
+    <div id="meth-audit" class="meth-tab-content" role="tabpanel">
+      <div class="meth-md" id="meth-md-audit">
+        <p class="meth-loading">Loading precision audit…</p>
+      </div>
+      <p class="meth-source-link">
+        Source:
+        <a href="https://github.com/lszoszk/ECHR-Dashboard/blob/main/docs/methodology/precision-audit.md" target="_blank" rel="noopener">methodology/precision-audit.md</a>
+        on GitHub
+      </p>
+    </div>
+
+    <div id="meth-merits" class="meth-tab-content" role="tabpanel">
+      <div class="meth-md" id="meth-md-merits">
+        <p class="meth-loading">Loading Merits sub-typing pilot…</p>
+      </div>
+      <p class="meth-source-link">
+        Source:
+        <a href="https://github.com/lszoszk/ECHR-Dashboard/blob/main/docs/methodology/merits-subtyping-pilot.md" target="_blank" rel="noopener">methodology/merits-subtyping-pilot.md</a>
+        on GitHub
+      </p>
+    </div>
+
+    <div id="meth-manual" class="meth-tab-content" role="tabpanel">
+      <div class="meth-md" id="meth-md-manual">
+        <p class="meth-loading">Loading manual review tasks…</p>
+      </div>
+      <p class="meth-source-link">
+        Source:
+        <a href="https://github.com/lszoszk/ECHR-Dashboard/blob/main/docs/methodology/manual-review-tasks.md" target="_blank" rel="noopener">methodology/manual-review-tasks.md</a>
         on GitHub
       </p>
     </div>
@@ -312,6 +348,9 @@
 
     renderMd('methodology/README.md', 'meth-md-summary');
     renderMd('methodology/data-cleaning-full.md', 'meth-md-full');
+    renderMd('methodology/precision-audit.md', 'meth-md-audit');
+    renderMd('methodology/merits-subtyping-pilot.md', 'meth-md-merits');
+    renderMd('methodology/manual-review-tasks.md', 'meth-md-manual');
     renderMd('methodology/CHANGELOG.md', 'meth-md-changelog');
   </script>
 </body>
