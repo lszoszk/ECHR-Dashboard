@@ -1,0 +1,1834 @@
+[
+  {
+    "rowid": 16242,
+    "case_id": "001-57631",
+    "population": "A",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court delimits the scope of proceedings and establishes what issues are actually before it in the specific case."
+  },
+  {
+    "rowid": 16243,
+    "case_id": "001-57631",
+    "population": "A",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court applies Article 6 § 1 civil limb to the specific facts of Mr Obermeier's suspension dispute."
+  },
+  {
+    "rowid": 16244,
+    "case_id": "001-57631",
+    "population": "A",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court frames the legal question arising from the factual dispute between the parties about court binding."
+  },
+  {
+    "rowid": 16246,
+    "case_id": "001-57631",
+    "population": "A",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court applies the Albert and Le Compte 'full jurisdiction' test to the specific Austrian administrative structure."
+  },
+  {
+    "rowid": 16248,
+    "case_id": "001-57631",
+    "population": "A",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court introduces the reasonable-time complaint for the specific proceedings, restating parties' positions."
+  },
+  {
+    "rowid": 16250,
+    "case_id": "001-57631",
+    "population": "A",
+    "category": "joinder_or_procedural",
+    "confidence": "high",
+    "reason": "Court notes that Articles 13 and 14 complaints were not pursued and need not be examined; purely procedural disposal."
+  },
+  {
+    "rowid": 16253,
+    "case_id": "001-57631",
+    "population": "A",
+    "category": "boundary_or_unclear",
+    "confidence": "medium",
+    "reason": "Just satisfaction section (Article 50) damage claim by applicant — outside merits violation analysis proper."
+  },
+  {
+    "rowid": 16254,
+    "case_id": "001-57631",
+    "population": "A",
+    "category": "boundary_or_unclear",
+    "confidence": "medium",
+    "reason": "Government's response to the Article 50 damages claim — just satisfaction, not merits violation analysis."
+  },
+  {
+    "rowid": 16255,
+    "case_id": "001-57631",
+    "population": "A",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Court awards non-pecuniary damage under Article 50 — just satisfaction, not a violation/no-violation finding."
+  },
+  {
+    "rowid": 16259,
+    "case_id": "001-57631",
+    "population": "A",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Court awards costs and expenses under Article 50 — just satisfaction quantum decision, not merits analysis."
+  },
+  {
+    "rowid": 28687,
+    "case_id": "001-57809",
+    "population": "A",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Pure section heading 'AS TO THE LAW I. ALLEGED VIOLATION...' — structural header with no substantive content."
+  },
+  {
+    "rowid": 16451,
+    "case_id": "001-57629",
+    "population": "A",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Pure section heading 'AS TO THE LAW I. ALLEGED VIOLATION OF ARTICLE 6 § 1' — structural header only."
+  },
+  {
+    "rowid": 11378,
+    "case_id": "001-57536",
+    "population": "A",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Pure section heading 'AS TO THE LAW I. ALLEGED VIOLATION OF ARTICLE 3 OF PROTOCOL No. 1' — structural header only."
+  },
+  {
+    "rowid": 16905,
+    "case_id": "001-57624",
+    "population": "A",
+    "category": "admissibility_within_merits",
+    "confidence": "high",
+    "reason": "Court addresses Government's non-exhaustion preliminary objection and finds it not proven — admissibility ruling within merits section."
+  },
+  {
+    "rowid": 16906,
+    "case_id": "001-57624",
+    "population": "A",
+    "category": "admissibility_within_merits",
+    "confidence": "high",
+    "reason": "Court disposes of the preliminary objection ('subject to estoppel... without foundation') before turning to Article 6 merits."
+  },
+  {
+    "rowid": 16907,
+    "case_id": "001-57624",
+    "population": "A",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court recites the specific complaint, applicable Convention text, and parties' positions — opening of facts-application analysis."
+  },
+  {
+    "rowid": 16908,
+    "case_id": "001-57624",
+    "population": "A",
+    "category": "general_principles",
+    "confidence": "high",
+    "reason": "Court states the general rule on how paragraphs 1 and 3(c) of Article 6 apply in appellate proceedings, citing Monnell and Morris."
+  },
+  {
+    "rowid": 16909,
+    "case_id": "001-57624",
+    "population": "A",
+    "category": "general_principles",
+    "confidence": "high",
+    "reason": "Court restates the general 'interests of justice' standard under Article 6 § 3(c) for legal aid, citing Monnell and Morris."
+  },
+  {
+    "rowid": 16912,
+    "case_id": "001-57624",
+    "population": "A",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court applies the complexity/stakes/equality factors to Mr Granger's specific appeal facts, finding legal aid was required."
+  },
+  {
+    "rowid": 16914,
+    "case_id": "001-57624",
+    "population": "A",
+    "category": "joinder_or_procedural",
+    "confidence": "high",
+    "reason": "Court declines to examine Articles 5, 8, 13 complaints not pursued before it — procedural disposal of remaining claims."
+  },
+  {
+    "rowid": 16917,
+    "case_id": "001-57624",
+    "population": "A",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Applicant's Article 50 damage claim — just satisfaction, not merits violation analysis."
+  },
+  {
+    "rowid": 16918,
+    "case_id": "001-57624",
+    "population": "A",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Court assesses and awards non-pecuniary damage under Article 50 — just satisfaction, not merits analysis."
+  },
+  {
+    "rowid": 16921,
+    "case_id": "001-57624",
+    "population": "A",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Costs and expenses claim under Article 50 — just satisfaction, not merits analysis."
+  },
+  {
+    "rowid": 4499,
+    "case_id": "001-57521",
+    "population": "A",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Pure section heading 'I. THE APPLICABILITY OF ARTICLE 50' — structural header only, no substantive content."
+  },
+  {
+    "rowid": 4500,
+    "case_id": "001-57521",
+    "population": "A",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Verbatim quotation of Article 50 text — no analysis; just satisfaction section, not merits violation analysis."
+  },
+  {
+    "rowid": 4501,
+    "case_id": "001-57521",
+    "population": "A",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Government's argument on Article 50 applicability — just satisfaction section, not merits violation analysis."
+  },
+  {
+    "rowid": 4502,
+    "case_id": "001-57521",
+    "population": "A",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Court rules Article 50 is applicable in this case — just satisfaction applicability ruling, not merits analysis."
+  },
+  {
+    "rowid": 3978,
+    "case_id": "001-57608",
+    "population": "A",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Pure section heading 'I. PRELIMINARY: RESPONSIBILITY OF THE RESPONDENT STATE' — structural header with no text content."
+  },
+  {
+    "rowid": 3980,
+    "case_id": "001-57608",
+    "population": "A",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court resolves the preliminary question of State responsibility by applying Article 1 to the specific British Rail/legislation facts."
+  },
+  {
+    "rowid": 3982,
+    "case_id": "001-57608",
+    "population": "A",
+    "category": "admissibility_within_merits",
+    "confidence": "medium",
+    "reason": "Court explains it will not decide the 'negative right' question in abstract — scoping/narrowing the legal issue rather than pure merits analysis."
+  },
+  {
+    "rowid": 3984,
+    "case_id": "001-57608",
+    "population": "A",
+    "category": "general_principles",
+    "confidence": "high",
+    "reason": "Court restates the general principle of confining examination to concrete issues raised by the case, citing Guzzardi."
+  },
+  {
+    "rowid": 3990,
+    "case_id": "001-57608",
+    "population": "A",
+    "category": "general_principles",
+    "confidence": "high",
+    "reason": "Court restates the three-part test for permissible interference under Article 11 § 2, citing Sunday Times."
+  },
+  {
+    "rowid": 3991,
+    "case_id": "001-57608",
+    "population": "A",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court assumes the first two conditions satisfied and focuses the analysis on necessity — case-specific reasoning."
+  },
+  {
+    "rowid": 3992,
+    "case_id": "001-57608",
+    "population": "A",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court lists general advantages of closed shops but dismisses them as not relevant to the specific applicants' situation."
+  },
+  {
+    "rowid": 3994,
+    "case_id": "001-57608",
+    "population": "A",
+    "category": "general_principles",
+    "confidence": "high",
+    "reason": "Court restates the Handyside necessity principles: flexibility of 'necessary', pluralism, proportionality."
+  },
+  {
+    "rowid": 3995,
+    "case_id": "001-57608",
+    "population": "A",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court applies the proportionality/necessity analysis to the specific facts of British Rail's closed shop and the three applicants."
+  },
+  {
+    "rowid": 3998,
+    "case_id": "001-57608",
+    "population": "A",
+    "category": "joinder_or_procedural",
+    "confidence": "high",
+    "reason": "Court declines to examine Article 13 given its Article 11 finding — procedural disposal of a remaining complaint."
+  },
+  {
+    "rowid": 27764,
+    "case_id": "001-57819",
+    "population": "A",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Third parties (Amnesty, Liberty) make submissions about margin of appreciation in derogation — case-specific argument in the merits."
+  },
+  {
+    "rowid": 27765,
+    "case_id": "001-57819",
+    "population": "A",
+    "category": "general_principles",
+    "confidence": "high",
+    "reason": "Court restates the general principles on margin of appreciation under Article 15, citing Ireland v UK."
+  },
+  {
+    "rowid": 27777,
+    "case_id": "001-57819",
+    "population": "A",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Applicants and Standing Advisory Commission argue against necessity of exclusion of judicial control — case-specific submissions."
+  },
+  {
+    "rowid": 27778,
+    "case_id": "001-57819",
+    "population": "A",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Government responds with specific reasons why judicial control was not feasible in Northern Ireland context."
+  },
+  {
+    "rowid": 27779,
+    "case_id": "001-57819",
+    "population": "A",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Commission's opinion that Government had not overstepped margin — case-specific factual conclusion."
+  },
+  {
+    "rowid": 27781,
+    "case_id": "001-57819",
+    "population": "A",
+    "category": "general_principles",
+    "confidence": "high",
+    "reason": "Court restates that its role is not to substitute its view for the Government's regarding emergency measures, citing Ireland v UK and Klass."
+  },
+  {
+    "rowid": 27783,
+    "case_id": "001-57819",
+    "population": "A",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Applicants and Amnesty argue specific safeguards were negligible and incommunicado detention violated standards — case-specific submissions."
+  },
+  {
+    "rowid": 27786,
+    "case_id": "001-57819",
+    "population": "A",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court applies safeguards analysis to the specific facts: right to solicitor after 48 hours, judicial review availability."
+  },
+  {
+    "rowid": 27797,
+    "case_id": "001-57819",
+    "population": "A",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court notes Article 13 complaint was raised but without submissions — framing of remaining complaint against specific facts."
+  },
+  {
+    "rowid": 27799,
+    "case_id": "001-57819",
+    "population": "A",
+    "category": "no_violation_finding",
+    "confidence": "high",
+    "reason": "Court concludes no breach of Article 13 since habeas corpus satisfied Article 5 § 4 (lex specialis) — explicit no-violation."
+  },
+  {
+    "rowid": 25714,
+    "case_id": "001-57862",
+    "population": "A",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Sub-section heading 'A. Applicability of Article 6 para. 1 / 1. Existence of a dispute' — structural header only."
+  },
+  {
+    "rowid": 25716,
+    "case_id": "001-57862",
+    "population": "A",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Government argues this case differs from prior 'civil dispute' cases — case-specific argument about applicability."
+  },
+  {
+    "rowid": 25717,
+    "case_id": "001-57862",
+    "population": "A",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court observes specific features of the applicants' entitlement under Swedish law — application to the specific facts."
+  },
+  {
+    "rowid": 25720,
+    "case_id": "001-57862",
+    "population": "A",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court applies the 'civil right' concept to the applicants' specific property right regarding well water."
+  },
+  {
+    "rowid": 25721,
+    "case_id": "001-57862",
+    "population": "A",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Applicability conclusion: 'Article 6 para. 1 applies to the present case' — case-specific applicability finding."
+  },
+  {
+    "rowid": 25723,
+    "case_id": "001-57862",
+    "population": "A",
+    "category": "violation_finding",
+    "confidence": "high",
+    "reason": "Court states 'there has been a violation of Article 6 para. 1' based on absence of judicial review under Swedish law."
+  },
+  {
+    "rowid": 25724,
+    "case_id": "001-57862",
+    "population": "A",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Verbatim quotation of Article 50 text — just satisfaction section, no merits analysis."
+  },
+  {
+    "rowid": 25728,
+    "case_id": "001-57862",
+    "population": "A",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Court awards non-pecuniary damages under Article 50 — just satisfaction, not merits analysis."
+  },
+  {
+    "rowid": 25730,
+    "case_id": "001-57862",
+    "population": "A",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Itemised costs claim by applicants under Article 50 — just satisfaction, not merits analysis."
+  },
+  {
+    "rowid": 25731,
+    "case_id": "001-57862",
+    "population": "A",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Court rules on costs and expenses under Article 50 — just satisfaction, not merits analysis."
+  },
+  {
+    "rowid": 351514,
+    "case_id": "001-81409",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court frames the specific complaint about reconsideration of a final judgment and identifies the Articles to be examined."
+  },
+  {
+    "rowid": 351515,
+    "case_id": "001-81409",
+    "population": "B",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Verbatim text of Article 1 of Protocol No. 1 — quoted Convention provision without analysis."
+  },
+  {
+    "rowid": 351523,
+    "case_id": "001-81409",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Government concludes its submissions about absence of violation — parties' arguments in the merits."
+  },
+  {
+    "rowid": 351527,
+    "case_id": "001-81409",
+    "population": "B",
+    "category": "general_principles",
+    "confidence": "high",
+    "reason": "Court reiterates settled case-law that a 'claim' can constitute a 'possession' if sufficiently established, citing Stran Greek Refineries."
+  },
+  {
+    "rowid": 351529,
+    "case_id": "001-81409",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court concludes applicability finding: applicant had a civil right and a 'possession' in this case."
+  },
+  {
+    "rowid": 351531,
+    "case_id": "001-81409",
+    "population": "B",
+    "category": "general_principles",
+    "confidence": "high",
+    "reason": "Court quotes the Pravednaya ruling on the procedure for quashing final judgments — established case-law standard."
+  },
+  {
+    "rowid": 351537,
+    "case_id": "001-81409",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court applies the Pravednaya standard to the specific facts: District Court gave no adequate reasons for calling the original judgment a miscarriage of justice."
+  },
+  {
+    "rowid": 351538,
+    "case_id": "001-81409",
+    "population": "B",
+    "category": "violation_finding",
+    "confidence": "high",
+    "reason": "Court finds domestic authorities infringed the principle of legal certainty and the 'right to a court' — explicit violation finding."
+  },
+  {
+    "rowid": 351540,
+    "case_id": "001-81409",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court identifies the specific 'possession' at stake (pension entitlement from the 1999 judgment) for the P1-1 analysis."
+  },
+  {
+    "rowid": 351544,
+    "case_id": "001-81409",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court applies the lawfulness and proportionality tests to the specific facts of the pension reconsideration."
+  },
+  {
+    "rowid": 415286,
+    "case_id": "001-88897",
+    "population": "B",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Pure section heading 'I. ALLEGED VIOLATION OF ARTICLE 6' — structural header only."
+  },
+  {
+    "rowid": 415287,
+    "case_id": "001-88897",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court delimits scope (first complaint withdrawn), identifies the surviving reasonable-time complaint, and notes Article 6 text."
+  },
+  {
+    "rowid": 415288,
+    "case_id": "001-88897",
+    "population": "B",
+    "category": "admissibility_within_merits",
+    "confidence": "high",
+    "reason": "Court addresses and rejects the Government's objection that Article 6 is not applicable — admissibility ruling within merits."
+  },
+  {
+    "rowid": 415289,
+    "case_id": "001-88897",
+    "population": "B",
+    "category": "admissibility_within_merits",
+    "confidence": "high",
+    "reason": "Court rejects first set of proceedings as out of time under Article 35 § 1 — admissibility disposal within merits section."
+  },
+  {
+    "rowid": 415290,
+    "case_id": "001-88897",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court examines the second set of proceedings on the merits: period, courts involved, and applies reasonable-time criteria to the specific facts."
+  },
+  {
+    "rowid": 832622,
+    "case_id": "001-119688",
+    "population": "B",
+    "category": "joinder_or_procedural",
+    "confidence": "high",
+    "reason": "Court addresses locus standi of deceased applicant's widow — procedural standing question."
+  },
+  {
+    "rowid": 832623,
+    "case_id": "001-119688",
+    "population": "B",
+    "category": "joinder_or_procedural",
+    "confidence": "high",
+    "reason": "Court grants the widow standing to continue proceedings — procedural ruling on locus standi."
+  },
+  {
+    "rowid": 832625,
+    "case_id": "001-119688",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Applicants frame their Article 1 Protocol 1 complaint about deprivation and quote the Convention text."
+  },
+  {
+    "rowid": 832658,
+    "case_id": "001-119688",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Applicants raise Article 6 complaint about disregard of the three-year time-limit — specific complaint framing."
+  },
+  {
+    "rowid": 832661,
+    "case_id": "001-119688",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court applies facts: prosecutor's application lodged more than nine years after the privatisation decision — specific factual observation."
+  },
+  {
+    "rowid": 832664,
+    "case_id": "001-119688",
+    "population": "B",
+    "category": "general_principles",
+    "confidence": "high",
+    "reason": "Court reiterates general principle that it does not examine whether limitation plea was well-founded — task of national courts, citing Ruiz Torija."
+  },
+  {
+    "rowid": 832666,
+    "case_id": "001-119688",
+    "population": "B",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Pure section heading 'IV. OTHER ALLEGED VIOLATIONS OF THE CONVENTION' — structural header only."
+  },
+  {
+    "rowid": 832667,
+    "case_id": "001-119688",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court introduces additional Article 6 complaints about disregard of commercial court decision and absence hearing."
+  },
+  {
+    "rowid": 832669,
+    "case_id": "001-119688",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Applicant raises Article 8 complaint about Government disclosing heir information — specific case complaint."
+  },
+  {
+    "rowid": 832670,
+    "case_id": "001-119688",
+    "population": "B",
+    "category": "admissibility_within_merits",
+    "confidence": "high",
+    "reason": "Court finds no appearance of violation on the additional complaints — admissibility/merits disposal (manifestly ill-founded)."
+  },
+  {
+    "rowid": 880947,
+    "case_id": "001-145348",
+    "population": "B",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Pure section heading 'I. ALLEGED VIOLATION OF ARTICLE 8' — structural header only."
+  },
+  {
+    "rowid": 880948,
+    "case_id": "001-145348",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Applicants frame the Article 8 complaint about deportation including the Convention text — complaint introduction."
+  },
+  {
+    "rowid": 880949,
+    "case_id": "001-145348",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "medium",
+    "reason": "One-line Government denial — minimal, but part of parties' positions in the merits."
+  },
+  {
+    "rowid": 880989,
+    "case_id": "001-145348",
+    "population": "B",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Pure section heading 'II. ALLEGED VIOLATION OF ARTICLE 13 IN CONJUNCTION WITH ARTICLE 8' — structural header only."
+  },
+  {
+    "rowid": 880990,
+    "case_id": "001-145348",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Applicants' Article 13 complaint about lack of effective remedy with Article 13 text — complaint framing."
+  },
+  {
+    "rowid": 880991,
+    "case_id": "001-145348",
+    "population": "B",
+    "category": "admissibility_within_merits",
+    "confidence": "high",
+    "reason": "Court declares Article 13 complaint inadmissible for the third applicant who had no arguable Article 8 claim."
+  },
+  {
+    "rowid": 880992,
+    "case_id": "001-145348",
+    "population": "B",
+    "category": "joinder_or_procedural",
+    "confidence": "high",
+    "reason": "Court declines to examine Article 13 for remaining applicants given Article 8 finding — procedural disposal."
+  },
+  {
+    "rowid": 408895,
+    "case_id": "001-89420",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Government's detailed submissions on why Article 6 § 1 is not applicable to the associations' religious freedom proceedings."
+  },
+  {
+    "rowid": 408902,
+    "case_id": "001-89420",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court applies Article 6 applicability test to the specific proceedings about the associations' reputation."
+  },
+  {
+    "rowid": 408908,
+    "case_id": "001-89420",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Government explains specific reasons for length before Federal Constitutional Court: reunification, priority cases."
+  },
+  {
+    "rowid": 408910,
+    "case_id": "001-89420",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Government attributes delay to applicants' own conduct (11-month gap in submitting comments) — specific factual argument."
+  },
+  {
+    "rowid": 408911,
+    "case_id": "001-89420",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Government argues stakes were low (Government stopped using disputed terms in 1998) — case-specific argument on proportionality of length."
+  },
+  {
+    "rowid": 408916,
+    "case_id": "001-89420",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court assesses specific duration of proceedings at each level (1 yr 4 months at first instance, etc.) — factual application."
+  },
+  {
+    "rowid": 408918,
+    "case_id": "001-89420",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court examines specific lengths at various court levels and finds them acceptable or not — application to the specific proceedings."
+  },
+  {
+    "rowid": 408923,
+    "case_id": "001-89420",
+    "population": "B",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Pure section heading 'III. ALLEGED VIOLATION OF ARTICLE 9' — structural header only."
+  },
+  {
+    "rowid": 408925,
+    "case_id": "001-89420",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "medium",
+    "reason": "One-line Government denial of Article 9 violation — minimal but part of parties' positions."
+  },
+  {
+    "rowid": 408962,
+    "case_id": "001-89420",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Applicants' Article 9 + 14 complaint about discriminatory information campaign with Convention text — specific complaint framing."
+  },
+  {
+    "rowid": 765193,
+    "case_id": "001-110709",
+    "population": "B",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Pure section heading 'I. ALLEGED VIOLATION OF ARTICLE 6 AND ARTICLE 1 OF PROTOCOL NO. 1' — structural header only."
+  },
+  {
+    "rowid": 765194,
+    "case_id": "001-110709",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Applicant frames complaint about non-enforcement of Constitutional Court decision — specific complaint introduction."
+  },
+  {
+    "rowid": 765195,
+    "case_id": "001-110709",
+    "population": "B",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Verbatim text of Article 6 and Article 1 Protocol 1 — quoted Convention provisions without analysis."
+  },
+  {
+    "rowid": 765209,
+    "case_id": "001-110709",
+    "population": "B",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Pure section heading 'II. ALLEGED VIOLATION OF ARTICLE 13' — structural header only."
+  },
+  {
+    "rowid": 765211,
+    "case_id": "001-110709",
+    "population": "B",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Verbatim text of Article 13 — quoted Convention provision without analysis."
+  },
+  {
+    "rowid": 765213,
+    "case_id": "001-110709",
+    "population": "B",
+    "category": "admissibility_within_merits",
+    "confidence": "high",
+    "reason": "Court declares Article 13 complaint admissible as linked to the Article 6/P1-1 complaint — admissibility ruling."
+  },
+  {
+    "rowid": 765216,
+    "case_id": "001-110709",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Applicant raises Article 14/P12 discrimination claim about the refusal to enforce the Constitutional Court decision."
+  },
+  {
+    "rowid": 765217,
+    "case_id": "001-110709",
+    "population": "B",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Verbatim text of Article 14 — quoted Convention provision without analysis."
+  },
+  {
+    "rowid": 765219,
+    "case_id": "001-110709",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "medium",
+    "reason": "One-line Government denial of the discrimination argument — minimal but part of parties' submissions."
+  },
+  {
+    "rowid": 765220,
+    "case_id": "001-110709",
+    "population": "B",
+    "category": "admissibility_within_merits",
+    "confidence": "high",
+    "reason": "Court rejects Article 14/P12 discrimination complaint as manifestly ill-founded — inadmissibility finding within merits section."
+  },
+  {
+    "rowid": 773293,
+    "case_id": "001-110183",
+    "population": "B",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Pure section heading 'I. ALLEGED VIOLATION OF ARTICLE 3' — structural header only."
+  },
+  {
+    "rowid": 773294,
+    "case_id": "001-110183",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court frames the specific Article 3 complaint about delayed medical treatment in prison and quotes Article 3."
+  },
+  {
+    "rowid": 773335,
+    "case_id": "001-110183",
+    "population": "B",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Pure section heading 'II. OTHER ALLEGED VIOLATIONS OF THE CONVENTION' — structural header only."
+  },
+  {
+    "rowid": 773336,
+    "case_id": "001-110183",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court introduces the further Article 3 complaint about handcuffing in hospital — specific factual complaint."
+  },
+  {
+    "rowid": 773337,
+    "case_id": "001-110183",
+    "population": "B",
+    "category": "admissibility_within_merits",
+    "confidence": "high",
+    "reason": "Court rejects handcuffing complaint for non-exhaustion of domestic remedies — admissibility disposal within merits."
+  },
+  {
+    "rowid": 773338,
+    "case_id": "001-110183",
+    "population": "B",
+    "category": "joinder_or_procedural",
+    "confidence": "high",
+    "reason": "Court declines separate analysis of Articles 2 and 8 complaints given Article 3 violation found — procedural disposal."
+  },
+  {
+    "rowid": 340861,
+    "case_id": "001-82179",
+    "population": "B",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Pure section heading 'I. ALLEGED VIOLATION OF ARTICLE 8' — structural header only."
+  },
+  {
+    "rowid": 340862,
+    "case_id": "001-82179",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court notes it raised the Article 8 complaint of its own motion and quotes the relevant text — complaint framing."
+  },
+  {
+    "rowid": 340877,
+    "case_id": "001-82179",
+    "population": "B",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Pure section heading 'II. ALLEGED VIOLATION OF ARTICLE 3' — structural header only."
+  },
+  {
+    "rowid": 340878,
+    "case_id": "001-82179",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court characterises the ill-treatment and gold chain complaint and assigns it to Article 3 — specific complaint framing."
+  },
+  {
+    "rowid": 340879,
+    "case_id": "001-82179",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court recounts the specific facts of the investigation (criminal complaint, prosecutor's findings, no injuries recorded)."
+  },
+  {
+    "rowid": 340880,
+    "case_id": "001-82179",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court applies the Labita/Dzwonkowski procedural Article 3 standard to the specific domestic investigation and finds no shortcomings."
+  },
+  {
+    "rowid": 340881,
+    "case_id": "001-82179",
+    "population": "B",
+    "category": "admissibility_within_merits",
+    "confidence": "high",
+    "reason": "Court declares Article 3 complaint manifestly ill-founded under Article 35 §§ 3 and 4 — inadmissibility finding within merits."
+  },
+  {
+    "rowid": 891533,
+    "case_id": "001-144129",
+    "population": "B",
+    "category": "joinder_or_procedural",
+    "confidence": "high",
+    "reason": "Court joins applications due to similar subject matter — explicit joinder decision."
+  },
+  {
+    "rowid": 891534,
+    "case_id": "001-144129",
+    "population": "B",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Pure section heading 'II. ALLEGED VIOLATION OF ARTICLE 10' — structural header only."
+  },
+  {
+    "rowid": 891535,
+    "case_id": "001-144129",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Applicants frame the Article 10 complaint about judgments in civil cases and quote the Convention text."
+  },
+  {
+    "rowid": 891536,
+    "case_id": "001-144129",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "medium",
+    "reason": "One-line note that Government submitted no observations — part of parties' positions, minimal content."
+  },
+  {
+    "rowid": 891557,
+    "case_id": "001-144129",
+    "population": "B",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Pure section heading 'III. OTHER ALLEGED VIOLATIONS OF THE CONVENTION' — structural header only."
+  },
+  {
+    "rowid": 891558,
+    "case_id": "001-144129",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court introduces remaining Article 6 and P1-1 complaints — specific complaint framing before procedural disposal."
+  },
+  {
+    "rowid": 891559,
+    "case_id": "001-144129",
+    "population": "B",
+    "category": "joinder_or_procedural",
+    "confidence": "high",
+    "reason": "Court declines to examine remaining complaints given Article 10 violation finding — procedural disposal."
+  },
+  {
+    "rowid": 929891,
+    "case_id": "001-157766",
+    "population": "B",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Pure section heading 'I. ALLEGED VIOLATION OF ARTICLE 8' — structural header only."
+  },
+  {
+    "rowid": 929892,
+    "case_id": "001-157766",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Applicant's detailed Article 8 complaint about adoption proceedings and her specific family situation with Convention text."
+  },
+  {
+    "rowid": 929893,
+    "case_id": "001-157766",
+    "population": "B",
+    "category": "application_to_facts",
+    "confidence": "medium",
+    "reason": "One-line Government denial — minimal but part of parties' positions in the merits."
+  },
+  {
+    "rowid": 1438593,
+    "case_id": "001-238131",
+    "population": "C",
+    "category": "joinder_or_procedural",
+    "confidence": "high",
+    "reason": "Court joins applications due to similar subject matter, then introduces the complaint — joinder decision."
+  },
+  {
+    "rowid": 1438594,
+    "case_id": "001-238131",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Applicants' complaint about inadequate detention conditions relying on Articles 3 and 13 — specific complaint framing."
+  },
+  {
+    "rowid": 1438595,
+    "case_id": "001-238131",
+    "population": "C",
+    "category": "general_principles",
+    "confidence": "high",
+    "reason": "Court refers to principles established in case-law on inadequate detention conditions, citing Muršic v. Croatia — general principles statement."
+  },
+  {
+    "rowid": 1438596,
+    "case_id": "001-238131",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Fragment: 'v. Croatia [GC], no. 7334/13, §§' — incomplete sentence from truncated citation, no standalone meaning."
+  },
+  {
+    "rowid": 1438599,
+    "case_id": "001-238131",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court cites the leading Ukraine cases (Melnik, Sukachov) as already finding violations in respect of similar issues."
+  },
+  {
+    "rowid": 1438600,
+    "case_id": "001-238131",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court applies the case-law to specific facts: Government failed to provide cell floor plans, conditions found inadequate."
+  },
+  {
+    "rowid": 1438601,
+    "case_id": "001-238131",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court further notes applicants lacked effective remedy — application to specific facts for the Article 13 limb."
+  },
+  {
+    "rowid": 1438603,
+    "case_id": "001-238131",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court identifies additional complaints raised by some applicants — introduction of remaining complaints."
+  },
+  {
+    "rowid": 1438604,
+    "case_id": "001-238131",
+    "population": "C",
+    "category": "admissibility_within_merits",
+    "confidence": "high",
+    "reason": "Court rejects remaining complaints as not meeting admissibility criteria or disclosing no violation — admissibility disposal."
+  },
+  {
+    "rowid": 1438606,
+    "case_id": "001-238131",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Court awards just satisfaction amounts per the table — just satisfaction, not merits analysis."
+  },
+  {
+    "rowid": 1509796,
+    "case_id": "001-229172",
+    "population": "C",
+    "category": "joinder_or_procedural",
+    "confidence": "high",
+    "reason": "Government requests revision of earlier judgment due to applicants' deaths before judgment — procedural revision request."
+  },
+  {
+    "rowid": 1509797,
+    "case_id": "001-229172",
+    "population": "C",
+    "category": "joinder_or_procedural",
+    "confidence": "high",
+    "reason": "Court notes no heirs have shown interest in pursuing the procedure — procedural fact establishing basis for revision."
+  },
+  {
+    "rowid": 1509799,
+    "case_id": "001-229172",
+    "population": "C",
+    "category": "joinder_or_procedural",
+    "confidence": "high",
+    "reason": "Court notes applicants died before judgment and no heirs submitted observations — procedural fact for revision."
+  },
+  {
+    "rowid": 1509800,
+    "case_id": "001-229172",
+    "population": "C",
+    "category": "joinder_or_procedural",
+    "confidence": "high",
+    "reason": "Court applies Rule 80 revision criteria to the specific facts of applicants' deaths — procedural reasoning for revision."
+  },
+  {
+    "rowid": 1509801,
+    "case_id": "001-229172",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Fragment: case citation fragment '(revision), nos. 604/07 and 3 others...' — incomplete sentence, no standalone meaning."
+  },
+  {
+    "rowid": 1509802,
+    "case_id": "001-229172",
+    "population": "C",
+    "category": "joinder_or_procedural",
+    "confidence": "high",
+    "reason": "Court accepts the Government's request for revision — explicit procedural decision."
+  },
+  {
+    "rowid": 1509803,
+    "case_id": "001-229172",
+    "population": "C",
+    "category": "joinder_or_procedural",
+    "confidence": "high",
+    "reason": "Court quotes Article 37 § 1 on striking out — procedural basis for the striking-out decision."
+  },
+  {
+    "rowid": 1509805,
+    "case_id": "001-229172",
+    "population": "C",
+    "category": "general_principles",
+    "confidence": "high",
+    "reason": "Court states its established practice on striking out when applicant dies and no heirs pursue — general procedural principle."
+  },
+  {
+    "rowid": 1509808,
+    "case_id": "001-229172",
+    "population": "C",
+    "category": "joinder_or_procedural",
+    "confidence": "high",
+    "reason": "Court finds no special circumstances requiring continued examination — procedural conclusion before striking out."
+  },
+  {
+    "rowid": 1509809,
+    "case_id": "001-229172",
+    "population": "C",
+    "category": "joinder_or_procedural",
+    "confidence": "high",
+    "reason": "Court formally strikes specific applications from the list and revises the prior judgment — operative procedural decision."
+  },
+  {
+    "rowid": 1525393,
+    "case_id": "001-226580",
+    "population": "C",
+    "category": "admissibility_within_merits",
+    "confidence": "high",
+    "reason": "Government argues applicant lost victim status and suffered no significant disadvantage — admissibility objection within merits."
+  },
+  {
+    "rowid": 1525394,
+    "case_id": "001-226580",
+    "population": "C",
+    "category": "admissibility_within_merits",
+    "confidence": "high",
+    "reason": "Government raises further victim status arguments about applicant being a prolific litigant — admissibility argument."
+  },
+  {
+    "rowid": 1525395,
+    "case_id": "001-226580",
+    "population": "C",
+    "category": "admissibility_within_merits",
+    "confidence": "high",
+    "reason": "Court defines the relevant period, excluding courts not covered by constitutional complaints — scope/admissibility ruling."
+  },
+  {
+    "rowid": 1525396,
+    "case_id": "001-226580",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court observes specific facts: Constitutional Court found violation twice, ordered action, awarded EUR 600."
+  },
+  {
+    "rowid": 1525397,
+    "case_id": "001-226580",
+    "population": "C",
+    "category": "general_principles",
+    "confidence": "high",
+    "reason": "Court reiterates the Jensen standard on whether domestic redress is appropriate and the rebuttable presumption of non-pecuniary damage from excessive length."
+  },
+  {
+    "rowid": 1525399,
+    "case_id": "001-226580",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court applies the facts (6.5 years before first-instance alone) to reject the Government's non-significant-disadvantage argument."
+  },
+  {
+    "rowid": 1525401,
+    "case_id": "001-226580",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court cites the leading case of Obluk as already finding violation — template-based application to this case."
+  },
+  {
+    "rowid": 1525403,
+    "case_id": "001-226580",
+    "population": "C",
+    "category": "violation_finding",
+    "confidence": "high",
+    "reason": "Court finds complaints admissible and discloses breach of Article 6 § 1 — explicit violation finding."
+  },
+  {
+    "rowid": 1525404,
+    "case_id": "001-226580",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Verbatim text of Article 41 — quoted Convention provision without analysis, just satisfaction section."
+  },
+  {
+    "rowid": 1525405,
+    "case_id": "001-226580",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Court awards just satisfaction per the table — just satisfaction, not merits analysis."
+  },
+  {
+    "rowid": 1800320,
+    "case_id": "001-183553",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Pure section heading 'II. ALLEGED VIOLATION OF ARTICLE 3' — structural header only."
+  },
+  {
+    "rowid": 1800324,
+    "case_id": "001-183553",
+    "population": "C",
+    "category": "admissibility_within_merits",
+    "confidence": "high",
+    "reason": "Court accepts six-month objection and rejects the transport-conditions complaint as out of time — admissibility disposal."
+  },
+  {
+    "rowid": 1800326,
+    "case_id": "001-183553",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Fragment 'v. Croatia [GC], no. 7334/13, §§' — incomplete citation fragment, no standalone meaning."
+  },
+  {
+    "rowid": 1800330,
+    "case_id": "001-183553",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court cites the leading case of Rezmives as already finding violations on similar issues — template case-law reference."
+  },
+  {
+    "rowid": 1800331,
+    "case_id": "001-183553",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court finds no fact or argument distinguishing this case, concludes conditions were inadequate — application to specific facts."
+  },
+  {
+    "rowid": 1800332,
+    "case_id": "001-183553",
+    "population": "C",
+    "category": "violation_finding",
+    "confidence": "high",
+    "reason": "Court finds complaints admissible and discloses breach of Article 3 — explicit violation finding."
+  },
+  {
+    "rowid": 1800358,
+    "case_id": "001-183553",
+    "population": "C",
+    "category": "admissibility_within_merits",
+    "confidence": "high",
+    "reason": "Government raises six-month objection to the transport-conditions complaint — admissibility objection within merits."
+  },
+  {
+    "rowid": 1800359,
+    "case_id": "001-183553",
+    "population": "C",
+    "category": "admissibility_within_merits",
+    "confidence": "high",
+    "reason": "Court observes the specific dates (transport 17 March, complaint 2 October = more than six months) — factual basis for admissibility ruling."
+  },
+  {
+    "rowid": 1800360,
+    "case_id": "001-183553",
+    "population": "C",
+    "category": "admissibility_within_merits",
+    "confidence": "high",
+    "reason": "Court accepts objection and rejects the transport complaint as out of time — admissibility disposal."
+  },
+  {
+    "rowid": 1800368,
+    "case_id": "001-183553",
+    "population": "C",
+    "category": "violation_finding",
+    "confidence": "high",
+    "reason": "Duplicate of rowid 1800332 — same violation-finding text for a second applicant in a multi-applicant case."
+  },
+  {
+    "rowid": 1778227,
+    "case_id": "001-187576",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Pure section heading 'II. ALLEGED VIOLATION OF ARTICLE 6 § 1' — structural header only."
+  },
+  {
+    "rowid": 1778228,
+    "case_id": "001-187576",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Applicants frame the reasonable-time complaint relying on Article 6 § 1 and begin quoting the text."
+  },
+  {
+    "rowid": 1778229,
+    "case_id": "001-187576",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Fragment: quoted Article 6 § 1 text only ('In the determination of his civil rights...') — Convention text without analysis."
+  },
+  {
+    "rowid": 1778230,
+    "case_id": "001-187576",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Fragment: case citation 'Frydlender v. France [GC]...' — stand-alone citation fragment without surrounding analysis."
+  },
+  {
+    "rowid": 1778232,
+    "case_id": "001-187576",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court finds no fact or argument distinguishing this case and concludes length was excessive — application to specific facts."
+  },
+  {
+    "rowid": 1778233,
+    "case_id": "001-187576",
+    "population": "C",
+    "category": "violation_finding",
+    "confidence": "high",
+    "reason": "Court finds complaints admissible and discloses breach of Article 6 § 1 — explicit violation finding."
+  },
+  {
+    "rowid": 1778251,
+    "case_id": "001-187576",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Duplicate section heading 'II. ALLEGED VIOLATION OF ARTICLE 6 § 1' (second applicant block) — structural header only."
+  },
+  {
+    "rowid": 1778255,
+    "case_id": "001-187576",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court references the Gazsó leading case as already finding a violation on similar issues — template application."
+  },
+  {
+    "rowid": 1778259,
+    "case_id": "001-187576",
+    "population": "C",
+    "category": "admissibility_within_merits",
+    "confidence": "high",
+    "reason": "Court declares Article 13 complaint admissible and finds a violation via well-established case-law — combined admissibility/violation."
+  },
+  {
+    "rowid": 1778263,
+    "case_id": "001-187576",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Court awards just satisfaction per the table — just satisfaction, not merits analysis."
+  },
+  {
+    "rowid": 1555855,
+    "case_id": "001-221519",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Applicant's complaint about metal cage confinement with Article 3 text — specific complaint framing."
+  },
+  {
+    "rowid": 1555856,
+    "case_id": "001-221519",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court references the Svinarenko/Vorontsov leading cases finding metal cages are degrading — template application to these facts."
+  },
+  {
+    "rowid": 1555857,
+    "case_id": "001-221519",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court concludes the applicant's confinement in a metal cage amounted to degrading treatment — factual application."
+  },
+  {
+    "rowid": 1555858,
+    "case_id": "001-221519",
+    "population": "C",
+    "category": "violation_finding",
+    "confidence": "high",
+    "reason": "Court finds complaints admissible and discloses breach of Article 3 — explicit violation finding."
+  },
+  {
+    "rowid": 1555859,
+    "case_id": "001-221519",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Verbatim text of Article 41 — quoted Convention provision, just satisfaction section."
+  },
+  {
+    "rowid": 1555860,
+    "case_id": "001-221519",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Court awards just satisfaction per the table — just satisfaction, not merits analysis."
+  },
+  {
+    "rowid": 1555861,
+    "case_id": "001-221519",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Court sets default interest rate — just satisfaction procedural detail, not merits analysis."
+  },
+  {
+    "rowid": 1474432,
+    "case_id": "001-233777",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Fragment from operative part (interest clause) and signatory block — not substantive merits content."
+  },
+  {
+    "rowid": 1474441,
+    "case_id": "001-233777",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Appendix table data row — structured data about a specific applicant, not substantive legal analysis."
+  },
+  {
+    "rowid": 1474442,
+    "case_id": "001-233777",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Appendix table data row with complaint codes and fine amounts — structured data, not legal analysis."
+  },
+  {
+    "rowid": 1474443,
+    "case_id": "001-233777",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Appendix table data row — structured applicant data, not substantive legal analysis."
+  },
+  {
+    "rowid": 1474451,
+    "case_id": "001-233777",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Appendix table data row (Peredruk, multiple rally complaints) — structured data, not legal analysis."
+  },
+  {
+    "rowid": 1474484,
+    "case_id": "001-233777",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Appendix table data row (detention period, cage complaint) — structured data, not legal analysis."
+  },
+  {
+    "rowid": 1474486,
+    "case_id": "001-233777",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Appendix table data fragment — structured data row, no substantive analysis."
+  },
+  {
+    "rowid": 1474497,
+    "case_id": "001-233777",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court cites Frumkin, Navalnyy and Yashin, Kasparov as leading cases already finding violations on similar freedom-of-assembly issues."
+  },
+  {
+    "rowid": 1474501,
+    "case_id": "001-233777",
+    "population": "C",
+    "category": "violation_finding",
+    "confidence": "high",
+    "reason": "Court concludes other complaints also disclose violations under well-established case-law (Butkevich etc.) — explicit violation finding."
+  },
+  {
+    "rowid": 1474502,
+    "case_id": "001-233777",
+    "population": "C",
+    "category": "joinder_or_procedural",
+    "confidence": "high",
+    "reason": "Court declines to deal separately with remaining Article 6 complaints given Article 11 and other findings — procedural disposal."
+  },
+  {
+    "rowid": 1574717,
+    "case_id": "001-219780",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "medium",
+    "reason": "Sentence introducing complaint about insufficient detention reasons and noting joinder — straddles complaint introduction and procedural note."
+  },
+  {
+    "rowid": 1574720,
+    "case_id": "001-219780",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Fragment: second part of Article 5 § 3 quotation — Convention text fragment, no analysis."
+  },
+  {
+    "rowid": 1574721,
+    "case_id": "001-219780",
+    "population": "C",
+    "category": "general_principles",
+    "confidence": "high",
+    "reason": "Court reiterates established case-law standard on pre-trial detention: reasonable suspicion, relevant/sufficient reasons, special diligence, citing Buzadji."
+  },
+  {
+    "rowid": 1574734,
+    "case_id": "001-219780",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Appendix table data header/data — structured applicant table with award amounts, not legal analysis."
+  },
+  {
+    "rowid": 1574737,
+    "case_id": "001-219780",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Applicants frame Article 5 § 3 complaint about insufficient detention reasons and begin quoting the Convention text."
+  },
+  {
+    "rowid": 1574738,
+    "case_id": "001-219780",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Fragment: second part of Article 5 § 3 text — Convention text fragment, no analysis."
+  },
+  {
+    "rowid": 1574740,
+    "case_id": "001-219780",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court references Korban v. Ukraine leading case as already finding violations on similar issues — template application."
+  },
+  {
+    "rowid": 1574742,
+    "case_id": "001-219780",
+    "population": "C",
+    "category": "violation_finding",
+    "confidence": "high",
+    "reason": "Court finds complaints admissible and discloses breach of Article 5 § 3 — explicit violation finding."
+  },
+  {
+    "rowid": 1574743,
+    "case_id": "001-219780",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Verbatim text of Article 41 — quoted Convention provision, just satisfaction section."
+  },
+  {
+    "rowid": 1574744,
+    "case_id": "001-219780",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Court awards just satisfaction per the table — just satisfaction, not merits analysis."
+  },
+  {
+    "rowid": 1463483,
+    "case_id": "001-234444",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Fragment: citation fragment and section heading — incomplete sentence combined with structural header, no substantive analysis."
+  },
+  {
+    "rowid": 1463484,
+    "case_id": "001-234444",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Applicants frame the excessive pre-trial detention complaint relying on Article 5 § 3."
+  },
+  {
+    "rowid": 1463491,
+    "case_id": "001-234444",
+    "population": "C",
+    "category": "violation_finding",
+    "confidence": "medium",
+    "reason": "Fragment continuing violation finding statement ('disclose a breach of Article 5 § 3') combined with next section heading — violation finding but fragmented."
+  },
+  {
+    "rowid": 1463496,
+    "case_id": "001-234444",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Court awards just satisfaction and operative part clauses mixed together — just satisfaction and operative part fragment, not merits analysis."
+  },
+  {
+    "rowid": 1463502,
+    "case_id": "001-234444",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Appendix table data row (Izhikov, detention period, Article 5(4) complaint) — structured data, not legal analysis."
+  },
+  {
+    "rowid": 1463505,
+    "case_id": "001-234444",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Appendix table data row (Popovskiy, pending detention, multiple complaint codes) — structured data, not legal analysis."
+  },
+  {
+    "rowid": 1463519,
+    "case_id": "001-234444",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Appendix table data row with detention period and cage/Article 3 complaint code — structured data, not legal analysis."
+  },
+  {
+    "rowid": 1463520,
+    "case_id": "001-234444",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Appendix table data row (Kostetskiy, detention period, Article 5(4) complaint) — structured data, not legal analysis."
+  },
+  {
+    "rowid": 1463530,
+    "case_id": "001-234444",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Duplicate of rowid 1463483 — same citation fragment plus section heading, structural/boundary fragment."
+  },
+  {
+    "rowid": 1463542,
+    "case_id": "001-234444",
+    "population": "C",
+    "category": "joinder_or_procedural",
+    "confidence": "high",
+    "reason": "Court declines separate examination of Article 6 unfairness complaints given Article 5 § 3 findings — procedural disposal."
+  },
+  {
+    "rowid": 1784395,
+    "case_id": "001-186765",
+    "population": "C",
+    "category": "admissibility_within_merits",
+    "confidence": "high",
+    "reason": "Court addresses and dismisses Government's compatibility ratione personae objection — admissibility ruling within merits."
+  },
+  {
+    "rowid": 1784398,
+    "case_id": "001-186765",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "medium",
+    "reason": "One-line note that applicant did not comment on the exhaustion objection — part of parties' submissions."
+  },
+  {
+    "rowid": 1784406,
+    "case_id": "001-186765",
+    "population": "C",
+    "category": "general_principles",
+    "confidence": "high",
+    "reason": "Court states general principles on property protection are well established, referring to Gladysheva — general principles statement."
+  },
+  {
+    "rowid": 1784447,
+    "case_id": "001-186765",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Sub-section heading '2. The Court's assessment (a) General principles' — structural header only."
+  },
+  {
+    "rowid": 1784449,
+    "case_id": "001-186765",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Sub-section heading '(b) Application of these principles to the present case' — structural header only."
+  },
+  {
+    "rowid": 1784450,
+    "case_id": "001-186765",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Sub-section heading '(i) Whether there was a possession' — structural header only."
+  },
+  {
+    "rowid": 1784453,
+    "case_id": "001-186765",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court determines the applicable rule (general rule of P1-1 first sentence) for the specific factual situation — rule-selection step in application."
+  },
+  {
+    "rowid": 1784456,
+    "case_id": "001-186765",
+    "population": "C",
+    "category": "general_principles",
+    "confidence": "high",
+    "reason": "Court summarises its case-law on bona fide owner restitution cases (Gladysheva, Zimonin) — general established principles relevant to this case."
+  },
+  {
+    "rowid": 1784458,
+    "case_id": "001-186765",
+    "population": "C",
+    "category": "application_to_facts",
+    "confidence": "high",
+    "reason": "Court rejects Government's bad-faith argument with reference to what was established in domestic proceedings — case-specific analysis."
+  },
+  {
+    "rowid": 1784463,
+    "case_id": "001-186765",
+    "population": "C",
+    "category": "boundary_or_unclear",
+    "confidence": "high",
+    "reason": "Government's submissions on just satisfaction quantum — just satisfaction section, not merits analysis."
+  }
+]
