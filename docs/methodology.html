@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Methodology — ECHR Case Law Dashboard</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
-  <meta name="description" content="Data cleaning methodology for the ECHR Dashboard — corpus structure, transformation passes, validation, and reproducibility.">
+  <meta name="description" content="Data cleaning methodology summary for the ECHR Dashboard.">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-F3XBX45HQC"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -19,184 +19,38 @@
   <link rel="stylesheet" href="assets/search-app.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <style>
-    .meth-content {
-      max-width: 920px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem 4rem;
-    }
-    .meth-tabs {
-      display: flex;
-      gap: 0.5rem;
-      border-bottom: 2px solid var(--border, #e2e8f0);
-      margin-bottom: 2rem;
-      flex-wrap: wrap;
-    }
-    .meth-tab {
-      padding: 0.7rem 1.2rem;
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.92rem;
-      font-weight: 500;
-      color: var(--text-secondary);
-      border-bottom: 3px solid transparent;
-      margin-bottom: -2px;
-      transition: color 0.15s, border-color 0.15s;
-    }
-    .meth-tab:hover {
-      color: var(--text-primary);
-    }
-    .meth-tab.active {
-      color: var(--primary-accent, #3b82f6);
-      border-bottom-color: var(--primary-accent, #3b82f6);
-    }
-    .meth-tab-content {
-      display: none;
-    }
-    .meth-tab-content.active {
-      display: block;
-    }
-    .meth-loading {
-      text-align: center;
-      padding: 3rem 0;
-      color: var(--text-muted);
-    }
-    /* Markdown rendering */
-    .meth-md {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.96rem;
-      line-height: 1.7;
-      color: var(--text-secondary);
-    }
-    .meth-md h1,
-    .meth-md h2,
-    .meth-md h3,
-    .meth-md h4 {
+    .meth-content { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    .meth-md { font-family: 'Inter', sans-serif; font-size: 0.96rem; line-height: 1.7; color: var(--text-secondary); }
+    .meth-md h1, .meth-md h2, .meth-md h3, .meth-md h4 {
       font-family: 'Source Serif 4', Georgia, serif;
       color: var(--text-primary);
-      margin-top: 2rem;
-      margin-bottom: 1rem;
-      line-height: 1.3;
+      margin-top: 2rem; margin-bottom: 1rem; line-height: 1.3;
     }
-    .meth-md h1 {
-      font-size: 1.85rem;
-      border-bottom: 2px solid var(--border, #e2e8f0);
-      padding-bottom: 0.5rem;
-      margin-top: 0;
-    }
-    .meth-md h2 {
-      font-size: 1.45rem;
-      border-bottom: 1px solid var(--border, #e2e8f0);
-      padding-bottom: 0.4rem;
-    }
-    .meth-md h3 {
-      font-size: 1.18rem;
-    }
-    .meth-md h4 {
-      font-size: 1.02rem;
-      font-weight: 600;
-    }
-    .meth-md p {
-      margin: 0.85rem 0;
-    }
-    .meth-md ul,
-    .meth-md ol {
-      padding-left: 1.6rem;
-      margin: 0.85rem 0;
-    }
-    .meth-md li {
-      margin-bottom: 0.35rem;
-    }
-    .meth-md code {
-      background: var(--bg-card, #f1f5f9);
-      padding: 0.12em 0.42em;
-      border-radius: 4px;
-      font-family: 'JetBrains Mono', Menlo, monospace;
-      font-size: 0.86em;
-      color: var(--text-primary);
-    }
-    .meth-md pre {
-      background: var(--bg-card, #f8fafc);
-      border: 1px solid var(--border, #e2e8f0);
-      padding: 0.9rem 1.1rem;
-      border-radius: 6px;
-      overflow-x: auto;
-      font-size: 0.84rem;
-      line-height: 1.55;
-      margin: 1rem 0;
-    }
-    .meth-md pre code {
-      background: transparent;
-      padding: 0;
-      font-size: inherit;
-    }
-    .meth-md table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 1.2rem 0;
-      font-size: 0.9rem;
-    }
-    .meth-md th,
-    .meth-md td {
-      padding: 0.55rem 0.85rem;
-      border: 1px solid var(--border, #e2e8f0);
-      text-align: left;
-      vertical-align: top;
-    }
-    .meth-md th {
-      background: var(--bg-card, #f1f5f9);
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-    .meth-md tr:nth-child(even) td {
-      background: var(--bg-card, #f8fafc);
-    }
-    .meth-md a {
-      color: var(--primary-accent, #2563eb);
-      text-decoration: none;
-    }
-    .meth-md a:hover {
-      text-decoration: underline;
-    }
-    .meth-md blockquote {
-      border-left: 4px solid var(--primary-accent, #3b82f6);
-      padding: 0.6rem 1rem;
-      margin: 1rem 0;
-      background: var(--bg-card, #f1f5f9);
-      color: var(--text-secondary);
-      font-style: italic;
-    }
+    .meth-md h1 { font-size: 1.85rem; border-bottom: 2px solid var(--border, #e2e8f0); padding-bottom: 0.5rem; margin-top: 0; }
+    .meth-md h2 { font-size: 1.45rem; border-bottom: 1px solid var(--border, #e2e8f0); padding-bottom: 0.4rem; }
+    .meth-md h3 { font-size: 1.18rem; }
+    .meth-md h4 { font-size: 1.02rem; font-weight: 600; }
+    .meth-md p { margin: 0.85rem 0; }
+    .meth-md ul, .meth-md ol { padding-left: 1.6rem; margin: 0.85rem 0; }
+    .meth-md li { margin-bottom: 0.35rem; }
+    .meth-md code { background: var(--bg-card, #f1f5f9); padding: 0.12em 0.42em; border-radius: 4px; font-family: 'JetBrains Mono', Menlo, monospace; font-size: 0.86em; color: var(--text-primary); }
+    .meth-md pre { background: var(--bg-card, #f8fafc); border: 1px solid var(--border, #e2e8f0); padding: 0.9rem 1.1rem; border-radius: 6px; overflow-x: auto; font-size: 0.84rem; line-height: 1.55; margin: 1rem 0; }
+    .meth-md pre code { background: transparent; padding: 0; font-size: inherit; }
+    .meth-md table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; font-size: 0.9rem; }
+    .meth-md th, .meth-md td { padding: 0.55rem 0.85rem; border: 1px solid var(--border, #e2e8f0); text-align: left; vertical-align: top; }
+    .meth-md th { background: var(--bg-card, #f1f5f9); font-weight: 600; color: var(--text-primary); }
+    .meth-md tr:nth-child(even) td { background: var(--bg-card, #f8fafc); }
+    .meth-md a { color: var(--primary-accent, #2563eb); text-decoration: none; }
+    .meth-md a:hover { text-decoration: underline; }
+    .meth-md blockquote { border-left: 4px solid var(--primary-accent, #3b82f6); padding: 0.6rem 1rem; margin: 1rem 0; background: var(--bg-card, #f1f5f9); color: var(--text-secondary); font-style: italic; }
     .meth-md blockquote p { margin: 0; }
-    .meth-md hr {
-      border: none;
-      border-top: 1px solid var(--border, #e2e8f0);
-      margin: 2rem 0;
-    }
-    .meth-source-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      margin-top: 1rem;
-      font-size: 0.86rem;
-      color: var(--text-muted);
-    }
-    .meth-source-link a {
-      color: var(--primary-accent, #2563eb);
-      text-decoration: none;
-    }
-    [data-theme="dark"] .meth-md code,
-    [data-theme="dark"] .meth-md pre,
-    [data-theme="dark"] .meth-md blockquote {
-      background: #1e293b;
-      color: #e2e8f0;
-    }
-    [data-theme="dark"] .meth-md th {
-      background: #1e293b;
-    }
-    [data-theme="dark"] .meth-md tr:nth-child(even) td {
-      background: #182234;
-    }
+    .meth-md hr { border: none; border-top: 1px solid var(--border, #e2e8f0); margin: 2rem 0; }
+    .meth-source-link { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 2rem; font-size: 0.86rem; color: var(--text-muted); }
+    .meth-source-link a { color: var(--primary-accent, #2563eb); text-decoration: none; }
+    [data-theme="dark"] .meth-md code, [data-theme="dark"] .meth-md pre, [data-theme="dark"] .meth-md blockquote { background: #1e293b; color: #e2e8f0; }
+    [data-theme="dark"] .meth-md th { background: #1e293b; }
+    [data-theme="dark"] .meth-md tr:nth-child(even) td { background: #182234; }
+    .meth-loading { text-align: center; padding: 3rem 0; color: var(--text-muted); }
   </style>
 </head>
 <body>
@@ -226,85 +80,16 @@
   </nav>
 
   <main class="meth-content">
-    <div class="meth-tabs" role="tablist">
-      <button class="meth-tab active" data-target="summary" role="tab" aria-selected="true">Summary</button>
-      <button class="meth-tab" data-target="full" role="tab" aria-selected="false">Full specification</button>
-      <button class="meth-tab" data-target="audit" role="tab" aria-selected="false">Precision audit</button>
-      <button class="meth-tab" data-target="merits" role="tab" aria-selected="false">Merits sub-typing</button>
-      <button class="meth-tab" data-target="manual" role="tab" aria-selected="false">Manual review</button>
-      <button class="meth-tab" data-target="changelog" role="tab" aria-selected="false">Change log</button>
+    <div class="meth-md" id="meth-md">
+      <p class="meth-loading">Loading methodology…</p>
     </div>
-
-    <div id="meth-summary" class="meth-tab-content active" role="tabpanel">
-      <div class="meth-md" id="meth-md-summary">
-        <p class="meth-loading">Loading methodology summary…</p>
-      </div>
-      <p class="meth-source-link">
-        Source:
-        <a href="https://github.com/lszoszk/ECHR-Dashboard/blob/main/docs/methodology/README.md" target="_blank" rel="noopener">methodology/README.md</a>
-        on GitHub
-      </p>
-    </div>
-
-    <div id="meth-full" class="meth-tab-content" role="tabpanel">
-      <div class="meth-md" id="meth-md-full">
-        <p class="meth-loading">Loading full specification…</p>
-      </div>
-      <p class="meth-source-link">
-        Source:
-        <a href="https://github.com/lszoszk/ECHR-Dashboard/blob/main/docs/methodology/data-cleaning-full.md" target="_blank" rel="noopener">methodology/data-cleaning-full.md</a>
-        on GitHub
-      </p>
-    </div>
-
-    <div id="meth-audit" class="meth-tab-content" role="tabpanel">
-      <div class="meth-md" id="meth-md-audit">
-        <p class="meth-loading">Loading precision audit…</p>
-      </div>
-      <p class="meth-source-link">
-        Source:
-        <a href="https://github.com/lszoszk/ECHR-Dashboard/blob/main/docs/methodology/precision-audit.md" target="_blank" rel="noopener">methodology/precision-audit.md</a>
-        on GitHub
-      </p>
-    </div>
-
-    <div id="meth-merits" class="meth-tab-content" role="tabpanel">
-      <div class="meth-md" id="meth-md-merits">
-        <p class="meth-loading">Loading Merits sub-typing pilot…</p>
-      </div>
-      <p class="meth-source-link">
-        Source:
-        <a href="https://github.com/lszoszk/ECHR-Dashboard/blob/main/docs/methodology/merits-subtyping-pilot.md" target="_blank" rel="noopener">methodology/merits-subtyping-pilot.md</a>
-        on GitHub
-      </p>
-    </div>
-
-    <div id="meth-manual" class="meth-tab-content" role="tabpanel">
-      <div class="meth-md" id="meth-md-manual">
-        <p class="meth-loading">Loading manual review tasks…</p>
-      </div>
-      <p class="meth-source-link">
-        Source:
-        <a href="https://github.com/lszoszk/ECHR-Dashboard/blob/main/docs/methodology/manual-review-tasks.md" target="_blank" rel="noopener">methodology/manual-review-tasks.md</a>
-        on GitHub
-      </p>
-    </div>
-
-    <div id="meth-changelog" class="meth-tab-content" role="tabpanel">
-      <div class="meth-md" id="meth-md-changelog">
-        <p class="meth-loading">Loading change log…</p>
-      </div>
-      <p class="meth-source-link">
-        Source:
-        <a href="https://github.com/lszoszk/ECHR-Dashboard/blob/main/docs/methodology/CHANGELOG.md" target="_blank" rel="noopener">methodology/CHANGELOG.md</a>
-        on GitHub
-      </p>
-    </div>
+    <p class="meth-source-link">
+      For detailed specifications, change log, and validation reports, please contact the project author.
+    </p>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
   <script>
-    // Theme toggle (mirrored from other pages)
     (function() {
       const html = document.documentElement;
       const stored = localStorage.getItem('theme');
@@ -319,39 +104,20 @@
       });
     })();
 
-    // Tabs
-    const tabs = document.querySelectorAll('.meth-tab');
-    const panels = document.querySelectorAll('.meth-tab-content');
-    tabs.forEach(t => t.addEventListener('click', () => {
-      tabs.forEach(x => { x.classList.remove('active'); x.setAttribute('aria-selected', 'false'); });
-      panels.forEach(p => p.classList.remove('active'));
-      t.classList.add('active');
-      t.setAttribute('aria-selected', 'true');
-      const target = t.dataset.target;
-      document.getElementById('meth-' + target)?.classList.add('active');
-    }));
-
-    // Load and render markdown
-    async function renderMd(url, mountId) {
-      const mount = document.getElementById(mountId);
-      try {
-        const r = await fetch(url, { cache: 'no-store' });
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        const md = await r.text();
-        // marked options: GitHub-flavored markdown, tables, no raw HTML execution
+    fetch('methodology/README.md', { cache: 'no-store' })
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+      .then(md => {
         marked.setOptions({ gfm: true, breaks: false, headerIds: true, mangle: false });
-        mount.innerHTML = marked.parse(md);
-      } catch (e) {
-        mount.innerHTML = '<p style="color: #b91c1c;">Could not load document: ' + e.message + '</p>';
-      }
-    }
-
-    renderMd('methodology/README.md', 'meth-md-summary');
-    renderMd('methodology/data-cleaning-full.md', 'meth-md-full');
-    renderMd('methodology/precision-audit.md', 'meth-md-audit');
-    renderMd('methodology/merits-subtyping-pilot.md', 'meth-md-merits');
-    renderMd('methodology/manual-review-tasks.md', 'meth-md-manual');
-    renderMd('methodology/CHANGELOG.md', 'meth-md-changelog');
+        // Strip the "For full details / chronological log" link block since those files
+        // are no longer published online — readers should not get broken links.
+        const cleaned = md
+          .replace(/^> One-page overview\..+?$/m, '> One-page overview of the data cleaning pipeline. For internal methodology specifications and full validation reports, please contact the project author.')
+          .replace(/All transformation scripts are in[\s\S]*?Reproducibility/m, 'Reproducibility');
+        document.getElementById('meth-md').innerHTML = marked.parse(cleaned);
+      })
+      .catch(e => {
+        document.getElementById('meth-md').innerHTML = '<p style="color:#b91c1c;">Could not load: ' + e.message + '</p>';
+      });
   </script>
 </body>
 </html>

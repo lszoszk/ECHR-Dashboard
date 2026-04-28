@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manual Review — ECHR Dashboard</title>
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --bg-card: #ffffff;
+      --text: #1e293b;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --accent: #2563eb;
+      --accent-light: #dbeafe;
+      --green: #16a34a;
+      --green-light: #dcfce7;
+      --red: #dc2626;
+      --red-light: #fee2e2;
+      --amber: #d97706;
+      --amber-light: #fef3c7;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    }
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --bg-card: #1e293b;
+      --text: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --accent: #60a5fa;
+      --accent-light: #1e3a8a;
+      --green-light: #14532d;
+      --red-light: #7f1d1d;
+      --amber-light: #78350f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg); color: var(--text);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+    .header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      box-shadow: var(--shadow);
+    }
+    .header-row {
+      display: flex; justify-content: space-between; align-items: center;
+      max-width: 1200px; margin: 0 auto; gap: 1rem; flex-wrap: wrap;
+    }
+    .header h1 { margin: 0; font-size: 1.25rem; font-weight: 600; }
+    .controls { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    .btn {
+      border: 1px solid var(--border); background: var(--bg-card); color: var(--text);
+      padding: 0.5rem 0.95rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .btn:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-primary { background: var(--accent); color: white; border-color: var(--accent); }
+    .btn-primary:hover { background: #1d4ed8; color: white; }
+    .progress-bar {
+      width: 220px; height: 8px; background: var(--border); border-radius: 4px;
+      overflow: hidden; position: relative;
+    }
+    .progress-fill {
+      height: 100%; background: var(--green);
+      transition: width 0.3s;
+    }
+    .progress-text { font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; }
+    main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 2rem 4rem; }
+    .intro {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .intro h2 { margin-top: 0; font-size: 1.05rem; }
+    .intro p { margin: 0.5rem 0; color: var(--text-secondary); font-size: 0.92rem; }
+    .task {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    .task-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 1.5rem;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+    }
+    .task-header:hover { background: var(--accent-light); }
+    .task-header h2 { margin: 0; font-size: 1.05rem; font-weight: 600; }
+    .task-header h2 .task-id { color: var(--accent); margin-right: 0.5rem; }
+    .task-meta { font-size: 0.78rem; color: var(--text-muted); display: flex; gap: 1rem; align-items: center; }
+    .task-status {
+      padding: 0.2rem 0.55rem; border-radius: 999px;
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.02em;
+    }
+    .task-status.pending { background: var(--amber-light); color: var(--amber); }
+    .task-status.partial { background: var(--accent-light); color: var(--accent); }
+    .task-status.done { background: var(--green-light); color: var(--green); }
+    .task-body { padding: 1.5rem; display: none; }
+    .task.open .task-body { display: block; }
+    .task.open .task-toggle { transform: rotate(90deg); }
+    .task-toggle { transition: transform 0.2s; color: var(--text-muted); }
+    .task-rationale {
+      background: var(--accent-light);
+      border-left: 3px solid var(--accent);
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.5rem;
+      border-radius: 0 4px 4px 0;
+      font-size: 0.86rem;
+    }
+    .task-rationale strong { color: var(--accent); }
+    [data-theme="dark"] .task-rationale { color: var(--text); }
+    .item {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem 1.2rem;
+      margin-bottom: 1rem;
+      background: var(--bg);
+    }
+    .item-title {
+      font-weight: 600; margin-bottom: 0.5rem;
+      display: flex; gap: 0.5rem; align-items: baseline; flex-wrap: wrap;
+    }
+    .item-id { color: var(--accent); font-family: 'SF Mono', Menlo, monospace; font-size: 0.85rem; }
+    .item-meta { color: var(--text-muted); font-size: 0.82rem; font-weight: 400; }
+    .item-content { margin: 0.75rem 0; font-size: 0.9rem; }
+    .item-content .label { font-weight: 600; color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 0.5rem; display: block; }
+    .item-text {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.6rem 0.85rem;
+      margin: 0.4rem 0 0.6rem;
+      font-family: 'SF Mono', Menlo, monospace;
+      font-size: 0.84rem;
+      white-space: pre-wrap;
+      line-height: 1.55;
+    }
+    .item-llm-reason {
+      font-size: 0.86rem;
+      color: var(--text-secondary);
+      background: var(--bg-card);
+      border-left: 3px solid var(--text-muted);
+      padding: 0.5rem 0.9rem;
+      margin: 0.4rem 0;
+      border-radius: 0 4px 4px 0;
+    }
+    .item-pair { display: flex; gap: 1rem; flex-wrap: wrap; margin: 0.5rem 0; }
+    .item-pair .badge {
+      padding: 0.25rem 0.7rem; border-radius: 4px; font-size: 0.78rem; font-family: 'SF Mono', Menlo, monospace;
+      background: var(--bg-card); border: 1px solid var(--border);
+    }
+    .item-pair .badge strong { color: var(--text-muted); margin-right: 0.4rem; font-weight: 500; }
+    .verdict-row {
+      display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.85rem;
+    }
+    .verdict-btn {
+      padding: 0.5rem 0.9rem; border: 2px solid var(--border); background: var(--bg-card);
+      border-radius: 6px; cursor: pointer; font-size: 0.82rem; font-weight: 500;
+      color: var(--text); transition: all 0.15s;
+    }
+    .verdict-btn:hover { border-color: var(--accent); }
+    .verdict-btn.selected[data-value="WRONG"],
+    .verdict-btn.selected[data-value="DISPUTED"],
+    .verdict-btn.selected[data-value="WRONG-relabel"],
+    .verdict-btn.selected[data-value="BACKUP_INVALID"] {
+      border-color: var(--red); background: var(--red-light); color: var(--red);
+    }
+    .verdict-btn.selected[data-value="DEFENSIBLE"],
+    .verdict-btn.selected[data-value="DEFENSIBLE-BUT-MARGINAL"] {
+      border-color: var(--amber); background: var(--amber-light); color: var(--amber);
+    }
+    .verdict-btn.selected[data-value="CORRECT"],
+    .verdict-btn.selected[data-value="CONFIRMED"],
+    .verdict-btn.selected[data-value="APPLICANT_TABLE"] {
+      border-color: var(--green); background: var(--green-light); color: var(--green);
+    }
+    .verdict-btn.selected[data-value="MIXED"],
+    .verdict-btn.selected[data-value="PROCEDURAL_HISTORY"] {
+      border-color: var(--accent); background: var(--accent-light); color: var(--accent);
+    }
+    .comment-input {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text);
+      border-radius: 4px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.86rem;
+      font-family: inherit;
+      margin-top: 0.5rem;
+      resize: vertical;
+      min-height: 36px;
+    }
+    .hudoc-link {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      color: var(--accent); text-decoration: none;
+      font-size: 0.84rem;
+      padding: 0.3rem 0.7rem;
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      margin: 0.4rem 0.4rem 0.4rem 0;
+    }
+    .hudoc-link:hover { background: var(--accent-light); }
+    .summary-box {
+      background: var(--bg-card);
+      border: 2px solid var(--green);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-top: 2rem;
+    }
+    .summary-box h3 { margin-top: 0; color: var(--green); }
+    pre.export {
+      background: var(--bg);
+      padding: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 0.78rem;
+      max-height: 400px;
+    }
+    .reset-warn { color: var(--red); font-size: 0.82rem; }
+    @media (max-width: 768px) {
+      main { padding: 1rem; }
+      .header { padding: 0.75rem 1rem; }
+      .progress-bar { width: 140px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-row">
+      <h1>Manual Review — ECHR Dashboard methodology</h1>
+      <div class="controls">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <span class="progress-text" id="progressText">0 / 30</span>
+        <button class="btn" id="themeBtn" type="button">🌙</button>
+        <button class="btn btn-primary" id="exportBtn" type="button">Export verdicts</button>
+        <button class="btn" id="resetBtn" type="button">Reset</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro">
+      <h2>How to use this tool</h2>
+      <p>30 specific items across 6 tasks. Each task targets a methodology claim that gets upgraded from <em>LLM-audited</em> to <em>human-validated</em> once you complete it.</p>
+      <p>Click a task header to expand. Click a verdict button to record your decision (saved automatically to your browser's localStorage). Open HUDOC links in new tabs to verify against source. Use the comment box for any caveats.</p>
+      <p>When done, click <strong>Export verdicts</strong> to copy the markdown into <code>methodology-internal/manual-review-verdicts.md</code>. You can resume at any time — your progress persists across reloads.</p>
+    </section>
+
+    <div id="tasks"></div>
+
+    <div class="summary-box" id="summaryBox" style="display:none;">
+      <h3>All 30 items reviewed.</h3>
+      <p>Click <strong>Export verdicts</strong> to download the markdown summary.</p>
+    </div>
+  </main>
+
+  <script>
+    // ───────────────────────────────────────────────────────────────────────
+    // DATA — embedded so this works fully offline, no server needed.
+    // ───────────────────────────────────────────────────────────────────────
+    const TASKS = [
+      {
+        id: "M1",
+        title: "Validate the 7 LLM-flagged 'incorrect' relabels",
+        eta: "10–15 min",
+        rationale: "The B1 audit reports 97.6% precision based on Sonnet 4.6's judgment of 490 samples. The 7 paragraphs flagged 'incorrect' drive that 2.4% error rate. If you agree with all 7 verdicts, the precision claim is fully validated. If you overturn any, the true precision is higher than 97.6%.",
+        upgrade: "<code>97.6% precision (LLM-audited; X / 7 incorrect flags confirmed by human expert)</code> in <em>precision-audit.md</em> Section 2.",
+        verdictOptions: ["WRONG-relabel", "DEFENSIBLE"],
+        items: [
+          { id: "1.1", caseTitle: "Rutkowski and Others v. Poland", caseId: "001-155815", pass: "P1", oldSection: "Operative Part", newSection: "Just Satisfaction",
+            text: "8. Dismisses the remainder of the applicants' claim for just satisfaction;",
+            llm: "Dispositif clause is Operative Part text; all surrounding paragraphs are Operative Part dispositif." },
+          { id: "1.2", caseTitle: "Leong Poy v. Portugal", caseId: "—", pass: "P1", oldSection: "Operative part", newSection: "Just Satisfaction",
+            text: "4. Dismisses the remainder of the applicant's claim for just satisfaction.",
+            llm: "Dispositif clause embedded in a numbered Holds/Declares sequence — Operative Part text, not narrative." },
+          { id: "1.3", caseTitle: "Michael Edward Cooke v. Austria", caseId: "—", pass: "P3", oldSection: "Facts Proceedings", newSection: "Legal Framework",
+            text: "FINAL SUBMISSIONS TO THE COURT",
+            llm: "Heading introduces the parties' procedural submissions section, not domestic law content." },
+          { id: "1.4", caseTitle: "Sosnovskiy v. Ukraine", caseId: "—", pass: "P4", oldSection: "Facts", newSection: "Merits",
+            text: "(i) EUR 9,000 (nine thousand euros), plus any tax that may be chargeable, in respect of non-pecuniary damage;",
+            llm: "Sub-clause is an Operative Part damages award sub-item; surrounding context is entirely Operative Part dispositif." },
+          { id: "1.5", caseTitle: "Buzatu and Others v. Romania", caseId: "—", pass: "P4", oldSection: "Facts", newSection: "Merits",
+            text: "(b) that from the expiry of the above-mentioned three months until settlement simple interest shall be payable on the above amounts at a rate equal to the marginal lending rate of the European Central Bank during the default period plus three percentage points; Dismisses the remainder of the applica…",
+            llm: "Operative Part dispositif clause — while Merits is closer than Facts, the new label remains wrong." },
+          { id: "1.6", caseTitle: "Nebiyeridze and Others v. Russia", caseId: "—", pass: "P4", oldSection: "Facts", newSection: "Merits",
+            text: "(a) that the respondent State is to pay the applicants, within three months, the amounts indicated in the appended table, to be converted into the currency of the respondent State at the rate applicable at the date of settlement;",
+            llm: "Operative Part payment clause; new label is wrong since this is dispositif text." },
+          { id: "1.7", caseTitle: "Akhmatova v. Russia", caseId: "—", pass: "P5", oldSection: "Facts", newSection: "Merits",
+            text: "A. Damage 70. The applicant claimed 21,211 euros (EUR) in respect of pecuniary damage and EUR 100,000 in respect of non-pecuniary damage.",
+            llm: "Sub-heading 'A. Damage' inside Article 41 block belongs to Just Satisfaction, not Merits — pipeline ordering issue." },
+        ]
+      },
+      {
+        id: "M2",
+        title: "Validate Merits sub-typing schema",
+        eta: "15 min",
+        rationale: "B2 pilot used Sonnet 4.6 to classify 229 paragraphs into 7 sub-types. The 91.7% high-confidence rate is the LLM's own self-assessment. A human spot-check of 10 random verdicts (7 high + 3 medium confidence) confirms the classification quality.",
+        upgrade: "<code>91.7% LLM-confidence aligned with human review on 10 random samples (X agreement)</code> in <em>merits-subtyping-pilot.md</em> Section 6.",
+        verdictOptions: ["CORRECT", "WRONG", "DEFENSIBLE-BUT-MARGINAL"],
+        items: [
+          { id: "2.1", caseTitle: "Raschupkin v. Russia", pop: "C",
+            text: "7. Having examined all the material submitted to it, the Court has not found any fact or argument capable of persuading it to reach a different conclusion on the admissibility and merits of these complaints. Having regard to its case-law on the subject, the Court considers that in the instant case the applicant's confinement in a metal cage before the court during the criminal proceedings against…",
+            llm: "Court concludes the applicant's confinement amounted to degrading treatment — factual application.",
+            llmCategory: "application_to_facts (high)" },
+          { id: "2.2", caseTitle: "Maksymenko and Gerasymenko v. Ukraine", pop: "B",
+            text: "80. The applicants lastly submitted that, by disclosing information about the second applicant's heirs, the Government had breached Article 8 of the Convention.",
+            llm: "Applicant raises Article 8 complaint — specific case complaint.",
+            llmCategory: "application_to_facts (high)" },
+          { id: "2.3", caseTitle: "Young, James and Webster v. United Kingdom", pop: "A",
+            text: "51. A substantial part of the pleadings before the Court was devoted to the question whether Article 11 guarantees not only freedom of association, including the right to form and to join trade unions, in the positive sense, but also, by implication, a 'negative right' not to be compelled to join an association or a union…",
+            llm: "Court explains it will not decide the 'negative right' question in abstract — scoping/narrowing.",
+            llmCategory: "admissibility_within_merits (medium)" },
+          { id: "2.4", caseTitle: "S.H. v. Italy", pop: "B",
+            text: "25. The Government contested that argument.",
+            llm: "One-line Government denial — minimal but part of parties' positions.",
+            llmCategory: "application_to_facts (medium)" },
+          { id: "2.5", caseTitle: "Fetisov and Others v. Russia", pop: "C",
+            text: "5. § 3 of the Convention. OTHER ALLEGED VIOLATIONS UNDER WELL-ESTABLISHED CASE-LAW",
+            llm: "Fragment continuing violation finding statement combined with next section heading.",
+            llmCategory: "violation_finding (medium)" },
+          { id: "2.6", caseTitle: "Brannigan and McBride v. United Kingdom", pop: "A",
+            text: "55. The applicants further considered that there was no basis for the Government's assertion that control of extended detention by a judge or other officer authorised by law to exercise judicial power was not possible or that a period of seven days' detention was necessary…",
+            llm: "Applicants argue against necessity of exclusion of judicial control — case-specific submissions.",
+            llmCategory: "application_to_facts (high)" },
+          { id: "2.7", caseTitle: "Zander v. Sweden", pop: "A",
+            text: "A. Applicability of Article 6 para. 1 (art. 6-1) 1. Existence of a dispute ('contestation') over a 'right'",
+            llm: "Sub-section heading — structural header only.",
+            llmCategory: "boundary_or_unclear (high)" },
+          { id: "2.8", caseTitle: "Maksymenko and Gerasymenko v. Ukraine", pop: "B",
+            text: "81. Having considered the applicants' submissions in the light of all the material in its possession, the Court finds that, in so far as the matters complained of are within its competence, they do not disclose any appearance of a violation of the rights and freedoms set out in the Convention.",
+            llm: "Manifestly ill-founded disposal — admissibility/merits ruling.",
+            llmCategory: "admissibility_within_merits (high)" },
+          { id: "2.9", caseTitle: "Szűcs and Others v. Hungary", pop: "C",
+            text: "II. ALLEGED VIOLATION OF ARTICLE 6 § 1 OF THE CONVENTION",
+            llm: "Section heading — structural header only.",
+            llmCategory: "boundary_or_unclear (high)" },
+          { id: "2.10", caseTitle: "Diță and Others v. Romania", pop: "C",
+            text: "5. The Government requested the revision of the judgment of 13 January 2022, which they had been unable to execute in full because Mr. Dumitru Vasile-Nicolae and Mr. Istvan Irimias had died before the judgment was adopted. They argued that the heirs should have informed the Court about the death of their close relative…",
+            llm: "Government requests revision under Rule 80 — procedural revision request.",
+            llmCategory: "joinder_or_procedural (high)" },
+        ]
+      },
+      {
+        id: "M3",
+        title: "Validate Population A pre-1998 cases",
+        eta: "10 min",
+        rationale: "The structural analysis claims Population A (1960–1998 classical format) has ~100% segmentation accuracy. Confirming on 5 random cases lets the methodology defensibly claim near-perfect section assignment for the pre-Protocol-11 corpus.",
+        upgrade: "<code>Population A precision validated on 5 random pre-1998 cases by domain expert review</code> in <em>data-cleaning-full.md</em> Section 2.1.",
+        verdictOptions: ["CONFIRMED", "DISPUTED"],
+        instructions: "For each case below, click the HUDOC link and skim the judgment. The expected canonical Pop A structure is: Header → Introduction (PROCEDURE) → Facts Background (AS TO THE FACTS) → Facts Proceedings (PROCEEDINGS BEFORE THE COMMISSION) → Merits (AS TO THE LAW) → Operative Part. Mark CONFIRMED if our structure matches HUDOC.",
+        items: [
+          { id: "3.1", caseTitle: "McCallum v. United Kingdom", caseId: "001-57640", date: "30/08/1990",
+            hudoc: "https://hudoc.echr.coe.int/?i=001-57640",
+            structure: "Header ¶0–2 (3 paras) · Introduction ¶3–10 (8) · Facts Background ¶11–35 (25) · Facts Proceedings ¶36–41 (6) · Merits ¶42–54 (13) · Operative Part ¶55–59 (5)" },
+          { id: "3.2", caseTitle: "De Cubber v. Belgium", caseId: "001-57465", date: "26/10/1984",
+            hudoc: "https://hudoc.echr.coe.int/?i=001-57465",
+            structure: "Header ¶0–2 · Introduction ¶3–9 · Facts Background ¶10–28 · Facts Proceedings ¶29–31 · Merits ¶32–51 · Operative Part ¶52–54" },
+          { id: "3.3", caseTitle: "Kefalas and Others v. Greece", caseId: "001-57931", date: "08/06/1995",
+            hudoc: "https://hudoc.echr.coe.int/?i=001-57931",
+            structure: "Header ¶0–2 · Introduction ¶3–8 · Facts Background ¶9–47 · Facts Proceedings ¶48–53 · Merits ¶54–63 · Operative Part ¶64" },
+          { id: "3.4", caseTitle: "Sporrong and Lönnroth v. Sweden (Article 50)", caseId: "001-57579", date: "18/12/1984",
+            hudoc: "https://hudoc.echr.coe.int/?i=001-57579",
+            structure: "Header ¶0–3 · Introduction ¶4–11 · Merits ¶12–27 · Operative Part ¶28–38",
+            note: "This is a follow-up Article 50 (just satisfaction) judgment after the main 1982 judgment — that's why no Facts Background/Proceedings." },
+          { id: "3.5", caseTitle: "Niemietz v. Germany", caseId: "001-57887", date: "16/12/1992",
+            hudoc: "https://hudoc.echr.coe.int/?i=001-57887",
+            structure: "Header ¶0–2 · Introduction ¶3–8 · Facts Background ¶9–29 · Facts Proceedings ¶30–34 · Merits ¶35–58 · Operative Part ¶59–62" },
+        ]
+      },
+      {
+        id: "M4",
+        title: "Validate worked examples cited in methodology",
+        eta: "5 min",
+        rationale: "data-cleaning-full.md cites four named cases as worked examples (Wainwright, Liatukas, Murdalovy, Popova). A spot-check that the cited paragraphs match what the methodology claims they show validates the entire chain of reasoning.",
+        upgrade: "<code>Worked examples (Wainwright, Liatukas, Murdalovy, Popova) verified by hand against HUDOC source documents</code> in <em>data-cleaning-full.md</em>.",
+        verdictOptions: ["CONFIRMED", "DISPUTED"],
+        items: [
+          { id: "4.1", caseTitle: "Wainwright v. United Kingdom", caseId: "001-76999",
+            hudoc: "https://hudoc.echr.coe.int/?i=001-76999",
+            claim: "Paragraph 76 is the heading 'III. APPLICATION OF ARTICLE 41 OF THE CONVENTION' and paragraphs 77–87 are the Article 41 reasoning block. P1 moved them all from Merits to Just Satisfaction." },
+          { id: "4.2", caseTitle: "Liatukas v. Lithuania", caseId: "001-170452",
+            hudoc: "https://hudoc.echr.coe.int/?i=001-170452",
+            claim: "Paragraph 28 starts with 'II. RELEVANT DOMESTIC LAW', paragraphs 29–39 contain Civil Code articles. P3 moved this block from Facts Proceedings to Legal Framework." },
+          { id: "4.3", caseTitle: "Murdalovy v. Russia", caseId: "001-202121",
+            hudoc: "https://hudoc.echr.coe.int/?i=001-202121",
+            claim: "Paragraphs 122–126 are a JOINT PARTLY DISSENTING OPINION that was misclassified as Operative Part. P2 moved them to Separate Opinion." },
+          { id: "4.4", caseTitle: "Popova and other 'Privileged Pensioners' v. Russia", caseId: "001-100513",
+            hudoc: "https://hudoc.echr.coe.int/?i=001-100513",
+            claim: "After 'II. ALLEGED VIOLATION OF ARTICLE 6' heading, paragraphs 9–15 are merits content. The 'III. APPLICATION OF ARTICLE 41' heading at paragraph 16 introduces the Article 41 reasoning block. P5 + P6 propagated through the document." },
+        ]
+      },
+      {
+        id: "M5",
+        title: "Spot-check Population C 'Introduction' content",
+        eta: "10 min",
+        rationale: "The methodology claims that in Committee/joined cases, the Introduction section sometimes contains 91–309 paragraphs of applicant-table column headers and per-applicant data, rather than procedural history. This justifies the ⓘ hint icon on the Introduction filter.",
+        upgrade: "<code>Population C Introduction table-content claim validated on 3 mass cases</code> in <em>data-cleaning-full.md</em> Section 9.",
+        verdictOptions: ["APPLICANT_TABLE", "PROCEDURAL_HISTORY", "MIXED"],
+        instructions: "Open each case's HUDOC URL. Skim the introduction section. Does it contain a long applicant-data table (column headers like 'Applicant's name', 'Year of birth', 'Sq. m per inmate', followed by per-applicant rows), or genuine procedural history?",
+        items: [
+          { id: "5.1", caseTitle: "Çetin and Others v. Türkiye", caseId: "001-245251",
+            hudoc: "https://hudoc.echr.coe.int/?i=001-245251",
+            claim: "Methodology states: 309 paragraphs in Introduction (mass case)" },
+          { id: "5.2", caseTitle: "Grechek and Others v. Russia", caseId: "001-229000",
+            hudoc: "https://hudoc.echr.coe.int/?i=001-229000",
+            claim: "Methodology states: 91 paragraphs in Introduction" },
+          { id: "5.3", caseTitle: "Israilovy and Others v. Russia", caseId: "001-203810",
+            hudoc: "https://hudoc.echr.coe.int/?i=001-203810",
+            claim: "Methodology states: mass joined applicant case" },
+        ]
+      },
+      {
+        id: "M6",
+        title: "Validate backup integrity (SQL spot-check)",
+        eta: "5 min",
+        rationale: "Methodology states all relabel passes have backup tables (_p1_backup … _p7_backup) and rollback is one SQL statement per pass. A spot-check on a single relabeled paragraph proves the backup integrity claim.",
+        upgrade: "<code>Backup integrity verified by SQL inspection on _p1_backup</code> in <em>data-cleaning-full.md</em> Section 7.",
+        verdictOptions: ["CONFIRMED", "BACKUP_INVALID"],
+        instructions: "On the VM, run: <code>ssh amuvmuser@150.254.115.204 \"docker exec echr-search-api sqlite3 /data/echr_search.db 'SELECT p.section AS current_section, b.section AS backup_section, substr(p.text,1,80) AS preview FROM paragraphs p JOIN _p1_backup b ON b.rowid = p.rowid LIMIT 5'\"</code>. You should see 5 rows where current_section = 'Just Satisfaction' and backup_section is the original section (Merits, Admissibility, etc.) — proving the rollback path.",
+        items: [
+          { id: "6.1", caseTitle: "_p1_backup integrity check",
+            claim: "Run the SQL above. Verify 5 rows show distinct current vs backup sections." },
+        ]
+      },
+    ];
+
+    // ───────────────────────────────────────────────────────────────────────
+    // STATE PERSISTENCE
+    // ───────────────────────────────────────────────────────────────────────
+    const STORAGE_KEY = 'echr-manual-review-v1';
+    const state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    function getVerdict(itemId) { return state[itemId] || {}; }
+    function setVerdict(itemId, verdict, comment) {
+      state[itemId] = { verdict, comment, ts: new Date().toISOString() };
+      saveState();
+      updateProgress();
+    }
+
+    // ───────────────────────────────────────────────────────────────────────
+    // RENDERING
+    // ───────────────────────────────────────────────────────────────────────
+    function escapeHtml(s) {
+      return String(s || '').replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function renderItem(item, task) {
+      const stored = getVerdict(item.id);
+      const opts = task.verdictOptions.map(opt =>
+        `<button class="verdict-btn ${stored.verdict === opt ? 'selected' : ''}" data-item="${item.id}" data-value="${opt}">${opt.replace(/_/g, ' ')}</button>`
+      ).join('');
+      const meta = [
+        item.pass ? `<span class="badge"><strong>Pass:</strong> ${escapeHtml(item.pass)}</span>` : '',
+        item.oldSection ? `<span class="badge"><strong>Original:</strong> ${escapeHtml(item.oldSection)}</span>` : '',
+        item.newSection ? `<span class="badge"><strong>New:</strong> ${escapeHtml(item.newSection)}</span>` : '',
+        item.pop ? `<span class="badge"><strong>Pop:</strong> ${escapeHtml(item.pop)}</span>` : '',
+        item.date ? `<span class="badge"><strong>Date:</strong> ${escapeHtml(item.date)}</span>` : '',
+        item.llmCategory ? `<span class="badge"><strong>LLM category:</strong> ${escapeHtml(item.llmCategory)}</span>` : '',
+      ].filter(Boolean).join('');
+      const hudoc = item.hudoc ? `<a class="hudoc-link" href="${escapeHtml(item.hudoc)}" target="_blank" rel="noopener">Open in HUDOC ↗</a>` : '';
+      const text = item.text ? `<span class="label">Paragraph text</span><div class="item-text">${escapeHtml(item.text)}</div>` : '';
+      const claim = item.claim ? `<span class="label">Methodology claim to verify</span><div class="item-content">${escapeHtml(item.claim)}</div>` : '';
+      const structure = item.structure ? `<span class="label">Section structure (from our DB)</span><div class="item-text">${escapeHtml(item.structure)}</div>` : '';
+      const note = item.note ? `<div class="item-content" style="font-style:italic;color:var(--text-muted);">Note: ${escapeHtml(item.note)}</div>` : '';
+      const llm = item.llm ? `<span class="label">LLM reasoning</span><div class="item-llm-reason">${escapeHtml(item.llm)}</div>` : '';
+
+      return `
+        <div class="item" data-item-id="${item.id}">
+          <div class="item-title">
+            <span class="item-id">${item.id}</span>
+            <span>${escapeHtml(item.caseTitle)}</span>
+            ${item.caseId ? `<span class="item-meta">(${escapeHtml(item.caseId)})</span>` : ''}
+          </div>
+          ${meta ? `<div class="item-pair">${meta}</div>` : ''}
+          ${hudoc}
+          ${text}
+          ${structure}
+          ${claim}
+          ${llm}
+          ${note}
+          <div class="verdict-row">${opts}</div>
+          <textarea class="comment-input" placeholder="Optional comment…" data-item="${item.id}">${escapeHtml(stored.comment || '')}</textarea>
+        </div>
+      `;
+    }
+
+    function renderTasks() {
+      const root = document.getElementById('tasks');
+      root.innerHTML = TASKS.map(task => {
+        const completed = task.items.filter(it => state[it.id]?.verdict).length;
+        const status = completed === 0 ? 'pending' : completed === task.items.length ? 'done' : 'partial';
+        const statusLabel = status === 'pending' ? 'pending' : status === 'partial' ? `${completed}/${task.items.length}` : 'done ✓';
+        return `
+          <section class="task" data-task-id="${task.id}">
+            <header class="task-header">
+              <h2><span class="task-id">${task.id}</span>${escapeHtml(task.title)}</h2>
+              <div class="task-meta">
+                <span>${escapeHtml(task.eta)}</span>
+                <span class="task-status ${status}">${statusLabel}</span>
+                <span class="task-toggle">▶</span>
+              </div>
+            </header>
+            <div class="task-body">
+              <div class="task-rationale"><strong>Why it matters:</strong> ${task.rationale}<br><strong>Methodology upgrade:</strong> ${task.upgrade}</div>
+              ${task.instructions ? `<p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:1.5rem;">${task.instructions}</p>` : ''}
+              ${task.items.map(it => renderItem(it, task)).join('')}
+            </div>
+          </section>
+        `;
+      }).join('');
+
+      // Wire up handlers
+      document.querySelectorAll('.task-header').forEach(h => h.addEventListener('click', e => {
+        h.parentElement.classList.toggle('open');
+      }));
+      document.querySelectorAll('.verdict-btn').forEach(b => b.addEventListener('click', e => {
+        const itemId = b.dataset.item;
+        const value = b.dataset.value;
+        const stored = getVerdict(itemId);
+        const newVerdict = stored.verdict === value ? null : value;
+        // Toggle visual selection
+        document.querySelectorAll(`.verdict-btn[data-item="${itemId}"]`).forEach(x => x.classList.remove('selected'));
+        if (newVerdict) {
+          b.classList.add('selected');
+          setVerdict(itemId, newVerdict, stored.comment || '');
+        } else {
+          delete state[itemId];
+          saveState();
+          updateProgress();
+        }
+        renderTaskHeaders(); // refresh status badges
+      }));
+      document.querySelectorAll('.comment-input').forEach(t => t.addEventListener('input', e => {
+        const itemId = t.dataset.item;
+        const stored = getVerdict(itemId);
+        if (stored.verdict) {
+          setVerdict(itemId, stored.verdict, t.value);
+        } else {
+          // store comment without verdict (won't count toward progress)
+          state[itemId] = { ...state[itemId], comment: t.value };
+          saveState();
+        }
+      }));
+    }
+
+    function renderTaskHeaders() {
+      TASKS.forEach(task => {
+        const taskEl = document.querySelector(`[data-task-id="${task.id}"]`);
+        if (!taskEl) return;
+        const completed = task.items.filter(it => state[it.id]?.verdict).length;
+        const status = completed === 0 ? 'pending' : completed === task.items.length ? 'done' : 'partial';
+        const statusLabel = status === 'pending' ? 'pending' : status === 'partial' ? `${completed}/${task.items.length}` : 'done ✓';
+        const badge = taskEl.querySelector('.task-status');
+        if (badge) {
+          badge.className = `task-status ${status}`;
+          badge.textContent = statusLabel;
+        }
+      });
+    }
+
+    function updateProgress() {
+      const totalItems = TASKS.reduce((s, t) => s + t.items.length, 0);
+      const completed = Object.values(state).filter(v => v && v.verdict).length;
+      document.getElementById('progressFill').style.width = (completed / totalItems * 100) + '%';
+      document.getElementById('progressText').textContent = `${completed} / ${totalItems}`;
+      document.getElementById('summaryBox').style.display = completed === totalItems ? 'block' : 'none';
+    }
+
+    function exportVerdicts() {
+      const reviewer = prompt('Reviewer name (for the verdicts file):', '');
+      if (reviewer === null) return;
+      const date = new Date().toISOString().slice(0, 10);
+      let md = `# Manual Review Verdicts\n\n**Reviewer:** ${reviewer || '_____________________'}\n**Date completed:** ${date}\n\n`;
+      TASKS.forEach(task => {
+        md += `---\n\n## Task ${task.id} — ${task.title}\n\n`;
+        const completedCount = task.items.filter(it => state[it.id]?.verdict).length;
+        if (completedCount === 0) {
+          md += `_(not yet started)_\n\n`;
+          return;
+        }
+        md += '```\n';
+        task.items.forEach(it => {
+          const v = state[it.id] || {};
+          const verdict = v.verdict ? `[X] ${v.verdict.replace(/_/g, ' ')}` : '[ ] (not reviewed)';
+          const opts = task.verdictOptions.map(o => o === v.verdict ? `[X] ${o.replace(/_/g, ' ')}` : `[ ] ${o.replace(/_/g, ' ')}`).join('  ');
+          const comment = v.comment ? ` — ${v.comment.replace(/\n/g, ' ')}` : '';
+          md += `${it.id}  ${opts}${comment}\n`;
+        });
+        md += '```\n\n';
+      });
+      // Trigger download
+      const blob = new Blob([md], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `manual-review-verdicts-${date}.md`;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function reset() {
+      if (!confirm('Reset all verdicts? This cannot be undone.')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      Object.keys(state).forEach(k => delete state[k]);
+      renderTasks();
+      updateProgress();
+    }
+
+    // Theme
+    function applyTheme() {
+      const stored = localStorage.getItem('mr-theme') || 'light';
+      document.documentElement.setAttribute('data-theme', stored);
+      document.getElementById('themeBtn').textContent = stored === 'dark' ? '☀️' : '🌙';
+    }
+    document.getElementById('themeBtn').addEventListener('click', () => {
+      const cur = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = cur === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('mr-theme', next);
+      applyTheme();
+    });
+    applyTheme();
+
+    document.getElementById('exportBtn').addEventListener('click', exportVerdicts);
+    document.getElementById('resetBtn').addEventListener('click', reset);
+
+    // Initial render
+    renderTasks();
+    updateProgress();
+
+    // Expand first task by default if nothing reviewed yet
+    if (Object.keys(state).length === 0) {
+      document.querySelector('.task')?.classList.add('open');
+    } else {
+      // Expand all partially-completed tasks
+      TASKS.forEach(task => {
+        const completed = task.items.filter(it => state[it.id]?.verdict).length;
+        if (completed > 0 && completed < task.items.length) {
+          document.querySelector(`[data-task-id="${task.id}"]`)?.classList.add('open');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

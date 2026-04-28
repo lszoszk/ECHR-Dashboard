@@ -1,6 +1,6 @@
 # Data Cleaning Methodology — Summary
 
-> One-page overview. For full details see [`data-cleaning-full.md`](data-cleaning-full.md). For chronological log see [`CHANGELOG.md`](CHANGELOG.md).
+> One-page overview of the data cleaning pipeline applied to the ECHR Dashboard corpus. For internal specifications, change log, precision audit, and validation reports, please contact the project author.
 
 ## Corpus
 
@@ -77,17 +77,7 @@ A representative example — *Wainwright v. United Kingdom* — shows P1 working
 
 ## Reproducibility
 
-All transformation scripts are in [`scripts/`](../../scripts/):
-
-- `harvest_headings.py` — scans corpus for canonical heading occurrences (read-only)
-- `analyze_sections.py` — 10 random cases per year, 1975–2025 (read-only)
-- `p1_validate_js.py` / `p1_relabel_js.py` — Pass 1
-- `p2_relabel_opinions.py` — Pass 2
-- `p3_validate_domestic_law.py` / `p3_relabel_domestic_law.py` — Pass 3
-- `p4_validate_population_c.py` / `p4_relabel_population_c.py` — Pass 4
-- `generate_sample50.py` — stratified offline-fallback sample regen
-
-Every relabel script supports `--apply` (commit) vs default dry-run mode and creates a backup table (`_p1_backup` … `_p4_backup`) before any UPDATE. Rollback is a single SQL command per pass.
+All transformation scripts are versioned in the project repository under `scripts/`. Every relabel script supports a default dry-run mode and an `--apply` flag, and creates a backup table (`_p1_backup` … `_p7_backup`) before any UPDATE. Rollback is a single SQL command per pass.
 
 ## Known limitations
 
