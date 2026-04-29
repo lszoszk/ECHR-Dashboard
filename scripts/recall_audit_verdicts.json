@@ -1,0 +1,2702 @@
+[
+  {
+    "rowid": 183734,
+    "case_id": "001-61738",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Party submission on unreasonable length of proceedings within clearly Merits context (Article 6 length-of-proceedings analysis).",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1195784,
+    "case_id": "001-201353",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court's substantive legal analysis in an expulsion/Article 4 Protocol 4 case. All neighbours are Merits.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1215986,
+    "case_id": "001-211572",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Party submission within Merits section on Article 10 complaint; neighbours consistently Merits.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1257681,
+    "case_id": "001-218430",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court's assessment of excessive length involving Constitutional Court delays. Merits analysis.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 910203,
+    "case_id": "001-140019",
+    "current_section": "Merits",
+    "verdict": "wrong",
+    "should_be": "Just Satisfaction",
+    "reason": "Court award of costs and expenses, with 'C. Default interest' in following context. Content is Article 41 costs/expenses assessment — Just Satisfaction, not Merits analysis.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1244444,
+    "case_id": "001-220954",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court applying standard of proof principles to Article 3 ill-treatment allegations. Merits analysis.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1620790,
+    "case_id": "001-211889",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Paragraph introducing new complaint under Articles 8 and P1-1, quoting Convention text. Transitional paragraph properly in Merits (ALLEGED VIOLATION OF ARTICLES 8 section).",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1608296,
+    "case_id": "001-214430",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Government submission within Article 3 medical treatment Merits section.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 713356,
+    "case_id": "001-102627",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court ruling on preliminary issue (Government estoppel on just-satisfaction claims) within THE LAW section. The preliminary ruling occurs before the just-satisfaction reasoning.",
+    "confidence": "medium"
+  },
+  {
+    "rowid": 204976,
+    "case_id": "001-70865",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court's assessment of Article 5 § 4 violation based on domestic procedural time-limits. Pure Merits analysis.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1338193,
+    "case_id": "001-229928",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "General principles recital on Article 3 minimum severity. Contextually within Merits.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1369302,
+    "case_id": "001-240183",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant organisation's detailed submissions on procedural issues. Merits context throughout.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 304619,
+    "case_id": "001-72636",
+    "current_section": "Merits",
+    "verdict": "ambiguous",
+    "should_be": null,
+    "reason": "Court recites six-months rule in context of Government admissibility objection. Could be Admissibility, but neighbours are all Merits; in this case admissibility is embedded in the Merits section.",
+    "confidence": "medium"
+  },
+  {
+    "rowid": 1678532,
+    "case_id": "001-202999",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Introduction of Article 3 complaint. Complaint introduction paragraph is properly in Merits.",
+    "confidence": "medium"
+  },
+  {
+    "rowid": 1999934,
+    "case_id": "001-99885",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Section heading 'II. ALLEGED VIOLATION OF ARTICLE 6 § 1' is a structural Merits heading.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 100,
+    "case_id": "001-57518",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Substantive judgment paragraph on Article 15 detention powers (Lawless case). Merits analysis in Commission-era format.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1844648,
+    "case_id": "001-177392",
+    "current_section": "Merits",
+    "verdict": "ambiguous",
+    "should_be": null,
+    "reason": "Paragraph introducing Article 6 complaint with Convention text. Context_before is Facts; context_after is Admissibility. The heading 'II. ALLEGED VIOLATION OF ARTICLE 6 § 1' in preceding context supports Merits.",
+    "confidence": "medium"
+  },
+  {
+    "rowid": 438777,
+    "case_id": "001-86949",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Introductory para for second Article 6 complaint under heading 'II. OTHER ALLEGED VIOLATIONS'. Merits.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1236185,
+    "case_id": "001-207477",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Government's admissibility objection on A1P1 raised within Merits section (embedded admissibility under ALLEGED VIOLATION heading). Correct label.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1277836,
+    "case_id": "001-229325",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court admissibility ruling on Article 3 complaint linked to Article 2 analysis, within Merits section.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 536900,
+    "case_id": "001-91738",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court's substantive analysis of deprivation of life/disappearance evidence in Chechnya conflict. Merits.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1059869,
+    "case_id": "001-172963",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court's legal analysis on waiver of right to counsel under Article 6 § 3(c). Merits.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1757357,
+    "case_id": "001-189788",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court examining factual evidence on cause of death in military service. Merits substantive analysis.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1504434,
+    "case_id": "001-229419",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court's concise Merits assessment in a repetitive case; references appended table and established case-law.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 580639,
+    "case_id": "001-101283",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Introduction of Article 6 § 2 complaint with Convention text under heading 'III. ALLEGED VIOLATION OF ARTICLE 6 § 2'. Merits.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 238938,
+    "case_id": "001-68419",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court's conclusion on Article 3 torture evidence. Merits substantive analysis.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1737720,
+    "case_id": "001-193608",
+    "current_section": "Merits",
+    "verdict": "wrong",
+    "should_be": "Legal Framework",
+    "reason": "Quotation of 1998 Croatian Criminal Code Article 66 § 1. Context before and after are also code citations. This belongs in Legal Framework / Relevant Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1633874,
+    "case_id": "001-210325",
+    "current_section": "Merits",
+    "verdict": "wrong",
+    "should_be": "Legal Framework",
+    "reason": "Quotation of domestic Compensation Act of 1994 legislative provisions. BEF context is Facts; AFT context is Merits complaint. This belongs in Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1194291,
+    "case_id": "001-201326",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court's assessment of applicant's attachment to children in Article 8 child-care merits analysis.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1131669,
+    "case_id": "001-179867",
+    "current_section": "Merits",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court applying Article 6 § 1 principles to interim injunction proceedings. Merits.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 138587,
+    "case_id": "001-61333",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Factual paragraph describing applicant's conviction history. Chronological facts narrative.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1200205,
+    "case_id": "001-200315",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant's appeal arguments (closure of trial to public). Chronological facts about appellate proceedings.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1269296,
+    "case_id": "001-216196",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Administrative decision dismissing applicant company's compensation claim. Factual proceedings.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 880821,
+    "case_id": "001-145360",
+    "current_section": "Facts Proceedings",
+    "verdict": "ambiguous",
+    "should_be": null,
+    "reason": "Ombudsman annual report excerpt within Facts Proceedings section. Material resembles Legal Framework, but all context is Facts Proceedings.",
+    "confidence": "medium"
+  },
+  {
+    "rowid": 262725,
+    "case_id": "001-77567",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Domestic court judgment dismissing applicant's claims. Factual proceedings.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 620216,
+    "case_id": "001-98387",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court order imposing fine on M.N. in child-access enforcement proceedings. Factual proceedings.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 324145,
+    "case_id": "001-83400",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant filing declaratory action. Factual proceedings.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1212913,
+    "case_id": "001-211972",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Medical treatment timeline in the Litvinenko case. Factual proceedings.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 142403,
+    "case_id": "001-61261",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Appeal dismissed and judgment becoming final. Factual proceedings.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1277203,
+    "case_id": "001-229396",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Trial court's findings on trafficking in human beings. Factual proceedings.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1191801,
+    "case_id": "001-202121",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant's procedural request to investigators. Factual proceedings.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 734202,
+    "case_id": "001-113777",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Supreme Court of Cassation judgment upholding lower court (except sentence increase). Factual proceedings.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1249794,
+    "case_id": "001-219648",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Administrative court findings on environmental violations. Factual proceedings narrative.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 733633,
+    "case_id": "001-113718",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Standard biographical paragraph at start of THE CIRCUMSTANCES OF THE CASE. Correct Facts Proceedings.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 859989,
+    "case_id": "001-148067",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant letter to OCCD during investigation. Factual proceedings.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1332956,
+    "case_id": "001-231609",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Factual account of asylum seeker contacting UNHCR legal assistance. Factual proceedings.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1060462,
+    "case_id": "001-173365",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant's appeal challenging prosecutor's decision on investigation. Factual proceedings.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 264674,
+    "case_id": "001-77447",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Brussels court ordering release of detained child. Factual proceedings.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 553041,
+    "case_id": "001-90706",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Standard biographical paragraph. Correctly Facts Proceedings.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 642929,
+    "case_id": "001-96583",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Facts about applicant's participation in rally and resulting investigation. Factual proceedings.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 59901,
+    "case_id": "001-58141",
+    "current_section": "Facts Proceedings",
+    "verdict": "wrong",
+    "should_be": "Just Satisfaction",
+    "reason": "Commission Delegate's recommendation on compensation, in context of Article 41 damage claims. BEF/AFT shows this is within the Article 41 Just Satisfaction assessment. 'Facts Proceedings' label is incorrect.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 877281,
+    "case_id": "001-145973",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant filing criminal complaint with public prosecutor. Factual proceedings.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 532133,
+    "case_id": "001-92062",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Government's factual submission on investigation of disappearance. Factual proceedings.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 720893,
+    "case_id": "001-115160",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Domestic court judgment dismissing applicant's case. Factual proceedings.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 666016,
+    "case_id": "001-106441",
+    "current_section": "Facts Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Italian civil court procedural step remitting appeal. Factual proceedings.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1823835,
+    "case_id": "001-179844",
+    "current_section": "Introduction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Row in applicant data table within Introduction section of pilot judgment.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1557184,
+    "case_id": "001-221524",
+    "current_section": "Introduction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant table row within Introduction section (pilot case).",
+    "confidence": "high"
+  },
+  {
+    "rowid": 208854,
+    "case_id": "001-70689",
+    "current_section": "Introduction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Standard introductory paragraph describing application origin. Introduction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 478112,
+    "case_id": "001-95924",
+    "current_section": "Introduction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Notice of application to Government. Introduction procedural paragraph.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1538761,
+    "case_id": "001-224258",
+    "current_section": "Introduction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant table row in pilot judgment Introduction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1129135,
+    "case_id": "001-180501",
+    "current_section": "Introduction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applications communicated to Government. Introduction procedural paragraph.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 195961,
+    "case_id": "001-192010",
+    "current_section": "Introduction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Representation paragraph (lawyers, Government Agent). Introduction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1464984,
+    "case_id": "001-234413",
+    "current_section": "Introduction",
+    "verdict": "ambiguous",
+    "should_be": null,
+    "reason": "Turkish mass case applicant table row with interleaved Introduction and Appendix labels for adjacent rows. Structural ambiguity in Turkish mass cases.",
+    "confidence": "low"
+  },
+  {
+    "rowid": 1460018,
+    "case_id": "001-234616",
+    "current_section": "Introduction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant table row with personal details and complaints in Russian protest/assembly mass case.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 220560,
+    "case_id": "001-69835",
+    "current_section": "Introduction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Procedural paragraph on case allocation to Section. Introduction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 850812,
+    "case_id": "001-116064",
+    "current_section": "Introduction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Standard first paragraph of Introduction (application origin).",
+    "confidence": "high"
+  },
+  {
+    "rowid": 9663,
+    "case_id": "001-57562",
+    "current_section": "Introduction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Old-format Chamber constitution paragraph. Introduction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 71877,
+    "case_id": "001-58994",
+    "current_section": "Introduction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Protocol 11 transmission paragraph. Introduction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1132832,
+    "case_id": "001-179885",
+    "current_section": "Introduction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Standard origin paragraph. Introduction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1719827,
+    "case_id": "001-196177",
+    "current_section": "Introduction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant table row in pilot judgment Introduction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1828185,
+    "case_id": "001-179435",
+    "current_section": "Introduction",
+    "verdict": "ambiguous",
+    "should_be": null,
+    "reason": "Table column header row ('Amount awarded for pecuniary and non-pecuniary damage per applicant'). Context mixes Introduction and Appendix rows. Borderline.",
+    "confidence": "low"
+  },
+  {
+    "rowid": 194146,
+    "case_id": "001-61561",
+    "current_section": "Introduction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Case reassignment to new Section after court reorganisation. Introduction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 130980,
+    "case_id": "001-61541",
+    "current_section": "Introduction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Statement that parties filed observations. Introduction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 97681,
+    "case_id": "001-59528",
+    "current_section": "Introduction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Summary of complaints in application (Article 2 death by security forces). Introduction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 783110,
+    "case_id": "001-109029",
+    "current_section": "Introduction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Complaint stated in Grand Chamber case (Von Hannover No. 2). Introduction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1985745,
+    "case_id": "001-104547",
+    "current_section": "Introduction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Notice to Government under Protocol 14 Committee allocation. Introduction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1801163,
+    "case_id": "001-183563",
+    "current_section": "Introduction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Detention conditions table row in pilot case Introduction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1197029,
+    "case_id": "001-200708",
+    "current_section": "Introduction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Summary of applicant's complaint (road accident deaths, ineffective investigation). Introduction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1557739,
+    "case_id": "001-221547",
+    "current_section": "Introduction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant table row in Romanian prison conditions pilot case. Introduction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1469855,
+    "case_id": "001-234005",
+    "current_section": "Introduction",
+    "verdict": "ambiguous",
+    "should_be": null,
+    "reason": "Table header row in mass case. Neighbours include both Appendix and Introduction rows. Borderline Introduction vs Appendix.",
+    "confidence": "low"
+  },
+  {
+    "rowid": 684195,
+    "case_id": "001-104963",
+    "current_section": "Admissibility",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Government arguments within 'B. Merits' subsection of Admissibility (KBK regime). Consistent Admissibility context.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1072391,
+    "case_id": "001-171525",
+    "current_section": "Admissibility",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Government's argument on six-month time-limit admissibility rule. Admissibility.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 901840,
+    "case_id": "001-141568",
+    "current_section": "Admissibility",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court's analysis of pre-trial detention periods under Article 5 § 3. Admissibility context.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 850779,
+    "case_id": "001-116024",
+    "current_section": "Admissibility",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court examining domestic courts' distinction between value judgments and statements of fact. Article 10 Admissibility analysis.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 329317,
+    "case_id": "001-83087",
+    "current_section": "Admissibility",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court balancing investigation secrecy vs defence rights. Article 5 Admissibility.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 421130,
+    "case_id": "001-88484",
+    "current_section": "Admissibility",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court assessment of enforcement proceedings duration. Admissibility analysis on length.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1014711,
+    "case_id": "001-161543",
+    "current_section": "Admissibility",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court's assessment of healthcare adequacy reaching factual conclusion. AFT shows para 158 ('there has been a violation') in Merits. Para 157 correctly in Admissibility as it precedes the formal violation finding.",
+    "confidence": "medium"
+  },
+  {
+    "rowid": 331607,
+    "case_id": "001-82863",
+    "current_section": "Admissibility",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Section heading 'B. Merits 1. The parties' submissions' within Admissibility structure. Correct Admissibility.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 768355,
+    "case_id": "001-110488",
+    "current_section": "Admissibility",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court assessing ill-treatment severity; violation finding follows in next paragraph (also Admissibility). Correct.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 383877,
+    "case_id": "001-79282",
+    "current_section": "Admissibility",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Government submission on Federal Court of Justice evidence evaluation case-law. Admissibility.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 381994,
+    "case_id": "001-79400",
+    "current_section": "Admissibility",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Government's preliminary non-exhaustion objection in 'A. Admissibility' section.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1075475,
+    "case_id": "001-170862",
+    "current_section": "Admissibility",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court applying domestic-remedies rule (new cassation procedure not required). Admissibility.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 574956,
+    "case_id": "001-101657",
+    "current_section": "Admissibility",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court declining to examine sub-complaint having addressed main Article 3 issue. Admissibility.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 260962,
+    "case_id": "001-77690",
+    "current_section": "Admissibility",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court reciting general principles on exhaustion under Article 35 § 1. Admissibility.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 623750,
+    "case_id": "001-98144",
+    "current_section": "Admissibility",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court applying 'fundamental defect' test to supervisory review. Admissibility.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 241187,
+    "case_id": "001-68149",
+    "current_section": "Admissibility",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant's response to Government on complexity/importance in 'B. Merits' of Admissibility. Correct.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 875515,
+    "case_id": "001-145731",
+    "current_section": "Admissibility",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court's analysis of systemic failure to investigate Article 3 complaints. Admissibility context.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 796945,
+    "case_id": "001-138587",
+    "current_section": "Admissibility",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant asserting exhaustion of domestic complaints. 'A. Admissibility' section.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 734134,
+    "case_id": "001-113719",
+    "current_section": "Admissibility",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court assessing inadequacy of assurances from Kyrgyz Republic. Admissibility.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1111253,
+    "case_id": "001-183395",
+    "current_section": "Admissibility",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant company's proportionality submission within Admissibility 'B. Merits' structure.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1992891,
+    "case_id": "001-102404",
+    "current_section": "Facts",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Last factual paragraph (cassation rejection), followed by Merits section. Correct Facts.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1720256,
+    "case_id": "001-196154",
+    "current_section": "Facts",
+    "verdict": "wrong",
+    "should_be": "Merits",
+    "reason": "Court applying procedural Article 2 case-law principles to assessment of investigation failures. All neighbours labelled Facts but content is Court's substantive legal assessment; violation conclusion follows.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1689329,
+    "case_id": "001-201327",
+    "current_section": "Facts",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Opening of criminal investigation. Factual narrative. Correct Facts.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1571914,
+    "case_id": "001-219709",
+    "current_section": "Facts",
+    "verdict": "ambiguous",
+    "should_be": null,
+    "reason": "In repetitive/well-established-case-law format, the 'Facts' section contains both facts and summary legal reasoning. Para references leading case; borderline Facts/Merits in this simplified structure.",
+    "confidence": "low"
+  },
+  {
+    "rowid": 1692306,
+    "case_id": "001-200722",
+    "current_section": "Facts",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicants filing ill-treatment complaints and investigators' decisions. Correct Facts.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1593863,
+    "case_id": "001-216744",
+    "current_section": "Facts",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Reference to appended table with applicant details. Transitional paragraph correctly in Facts.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1395337,
+    "case_id": "001-246130",
+    "current_section": "Facts",
+    "verdict": "wrong",
+    "should_be": "Just Satisfaction",
+    "reason": "Case citation within pecuniary damage assessment (Khlaifia context). AFT shows operative payment clauses. BEF shows damage claim assessment. This is Just Satisfaction content labelled Facts.",
+    "confidence": "medium"
+  },
+  {
+    "rowid": 1590803,
+    "case_id": "001-217617",
+    "current_section": "Facts",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Introductory paragraph stating applicants' complaint and noting joinder. Correct Facts in repetitive case structure.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1978849,
+    "case_id": "001-107516",
+    "current_section": "Facts",
+    "verdict": "wrong",
+    "should_be": "Legal Framework",
+    "reason": "Quotation of domestic Compensation Act procedural provisions (Section 2). AFT context shows Merits immediately after. This belongs in Legal Framework, not Facts.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1669248,
+    "case_id": "001-204716",
+    "current_section": "Facts",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Medical examination findings in factual narrative. Correct Facts.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1395849,
+    "case_id": "001-247131",
+    "current_section": "Facts",
+    "verdict": "wrong",
+    "should_be": "Just Satisfaction",
+    "reason": "Equitable just satisfaction award and admissibility declaration in repetitive case. AFT shows operative payment clauses. Content belongs in Just Satisfaction.",
+    "confidence": "medium"
+  },
+  {
+    "rowid": 1701733,
+    "case_id": "001-200311",
+    "current_section": "Facts",
+    "verdict": "ambiguous",
+    "should_be": null,
+    "reason": "Cross-reference to general principles from another case within 'Facts' section. In simplified repetitive-case format, this boundary between Facts and Merits is deliberately blurred.",
+    "confidence": "low"
+  },
+  {
+    "rowid": 1456304,
+    "case_id": "001-234803",
+    "current_section": "Facts",
+    "verdict": "wrong",
+    "should_be": "Merits",
+    "reason": "Court citing Bouyid general principles under 'THE COURT'S ASSESSMENT' heading. AFT paras apply these principles. This is legal principle recitation belonging to Merits reasoning.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1413436,
+    "case_id": "001-243978",
+    "current_section": "Facts",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Registration of criminal investigation file in 1989 Romanian revolution cases. Factual narrative. Correct Facts.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1490315,
+    "case_id": "001-231345",
+    "current_section": "Facts",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant table row in Russian protest/assembly mass case within Facts section.",
+    "confidence": "medium"
+  },
+  {
+    "rowid": 1795539,
+    "case_id": "001-184482",
+    "current_section": "Facts",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant detention conditions table row within Facts section.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1952355,
+    "case_id": "001-127116",
+    "current_section": "Facts",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Factual description of civil proceedings on title/co-ownership. Correct Facts.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1641454,
+    "case_id": "001-209322",
+    "current_section": "Facts",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "District court dismissal of applicant's criminal complaint. Factual proceedings.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1659827,
+    "case_id": "001-206272",
+    "current_section": "Facts",
+    "verdict": "wrong",
+    "should_be": "Introduction",
+    "reason": "Standard representation paragraph ('The Government were represented by their Agent'). BEF shows Relevant legal framework; this procedural paragraph belongs in Introduction.",
+    "confidence": "medium"
+  },
+  {
+    "rowid": 1944965,
+    "case_id": "001-139894",
+    "current_section": "Facts",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Appellate court upholding first-instance judgment. Factual proceedings. Correct Facts.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1126985,
+    "case_id": "001-180840",
+    "current_section": "Just Satisfaction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant's damage claim under Article 41. Just Satisfaction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1895132,
+    "case_id": "001-168054",
+    "current_section": "Just Satisfaction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Section heading 'IV. APPLICATION OF ARTICLE 41 OF THE CONVENTION'. Just Satisfaction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 467222,
+    "case_id": "001-84379",
+    "current_section": "Just Satisfaction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Government contesting costs claim under Article 41. Just Satisfaction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 72047,
+    "case_id": "001-58976",
+    "current_section": "Just Satisfaction",
+    "verdict": "wrong",
+    "should_be": "Operative Part",
+    "reason": "'FOR THESE REASONS, THE COURT' is the opening of the operative dispositif. AFT shows numbered operative holdings. This is clearly Operative Part, not Just Satisfaction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1703182,
+    "case_id": "001-200340",
+    "current_section": "Just Satisfaction",
+    "verdict": "wrong",
+    "should_be": "Operative Part",
+    "reason": "Closing formula 'Rule 77 §§ 2 and 3 of the Rules of Court. [Registrar, President names]' is the closing signature of the operative dispositif, not a Just Satisfaction reasoning paragraph.",
+    "confidence": "medium"
+  },
+  {
+    "rowid": 1507864,
+    "case_id": "001-229137",
+    "current_section": "Just Satisfaction",
+    "verdict": "ambiguous",
+    "should_be": null,
+    "reason": "Applicant data table row (Albanian reinstatement cases) within Just Satisfaction context. In mass cases, per-applicant details can appear in Just Satisfaction or Appendix.",
+    "confidence": "medium"
+  },
+  {
+    "rowid": 1404263,
+    "case_id": "001-245248",
+    "current_section": "Just Satisfaction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant's damage and costs claim. Just Satisfaction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1550139,
+    "case_id": "001-222903",
+    "current_section": "Just Satisfaction",
+    "verdict": "ambiguous",
+    "should_be": null,
+    "reason": "Applicant table row appearing within Just Satisfaction section of Russian administrative-offences mass case. In these cases the applicant table is conventionally in Introduction or Appendix.",
+    "confidence": "medium"
+  },
+  {
+    "rowid": 128342,
+    "case_id": "001-60163",
+    "current_section": "Just Satisfaction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Detailed costs and expenses breakdown by applicants. Just Satisfaction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1155125,
+    "case_id": "001-192458",
+    "current_section": "Just Satisfaction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court reciting costs reimbursement principles. Just Satisfaction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 612205,
+    "case_id": "001-98800",
+    "current_section": "Just Satisfaction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court's equitable award of EUR 3,000 non-pecuniary. Just Satisfaction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1961353,
+    "case_id": "001-118390",
+    "current_section": "Just Satisfaction",
+    "verdict": "wrong",
+    "should_be": "Operative Part",
+    "reason": "'Dismisses the remainder of the applicant's claim for just satisfaction' is a numbered operative clause. BEF context is Operative part numbered clauses. This is Operative Part, not Just Satisfaction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 444418,
+    "case_id": "001-86345",
+    "current_section": "Just Satisfaction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Government making no comment on just satisfaction claim. Just Satisfaction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1458939,
+    "case_id": "001-234585",
+    "current_section": "Just Satisfaction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Government contesting excessive claim. Just Satisfaction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1065633,
+    "case_id": "001-172458",
+    "current_section": "Just Satisfaction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Government contesting costs and expenses claim. Just Satisfaction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 177969,
+    "case_id": "001-61868",
+    "current_section": "Just Satisfaction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court's equitable non-pecuniary damage award. Just Satisfaction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 285650,
+    "case_id": "001-75591",
+    "current_section": "Just Satisfaction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Section heading 'IV. APPLICATION OF ARTICLE 41 OF THE CONVENTION'. Just Satisfaction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 895726,
+    "case_id": "001-142430",
+    "current_section": "Just Satisfaction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Section heading 'IV. APPLICATION OF ARTICLE 41 OF THE CONVENTION'. Just Satisfaction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 797980,
+    "case_id": "001-138572",
+    "current_section": "Just Satisfaction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court's non-pecuniary award of EUR 500. Just Satisfaction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 798360,
+    "case_id": "001-138576",
+    "current_section": "Just Satisfaction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant's non-pecuniary damage claim. Just Satisfaction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 192764,
+    "case_id": "001-61597",
+    "current_section": "Just Satisfaction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Section heading 'II. APPLICATION OF ARTICLE 41'. Just Satisfaction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 661062,
+    "case_id": "001-107047",
+    "current_section": "Just Satisfaction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Government contesting just satisfaction claim. Just Satisfaction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 207815,
+    "case_id": "001-70683",
+    "current_section": "Just Satisfaction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Government making no comment on costs claim. Just Satisfaction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 865575,
+    "case_id": "001-147283",
+    "current_section": "Just Satisfaction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court awarding full costs claimed under Article 41. Just Satisfaction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 572699,
+    "case_id": "001-101803",
+    "current_section": "Just Satisfaction",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court awarding costs to applicants' representatives. Just Satisfaction.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 272558,
+    "case_id": "001-76627",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Domestic law quotation (Article 217 § 1 on correspondence censorship). Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1230436,
+    "case_id": "001-208755",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Croatian Criminal Code provision on road accidents. Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 926326,
+    "case_id": "001-158279",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Section heading 'II. RELEVANT DOMESTIC LAW AND PRACTICE'. Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 853060,
+    "case_id": "001-115874",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Government's citations of domestic compensation judgments within Legal Framework section.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 802903,
+    "case_id": "001-127814",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Constitutional Court ruling on criminal law constitutionality. Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 281790,
+    "case_id": "001-75903",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Section heading 'II. RELEVANT DOMESTIC LAW AND PRACTICE'. Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 694763,
+    "case_id": "001-104281",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Domestic Civil Code Article 277 text. Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1275927,
+    "case_id": "001-229604",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Prosecutor General's recommendations (domestic regulatory material). Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 158194,
+    "case_id": "001-60898",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "English common law on breach of confidence. Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1220475,
+    "case_id": "001-210495",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "EU Charter provision quoted in Legal Framework section. Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 511025,
+    "case_id": "001-93515",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Explanation of domestic remand categories. Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 180561,
+    "case_id": "001-61821",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Domestic code provision on enforcement supervision. Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 709296,
+    "case_id": "001-102953",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Danish asylum procedure description. Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 224773,
+    "case_id": "001-69401",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Albanian Constitutional provision. Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 319405,
+    "case_id": "001-83739",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "USSR Criminal Procedure provisions. Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1005893,
+    "case_id": "001-162831",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Hungarian Fundamental Law provisions. Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 751770,
+    "case_id": "001-111841",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Russian Constitutional Court ruling on code compatibility. Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 562941,
+    "case_id": "001-102473",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Domestic State Liability Act provisions. Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 993891,
+    "case_id": "001-164668",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Bulgarian Criminal Code provision. Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 964241,
+    "case_id": "001-150788",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Section heading 'II. RELEVANT DOMESTIC AND INTERNATIONAL LAW AND PRACTICE'. Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 575897,
+    "case_id": "001-101594",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Description of new supervisory review procedure. Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1246280,
+    "case_id": "001-220571",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Romanian Civil Procedure Code provision. Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 184995,
+    "case_id": "001-61698",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Turkish Criminal Code provisions on various offences. Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 636384,
+    "case_id": "001-97228",
+    "current_section": "Legal Framework",
+    "verdict": "ambiguous",
+    "should_be": null,
+    "reason": "Factual statement about Foundation terminating payments, embedded within Legal Framework section on Foundation statutes. Could be Facts Background; context is entirely Legal Framework.",
+    "confidence": "medium"
+  },
+  {
+    "rowid": 567156,
+    "case_id": "001-102264",
+    "current_section": "Legal Framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Cross-reference to domestic law described in another judgment. Legal Framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 448634,
+    "case_id": "001-86036",
+    "current_section": "Operative Part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Numbered operative clause 4 dismissing remainder + closing formula. Operative Part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 316584,
+    "case_id": "001-83992",
+    "current_section": "Operative Part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Numbered operative clause 2 on admissibility. Operative Part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1113366,
+    "case_id": "001-183685",
+    "current_section": "Operative Part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Numbered operative clause 4 on Article 3 procedural violation. Operative Part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 758393,
+    "case_id": "001-111419",
+    "current_section": "Operative Part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Numbered operative clause 5 dismissing remainder + closing formula. Operative Part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 314461,
+    "case_id": "001-84030",
+    "current_section": "Operative Part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Opening of operative dispositif 'FOR THESE REASONS, THE COURT UNANIMOUSLY'. Operative Part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 289195,
+    "case_id": "001-75423",
+    "current_section": "Operative Part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Numbered operative clause 2 awarding just satisfaction. Operative Part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 920786,
+    "case_id": "001-158493",
+    "current_section": "Operative Part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Numbered operative clause 5 with payment details. Operative Part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 217865,
+    "case_id": "001-70043",
+    "current_section": "Operative Part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Opening of operative dispositif. Operative Part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 821235,
+    "case_id": "001-122433",
+    "current_section": "Operative Part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Opening of operative dispositif. Operative Part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 261695,
+    "case_id": "001-77657",
+    "current_section": "Operative Part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Numbered operative clause 1. Operative Part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1098921,
+    "case_id": "001-185306",
+    "current_section": "Operative Part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Numbered operative clause 4 on no separate issue. Operative Part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 439735,
+    "case_id": "001-86853",
+    "current_section": "Operative Part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Numbered operative clause 4 + closing formula. Operative Part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 843330,
+    "case_id": "001-117125",
+    "current_section": "Operative Part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Numbered operative clause 6 on Article 3 mental suffering. Operative Part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 912685,
+    "case_id": "001-139908",
+    "current_section": "Operative Part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Numbered operative clause 2 (admissibility declaration). Operative Part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 145855,
+    "case_id": "001-61172",
+    "current_section": "Operative Part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Opening of operative dispositif. Operative Part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 545195,
+    "case_id": "001-91304",
+    "current_section": "Operative Part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Numbered operative clause 1. Operative Part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 180303,
+    "case_id": "001-61815",
+    "current_section": "Operative Part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Numbered operative clause 4 + closing formula. Operative Part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 353331,
+    "case_id": "001-81329",
+    "current_section": "Operative Part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Numbered operative clause 2 on Article 5 § 1 violation. Operative Part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 29431,
+    "case_id": "001-57906",
+    "current_section": "Operative Part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Numbered operative clause 6 on no breach of Articles 9, 11 and 13. Operative Part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1106312,
+    "case_id": "001-184524",
+    "current_section": "Operative Part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Numbered operative clause 3 on Rule 39 interim measure + closing formula. Operative Part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1997006,
+    "case_id": "001-101200",
+    "current_section": "Operative part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Numbered operative clause 1 (admissibility/inadmissibility). Operative part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1553315,
+    "case_id": "001-222147",
+    "current_section": "Operative part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Operative part default interest clause (b). Operative part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1803100,
+    "case_id": "001-183370",
+    "current_section": "Operative part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Operative part costs clause (ii) EUR 1,500. Operative part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1578263,
+    "case_id": "001-219214",
+    "current_section": "Operative part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Operative part costs clause (ii) EUR 1,500. Operative part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1621829,
+    "case_id": "001-211798",
+    "current_section": "Operative part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Fragment of Declares clause in operative part. Operative part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1899133,
+    "case_id": "001-166733",
+    "current_section": "Operative part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Numbered clause 2 on Article 5 § 1 violation. Operative part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1545217,
+    "case_id": "001-223379",
+    "current_section": "Operative part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Operative part costs clause (ii) EUR 1,000. Operative part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1643509,
+    "case_id": "001-209187",
+    "current_section": "Operative part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Operative part payment clause (a). Operative part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1659639,
+    "case_id": "001-206353",
+    "current_section": "Operative part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Operative part reference to appended table (established case-law). Operative part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1734066,
+    "case_id": "001-194002",
+    "current_section": "Operative part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Numbered operative clause 1 (join applications). Operative part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1554318,
+    "case_id": "001-222159",
+    "current_section": "Operative part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Operative part payment clause (a) with appended table reference. Operative part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1704983,
+    "case_id": "001-200044",
+    "current_section": "Operative part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Operative part costs clause (ii) EUR 150. Operative part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1797052,
+    "case_id": "001-184273",
+    "current_section": "Operative part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Operative part costs clause (ii) EUR 750. Operative part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1677726,
+    "case_id": "001-202990",
+    "current_section": "Operative part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Operative part holding clause on Article 8 violation. Operative part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1457680,
+    "case_id": "001-234845",
+    "current_section": "Operative part",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Operative part default interest clause (b). Operative part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 13480,
+    "case_id": "001-57648",
+    "current_section": "Facts Background",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Federal Court of Justice judgment in markt intern case. Facts Background.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 38377,
+    "case_id": "001-58001",
+    "current_section": "Facts Background",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Administrative court decision in refugee status case. Facts Background.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 64349,
+    "case_id": "001-58304",
+    "current_section": "Facts Background",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Section sub-heading within Facts Background. Correct.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 34600,
+    "case_id": "001-57943",
+    "current_section": "Facts Background",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Expert witness evidence at McCann inquest. Facts Background.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 14010,
+    "case_id": "001-57586",
+    "current_section": "Facts Background",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant identification paragraph (TTA). Facts Background.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 22771,
+    "case_id": "001-57796",
+    "current_section": "Facts Background",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Procedural step by public prosecutor. Facts Background.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1361132,
+    "case_id": "001-242639",
+    "current_section": "Facts Background",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Biographical paragraph following THE FACTS heading. Facts Background.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 14228,
+    "case_id": "001-57619",
+    "current_section": "Facts Background",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Factual event (applicant's petition to Secretary of State). Facts Background (Soering).",
+    "confidence": "high"
+  },
+  {
+    "rowid": 48466,
+    "case_id": "001-58085",
+    "current_section": "Facts Background",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Description of domestic challenge procedure before Appeals Tribunal. Facts Background (domestic law described as particular circumstances).",
+    "confidence": "medium"
+  },
+  {
+    "rowid": 67314,
+    "case_id": "001-58300",
+    "current_section": "Facts Background",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Factual event triggering criminal proceedings. Facts Background.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 62494,
+    "case_id": "001-58360",
+    "current_section": "Facts Background",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Biographical/family detail (M.-A. born 1981). Facts Background.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 8553,
+    "case_id": "001-57526",
+    "current_section": "Facts Background",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Financial valuation evidence in Lithgow nationalisation case. Facts Background.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 230529,
+    "case_id": "001-68882",
+    "current_section": "Facts Background",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Biographical paragraph in Facts Background section. Correct.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1208093,
+    "case_id": "001-213232",
+    "current_section": "Facts Background",
+    "verdict": "wrong",
+    "should_be": "Introduction",
+    "reason": "Representation paragraph ('The Government were represented by their Agent, Mr B. Dzamashvili'). Belongs in Introduction — standard procedural para misplaced in Facts Background.",
+    "confidence": "medium"
+  },
+  {
+    "rowid": 1271475,
+    "case_id": "001-215708",
+    "current_section": "Facts Background",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Biographical paragraph following THE FACTS heading. Facts Background.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1199749,
+    "case_id": "001-200433",
+    "current_section": "Separate Opinion",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Separate opinion on Article 46 systemic failures. All neighbours are Separate Opinion.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1123729,
+    "case_id": "001-181789",
+    "current_section": "Separate Opinion",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Separate opinion on Swiss jurisdiction under LDIP (paragraph 81). All neighbours are Separate Opinion.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1178611,
+    "case_id": "001-203932",
+    "current_section": "Separate Opinion",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Partly dissenting opinion on Article 6 public hearing. All neighbours are Separate Opinion.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1350525,
+    "case_id": "001-244348",
+    "current_section": "Separate Opinion",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Partly concurring opinion on Article 6 § 1. All neighbours are Separate Opinion.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 893049,
+    "case_id": "001-144151",
+    "current_section": "Separate Opinion",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Dissenting opinion on just satisfaction in inter-State case. All neighbours are Separate Opinion.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 15593,
+    "case_id": "001-57644",
+    "current_section": "Separate Opinion",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Dissenting opinion on Article 5 § 3 'other officer'. All neighbours are Separate Opinion.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1151553,
+    "case_id": "001-193494",
+    "current_section": "Separate Opinion",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Partly dissenting opinion on Article 6 § 3 disclosure. All neighbours are Separate Opinion.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1502,
+    "case_id": "001-57496",
+    "current_section": "Separate Opinion",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Dissenting opinion on right of access (Golder). All neighbours are Separate Opinion.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1165517,
+    "case_id": "001-207115",
+    "current_section": "Separate Opinion",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Dissenting opinion on Article 6 Engel criteria. All neighbours are Separate Opinion.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 872284,
+    "case_id": "001-146501",
+    "current_section": "Separate Opinion",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Dissenting opinion on Al-Jedda / Article 5 displacement. All neighbours are Separate Opinion.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 18734,
+    "case_id": "001-57713",
+    "current_section": "Separate Opinion",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Partly dissenting opinion on Article 13. All neighbours are Separate Opinion.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1331556,
+    "case_id": "001-233206",
+    "current_section": "Separate Opinion",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Partly concurring/dissenting opinion on climate change. All neighbours are Separate Opinion.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 63037,
+    "case_id": "001-58337",
+    "current_section": "Separate Opinion",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Concurring opinion on Article 6. All neighbours are Separate Opinion.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1098935,
+    "case_id": "001-185306",
+    "current_section": "Separate Opinion",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Dissenting opinion on Article 6 § 3(e) interpretation. All neighbours are Separate Opinion.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 859922,
+    "case_id": "001-148367",
+    "current_section": "Separate Opinion",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Concurring opinion on jurisdiction in Jaloud. All neighbours are Separate Opinion.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 908331,
+    "case_id": "001-140235",
+    "current_section": "Separate Opinion",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Dissenting opinion on Article 3 positive obligations. All neighbours are Separate Opinion.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 356866,
+    "case_id": "001-81140",
+    "current_section": "Separate Opinion",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Dissenting opinion on anonymous witnesses. All neighbours are Separate Opinion.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 247698,
+    "case_id": "001-78571",
+    "current_section": "Separate Opinion",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Dissenting opinion on Article 8 in Danish family reunification case. All neighbours are Separate Opinion.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1218214,
+    "case_id": "001-211178",
+    "current_section": "Separate Opinion",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Partly dissenting opinion on Article 11. All neighbours are Separate Opinion.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 8487,
+    "case_id": "001-57513",
+    "current_section": "Separate Opinion",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Dissenting opinion on Article 10 (photos). All neighbours are Separate Opinion.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1910092,
+    "case_id": "001-160416",
+    "current_section": "Relevant legal framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "List of case references within Relevant legal framework section.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1540851,
+    "case_id": "001-223971",
+    "current_section": "Relevant legal framework",
+    "verdict": "wrong",
+    "should_be": "Merits",
+    "reason": "'It follows that there has been a violation of Article 1 of Protocol No. 1' is a Court finding, not legal framework. This is Merits content labelled Relevant legal framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1928073,
+    "case_id": "001-148624",
+    "current_section": "Relevant legal framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Domestic procedural provision on detention appeal time-limits. Relevant legal framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1579391,
+    "case_id": "001-215936",
+    "current_section": "Relevant legal framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Cross-reference to Ukrainian arrest/detention procedural provisions. Relevant legal framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1781395,
+    "case_id": "001-187241",
+    "current_section": "Relevant legal framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Survey of investigation delays in comparable Chechnya disappearance cases. Relevant legal framework survey paragraph.",
+    "confidence": "medium"
+  },
+  {
+    "rowid": 1717980,
+    "case_id": "001-196484",
+    "current_section": "Relevant legal framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court noting investigation status in comparable cases. Relevant legal framework survey paragraph.",
+    "confidence": "medium"
+  },
+  {
+    "rowid": 1936470,
+    "case_id": "001-144108",
+    "current_section": "Relevant legal framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Citations to established Serbia enforcement judgment case-law. Relevant legal framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1456499,
+    "case_id": "001-234806",
+    "current_section": "Relevant legal framework",
+    "verdict": "wrong",
+    "should_be": "Merits",
+    "reason": "Court's merits analysis: CAO confiscation lacks proportionality, violation of A1P1. AFT context shows violation finding. This is Merits reasoning labelled Relevant legal framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1677888,
+    "case_id": "001-202993",
+    "current_section": "Relevant legal framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "CPT report description of detention facility (international material). Relevant legal framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1971871,
+    "case_id": "001-110699",
+    "current_section": "Relevant legal framework",
+    "verdict": "wrong",
+    "should_be": "Just Satisfaction",
+    "reason": "Court's equitable pecuniary damage (lost rent) assessment and award. BEF/AFT shows damage/costs claims and assessment. This is Just Satisfaction content labelled Relevant legal framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1983799,
+    "case_id": "001-105282",
+    "current_section": "Relevant legal framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Supreme Court aligning case-law with Constitutional Court. Relevant legal framework (domestic court practice).",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1877956,
+    "case_id": "001-171091",
+    "current_section": "Relevant legal framework",
+    "verdict": "wrong",
+    "should_be": "Merits",
+    "reason": "Government submission on conditions of detention within 'II. ALLEGED VIOLATION OF ARTICLE 3' structure. AFT shows Admissibility/Merits subsections. Labelled Relevant legal framework but is a party argument in Merits.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1965493,
+    "case_id": "001-115867",
+    "current_section": "Relevant legal framework",
+    "verdict": "wrong",
+    "should_be": "Operative Part",
+    "reason": "'Decides to strike the application out of its list' is a numbered operative clause. BEF shows just satisfaction reasoning; AFT shows further operative clauses. Labelled Relevant legal framework but is Operative Part.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1914976,
+    "case_id": "001-158740",
+    "current_section": "Relevant legal framework",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant table row in Serbian enforcement mass case (Relevant legal framework section used for applicant tables in this case series).",
+    "confidence": "medium"
+  },
+  {
+    "rowid": 1695553,
+    "case_id": "001-200555",
+    "current_section": "Relevant legal framework",
+    "verdict": "wrong",
+    "should_be": "Merits",
+    "reason": "Court's substantive assessment of proceedings complexity and length. AFT shows violation conclusion and Article 13 analysis. This is Merits reasoning labelled Relevant legal framework.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 54534,
+    "case_id": "001-58235",
+    "current_section": "Commission Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Heading 'PROCEEDINGS BEFORE THE COMMISSION'. Correct Commission Proceedings. Neighbours are Commission Proceedings/Final Submissions.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 38395,
+    "case_id": "001-58001",
+    "current_section": "Commission Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Heading 'PROCEEDINGS BEFORE THE COMMISSION'. Correct Commission Proceedings. Neighbours are Commission Proceedings/Final Submissions.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 17934,
+    "case_id": "001-57709",
+    "current_section": "Commission Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Heading 'PROCEEDINGS BEFORE THE COMMISSION'. Correct Commission Proceedings. Neighbours are Commission Proceedings/Final Submissions.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 38817,
+    "case_id": "001-58068",
+    "current_section": "Commission Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Commission's admissibility decision and report. Commission Proceedings. Neighbours are Commission Proceedings/Final Submissions.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 22133,
+    "case_id": "001-57797",
+    "current_section": "Commission Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Application to Commission and admissibility. Commission Proceedings. Neighbours are Commission Proceedings/Final Submissions.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 28197,
+    "case_id": "001-57804",
+    "current_section": "Commission Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Heading 'PROCEEDINGS BEFORE THE COMMISSION'. Correct Commission Proceedings. Neighbours are Commission Proceedings/Final Submissions.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 49629,
+    "case_id": "001-58054",
+    "current_section": "Commission Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Heading 'PROCEEDINGS BEFORE THE COMMISSION'. Correct Commission Proceedings. Neighbours are Commission Proceedings/Final Submissions.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 45170,
+    "case_id": "001-58114",
+    "current_section": "Commission Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Heading 'PROCEEDINGS BEFORE THE COMMISSION'. Correct Commission Proceedings. Neighbours are Commission Proceedings/Final Submissions.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 29355,
+    "case_id": "001-57906",
+    "current_section": "Commission Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Commission joining applications and expressing opinion. Commission Proceedings. Neighbours are Commission Proceedings/Final Submissions.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 20338,
+    "case_id": "001-57665",
+    "current_section": "Commission Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Application to Commission (Maj length-of-proceedings case). Commission Proceedings. Neighbours are Commission Proceedings/Final Submissions.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 17764,
+    "case_id": "001-57711",
+    "current_section": "Commission Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Commission admissibility decision and opinion. Commission Proceedings. Neighbours are Commission Proceedings/Final Submissions.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 7345,
+    "case_id": "001-57416",
+    "current_section": "Commission Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Heading 'PROCEEDINGS BEFORE THE COMMISSION'. Correct Commission Proceedings. Neighbours are Commission Proceedings/Final Submissions.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 21417,
+    "case_id": "001-57778",
+    "current_section": "Commission Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Commission declaring complaint admissible and expressing opinion. Commission Proceedings. Neighbours are Commission Proceedings/Final Submissions.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 56863,
+    "case_id": "001-58193",
+    "current_section": "Commission Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Commission Delegate recommendation on damages (old-format just satisfaction). Commission Proceedings. Neighbours are Commission Proceedings/Final Submissions.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 60584,
+    "case_id": "001-58134",
+    "current_section": "Commission Proceedings",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant's submission within Commission Proceedings on victim status. Commission Proceedings. Neighbours are Commission Proceedings/Final Submissions.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 14993,
+    "case_id": "001-57440",
+    "current_section": "Final Submissions",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Heading 'FINAL SUBMISSIONS MADE TO THE COURT BY THE GOVERNMENT'. Correct Final Submissions.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 47535,
+    "case_id": "001-58184",
+    "current_section": "Final Submissions",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Heading 'FINAL SUBMISSIONS TO THE COURT BY THE GOVERNMENT'. Correct Final Submissions.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 37967,
+    "case_id": "001-58009",
+    "current_section": "Final Submissions",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant's submission on Article 6 transcript use within Final Submissions section. Correct.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 5314,
+    "case_id": "001-57475",
+    "current_section": "Final Submissions",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Heading 'FINAL SUBMISSIONS MADE TO THE COURT BY THE GOVERNMENT'. Correct Final Submissions.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 9001,
+    "case_id": "001-57468",
+    "current_section": "Final Submissions",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court's merits analysis on industrial accident proceedings length in old pre-Protocol-11 format, within Final Submissions structure. Uniform Final Submissions context.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 54721,
+    "case_id": "001-58217",
+    "current_section": "Final Submissions",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Commission's submission on detention review within Final Submissions section (Contrada, old format). Correct.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 45974,
+    "case_id": "001-58103",
+    "current_section": "Final Submissions",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant's memorial submission in Final Submissions section. Correct.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 52351,
+    "case_id": "001-58253",
+    "current_section": "Final Submissions",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant's final submission in Final Submissions section. Correct.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 3637,
+    "case_id": "001-57469",
+    "current_section": "Final Submissions",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Government's final submissions at oral hearing. Final Submissions.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 34955,
+    "case_id": "001-57957",
+    "current_section": "Final Submissions",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Applicant's submission requesting finding of Article 6 violation. Final Submissions.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1570300,
+    "case_id": "001-219688",
+    "current_section": "Appendix",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Table column header in Appendix. Correct. All neighbours are Appendix.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1389719,
+    "case_id": "001-247550",
+    "current_section": "Appendix",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Turkish applicant table row in Appendix. All neighbours are Appendix.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1404002,
+    "case_id": "001-245251",
+    "current_section": "Appendix",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Turkish applicant table row in Appendix (with interleaved Introduction rows for applicant details). All neighbours are Appendix.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 187808,
+    "case_id": "001-61696",
+    "current_section": "Appendix",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Witness testimony transcript in Appendix annex of large case (Akdivar-type). All neighbours are Appendix.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1441437,
+    "case_id": "001-237949",
+    "current_section": "Appendix",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Turkish applicant table row in Appendix. All neighbours are Appendix.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1416619,
+    "case_id": "001-243554",
+    "current_section": "Appendix",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Turkish applicant table row in Appendix. All neighbours are Appendix.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1403897,
+    "case_id": "001-245251",
+    "current_section": "Appendix",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Turkish applicant table row in Appendix. All neighbours are Appendix.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1043139,
+    "case_id": "001-178082",
+    "current_section": "Appendix",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Ukrainian applicant list in Appendix. All neighbours are Appendix.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1389850,
+    "case_id": "001-247550",
+    "current_section": "Appendix",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Turkish applicant table row in Appendix. All neighbours are Appendix.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 1433522,
+    "case_id": "001-238521",
+    "current_section": "Appendix",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Turkish applicant table row in Appendix. All neighbours are Appendix.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 299855,
+    "case_id": "001-72931",
+    "current_section": "Article 46",
+    "verdict": "ambiguous",
+    "should_be": null,
+    "reason": "Government submissions on just satisfaction methodology within Article 46 section (B. Article 41 subsection). Content is about just satisfaction but structurally embedded in Article 46.",
+    "confidence": "medium"
+  },
+  {
+    "rowid": 512182,
+    "case_id": "001-93310",
+    "current_section": "Article 46",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Quotation of Article 46 Convention text within Article 46 section. Correct.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 791329,
+    "case_id": "001-108465",
+    "current_section": "Article 46",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court's analysis of practical enforcement impediments for structural reform. Article 46 pilot judgment.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 584300,
+    "case_id": "001-100989",
+    "current_section": "Article 46",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court directing respondent State on legislative reform. Article 46 pilot judgment structural measures.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 376884,
+    "case_id": "001-79712",
+    "current_section": "Article 46",
+    "verdict": "ambiguous",
+    "should_be": null,
+    "reason": "Government contesting just satisfaction case-law methodology within Article 46 section. Content is about just satisfaction but structural heading is Article 46.",
+    "confidence": "medium"
+  },
+  {
+    "rowid": 540085,
+    "case_id": "001-91586",
+    "current_section": "Article 46",
+    "verdict": "wrong",
+    "should_be": "Just Satisfaction",
+    "reason": "Heading 'V. APPLICATION OF ARTICLE 41 OF THE CONVENTION'. Despite appearing within an Article 46-containing judgment, this heading introduces the Article 41 / Just Satisfaction section.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 863981,
+    "case_id": "001-147333",
+    "current_section": "Article 46",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Court maintaining Rule 39 interim measure. Article 46 / supervisory section.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 965907,
+    "case_id": "001-150771",
+    "current_section": "Article 46",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Subsection heading within Article 46 pilot judgment assessment. Correct.",
+    "confidence": "high"
+  },
+  {
+    "rowid": 802152,
+    "case_id": "001-128036",
+    "current_section": "Article 46",
+    "verdict": "correct",
+    "should_be": null,
+    "reason": "Individual just satisfaction award within Article 46 section of large mass case. Structurally placed in Article 46 in this judgment.",
+    "confidence": "medium"
+  },
+  {
+    "rowid": 300111,
+    "case_id": "001-72934",
+    "current_section": "Article 46",
+    "verdict": "ambiguous",
+    "should_be": null,
+    "reason": "Costs and expenses reimbursement principles within Article 46 section (Xenides-Arestis pilot). Just satisfaction handled within Article 46 reasoning. Borderline Article 46 vs Just Satisfaction.",
+    "confidence": "medium"
+  }
+]
