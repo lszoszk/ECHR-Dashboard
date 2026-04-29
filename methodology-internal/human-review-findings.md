@@ -124,17 +124,55 @@ This allows the dashboard to display the canonical HUDOC notation (e.g. "Dissent
 
 ---
 
-## Finding 5 — Possible PDF extraction issue
+## Finding 5 — PDF extraction issue (CONFIRMED, 2026-04-30)
 
-**Discovered in:** M2 item 2.5
+**Discovered in:** M2 item 2.5; **investigated in:** spot probe 2026-04-30
 
-The expert could not locate the LLM-classified paragraph text in the actual judgment of *Fetisov v. Russia* (rowid 1463491, "5. § 3 of the Convention. OTHER ALLEGED VIOLATIONS UNDER WELL-ESTABLISHED CASE-LAW").
+The expert could not locate the LLM-classified paragraph text in the actual judgment of *Fetisov v. Russia* (rowid 1463491, "5. § 3 of the Convention. OTHER ALLEGED VIOLATIONS UNDER WELL-ESTABLISHED CASE-LAW"). The 30-minute spot investigation confirmed the diagnosis and quantified the systematic scope.
 
-**Hypothesis:** This is a PDF-extraction artefact where a fragment from one paragraph was concatenated with a subsequent section heading due to layout-detection failure.
+### Confirmed diagnosis
 
-**Action:** No corpus-wide fix is currently planned; PDF extraction is an upstream concern owned by the original segmenter (HUDOC scraper). However, the existence of such fragments contributes to the noise observed in M2 schema testing and should be acknowledged.
+The flagged paragraph is the **second half of a sentence that was split mid-Article-reference** by the PDF segmenter. Reconstructing rowid 1463490 + 1463491:
 
-A future quality pass could detect "fragment + heading" patterns (e.g. paragraph text containing both a continuation indicator and an ALL-CAPS heading) and flag for manual review.
+| rowid | section | hudoc_para_no | text |
+|------:|---------|--------------:|------|
+| 1463490 | Merits | 11 | `"11. These complaints are therefore admissible and disclose a breach of Article"` |
+| 1463491 | Merits | 5 (wrong) | `"5. § 3 of the Convention. OTHER ALLEGED VIOLATIONS UNDER WELL-ESTABLISHED CASE-LAW"` |
+
+Joined: `"11. These complaints are therefore admissible and disclose a breach of Article 5 § 3 of the Convention. OTHER ALLEGED VIOLATIONS UNDER WELL-ESTABLISHED CASE-LAW"`.
+
+The HUDOC source paragraph ends `"...disclose a breach of Article 5 § 3 of the Convention."` followed by an ALL-CAPS sub-heading `"OTHER ALLEGED VIOLATIONS UNDER WELL-ESTABLISHED CASE-LAW"`. The segmenter saw `"...Article 5."` and treated `"5."` as a new paragraph delimiter, splitting one sentence into two paragraphs. As a side effect, `hudoc_para_no=5` was assigned to the artefact (where `5` is actually the article number, not the paragraph number).
+
+### Systematic scope
+
+This is not a one-off. The same fragmentation pattern affects multiple categories of paragraph in the corpus:
+
+| Pattern | Definition | Count |
+|---------|-----------|------:|
+| `breach of Article` + `§ N of the Convention` adjacent split | Sentences split at `"Article N"` boundary across two rows | **1,020** pairs (312 distinct cases) |
+| Fused article-fragment + heading | Single paragraph starting `"N. § M of the Convention. HEADING"` | **1,345** |
+| Standalone article-fragment | Single paragraph that is just `"N. § M of the Convention."` | **357** |
+| `Rule 77` mistreated as `¶77` | Paragraph starting `"77. §§ 2 and 3 of the Rules of Court..."` | **4,481** |
+| Paragraph ending mid-Article (truncated) | Lines ending with `"of Article"` (subset of these are real artefacts; some are legitimate quotations) | **5,542** (some legitimate) |
+
+Affected cases concentrate in the Russian Committee mass-judgment corpus (top affected case-IDs are all `001-1XXXXX` Russian Committee judgments). The pattern arises because the segmenter's paragraph-boundary heuristic uses `^\d+\.` as a delimiter, which incorrectly fires on Article numbers ("Article 5.") at sentence boundaries.
+
+### Impact on the corpus
+
+- **`hudoc_para_no` is misleading on these rows.** A researcher looking up `Fetisov ¶5` via the cross-reference column will receive this artefact instead of the real ¶5.
+- **Section labels are mostly correct.** P14 v2 / P16 placed these fragments into reasonable sections (Merits / Operative / etc.) because the surrounding context dominated the classification — the fragment text alone was not used as the primary signal.
+- **Search remains workable.** The text content is recoverable by joining adjacent rows; full-text search will still match meaningful queries against the joined phrase.
+- **Statistics undercounted.** Paragraph-level counts in the corpus are inflated by ~6,000 spurious row-splits (~0.3% of total paragraphs).
+
+### Recommended actions
+
+In order of risk and effort:
+
+1. **Lightweight fix (P18-lite, ~1 h):** Detect the specific artefact patterns (fused article-heading; standalone article-fragment; `Rule 77` fragment) and set `hudoc_para_no = NULL`. Non-destructive, fully reversible via `_p18_backup`. Removes the misleading cross-reference numbers without touching paragraph text or section labels. Affects ~6,000 rows.
+2. **Text-merge pass (P19, ~3 h):** Detect adjacent "...Article" + "N. § M of the Convention" fragment pairs and merge their text into the parent row. Then delete the orphan fragment row. Reduces row count by ~1,000-2,000. Higher risk because it changes rowids and paragraph counts; would require updating any downstream caches keyed by rowid (so far we have none).
+3. **No corpus-side fix; document as known limitation.** Add a note to the public methodology page that paragraph counts can be inflated by PDF-extraction over-segmentation in approximately 0.3% of rows, concentrated in Russian Committee mass cases.
+
+The 30-minute investigation deliverable is option 3 (this document update). Options 1 and 2 are deferred pending an explicit decision.
 
 ---
 
@@ -149,7 +187,7 @@ A future quality pass could detect "fragment + heading" patterns (e.g. paragraph
 | 5 | **P10** — Extract HUDOC paragraph numbers from text into a `hudoc_para_no` column | 1–2 h | Medium | PLANNED |
 | 6 | **P11** — Split Procedure / Relevant domestic law / Proceedings before Commission / Final Submissions out of Facts catch-all | 2–3 h | Medium | PLANNED |
 | 7 | Add `numbering_block` column for Operative Part and Separate Opinions | 1 h | Low | PLANNED |
-| 8 | Investigate Fetisov v. Russia rowid 1463491 PDF-extraction artefact | 30 min | Low | PLANNED |
+| 8 | Investigate Fetisov v. Russia rowid 1463491 PDF-extraction artefact | 30 min | Low | DONE (2026-04-30) — see Finding 5 above for diagnosis + scope |
 | 9 | Decide whether to revisit Merits sub-typing with narrower schema (only violation_finding / no_violation_finding) | TBD | Low | PARKED |
 
 ---

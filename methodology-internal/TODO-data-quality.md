@@ -61,11 +61,21 @@ Six precision-first rules (R0a heading, R0b boilerplate, R1 numbered dispositif,
 
 Two-rule pass: R1 catches `Government were represented by` paragraphs (len < 300, 1,498 hits); R2 catches pure gov+app representation paragraphs (len < 500, 3 hits). Critical pattern *rejected*: applicant-only representation (FP risk — "the applicant was represented by a State-appointed lawyer" routinely refers to **domestic** proceedings). The "Government were represented" form is unique to ECHR procedural intro context. 33 stratified samples audited at 100% precision. **All four recall-audit recommendations now closed.** See `methodology-internal/precision-audit.md` §12.
 
-### Investigate Fetisov v. Russia rowid 1463491 PDF-extraction artefact
+### ✅ Investigate Fetisov v. Russia rowid 1463491 — DONE (2026-04-30)
 
-**Why:** M2 expert review flagged this paragraph as not findable in HUDOC source. Possibly a PDF-extraction fragment.
+Confirmed PDF-extraction artefact: rowid 1463491 is the second half of a sentence split mid-Article-reference. The HUDOC source paragraph reads `"...disclose a breach of Article 5 § 3 of the Convention. OTHER ALLEGED VIOLATIONS UNDER WELL-ESTABLISHED CASE-LAW"`; the segmenter saw `"Article 5."` and treated `"5."` as a new paragraph delimiter. Side effect: `hudoc_para_no=5` was assigned to the artefact (where 5 is the article number, not the paragraph number).
 
-**Effort:** ~30 min spot investigation.
+**Systematic scope:** ~6,000 paragraphs across the corpus exhibit similar PDF-extraction over-segmentation:
+- 1,020 adjacent "breach of Article" + "§ N of the Convention" split-pairs in 312 cases
+- 1,345 fused article-fragment + heading paragraphs
+- 357 standalone article-fragment paragraphs
+- 4,481 `Rule 77 §§ 2 and 3` paragraphs misindexed as `¶77`
+
+Concentrated in Russian Committee mass-judgment corpus.
+
+**See:** `methodology-internal/human-review-findings.md` Finding 5 for full diagnosis, evidence (text reconstruction), scope quantification, and three recommended action levels (do nothing / nullify hudoc_para_no / merge text).
+
+**Status:** Investigation complete; corrective action deferred pending decision on whether to proceed with P18-lite (nullify misleading hudoc_para_no on ~6k rows, low risk) or P19 (text-merge pass, higher risk).
 
 ---
 
