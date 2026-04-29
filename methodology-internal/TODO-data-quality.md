@@ -26,7 +26,8 @@
 | **P15** | Just Satisfaction → Operative Part residual (R1 numbered + R2 Rule 77 strict) | +96 | **100.0%** | ✓ |
 | **P16** | Facts → JS / Operative in Pop C compressed cases (R0a + R0b + R1 + R2 + R3 + R4 Pop-C-only) | +11,804 | **100.0%** | ✓ |
 | **P17** | Facts/etc → Introduction representation paragraphs (R1 gov-only + R2 gov+app pure) | +1,501 | **100.0%** | ✓ |
-| **TOTAL relabels** | | **~332,200 (~16.6% of corpus)** | | |
+| **P19** | Text-merge for PDF over-segmentation (3 patterns: Article-split, orphan-num, Rule 77) | -8,495 rows merged | **100.0%** | ✓ |
+| **TOTAL relabels** | | **~340,700 (~17.0% of corpus, on 1,992,952 final paragraphs)** | | |
 
 **Schema additions:**
 - 14 user-facing section labels (was 12 before P11): Header, Introduction, Facts (3 raw labels), Legal Framework (3 raw labels), Commission Proceedings (NEW), Final Submissions (NEW), Admissibility, Merits, Just Satisfaction, Article 46, Operative Part (2 raw casings), Separate Opinion, Appendix
@@ -75,7 +76,7 @@ Concentrated in Russian Committee mass-judgment corpus.
 
 **See:** `methodology-internal/human-review-findings.md` Finding 5 for full diagnosis, evidence (text reconstruction), scope quantification, and three recommended action levels (do nothing / nullify hudoc_para_no / merge text).
 
-**Status:** Investigation complete; corrective action deferred pending decision on whether to proceed with P18-lite (nullify misleading hudoc_para_no on ~6k rows, low risk) or P19 (text-merge pass, higher risk).
+**Status:** ✅ DONE. Investigation completed 2026-04-30; P19 conservative text-merge pass applied 2026-04-30 at 100 % precision (104 LLM-audited samples). 8,495 paragraph pairs merged across three pattern classes (Article-split, orphan-numbering, Rule 77). Standalone "N. § M of the Convention." fragments dropped from 357 → 5 (99 %); "Rule 77 §§ of the Rules of Court" fragments dropped 4,481 → 13 (99.7 %). Fetisov rid=1463490 successfully reconstructed. Backup `_p19_backup` retains full parent + child snapshots for rollback. See `methodology-internal/precision-audit.md` §13.
 
 ---
 

@@ -4,6 +4,38 @@ Chronological record of every transformation applied to the corpus, with commit 
 
 ---
 
+## 2026-04-30 — P19 (text-merge for PDF-extraction artefacts)
+
+- **2026-04-30 P19 — Text-merge pass for PDF over-segmentation (100% precision, 8,495 pairs)**
+
+  First text-mutating pass in the cleaning pipeline. All P1-P17 changed `section`, `numbering_block`, or `hudoc_para_no` columns; P19 merges paragraph text + deletes orphan rows. Followed up the Fetisov v. Russia spot investigation (Finding 5 in `human-review-findings.md`), which confirmed that ~6,000 paragraphs in the corpus are PDF-extraction over-splits — the segmenter treats "Article 5." as a paragraph delimiter when the next character is a digit, splitting one sentence into two database rows.
+
+  Conservative — three high-confidence patterns identified by phase 1 probe:
+
+  - **Pattern A** — parent text ends with `(of\s+)?Article\s*\.?\s*$` AND child starts with `^\d+\.\s*§\s*\d+\s+of\s+the\s+Convention`. Targets the Fetisov-style mid-Article split. **4,182 pairs detected; 4,022 applied** (160 dedup-skipped due to cascade overlap).
+  - **Pattern B** — parent is just orphan paragraph numbering ("35.", "42.") AND child is a short article-fragment paragraph. **4 pairs detected; 4 applied.**
+  - **Pattern C** — parent text ends with `\bRule\s*\.?\s*$` AND child starts with `^77\.\s*§§?\s*[123]\s+of\s+the\s+Rules\s+of\s+Court`. Targets operative-closing "Rule 77 §§ 2 and 3" signature blocks misindexed as paragraph 77. **4,481 pairs detected; 4,469 applied** (12 dedup-skipped).
+
+  Operation per pair: `parent.text = parent.text + " " + child.text`; DELETE child row. Parent's `section`, `numbering_block`, `hudoc_para_no` are unchanged (parent's values are correct; child's were the artefact).
+
+  Backup `_p19_backup` schema includes pattern + parent_rowid + child_rowid + FULL parent and child snapshots (text, section, numbering_block, hudoc_para_no, para_idx). Rollback can fully reconstruct deleted child rows.
+
+  **LLM precision audit (Sonnet 4.6, 104 stratified samples — 50 A + 4 B + 50 C):**
+  - 104 correct, 0 incorrect, 0 ambiguous
+  - **Precision: 100.0%** (A 50/50, B 4/4, C 50/50)
+  - Same-section: 65/65 correct; different-section: 39/39 correct
+  - Different-section merges all confirmed: parent's section dominates joined content, so keeping parent label is correct
+
+  **Counts:** Corpus drops from **2,001,447 → 1,992,952 paragraphs** (-8,495, 0.42%).
+
+  **Verification:** Fetisov rid=1463490 successfully restored to original sentence: `"11. These complaints are therefore admissible and disclose a breach of Article 5. § 3 of the Convention. OTHER ALLEGED VIOLATIONS UNDER WELL-ESTABLISHED CASE-LAW"`. Standalone "N. § M of the Convention." fragments dropped from 357 → 5 (99% reduction). "77. §§ of the Rules of Court" fragments dropped from 4,481 → 13.
+
+  **Note on backup tables P1-P17:** Some rowids referenced by older backup tables were deleted by P19 (the orphan child rows). Those backup tables are now "frozen historical snapshots" — rollback of P1-P17 plus P19 sequentially is still possible (reverse P19 first to restore deleted rows, then reverse the older passes). The `_p19_backup` table is self-contained and does not depend on prior backups.
+
+  Artifacts: `scripts/p19_probe.py`, `scripts/p19_apply.py`, `scripts/p19_audit_samples.json`, `scripts/p19_audit_verdicts.json`, `scripts/p19_pairs.json`.
+
+---
+
 ## 2026-04-30 — P17 (Rec-4 representation → Introduction)
 
 - **2026-04-30 P17 — Representation paragraphs Facts → Introduction (100% precision, 1,501 paragraphs)**

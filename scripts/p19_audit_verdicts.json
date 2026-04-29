@@ -1,0 +1,730 @@
+[
+  {
+    "parent_rowid": 1799249,
+    "child_rowid": 1799250,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1580691,
+    "child_rowid": 1580692,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1383758,
+    "child_rowid": 1383759,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 35 reference reconstructs cleanly (sec-diff Merits->Just Satisfaction; parent dominates)"
+  },
+  {
+    "parent_rowid": 1818430,
+    "child_rowid": 1818431,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 35 reference reconstructs cleanly (sec-diff Merits->Just Satisfaction; parent dominates)"
+  },
+  {
+    "parent_rowid": 1639482,
+    "child_rowid": 1639483,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1492790,
+    "child_rowid": 1492791,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 6 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1405627,
+    "child_rowid": 1405628,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1468802,
+    "child_rowid": 1468803,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1622255,
+    "child_rowid": 1622256,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1989580,
+    "child_rowid": 1989581,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 35 reference reconstructs cleanly (sec-diff Admissibility->Facts; parent dominates)"
+  },
+  {
+    "parent_rowid": 1854081,
+    "child_rowid": 1854082,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 6 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1811535,
+    "child_rowid": 1811536,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1590602,
+    "child_rowid": 1590603,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1823873,
+    "child_rowid": 1823874,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1447940,
+    "child_rowid": 1447941,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 35 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1966605,
+    "child_rowid": 1966606,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 6 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1405127,
+    "child_rowid": 1405128,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 35 reference reconstructs cleanly (sec-diff Merits->Just Satisfaction; parent dominates)"
+  },
+  {
+    "parent_rowid": 1582400,
+    "child_rowid": 1582401,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1645741,
+    "child_rowid": 1645742,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1533504,
+    "child_rowid": 1533505,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 6 reference reconstructs cleanly (sec-diff Merits->Just Satisfaction; parent dominates)"
+  },
+  {
+    "parent_rowid": 1612350,
+    "child_rowid": 1612351,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 6 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1572465,
+    "child_rowid": 1572466,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1564072,
+    "child_rowid": 1564073,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 35 reference reconstructs cleanly (sec-diff Facts->Just Satisfaction; parent dominates)"
+  },
+  {
+    "parent_rowid": 1553011,
+    "child_rowid": 1553012,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 35 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1862035,
+    "child_rowid": 1862036,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 6 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1571281,
+    "child_rowid": 1571282,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1840275,
+    "child_rowid": 1840276,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 6 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1589150,
+    "child_rowid": 1589151,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 35 reference reconstructs cleanly (sec-diff Merits->Just Satisfaction; parent dominates)"
+  },
+  {
+    "parent_rowid": 1590644,
+    "child_rowid": 1590645,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1438379,
+    "child_rowid": 1438380,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 35 reference reconstructs cleanly (sec-diff Merits->Just Satisfaction; parent dominates)"
+  },
+  {
+    "parent_rowid": 1762272,
+    "child_rowid": 1762273,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 35 reference reconstructs cleanly (sec-diff Merits->Just Satisfaction; parent dominates)"
+  },
+  {
+    "parent_rowid": 1583586,
+    "child_rowid": 1583587,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 35 reference reconstructs cleanly (sec-diff Facts->Just Satisfaction; parent dominates)"
+  },
+  {
+    "parent_rowid": 1933771,
+    "child_rowid": 1933772,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 6 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1559002,
+    "child_rowid": 1559003,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1561832,
+    "child_rowid": 1561833,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 35 reference reconstructs cleanly (sec-diff Merits->Just Satisfaction; parent dominates)"
+  },
+  {
+    "parent_rowid": 1433310,
+    "child_rowid": 1433311,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 35 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1491113,
+    "child_rowid": 1491114,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1838714,
+    "child_rowid": 1838715,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1531961,
+    "child_rowid": 1531962,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1387306,
+    "child_rowid": 1387307,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 6 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1801211,
+    "child_rowid": 1801212,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 35 reference reconstructs cleanly (sec-diff Merits->Just Satisfaction; parent dominates)"
+  },
+  {
+    "parent_rowid": 1483399,
+    "child_rowid": 1483400,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1379902,
+    "child_rowid": 1379903,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1405635,
+    "child_rowid": 1405636,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1533231,
+    "child_rowid": 1533232,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 35 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1606346,
+    "child_rowid": 1606347,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 35 reference reconstructs cleanly (sec-diff Merits->Just Satisfaction; parent dominates)"
+  },
+  {
+    "parent_rowid": 1495447,
+    "child_rowid": 1495448,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly (sec-diff Merits->Just Satisfaction; parent dominates)"
+  },
+  {
+    "parent_rowid": 1417908,
+    "child_rowid": 1417909,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1932509,
+    "child_rowid": 1932510,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 6 reference reconstructs cleanly"
+  },
+  {
+    "parent_rowid": 1635914,
+    "child_rowid": 1635915,
+    "pattern": "A",
+    "verdict": "correct",
+    "reason": "Joined Article 5 reference reconstructs cleanly (sec-diff Merits->Just Satisfaction; parent dominates)"
+  },
+  {
+    "parent_rowid": 1827869,
+    "child_rowid": 1827870,
+    "pattern": "B",
+    "verdict": "correct",
+    "reason": "Orphan paragraph-number + article-fragment reconstructed as best-available"
+  },
+  {
+    "parent_rowid": 1827953,
+    "child_rowid": 1827954,
+    "pattern": "B",
+    "verdict": "correct",
+    "reason": "Orphan paragraph-number + article-fragment reconstructed as best-available"
+  },
+  {
+    "parent_rowid": 1698972,
+    "child_rowid": 1698973,
+    "pattern": "B",
+    "verdict": "correct",
+    "reason": "Orphan paragraph-number + article-fragment reconstructed as best-available"
+  },
+  {
+    "parent_rowid": 1699090,
+    "child_rowid": 1699091,
+    "pattern": "B",
+    "verdict": "correct",
+    "reason": "Orphan paragraph-number + article-fragment reconstructed as best-available"
+  },
+  {
+    "parent_rowid": 1730367,
+    "child_rowid": 1730368,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Operative part->Facts; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1817760,
+    "child_rowid": 1817761,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Operative part->Facts; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1392607,
+    "child_rowid": 1392608,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Operative part->Facts; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1766589,
+    "child_rowid": 1766590,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Operative part->Facts; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1455644,
+    "child_rowid": 1455645,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1427323,
+    "child_rowid": 1427324,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1712855,
+    "child_rowid": 1712856,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Just Satisfaction->Operative part; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1420391,
+    "child_rowid": 1420392,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Operative part->Facts; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1597384,
+    "child_rowid": 1597385,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1739752,
+    "child_rowid": 1739753,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Operative part->Facts; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1435628,
+    "child_rowid": 1435629,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1427600,
+    "child_rowid": 1427601,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1375920,
+    "child_rowid": 1375921,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1583593,
+    "child_rowid": 1583594,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1477269,
+    "child_rowid": 1477270,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1549559,
+    "child_rowid": 1549560,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1406480,
+    "child_rowid": 1406481,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1421113,
+    "child_rowid": 1421114,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Operative part->Facts; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1476261,
+    "child_rowid": 1476262,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1452867,
+    "child_rowid": 1452868,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Operative part->Facts; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1624727,
+    "child_rowid": 1624728,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1557859,
+    "child_rowid": 1557860,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1569235,
+    "child_rowid": 1569236,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1885376,
+    "child_rowid": 1885377,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Operative part->Facts; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1836333,
+    "child_rowid": 1836334,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Operative part->Facts; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1705470,
+    "child_rowid": 1705471,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1434669,
+    "child_rowid": 1434670,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Just Satisfaction->Operative part; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1392672,
+    "child_rowid": 1392673,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Operative part->Facts; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1415161,
+    "child_rowid": 1415162,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1512608,
+    "child_rowid": 1512609,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1626697,
+    "child_rowid": 1626698,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Just Satisfaction->Operative part; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1578980,
+    "child_rowid": 1578981,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Operative part->Facts; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1418934,
+    "child_rowid": 1418935,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1428870,
+    "child_rowid": 1428871,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1400958,
+    "child_rowid": 1400959,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1411020,
+    "child_rowid": 1411021,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Operative part->Facts; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1453536,
+    "child_rowid": 1453537,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1835528,
+    "child_rowid": 1835529,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Operative part->Facts; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1559536,
+    "child_rowid": 1559537,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1542664,
+    "child_rowid": 1542665,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1435243,
+    "child_rowid": 1435244,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Operative part->Facts; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1769498,
+    "child_rowid": 1769499,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Operative part->Just Satisfaction; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1447841,
+    "child_rowid": 1447842,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Just Satisfaction->Operative part; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1397383,
+    "child_rowid": 1397384,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1578418,
+    "child_rowid": 1578419,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Operative part->Facts; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1438953,
+    "child_rowid": 1438954,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Operative part->Facts; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1650945,
+    "child_rowid": 1650946,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1456608,
+    "child_rowid": 1456609,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Operative part->Facts; operative content dominates)"
+  },
+  {
+    "parent_rowid": 1421459,
+    "child_rowid": 1421460,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly"
+  },
+  {
+    "parent_rowid": 1805100,
+    "child_rowid": 1805101,
+    "pattern": "C",
+    "verdict": "correct",
+    "reason": "Operative-closing Rule 77 \u00a7\u00a7 2 and 3 signature reconstructed cleanly (sec-diff Operative part->Relevant legal framework; operative content dominates)"
+  }
+]

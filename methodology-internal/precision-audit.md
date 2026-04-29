@@ -406,3 +406,48 @@ Several R1 samples are PDF-extraction fragments (e.g., "N. Jomarjidze, a lawyer 
 ### Conclusion
 
 **P17 deployed cleanly. 100 % precision across 33 stratified samples.** The applicant-only rejection was decisive: a less restrictive rule would have introduced FPs from domestic-proceedings narratives. With P17 the cumulative pipeline relabels reach ~332,200 paragraphs (~16.6 % of corpus). All four recall-audit recommendations (Rec-1 through Rec-4) are now closed at ≥98 % precision. Saved artifacts: `scripts/p17_relabel.py`, `scripts/p17_audit_samples.json`, `scripts/p17_audit_verdicts.json`. Backup: `_p17_backup` (1,501 rows).
+
+---
+
+## 13. P19 Audit (text-merge for PDF over-segmentation)
+
+**104 stratified samples, 100.0 % precision (104 correct, 0 incorrect, 0 ambiguous)**
+
+P19 is the first **text-mutating** pass in the cleaning pipeline. It addresses ~6,000 PDF-extraction artefacts identified during the Fetisov v. Russia spot investigation (Finding 5 in `human-review-findings.md`): the segmenter splits sentences mid-Article-reference ("...of Article 5." → split at "5.") and inserts a fake `hudoc_para_no` of 5 on the orphan child row.
+
+The conservative design merges only three high-confidence pattern classes where parent + child are unambiguously two halves of one original sentence:
+
+### Per-pattern breakdown
+
+| Pattern | Detection | Pairs applied | Sampled | Correct | Incorrect | Ambiguous | Precision |
+|---------|-----------|--------------:|--------:|--------:|----------:|----------:|----------:|
+| **A — Article-split** | parent ends `(of\s+)?Article\s*\.?\s*$`; child starts `^\d+\.\s*§\s*\d+\s+of\s+the\s+Convention` | 4,022 | 50 | 50 | 0 | 0 | 100 % |
+| **B — orphan-numbering + article-fragment** | parent is just `35.` / `42.`; child is a short `N. § M of the Convention.` paragraph | 4 | 4 | 4 | 0 | 0 | 100 % |
+| **C — Rule 77 split** | parent ends `\bRule\s*\.?\s*$`; child starts `^77\.\s*§§?\s*[123]\s+of\s+the\s+Rules\s+of\s+Court` | 4,469 | 50 | 50 | 0 | 0 | 100 % |
+
+**Overall: 104 correct, 0 incorrect, 0 ambiguous / 104 samples. Precision 100.0 %.**
+
+### Section-conflict handling
+
+39 of 104 audited pairs (37.5 %) had parent_section ≠ child_section. P19 keeps parent's section label because the joined text is dominated by parent's substantive content (e.g., a Merits violation finding) and the child often contains only an article-reference fragment + a trailing transition heading. The audit confirmed all 39 different-section merges read correctly with the parent label kept. Examples:
+
+- Parent (Merits): `"There has therefore been a violation of Article"` + child (Just Satisfaction, due to fused "APPLICATION OF ARTICLE 41" heading): `"5. § 3 of the Convention. III. APPLICATION OF ARTICLE 41 OF THE CONVENTION"` → joined paragraph stays Merits, with the JS heading appearing as content trailing the violation finding. The next paragraph is the canonical JS opener and is already correctly labelled.
+- Parent (Operative Part): `"...pursuant to Rule"` + child (Facts, due to Pop-C miscategorisation): `"77. §§ 2 and 3 of the Rules of Court. [Names] Registrar President APPENDIX..."` → joined operative-closing stays Operative Part.
+
+### Verification
+
+Spot-check confirmed Fetisov rid=1463490 successfully reconstructed: `"11. These complaints are therefore admissible and disclose a breach of Article 5. § 3 of the Convention. OTHER ALLEGED VIOLATIONS UNDER WELL-ESTABLISHED CASE-LAW"` (the original sentence as printed in HUDOC, with the cosmetic `5.` period preserved from the segmentation artefact).
+
+Standalone artefact residuals dropped:
+- `"N. § M of the Convention."` (len < 80) standalone fragments: **357 → 5** (99 % reduction)
+- `"77. §§ of the Rules of Court"` fragments: **4,481 → 13** (99.7 % reduction)
+
+The remaining few-dozen residuals are cases where the parent's text ending didn't match the strict regex (e.g., parent ends with comma or ellipsis) — left in place as edge cases.
+
+### Conclusion
+
+**P19 deployed cleanly. 100 % precision across 104 stratified samples.** Corpus dropped from 2,001,447 → 1,992,952 paragraphs (-8,495, 0.42 %). The cleaning pipeline now reaches ~340,700 paragraph operations across 18 passes (P1-P7, P9, P11, P13-P17, P19) on ~16.7 % of the original corpus. Backup `_p19_backup` retains FULL parent and child snapshots — rollback can fully reconstruct deleted child rows by INSERTing them back and reverting the parent text.
+
+**This is the first text-mutating pass in the pipeline.** All prior passes only updated metadata columns. P19 explicitly mutates the `text` column and DELETES rows. The change set is fully reversible via the backup table.
+
+Saved artifacts: `scripts/p19_probe.py`, `scripts/p19_apply.py`, `scripts/p19_audit_samples.json`, `scripts/p19_audit_verdicts.json`, `scripts/p19_pairs.json`. Backup: `_p19_backup` (8,495 rows × 13 columns).
