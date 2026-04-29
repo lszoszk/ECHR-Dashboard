@@ -379,3 +379,30 @@ R1's surrounding context routinely shows the Pop C compressed-format pattern: th
 ### Conclusion
 
 **P16 deployed cleanly. 100 % precision across 55 stratified samples (1+6+12+12+12+12).** Together with P14 v2 (RLF cleanup) and P15 (JS → Operative residual), P16 brings Pop C compressed-judgment structure into close alignment with the canonical 14-section taxonomy. The cumulative count of pipeline relabels reaches ~330,700 paragraphs (~16.5 % of corpus). Saved artifacts: `scripts/p16_relabel.py`, `scripts/p16_audit_samples.json`, `scripts/p16_audit_verdicts.json`. Backup: `_p16_backup` (11,804 rows).
+
+---
+
+## 12. P17 Audit (Rec-4: representation paragraphs Facts → Introduction)
+
+**33 samples (30 R1 + all 3 R2), 100.0 % precision (33 correct, 0 incorrect, 0 ambiguous)**
+
+Recall-audit Rec-4 was the lowest priority recommendation ("medium" confidence, "may not warrant a dedicated rule"). The probe revealed that the actual scope (1,501 paragraphs) was meaningful and the rule could be designed precisely. The key design decision was **rejecting** applicant-only representation as a trigger because "the applicant was represented by a State-appointed lawyer" routinely appears in Facts narratives describing domestic proceedings.
+
+The "Government were represented by" phrasing, by contrast, is unique to ECHR procedural intro context (the Government's representation of itself **before** ECHR) and does not appear in domestic narratives — making it a precision-first anchor. R2 only matches paragraphs where both `gov-rep` AND `applicant-rep` patterns occur in the same short paragraph, which is the canonical Modern Chamber form.
+
+### Per-rule breakdown
+
+| Rule | Direction | Population | Sampled | Correct | Incorrect | Ambiguous | Precision |
+|------|-----------|-----------:|--------:|--------:|----------:|----------:|----------:|
+| R1 — gov-rep alone, len < 300 | Facts/etc → Introduction | 1,498 | 30 | 30 | 0 | 0 | 100 % |
+| R2 — pure gov+app rep, len < 500 | Facts/etc → Introduction | 3 | 3 | 3 | 0 | 0 | 100 % |
+
+**Overall: 33 correct, 0 incorrect, 0 ambiguous / 33 samples. Precision 100.0 %.**
+
+All R1 samples sit in the canonical Modern Chamber position: `Introduction (case concerns) → THE FACTS heading → "2. The applicant was born in [year] and lives in [city]" → "3. The Government were represented by their Agent, [name]" → "4. The facts of the case may be summarised as follows."` Only the third paragraph is moved by P17; the second (applicant biographical + lawyer reference) is left in Facts Background pending a future pass if needed.
+
+Several R1 samples are PDF-extraction fragments (e.g., "N. Jomarjidze, a lawyer practising in Tbilisi. 3. The Government were represented by their Agent, Mr") where the applicant's lawyer name is fused with the start of the Government rep paragraph. These are still correctly relabelled because the dominant content is the Government rep sentence; the truncation is an upstream PDF artefact.
+
+### Conclusion
+
+**P17 deployed cleanly. 100 % precision across 33 stratified samples.** The applicant-only rejection was decisive: a less restrictive rule would have introduced FPs from domestic-proceedings narratives. With P17 the cumulative pipeline relabels reach ~332,200 paragraphs (~16.6 % of corpus). All four recall-audit recommendations (Rec-1 through Rec-4) are now closed at ≥98 % precision. Saved artifacts: `scripts/p17_relabel.py`, `scripts/p17_audit_samples.json`, `scripts/p17_audit_verdicts.json`. Backup: `_p17_backup` (1,501 rows).

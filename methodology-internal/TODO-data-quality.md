@@ -25,7 +25,8 @@
 | **P14 v2** | Relevant legal framework → Operative / JS / Merits (R0+R1+R2+R3) | +800 | **100.0%** | ✓ |
 | **P15** | Just Satisfaction → Operative Part residual (R1 numbered + R2 Rule 77 strict) | +96 | **100.0%** | ✓ |
 | **P16** | Facts → JS / Operative in Pop C compressed cases (R0a + R0b + R1 + R2 + R3 + R4 Pop-C-only) | +11,804 | **100.0%** | ✓ |
-| **TOTAL relabels** | | **~330,700 (~16.5% of corpus)** | | |
+| **P17** | Facts/etc → Introduction representation paragraphs (R1 gov-only + R2 gov+app pure) | +1,501 | **100.0%** | ✓ |
+| **TOTAL relabels** | | **~332,200 (~16.6% of corpus)** | | |
 
 **Schema additions:**
 - 14 user-facing section labels (was 12 before P11): Header, Introduction, Facts (3 raw labels), Legal Framework (3 raw labels), Commission Proceedings (NEW), Final Submissions (NEW), Admissibility, Merits, Just Satisfaction, Article 46, Operative Part (2 raw casings), Separate Opinion, Appendix
@@ -55,6 +56,10 @@ Two-rule pass extending P13: R1 captures numbered `^\d+\.\s*(Holds|Decides|Decla
 ### ✅ Rec-3 — DONE (P16, 2026-04-29, 100% precision, 11,804 paragraphs)
 
 Six precision-first rules (R0a heading, R0b boilerplate, R1 numbered dispositif, R2 operative payment, R3 default-interest, R4 Court-awards Pop-C-only). Actual scope was ~4× larger than recall-audit estimate (11,804 vs ~3,000): Pop C compressed-format judgments dump the **entire** Operative dispositif AND JS reasoning into Facts. Critical pattern *rejected*: `equitable basis + EUR` (5/5 FP rate — Italian/Bulgarian Pop A/B narrative describing domestic Courts of Appeal). 55 stratified samples audited at 100% precision. See `methodology-internal/precision-audit.md` §11.
+
+### ✅ Rec-4 — DONE (P17, 2026-04-30, 100% precision, 1,501 paragraphs)
+
+Two-rule pass: R1 catches `Government were represented by` paragraphs (len < 300, 1,498 hits); R2 catches pure gov+app representation paragraphs (len < 500, 3 hits). Critical pattern *rejected*: applicant-only representation (FP risk — "the applicant was represented by a State-appointed lawyer" routinely refers to **domestic** proceedings). The "Government were represented" form is unique to ECHR procedural intro context. 33 stratified samples audited at 100% precision. **All four recall-audit recommendations now closed.** See `methodology-internal/precision-audit.md` §12.
 
 ### Investigate Fetisov v. Russia rowid 1463491 PDF-extraction artefact
 

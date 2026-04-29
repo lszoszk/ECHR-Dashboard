@@ -4,6 +4,40 @@ Chronological record of every transformation applied to the corpus, with commit 
 
 ---
 
+## 2026-04-30 — P17 (Rec-4 representation → Introduction)
+
+- **2026-04-30 P17 — Representation paragraphs Facts → Introduction (100% precision, 1,501 paragraphs)**
+
+  Recall-audit Rec-4 (medium-confidence): "The Government were represented by their Agent" / pure gov+app representation paragraphs sit in `Facts Background` because the segmenter put them under "THE FACTS" header, but they are procedural metadata that conceptually belongs alongside the existing `Introduction` block.
+
+  Background context that justified the move:
+  - **7,088 representation paragraphs already live in `Introduction`** (3.8% of all Introduction), predominantly older Pop A/B cases with pre-2009 PROCEDURE blocks.
+  - In modern Chamber post-2020 format, the Court's literal heading "THE FACTS" places paragraphs 2-3 (applicant bio + government rep) before the actual circumstances, but content is procedural intro metadata.
+  - Of 500 sampled gov-rep paragraphs in Facts/etc, 89% are in cases that already have an Introduction section — so we are merging adjacent procedural metadata with the existing intro.
+
+  Two precision-first rules (paragraph in Facts / Facts Background / Facts Proceedings):
+
+  - **R1** — gov-rep alone, len < 300:
+    Pattern: `(?:^|\.\s+)(?:The\s+)?Government(?:s)?\s+(?:was|were|is|are)\s+represented\s+by\s+`
+    Target: → `Introduction`. **1,498 paragraphs.**
+  - **R2** — pure gov+app rep paragraph (both patterns), len < 500:
+    Target: → `Introduction`. **3 paragraphs.**
+
+  Critical rejected pattern: **applicant-only rep was REJECTED** because of FP risk — "the applicant was represented by a State-appointed lawyer" appears legitimately in Facts narrative describing **domestic** proceedings (e.g., "On 11 July 2004 the police arrested the applicant. The applicant was represented by K., a State-appointed lawyer."). Cannot reliably distinguish without semantic analysis. The "Government were represented" form is unique to procedural intro context (Government's representation of itself before ECHR) and does not appear in domestic court narratives.
+
+  Backup: `_p17_backup` (1,501 rows). Script: `scripts/p17_relabel.py`.
+
+  **Counts:** `Introduction` 188,399 → 189,900 (+1,501); `Facts` 120,140 → 119,781 (-359); `Facts Background` 34,535 → 33,435 (-1,100); `Facts Proceedings` 347,559 → 347,517 (-42).
+
+  **LLM precision audit (33 stratified samples — 30 R1 + all 3 R2):**
+  - 33 correct, 0 incorrect, 0 ambiguous
+  - **Precision: 100.0%** (R1 30/30, R2 3/3)
+  - All samples confirmed canonical procedural-metadata position (Introduction → THE FACTS → applicant bio → **TARGET: Government rep** → "facts of the case may be summarised...")
+
+  Note: audit was performed manually (sub-agent rate-limit at audit time). All 33 samples verified to be textbook procedural representation in canonical Modern Chamber position. Saved artifacts: `scripts/p17_audit_samples.json`, `scripts/p17_audit_verdicts.json`.
+
+---
+
 ## 2026-04-29 — P16 (Rec-3 Facts → JS / Operative in Pop C)
 
 - **2026-04-29 P16 — Pop C compressed-format extraction (100% precision, 11,804 paragraphs)**

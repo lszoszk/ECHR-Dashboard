@@ -1,0 +1,200 @@
+[
+ {
+  "rowid": 1223115,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Canonical procedural position: Introduction → THE FACTS → applicant bio (2.) → Government rep (3.) → 'facts of the case may be summarised' (4.). Pure procedural metadata."
+ },
+ {
+  "rowid": 1295364,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Canonical Modern Chamber position; flanked by INTRODUCTION + applicant bio + 'facts of the case may be summarised'."
+ },
+ {
+  "rowid": 1357485,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Canonical position. Pure 'Government were represented by their Agent' procedural metadata."
+ },
+ {
+  "rowid": 1360329,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Canonical position; surrounded by INTRO + applicant bio + facts transition."
+ },
+ {
+  "rowid": 1641518,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Pop A/B Azerbaijan format; clean Government Agent rep sentence."
+ },
+ {
+  "rowid": 1215851,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Canonical Modern Chamber position; pure procedural metadata."
+ },
+ {
+  "rowid": 1261858,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Canonical position; 'Acting Agent' is pure procedural metadata."
+ },
+ {
+  "rowid": 1621207,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Pop A/B Azerbaijan format; '2. The Government were represented by their Agent, Mr Ç. Əsgərov.'"
+ },
+ {
+  "rowid": 1630570,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Fused/fragmented PDF extraction (lawyer name + Government rep), but content is pure procedural representation metadata."
+ },
+ {
+  "rowid": 1377844,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Fused PDF extraction with applicant lawyer continuation + Government rep — pure procedural metadata."
+ },
+ {
+  "rowid": 1330541,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Canonical position; clean Government Agent rep."
+ },
+ {
+  "rowid": 1604836,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Long but canonical: 'Mr G. Kostanyan, and subsequently by Mr Y. Kirakosyan, Representative of the Republic of Armenia before the European Court'."
+ },
+ {
+  "rowid": 1372531,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Canonical position; 'Ms M. Mijić, their acting Agent' procedural metadata."
+ },
+ {
+  "rowid": 1689031,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Canonical Pop A/B order: Intro + Relevant legal framework + Facts(applicant) + Government rep."
+ },
+ {
+  "rowid": 1354018,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Canonical position; clean Government Agent rep."
+ },
+ {
+  "rowid": 1613257,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Truncated/fragmented Government rep continuation — pure procedural."
+ },
+ {
+  "rowid": 1337136,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Canonical position."
+ },
+ {
+  "rowid": 1267235,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Pop A/B UK case; '4. The Government were represented by their Agent, Ms L. Stallard of the Foreign Commonwealth and Development Office'."
+ },
+ {
+  "rowid": 1166889,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Canonical position."
+ },
+ {
+  "rowid": 1627148,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Pop A/B Azerbaijan; clean Government rep sentence."
+ },
+ {
+  "rowid": 1209283,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Canonical Switzerland position."
+ },
+ {
+  "rowid": 1219702,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Canonical Ukraine position."
+ },
+ {
+  "rowid": 1284204,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Canonical Hungary position."
+ },
+ {
+  "rowid": 1214067,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Canonical Moldova position."
+ },
+ {
+  "rowid": 1340360,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Long Turkish Government rep sentence with full job title — pure procedural metadata."
+ },
+ {
+  "rowid": 1171253,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Canonical Bulgaria position."
+ },
+ {
+  "rowid": 1659827,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Pop A/B Azerbaijan; clean '2. The Government were represented by their Agent'."
+ },
+ {
+  "rowid": 1353941,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Canonical Spain position; 'co-Agent, Ms H. E. Nicolás Martínez'."
+ },
+ {
+  "rowid": 1657447,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Pop A/B Latvia; clean Government Agent rep."
+ },
+ {
+  "rowid": 1293602,
+  "rule": "R1",
+  "verdict": "correct",
+  "reason": "Canonical Hungary position."
+ },
+ {
+  "rowid": 1167858,
+  "rule": "R2",
+  "verdict": "correct",
+  "reason": "Pop B Russia gov+app rep paragraph: 'The applicants were represented by Ms Y.K. Berezhnaya... The Government were represented by Mr M. Galperin'."
+ },
+ {
+  "rowid": 1185862,
+  "rule": "R2",
+  "verdict": "correct",
+  "reason": "Canonical Modern Chamber gov+app paragraph in North Macedonia case."
+ },
+ {
+  "rowid": 1222298,
+  "rule": "R2",
+  "verdict": "correct",
+  "reason": "Canonical Modern Chamber gov+app paragraph; lawyers practising in Hamburg + German Government Agent."
+ }
+]
