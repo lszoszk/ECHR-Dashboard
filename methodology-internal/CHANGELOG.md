@@ -4,6 +4,31 @@ Chronological record of every transformation applied to the corpus, with commit 
 
 ---
 
+## 2026-04-29 — P15 (Rec-2 JS → Operative residual)
+
+- **2026-04-29 P15 — Just Satisfaction → Operative Part residual cleanup (100% precision)**
+
+  Recall audit Rec-2 + post-P13 probe found ~600 paragraphs in `Just Satisfaction` that are actually Operative Part dispositif content but missed by P13's 400-char length cap and `numbering_block = operative_dispositif` filter. P15 picks up the residue with two tight rules:
+
+  - **R1 — numbered dispositif**: paragraph starts with `^\d+\.\s*(Holds|Decides|Declares|Dismisses)\b`. NO length cap (Pop A pre-1998 fused-paragraph operative blocks routinely exceed 400 chars; the canonical numbered-verb anchor is precise enough on its own). **81 paragraphs.**
+  - **R2 — signature / continuation block**: paragraph contains strict `\bRule 77\b` AND (Registrar OR "Done in [Lang]"), length < 700. Targets default-interest "(b) that from the expiry of the above-mentioned three months..." continuation clauses split off from the parent numbered Holds clause by PDF extraction. **15 paragraphs.**
+
+  Probe insight: a loose `Rules of Court` anchor would have caught 1,032 paragraphs, but spot-check showed near-100% FP rate — JS reasoning paragraphs frequently cite Rule 60 (JS submission), Rule 38 (evidence), Rule 61 (third-party intervention), which are NOT operative content. Tightening to `\bRule 77\b` (the rule that governs delivery and signature, only used in operative closings) cut to 15 candidates with 100% precision.
+
+  Backup: `_p15_backup` (96 rows). Script: `scripts/p15_relabel.py`. Per-case operative casing mirrored (50 → `Operative Part`, 46 → `Operative part`).
+
+  **Counts:** `Just Satisfaction` 156,771 → 156,675 (-96); `Operative Part` 67,833 → 67,883 (+50); `Operative part` 64,598 → 64,644 (+46).
+
+  **LLM precision audit (96 / 96 samples — full population audit, Sonnet 4.6):**
+  - 96 correct, 0 incorrect, 0 ambiguous
+  - **Precision: 100.0%**
+  - R1: 81/81 correct (numbered Holds/Decides/Declares/Dismisses dispositif, both Pop A long-fused and Pop C short)
+  - R2: 15/15 correct (default-interest continuation clauses, all flanked by operative-context paragraphs)
+
+  This pass complements P13 (3,403 dispositif-in-JS) and brings JS section noise close to zero for paragraphs matching canonical operative anchors. Saved artifacts: `scripts/p15_audit_samples.json`, `scripts/p15_audit_verdicts.json`.
+
+---
+
 ## 2026-04-29 — P14 (Rec-1 RLF cleanup)
 
 ### Phase 2 — P14 — Relevant legal framework triage

@@ -320,3 +320,31 @@ The three remaining ambiguous cases (rowids 1546108, 1578284, 1558832) are pre-e
 **P14 v2 deployed cleanly. 100 % precision exceeds the 95 % bar by a wide margin and is tied for the highest precision pass in the cleaning pipeline.** The redesign converted a 78 % failed pass into a 100 % validated pass while keeping the conservative scope (800 paragraphs vs. ~6k naive scope from the recall audit) — sacrificing recall to ensure no further noise is introduced into the corpus. The remaining ~5k recall-audit-flagged RLF residue is genuinely heterogeneous and ambiguous; future passes targeting that pool should follow the same precision-first design philosophy.
 
 Saved artifacts: `scripts/p14_relabel.py`, `scripts/p14_audit_samples_v2.json`, `scripts/p14_audit_verdicts_v2.json`. Backup: `_p14_backup` (800 rows).
+
+---
+
+## 10. P15 Audit (Rec-2: Just Satisfaction → Operative Part residual)
+
+**96 samples (full population audit), 100.0 % precision (96 correct, 0 incorrect, 0 ambiguous)**
+
+P15 picks up the dispositif residue P13 missed. P13 capped at 400 chars and only treated `numbering_block = operative_dispositif`; recall-audit Rec-2 and a post-P13 probe surfaced ~600 candidates with dispositif markers still in `Just Satisfaction`. After tightening the signature-block anchor (the loose `Rules of Court` pattern produced ~100 % FP rate on JS reasoning that cites Rule 60 / 38 / 61), P15 ships at 96 paragraphs with two rules:
+
+- **R1**: numbered `^\d+\.\s*(Holds|Decides|Declares|Dismisses)` (81 paragraphs, no length cap)
+- **R2**: strict `\bRule 77\b` + Registrar/Done in, length < 700 (15 paragraphs — default-interest continuation clauses)
+
+### Per-rule breakdown
+
+| Rule | Direction | Samples | Correct | Incorrect | Ambiguous | Precision |
+|------|-----------|--------:|--------:|----------:|----------:|----------:|
+| R1 — numbered dispositif | JS → Operative | 81 | 81 | 0 | 0 | 100 % |
+| R2 — Rule 77 + signature/continuation | JS → Operative | 15 | 15 | 0 | 0 | 100 % |
+
+**Overall: 96 correct, 0 incorrect, 0 ambiguous / 96 samples. Precision 100.0 %.**
+
+R1 captured a wide diversity of operative formats: classical Pop A "Holds (a) the State is to pay X francs/lire" monetary-award clauses, "Dismisses the remainder" + "Done in [Lang]" closings, "Decides to continue Rule 39 interim measure" extradition non-removal clauses, "Decides to strike the application out" friendly-settlement dispositifs, "Declares the complaints admissible" admissibility dispositifs, and "Holds that the respondent State must set up a remedy" pilot-judgment general-measures clauses. All 81 are flanked by other Operative Part paragraphs in the surrounding context.
+
+R2 captured the classical "(b) that from the expiry of the above-mentioned three months until settlement, simple interest shall be payable on the above amount at a rate equal to the marginal lending rate of the European Central Bank during the default period plus three percentage points" continuation. These clauses were stranded in JS by PDF-extraction splitting them off from their parent numbered "Holds (a) the State is to pay..." clause; they specify the conditions of the State's payment obligation and operationally belong with the operative dispositif.
+
+### Conclusion
+
+**P15 deployed cleanly. 100 % precision (full-population audit, no sampling) confirms the rule design.** The decision to drop the broad `Rules of Court` anchor in favour of strict `\bRule 77\b` was decisive — without it, R2 would have introduced ~1,000 false positives. Saved artifacts: `scripts/p15_relabel.py`, `scripts/p15_audit_samples.json`, `scripts/p15_audit_verdicts.json`. Backup: `_p15_backup` (96 rows).

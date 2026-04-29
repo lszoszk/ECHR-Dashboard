@@ -23,7 +23,8 @@
 | **P12** | Numbering blocks (`numbering_block` column) | 1,892,837 populated | — | ✓ |
 | **P13** | Just Satisfaction → Operative Part dispositif revert | +3,403 | **98.0%** | ✓ |
 | **P14 v2** | Relevant legal framework → Operative / JS / Merits (R0+R1+R2+R3) | +800 | **100.0%** | ✓ |
-| **TOTAL relabels** | | **~318,800 (~16% of corpus)** | | |
+| **P15** | Just Satisfaction → Operative Part residual (R1 numbered + R2 Rule 77 strict) | +96 | **100.0%** | ✓ |
+| **TOTAL relabels** | | **~318,900 (~16% of corpus)** | | |
 
 **Schema additions:**
 - 14 user-facing section labels (was 12 before P11): Header, Introduction, Facts (3 raw labels), Legal Framework (3 raw labels), Commission Proceedings (NEW), Final Submissions (NEW), Admissibility, Merits, Just Satisfaction, Article 46, Operative Part (2 raw casings), Separate Opinion, Appendix
@@ -46,15 +47,9 @@
 
 Conservative 3-rule classifier (R0 Art.41 boilerplate, R1 numbered dispositif, R2 award reasoning, R3 violation finding). Naive blanket scope of ~6k was rejected (~25-37% precision). v1 attempt at 78% rolled back; v2 redesign with R0_BOILERPLATE pattern ships at 100% / 47-correct-out-of-50 audit. See `methodology-internal/precision-audit.md` §9.
 
-### Rec-2: Just Satisfaction → Operative Part (medium priority)
+### ✅ Rec-2 — DONE (P15, 2026-04-29, 100% precision, 96 paragraphs)
 
-Recall audit found 3/25 (12%) JS paragraphs are actually numbered operative clauses or "FOR THESE REASONS, THE COURT" formulas. P13 already targeted dispositif-in-JS at 98% precision (+3,403 paragraphs); residual cases likely live in numbering_block != operative_dispositif boundary. Worth a probe.
-
-**Proposed rule:** Extend P13 to scan `Just Satisfaction` paragraphs where `numbering_block` is `main_judgment` (not just `operative_dispositif`) for "FOR THESE REASONS, THE COURT" or numbered Holds/Decides/Declares/Dismisses — reclassify to Operative.
-
-**Risk:** Low for "FOR THESE REASONS" trigger; medium for numbered-clause trigger ("Dismisses the remainder of just satisfaction" is borderline).
-
-**Estimated effort:** 30 min dry-run + 50-sample audit + apply.
+Two-rule pass extending P13: R1 captures numbered `^\d+\.\s*(Holds|Decides|Declares|Dismisses)` with NO length cap (Pop A pre-1998 fused-paragraph operative blocks routinely > 400 chars); R2 captures strict `\bRule 77\b` + Registrar/Done-in default-interest continuation clauses. Probe found loose `Rules of Court` anchor would FP at ~100% on JS reasoning citing Rule 60/38/61; tightening to `\bRule 77\b` cut to 96 candidates with 100% precision (full-population audit, no sampling). See `methodology-internal/precision-audit.md` §10.
 
 ### Rec-3: Facts → Just Satisfaction recovery in mass cases (~3,000 estimated)
 

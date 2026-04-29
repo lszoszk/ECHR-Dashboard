@@ -1,0 +1,482 @@
+[
+  {
+    "rowid": 9820,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds (no call to rule)' — canonical operative dispositif disposing of claim. with 'Done in [Lang]' closing."
+  },
+  {
+    "rowid": 33493,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' awarding monetary compensation — canonical operative dispositif. with 'Done in [Lang]' closing."
+  },
+  {
+    "rowid": 62579,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' awarding monetary compensation — canonical operative dispositif."
+  },
+  {
+    "rowid": 62580,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Dismisses (the remainder)' — canonical operative dispositif rejecting balance of claim. with 'Done in [Lang] ... Rule 77' closing. (Pop A fused extraction with separate-opinion tail; head is operative — per rules, correct)."
+  },
+  {
+    "rowid": 63154,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' awarding monetary compensation — canonical operative dispositif."
+  },
+  {
+    "rowid": 63155,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Dismisses (the remainder)' — canonical operative dispositif rejecting balance of claim. with 'Done in [Lang]' closing. (Pop A fused extraction with separate-opinion tail; head is operative — per rules, correct)."
+  },
+  {
+    "rowid": 63302,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' awarding monetary compensation — canonical operative dispositif."
+  },
+  {
+    "rowid": 63725,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' operative clause. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 63771,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' operative clause. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 64843,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' awarding monetary compensation — canonical operative dispositif."
+  },
+  {
+    "rowid": 64844,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Dismisses (the remainder)' — canonical operative dispositif rejecting balance of claim. with 'Done in [Lang]' closing."
+  },
+  {
+    "rowid": 64953,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' awarding monetary compensation — canonical operative dispositif."
+  },
+  {
+    "rowid": 64954,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Dismisses (the remainder)' — canonical operative dispositif rejecting balance of claim. with 'Done in [Lang]' closing. (Pop A fused extraction with separate-opinion tail; head is operative — per rules, correct)."
+  },
+  {
+    "rowid": 67355,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Dismisses (the remainder)' — canonical operative dispositif rejecting balance of claim. with 'Done in [Lang] ... Rule 77' closing. (Pop A fused extraction with separate-opinion tail; head is operative — per rules, correct)."
+  },
+  {
+    "rowid": 67408,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Dismisses (the remainder)' — canonical operative dispositif rejecting balance of claim. with 'Done in [Lang] ... Rule 77' closing. (Pop A fused extraction with separate-opinion tail; head is operative — per rules, correct)."
+  },
+  {
+    "rowid": 68467,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Dismisses (the remainder)' — canonical operative dispositif rejecting balance of claim. with 'Done in [Lang]' closing. (Pop A fused extraction with separate-opinion tail; head is operative — per rules, correct)."
+  },
+  {
+    "rowid": 72057,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' awarding monetary compensation — canonical operative dispositif."
+  },
+  {
+    "rowid": 72059,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Dismisses (the remainder)' — canonical operative dispositif rejecting balance of claim. with 'Done in [Lang] ... Rule 77' closing. (Pop A fused extraction with separate-opinion tail; head is operative — per rules, correct)."
+  },
+  {
+    "rowid": 83688,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Dismisses (the remainder)' — canonical operative dispositif rejecting balance of claim. with 'Done in [Lang]' closing. (Pop A fused extraction with separate-opinion tail; head is operative — per rules, correct)."
+  },
+  {
+    "rowid": 83999,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' awarding monetary compensation — canonical operative dispositif."
+  },
+  {
+    "rowid": 84001,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Dismisses (the remainder)' — canonical operative dispositif rejecting balance of claim. with 'Done in [Lang]' closing. (Pop A fused extraction with separate-opinion tail; head is operative — per rules, correct)."
+  },
+  {
+    "rowid": 84149,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Dismisses (the remainder)' — canonical operative dispositif rejecting balance of claim. with 'Done in [Lang]' closing. (Pop A fused extraction with separate-opinion tail; head is operative — per rules, correct)."
+  },
+  {
+    "rowid": 113367,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' awarding monetary compensation — canonical operative dispositif."
+  },
+  {
+    "rowid": 231871,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' awarding monetary compensation — canonical operative dispositif. with 'Done in [Lang] ... Rule 77' closing. (Pop A fused extraction with separate-opinion tail; head is operative — per rules, correct)."
+  },
+  {
+    "rowid": 734161,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides' on Rule 39 interim non-removal measure — canonical operative dispositif. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 736309,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides' on Rule 39 interim non-removal measure — canonical operative dispositif. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 759889,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides' on Rule 39 interim non-removal measure — canonical operative dispositif. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 760044,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides' on Rule 39 interim non-removal measure — canonical operative dispositif. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 832195,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides' on Rule 39 interim non-removal measure — canonical operative dispositif. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 834082,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' awarding monetary compensation — canonical operative dispositif."
+  },
+  {
+    "rowid": 837785,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides' on Rule 39 interim non-removal measure — canonical operative dispositif. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 841773,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides ... to strike out' on friendly-settlement declaration — canonical operative dispositif. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 863992,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides' Rule 39 interim measure indication — canonical operative dispositif. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 876427,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides' on Rule 39 interim non-removal measure — canonical operative dispositif. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 878540,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides' on Rule 39 interim non-removal measure — canonical operative dispositif. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 883288,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' pilot-judgment general-measures dispositif — canonical operative."
+  },
+  {
+    "rowid": 883289,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' pilot-judgment general-measures dispositif — canonical operative."
+  },
+  {
+    "rowid": 883290,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' operative clause. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 895623,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides' on Rule 39 interim non-removal measure — canonical operative dispositif. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 895747,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides' on Rule 39 interim non-removal measure — canonical operative dispositif. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 917523,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides' on Rule 39 interim non-removal measure — canonical operative dispositif. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 923689,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides' on Rule 39 interim non-removal measure — canonical operative dispositif. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 926068,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides' on Rule 39 interim non-removal measure — canonical operative dispositif. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 959562,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' pilot-judgment general-measures dispositif — canonical operative. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 992557,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides' on Rule 39 interim non-removal measure — canonical operative dispositif. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 1073361,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides' on Rule 39 interim non-removal measure — canonical operative dispositif. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 1140965,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides' on Rule 39 interim non-removal measure — canonical operative dispositif. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 1156479,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' pilot-judgment general-measures dispositif — canonical operative."
+  },
+  {
+    "rowid": 1156480,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' operative clause. with 'Done in [Lang] ... Rule 77' closing."
+  },
+  {
+    "rowid": 1198582,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' pilot-judgment general-measures dispositif — canonical operative. with 'Done in [Lang] ... Rule 77' closing. (Pop A fused extraction with separate-opinion tail; head is operative — per rules, correct)."
+  },
+  {
+    "rowid": 1383093,
+    "verdict": "correct",
+    "reason": "R2 continuation '(b)/(e) ... simple interest payable on the above amount' default-interest sub-clause. followed by 'Done in [Lang] ... Rule 77' Registrar/President signature — canonical operative closing. (operationally part of dispositif: specifies conditions of State's payment obligation)."
+  },
+  {
+    "rowid": 1404471,
+    "verdict": "correct",
+    "reason": "R2 continuation '(b)/(e) ... simple interest payable on the above amount' default-interest sub-clause. followed by 'Done in [Lang] ... Rule 77' Registrar/President signature — canonical operative closing. (operationally part of dispositif: specifies conditions of State's payment obligation)."
+  },
+  {
+    "rowid": 1408112,
+    "verdict": "correct",
+    "reason": "R2 continuation '(b)/(e) ... simple interest payable on the above amount' default-interest sub-clause. followed by 'Done in [Lang] ... Rule 77' Registrar/President signature — canonical operative closing. (operationally part of dispositif: specifies conditions of State's payment obligation)."
+  },
+  {
+    "rowid": 1524731,
+    "verdict": "correct",
+    "reason": "R2 continuation '(b)/(e) ... simple interest payable on the above amount' default-interest sub-clause. followed by 'Done in [Lang] ... Rule 77' Registrar/President signature — canonical operative closing. (operationally part of dispositif: specifies conditions of State's payment obligation)."
+  },
+  {
+    "rowid": 1685359,
+    "verdict": "correct",
+    "reason": "R2 continuation '(b)/(e) ... simple interest payable on the above amount' default-interest sub-clause. followed by 'Done in [Lang] ... Rule 77' Registrar/President signature — canonical operative closing. (operationally part of dispositif: specifies conditions of State's payment obligation)."
+  },
+  {
+    "rowid": 1699032,
+    "verdict": "correct",
+    "reason": "R2 continuation '(b)/(e) ... simple interest payable on the above amount' default-interest sub-clause. followed by 'Done in [Lang] ... Rule 77' Registrar/President signature — canonical operative closing. (operationally part of dispositif: specifies conditions of State's payment obligation)."
+  },
+  {
+    "rowid": 1700749,
+    "verdict": "correct",
+    "reason": "R2 continuation '(b)/(e) ... simple interest payable on the above amount' default-interest sub-clause. followed by 'Done in [Lang] ... Rule 77' Registrar/President signature — canonical operative closing. (operationally part of dispositif: specifies conditions of State's payment obligation)."
+  },
+  {
+    "rowid": 1706346,
+    "verdict": "correct",
+    "reason": "R2 continuation '(b)/(e) ... simple interest payable on the above amount' default-interest sub-clause. followed by 'Done in [Lang] ... Rule 77' Registrar/President signature — canonical operative closing. (operationally part of dispositif: specifies conditions of State's payment obligation)."
+  },
+  {
+    "rowid": 1708706,
+    "verdict": "correct",
+    "reason": "R2 continuation '(b)/(e) ... simple interest payable on the above amount' default-interest sub-clause. followed by 'Done in [Lang] ... Rule 77' Registrar/President signature — canonical operative closing. (operationally part of dispositif: specifies conditions of State's payment obligation)."
+  },
+  {
+    "rowid": 1709578,
+    "verdict": "correct",
+    "reason": "R2 continuation '(b)/(e) ... simple interest payable on the above amount' default-interest sub-clause. followed by 'Done in [Lang] ... Rule 77' Registrar/President signature — canonical operative closing. (operationally part of dispositif: specifies conditions of State's payment obligation)."
+  },
+  {
+    "rowid": 1713326,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Declares ... admissible/inadmissible' — canonical operative admissibility dispositif."
+  },
+  {
+    "rowid": 1721374,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Declares' operative clause."
+  },
+  {
+    "rowid": 1765121,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides ... to strike out' on friendly-settlement declaration — canonical operative dispositif."
+  },
+  {
+    "rowid": 1772115,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Declares' operative clause."
+  },
+  {
+    "rowid": 1782268,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Declares' operative clause."
+  },
+  {
+    "rowid": 1828570,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides ... to strike out' on friendly-settlement declaration — canonical operative dispositif."
+  },
+  {
+    "rowid": 1834375,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides ... to strike out' on friendly-settlement declaration — canonical operative dispositif."
+  },
+  {
+    "rowid": 1838644,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides' on Rule 39 interim non-removal measure — canonical operative dispositif. with 'Done in [Lang] ... Rule 77' closing. (Pop A/B fused extraction with APPENDIX tail; head is operative — per rules, correct)."
+  },
+  {
+    "rowid": 1849346,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Declares' operative clause."
+  },
+  {
+    "rowid": 1854832,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides ... to strike out' on friendly-settlement declaration — canonical operative dispositif."
+  },
+  {
+    "rowid": 1871873,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Dismisses (the remainder)' — canonical operative dispositif rejecting balance of claim. with 'Done in [Lang] ... Rule 77' closing. (Pop A/B fused extraction with APPENDIX tail; head is operative — per rules, correct)."
+  },
+  {
+    "rowid": 1879215,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Declares' operative clause."
+  },
+  {
+    "rowid": 1883115,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides ... to strike out' on friendly-settlement declaration — canonical operative dispositif."
+  },
+  {
+    "rowid": 1884667,
+    "verdict": "correct",
+    "reason": "R2 continuation '(b)/(e) ... simple interest payable on the above amount' default-interest sub-clause. followed by 'Done in [Lang] ... Rule 77' Registrar/President signature — canonical operative closing. (operationally part of dispositif: specifies conditions of State's payment obligation)."
+  },
+  {
+    "rowid": 1885107,
+    "verdict": "correct",
+    "reason": "R2 closing block. followed by 'Done in [Lang] ... Rule 77' Registrar/President signature — canonical operative closing. (operationally part of dispositif: specifies conditions of State's payment obligation)."
+  },
+  {
+    "rowid": 1885593,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Declares' operative clause."
+  },
+  {
+    "rowid": 1886782,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides ... to strike out' on friendly-settlement declaration — canonical operative dispositif."
+  },
+  {
+    "rowid": 1887637,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides ... to strike out' on friendly-settlement declaration — canonical operative dispositif."
+  },
+  {
+    "rowid": 1887713,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides ... to strike out' on friendly-settlement declaration — canonical operative dispositif."
+  },
+  {
+    "rowid": 1888400,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Declares' operative clause."
+  },
+  {
+    "rowid": 1891810,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Declares' operative clause."
+  },
+  {
+    "rowid": 1892717,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Decides ... to strike out' on friendly-settlement declaration — canonical operative dispositif."
+  },
+  {
+    "rowid": 1892917,
+    "verdict": "correct",
+    "reason": "R2 continuation '(b)/(e) ... simple interest payable on the above amount' default-interest sub-clause. followed by 'Done in [Lang] ... Rule 77' Registrar/President signature — canonical operative closing. (operationally part of dispositif: specifies conditions of State's payment obligation)."
+  },
+  {
+    "rowid": 1907164,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Dismisses (the remainder)' — canonical operative dispositif rejecting balance of claim. with 'Done in [Lang] ... Rule 77' closing. (Pop A/B fused extraction with APPENDIX tail; head is operative — per rules, correct)."
+  },
+  {
+    "rowid": 1907310,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Dismisses (the remainder)' — canonical operative dispositif rejecting balance of claim. with 'Done in [Lang] ... Rule 77' closing. (Pop A/B fused extraction with APPENDIX tail; head is operative — per rules, correct)."
+  },
+  {
+    "rowid": 1913264,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Declares' operative clause."
+  },
+  {
+    "rowid": 1918031,
+    "verdict": "correct",
+    "reason": "R2 continuation '(b)/(e) ... simple interest payable on the above amount' default-interest sub-clause. followed by 'Done in [Lang] ... Rule 77' Registrar/President signature — canonical operative closing. (operationally part of dispositif: specifies conditions of State's payment obligation)."
+  },
+  {
+    "rowid": 1921762,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Dismisses (the remainder)' — canonical operative dispositif rejecting balance of claim. with 'Done in [Lang] ... Rule 77' closing. (Pop A/B fused extraction with APPENDIX tail; head is operative — per rules, correct)."
+  },
+  {
+    "rowid": 1929920,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Declares' operative clause."
+  },
+  {
+    "rowid": 1930035,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Declares' operative clause."
+  },
+  {
+    "rowid": 1931202,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Declares' operative clause."
+  },
+  {
+    "rowid": 1970103,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' awarding monetary compensation — canonical operative dispositif."
+  },
+  {
+    "rowid": 1973149,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Declares ... admissible/inadmissible' — canonical operative admissibility dispositif."
+  },
+  {
+    "rowid": 1975579,
+    "verdict": "correct",
+    "reason": "R2 continuation '(b)/(e) ... simple interest payable on the above amount' default-interest sub-clause. followed by 'Done in [Lang] ... Rule 77' Registrar/President signature — canonical operative closing. (operationally part of dispositif: specifies conditions of State's payment obligation)."
+  },
+  {
+    "rowid": 1992920,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' awarding monetary compensation — canonical operative dispositif."
+  },
+  {
+    "rowid": 1996980,
+    "verdict": "correct",
+    "reason": "R1 numbered 'Holds' awarding monetary compensation — canonical operative dispositif."
+  }
+]
