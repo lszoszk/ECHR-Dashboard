@@ -272,6 +272,68 @@
   opacity: 0.75;
 }
 
+/* Search input above long filter lists (countries, articles, bodies) */
+.filter-search-input {
+  width: 100%;
+  border: 1px solid var(--border, #e2e8f0);
+  background: var(--bg-card, #fff);
+  color: var(--text-primary);
+  border-radius: 6px;
+  padding: 0.4rem 0.65rem;
+  font-size: 0.82rem;
+  margin-bottom: 0.5rem;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+.filter-search-input:focus {
+  outline: 2px solid var(--primary-accent, #3b82f6);
+  outline-offset: 1px;
+  border-color: var(--primary-accent, #3b82f6);
+}
+.filter-empty-msg {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin: 0.4rem 0 0;
+}
+
+/* Per-group "Clear (N)" button that appears when a filter group has selections */
+.filter-group-clear {
+  margin-left: 0.5rem;
+  background: transparent;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 4px;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+  vertical-align: middle;
+  transition: all 0.15s;
+}
+.filter-group-clear:hover {
+  background: var(--red-light, #fee2e2);
+  border-color: var(--red, #dc2626);
+  color: var(--red, #dc2626);
+}
+
+/* Active-filter count badge on the "Advanced Filters" toggle button */
+.active-filter-badge {
+  display: inline-block;
+  background: var(--primary-accent, #2563eb);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  margin-left: 0.4rem;
+  font-variant-numeric: tabular-nums;
+  vertical-align: middle;
+  min-width: 1.25rem;
+  text-align: center;
+}
+
 .legal-details-wrap {
   margin-top: 2px;
 }

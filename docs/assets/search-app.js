@@ -272,11 +272,38 @@ const QUERY_PREFIX_KEYS = new Set(["case", "ecli", "hudoc", "article", "state", 
 const OUTCOME_LABELS = {
   violation_only: "Violation only",
   non_violation_only: "Non-violation only",
-  both: "Mixed",
+  both: "Mixed (violation + non-violation)",
   neither: "No finding",
   press_release: "Press Release",
   has_inadmissibility: "Inadmissibility",
   is_struck_out: "Struck out",
+};
+
+// Plain-language descriptions of importance levels for filter UI (M3 finding:
+// users don't know what bare "1", "2", "3" mean in HUDOC's importance scheme).
+const IMPORTANCE_LABELS = {
+  "1": "1 — Key cases",
+  "2": "2 — Important",
+  "3": "3 — Notable",
+  "Key cases": "Key cases",
+};
+const IMPORTANCE_TOOLTIPS = {
+  "1": "Highest legal significance — leading cases that define a Convention principle",
+  "2": "Substantial case-law importance",
+  "3": "Standard cases with discernible legal interest",
+  "Key cases": "Subset of Importance 1 explicitly flagged by the Court as 'Key cases'",
+  "Unspecified": "Importance level not assigned in HUDOC metadata",
+};
+
+// Per-section hint tooltips. Empty = no ⓘ icon. Rare/Pop-A-specific sections
+// get a hint so researchers know the filter targets a small subset.
+const SECTION_HINTS = {
+  introduction: "In Committee and joined cases, this section may contain applicant name lists rather than procedural history.",
+  facts: "In Committee cases, this section may also contain legal analysis (ALLEGED VIOLATION headings).",
+  commission_proceedings: "Pre-Protocol-11 only (1959–~1998): procedural history before the European Commission. Older cases only.",
+  final_submissions: "Pre-Protocol-11 only: parties' formal final arguments to the Court before the Merits.",
+  article_46: "Article 46 supervisory measures — rare; only in cases ordering structural change.",
+  appendix: "Annexes and applicant data tables (mostly Committee-format mass cases).",
 };
 
 /** Outcome values that map to __outcomePrimary (sent to server API).
@@ -1470,27 +1497,33 @@ function preprocessDataset(cases) {
   state.loaded = true;
 }
 
-function makeCheckbox(label, value, name, count = null) {
+function makeCheckbox(label, value, name, count = null, opts = {}) {
   const countSuffix = (count != null && count > 0)
     ? ` <span class="filter-count">${fmtInt.format(count)}</span>`
     : "";
-  return `<label class="cb-label"><input type="checkbox" data-name="${name}" value="${escapeHtml(value)}"> <span>${escapeHtml(label)}${countSuffix}</span></label>`;
+  // The hint icon goes INSIDE the label span so it stays inline with the
+  // label text rather than wrapping to the next row in a flex/grid layout.
+  const hint = opts.hint
+    ? ` <span class="section-hint-icon" title="${escapeHtml(opts.hint)}">ⓘ</span>`
+    : "";
+  const tooltip = opts.tooltip ? ` title="${escapeHtml(opts.tooltip)}"` : "";
+  return `<label class="cb-label"${tooltip}><input type="checkbox" data-name="${name}" value="${escapeHtml(value)}"> <span>${escapeHtml(label)}${countSuffix}${hint}</span></label>`;
 }
 
 function renderFilters() {
   const fc = state.facetCounts || { sections: {}, articles: {}, countries: {}, bodies: {}, importance: {}, docTypes: {} };
 
+  // Sections — with hints for rare or pre-Protocol-11 sections.
+  // Section hint also serves as the checkbox tooltip so users hovering the
+  // label (not just the ⓘ icon) get the same info.
   el.sectionsFilters.innerHTML = state.sectionsInDataset
-    .map((sec) => {
-      const cb = makeCheckbox(SECTION_LABELS[sec] || sec, sec, "sections", fc.sections[sec]);
-      if (sec === "introduction") {
-        return cb + '<span class="section-hint-icon" title="In Committee and joined cases, this section may contain applicant name lists rather than procedural history">ⓘ</span>';
-      }
-      if (sec === "facts") {
-        return cb + '<span class="section-hint-icon" title="In Committee cases, this section may also contain legal analysis (ALLEGED VIOLATION headings)">ⓘ</span>';
-      }
-      return cb;
-    })
+    .map((sec) => makeCheckbox(
+      SECTION_LABELS[sec] || sec,
+      sec,
+      "sections",
+      fc.sections[sec],
+      { hint: SECTION_HINTS[sec] || null, tooltip: SECTION_HINTS[sec] || null }
+    ))
     .join("");
 
   el.countriesFilters.innerHTML = state.countries
@@ -1505,30 +1538,163 @@ function renderFilters() {
     .map((body) => makeCheckbox(body, body, "bodies", fc.bodies[body]))
     .join("");
 
+  // Importance — descriptive labels + tooltip explaining HUDOC's scheme
   el.importanceFilters.innerHTML = state.importanceLevels
-    .map((level) => makeCheckbox(level, level, "importance", fc.importance[level]))
+    .map((level) => makeCheckbox(
+      IMPORTANCE_LABELS[level] || level,
+      level,
+      "importance",
+      fc.importance[level],
+      { tooltip: IMPORTANCE_TOOLTIPS[level] || null }
+    ))
     .join("");
 
   el.docTypeFilters.innerHTML = [
-    makeCheckbox("Chamber", "chamber", "docTypes", fc.docTypes.chamber),
-    makeCheckbox("Grand Chamber", "grand_chamber", "docTypes", fc.docTypes.grand_chamber),
-    makeCheckbox("Committee", "committee", "docTypes", fc.docTypes.committee),
-    makeCheckbox("Press Releases", "press_release", "docTypes", fc.docTypes.press_release),
+    makeCheckbox("Chamber", "chamber", "docTypes", fc.docTypes.chamber,
+      { tooltip: "Standard 7-judge Chamber judgments — the typical post-1998 format." }),
+    makeCheckbox("Grand Chamber", "grand_chamber", "docTypes", fc.docTypes.grand_chamber,
+      { tooltip: "17-judge Grand Chamber judgments — major principles and inter-state cases." }),
+    makeCheckbox("Committee", "committee", "docTypes", fc.docTypes.committee,
+      { tooltip: "3-judge Committee judgments — repetitive cases following well-established case-law. Often have applicant tables in Introduction." }),
+    makeCheckbox("Press Releases", "press_release", "docTypes", fc.docTypes.press_release,
+      { tooltip: "Court Registrar press releases — short summaries, not the judgment itself." }),
   ].join("");
 
   el.outcomeFilters.innerHTML = [
-    makeCheckbox("Violation only", "violation_only", "outcomes"),
-    makeCheckbox("Non-violation only", "non_violation_only", "outcomes"),
-    makeCheckbox("Mixed (violation + non-violation)", "both", "outcomes"),
-    makeCheckbox("No finding", "neither", "outcomes"),
-    makeCheckbox("Inadmissibility", "has_inadmissibility", "outcomes"),
-    makeCheckbox("Struck out", "is_struck_out", "outcomes"),
+    makeCheckbox("Violation only", "violation_only", "outcomes", null,
+      { tooltip: "Court found at least one violation; no non-violation findings." }),
+    makeCheckbox("Non-violation only", "non_violation_only", "outcomes", null,
+      { tooltip: "Court found no violation on any complaint examined." }),
+    makeCheckbox("Mixed (violation + non-violation)", "both", "outcomes", null,
+      { tooltip: "Court found violation on some Articles, no violation on others." }),
+    makeCheckbox("No finding", "neither", "outcomes", null,
+      { tooltip: "Procedural disposition without substantive Article finding (e.g., struck out, settled)." }),
+    makeCheckbox("Inadmissibility", "has_inadmissibility", "outcomes", null,
+      { tooltip: "Application declared inadmissible in whole or in part." }),
+    makeCheckbox("Struck out", "is_struck_out", "outcomes", null,
+      { tooltip: "Case struck out of the list (settled, withdrawn, applicant deceased, etc.)." }),
   ].join("");
 
   el.separateOpinionFilters.innerHTML = [
-    makeCheckbox("Yes", "yes", "separateOpinion"),
-    makeCheckbox("No", "no", "separateOpinion"),
+    makeCheckbox("Yes", "yes", "separateOpinion", null,
+      { tooltip: "Case has at least one dissenting / concurring / partly dissenting opinion." }),
+    makeCheckbox("No", "no", "separateOpinion", null,
+      { tooltip: "Unanimous decision — no separate opinions." }),
   ].join("");
+
+  // Wire up search filter inputs (boxes for long lists)
+  attachFilterSearchBoxes();
+  // Wire up per-group "Clear" buttons
+  attachFilterGroupClearButtons();
+  // Update toggle button "Advanced Filters (N active)" badge
+  updateActiveFilterCount();
+}
+
+/** Attach a search input above any scrollable filter list, hiding non-matching
+ *  checkbox labels as the user types. Idempotent — re-run after renderFilters(). */
+function attachFilterSearchBoxes() {
+  const targets = [
+    { container: el.countriesFilters, placeholder: "Search countries…", key: "countries" },
+    { container: el.articlesFilters, placeholder: "Search articles…", key: "articles" },
+    { container: el.originatingBodyFilters, placeholder: "Search bodies…", key: "bodies" },
+  ];
+  for (const t of targets) {
+    if (!t.container) continue;
+    const parent = t.container.parentElement;
+    if (!parent) continue;
+    let searchInput = parent.querySelector(`.filter-search-input[data-key="${t.key}"]`);
+    if (!searchInput) {
+      searchInput = document.createElement("input");
+      searchInput.type = "search";
+      searchInput.className = "filter-search-input";
+      searchInput.placeholder = t.placeholder;
+      searchInput.dataset.key = t.key;
+      searchInput.setAttribute("aria-label", t.placeholder);
+      parent.insertBefore(searchInput, t.container);
+      searchInput.addEventListener("input", () => {
+        const q = searchInput.value.trim().toLowerCase();
+        const labels = t.container.querySelectorAll("label.cb-label");
+        let visible = 0;
+        labels.forEach((lbl) => {
+          const txt = lbl.textContent.toLowerCase();
+          const match = !q || txt.includes(q);
+          lbl.style.display = match ? "" : "none";
+          if (match) visible++;
+        });
+        let emptyMsg = parent.querySelector(".filter-empty-msg");
+        if (visible === 0 && q) {
+          if (!emptyMsg) {
+            emptyMsg = document.createElement("p");
+            emptyMsg.className = "filter-empty-msg";
+            emptyMsg.textContent = "No matches.";
+            t.container.parentElement.insertBefore(emptyMsg, t.container.nextSibling);
+          }
+          emptyMsg.hidden = false;
+        } else if (emptyMsg) {
+          emptyMsg.hidden = true;
+        }
+      });
+    }
+  }
+}
+
+/** Add a small "Clear" button next to each filter-group title that has any
+ *  checked checkboxes. Click clears just that group + reruns search. */
+function attachFilterGroupClearButtons() {
+  document.querySelectorAll("#filtersPanel .filter-group").forEach((group) => {
+    const titles = group.querySelectorAll(".filter-title");
+    titles.forEach((title) => {
+      // Find the checkbox container that follows this title
+      let next = title.nextElementSibling;
+      while (next && !next.classList.contains("checkbox-grid") && !next.classList.contains("date-range")) {
+        next = next.nextElementSibling;
+      }
+      if (!next) return;
+      // Check if there's at least one checked input in this container
+      const checked = next.querySelectorAll('input[type="checkbox"]:checked').length;
+      let btn = title.querySelector(".filter-group-clear");
+      if (checked > 0) {
+        if (!btn) {
+          btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "filter-group-clear";
+          btn.textContent = "Clear";
+          btn.title = "Clear selections in this group";
+          title.appendChild(btn);
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            next.querySelectorAll('input[type="checkbox"]:checked').forEach((cb) => {
+              cb.checked = false;
+            });
+            // Trigger filter change handler
+            next.dispatchEvent(new Event("change", { bubbles: true }));
+          });
+        }
+        btn.style.display = "";
+        btn.textContent = `Clear (${checked})`;
+      } else if (btn) {
+        btn.style.display = "none";
+      }
+    });
+  });
+}
+
+/** Show "Advanced Filters (N active)" on the toggle button so users always
+ *  know how many filters are currently constraining results. */
+function updateActiveFilterCount() {
+  if (!el.filterToggleBtn) return;
+  const active = document.querySelectorAll('#filtersPanel input[type="checkbox"]:checked').length
+    + (el.dateFrom?.value ? 1 : 0)
+    + (el.dateTo?.value ? 1 : 0)
+    + (el.keywordFilterInput?.value?.trim() ? 1 : 0)
+    + (el.precedentFilterInput?.value?.trim() ? 1 : 0);
+  // Only modify the text node containing "Advanced Filters", keep the icon
+  const iconHTML = '<span class="filter-toggle-icon">▼</span>';
+  if (active > 0) {
+    el.filterToggleBtn.innerHTML = `${iconHTML} Advanced Filters <span class="active-filter-badge">${active}</span>`;
+  } else {
+    el.filterToggleBtn.innerHTML = `${iconHTML} Advanced Filters`;
+  }
 }
 
 function renderGlobalStats() {
@@ -4995,13 +5161,24 @@ function bindEvents() {
 
   el.filtersPanel.addEventListener("change", () => {
     if (!state.loaded && !serverSearch.available) return;
+    // Refresh per-group clear buttons + active-filter count badge before
+    // re-running the search (so the UI reflects what is about to be applied).
+    attachFilterGroupClearButtons();
+    updateActiveFilterCount();
     applySearch(true);
   });
 
   el.keywordFilterInput.addEventListener("change", () => {
     if (!state.loaded && !serverSearch.available) return;
+    updateActiveFilterCount();
     applySearch(true);
   });
+
+  // Date inputs and keyword/precedent inputs also affect the active count
+  el.dateFrom?.addEventListener("change", updateActiveFilterCount);
+  el.dateTo?.addEventListener("change", updateActiveFilterCount);
+  el.keywordFilterInput?.addEventListener("input", updateActiveFilterCount);
+  el.precedentFilterInput?.addEventListener("input", updateActiveFilterCount);
 
   el.precedentFilterInput.addEventListener("change", () => {
     if (!state.loaded && !serverSearch.available) return;
