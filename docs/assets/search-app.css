@@ -272,6 +272,35 @@
   opacity: 0.75;
 }
 
+/* Loading placeholder shown in filter groups while facets API is in-flight.
+   Renders during the ~1-2s window between page load and serverSearch.getFacets()
+   returning. Once data arrives, renderFilters() replaces these with real
+   checkboxes. */
+.filter-loading {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin: 0.4rem 0;
+  padding: 0.3rem 0;
+  opacity: 0.7;
+  position: relative;
+}
+.filter-loading::after {
+  content: '';
+  display: inline-block;
+  margin-left: 0.4rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+  animation: filter-loading-pulse 1.2s ease-in-out infinite;
+}
+@keyframes filter-loading-pulse {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50%      { opacity: 0.7; transform: scale(1.1); }
+}
+
 /* Search input above long filter lists (countries, articles, bodies) */
 .filter-search-input {
   width: 100%;

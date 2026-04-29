@@ -294,16 +294,28 @@ body {
 .filters-panel.open ~ .filter-toggle .filter-toggle-icon,
 .filters-panel.open + .filter-toggle .filter-toggle-icon { transform: rotate(180deg); }
 
+/* Filter panel collapse/expand. Use opacity + grid-template-rows trick rather
+   than max-height so the panel grows to fit its content without an arbitrary
+   cap. This eliminates the ugly cutoff at 600px when there are many filter
+   groups (especially after P11 added Commission Proceedings + Final Submissions). */
 .filters-panel {
-    max-height: 0;
+    display: grid;
+    grid-template-rows: 0fr;
     overflow: hidden;
-    transition: max-height 0.35s ease;
+    transition: grid-template-rows 0.25s ease, opacity 0.25s ease;
+    opacity: 0;
 }
-.filters-panel.open { max-height: 600px; }
+.filters-panel > * {
+    min-height: 0;  /* required for grid-template-rows: 0fr trick */
+}
+.filters-panel.open {
+    grid-template-rows: 1fr;
+    opacity: 1;
+}
 
 .filters-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: var(--gap);
     margin-top: 1.5rem;
     background: rgba(255,255,255,0.06);
@@ -312,7 +324,15 @@ body {
     border: 1px solid rgba(255,255,255,0.1);
 }
 
-.filter-group {}
+.filter-group {
+    /* Each filter group becomes a grid container so the title sticks to top
+       and the checkbox area fills the remaining space — gives the visual
+       layout consistent baseline even when groups have wildly different
+       content sizes. */
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
 .filter-title {
     color: rgba(255,255,255,0.85);
     font-size: 0.78rem;
@@ -320,12 +340,38 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
 }
 
 .checkbox-grid { display: flex; flex-direction: column; gap: 4px; }
-.checkbox-grid.scrollable { max-height: 180px; overflow-y: auto; padding-right: 6px; }
-.checkbox-grid.scrollable::-webkit-scrollbar { width: 4px; }
-.checkbox-grid.scrollable::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+/* Increase scrollable height: 280px ≈ ~12 visible rows, much better than 180.
+   Add gradient fade at the bottom edge so users can tell there's more content
+   to scroll. The fade is achieved with a mask-image that's transparent for
+   the last 24px when the list is overflowing. */
+.checkbox-grid.scrollable {
+    max-height: 280px;
+    overflow-y: auto;
+    padding-right: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.25) transparent;
+    /* Visual hint that more content exists below: subtle gradient fade.
+       The mask only takes effect if content overflows (CSS works on whole
+       element regardless, but fade is invisible when there's no overflow
+       past the cut). */
+    -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 18px), transparent 100%);
+    mask-image: linear-gradient(to bottom, black calc(100% - 18px), transparent 100%);
+}
+.checkbox-grid.scrollable::-webkit-scrollbar { width: 5px; }
+.checkbox-grid.scrollable::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.25);
+    border-radius: 3px;
+}
+.checkbox-grid.scrollable::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.4);
+}
 .checkbox-grid.compact { gap: 2px; }
 
 .cb-label {

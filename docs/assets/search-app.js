@@ -1510,6 +1510,49 @@ function makeCheckbox(label, value, name, count = null, opts = {}) {
   return `<label class="cb-label"${tooltip}><input type="checkbox" data-name="${name}" value="${escapeHtml(value)}"> <span>${escapeHtml(label)}${countSuffix}${hint}</span></label>`;
 }
 
+/** Render filter SHELL on page load — before facets API has returned —
+ *  so the user immediately sees structure (filter group titles, fixed
+ *  options, and "Loading…" placeholders for dynamic lists). Eliminates
+ *  the 1-2s blank-filter window during server probe + facets fetch. */
+function renderFiltersSkeleton() {
+  const loading = '<p class="filter-loading">Loading…</p>';
+  if (el.sectionsFilters) el.sectionsFilters.innerHTML = loading;
+  if (el.countriesFilters) el.countriesFilters.innerHTML = loading;
+  if (el.articlesFilters) el.articlesFilters.innerHTML = loading;
+  if (el.originatingBodyFilters) el.originatingBodyFilters.innerHTML = loading;
+  if (el.importanceFilters) el.importanceFilters.innerHTML = loading;
+
+  // Fixed filters that don't depend on facets — render immediately
+  if (el.docTypeFilters) {
+    el.docTypeFilters.innerHTML = [
+      makeCheckbox("Chamber", "chamber", "docTypes", null,
+        { tooltip: "Standard 7-judge Chamber judgments — the typical post-1998 format." }),
+      makeCheckbox("Grand Chamber", "grand_chamber", "docTypes", null,
+        { tooltip: "17-judge Grand Chamber judgments — major principles and inter-state cases." }),
+      makeCheckbox("Committee", "committee", "docTypes", null,
+        { tooltip: "3-judge Committee judgments — repetitive cases following well-established case-law." }),
+      makeCheckbox("Press Releases", "press_release", "docTypes", null,
+        { tooltip: "Court Registrar press releases — short summaries, not the judgment itself." }),
+    ].join("");
+  }
+  if (el.outcomeFilters) {
+    el.outcomeFilters.innerHTML = [
+      makeCheckbox("Violation only", "violation_only", "outcomes"),
+      makeCheckbox("Non-violation only", "non_violation_only", "outcomes"),
+      makeCheckbox("Mixed (violation + non-violation)", "both", "outcomes"),
+      makeCheckbox("No finding", "neither", "outcomes"),
+      makeCheckbox("Inadmissibility", "has_inadmissibility", "outcomes"),
+      makeCheckbox("Struck out", "is_struck_out", "outcomes"),
+    ].join("");
+  }
+  if (el.separateOpinionFilters) {
+    el.separateOpinionFilters.innerHTML = [
+      makeCheckbox("Yes", "yes", "separateOpinion"),
+      makeCheckbox("No", "no", "separateOpinion"),
+    ].join("");
+  }
+}
+
 function renderFilters() {
   const fc = state.facetCounts || { sections: {}, articles: {}, countries: {}, bodies: {}, importance: {}, docTypes: {} };
 
@@ -5539,6 +5582,11 @@ function init() {
   renderBarList(el.analyticsOutcomes, [], (x) => x);
   renderBarList(el.analyticsDocTypes, [], (x) => x);
   renderWordCloud([]);
+
+  // Render filter SHELL immediately so the panel structure is visible from the
+  // first paint, instead of being empty until the facets API returns 1-2s
+  // later. Real data fills in via renderFilters() after serverSearch.probe().
+  renderFiltersSkeleton();
 
   // Probe server-side search API — this is the primary data source
   serverSearch.probe().then(async (available) => {
