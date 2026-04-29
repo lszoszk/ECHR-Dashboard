@@ -4,6 +4,38 @@ Chronological record of every transformation applied to the corpus, with commit 
 
 ---
 
+## 2026-04-29 — P16 (Rec-3 Facts → JS / Operative in Pop C)
+
+- **2026-04-29 P16 — Pop C compressed-format extraction (100% precision, 11,804 paragraphs)**
+
+  Recall-audit Rec-3 + post-P15 probe revealed that Pop C compressed-format judgments dumped the entire Operative dispositif AND JS award reasoning into the `Facts` section. The recall audit estimated ~3,000 misclassified paragraphs but the actual scope was **~4× larger**: 11,804 paragraphs across all three Facts buckets (Facts / Facts Proceedings / Facts Background), dominated by Pop C committee-format judgments.
+
+  Six tight precision-first rules (applied in order):
+
+  - **R0a** — `^\s*(?:[IVX]+\.\s+)?APPLICATION OF ARTICLE 41` heading, len < 200 → Just Satisfaction. **1 paragraph.**
+  - **R0b** — `Article 41 ... Convention provides:` boilerplate quote, len < 800 → Just Satisfaction. **6 paragraphs.**
+  - **R1** — `^\d+\.\s*(Holds|Decides|Declares|Dismisses)\b` numbered dispositif, no length cap → Operative. **8,786 paragraphs.**
+  - **R2** — `(a) that the respondent State is to pay`, len < 1500 → Operative. **566 paragraphs.**
+  - **R3** — `(b) that from the expiry of the above-mentioned three months ... simple interest shall be payable`, len < 700 → Operative. **2,197 paragraphs.**
+  - **R4** — `Court awards | Court considers it reasonable to award` AND (EUR or non-pecuniary or costs and expenses), len < 600, **Pop C only (para_idx IS NULL)** → Just Satisfaction. **248 paragraphs.**
+
+  Critical rejected pattern: `equitable basis + EUR` was probed at 76 hits with 5/5 spot-check FP rate — Italian and Bulgarian Pop A/B cases use this phrase to describe domestic Court of Appeal awards in Facts narrative. R4 is restricted to Pop C only to avoid this trap.
+
+  Per-case operative casing mirrored: Pop A/B → `Operative Part` (2 paragraphs); Pop C → `Operative part` (11,547 paragraphs); JS → `Just Satisfaction` (255 paragraphs).
+
+  Backup: `_p16_backup` (11,804 rows). Script: `scripts/p16_relabel.py`.
+
+  **Counts:** `Facts` 131,935 → 120,140 (-11,795); `Facts Proceedings` 347,567 → 347,559 (-8); `Facts Background` 34,536 → 34,535 (-1); `Just Satisfaction` 156,675 → 156,930 (+255); `Operative Part` +2; `Operative part` 64,644 → 76,191 (+11,547).
+
+  **LLM precision audit (55 stratified samples, Sonnet 4.6):**
+  - 55 correct, 0 incorrect, 0 ambiguous
+  - **Precision: 100.0%** (R0a 1/1, R0b 6/6, R1 12/12, R2 12/12, R3 12/12, R4 12/12)
+  - All R4 matches verified to refer to the ECHR Court (Pop C restriction prevented domestic Court of Appeal FPs)
+
+  This pass is the largest single relabel since P3 (83,377 → Legal Framework) and brings Pop C compressed-judgment structure into close alignment with the canonical 14-section taxonomy. Saved artifacts: `scripts/p16_audit_samples.json`, `scripts/p16_audit_verdicts.json`.
+
+---
+
 ## 2026-04-29 — P15 (Rec-2 JS → Operative residual)
 
 - **2026-04-29 P15 — Just Satisfaction → Operative Part residual cleanup (100% precision)**

@@ -348,3 +348,34 @@ R2 captured the classical "(b) that from the expiry of the above-mentioned three
 ### Conclusion
 
 **P15 deployed cleanly. 100 % precision (full-population audit, no sampling) confirms the rule design.** The decision to drop the broad `Rules of Court` anchor in favour of strict `\bRule 77\b` was decisive — without it, R2 would have introduced ~1,000 false positives. Saved artifacts: `scripts/p15_relabel.py`, `scripts/p15_audit_samples.json`, `scripts/p15_audit_verdicts.json`. Backup: `_p15_backup` (96 rows).
+
+---
+
+## 11. P16 Audit (Rec-3: Facts → JS / Operative in Pop C compressed cases)
+
+**55 stratified samples, 100.0 % precision (55 correct, 0 incorrect, 0 ambiguous)**
+
+P16 is the largest single relabel since P3. The recall audit estimated ~3,000 misclassified paragraphs in Facts/Facts Proceedings; the actual scope was **~4× larger** (11,804 paragraphs) once the post-P15 probe revealed that Pop C compressed-format judgments dumped the entire Operative dispositif AND JS award reasoning into the `Facts` section. Six tight rules (R0a heading, R0b boilerplate, R1 numbered dispositif, R2 operative payment clause, R3 default-interest continuation, R4 Court-awards JS reasoning) caught the pattern with zero observed FPs.
+
+The critical decision was **rejecting** the `equitable basis + EUR` pattern (76 candidates, 5/5 spot-check FP rate): Italian and Bulgarian Pop A/B cases use this phrase to describe **domestic Court of Appeal** awards in Facts narrative ("the Court of Appeal found that a reasonable time had been exceeded. It awarded the applicant EUR 1,000 on an equitable basis..."). R4 (Court awards) is restricted to Pop C only (`para_idx IS NULL`) to prevent this confusion, since Pop C cases are committee-format compressed judgments where the only "Court" being awarded is the ECHR Court itself.
+
+### Per-rule breakdown
+
+| Rule | Direction | Population | Sampled | Correct | Incorrect | Ambiguous | Precision |
+|------|-----------|-----------:|--------:|--------:|----------:|----------:|----------:|
+| R0a — `APPLICATION OF ARTICLE 41` heading | Facts → JS | 1 | 1 | 1 | 0 | 0 | 100 % |
+| R0b — `Article 41 ... provides` boilerplate | Facts → JS | 6 | 6 | 6 | 0 | 0 | 100 % |
+| R1 — numbered Holds/Decides/Declares/Dismisses | Facts → Operative | 8,786 | 12 | 12 | 0 | 0 | 100 % |
+| R2 — `(a) that the State is to pay` | Facts → Operative | 566 | 12 | 12 | 0 | 0 | 100 % |
+| R3 — `(b) that from the expiry ... simple interest` | Facts → Operative | 2,197 | 12 | 12 | 0 | 0 | 100 % |
+| R4 — ECHR Court awards (Pop C only) | Facts → JS | 248 | 12 | 12 | 0 | 0 | 100 % |
+
+**Overall: 55 correct, 0 incorrect, 0 ambiguous / 55 samples. Precision 100.0 %.**
+
+R4 was the highest-FP-risk rule but the audit confirmed all 12 sampled matches refer to the ECHR Court (verified via "proceedings before the Court", Article 41 framing, applicant-claimed → Government-contested → Court-awards canonical sequence, or domestic-currency-to-EUR conversion language). The Pop-C-only restriction is doing its job.
+
+R1's surrounding context routinely shows the Pop C compressed-format pattern: the surrounding paragraphs are also still labeled `Facts` despite being "Done in English ... Registrar" closing blocks or "(a)/(b)" sub-clauses — confirming that the original segmenter dumped the entire dispositif into Facts. P16 extracts the unambiguous numbered-dispositif heads (R1) and named sub-clauses (R2/R3) precisely; the residual unmarked sub-clauses (e.g., long appended-table rows) are left in Facts pending future passes if needed.
+
+### Conclusion
+
+**P16 deployed cleanly. 100 % precision across 55 stratified samples (1+6+12+12+12+12).** Together with P14 v2 (RLF cleanup) and P15 (JS → Operative residual), P16 brings Pop C compressed-judgment structure into close alignment with the canonical 14-section taxonomy. The cumulative count of pipeline relabels reaches ~330,700 paragraphs (~16.5 % of corpus). Saved artifacts: `scripts/p16_relabel.py`, `scripts/p16_audit_samples.json`, `scripts/p16_audit_verdicts.json`. Backup: `_p16_backup` (11,804 rows).

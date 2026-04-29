@@ -24,7 +24,8 @@
 | **P13** | Just Satisfaction → Operative Part dispositif revert | +3,403 | **98.0%** | ✓ |
 | **P14 v2** | Relevant legal framework → Operative / JS / Merits (R0+R1+R2+R3) | +800 | **100.0%** | ✓ |
 | **P15** | Just Satisfaction → Operative Part residual (R1 numbered + R2 Rule 77 strict) | +96 | **100.0%** | ✓ |
-| **TOTAL relabels** | | **~318,900 (~16% of corpus)** | | |
+| **P16** | Facts → JS / Operative in Pop C compressed cases (R0a + R0b + R1 + R2 + R3 + R4 Pop-C-only) | +11,804 | **100.0%** | ✓ |
+| **TOTAL relabels** | | **~330,700 (~16.5% of corpus)** | | |
 
 **Schema additions:**
 - 14 user-facing section labels (was 12 before P11): Header, Introduction, Facts (3 raw labels), Legal Framework (3 raw labels), Commission Proceedings (NEW), Final Submissions (NEW), Admissibility, Merits, Just Satisfaction, Article 46, Operative Part (2 raw casings), Separate Opinion, Appendix
@@ -51,13 +52,9 @@ Conservative 3-rule classifier (R0 Art.41 boilerplate, R1 numbered dispositif, R
 
 Two-rule pass extending P13: R1 captures numbered `^\d+\.\s*(Holds|Decides|Declares|Dismisses)` with NO length cap (Pop A pre-1998 fused-paragraph operative blocks routinely > 400 chars); R2 captures strict `\bRule 77\b` + Registrar/Done-in default-interest continuation clauses. Probe found loose `Rules of Court` anchor would FP at ~100% on JS reasoning citing Rule 60/38/61; tightening to `\bRule 77\b` cut to 96 candidates with 100% precision (full-population audit, no sampling). See `methodology-internal/precision-audit.md` §10.
 
-### Rec-3: Facts → Just Satisfaction recovery in mass cases (~3,000 estimated)
+### ✅ Rec-3 — DONE (P16, 2026-04-29, 100% precision, 11,804 paragraphs)
 
-Pop C compressed-format judgments where JS award language ("awards the applicant... in respect of non-pecuniary damage") is in `Facts` rather than `Just Satisfaction`. Recall audit found 3/45 (6.7%).
-
-**Proposed rule:** Augment P1/P6 to also check `Facts` and `Facts Proceedings` sections for JS-content phrases.
-
-**Risk:** Medium — Facts paragraphs legitimately reference damage claims in factual narrative ("the applicant claimed compensation before the domestic courts").
+Six precision-first rules (R0a heading, R0b boilerplate, R1 numbered dispositif, R2 operative payment, R3 default-interest, R4 Court-awards Pop-C-only). Actual scope was ~4× larger than recall-audit estimate (11,804 vs ~3,000): Pop C compressed-format judgments dump the **entire** Operative dispositif AND JS reasoning into Facts. Critical pattern *rejected*: `equitable basis + EUR` (5/5 FP rate — Italian/Bulgarian Pop A/B narrative describing domestic Courts of Appeal). 55 stratified samples audited at 100% precision. See `methodology-internal/precision-audit.md` §11.
 
 ### Investigate Fetisov v. Russia rowid 1463491 PDF-extraction artefact
 
