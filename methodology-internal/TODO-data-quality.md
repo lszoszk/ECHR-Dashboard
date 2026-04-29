@@ -82,9 +82,34 @@ Concentrated in Russian Committee mass-judgment corpus.
 
 ## Cleanup tasks
 
-- Remove `/home/amuvmuser/migration-backup-20260428/` after ~1 week stable (~250 MB free).
-- Containerize `/home/amuvmuser/echr_rag/` (UHRI semantic search) — currently runs on host.
-- Investigate `unhr_setfit_models/` and `unhr_setfit_runtime/` in `/home/amuvmuser/echr/data/` — UHRI artefacts that should move to `/home/amuvmuser/uhri/data/`.
+### ✅ DONE (2026-04-30) — VM cleanup pass
+
+Three-task cleanup executed on VM 150.254.115.204:
+
+- **`/home/amuvmuser/migration-backup-20260428/` removed** (was 6.5 MB, not 250 MB as the TODO note had estimated). All UHRI legacy backup files (old `unhr_dataset_api.py`, nginx `default.pre-uhri-split`, etc.) — pre-2026-04-28 separation cruft.
+
+- **UHRI artefacts moved `/echr/data/` → `/uhri/data/` (~2.6 GB total):**
+  - `unhr_setfit_models/` (466 MB) → `/uhri/data/setfit_models/`
+  - `unhr_setfit_runtime/` (881 MB) → `/uhri/data/setfit_runtime/`
+  - `huggingface/` (458 MB, HF model cache) → `/uhri/data/huggingface/`
+  - `snapshots/` (830 MB, dated UHRI export gz files) → `/uhri/data/snapshots/`
+  - Empty `unhr_cleaned.sqlite` (0 bytes) — deleted
+  - Verified: neither `echr-api` nor `uhri-dataset-api` containers grep for "setfit" in their loaded code, so no service was reading these. `echr-api` `/health` still 200 OK after the move.
+  - Note on filesystem: `mv` within the same `/dev/sda2` filesystem is a `rename(2)` syscall — no actual data copy, no space recovered. The benefit is **organizational**: ECHR's `/data/` now contains only ECHR artefacts (`echr_search.db`, `echr_cases.jsonl`, `huggingface`/`snapshots`/`setfit*` are correctly placed under UHRI's territory).
+  - Permission fix: directories were root-owned (created by Docker container). Used `docker exec echr-api chown -R 1000:1000 ...` to make them owned by host `amuvmuser` (UID 1000) before the `mv`.
+
+- **Scratch scripts archived** to `~/.scratch-archive-20260430/` (18 files: `p10*.py`, `p11*.py`, ..., `p14*.py`, `recall.py`, `recall_samples.json`, `*_audit.json` accumulated over previous sessions in `/home/amuvmuser/`). Kept rather than deleted in case any are still needed.
+
+### Deferred — `echr_rag/` containerization
+
+Inventory confirmed `/home/amuvmuser/echr_rag/` is **18 GB** (Chroma vector DB + venv + multilingual sentence-transformer model). The `DISABLED_NOTICE.md` (2026-04-20) documents that the systemd service is currently stopped due to memory pressure (5.6 GB RSS on an 8 GB VM caused swap thrash that broke all other services). Recommended fixes per the notice are: smaller embedding model, systemd `MemoryMax=3G` cap, or migration to a dedicated VM. Containerization alone does not solve the memory problem — needs paired with a memory cap. **Multi-hour deployment task; deferred to a separate dedicated session with proper Dockerfile + compose + memory cap design.** Note: despite the directory name, `echr_rag/` actually serves UHRI semantic search per the architecture doc — out of strict ECHR scope.
+
+### Disk pressure note
+
+Post-cleanup `/dev/sda2` remains 86% full (40 GB used / 49 GB total). The 18 GB `echr_rag/` is the dominant consumer. If disk space becomes critical, options are:
+1. Tackle `echr_rag/` first (containerize + cap, OR archive the chroma_db if RAG is permanently disabled, ~13 GB recoverable).
+2. Compress UHRI snapshots (already gzipped; further savings unlikely).
+3. Move the dataset to external volume.
 
 ---
 
