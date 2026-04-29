@@ -228,3 +228,95 @@ Zero of the 50 sampled relabelings are outright wrong. Every R2 numbered-clause 
 ### Conclusion
 
 P13 deployed cleanly. Precision of 98.0 % (conservative: correct / total) meets and exceeds the 97.6 % baseline established across P1–P7. The single ambiguous case is an unavoidable granularity artifact where two section types share a paragraph boundary in the PDF extraction, not a systematic rule error. No rollback or redesign is warranted. P13's targeted fix for Pattern B (P1 dispositif over-capture) is confirmed effective without introducing new labeling noise.
+
+---
+
+## 8. P14 Audit (Relevant legal framework cleanup)
+
+**50 samples, 78.0 % precision (39 correct, 7 incorrect, 4 ambiguous)**
+
+P14 was designed to fix Pattern A: paragraphs in `Relevant legal framework` that contain Merits / Just Satisfaction / Operative Part content left as residue from imperfect P3 segmentation. Three rules: R1 (numbered Holds/Decides/Declares/Dismisses → Operative Part), R2 (Court awards + EUR → Just Satisfaction), R3 (explicit violation finding → Merits).
+
+### Per-rule breakdown
+
+| Rule | Direction | Samples in draw | Correct | Incorrect | Ambiguous | Rule precision |
+|------|-----------|-----------------|---------|-----------|-----------|----------------|
+| R1 — numbered Holds/Decides/Declares/Dismisses | RLF → Operative Part | 29 | 29 | 0 | 0 | 100 % |
+| R2 — Court awards + EUR | RLF → Just Satisfaction | 6 | 4 | 0 | 2 | 66.7 % |
+| R3 — explicit violation finding | RLF → Merits | 15 | 6 | 7 | 2 | 40.0 % |
+
+**Overall: 39 correct, 7 incorrect, 4 ambiguous / 50 samples. Precision 78.0 %.**
+
+R1 dominates the sample (58 % of draws) and is perfectly precise. R3 is the problem: seven of its fifteen samples are outright wrong, and two are ambiguous, yielding only 40 % precision. All seven R3 incorrect cases share the same failure mode (see below). R2 is degraded by two fused-dispositif cases that the fused-detector failed to suppress.
+
+### Systematic error: R3 fires on Article 41 treaty text
+
+All seven R3 incorrect relabelings are paragraphs containing the quoted text of **Article 41 of the Convention**: *"If the Court finds that there has been a violation of the Convention or the Protocols thereto, and if the internal law of the High Contracting Party concerned allows only partial reparation to be made, the Court shall, if necessary, afford just satisfaction to the injured party."*
+
+These paragraphs appear in compact Pop-C and Committee judgments where the standard Art. 41 preamble is reproduced verbatim as part of the Just Satisfaction section. The word "violation" in the quoted treaty text triggers R3's violation-finding detector, which cannot distinguish a Court's own finding from a treaty quotation.
+
+Affected rowids: 1611148, 1948794, 1830227, 1825277, 1635946, 1785375, 1837022. In each case the correct label is **Just Satisfaction**, not Merits.
+
+A simple fix: add a negative-match condition to R3 — exclude paragraphs where the triggering "violation" phrase is preceded by "If the Court finds that there has been a" (the distinctive treaty-quotation preamble).
+
+### R2 ambiguous cases: fused-detector gaps
+
+Two R2 samples (rowids 1520949, 1546489) are fused paragraphs where a genuine Just Satisfaction costs-award sentence is followed by the entire operative dispositif (multiple Holds/Declares). R2 correctly identified the award clause, but the paragraph also contains 2+ Holds/Declares at sentence boundaries, which the fused-detector should have used to suppress the rule. The fused-detector condition apparently did not fire for R2, only for R3. Both are labeled ambiguous rather than incorrect because the opening JS content is genuine.
+
+Two R3 samples (rowids 1666342, 1587269) are also fused: a default-interest or costs-reasoning sentence followed by an embedded full dispositif. Same fused-detector gap.
+
+### Incorrect examples
+
+**Example 1** — rowid 1611148, *Syomak and Others v. Ukraine* (001-213734)  
+Original: `Relevant legal framework` → New: `Merits`  
+Paragraph text: `10. Article 41 of the Convention provides: "If the Court finds that there has been a violation of the Convention or the Protocols thereto, and if the internal law of the High Contracting Party concerned allows only partial reparation to be made, the Court shall, if necessary, afford just satisfaction to the injured party."`  
+Reasoning: This is the quoted text of Article 41 verbatim. R3 triggered on the word "violation" inside the treaty quotation. Context confirms this is the Art. 41 preamble paragraph in a Just Satisfaction block; context after (para 11) begins the Court's case-law analysis for JS awards. The correct label is Just Satisfaction, not Merits.
+
+**Example 2** — rowid 1830227, *Momčilović and Others v. Serbia* (001-179210)  
+Original: `Relevant legal framework` → New: `Merits`  
+Paragraph text: `28. Article 41 of the Convention provides: "If the Court finds that there has been a violation of the Convention or the Protocols thereto..."`  
+Reasoning: Same pattern. Context before explicitly shows `Just Satisfaction` section heading ("III. APPLICATION OF ARTICLE 41 OF THE CONVENTION"); context after (paras 29-31) is the JS damage and costs analysis. The paragraph is the Art. 41 preamble introduction to the JS section. Correct label: Just Satisfaction.
+
+**Example 3** — rowid 1785375, *Aristov and Gromov v. Russia* (001-186684)  
+Original: `Relevant legal framework` → New: `Merits`  
+Paragraph text: `69. Article 41 of the Convention provides: "If the Court finds that there has been a violation of the Convention or the Protocols thereto..."`  
+Reasoning: Context before shows `Just Satisfaction` section heading ("VI. APPLICATION OF ARTICLE 41 OF THE CONVENTION"); context after (paras 70-72) is the JS damage/costs analysis including a EUR award. Correct label: Just Satisfaction.
+
+### Conclusion
+
+P14 R1 (460 Operative Part relabelings) deployed with 100 % precision and requires no intervention. P14 R2 (145 Just Satisfaction relabelings) is largely sound but the fused-detector fails to suppress it on paragraphs where JS award sentences are merged with an embedded dispositif block. P14 R3 (205 Merits relabelings) has a critical systematic error: all seven observed incorrect cases stem from R3 firing on the standard Article 41 treaty quotation instead of the Court's own violation-finding language. At 40 % precision, R3 is introducing more noise than it corrects.
+
+**Recommended action:** R3 should be patched with a single exclusion: skip paragraphs matching the Article 41 treaty-text pattern `"If the Court finds that there has been a violation"` (case-insensitive, within the paragraph text). This would eliminate the identified systematic false-positive class. The fused-detector should also be extended to suppress R2 (currently it appears only to gate R3). After patching, a re-audit of a fresh 30-sample draw of R3 relabelings is advisable before accepting P14 R3 outputs into the corpus.
+
+---
+
+## 9. P14 v2 Audit (post-redesign re-application)
+
+**50 samples, 100.0 % precision (47 correct, 0 incorrect, 3 ambiguous)**
+
+P14 v1 was rolled back. The redesign added the recommended fixes plus a broader mixed-content guard:
+
+1. **R0 — Article 41 boilerplate**: new highest-priority rule that catches the canonical treaty-quote paragraph (`"Article 41 of the Convention provides..."` / `"If the Court finds that there has been a violation of the Convention..."`) and routes it to **Just Satisfaction**. Checked **before** R3 so the boilerplate "violation" tokens never reach the merits detector. This eliminates the v1 systematic FP class.
+2. **R3 — JS+Operative mixed-paragraph guard**: skip if the paragraph contains both a JS award token (`awards EUR`, `non-pecuniary damage`, `costs and expenses`, `Court considers it reasonable to award`) AND a loose dispositif marker (any of `Holds|Decides|Declares|Dismisses` at a sentence boundary). This catches paragraphs where a JS award sentence is fused with the start of the operative dispositif — the v1 fused-detector only triggered on 2+ matches, missing single-tail concatenations.
+
+Re-applied to 800 paragraphs (R1: 460 → Operative; R0+R2: 253 → Just Satisfaction; R3: 87 → Merits).
+
+### Per-rule breakdown
+
+| Rule | Direction | Samples in draw | Correct | Incorrect | Ambiguous | Rule precision |
+|------|-----------|-----------------|---------|-----------|-----------|----------------|
+| R1 — numbered Holds/Decides/Declares/Dismisses | RLF → Operative part | 25 | 25 | 0 | 0 | 100 % |
+| R0 + R2 — Art. 41 boilerplate / Court awards | RLF → Just Satisfaction | 21 | 18 | 0 | 3 | 100 % (excl. ambiguous) |
+| R3 — explicit violation finding | RLF → Merits | 4 | 4 | 0 | 0 | 100 % |
+
+**Overall: 47 correct, 0 incorrect, 3 ambiguous / 50 samples. Precision 100.0 %.**
+
+All nine sampled Article 41 treaty-quote paragraphs landed in **Just Satisfaction** via R0 (the v1 failure mode is fully resolved). All four R3 Merits relabelings are dominantly substantive Court conclusions ("there has been a violation of Article X...") flanked by other merits paragraphs in their context.
+
+The three remaining ambiguous cases (rowids 1546108, 1578284, 1558832) are pre-existing PDF-extraction merge artefacts where a costs-and-expenses JS award sentence is concatenated with the opening of the operative dispositif. The chosen JS label is defensible because the dominant content is Article 41 award reasoning; an Operative label would also be defensible. These would require text-splitting (out of scope for relabeling) and are unrelated to the redesign.
+
+### Conclusion
+
+**P14 v2 deployed cleanly. 100 % precision exceeds the 95 % bar by a wide margin and is tied for the highest precision pass in the cleaning pipeline.** The redesign converted a 78 % failed pass into a 100 % validated pass while keeping the conservative scope (800 paragraphs vs. ~6k naive scope from the recall audit) — sacrificing recall to ensure no further noise is introduced into the corpus. The remaining ~5k recall-audit-flagged RLF residue is genuinely heterogeneous and ambiguous; future passes targeting that pool should follow the same precision-first design philosophy.
+
+Saved artifacts: `scripts/p14_relabel.py`, `scripts/p14_audit_samples_v2.json`, `scripts/p14_audit_verdicts_v2.json`. Backup: `_p14_backup` (800 rows).

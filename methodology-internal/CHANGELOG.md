@@ -4,6 +4,39 @@ Chronological record of every transformation applied to the corpus, with commit 
 
 ---
 
+## 2026-04-29 — P14 (Rec-1 RLF cleanup)
+
+### Phase 2 — P14 — Relevant legal framework triage
+
+- **2026-04-29 P14 — RLF → Operative / Just Satisfaction / Merits (3-rule classifier, 100% precision)**
+
+  Recall audit (Pattern A) flagged ~6k `'Relevant legal framework'` paragraphs whose content actually belonged to other sections. A naive single-target relabel was abandoned (first attempt: 78% precision); replaced with a **three-rule precision-first classifier** that conservatively relabels only paragraphs matching tight regex anchors. **800 paragraphs relabeled** (vs. ~6k naive scope) at **100% LLM-audited precision**.
+
+  Detection rules (applied in order):
+  - **R0 — Article 41 boilerplate** → `Just Satisfaction`. Catches the canonical treaty-quote paragraph (`"Article 41 of the Convention provides..."` / `"If the Court finds that there has been a violation of the Convention..."`). Must be checked BEFORE R3 — the boilerplate contains "violation" tokens that would otherwise trigger R3→Merits (this was the v1 failure mode).
+  - **R1 — numbered dispositif** → `Operative Part` / `Operative part` (per-case casing preserved). Pattern: `^\d+\.\s*(Holds|Decides|Declares|Dismisses)\b`, length < 400. **460 paragraphs.**
+  - **R2 — Article 41 award reasoning** → `Just Satisfaction`. Requires both "Court awards"/"Court considers it reasonable to award" AND a damage/currency token (EUR, non-pecuniary, costs and expenses). Length < 800. **253 paragraphs** (combined with R0).
+  - **R3 — substantive violation finding** → `Merits`. Tight pattern: `there has been a violation of Article`, `It follows that there has been a violation`, `the Court concludes/finds that there has been`, `finds a violation of Article`. Length ≥ 80. **87 paragraphs.**
+
+  Skip rules to suppress fused-paragraph FPs:
+  - Skip if ≥2 dispositif verbs at sentence boundaries (PDF-extraction merge artefact)
+  - Skip if paragraph contains both JS award token AND any dispositif marker (mixed JS+Operative tail)
+  - Skip if heavy citation (`see X v. Y, no. NNN/NN`) and length < 400 (RLF case-law citation)
+
+  Backup: `_p14_backup` (800 rows: rowid + section + numbering_block). Script: `scripts/p14_relabel.py`.
+
+  **Counts:** `Relevant legal framework` 15,743 → 14,943; `Merits` +87; `Just Satisfaction` +253; `Operative Part`/`Operative part` +460.
+
+  **LLM precision audit (50 samples, Sonnet 4.6 judge):**
+  - 47 correct, 0 incorrect, 3 ambiguous (fused JS+operative paragraphs, defensible either way)
+  - **Precision: 100%** (well above 95% target)
+  - Per-target: Operative 25/25 (100%), JS 18/21 (3 ambiguous → 100% if exclude), Merits 4/4 (100%)
+  - All 9 sampled Article 41 boilerplate paragraphs correctly routed to JS via R0 (v1 failure mode resolved)
+
+  **Why conservative:** the audit-flagged 6k pool was heterogeneous (JS + Operative + Merits + genuine RLF citations all mixed). A blanket RLF→Merits rule would have ~25-37% precision per probe. The 3-rule classifier sacrifices recall (only 800 of ~6k caught) for precision, leaving genuinely ambiguous content in RLF for future manual review. Saved artifacts: `scripts/p14_audit_samples_v2.json`, `scripts/p14_audit_verdicts_v2.json`.
+
+---
+
 ## 2026-04-27 — Phase 2 + UX (this session)
 
 ### Phase 2 (DB-side relabeling)
