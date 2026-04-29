@@ -1,7 +1,7 @@
 # Data Quality TODO
 
-**Updated:** 2026-04-29
-**Status:** Major work complete. Corpus at 88.3% recall / 97.6% precision (97.7% counting P13).
+**Updated:** 2026-04-29 (post-P14 v2)
+**Status:** Major work complete. Corpus at 88.3% recall / 97.6% precision (97.7% counting P13, 97.7% counting P14 v2).
 
 ---
 
@@ -22,7 +22,8 @@
 | **P11** | Sub-section split (Commission Proceedings, Final Submissions, residual Legal Framework) | +8,518 | (heading-based) | ✓ |
 | **P12** | Numbering blocks (`numbering_block` column) | 1,892,837 populated | — | ✓ |
 | **P13** | Just Satisfaction → Operative Part dispositif revert | +3,403 | **98.0%** | ✓ |
-| **TOTAL relabels** | | **~318,000 (~16% of corpus)** | | |
+| **P14 v2** | Relevant legal framework → Operative / JS / Merits (R0+R1+R2+R3) | +800 | **100.0%** | ✓ |
+| **TOTAL relabels** | | **~318,800 (~16% of corpus)** | | |
 
 **Schema additions:**
 - 14 user-facing section labels (was 12 before P11): Header, Introduction, Facts (3 raw labels), Legal Framework (3 raw labels), Commission Proceedings (NEW), Final Submissions (NEW), Admissibility, Merits, Just Satisfaction, Article 46, Operative Part (2 raw casings), Separate Opinion, Appendix
@@ -41,15 +42,19 @@
 
 ## Open follow-ups (lower priority)
 
-### Rec-1: Relevant legal framework → Merits (4 cases in audit, ~6,000 estimated)
+### ✅ Rec-1 — DONE (P14 v2, 2026-04-29, 100% precision, 800 paragraphs)
 
-The recall audit found 4/15 (27%) of `Relevant legal framework` paragraphs are actually Court assessment / violation findings stranded in the legal-framework section. Most are in the Serbian enforcement series and Committee-format judgments.
+Conservative 3-rule classifier (R0 Art.41 boilerplate, R1 numbered dispositif, R2 award reasoning, R3 violation finding). Naive blanket scope of ~6k was rejected (~25-37% precision). v1 attempt at 78% rolled back; v2 redesign with R0_BOILERPLATE pattern ships at 100% / 47-correct-out-of-50 audit. See `methodology-internal/precision-audit.md` §9.
 
-**Proposed rule:** If `Relevant legal framework` paragraph contains ("It follows that there has been a violation" OR "has been a violation of Article" OR "proportionality... was not met") AND `numbering_block` is `main_judgment` → reclassify as `Merits`.
+### Rec-2: Just Satisfaction → Operative Part (medium priority)
 
-**Risk:** Medium — these phrases sometimes appear in legitimate citation of prior judgments within the legal framework block. Manual spot-check of 30 candidates would be needed before applying.
+Recall audit found 3/25 (12%) JS paragraphs are actually numbered operative clauses or "FOR THESE REASONS, THE COURT" formulas. P13 already targeted dispositif-in-JS at 98% precision (+3,403 paragraphs); residual cases likely live in numbering_block != operative_dispositif boundary. Worth a probe.
 
-**Estimated effort:** 1h dry-run + audit + apply.
+**Proposed rule:** Extend P13 to scan `Just Satisfaction` paragraphs where `numbering_block` is `main_judgment` (not just `operative_dispositif`) for "FOR THESE REASONS, THE COURT" or numbered Holds/Decides/Declares/Dismisses — reclassify to Operative.
+
+**Risk:** Low for "FOR THESE REASONS" trigger; medium for numbered-clause trigger ("Dismisses the remainder of just satisfaction" is borderline).
+
+**Estimated effort:** 30 min dry-run + 50-sample audit + apply.
 
 ### Rec-3: Facts → Just Satisfaction recovery in mass cases (~3,000 estimated)
 
