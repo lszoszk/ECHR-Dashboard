@@ -1,7 +1,7 @@
 # Data Quality TODO
 
-**Updated:** 2026-04-29 (post-P14 v2)
-**Status:** Major work complete. Corpus at 88.3% recall / 97.6% precision (97.7% counting P13, 97.7% counting P14 v2).
+**Updated:** 2026-04-30 (post-P19 + recall-audit-v2)
+**Status:** Pipeline at ≥97.6 % per-pass precision (P14 v2 / P15 / P16 / P17 / P19 all at 100 %). End-to-end recall (v2 audit, 300 samples): **76.3 % strict / 83.3 % lenient**, down from baseline 88.3 % strict — partly real regression (new failure patterns surfaced), partly stricter auditor judging on Pop C residue. Three new recommendations (Rec-5/6/7) identified for future passes.
 
 ---
 
@@ -61,6 +61,30 @@ Six precision-first rules (R0a heading, R0b boilerplate, R1 numbered dispositif,
 ### ✅ Rec-4 — DONE (P17, 2026-04-30, 100% precision, 1,501 paragraphs)
 
 Two-rule pass: R1 catches `Government were represented by` paragraphs (len < 300, 1,498 hits); R2 catches pure gov+app representation paragraphs (len < 500, 3 hits). Critical pattern *rejected*: applicant-only representation (FP risk — "the applicant was represented by a State-appointed lawyer" routinely refers to **domestic** proceedings). The "Government were represented" form is unique to ECHR procedural intro context. 33 stratified samples audited at 100% precision. **All four recall-audit recommendations now closed.** See `methodology-internal/precision-audit.md` §12.
+
+### Rec-5 (High priority, NEW from recall-audit-v2): Mass-applicant table rows → Appendix in Pop C
+
+**Target:** Paragraphs in `Introduction`, `Relevant legal framework`, `Facts`, or `Merits` whose text is a single-row mass-applicant table entry (applicant name, application no., dates, EUR amount, prison name, etc.). Found 16/300 in v2 audit; projected ~5 % of corpus = ~100 k.
+
+**Risk:** Medium — must avoid catching legit modern Chamber biographical paragraphs ("The applicant was born in 1984…"). Detection should require multi-cell tabular signals.
+
+**Effort:** ~2 h probe + audit + apply.
+
+### Rec-6 (Medium priority, NEW from recall-audit-v2): Pop C `Relevant legal framework` further cleanup
+
+**Target:** Post-P14-v2 RLF residue containing (a) Article 41 payment instructions, (b) "Article 35 § 3" admissibility rulings, (c) Court's substantive Article 5/6/8/10/11 conclusions. Recall-audit-v2 found 12/15 sampled RLF paragraphs were wrong (80 % FP rate in that section).
+
+**Risk:** Medium — overlap with Rec-5 (table rows). Need careful design.
+
+**Effort:** ~1.5 h.
+
+### Rec-7 (Low priority, NEW from recall-audit-v2): Pre-Protocol-11 Commission Proceedings sub-section breakouts
+
+**Target:** Within `Commission Proceedings` blocks, "B. Compliance with Article…" / "Article 50" sub-sections that should break out into Merits or JS. Tiny scope (<500 paragraphs).
+
+**Effort:** ~30 min, possibly manual.
+
+---
 
 ### ✅ Investigate Fetisov v. Russia rowid 1463491 — DONE (2026-04-30)
 
