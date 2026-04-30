@@ -4,6 +4,44 @@ Chronological record of every transformation applied to the corpus, with commit 
 
 ---
 
+## 2026-04-30 — P20 (Rec-5 mass-applicant tables → Appendix)
+
+- **2026-04-30 P20 — Pop C mass-applicant table rows → Appendix (99% precision, 34,106 paragraphs)**
+
+  Recall-audit-v2 Rec-5: Pop C committee mass-applicant judgments (Russian/Ukrainian/Bosnian/Greek/Romanian/Serbian/Hungarian) include appendix-format tables with one row per applicant (case number, name, dates, EUR amounts, prison name, offence details). The segmenter put many of these rows into `Introduction`, `Relevant legal framework`, `Facts`, `Merits`, `Facts Background`, or `Facts Proceedings`. P9 caught the bulk in 2026-04-27 (~27 k); recall-audit-v2 surfaced 16/300 = 5.3 % residual. P20 applies four tight detection rules.
+
+  Four high-confidence rules, each candidate matches exactly one (disjoint sets), each passes through an anti-prose filter that rejects sentence verbs ("the Court considers", "applicant complained", "see X v. Y", "the case originated", etc.):
+
+  - **R1 — CAO admin offense table row** (9,124 paragraphs):
+    Pattern: contains CAO article reference (`Art. N.N §` or `of CAO`) AND `RUB \d` amount AND (City/Regional/District/Cantonal/Municipal/Town Court OR leading number). Length 30–1500. Russian Anti-war / Free Navalnyy / opposition-rally cases.
+
+  - **R2 — Prison conditions table row** (9,914 paragraphs):
+    Pattern: `m²` OR 3+ prison-condition tokens (overcrowding, infestation, bunk beds, warm water, passive smoking, mouldy, hygienic facilities, fresh air, etc.) AND (appno OR leading number). Romanian/Russian/Ukrainian prison-conditions tables with cell sizes and condition lists.
+
+  - **R4 — Appno + CAPS surname + leading number + date** (14,138 paragraphs):
+    Pattern: leading "N." or "I." + ECHR appno (`NNNNN/YY`) + ALL-CAPS surname (≥4 letters, allowing accented Slavic chars) + dd/mm/yyyy date. Bosnian/Serbian/Greek/Russian/Ukrainian Committee mass-app rows.
+
+  - **R6 — DOB + city + court name (short)** (930 paragraphs):
+    Leading number + dd/mm/yyyy DOB + (City/Regional/District/Cantonal/Municipal/Town Court). Length < 250.
+
+  Critical rejected patterns from earlier probe rounds:
+  - R3 (multi-appno): 24,320 candidates with 5/5 spot-check FP rate — case citations and joint-cases prose (e.g. "the case originated in six applications (nos. ...)" or "see X v. Y, no. NNNNN/NN"). Dropped entirely.
+  - R5 (RUB+Court without CAO): 398 candidates with 2/5 FP rate — Pop A/B Facts narrative about domestic courts. Dropped.
+
+  Backup `_p20_backup` schema: `(rowid, section, numbering_block, rule)` — preserves original section + numbering block + which rule fired.
+
+  **Counts:** Introduction 189,357 → 172,015 (−17,342); Merits 562,661 → 553,151 (−9,510); Facts 117,566 → 110,960 (−6,606); RLF 14,760 → 14,218 (−542); Facts Background −3; Facts Proceedings −103; **Appendix 39,408 → 73,514 (+34,106, +87%)**.
+
+  **LLM precision audit (Sonnet 4.6, 100 stratified samples — 25 per rule):**
+  - 97 correct, 1 incorrect, 2 ambiguous
+  - **Precision: 99.0 %** (R1 25/25, R2 24/25, R4 25/25, R6 25/25)
+  - One R2 FP (rowid 521538): Government's prose narrative passed the anti-prose filter ("the Government contended"); recommend R2 prose-filter tightening for any future re-run, but at 99 % overall this is acceptable.
+  - Two R4 ambiguous: fused rows with embedded narrative — defensible either way as Appendix or original.
+
+  Largest single relabel since P3 (Legal Framework). Cumulative pipeline operations reach ~374,800 across 19 passes on ~18.8 % of the corpus. Saved artifacts: `scripts/p20_probe.py`, `scripts/p20_apply.py`, `scripts/p20_audit_samples.json`, `scripts/p20_audit_verdicts.json`, `scripts/p20_pairs.json`.
+
+---
+
 ## 2026-04-30 — P19 (text-merge for PDF-extraction artefacts)
 
 - **2026-04-30 P19 — Text-merge pass for PDF over-segmentation (100% precision, 8,495 pairs)**

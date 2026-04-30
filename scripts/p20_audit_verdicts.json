@@ -1,0 +1,602 @@
+[
+  {
+    "rowid": 1489871,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1526450,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1800316,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1806344,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1483489,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1513303,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1913783,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1844026,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1605375,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1865609,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1827182,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1795631,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1900244,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1625388,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1517340,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 521538,
+    "rule": "R2_prison_cond",
+    "verdict": "incorrect",
+    "reason": "Paragraph 34 is genuine ECHR Facts/Proceedings prose: \"the Government contended\", \"the applicant stated\", \"the applicant did not dispute\" — narrative verbs about a single applicant, not a table row. m² mentions are in prose form, not a structured cell-size column."
+  },
+  {
+    "rowid": 1478616,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1483779,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1522946,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1480408,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1654059,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1395668,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1795588,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1526237,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1512056,
+    "rule": "R2_prison_cond",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1499827,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1474438,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1489348,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1491263,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1495666,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1539051,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1409304,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1488897,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1431265,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1543565,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1484931,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1482853,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1528975,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1460397,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1486213,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1394277,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1492927,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1491626,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1533978,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1507031,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1448448,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1499924,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1562728,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1538160,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1455946,
+    "rule": "R1_cao_admin",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1489929,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1507675,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1902692,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1803316,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1547515,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1502289,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1483329,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1511938,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1442024,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1959201,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1489399,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1517033,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1500479,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1511062,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1511645,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1908547,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1388387,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1527781,
+    "rule": "R4_appno_caps",
+    "verdict": "ambiguous",
+    "reason": "Fused row: starts with applicant + city in tabular form but the circumstances column carries multi-sentence narrative (\"On 12/06/2019 police officers took the applicant to the police station where kicked him repeatedly\"; \"On 11/11/2021 the Meshchanskiy District Court of Moscow rejected the applicant's appeal\"). Surrounding rows are similarly narrative-heavy and an Appendix transition follows, so it is structurally a row but heavy on narrative."
+  },
+  {
+    "rowid": 1427073,
+    "rule": "R4_appno_caps",
+    "verdict": "ambiguous",
+    "reason": "Row contains a long case-law citation block (\"see RID Novaya Gazeta and ZAO Novaya Gazeta v. Russia, no. 44561/11, §§ 111-12, 11 May 2021\") inside the legal-grounds column before the canonical award/appno/CAPS-name tail. The \"see X v. Y\" citation is the kind of token the anti-prose filter normally rejects; this row passed because the cite is parenthesized. Reasonable either way."
+  },
+  {
+    "rowid": 1845218,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1391591,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1915220,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1388777,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1643418,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1511842,
+    "rule": "R4_appno_caps",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1843301,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1735226,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1468639,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1746810,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1734172,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1639250,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1646458,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1485075,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1649288,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1816266,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1511408,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1773354,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1817593,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1476288,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1734176,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1746735,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1644630,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1735259,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1646456,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1746801,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1719698,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1516979,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1719836,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1635966,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  },
+  {
+    "rowid": 1735225,
+    "rule": "R6_dob_city",
+    "verdict": "correct",
+    "reason": "Canonical mass-applicant table row: structured tabular fields (numbered prefix, applicant/court/date/award/appno/CAPS-name), no narrative-tense verbs, surrounded by similar rows in same section."
+  }
+]

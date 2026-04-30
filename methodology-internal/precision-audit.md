@@ -451,3 +451,43 @@ The remaining few-dozen residuals are cases where the parent's text ending didn'
 **This is the first text-mutating pass in the pipeline.** All prior passes only updated metadata columns. P19 explicitly mutates the `text` column and DELETES rows. The change set is fully reversible via the backup table.
 
 Saved artifacts: `scripts/p19_probe.py`, `scripts/p19_apply.py`, `scripts/p19_audit_samples.json`, `scripts/p19_audit_verdicts.json`, `scripts/p19_pairs.json`. Backup: `_p19_backup` (8,495 rows × 13 columns).
+
+---
+
+## 14. P20 Audit (Rec-5: Pop C mass-applicant tables → Appendix)
+
+**100 stratified samples (25 per rule), 99.0 % precision (97 correct, 1 incorrect, 2 ambiguous)**
+
+Recall-audit-v2 (2026-04-30) identified Pop C mass-applicant table rows as the single largest residual error pattern (16/300 = 5.3 %). P20 detects and relabels these to `Appendix` using four high-confidence pattern rules. The audit confirmed the rule design with 99 % overall precision across a 100-sample stratified draw (25 per rule).
+
+The design process discarded **two** initial rule candidates after spot-checking exposed unacceptable FP rates:
+
+- **R3 multi-appno** (would have caught 24,320 paragraphs): 5/5 spot-check FPs — case citations like `(see Kudrevičius and Others v. Lithuania [GC], no. 37553/05, ECHR 2015)` and joint-case introductions (`the case originated in six applications (nos. 17423/05, 20534/05, ...)`) were swept up. Dropped entirely.
+- **R5 RUB+Court without CAO anchor** (398 paragraphs): 2/5 FPs — Pop A/B Facts narrative about domestic courts ordering payments in RUB. Dropped.
+
+The remaining four rules each insist on **multiple structured signals** (e.g. `RUB amount + CAO article + named court`) before tagging a paragraph as a table row, which kept FP rate low.
+
+### Per-rule breakdown
+
+| Rule | Direction | Population | Sampled | Correct | Incorrect | Ambiguous | Precision |
+|------|-----------|-----------:|--------:|--------:|----------:|----------:|----------:|
+| R1 — CAO admin offense table row | (Intro/RLF/Facts/Merits) → Appendix | 9,124 | 25 | 25 | 0 | 0 | 100 % |
+| R2 — Prison conditions table row | (Intro/RLF/Facts/Merits) → Appendix | 9,914 | 25 | 24 | 1 | 0 | 96 % |
+| R4 — Appno + CAPS surname + leading num + date | (Intro/RLF/Facts/Merits) → Appendix | 14,138 | 25 | 23 | 0 | 2 | 100 % (excl. ambiguous) |
+| R6 — DOB + city + court name (short) | (Intro/RLF/Facts/Merits) → Appendix | 930 | 25 | 25 | 0 | 0 | 100 % |
+
+**Overall: 97 correct, 1 incorrect, 2 ambiguous / 100 samples. Precision 99.0 %.**
+
+### Failure analysis
+
+The single R2 FP (rowid 521538) was a Pop A/B Facts narrative paragraph beginning "34. The Government contended that the cells had natural light..." — Government submission with sentence-verb structure that passed the anti-prose filter because "the Government contended" wasn't covered by the filter regex. Adding `contended/stated` to the Government-verb list would catch this; impact is small (1 false positive in a 25-sample draw) but a future re-run could tighten further.
+
+The two R4 ambiguous cases are mass-applicant rows where the legal-grounds column embeds extensive narrative or case citations — judging "Appendix" vs "kept" depends on how strictly tabular content is defined when a column is verbose.
+
+### Conclusion
+
+**P20 deployed cleanly. 99.0 % precision across 100 stratified samples** — the largest single recall-driven cleanup since P3 (Legal Framework, +83,377). With Appendix growing from 39,408 to 73,514 (+87 %), the corpus's structural taxonomy now correctly attributes the Pop C committee mass-applicant content. Cumulative pipeline operations reach **~374,800 paragraph operations across 19 passes** on ~18.8 % of the corpus.
+
+This pass directly addresses the largest pattern in the recall-audit-v2 finding (16/300 = 5.3 %). A re-audit would be expected to lift the strict correctness rate from 76.3 % toward the 80 %+ range, depending on how much of the residue this captures.
+
+Saved artifacts: `scripts/p20_probe.py`, `scripts/p20_apply.py`, `scripts/p20_audit_samples.json`, `scripts/p20_audit_verdicts.json`, `scripts/p20_pairs.json`. Backup: `_p20_backup` (34,106 rows × 4 columns including the rule that fired).

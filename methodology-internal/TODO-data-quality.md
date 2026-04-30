@@ -27,7 +27,8 @@
 | **P16** | Facts → JS / Operative in Pop C compressed cases (R0a + R0b + R1 + R2 + R3 + R4 Pop-C-only) | +11,804 | **100.0%** | ✓ |
 | **P17** | Facts/etc → Introduction representation paragraphs (R1 gov-only + R2 gov+app pure) | +1,501 | **100.0%** | ✓ |
 | **P19** | Text-merge for PDF over-segmentation (3 patterns: Article-split, orphan-num, Rule 77) | -8,495 rows merged | **100.0%** | ✓ |
-| **TOTAL relabels** | | **~340,700 (~17.0% of corpus, on 1,992,952 final paragraphs)** | | |
+| **P20** | Rec-5: Pop C mass-applicant tables → Appendix (R1 CAO + R2 prison cond + R4 appno-caps + R6 DOB-city) | +34,106 | **99.0%** | ✓ |
+| **TOTAL relabels** | | **~374,800 (~18.8% of corpus on 1,992,952 final paragraphs)** | | |
 
 **Schema additions:**
 - 14 user-facing section labels (was 12 before P11): Header, Introduction, Facts (3 raw labels), Legal Framework (3 raw labels), Commission Proceedings (NEW), Final Submissions (NEW), Admissibility, Merits, Just Satisfaction, Article 46, Operative Part (2 raw casings), Separate Opinion, Appendix
@@ -62,13 +63,9 @@ Six precision-first rules (R0a heading, R0b boilerplate, R1 numbered dispositif,
 
 Two-rule pass: R1 catches `Government were represented by` paragraphs (len < 300, 1,498 hits); R2 catches pure gov+app representation paragraphs (len < 500, 3 hits). Critical pattern *rejected*: applicant-only representation (FP risk — "the applicant was represented by a State-appointed lawyer" routinely refers to **domestic** proceedings). The "Government were represented" form is unique to ECHR procedural intro context. 33 stratified samples audited at 100% precision. **All four recall-audit recommendations now closed.** See `methodology-internal/precision-audit.md` §12.
 
-### Rec-5 (High priority, NEW from recall-audit-v2): Mass-applicant table rows → Appendix in Pop C
+### ✅ Rec-5 — DONE (P20, 2026-04-30, 99.0% precision, 34,106 paragraphs)
 
-**Target:** Paragraphs in `Introduction`, `Relevant legal framework`, `Facts`, or `Merits` whose text is a single-row mass-applicant table entry (applicant name, application no., dates, EUR amount, prison name, etc.). Found 16/300 in v2 audit; projected ~5 % of corpus = ~100 k.
-
-**Risk:** Medium — must avoid catching legit modern Chamber biographical paragraphs ("The applicant was born in 1984…"). Detection should require multi-cell tabular signals.
-
-**Effort:** ~2 h probe + audit + apply.
+Four high-confidence detection rules: R1 CAO admin offense (CAO article + RUB + Court name; 9,124 paragraphs), R2 prison conditions (m² or 3+ condition tokens + appno/leading num; 9,914), R4 appno + CAPS surname + leading num + date (14,138), R6 DOB + city + court (930). Two initial rules dropped after spot-check FPs: R3 multi-appno (24k candidates, swept up case citations) and R5 RUB+Court without CAO anchor (398, swept up domestic court narrative). 100 stratified samples audited at 97/98 = 99.0% precision (R1 100%, R2 96%, R4 100%, R6 100%). Appendix grew 39,408 → 73,514 (+87%). See `methodology-internal/precision-audit.md` §14.
 
 ### Rec-6 (Medium priority, NEW from recall-audit-v2): Pop C `Relevant legal framework` further cleanup
 
