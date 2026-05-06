@@ -396,6 +396,7 @@ const state = {
   currentTerms: [],
   currentMode: "browse",
   currentPage: 1,
+  activeCaseId: "",
   totalHits: 0,
   limited: false,
   searchTimeMs: 0,
@@ -451,6 +452,7 @@ function cacheElements() {
   el.searchForm = byId("searchForm");
   el.searchInput = byId("searchInput");
   el.searchBtn = byId("searchBtn");
+  el.queryMatchCount = byId("queryMatchCount");
   el.filterToggleBtn = byId("filterToggleBtn");
   el.filtersPanel = byId("filtersPanel");
 
@@ -506,6 +508,7 @@ function cacheElements() {
   el.analyticsOutcomes = byId("analyticsOutcomes");
   el.analyticsDocTypes = byId("analyticsDocTypes");
   el.analyticsWords = byId("analyticsWords");
+  el.caseContextRail = byId("caseContextRail");
 
   el.caseModal = byId("caseModal");
   el.closeModal = byId("closeModal");
@@ -1057,8 +1060,8 @@ function setDatasetMeta(message) {
 function setSearchEnabled(enabled) {
   el.searchInput.disabled = !enabled;
   el.searchBtn.disabled = !enabled;
-  el.inlineSearchInput.disabled = !enabled;
-  el.inlineSearchBtn.disabled = !enabled;
+  if (el.inlineSearchInput) el.inlineSearchInput.disabled = !enabled;
+  if (el.inlineSearchBtn) el.inlineSearchBtn.disabled = !enabled;
   el.filterToggleBtn.disabled = !enabled;
   el.advancedQueryToggle.disabled = !enabled;
   el.powerUserToggle.disabled = !enabled;
@@ -3679,7 +3682,130 @@ function toggleLegalDetails(caseId, triggerEl = null) {
   }
 }
 
-function buildCaseCard(caseId, row) {
+function formatCaseDateForDisplay(c) {
+  const raw = c?.judgment_date || "";
+  if (!raw) return "-";
+  const parts = raw.split("/");
+  if (parts.length === 3) {
+    const iso = `${parts[2]}-${parts[1]}-${parts[0]}`;
+    const d = new Date(iso);
+    if (!Number.isNaN(d.getTime())) {
+      return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+    }
+  }
+  const d = new Date(raw);
+  if (!Number.isNaN(d.getTime())) {
+    return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  }
+  return raw;
+}
+
+function cleanCaseTitle(title) {
+  return String(title || "Untitled case").replace(/^CASE OF\s+/i, "");
+}
+
+function buildResearcherArticleChips(articles, maxVisible = 4) {
+  const clean = (articles || []).map((x) => String(x || "").trim()).filter(Boolean);
+  if (!clean.length) return '<span class="chip muted">No articles listed</span>';
+  const visible = clean.slice(0, maxVisible);
+  const hidden = clean.length - visible.length;
+  const chips = visible.map((article) => `<span class="chip">Art ${escapeHtml(article)}</span>`);
+  if (hidden > 0) chips.push(`<span class="chip muted">+${fmtInt.format(hidden)} more</span>`);
+  return chips.join("");
+}
+
+function buildResearcherBars(c, row) {
+  const cited = Number(c.__citedByCount || 0);
+  const cites = Number((c.__citationRefs || []).length || 0);
+  const hits = Number(row.hitCount || row.paragraphs?.length || 0);
+  const max = Math.max(cited, cites, hits, 1);
+  const bar = (label, value, accent = false) => {
+    const width = Math.max(4, Math.round((value / max) * 100));
+    return `
+      <div class="researcher-bar">
+        <div class="researcher-bar-head">
+          <span>${escapeHtml(label)}</span>
+          <strong>${fmtInt.format(value)}</strong>
+        </div>
+        <div class="researcher-bar-track"><div class="researcher-bar-fill${accent ? " accent" : ""}" style="width:${width}%"></div></div>
+      </div>
+    `;
+  };
+  return `${bar("hits", hits, true)}${bar("cites", cites)}${bar("cited by", cited)}`;
+}
+
+function renderCaseContextRail(caseId = state.activeCaseId) {
+  if (!el.caseContextRail) return;
+  const row = caseId ? state.currentResultsById.get(caseId) : null;
+  if (!row) {
+    el.caseContextRail.innerHTML = `
+      <div class="folio-label garnet">Case Note</div>
+      <h3>Awaiting results</h3>
+      <p class="case-context-empty">Run a search or select a result to see judgment context here.</p>
+    `;
+    return;
+  }
+
+  const c = row.case;
+  const primaryPara = row.paragraphs[0] || null;
+  const title = cleanCaseTitle(c.title);
+  const states = (c.__states || []).map((d) => COUNTRY_NAMES[d] || d).filter(Boolean).join(", ") || "-";
+  const outcomeLabel = OUTCOME_LABELS[c.__outcomePrimary] || c.__outcomePrimary || "-";
+  const outcomeToneClass = getOutcomeToneClass(c.__outcomePrimary);
+  const chamberLabel = getChamberLabel(c.__chamberCategory);
+  const citations = (c.__citationRefs || []).length;
+  const noParagraphNote = state.currentMode === "browse"
+    ? "This browse result is currently a case record. Run a full-text query to see matched paragraphs in this note."
+    : "No paragraph preview is available for this result.";
+  const paraQuote = primaryPara
+    ? `<blockquote class="case-context-quote">
+        <div class="case-context-para">${escapeHtml(formatParaNum(primaryPara))}</div>
+        <p>${primaryPara.textHtml}</p>
+      </blockquote>`
+    : `<p class="case-context-empty">${escapeHtml(noParagraphNote)}</p>`;
+
+  el.caseContextRail.innerHTML = `
+    <div class="folio-label garnet">Case Note</div>
+    <h3>${escapeHtml(title)}</h3>
+    <div class="case-context-ecli">${escapeHtml(c.ecli || c.case_no || "")}</div>
+
+    <div class="case-context-data">
+      <div><span>Application</span><strong>${escapeHtml(c.case_no || "-")}</strong></div>
+      <div><span>Decided</span><strong>${escapeHtml(formatCaseDateForDisplay(c))}</strong></div>
+      <div><span>Body</span><strong>${escapeHtml(c.__originatingBody || chamberLabel || "-")}</strong></div>
+      <div><span>State</span><strong>${escapeHtml(states)}</strong></div>
+      <div><span>Outcome</span><strong class="${escapeHtml(outcomeToneClass)}">${escapeHtml(outcomeLabel)}</strong></div>
+      <div><span>Citations</span><strong>${fmtInt.format(citations)}</strong></div>
+    </div>
+
+    <div class="case-context-chips">
+      ${buildResearcherArticleChips(c.__articles, 8)}
+      ${c.__importance ? `<span class="chip">Importance ${escapeHtml(c.__importance)}</span>` : ""}
+      ${c.document_type ? `<span class="chip">${escapeHtml(c.document_type)}</span>` : ""}
+    </div>
+
+    ${paraQuote}
+
+    <div class="case-context-actions">
+      <button type="button" class="case-open-link primary" data-action="open-case" data-case-id="${escapeHtml(caseId)}">Open judgment</button>
+      ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="case-open-secondary" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>` : ""}
+      <button type="button" class="case-open-secondary cite-btn" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}">Cite</button>
+    </div>
+  `;
+}
+
+function selectCase(caseId) {
+  if (!caseId || !state.currentResultsById.has(caseId)) return;
+  state.activeCaseId = caseId;
+  el.casesList?.querySelectorAll(".researcher-result.active").forEach((node) => {
+    node.classList.remove("active");
+  });
+  const selected = byId(`case-${caseId}`);
+  if (selected) selected.classList.add("active");
+  renderCaseContextRail(caseId);
+}
+
+function buildCaseCard(caseId, row, rank = 1) {
   const c = row.case;
   const stateNames = (c.__states || []).map((d) => COUNTRY_NAMES[d] || d).filter(Boolean);
   const respondentSummary = stateNames.length > 1
@@ -3693,6 +3819,19 @@ function buildCaseCard(caseId, row) {
   const keyCaseChip = String(c.__importance || "").toLowerCase() === "key cases"
     ? '<span class="legal-chip keycase">Key case</span>'
     : "";
+  const primaryPara = row.paragraphs[0] || null;
+  const caseOnlyBrowse = !primaryPara && state.currentMode === "browse";
+  const activeClass = state.activeCaseId === caseId ? " active" : "";
+  const paraNo = primaryPara ? formatParaNum(primaryPara) : "CASE";
+  const paraTitle = primaryPara ? formatParaNumTitle(primaryPara) : "Case record";
+  const dateLabel = formatCaseDateForDisplay(c);
+  const title = cleanCaseTitle(c.title);
+  const primaryText = primaryPara
+    ? primaryPara.textHtml
+    : (caseOnlyBrowse
+      ? '<span class="case-only-note">Case record only in recent-cases browse mode. Enter a full-text query to surface matched paragraphs from this judgment.</span>'
+      : "No paragraphs for current filters.");
+  const displayHitCount = caseOnlyBrowse ? 1 : row.hitCount;
 
   const paraBlocks = row.paragraphs
     .map((p) => `
@@ -3708,87 +3847,103 @@ function buildCaseCard(caseId, row) {
       `)
     .join("");
 
-  const hitLabel = state.currentMode === "browse"
+  const hitLabel = caseOnlyBrowse
+    ? "case"
+    : state.currentMode === "browse"
     ? (row.hitCount === 1 ? "para" : "paras")
     : (row.hitCount === 1 ? "hit" : "hits");
 
   return `
-    <div class="case-card" id="case-${escapeHtml(caseId)}">
-      <div class="case-header">
-        <div class="case-info">
-          <h2 class="case-title">${escapeHtml(c.title || "Untitled case")}</h2>
+    <article class="researcher-result${activeClass}" id="case-${escapeHtml(caseId)}" data-action="select-case" data-case-id="${escapeHtml(caseId)}" tabindex="0">
+      <div class="researcher-marginalia">
+        <div class="researcher-rank">№ ${String(rank).padStart(2, "0")}</div>
+        <div class="researcher-para-no" title="${escapeHtml(paraTitle)}">${escapeHtml(paraNo)}</div>
+        ${keyCaseChip ? '<div class="researcher-key">KEY</div>' : ""}
+      </div>
 
-          <div class="case-primary-meta">
-            <span class="meta-chip">${escapeHtml(c.case_no || "-")}</span>
-            <span class="meta-chip">${escapeHtml(c.judgment_date || "-")}</span>
-            <span class="meta-chip">${escapeHtml(respondentSummary)}</span>
-            <span class="meta-chip outcome ${escapeHtml(outcomeToneClass)}">${escapeHtml(outcomeLabel)}</span>
-            ${c.__isGrandChamber ? '<span class="meta-chip doc-type grand-chamber" title="Grand Chamber judgment">Grand Chamber</span>' : c.__isCommittee ? '<span class="meta-chip doc-type committee" title="Committee judgment — Introduction section may contain applicant lists in joined cases">Committee</span>' : c.__isPressRelease ? '' : ''}
-          </div>
-
-          <div class="case-actions-inline compact-actions">
-            <button type="button" class="case-open-link primary" data-action="open-case" data-case-id="${escapeHtml(caseId)}">View judgment</button>
-            ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="case-open-secondary" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>` : ""}
-            <button type="button" class="case-open-secondary cite-btn" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}" title="Copy citation to clipboard">Cite</button>
-            <button type="button" class="case-open-secondary info-btn" data-action="copy-info-card" data-case-id="${escapeHtml(caseId)}" title="Copy key info block to clipboard">Info</button>
-          </div>
-
-          <div class="legal-details-wrap">
-            <button
-              type="button"
-              id="legal-btn-${escapeHtml(caseId)}"
-              class="legal-toggle-btn"
-              data-action="toggle-legal-details"
-              data-case-id="${escapeHtml(caseId)}"
-              aria-expanded="${legalDetailsOpen ? "true" : "false"}">
-              ${legalToggleLabel}
-            </button>
-            <div class="legal-details${legalDetailsOpen ? " open" : ""}" id="legal-${escapeHtml(caseId)}">
-              <div class="legal-row">
-                <span class="legal-row-label">Articles</span>
-                <div class="legal-chip-row">${buildArticleChips(c.__articles)}</div>
-              </div>
-              <div class="legal-row">
-                <span class="legal-row-label">Body</span>
-                <div class="legal-chip-row">
-                  <span class="legal-chip">${escapeHtml(c.__originatingBody || "-")}</span>
-                  <span class="legal-chip">${escapeHtml(chamberLabel)}</span>
-                  <span class="legal-chip">Importance ${escapeHtml(c.__importance || "-")}</span>
-                  ${keyCaseChip}
-                  ${c.__citedByCount > 0 ? `<span class="legal-chip cited-by" title="Cited by ${c.__citedByCount} other case(s) in this dataset">Cited ${c.__citedByCount}×</span>` : ""}
-                </div>
-              </div>
-              <div class="legal-row">
-                <span class="legal-row-label">Legal flags</span>
-                <div class="legal-chip-row">${buildLegalStatusChips(c)}</div>
-              </div>
-              <div class="legal-row">
-                <span class="legal-row-label">Citations</span>
-                <div class="legal-chip-row">
-                  <span class="legal-chip citation">${fmtInt.format((c.__citationRefs || []).length)} Strasbourg citations</span>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div class="researcher-result-body">
+        <div class="researcher-title-line">
+          <h2 class="case-title">${escapeHtml(title)}</h2>
+          <span class="researcher-title-rule"></span>
+          <span class="researcher-date">${escapeHtml(dateLabel)}</span>
         </div>
-        <div class="case-badge">
+
+        <p class="para-text researcher-primary-text">${primaryText}</p>
+
+        <div class="researcher-chip-row">
+          ${buildResearcherArticleChips(c.__articles)}
+          <span class="chip">${escapeHtml(c.__originatingBody || chamberLabel || "-")}</span>
+          <span class="chip outcome ${escapeHtml(outcomeToneClass)}">${escapeHtml(outcomeLabel)}</span>
+          <span class="chip">${escapeHtml(respondentSummary)}</span>
+        </div>
+
+        <div class="case-actions-inline compact-actions">
+          <button type="button" class="case-open-link primary" data-action="open-case" data-case-id="${escapeHtml(caseId)}">Open judgment</button>
+          ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="case-open-secondary" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>` : ""}
+          <button type="button" class="case-open-secondary cite-btn" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}" title="Copy citation to clipboard">Cite</button>
+          <button type="button" class="case-open-secondary info-btn" data-action="copy-info-card" data-case-id="${escapeHtml(caseId)}" title="Copy key info block to clipboard">Info</button>
           <button
             type="button"
-            class="expand-paras-btn"
+            class="case-open-secondary expand-paras-btn"
             data-action="toggle-case"
             data-case-id="${escapeHtml(caseId)}"
             aria-expanded="false"
             aria-label="Show or hide matched paragraphs">
-            <span class="hit-count">${fmtInt.format(row.hitCount)}</span>
+            <span class="hit-count">${fmtInt.format(displayHitCount)}</span>
             <span class="hit-label">${hitLabel}</span>
             <span class="toggle-icon" id="icon-${escapeHtml(caseId)}">▶</span>
           </button>
         </div>
+
+        <div class="legal-details-wrap">
+          <button
+            type="button"
+            id="legal-btn-${escapeHtml(caseId)}"
+            class="legal-toggle-btn"
+            data-action="toggle-legal-details"
+            data-case-id="${escapeHtml(caseId)}"
+            aria-expanded="${legalDetailsOpen ? "true" : "false"}">
+            ${legalToggleLabel}
+          </button>
+          <div class="legal-details${legalDetailsOpen ? " open" : ""}" id="legal-${escapeHtml(caseId)}">
+            <div class="legal-row">
+              <span class="legal-row-label">Articles</span>
+              <div class="legal-chip-row">${buildArticleChips(c.__articles)}</div>
+            </div>
+            <div class="legal-row">
+              <span class="legal-row-label">Body</span>
+              <div class="legal-chip-row">
+                <span class="legal-chip">${escapeHtml(c.__originatingBody || "-")}</span>
+                <span class="legal-chip">${escapeHtml(chamberLabel)}</span>
+                <span class="legal-chip">Importance ${escapeHtml(c.__importance || "-")}</span>
+                ${keyCaseChip}
+                ${c.__citedByCount > 0 ? `<span class="legal-chip cited-by" title="Cited by ${c.__citedByCount} other case(s) in this dataset">Cited ${c.__citedByCount}×</span>` : ""}
+              </div>
+            </div>
+            <div class="legal-row">
+              <span class="legal-row-label">Legal flags</span>
+              <div class="legal-chip-row">${buildLegalStatusChips(c)}</div>
+            </div>
+            <div class="legal-row">
+              <span class="legal-row-label">Citations</span>
+              <div class="legal-chip-row">
+                <span class="legal-chip citation">${fmtInt.format((c.__citationRefs || []).length)} Strasbourg citations</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <aside class="researcher-influence">
+        <div class="folio-label">Influence</div>
+        ${buildResearcherBars(c, row)}
+        <div class="researcher-ecli">${escapeHtml(c.ecli || c.case_no || "")}</div>
+      </aside>
+
       <div class="case-body" id="body-${escapeHtml(caseId)}">
-        ${paraBlocks || '<div class="paragraph-item"><p class="para-text">No paragraphs for current filters.</p></div>'}
+        ${paraBlocks || `<div class="paragraph-item"><p class="para-text">${caseOnlyBrowse ? "Run a full-text query to load matched paragraphs for this case." : "No paragraphs for current filters."}</p></div>`}
       </div>
-    </div>
+    </article>
   `;
 }
 
@@ -3860,6 +4015,8 @@ function renderResultsPage() {
     el.noResults.hidden = false;
     el.pagination.hidden = true;
     el.exportBtn.disabled = true;
+    state.activeCaseId = "";
+    renderCaseContextRail("");
     return;
   }
 
@@ -3884,10 +4041,15 @@ function renderResultsPage() {
         Math.min(state.currentPage * PAGE_SIZE, totalCases)
       );
 
+  if (!pageCaseIds.includes(state.activeCaseId)) {
+    state.activeCaseId = pageCaseIds[0] || "";
+  }
+
   el.casesList.innerHTML = pageCaseIds
-    .map((caseId) => buildCaseCard(caseId, state.currentResultsById.get(caseId)))
+    .map((caseId, idx) => buildCaseCard(caseId, state.currentResultsById.get(caseId), idx + 1))
     .join("");
 
+  renderCaseContextRail(state.activeCaseId);
   renderPagination();
 }
 
@@ -4126,6 +4288,7 @@ function updateResultsHeader() {
   el.resultsHits.textContent = fmtInt.format(state.totalHits);
   el.resultsCases.textContent = fmtInt.format(totalCases);
   el.resultsTime.textContent = `(${(state.searchTimeMs / 1000).toFixed(3)}s · page ${state.currentPage}/${totalPages} · ${modeLabel}${limitedNote})`;
+  if (el.queryMatchCount) el.queryMatchCount.textContent = fmtInt.format(state.totalHits);
 
   el.exportBtn.disabled = !totalCases;
   el.clearBtn.disabled = !state.loaded;
@@ -4168,7 +4331,7 @@ function applySearch(resetPage = true) {
   }
 
   state.query = query;
-  el.inlineSearchInput.value = query;
+  if (el.inlineSearchInput) el.inlineSearchInput.value = query;
   state.currentFilters = filters;
 
   const t0 = performance.now();
@@ -4202,7 +4365,7 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
   const defaultView = !!opts.defaultView;
 
   state.query = query;
-  el.inlineSearchInput.value = query;
+  if (el.inlineSearchInput) el.inlineSearchInput.value = query;
   state.currentFilters = filters;
 
   if (resetPage) state.currentPage = 1;
@@ -4332,6 +4495,7 @@ function updateResultsHeaderServer(data, opts = {}) {
   el.resultsHits.textContent = fmtInt.format(data.total_hits || 0);
   el.resultsCases.textContent = fmtInt.format(totalCases);
   el.resultsTime.textContent = `(${((data.search_time_ms || state.searchTimeMs) / 1000).toFixed(3)}s · page ${state.currentPage}/${totalPages} · ${serverTag})`;
+  if (el.queryMatchCount) el.queryMatchCount.textContent = fmtInt.format(data.total_hits || 0);
 
   el.exportBtn.disabled = !state.currentOrderedCaseIds.length;
   el.clearBtn.disabled = false;
@@ -4339,7 +4503,7 @@ function updateResultsHeaderServer(data, opts = {}) {
 
 function resetFiltersAndQuery() {
   el.searchInput.value = "";
-  el.inlineSearchInput.value = "";
+  if (el.inlineSearchInput) el.inlineSearchInput.value = "";
   el.dateFrom.value = "";
   el.dateTo.value = "";
   el.keywordFilterInput.value = "";
@@ -5196,9 +5360,9 @@ function bindEvents() {
     applySearch(true);
   });
 
-  el.inlineSearchForm.addEventListener("submit", (e) => {
+  el.inlineSearchForm?.addEventListener("submit", (e) => {
     e.preventDefault();
-    el.searchInput.value = el.inlineSearchInput.value;
+    el.searchInput.value = el.inlineSearchInput?.value || "";
     applySearch(true);
   });
 
@@ -5369,8 +5533,14 @@ function bindEvents() {
     const action = clickable.getAttribute("data-action");
     const caseId = clickable.getAttribute("data-case-id");
 
+    if (action === "select-case" && caseId) {
+      selectCase(caseId);
+      return;
+    }
+
     if (action === "toggle-case" && caseId) {
       toggleCase(caseId);
+      selectCase(caseId);
       return;
     }
 
@@ -5412,6 +5582,31 @@ function bindEvents() {
       const caseObj = state.caseById.get(caseId);
       if (caseObj) copyToClipboardWithFeedback(buildKeyInfoBlock(caseObj), clickable);
       return;
+    }
+  });
+
+  el.casesList.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const result = e.target.closest("[data-action='select-case'][data-case-id]");
+    if (!result) return;
+    e.preventDefault();
+    selectCase(result.getAttribute("data-case-id"));
+  });
+
+  el.caseContextRail?.addEventListener("click", (e) => {
+    const clickable = e.target.closest("[data-action]");
+    if (!clickable) return;
+    const action = clickable.getAttribute("data-action");
+    const caseId = clickable.getAttribute("data-case-id");
+    if (action === "open-case" && caseId) {
+      e.preventDefault();
+      openCaseModal(caseId);
+      return;
+    }
+    if (action === "copy-citation" && caseId) {
+      e.preventDefault();
+      const caseObj = state.caseById.get(caseId);
+      if (caseObj) copyToClipboardWithFeedback(buildStandardCitation(caseObj), clickable);
     }
   });
 

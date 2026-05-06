@@ -20,8 +20,9 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/dashboard.css?v=20260429-filter-layout">
-  <link rel="stylesheet" href="assets/search-app.css?v=20260429-filter-layout">
+  <link rel="stylesheet" href="assets/dashboard.css?v=20260506-hudoc-researcher-3">
+  <link rel="stylesheet" href="assets/search-app.css?v=20260506-hudoc-researcher-3">
+  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20260506-hudoc-researcher-3">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
 </head>
@@ -29,8 +30,8 @@
   <nav class="navbar">
     <div class="nav-container">
       <a href="./" class="nav-brand">
-        <span class="brand-icon">⚖️</span>
-        <span class="brand-text">ECHR Search</span>
+        <span class="brand-icon">§</span>
+        <span class="brand-text">HUDOC Researcher</span>
       </a>
       <button class="nav-hamburger" id="navHamburger" type="button" aria-label="Toggle navigation" aria-expanded="false">
         <span></span><span></span><span></span>
@@ -51,12 +52,9 @@
     </div>
   </nav>
 
-  <main class="main-content">
-    <section class="hero">
-      <div class="hero-inner">
-        <h1 class="hero-title">European Court of Human Rights</h1>
-        <p class="hero-subtitle">Search through judicial decisions at the paragraph level</p>
-
+  <main class="main-content editorial-app">
+    <section class="editorial-search-band">
+      <div class="editorial-search-inner">
         <section class="data-source-panel collapsible collapsed" id="dataSourcePanel" aria-labelledby="dataSourceTitle">
           <h2 id="dataSourceTitle" class="data-source-title">Data Source <span id="serverBadgeHeader" class="server-badge-header"></span></h2>
 
@@ -76,30 +74,31 @@
           <p id="classifierResumeNote" class="dataset-note hidden">Classifier progress: not loaded</p>
         </section>
 
-        <form id="searchForm" class="search-form search-disabled">
-          <div class="search-box">
+        <form id="searchForm" class="search-form search-disabled editorial-query-form">
+          <div class="editorial-query-row">
+            <span class="editorial-query-label">Search<span>.</span></span>
             <input
               type="text"
               id="searchInput"
               class="search-input"
-              placeholder='Search paragraphs... e.g. "right to privacy" OR surveillance'
+              placeholder='e.g. "necessary in a democratic society" article:8'
               autocomplete="off"
               disabled
             >
-            <button type="submit" class="search-btn" id="searchBtn" disabled>Search</button>
+            <span class="editorial-query-count"><strong id="queryMatchCount">0</strong> ¶ matched</span>
+            <button type="submit" class="search-btn" id="searchBtn" disabled>Run search</button>
           </div>
 
           <div class="search-tips">
-            <span class="tip">Use <code>"quotes"</code> for exact phrases</span>
-            <span class="tip-sep">·</span>
-            <span class="tip">Use <code>OR</code> between alternatives</span>
-            <span class="tip-sep">·</span>
-            <span class="tip">Multiple words = AND logic</span>
-            <span class="tip-sep">·</span>
-            <span class="tip">Metadata prefixes: <code>case:</code>, <code>ecli:</code>, <code>article:</code>, <code>state:</code>, <code>body:</code>, <code>judge:</code></span>
+            <span class="tip">Operators</span>
+            <span class="tip"><code>"exact phrase"</code></span>
+            <span class="tip"><code>OR</code></span>
+            <span class="tip"><code>article:</code></span>
+            <span class="tip"><code>state:</code></span>
+            <span class="tip"><code>judge:</code></span>
+            <span class="tip"><code>ecli:</code></span>
           </div>
 
-          <!-- Advanced query: keyword + cites precedent, collapsed by default -->
           <div class="advanced-query-bar">
             <button type="button" class="advanced-query-toggle" id="advancedQueryToggle" aria-expanded="false" disabled>
               <span class="adv-toggle-label">+ Query options</span>
@@ -117,13 +116,50 @@
               </div>
             </div>
           </div>
+        </form>
+      </div>
+    </section>
 
-          <button type="button" class="filter-toggle" id="filterToggleBtn" aria-expanded="false" disabled>
+    <section class="stats-bar editorial-corpus-strip" aria-label="Corpus statistics">
+      <div class="stats-bar-inner">
+        <div class="stat-chip">
+          <span class="stat-value" id="statTotalCases">-</span>
+          <span class="stat-label">Cases</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-value" id="statTotalJudgments">-</span>
+          <span class="stat-label">Judgments</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-value" id="statTotalPressReleases">-</span>
+          <span class="stat-label">Press Releases</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-value" id="statTotalParagraphs">-</span>
+          <span class="stat-label">Paragraphs</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-value" id="statTotalCountries">-</span>
+          <span class="stat-label">Countries</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-value" id="statDateRange">-</span>
+          <span class="stat-label">Date Range</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="results-layout editorial-workspace">
+      <aside class="editorial-filter-rail" aria-label="Search filters">
+        <div class="filter-rail-head">
+          <span class="folio-label">Filters</span>
+          <button type="button" class="filter-toggle" id="filterToggleBtn" aria-expanded="true" disabled>
             <span class="filter-toggle-icon">▼</span> Advanced Filters
           </button>
+        </div>
 
-          <div class="filters-panel" id="filtersPanel">
-            <div class="filters-grid">
+        <div class="filters-panel open" id="filtersPanel">
+          <div class="filters-grid">
 
               <!-- 1. Respondent State — most general, primary who-dimension -->
               <div class="filter-group">
@@ -195,62 +231,29 @@
                 </div>
               </div>
 
-            </div>
           </div>
-        </form>
-      </div>
-    </section>
+        </div>
+      </aside>
 
-    <section class="stats-bar">
-      <div class="stats-bar-inner">
-        <div class="stat-chip">
-          <span class="stat-value" id="statTotalCases">-</span>
-          <span class="stat-label">Cases</span>
-        </div>
-        <div class="stat-chip">
-          <span class="stat-value" id="statTotalJudgments">-</span>
-          <span class="stat-label">Judgments</span>
-        </div>
-        <div class="stat-chip">
-          <span class="stat-value" id="statTotalPressReleases">-</span>
-          <span class="stat-label">Press Releases</span>
-        </div>
-        <div class="stat-chip">
-          <span class="stat-value" id="statTotalParagraphs">-</span>
-          <span class="stat-label">Paragraphs</span>
-        </div>
-        <div class="stat-chip">
-          <span class="stat-value" id="statTotalCountries">-</span>
-          <span class="stat-label">Countries</span>
-        </div>
-        <div class="stat-chip">
-          <span class="stat-value" id="statDateRange">-</span>
-          <span class="stat-label">Date Range</span>
-        </div>
-      </div>
-    </section>
-
-    <div class="results-layout">
       <div class="results-main">
         <div class="results-header" id="resultsHeader" hidden>
-          <form id="inlineSearchForm" class="inline-search">
-            <input type="text" id="inlineSearchInput" class="search-input compact" placeholder="Search paragraphs..." disabled>
-            <button type="submit" class="search-btn compact" id="inlineSearchBtn" disabled>Search</button>
-          </form>
+          <div class="results-lede">
+            <div class="folio-label garnet">Results · Paragraph-Level</div>
+            <h2><strong id="resultsHits">0</strong> passages from <strong id="resultsCases">0</strong> judgments</h2>
+            <p>Sorted by relevance and recency. <span id="resultsTime">(0.000s)</span></p>
+          </div>
           <div class="results-meta">
-            <span class="meta-count"><strong id="resultsHits">0</strong> paragraphs in <strong id="resultsCases">0</strong> cases</span>
-            <span class="meta-time" id="resultsTime">(0.000s)</span>
             <button type="button" class="export-btn" id="cardModeBtn" title="Toggle compact/detailed case cards" disabled>Detailed view</button>
-            <button type="button" class="export-btn" id="exportBtn" title="Export results to CSV" disabled>📥 Export CSV</button>
+            <button type="button" class="export-btn" id="exportBtn" title="Export results to CSV" disabled>Export CSV</button>
             <label class="export-option"><input type="checkbox" id="exportIncludeClassifier" disabled> Include classifier labels</label>
-            <button type="button" class="export-btn" id="classifierQuickOpenBtn" title="Open classifier panel" disabled>🏷️ Classifier</button>
+            <button type="button" class="export-btn" id="classifierQuickOpenBtn" title="Open classifier panel" disabled>Classifier</button>
             <button type="button" class="export-btn clear-btn" id="clearBtn" title="Clear current search" disabled>Clear</button>
           </div>
           <div class="active-filters" id="activeFilters"></div>
         </div>
 
         <div class="no-results" id="noResults" hidden>
-          <div class="no-results-icon">🔍</div>
+          <div class="no-results-icon">§</div>
           <h2>No results found</h2>
           <p>Try different search terms, broader filters, or check your spelling.</p>
           <a href="#" class="back-link" id="backToSearch">← Back to search</a>
@@ -261,6 +264,12 @@
       </div>
 
       <aside class="results-sidebar" id="sidebar">
+        <section class="case-context-card" id="caseContextRail">
+          <div class="folio-label garnet">Case Note</div>
+          <h3>Awaiting results</h3>
+          <p class="case-context-empty">Run a search or select a result to see judgment context here.</p>
+        </section>
+
         <h3 class="sidebar-title">Search Analytics</h3>
 
         <div class="sidebar-section">
@@ -351,7 +360,7 @@
 
   <div class="classifier-pane" id="classifierPane">
     <div class="classifier-pane-header">
-      <h2>🏷️ Experimental Paragraph Tagging</h2>
+      <h2>Experimental Paragraph Tagging</h2>
       <button type="button" id="closeClassifierBtn" class="classifier-pane-close" aria-label="Close classifier">×</button>
     </div>
 
@@ -485,6 +494,6 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
-  <script src="assets/search-app.js?v=20260429-filter-layout"></script>
+  <script src="assets/search-app.js?v=20260506-hudoc-researcher-3"></script>
 </body>
 </html>
