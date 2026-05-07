@@ -30,3 +30,14 @@ echr_dashboard/analysis_selimi.js
 # Local tooling / scratch
 .claude/
 claude-design-idea/
+
+# Local-only research / private audits (never push)
+methodology-internal/*audit*.md
+methodology-internal/*-audit-*.md
+methodology-internal/*audit*.json
+methodology-internal/*audit*.html
+
+# AUEB-related scripts — researcher-private, do not push
+scripts/p27_aueb*.py
+scripts/*_aueb_*.py
+scripts/*aueb*.py
