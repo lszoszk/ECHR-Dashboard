@@ -724,6 +724,33 @@ button.export-btn:disabled {
   user-select: none;
 }
 
+/* Continuation paragraphs — rows that have no hudoc_para_no of their own but
+   semantically belong to the most recently-numbered paragraph above (typical
+   pattern: a quoted statute or treaty article that the PDF segmenter split
+   off because of indentation).  Rendered HUDOC-style: indented, lighter
+   weight, with a thin left rule, and inheriting the parent ¶ number so
+   citations remain stable. */
+.modal-para-continuation {
+  margin: 2px 0 4px;
+  padding: 4px 14px 4px 30px;
+  border-left: 2px solid var(--border-subtle, rgba(0,0,0,0.08));
+  margin-left: 38px;        /* aligns with body text after ¶ N column */
+  line-height: 1.7;
+  font-family: var(--font-serif);
+  font-size: 0.93rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+.modal-para-continuation .modal-para-num {
+  opacity: 0.45;
+  font-style: normal;
+  font-size: 0.7rem;
+}
+[data-theme="dark"] .modal-para-continuation {
+  border-left-color: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.7);
+}
+
 /* Structural heading paragraphs (section/sub-section titles embedded in judgment text).
    Rendered without a ¶ number to distinguish them from substantive content. */
 .modal-para-heading {

@@ -5,8 +5,24 @@ const MAX_HITS = 5000;
 // ---------------------------------------------------------------------------
 // Server-side search API integration
 // ---------------------------------------------------------------------------
-const API_BASE_URL = "https://150.254.115.204/echr-api/api";
-const API_HEALTH_URL = "https://150.254.115.204/echr-api/health";
+// API base URL.  Three sources, in priority order:
+//   1. ?api=… query param         (one-shot override for testing)
+//   2. localStorage echrApiBase   (sticky local-dev pin)
+//   3. auto-detect localhost      (FastAPI on :8000 if served from 127.0.0.1)
+//   4. production VM              (default)
+const API_BASE_URL = (() => {
+  try {
+    const qp = new URLSearchParams(location.search).get("api");
+    if (qp) return qp.replace(/\/+$/, "");
+    const ls = localStorage.getItem("echrApiBase");
+    if (ls) return ls.replace(/\/+$/, "");
+    if (location.hostname === "127.0.0.1" || location.hostname === "localhost") {
+      return `http://${location.hostname}:8000/api`;
+    }
+  } catch (_) { /* SSR / sandboxed contexts: fall through */ }
+  return "https://150.254.115.204/echr-api/api";
+})();
+const API_HEALTH_URL = API_BASE_URL.replace(/\/api$/, "/health");
 
 const serverSearch = {
   available: false,
@@ -278,6 +294,43 @@ const OUTCOME_LABELS = {
   has_inadmissibility: "Inadmissibility",
   is_struck_out: "Struck out",
 };
+
+// HUDOC's "originating_body" field arrives in two flavours: full strings for
+// non-Committee bodies ("Court (First Section)", "Court (Grand Chamber)", …)
+// and bare integer codes 25-29 for the five Section Committees (totalling
+// the 6,240 Committee judgments visible in the Document Type filter).  Codes
+// 25-29 follow HUDOC's section ordering 1-5.  Without this lookup the filter
+// rail and result-card meta show raw "29", which is opaque.
+const BODY_CODE_LABELS = {
+  "25": "Court (First Section Committee)",
+  "26": "Court (Second Section Committee)",
+  "27": "Court (Third Section Committee)",
+  "28": "Court (Fourth Section Committee)",
+  "29": "Court (Fifth Section Committee)",
+};
+function formatBodyLabel(value) {
+  if (value == null) return "";
+  const s = String(value);
+  return BODY_CODE_LABELS[s] || s;
+}
+
+/**
+ * Render-friendly importance helpers.  HUDOC's `importance` field arrives
+ * as one of: "1", "2", "3", "Key cases", or "Unspecified".  For chip
+ * rendering we want a short label + tooltip, and we want to suppress the
+ * chip entirely when the value is "Unspecified" (it adds visual noise
+ * without communicating anything to the researcher).
+ */
+function importanceShortLabel(value) {
+  if (!value) return "";
+  if (value === "Unspecified") return "";
+  // For "1"/"2"/"3" keep the digit, for "Key cases" keep the phrase.
+  if (/^[123]$/.test(String(value))) return String(value);
+  return String(value);
+}
+function importanceTooltip(value) {
+  return IMPORTANCE_TOOLTIPS[value] || "";
+}
 
 // Plain-language descriptions of importance levels for filter UI (M3 finding:
 // users don't know what bare "1", "2", "3" mean in HUDOC's importance scheme).
@@ -974,7 +1027,7 @@ function buildKeyInfoBlock(caseObj) {
   lines.push(`Application no.: ${caseObj.case_no || "-"}`);
   lines.push(`Respondent State: ${states || "-"}`);
   lines.push(`Judgment date: ${caseObj.judgment_date || "-"}`);
-  lines.push(`Originating body: ${caseObj.__originatingBody || "-"}`);
+  lines.push(`Originating body: ${formatBodyLabel(caseObj.__originatingBody) || "-"}`);
   const chamberLabel = getChamberLabel(caseObj.__chamberCategory);
   lines.push(`Chamber: ${chamberLabel}`);
   if (caseObj.chamber_composed_of && caseObj.chamber_composed_of.length) {
@@ -1391,7 +1444,7 @@ function normalizeCases(rawCases) {
       __outcomePrimary: documentType.some(dt => dt.toLowerCase().includes("press release")) ? "press_release" : deriveOutcomeBucket(violation, nonViolation),
       __judgmentDateTs: ts,
       __sortTs: ts == null ? -Infinity : ts,
-      __paragraphs: parsedParagraphs,
+      __paragraphs: enrichContinuationParaNos(parsedParagraphs),
     });
   }
 
@@ -1581,7 +1634,7 @@ function renderFilters() {
     .join("");
 
   el.originatingBodyFilters.innerHTML = state.bodies
-    .map((body) => makeCheckbox(body, body, "bodies", fc.bodies[body]))
+    .map((body) => makeCheckbox(formatBodyLabel(body), body, "bodies", fc.bodies[body]))
     .join("");
 
   // Importance — descriptive labels + tooltip explaining HUDOC's scheme
@@ -1911,7 +1964,21 @@ function passesCaseFilters(c, filters) {
  */
 function formatParaNum(p) {
   if (!p) return "¶ ?";
-  const num = p.hudocParaNo != null ? `¶ ${p.hudocParaNo}` : `¶ ${(p.paraIdx ?? 0) + 1}*`;
+  // Priority: hudocParaNo > paraIdx fallback > inheritedParaNo (continuation
+  // row of the most-recent numbered paragraph; see enrichContinuationParaNos)
+  // > "—" placeholder.  For Pop C committee judgments paraIdx is uniformly
+  // null and collapsing every orphan to "¶ 1*" was misleading — em-dash
+  // shows "this is an unnumbered fragment" without a fake position.
+  let num;
+  if (p.hudocParaNo != null) {
+    num = `¶ ${p.hudocParaNo}`;
+  } else if (p.paraIdx != null) {
+    num = `¶ ${p.paraIdx + 1}*`;
+  } else if (p.inheritedParaNo != null) {
+    num = `¶ ${p.inheritedParaNo} cont.`;
+  } else {
+    num = "¶ —";
+  }
   const block = p.numberingBlock;
   if (!block || block === "main_judgment") return num;
   if (block === "operative_dispositif") return `Op. ${num}`;
@@ -1922,12 +1989,107 @@ function formatParaNum(p) {
   return num;
 }
 
+/**
+ * Walk paragraphs in document order; on every orphan row (no hudoc_para_no
+ * AND no para_idx) that follows a numbered row in the same section, record
+ * the parent ¶ number on `inheritedParaNo`.  This lets:
+ *   - the modal render the row as a continuation block (indented quote);
+ *   - search results cite the orphan as "¶ N cont." instead of "¶ —";
+ *   - downstream features (export, citation copy) treat the parent + its
+ *     continuations as one logical paragraph-level unit.
+ *
+ * A structural heading or a section change breaks the chain — anything
+ * after a sub-section title can no longer claim to be a continuation of
+ * the paragraph above the heading.
+ *
+ * Mutates paragraphs in place; safe to call multiple times (idempotent).
+ */
+function enrichContinuationParaNos(paragraphs) {
+  if (!Array.isArray(paragraphs)) return paragraphs;
+  let lastNumberedParaNo = null;
+  let lastSection = null;
+  // pendingOrphans: indices of orphan rows that haven't been able to claim a
+  // parent ¶ yet because nothing numbered has appeared in the current
+  // section.  When we eventually hit the first numbered ¶ N, every pending
+  // orphan inherits (N − 1) — i.e. the implied tail of the previous
+  // paragraph that the PDF segmenter detached when crossing a section
+  // boundary or a quoted blockquote.
+  let pendingOrphans = [];
+  const flushPending = (parentNo) => {
+    for (const idx of pendingOrphans) {
+      const p = paragraphs[idx];
+      if (p && parentNo != null) p.inheritedParaNo = parentNo;
+    }
+    pendingOrphans = [];
+  };
+  for (let i = 0; i < paragraphs.length; i++) {
+    const p = paragraphs[i];
+    if (!p) continue;
+    if (p.section !== lastSection) {
+      // Section changed — abandon any orphans we couldn't place; they keep
+      // null inheritedParaNo so the renderer falls back to "¶ —".
+      pendingOrphans = [];
+      lastSection = p.section;
+      lastNumberedParaNo = null;
+    }
+    if (isStructuralHeading(p.text)) {
+      lastNumberedParaNo = null;
+      pendingOrphans = [];
+      p.inheritedParaNo = null;
+      continue;
+    }
+    if (p.hudocParaNo != null) {
+      // OUT-OF-ORDER GUARD.  A numbered ¶ N that appears far away from the
+      // most-recent ¶ M in the same section is almost always a fragment of
+      // M's running text where the segmenter saw "(see paragraph N above)"
+      // or "Article N § X of the Convention" and tokenised "N." as a
+      // paragraph start.  L.P. v. Hungary shows ¶ 7 sandwiched between
+      // ¶ 23 and ¶ 24, ¶ 1 between ¶ 26 and ¶ 27 (back-jumps), and ¶ 44
+      // after ¶ 37 with text starting "§ 2 of the Convention" (forward
+      // jump + mid-sentence opener).
+      const strippedHead = (p.text || "").replace(/^\d+\.\s+/, "").slice(0, 12);
+      const looksMidSentence = /^[§(),·]/.test(strippedHead) || /^[a-z]/.test(strippedHead);
+      const backJump = lastNumberedParaNo != null && p.hudocParaNo + 5 <= lastNumberedParaNo;
+      const forwardJump = lastNumberedParaNo != null && p.hudocParaNo >= lastNumberedParaNo + 4 && looksMidSentence;
+      if (backJump || forwardJump) {
+        p.inheritedParaNo = lastNumberedParaNo;
+        p.hudocParaNoOriginal = p.hudocParaNo;
+        p.hudocParaNo = null;
+        continue;
+      }
+      // First numbered ¶ after a run of orphans → orphans belong to (N − 1).
+      if (pendingOrphans.length && lastNumberedParaNo == null) {
+        flushPending(Math.max(1, p.hudocParaNo - 1));
+      }
+      lastNumberedParaNo = p.hudocParaNo;
+      p.inheritedParaNo = null;
+    } else if (p.paraIdx != null) {
+      p.inheritedParaNo = null;
+    } else if (lastNumberedParaNo != null) {
+      p.inheritedParaNo = lastNumberedParaNo;
+    } else {
+      // Orphan with no numbered antecedent yet — park it; flushPending will
+      // fill in inheritedParaNo when we eventually see a numbered ¶.
+      p.inheritedParaNo = null;
+      pendingOrphans.push(i);
+    }
+  }
+  return paragraphs;
+}
+
 function formatParaNumTitle(p) {
   if (!p) return "";
   const block = p.numberingBlock;
-  const baseDesc = p.hudocParaNo != null
-    ? `HUDOC paragraph ${p.hudocParaNo}`
-    : `Internal index ¶${(p.paraIdx ?? 0) + 1} (no HUDOC number)`;
+  let baseDesc;
+  if (p.hudocParaNo != null) {
+    baseDesc = `HUDOC paragraph ${p.hudocParaNo}`;
+  } else if (p.paraIdx != null) {
+    baseDesc = `Internal index ¶${p.paraIdx + 1} (no HUDOC number)`;
+  } else if (p.inheritedParaNo != null) {
+    baseDesc = `Continuation of HUDOC paragraph ${p.inheritedParaNo} — typically a quoted statute or treaty article that appears as a sub-block within ¶ ${p.inheritedParaNo}`;
+  } else {
+    baseDesc = "Unnumbered fragment (no HUDOC paragraph number)";
+  }
   if (!block || block === "main_judgment") return baseDesc;
   if (block === "operative_dispositif") return `Operative Part dispositif clause ${p.hudocParaNo ?? "(no number)"}`;
   if (block.startsWith("separate_opinion_")) {
@@ -3622,25 +3784,116 @@ function loadClassifierStateForDataset() {
   updateClassifierResumeNote();
 }
 
-function buildArticleChips(articles, maxVisible = 3) {
-  const clean = (articles || []).map((x) => String(x || "").trim()).filter(Boolean);
-  if (!clean.length) {
+// Articles that the Court invokes mostly for procedural framing rather than
+// to recognise a substantive right.  When a researcher is hunting for "the
+// Article 8 cases" they don't want Art 34/35/37/41/44/46 cluttering the
+// result card; those still matter, just in a quieter slot.
+const PROCEDURAL_ARTICLE_BASES = new Set(["34", "35", "37", "39", "41", "44", "46"]);
+
+/**
+ * Parse a HUDOC article token like "8", "8-1", "8 § 1", "P1-1-2" into a
+ * canonical { base, sub } pair.  base = "8" or "P1-1"; sub = "1" or "1.2"
+ * (joined sub-clauses) or null.  Tolerates whitespace and the "§" sigil.
+ */
+function parseArticleToken(token) {
+  const t = String(token || "").trim();
+  if (!t) return null;
+  // Protocol article: P1-1, P1-1-2, P7-4-1
+  const pm = t.match(/^P(\d+)-(\d+)(?:[-\s]+(\d+(?:[-\s]+\d+)*))?$/i);
+  if (pm) {
+    const sub = pm[3] ? pm[3].replace(/[\s]+/g, ".").replace(/-+/g, ".") : null;
+    return { base: `P${pm[1]}-${pm[2]}`, sub, isProtocol: true };
+  }
+  // Main convention article: "8", "8-1", "8 § 1", "8-1-a"
+  const m = t.match(/^(\d+)(?:[-\s]*(?:§\s*)?(\d+(?:[-\s]*[a-z]+)?(?:\s*§?\s*\d+)?))?$/i);
+  if (!m) return null;
+  let sub = m[2] ? m[2].replace(/\s+/g, "").replace(/^§/, "") : null;
+  if (sub) sub = sub.replace(/§/g, "-");
+  return { base: m[1], sub, isProtocol: false };
+}
+
+/**
+ * Group an array of raw HUDOC article tokens by base article so that
+ * "8, 8-1, 8-2" collapses to a single "Art 8 §§ 1, 2" entry, and split
+ * substantive articles from procedural refs (34/35/37/41/44/46…) for
+ * researcher-friendly result-card display.  Returns:
+ *   {
+ *     substantive: [{label, base, subs}, …],
+ *     procedural:  [{label, base, subs}, …],
+ *   }
+ */
+function groupArticleTokens(articles) {
+  const out = { substantive: [], procedural: [] };
+  if (!articles) return out;
+  // Cope with three input shapes encountered in the wild:
+  //   ["8"]                                   — one token per element
+  //   ["34, 8, 41"]                           — single compound element
+  //   "34, 8, 41"                             — bare string
+  // Each string element may carry newlines and stray "§" sigils that need
+  // normalisation before splitting.  Mirrors backend _split_article_values.
+  const rawList = Array.isArray(articles) ? articles : [articles];
+  const list = [];
+  for (const item of rawList) {
+    const cleaned = String(item || "").replace(/\s+/g, " ").trim();
+    if (!cleaned) continue;
+    if (/[,;]/.test(cleaned)) {
+      for (const part of cleaned.split(/[,;]/)) {
+        const t = part.trim();
+        if (t) list.push(t);
+      }
+    } else {
+      list.push(cleaned);
+    }
+  }
+  const groups = new Map();   // base → Set<sub>
+  const order = [];           // preserve first-seen order
+  for (const raw of list) {
+    const parsed = parseArticleToken(raw);
+    if (!parsed) continue;
+    if (!groups.has(parsed.base)) {
+      groups.set(parsed.base, new Set());
+      order.push(parsed.base);
+    }
+    if (parsed.sub) groups.get(parsed.base).add(parsed.sub);
+  }
+  for (const base of order) {
+    const subs = [...groups.get(base)].sort((a, b) => {
+      // numeric-aware sort: "1" < "2" < "10" < "1-a"
+      const an = parseInt(a, 10), bn = parseInt(b, 10);
+      if (!Number.isNaN(an) && !Number.isNaN(bn) && an !== bn) return an - bn;
+      return String(a).localeCompare(String(b));
+    });
+    const label = subs.length ? `Art ${base} §§ ${subs.join(", ")}` : `Art ${base}`;
+    const entry = { label, base, subs };
+    if (PROCEDURAL_ARTICLE_BASES.has(base)) out.procedural.push(entry);
+    else out.substantive.push(entry);
+  }
+  return out;
+}
+
+function buildArticleChips(articles, maxVisible = 4) {
+  const grouped = groupArticleTokens(articles);
+  if (!grouped.substantive.length && !grouped.procedural.length) {
     return '<span class="legal-chip muted">No articles listed</span>';
   }
 
-  const visible = clean.slice(0, maxVisible);
-  const hiddenCount = Math.max(0, clean.length - visible.length);
-  const chips = visible.map((article) => {
-    // Extract base article number for guide lookup (e.g. "6-1" → "6")
-    const baseArt = article.split("-")[0].split("§")[0].replace(/[^0-9]/g, "");
-    const guideUrl = ARTICLE_GUIDE_URLS[baseArt];
+  const chips = [];
+  const visibleSubst = grouped.substantive.slice(0, maxVisible);
+  for (const g of visibleSubst) {
+    const guideUrl = ARTICLE_GUIDE_URLS[g.base.replace(/^P\d+-/, "")];
     if (guideUrl) {
-      return `<a href="${escapeHtml(guideUrl)}" class="legal-chip article article-link" target="_blank" rel="noopener noreferrer" title="View ECHR Guide on Article ${escapeHtml(baseArt)}">Art. ${escapeHtml(article)}</a>`;
+      chips.push(`<a href="${escapeHtml(guideUrl)}" class="legal-chip article article-link" target="_blank" rel="noopener noreferrer" title="View ECHR Guide on Article ${escapeHtml(g.base)}">${escapeHtml(g.label)}</a>`);
+    } else {
+      chips.push(`<span class="legal-chip article">${escapeHtml(g.label)}</span>`);
     }
-    return `<span class="legal-chip article">Art. ${escapeHtml(article)}</span>`;
-  });
-  if (hiddenCount > 0) {
-    chips.push(`<span class="legal-chip muted">+${fmtInt.format(hiddenCount)} more</span>`);
+  }
+  const hiddenSubst = grouped.substantive.length - visibleSubst.length;
+  if (hiddenSubst > 0) {
+    chips.push(`<span class="legal-chip muted">+${fmtInt.format(hiddenSubst)} more substantive</span>`);
+  }
+  if (grouped.procedural.length) {
+    const procTitle = grouped.procedural.map((p) => p.label).join(", ");
+    chips.push(`<span class="legal-chip muted procedural-pill" title="Procedural references: ${escapeHtml(procTitle)}">+${fmtInt.format(grouped.procedural.length)} procedural</span>`);
   }
   return chips.join("");
 }
@@ -3705,12 +3958,23 @@ function cleanCaseTitle(title) {
 }
 
 function buildResearcherArticleChips(articles, maxVisible = 4) {
-  const clean = (articles || []).map((x) => String(x || "").trim()).filter(Boolean);
-  if (!clean.length) return '<span class="chip muted">No articles listed</span>';
-  const visible = clean.slice(0, maxVisible);
-  const hidden = clean.length - visible.length;
-  const chips = visible.map((article) => `<span class="chip">Art ${escapeHtml(article)}</span>`);
-  if (hidden > 0) chips.push(`<span class="chip muted">+${fmtInt.format(hidden)} more</span>`);
+  const grouped = groupArticleTokens(articles);
+  if (!grouped.substantive.length && !grouped.procedural.length) {
+    return '<span class="chip muted">No articles listed</span>';
+  }
+  const chips = [];
+  const visibleSubst = grouped.substantive.slice(0, maxVisible);
+  for (const g of visibleSubst) {
+    chips.push(`<span class="chip">${escapeHtml(g.label)}</span>`);
+  }
+  const hiddenSubst = grouped.substantive.length - visibleSubst.length;
+  if (hiddenSubst > 0) {
+    chips.push(`<span class="chip muted">+${fmtInt.format(hiddenSubst)} more</span>`);
+  }
+  if (grouped.procedural.length) {
+    const procTitle = grouped.procedural.map((p) => p.label).join(", ");
+    chips.push(`<span class="chip muted procedural-pill" title="Procedural references: ${escapeHtml(procTitle)}">+${fmtInt.format(grouped.procedural.length)} procedural</span>`);
+  }
   return chips.join("");
 }
 
@@ -3772,7 +4036,7 @@ function renderCaseContextRail(caseId = state.activeCaseId) {
     <div class="case-context-data">
       <div><span>Application</span><strong>${escapeHtml(c.case_no || "-")}</strong></div>
       <div><span>Decided</span><strong>${escapeHtml(formatCaseDateForDisplay(c))}</strong></div>
-      <div><span>Body</span><strong>${escapeHtml(c.__originatingBody || chamberLabel || "-")}</strong></div>
+      <div><span>Body</span><strong>${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "-")}</strong></div>
       <div><span>State</span><strong>${escapeHtml(states)}</strong></div>
       <div><span>Outcome</span><strong class="${escapeHtml(outcomeToneClass)}">${escapeHtml(outcomeLabel)}</strong></div>
       <div><span>Citations</span><strong>${fmtInt.format(citations)}</strong></div>
@@ -3780,7 +4044,7 @@ function renderCaseContextRail(caseId = state.activeCaseId) {
 
     <div class="case-context-chips">
       ${buildResearcherArticleChips(c.__articles, 8)}
-      ${c.__importance ? `<span class="chip">Importance ${escapeHtml(c.__importance)}</span>` : ""}
+      ${importanceShortLabel(c.__importance) ? `<span class="chip" title="${escapeHtml(importanceTooltip(c.__importance))}">Importance ${escapeHtml(importanceShortLabel(c.__importance))}</span>` : ""}
       ${c.document_type ? `<span class="chip">${escapeHtml(c.document_type)}</span>` : ""}
     </div>
 
@@ -3872,7 +4136,7 @@ function buildCaseCard(caseId, row, rank = 1) {
 
         <div class="researcher-chip-row">
           ${buildResearcherArticleChips(c.__articles)}
-          <span class="chip">${escapeHtml(c.__originatingBody || chamberLabel || "-")}</span>
+          <span class="chip">${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "-")}</span>
           <span class="chip outcome ${escapeHtml(outcomeToneClass)}">${escapeHtml(outcomeLabel)}</span>
           <span class="chip">${escapeHtml(respondentSummary)}</span>
         </div>
@@ -3913,9 +4177,9 @@ function buildCaseCard(caseId, row, rank = 1) {
             <div class="legal-row">
               <span class="legal-row-label">Body</span>
               <div class="legal-chip-row">
-                <span class="legal-chip">${escapeHtml(c.__originatingBody || "-")}</span>
+                <span class="legal-chip">${escapeHtml(formatBodyLabel(c.__originatingBody) || "-")}</span>
                 <span class="legal-chip">${escapeHtml(chamberLabel)}</span>
-                <span class="legal-chip">Importance ${escapeHtml(c.__importance || "-")}</span>
+                ${importanceShortLabel(c.__importance) ? `<span class="legal-chip" title="${escapeHtml(importanceTooltip(c.__importance))}">Importance ${escapeHtml(importanceShortLabel(c.__importance))}</span>` : `<span class="legal-chip muted" title="${escapeHtml(IMPORTANCE_TOOLTIPS["Unspecified"] || "")}">Importance —</span>`}
                 ${keyCaseChip}
                 ${c.__citedByCount > 0 ? `<span class="legal-chip cited-by" title="Cited by ${c.__citedByCount} other case(s) in this dataset">Cited ${c.__citedByCount}×</span>` : ""}
               </div>
@@ -4184,7 +4448,7 @@ function _renderAnalyticsData(a) {
   renderBarList(
     el.analyticsBodies,
     a.bodies,
-    (label) => label,
+    (label) => formatBodyLabel(label),
     "section"
   );
 
@@ -4442,12 +4706,17 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
 
     renderActiveFilters(filters);
     renderResultsPage();
-    // Skip the expensive analytics aggregation call on the initial
-    // default view — it's not tied to a user query and would just
-    // recompute the corpus-wide totals we've already shown in the KPI
-    // bar.  It re-runs as soon as the user enters a query or filter.
+    // For real searches/filters: hit the server analytics endpoint for
+    // corpus-wide aggregates over the matching set.  For the initial
+    // browse view we used to skip the call entirely, leaving the Search
+    // Analytics sidebar showing "No data" — visually inert and confusing
+    // on the redesigned researcher layout.  Instead derive page-level
+    // aggregates from the cases we already loaded.  This matches what
+    // the user sees on screen.
     if (!defaultView) {
       fetchAndRenderServerAnalytics(query, filters);
+    } else {
+      try { renderAnalytics(); } catch (e) { console.warn("[Browse Analytics] local render failed:", e); }
     }
     updateResultsHeaderServer(data, { defaultView });
   } catch (err) {
@@ -4687,7 +4956,7 @@ function buildCaseMeta(caseObj) {
 
   const states = (caseObj.__states || []).map((d) => COUNTRY_NAMES[d] || d).join(", ") || "-";
   parts.push(`Respondent State: ${escapeHtml(states)}`);
-  parts.push(`Originating Body: ${escapeHtml(caseObj.__originatingBody || "-")}`);
+  parts.push(`Originating Body: ${escapeHtml(formatBodyLabel(caseObj.__originatingBody) || "-")}`);
   parts.push(`Importance: ${escapeHtml(caseObj.__importance || "-")}`);
   parts.push(`Outcome: ${escapeHtml(OUTCOME_LABELS[caseObj.__outcomePrimary] || caseObj.__outcomePrimary || "-")}`);
   parts.push(`Inadmissibility: ${caseObj.__hasInadmissibility ? "Yes" : "No"}`);
@@ -4757,22 +5026,137 @@ function isStructuralHeading(text) {
   return HEADING_ONLY_RE.test(t);
 }
 
+/**
+ * De-duplicate paragraphs within a single case before grouping by section.
+ *
+ * Pop C committee judgments (and to a lesser extent older Pop B cases) carry
+ * the same paragraph text under TWO section labels in the database — typically
+ * "Facts" and "Merits" — because the cleanup pipeline (P16) inserted the new
+ * label without deleting the old row.  L.P. v. Hungary (001-249494) shipped 66
+ * rows for a 37-paragraph judgment; Kostyuchenko v. Russia 91 dup-groups out
+ * of 126.  Until P21 lands on the data side this is a frontend safety net.
+ *
+ * Rule: identical text within a case appears at most once.  When a duplicate
+ * is detected, keep the row whose section is LATER in SECTION_ORDER, since
+ * Pop C contamination always pushes the canonically-correct section earlier
+ * (e.g. dispositif reasoning leaks BACK into Facts, never forward).
+ *
+ * Keys: text trimmed and truncated to 200 chars.  Empty / whitespace-only
+ * paragraphs are passed through untouched (they are usually heading
+ * fragments, not duplicates).
+ */
+function dedupCaseParagraphs(paragraphs) {
+  if (!Array.isArray(paragraphs) || paragraphs.length < 2) return paragraphs;
+
+  const sectionRank = (section) => {
+    const i = SECTION_ORDER.indexOf(section);
+    return i === -1 ? -1 : i;
+  };
+
+  // Build a dedup key.  Two-tier:
+  //   (a) when hudoc_para_no is present, prefix it + the first 100 chars of
+  //       text — catches the "same paragraph copied across sections, with
+  //       extra dispositif glued onto one copy" pattern (L.P. ¶37 lives in
+  //       both Merits and Just Satisfaction; the JS copy has the operative
+  //       block appended, so a 200-char prefix-only hash doesn't match).
+  //   (b) when hudoc_para_no is null, the full first 200 chars are the key
+  //       — catches standalone "Holds" / "Decides" duplicates in Operative.
+  const keyFor = (p) => {
+    const text = (p?.text || "").trim();
+    if (!text) return null;
+    if (p.hudocParaNo != null) {
+      return `n:${p.hudocParaNo}|${text.slice(0, 100)}`;
+    }
+    return `t:${text.slice(0, 200)}`;
+  };
+
+  const seenByKey = new Map();   // key → array index of currently-kept para
+  const dropped = new Set();     // indices that lost a dedup race
+
+  for (let i = 0; i < paragraphs.length; i++) {
+    const p = paragraphs[i];
+    const key = keyFor(p);
+    if (!key) continue;
+    const prevIdx = seenByKey.get(key);
+    if (prevIdx === undefined) {
+      seenByKey.set(key, i);
+      continue;
+    }
+    // Duplicate.  Prefer the row in the section LATER in SECTION_ORDER
+    // (Operative > Just Satisfaction > Merits > … > Facts).  When sections
+    // tie, prefer the SHORTER text — the longer copy almost always carries
+    // contamination from the next section glued onto its tail.
+    const prev = paragraphs[prevIdx];
+    const rankNew = sectionRank(p.section);
+    const rankOld = sectionRank(prev.section);
+    let keepNew;
+    if (rankNew !== rankOld) {
+      keepNew = rankNew > rankOld;
+    } else {
+      keepNew = (p.text || "").length < (prev.text || "").length;
+    }
+    if (keepNew) {
+      dropped.add(prevIdx);
+      seenByKey.set(key, i);
+    } else {
+      dropped.add(i);
+    }
+  }
+
+  if (dropped.size === 0) return paragraphs;
+  return paragraphs.filter((_, i) => !dropped.has(i));
+}
+
+/**
+ * Strip a leading "<num>. " or "<num>.  " prefix from paragraph text when it
+ * matches the row's hudoc_para_no — otherwise the modal renders the number
+ * twice ("¶ 19  19. The Budapest High Court ruled...").  Conservative: only
+ * fires when the leading number EXACTLY matches hudocParaNo.
+ */
+function stripLeadingParaNumber(p) {
+  const text = p?.text || "";
+  // Either the row carries hudoc_para_no (and the matching "N. " prefix is
+  // a re-print of that number we don't want to render twice), OR it
+  // carried one originally before enrichContinuationParaNos demoted the
+  // row to a continuation — in which case the stale leading "N." is now
+  // even more misleading and should also go.
+  const expected = p?.hudocParaNo != null ? Number(p.hudocParaNo)
+                : p?.hudocParaNoOriginal != null ? Number(p.hudocParaNoOriginal)
+                : null;
+  if (expected == null) return text;
+  const m = text.match(/^(\d+)\.\s+/);
+  if (!m) return text;
+  if (Number(m[1]) !== expected) return text;
+  return text.slice(m[0].length);
+}
+
 function renderModalSection(sectionKey, paragraphs) {
   const label = SECTION_LABELS[sectionKey] || sectionKey;
   const color = SECTION_COLORS[sectionKey] || "#4C72B0";
 
+  // Continuation status was computed upstream by enrichContinuationParaNos:
+  // an orphan row with no hudoc_para_no / no para_idx that semantically
+  // belongs to the most-recent numbered paragraph in the same section
+  // carries `inheritedParaNo`.  Render those as indented blockquotes
+  // mirroring HUDOC's visual treatment of statute/treaty quotations
+  // embedded in a paragraph.
   const paragraphsHtml = paragraphs
     .map((p) => {
       if (isStructuralHeading(p.text)) {
-        // Render as a styled sub-heading — no ¶ number, distinct visual weight
         return `
           <p class="modal-para-heading" data-section="${escapeHtml(sectionKey)}" data-text="${escapeHtml(p.textLower)}">${escapeHtml(p.text)}</p>
         `;
       }
+      const displayText = stripLeadingParaNumber(p);
+      const isContinuation = p.inheritedParaNo != null && p.hudocParaNo == null && p.paraIdx == null;
+      const classes = isContinuation ? "modal-para modal-para-continuation" : "modal-para";
+      const parentAttr = isContinuation
+        ? ` data-parent-para-no="${escapeHtml(String(p.inheritedParaNo))}"`
+        : "";
       return `
-        <p class="modal-para" data-section="${escapeHtml(sectionKey)}" data-text="${escapeHtml(p.textLower)}">
+        <p class="${classes}" data-section="${escapeHtml(sectionKey)}" data-text="${escapeHtml(p.textLower)}"${parentAttr}>
           <span class="modal-para-num" title="${escapeHtml(formatParaNumTitle(p))}">${escapeHtml(formatParaNum(p))}</span>
-          <span>${escapeHtml(p.text)}</span>
+          <span>${escapeHtml(displayText)}</span>
         </p>
       `;
     })
@@ -4825,9 +5209,12 @@ function openCaseModal(caseId) {
 
   // Group paragraphs by section; skip "header" — its content (case title,
   // "JUDGMENT", court composition) is already shown in the modal metadata.
+  // Run dedup first to absorb the "same paragraph in 2 sections" Pop C
+  // contamination — see dedupCaseParagraphs() above for rationale.
+  const dedupedParagraphs = dedupCaseParagraphs(c.__paragraphs);
   const grouped = new Map();
   let totalDisplayed = 0;
-  for (const para of c.__paragraphs) {
+  for (const para of dedupedParagraphs) {
     if (para.section === "header") continue;
     if (!grouped.has(para.section)) {
       grouped.set(para.section, []);
@@ -4902,6 +5289,7 @@ async function openCaseModalFromServer(caseId, caseStub) {
       numberingBlock: p.numbering_block || null,
       textLower: (p.text || "").toLowerCase(),
     }));
+    enrichContinuationParaNos(paragraphs);
 
     const c = state.caseById.get(caseId) || caseStub;
     c.__paragraphs = paragraphs;

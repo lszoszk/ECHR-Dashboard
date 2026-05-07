@@ -26,3 +26,7 @@ echr_cases_scraped.jsonl
 echr_dashboard/scraper_hudoc.py
 echr_dashboard/scraper_chrome.html
 echr_dashboard/analysis_selimi.js
+
+# Local tooling / scratch
+.claude/
+claude-design-idea/
