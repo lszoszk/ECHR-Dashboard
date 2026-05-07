@@ -139,7 +139,16 @@ const serverSearch = {
       __hasInadmissibility: conclusionUpper.includes("INADMISSIBL"),
       __isStruckOut: conclusionUpper.includes("STRUCK OUT"),
       __keywordsText: normalizeSearchText(keywords.join(" ")),
-      __citedByCount: 0,   // populated by a server endpoint in Phase 2
+      // P29 server-computed citation aggregates.  cites_count and
+      // cited_by_count come from the case_citations table built by the
+      // P29 extractor; they cover ALL cases (including the recent
+      // committee judgments not in the JSONL feed).  Fall back to the
+      // length of the JSONL-sourced strasbourg_caselaw when the server
+      // doesn't ship the count (e.g. /api/browse list responses).
+      __citedByCount: Number(apiCase.cited_by_count || 0),
+      __citesCountServer: apiCase.cites_count != null
+        ? Number(apiCase.cites_count)
+        : null,
       __citationRefs: this._toStringArray(apiCase.strasbourg_caselaw),
       __citationRefsNorm: this._toStringArray(apiCase.strasbourg_caselaw)
         .map((item) => normalizeSearchText(item)),
@@ -4235,7 +4244,6 @@ function buildCaseCard(caseId, row, rank = 1) {
                 <span class="legal-chip">${escapeHtml(chamberLabel)}</span>
                 ${importanceShortLabel(c.__importance) ? `<span class="legal-chip" title="${escapeHtml(importanceTooltip(c.__importance))}">Importance ${escapeHtml(importanceShortLabel(c.__importance))}</span>` : `<span class="legal-chip muted" title="${escapeHtml(IMPORTANCE_TOOLTIPS["Unspecified"] || "")}">Importance —</span>`}
                 ${keyCaseChip}
-                ${c.__citedByCount > 0 ? `<span class="legal-chip cited-by" title="Cited by ${c.__citedByCount} other case(s) in this dataset">Cited ${c.__citedByCount}×</span>` : ""}
               </div>
             </div>
             <div class="legal-row">
@@ -4245,7 +4253,16 @@ function buildCaseCard(caseId, row, rank = 1) {
             <div class="legal-row">
               <span class="legal-row-label">Citations</span>
               <div class="legal-chip-row">
-                <span class="legal-chip citation">${fmtInt.format((c.__citationRefs || []).length)} Strasbourg citations</span>
+                ${(() => {
+                  // Prefer the server-computed P29 count when available
+                  // (covers cases not in the JSONL feed); fall back to
+                  // the JSONL-sourced strasbourg_caselaw length.
+                  const cites = (c.__citesCountServer != null)
+                    ? c.__citesCountServer
+                    : (c.__citationRefs || []).length;
+                  return `<span class="legal-chip citation" title="Distinct ECtHR cases cited from this judgment's text">${fmtInt.format(cites)} cites</span>`;
+                })()}
+                ${c.__citedByCount > 0 ? `<span class="legal-chip cited-by" title="Distinct other ECtHR cases that cite this judgment">Cited by ${fmtInt.format(c.__citedByCount)}</span>` : ""}
               </div>
             </div>
           </div>
@@ -5026,7 +5043,18 @@ function buildCaseMeta(caseObj) {
   parts.push(`Substantive aspect: ${caseObj.__hasSubstantiveAspect ? "Yes" : "No"}`);
   parts.push(`Separate Opinion: ${caseObj.__hasSeparateOpinion ? "Yes" : "No"}`);
   parts.push(`Articles: ${escapeHtml(caseObj.article_no || "-")}`);
-  parts.push(`Strasbourg citations: ${fmtInt.format((caseObj.__citationRefs || []).length)}`);
+  // Citation aggregates: prefer the server-computed P29 count when
+  // available (covers cases not in the JSONL); otherwise fall back to
+  // the JSONL strasbourg_caselaw length.
+  {
+    const cites = (caseObj.__citesCountServer != null)
+      ? caseObj.__citesCountServer
+      : (caseObj.__citationRefs || []).length;
+    parts.push(`Cites: ${fmtInt.format(cites)}`);
+    if (caseObj.__citedByCount > 0) {
+      parts.push(`Cited by: ${fmtInt.format(caseObj.__citedByCount)}`);
+    }
+  }
   if (caseObj.represented_by) {
     parts.push(`Represented by: ${escapeHtml(caseObj.represented_by)}`);
   }
@@ -5384,6 +5412,9 @@ async function openCaseModalFromServer(caseId, caseStub) {
       c.rules_of_court = rc;
       c.__hasRulesOfCourt = rc.length > 0;
     }
+    // P29 server-computed citation aggregates.
+    if (data.cites_count != null) c.__citesCountServer = Number(data.cites_count);
+    if (data.cited_by_count != null) c.__citedByCount = Number(data.cited_by_count);
     state.caseById.set(caseId, c);
 
     // Now call the regular modal opener

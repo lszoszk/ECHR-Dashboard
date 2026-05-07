@@ -302,6 +302,44 @@ def _enrich_case_row(row: dict[str, Any]) -> dict[str, Any]:
     return row
 
 
+def _attach_citation_counts(cur: sqlite3.Cursor,
+                             case_details: dict[str, dict]) -> None:
+    """Bulk-attach P29 cites_count + cited_by_count to a dict of case rows.
+    No-op if the case_citations table does not exist."""
+    if not case_details:
+        return
+    case_ids = list(case_details.keys())
+    try:
+        ph = ",".join("?" for _ in case_ids)
+        cur.execute(
+            f"SELECT citing_case_id, count(DISTINCT cited_case_id) AS n "
+            f"FROM case_citations WHERE citing_case_id IN ({ph}) "
+            f"GROUP BY citing_case_id",
+            case_ids,
+        )
+        for r in cur.fetchall():
+            cd = case_details.get(r["citing_case_id"])
+            if cd is not None:
+                cd["cites_count"] = r["n"]
+        cur.execute(
+            f"SELECT cited_case_id, count(DISTINCT citing_case_id) AS n "
+            f"FROM case_citations WHERE cited_case_id IN ({ph}) "
+            f"GROUP BY cited_case_id",
+            case_ids,
+        )
+        for r in cur.fetchall():
+            cd = case_details.get(r["cited_case_id"])
+            if cd is not None:
+                cd["cited_by_count"] = r["n"]
+    except sqlite3.OperationalError:
+        # case_citations table missing — skip silently.
+        pass
+    # Default zero for cases with no citations either way.
+    for cd in case_details.values():
+        cd.setdefault("cites_count", 0)
+        cd.setdefault("cited_by_count", 0)
+
+
 # ---------------------------------------------------------------------------
 # Endpoints
 # ---------------------------------------------------------------------------
@@ -1154,6 +1192,7 @@ def search(
                 case_ids,
             )
             case_details = {r["case_id"]: _enrich_case_row(_row_to_dict(r)) for r in cur.fetchall()}
+            _attach_citation_counts(cur, case_details)
 
             # Fetch articles per case.
             cur.execute(
@@ -1279,11 +1318,88 @@ def get_case(case_id: str):
             )
             case["paragraphs"] = [_row_to_dict(r) for r in cur.fetchall()]
 
+            # P29 citation aggregates.  case_citations is built by
+            # scripts/p29_extract_citations.py from paragraph text.  Counts
+            # are distinct cited/citing case pairs (not paragraph-level
+            # rows), so a case that cites Smith v. UK across five
+            # paragraphs counts as 1 cite, not 5.
+            try:
+                cur.execute(
+                    "SELECT count(DISTINCT cited_case_id) FROM case_citations "
+                    "WHERE citing_case_id = ?", (case_id,),
+                )
+                case["cites_count"] = cur.fetchone()[0] or 0
+                cur.execute(
+                    "SELECT count(DISTINCT citing_case_id) FROM case_citations "
+                    "WHERE cited_case_id = ?", (case_id,),
+                )
+                case["cited_by_count"] = cur.fetchone()[0] or 0
+            except sqlite3.OperationalError:
+                # case_citations table not yet built — leave counts unset.
+                case["cites_count"] = 0
+                case["cited_by_count"] = 0
+
         return case
     except HTTPException:
         raise
     except Exception as exc:
         logger.exception("Case retrieval failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+# ---- /api/cases/{case_id}/cited_by -----------------------------------------
+#
+# Return the list of cases that cite this one.  Joins case_citations
+# (built by P29) with cases for title + date.  Sorted by citing case
+# date desc.
+
+@app.get("/api/cases/{case_id}/cited_by")
+def case_cited_by(case_id: str, limit: int = Query(50, ge=1, le=500)):
+    try:
+        with get_cursor() as cur:
+            cur.execute(
+                "SELECT cc.citing_case_id AS case_id, c.title, c.case_no, "
+                "       c.judgment_date, c.respondent_state, "
+                "       count(*) AS para_count "
+                "FROM case_citations cc "
+                "JOIN cases c ON c.case_id = cc.citing_case_id "
+                "WHERE cc.cited_case_id = ? "
+                "GROUP BY cc.citing_case_id "
+                "ORDER BY substr(c.judgment_date, 7, 4) DESC, "
+                "         substr(c.judgment_date, 4, 2) DESC, "
+                "         substr(c.judgment_date, 1, 2) DESC "
+                "LIMIT ?",
+                (case_id, limit),
+            )
+            return {"cited_by": [_row_to_dict(r) for r in cur.fetchall()]}
+    except sqlite3.OperationalError:
+        return {"cited_by": [], "note": "case_citations table not yet built"}
+    except Exception as exc:
+        logger.exception("cited_by lookup failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.get("/api/cases/{case_id}/cites")
+def case_cites(case_id: str, limit: int = Query(100, ge=1, le=500)):
+    try:
+        with get_cursor() as cur:
+            cur.execute(
+                "SELECT cc.cited_case_id AS case_id, c.title, c.case_no, "
+                "       c.judgment_date, c.respondent_state, "
+                "       count(*) AS para_count "
+                "FROM case_citations cc "
+                "JOIN cases c ON c.case_id = cc.cited_case_id "
+                "WHERE cc.citing_case_id = ? "
+                "GROUP BY cc.cited_case_id "
+                "ORDER BY para_count DESC, c.judgment_date DESC "
+                "LIMIT ?",
+                (case_id, limit),
+            )
+            return {"cites": [_row_to_dict(r) for r in cur.fetchall()]}
+    except sqlite3.OperationalError:
+        return {"cites": [], "note": "case_citations table not yet built"}
+    except Exception as exc:
+        logger.exception("cites lookup failed")
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
@@ -1467,6 +1583,7 @@ def browse(
                 case_ids,
             )
             case_details = {r["case_id"]: _enrich_case_row(_row_to_dict(r)) for r in cur.fetchall()}
+            _attach_citation_counts(cur, case_details)
 
             # Articles per case.
             cur.execute(
