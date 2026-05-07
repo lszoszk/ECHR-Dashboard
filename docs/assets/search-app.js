@@ -79,6 +79,17 @@ const serverSearch = {
     return p;
   },
 
+  /** Coerce a citation field to an array of strings.  The API returns lists
+   *  for multi-cite cases and a bare string for older single-cite records. */
+  _toStringArray(v) {
+    if (v == null) return [];
+    if (Array.isArray(v)) {
+      return v.map((s) => String(s).trim()).filter(Boolean);
+    }
+    const s = String(v).trim();
+    return s ? [s] : [];
+  },
+
   /** Convert an API case result into the shape that buildCaseCard expects. */
   _adaptCase(apiCase) {
     const origBody = Array.isArray(apiCase.originating_body)
@@ -113,16 +124,25 @@ const serverSearch = {
       __outcomePrimary: deriveOutcomeBucket(violation, nonViolation),
       __chamberCategory: deriveChamberCategory([], origBody),
       __hasSeparateOpinion: parseBoolLike(apiCase.separate_opinion),
-      __hasStrasbourgCaselaw: false,
-      __hasDomesticLaw: false,
-      __hasInternationalLaw: false,
-      __hasRulesOfCourt: false,
+      // P28: citation arrays are now exposed by /api.  The API returns
+      // either a list (multi-cite case) or a single string for
+      // domestic_law / rules_of_court (legacy serialisation in the JSONL),
+      // so coerce to array uniformly.
+      strasbourg_caselaw: this._toStringArray(apiCase.strasbourg_caselaw),
+      domestic_law: this._toStringArray(apiCase.domestic_law),
+      international_law: this._toStringArray(apiCase.international_law),
+      rules_of_court: this._toStringArray(apiCase.rules_of_court),
+      __hasStrasbourgCaselaw: this._toStringArray(apiCase.strasbourg_caselaw).length > 0,
+      __hasDomesticLaw: this._toStringArray(apiCase.domestic_law).length > 0,
+      __hasInternationalLaw: this._toStringArray(apiCase.international_law).length > 0,
+      __hasRulesOfCourt: this._toStringArray(apiCase.rules_of_court).length > 0,
       __hasInadmissibility: conclusionUpper.includes("INADMISSIBL"),
       __isStruckOut: conclusionUpper.includes("STRUCK OUT"),
       __keywordsText: normalizeSearchText(keywords.join(" ")),
-      __citedByCount: 0,
-      __citationRefs: [],
-      __citationRefsNorm: [],
+      __citedByCount: 0,   // populated by a server endpoint in Phase 2
+      __citationRefs: this._toStringArray(apiCase.strasbourg_caselaw),
+      __citationRefsNorm: this._toStringArray(apiCase.strasbourg_caselaw)
+        .map((item) => normalizeSearchText(item)),
       __isPressRelease: (apiCase.document_type || "").toLowerCase().includes("press release"),
       __isCommittee: (apiCase.document_type || "").toLowerCase().includes("committee"),
       __isGrandChamber: (apiCase.document_type || "").toLowerCase().includes("grand chamber") || (apiCase.originating_body || "").toLowerCase().includes("grand chamber"),
@@ -5339,6 +5359,31 @@ async function openCaseModalFromServer(caseId, caseStub) {
     c.ecli = data.ecli || c.ecli;
     c.article_no = data.articles || c.article_no || [];
     c.__articles = data.articles || c.__articles || [];
+    // P28: pull citation fields from the case-detail response.  These also
+    // arrive on browse/search list payloads via _adaptCase, but the
+    // detail endpoint is authoritative when available.
+    const sc = serverSearch._toStringArray(data.strasbourg_caselaw);
+    if (sc.length || !c.strasbourg_caselaw) {
+      c.strasbourg_caselaw = sc;
+      c.__citationRefs = sc;
+      c.__citationRefsNorm = sc.map((s) => normalizeSearchText(s));
+      c.__hasStrasbourgCaselaw = sc.length > 0;
+    }
+    const dl = serverSearch._toStringArray(data.domestic_law);
+    if (dl.length || !c.domestic_law) {
+      c.domestic_law = dl;
+      c.__hasDomesticLaw = dl.length > 0;
+    }
+    const il = serverSearch._toStringArray(data.international_law);
+    if (il.length || !c.international_law) {
+      c.international_law = il;
+      c.__hasInternationalLaw = il.length > 0;
+    }
+    const rc = serverSearch._toStringArray(data.rules_of_court);
+    if (rc.length || !c.rules_of_court) {
+      c.rules_of_court = rc;
+      c.__hasRulesOfCourt = rc.length > 0;
+    }
     state.caseById.set(caseId, c);
 
     // Now call the regular modal opener
