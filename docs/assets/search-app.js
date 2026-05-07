@@ -1992,16 +1992,16 @@ function passesCaseFilters(c, filters) {
  */
 function formatParaNum(p) {
   if (!p) return "¶ ?";
-  // Priority: hudocParaNo > paraIdx fallback > inheritedParaNo (continuation
-  // row of the most-recent numbered paragraph; see enrichContinuationParaNos)
-  // > "—" placeholder.  For Pop C committee judgments paraIdx is uniformly
-  // null and collapsing every orphan to "¶ 1*" was misleading — em-dash
-  // shows "this is an unnumbered fragment" without a fake position.
+  // Priority: hudocParaNo > inheritedParaNo (continuation row of most-recent
+  // numbered ¶) > "—" placeholder.  paraIdx is NOT used as a label fallback:
+  // post-P23 every Pop C row carries an in-document position, but rendering
+  // it as "¶ 37*" alongside real ¶ 37 from the Court's own numbering created
+  // false-paragraph confusion (L.P. Operative Part: "Op. ¶ 37* Decides…"
+  // looked like a continuation of JS ¶ 37).  An em-dash makes it clear the
+  // row is unnumbered.
   let num;
   if (p.hudocParaNo != null) {
     num = `¶ ${p.hudocParaNo}`;
-  } else if (p.paraIdx != null) {
-    num = `¶ ${p.paraIdx + 1}*`;
   } else if (p.inheritedParaNo != null) {
     num = `¶ ${p.inheritedParaNo} cont.`;
   } else {
@@ -2091,9 +2091,11 @@ function enrichContinuationParaNos(paragraphs) {
       }
       lastNumberedParaNo = p.hudocParaNo;
       p.inheritedParaNo = null;
-    } else if (p.paraIdx != null) {
-      p.inheritedParaNo = null;
     } else if (lastNumberedParaNo != null) {
+      // Orphan within a section that already has a numbered ¶ — continuation.
+      // We do NOT bail out when paraIdx is set, because P23 backfilled
+      // paraIdx on every Pop C row; gating on it would suppress the cont.
+      // label entirely on committee judgments.
       p.inheritedParaNo = lastNumberedParaNo;
     } else {
       // Orphan with no numbered antecedent yet — park it; flushPending will
@@ -5187,7 +5189,8 @@ function renderModalSection(sectionKey, paragraphs) {
         `;
       }
       const displayText = stripLeadingParaNumber(p);
-      const isContinuation = p.inheritedParaNo != null && p.hudocParaNo == null && p.paraIdx == null;
+      // Same priority as formatParaNum: inheritedParaNo wins over paraIdx.
+      const isContinuation = p.inheritedParaNo != null && p.hudocParaNo == null;
       const classes = isContinuation ? "modal-para modal-para-continuation" : "modal-para";
       const parentAttr = isContinuation
         ? ` data-parent-para-no="${escapeHtml(String(p.inheritedParaNo))}"`

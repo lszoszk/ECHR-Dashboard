@@ -74,6 +74,33 @@ def main() -> int:
         return 0
 
     print("\napplying — assigning para_idx by rowid order within each case…")
+    # Pull every (case_id, rowid) pair for affected cases in one shot, sort
+    # in Python, build the (new_idx, rowid) update list, then push it back
+    # via executemany.  An earlier draft did this with a correlated
+    # subquery on a CTE; that took >15 min on the VM and never converged.
+    # The two-step approach below finishes in ~30 s for ~480k rows.
+    affected_case_ids = [r["case_id"] for r in affected]
+    print(f"  loading rowids for {len(affected_case_ids):,} cases…")
+    placeholders = ",".join("?" for _ in affected_case_ids)
+    cur.execute(
+        f"SELECT rowid, case_id, para_idx FROM paragraphs "
+        f"WHERE case_id IN ({placeholders}) "
+        f"ORDER BY case_id, rowid",
+        affected_case_ids,
+    )
+    rows = cur.fetchall()
+    print(f"  computing per-case indices over {len(rows):,} rows…")
+    update_pairs = []           # (new_idx, rowid)
+    backup_pairs = []           # (rowid, old_para_idx)
+    last_case = None
+    idx = 0
+    for r in rows:
+        if r["case_id"] != last_case:
+            last_case = r["case_id"]
+            idx = 0
+        update_pairs.append((idx, r["rowid"]))
+        backup_pairs.append((r["rowid"], r["para_idx"]))
+        idx += 1
     try:
         cur.execute("BEGIN")
         cur.execute("DROP TABLE IF EXISTS _p23_backup")
@@ -81,24 +108,13 @@ def main() -> int:
             "CREATE TABLE _p23_backup ("
             "rowid INTEGER PRIMARY KEY, old_para_idx INTEGER)"
         )
-        # Snapshot current para_idx values for rows we're about to change.
-        cur.execute(
-            "INSERT INTO _p23_backup (rowid, old_para_idx) "
-            "SELECT rowid, para_idx FROM paragraphs "
-            "WHERE case_id IN (SELECT case_id FROM paragraphs WHERE para_idx IS NULL)"
+        cur.executemany(
+            "INSERT INTO _p23_backup (rowid, old_para_idx) VALUES (?, ?)",
+            backup_pairs,
         )
-        # Use SQLite's row_number() per case to assign a stable index.
-        cur.execute(
-            "WITH ranked AS ("
-            "  SELECT rowid, ROW_NUMBER() OVER ("
-            "    PARTITION BY case_id ORDER BY rowid"
-            "  ) - 1 AS new_idx "
-            "  FROM paragraphs "
-            "  WHERE case_id IN (SELECT case_id FROM paragraphs WHERE para_idx IS NULL)"
-            ") "
-            "UPDATE paragraphs "
-            "SET para_idx = (SELECT new_idx FROM ranked WHERE ranked.rowid = paragraphs.rowid) "
-            "WHERE rowid IN (SELECT rowid FROM ranked)"
+        cur.executemany(
+            "UPDATE paragraphs SET para_idx = ? WHERE rowid = ?",
+            update_pairs,
         )
         con.commit()
     except Exception as exc:
