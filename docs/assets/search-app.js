@@ -506,6 +506,7 @@ function cacheElements() {
   el.searchInput = byId("searchInput");
   el.searchBtn = byId("searchBtn");
   el.queryMatchCount = byId("queryMatchCount");
+  el.queryMatchLabel = byId("queryMatchLabel");
   el.filterToggleBtn = byId("filterToggleBtn");
   el.filtersPanel = byId("filtersPanel");
 
@@ -539,7 +540,9 @@ function cacheElements() {
   el.inlineSearchInput = byId("inlineSearchInput");
   el.inlineSearchBtn = byId("inlineSearchBtn");
   el.resultsHits = byId("resultsHits");
+  el.resultsHitsLabel = byId("resultsHitsLabel");
   el.resultsCases = byId("resultsCases");
+  el.resultsCasesLabel = byId("resultsCasesLabel");
   el.resultsTime = byId("resultsTime");
   el.cardModeBtn = byId("cardModeBtn");
   el.exportBtn = byId("exportBtn");
@@ -562,6 +565,7 @@ function cacheElements() {
   el.analyticsDocTypes = byId("analyticsDocTypes");
   el.analyticsWords = byId("analyticsWords");
   el.caseContextRail = byId("caseContextRail");
+  el.caseContextRailMobile = byId("caseContextRailMobile");
 
   el.caseModal = byId("caseModal");
   el.closeModal = byId("closeModal");
@@ -816,6 +820,30 @@ function highlightTerms(text, terms) {
   }
 
   return html;
+}
+
+function serverSnippetToPlainText(snippet, fallbackText = "") {
+  return String(snippet || fallbackText || "")
+    .replace(/<\/?b>/gi, "")
+    .replace(/<[^>]*>/g, "");
+}
+
+function serverSnippetToHtml(snippet, fallbackText = "") {
+  if (!snippet) return escapeHtml(fallbackText || "");
+  const tokens = String(snippet).split(/(<\/?b>)/i);
+  let inHighlight = false;
+  return tokens.map((token) => {
+    if (/^<b>$/i.test(token)) {
+      inHighlight = true;
+      return "";
+    }
+    if (/^<\/b>$/i.test(token)) {
+      inHighlight = false;
+      return "";
+    }
+    const safe = escapeHtml(token);
+    return inHighlight ? `<mark class="hl">${safe}</mark>` : safe;
+  }).join("");
 }
 
 function updateCardModeButton() {
@@ -3999,14 +4027,18 @@ function buildResearcherBars(c, row) {
 }
 
 function renderCaseContextRail(caseId = state.activeCaseId) {
-  if (!el.caseContextRail) return;
+  if (!el.caseContextRail && !el.caseContextRailMobile) return;
+  const renderToRails = (html) => {
+    if (el.caseContextRail) el.caseContextRail.innerHTML = html;
+    if (el.caseContextRailMobile) el.caseContextRailMobile.innerHTML = html;
+  };
   const row = caseId ? state.currentResultsById.get(caseId) : null;
   if (!row) {
-    el.caseContextRail.innerHTML = `
+    renderToRails(`
       <div class="folio-label garnet">Case Note</div>
       <h3>Awaiting results</h3>
       <p class="case-context-empty">Run a search or select a result to see judgment context here.</p>
-    `;
+    `);
     return;
   }
 
@@ -4028,7 +4060,7 @@ function renderCaseContextRail(caseId = state.activeCaseId) {
       </blockquote>`
     : `<p class="case-context-empty">${escapeHtml(noParagraphNote)}</p>`;
 
-  el.caseContextRail.innerHTML = `
+  renderToRails(`
     <div class="folio-label garnet">Case Note</div>
     <h3>${escapeHtml(title)}</h3>
     <div class="case-context-ecli">${escapeHtml(c.ecli || c.case_no || "")}</div>
@@ -4055,7 +4087,7 @@ function renderCaseContextRail(caseId = state.activeCaseId) {
       ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="case-open-secondary" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>` : ""}
       <button type="button" class="case-open-secondary cite-btn" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}">Cite</button>
     </div>
-  `;
+  `);
 }
 
 function selectCase(caseId) {
@@ -4547,12 +4579,16 @@ function updateResultsHeader() {
   const totalPages = Math.ceil(totalCases / PAGE_SIZE) || 1;
   const modeLabel = state.currentMode === "browse" ? "browse" : "search";
   const limitedNote = state.limited ? ` · limited to ${MAX_HITS} hits` : "";
+  const browseMode = state.currentMode === "browse";
 
   el.resultsHeader.hidden = false;
-  el.resultsHits.textContent = fmtInt.format(state.totalHits);
+  el.resultsHits.textContent = fmtInt.format(browseMode ? totalCases : state.totalHits);
+  if (el.resultsHitsLabel) el.resultsHitsLabel.textContent = browseMode ? "cases" : "passages";
   el.resultsCases.textContent = fmtInt.format(totalCases);
+  if (el.resultsCasesLabel) el.resultsCasesLabel.textContent = "judgments";
   el.resultsTime.textContent = `(${(state.searchTimeMs / 1000).toFixed(3)}s · page ${state.currentPage}/${totalPages} · ${modeLabel}${limitedNote})`;
-  if (el.queryMatchCount) el.queryMatchCount.textContent = fmtInt.format(state.totalHits);
+  if (el.queryMatchCount) el.queryMatchCount.textContent = fmtInt.format(browseMode ? totalCases : state.totalHits);
+  if (el.queryMatchLabel) el.queryMatchLabel.textContent = browseMode ? "cases shown" : "¶ matched";
 
   el.exportBtn.disabled = !totalCases;
   el.clearBtn.disabled = !state.loaded;
@@ -4668,8 +4704,8 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
           paraIdx: p.para_idx,
           hudocParaNo: (p.hudoc_para_no != null) ? Number(p.hudoc_para_no) : null,
           numberingBlock: p.numbering_block || null,
-          rawText: (p.snippet || p.text || "").replace(/<\/?b>/g, ""),
-          textHtml: p.snippet ? p.snippet.replace(/<b>/g, '<mark class="hl">').replace(/<\/b>/g, '</mark>') : escapeHtml(p.text || ""),
+          rawText: serverSnippetToPlainText(p.snippet, p.text),
+          textHtml: serverSnippetToHtml(p.snippet, p.text),
         };
       });
 
@@ -4761,10 +4797,13 @@ function updateResultsHeaderServer(data, opts = {}) {
     : "server · full dataset";
 
   el.resultsHeader.hidden = false;
-  el.resultsHits.textContent = fmtInt.format(data.total_hits || 0);
-  el.resultsCases.textContent = fmtInt.format(totalCases);
+  el.resultsHits.textContent = fmtInt.format(defaultView ? totalCases : (data.total_hits || 0));
+  if (el.resultsHitsLabel) el.resultsHitsLabel.textContent = defaultView ? "recent cases" : "passages";
+  el.resultsCases.textContent = fmtInt.format(defaultView ? (data.total_cases || totalCases) : totalCases);
+  if (el.resultsCasesLabel) el.resultsCasesLabel.textContent = defaultView ? "records" : "judgments";
   el.resultsTime.textContent = `(${((data.search_time_ms || state.searchTimeMs) / 1000).toFixed(3)}s · page ${state.currentPage}/${totalPages} · ${serverTag})`;
-  if (el.queryMatchCount) el.queryMatchCount.textContent = fmtInt.format(data.total_hits || 0);
+  if (el.queryMatchCount) el.queryMatchCount.textContent = fmtInt.format(defaultView ? totalCases : (data.total_hits || 0));
+  if (el.queryMatchLabel) el.queryMatchLabel.textContent = defaultView ? "recent cases" : "¶ matched";
 
   el.exportBtn.disabled = !state.currentOrderedCaseIds.length;
   el.clearBtn.disabled = false;
@@ -4854,8 +4893,8 @@ async function exportCsv() {
             sectionLabel: SECTION_LABELS[sec] || sec,
             paraIdx: p.para_idx,
             hudocParaNo: (p.hudoc_para_no != null) ? Number(p.hudoc_para_no) : null,
-          numberingBlock: p.numbering_block || null,
-            rawText: (p.snippet || p.text || "").replace(/<\/?b>/g, ""),
+            numberingBlock: p.numbering_block || null,
+            rawText: serverSnippetToPlainText(p.snippet, p.text),
           };
         });
         allCaseIds.push(c.case_id);
@@ -5981,7 +6020,7 @@ function bindEvents() {
     selectCase(result.getAttribute("data-case-id"));
   });
 
-  el.caseContextRail?.addEventListener("click", (e) => {
+  const bindCaseContextActions = (rail) => rail?.addEventListener("click", (e) => {
     const clickable = e.target.closest("[data-action]");
     if (!clickable) return;
     const action = clickable.getAttribute("data-action");
@@ -5997,6 +6036,8 @@ function bindEvents() {
       if (caseObj) copyToClipboardWithFeedback(buildStandardCitation(caseObj), clickable);
     }
   });
+  bindCaseContextActions(el.caseContextRail);
+  bindCaseContextActions(el.caseContextRailMobile);
 
   el.pagination.addEventListener("click", (e) => {
     const btn = e.target.closest("button[data-page]");
@@ -6195,7 +6236,7 @@ function init() {
       }
 
       // Update data source panel
-      setDatasetStatus("Connected to ECHR Search Server — full-text search across all cases.");
+      setDatasetStatus("Connected to HUDOC Researcher API — full-text search across all cases.");
       const badgeEl = document.getElementById("serverBadgeHeader");
       if (badgeEl) {
         badgeEl.textContent = `Connected`;

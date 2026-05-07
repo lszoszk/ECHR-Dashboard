@@ -1869,6 +1869,10 @@ mark.hl {
   margin-top: 18px;
 }
 
+.mobile-case-context {
+  display: none;
+}
+
 @media (max-width: 1180px) {
   .editorial-workspace {
     grid-template-columns: 250px minmax(0, 1fr);
@@ -1923,6 +1927,15 @@ mark.hl {
   .editorial-workspace .results-main {
     padding: 22px 18px 56px;
     border-right: 0;
+  }
+
+  .mobile-case-context {
+    display: block;
+    margin: 0 0 18px;
+  }
+
+  .results-sidebar #caseContextRail {
+    display: none;
   }
 
   .researcher-result {

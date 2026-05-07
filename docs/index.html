@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ECHR Case Law — Paragraph-Level Search</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
-  <meta name="description" content="Search and analyze 18,000+ European Court of Human Rights judgments at the paragraph level. Full-text search, statistics dashboard, and comparative analysis.">
-  <meta property="og:title" content="ECHR Case Law Dashboard">
-  <meta property="og:description" content="Paragraph-level search and analytics for 18,000+ ECHR judgments.">
+  <title>HUDOC Researcher — Paragraph-Level Search</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>§</text></svg>">
+  <meta name="description" content="HUDOC Researcher searches and analyzes European Court of Human Rights case law at paragraph level.">
+  <meta property="og:title" content="HUDOC Researcher">
+  <meta property="og:description" content="Paragraph-level ECHR search and analytics for human rights research.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://lszoszk.github.io/ECHR-Dashboard/">
   <!-- Google tag (gtag.js) -->
@@ -20,9 +20,9 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/dashboard.css?v=20260506-hudoc-researcher-3">
-  <link rel="stylesheet" href="assets/search-app.css?v=20260506-hudoc-researcher-3">
-  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20260506-hudoc-researcher-3">
+  <link rel="stylesheet" href="assets/dashboard.css?v=20260507-hudoc-researcher-4">
+  <link rel="stylesheet" href="assets/search-app.css?v=20260507-hudoc-researcher-4">
+  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20260507-hudoc-researcher-4">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
 </head>
@@ -85,7 +85,7 @@
               autocomplete="off"
               disabled
             >
-            <span class="editorial-query-count"><strong id="queryMatchCount">0</strong> ¶ matched</span>
+            <span class="editorial-query-count" id="queryMatchShell"><strong id="queryMatchCount">0</strong> <span id="queryMatchLabel">¶ matched</span></span>
             <button type="submit" class="search-btn" id="searchBtn" disabled>Run search</button>
           </div>
 
@@ -239,7 +239,7 @@
         <div class="results-header" id="resultsHeader" hidden>
           <div class="results-lede">
             <div class="folio-label garnet">Results · Paragraph-Level</div>
-            <h2><strong id="resultsHits">0</strong> passages from <strong id="resultsCases">0</strong> judgments</h2>
+            <h2><strong id="resultsHits">0</strong> <span id="resultsHitsLabel">passages</span> from <strong id="resultsCases">0</strong> <span id="resultsCasesLabel">judgments</span></h2>
             <p>Sorted by relevance and recency. <span id="resultsTime">(0.000s)</span></p>
           </div>
           <div class="results-meta">
@@ -251,6 +251,12 @@
           </div>
           <div class="active-filters" id="activeFilters"></div>
         </div>
+
+        <section class="case-context-card mobile-case-context" id="caseContextRailMobile">
+          <div class="folio-label garnet">Case Note</div>
+          <h3>Awaiting results</h3>
+          <p class="case-context-empty">Run a search or select a result to see judgment context here.</p>
+        </section>
 
         <div class="no-results" id="noResults" hidden>
           <div class="no-results-icon">§</div>
@@ -317,7 +323,7 @@
 
   <footer class="footer">
     <div class="footer-container">
-      <span>ECHR Case Law Dashboard</span>
+      <span>HUDOC Researcher</span>
       <span class="footer-sep">·</span>
       <span>Data source: <a href="https://hudoc.echr.coe.int" target="_blank" rel="noopener">HUDOC</a></span>
       <span class="footer-sep">·</span>
@@ -494,6 +500,6 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
-  <script src="assets/search-app.js?v=20260506-hudoc-researcher-3"></script>
+  <script src="assets/search-app.js?v=20260507-hudoc-researcher-4"></script>
 </body>
 </html>
