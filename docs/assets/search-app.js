@@ -5381,7 +5381,22 @@ async function openCaseModalFromServer(caseId, caseStub) {
     }));
     enrichContinuationParaNos(paragraphs);
 
-    const c = state.caseById.get(caseId) || caseStub;
+    let c = state.caseById.get(caseId) || caseStub;
+    // If the only thing we know about this case came from the stub passed
+    // to openCaseModalFromServer (e.g. when a researcher navigates here
+    // via a deep link, or the dashboard test harness opens an arbitrary
+    // case_id), our cached `c` will have placeholder values like
+    // title="Loading…", case_no=undefined, and the modal meta line
+    // renders dashes for every field.  Detect that case and re-adapt the
+    // full case-detail response through `_adaptCase` so every chip,
+    // counter, and metadata field gets populated authoritatively.
+    const isStub = !c.title || c.title === "Loading…" || !c.case_no;
+    if (isStub) {
+      const adapted = serverSearch._adaptCase(data);
+      // Carry over runtime-only flags we already set on the placeholder
+      adapted.__paragraphs = c.__paragraphs || [];
+      c = adapted;
+    }
     c.__paragraphs = paragraphs;
     c.__serverLoaded = true;
     c.ecli = data.ecli || c.ecli;
