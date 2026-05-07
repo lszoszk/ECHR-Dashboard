@@ -261,6 +261,34 @@ def _parse_comma_param(value: Optional[str]) -> list[str]:
     return [v.strip() for v in value.split(",") if v.strip()]
 
 
+_WS_RE = re.compile(r"\s+")
+
+
+def _split_article_values(raw: Optional[str]) -> list[str]:
+    """Split a compound article string into individual tokens.
+
+    HUDOC's `ar` field is exported as a comma-separated list (sometimes with
+    embedded newlines and stray "§" markers); the legacy ingest path
+    persisted some rows in `case_articles` verbatim, which is why the
+    /api/facets endpoint used to surface 4,000+ "compound" filter rows
+    like ``"34, 6 § 1, 13, 6 § 1, 35 § 3, 41"`` instead of the ~120 actual
+    distinct articles.  This helper normalises whitespace, splits on
+    top-level commas (commas inside § sub-references are not used as
+    separators in HUDOC), and de-duplicates token order.
+    """
+    if not raw:
+        return []
+    cleaned = _WS_RE.sub(" ", str(raw).strip())
+    parts = [p.strip() for p in cleaned.split(",") if p.strip()]
+    seen: set[str] = set()
+    out: list[str] = []
+    for p in parts:
+        if p not in seen:
+            seen.add(p)
+            out.append(p)
+    return out
+
+
 def _enrich_case_row(row: dict[str, Any]) -> dict[str, Any]:
     """Parse JSON text fields in a case row into native Python objects."""
     for field in ("conclusion", "violation", "non_violation",
@@ -383,12 +411,19 @@ def facets():
     try:
         result: dict[str, Any] = {}
         with get_cursor() as cur:
-            # Articles
-            cur.execute(
-                "SELECT article AS value, count(DISTINCT case_id) AS count "
-                "FROM case_articles GROUP BY article ORDER BY count DESC"
+            # Articles — case_articles legacy rows can be compound strings
+            # ("34, 6 § 1, 41"); split + aggregate into per-article counts so
+            # the filter rail shows ~120 distinct articles instead of 4,000+
+            # comma-soup checkboxes.
+            cur.execute("SELECT article, case_id FROM case_articles")
+            article_to_cases: dict[str, set[str]] = {}
+            for r in cur.fetchall():
+                for tok in _split_article_values(r["article"]):
+                    article_to_cases.setdefault(tok, set()).add(r["case_id"])
+            result["articles"] = sorted(
+                [{"value": k, "count": len(v)} for k, v in article_to_cases.items()],
+                key=lambda x: -x["count"],
             )
-            result["articles"] = [_row_to_dict(r) for r in cur.fetchall()]
 
             # Respondent states — split compound entries ("Italy, San Marino")
             # into individual unique countries with aggregated counts
@@ -508,11 +543,21 @@ def _build_case_filter_sql(
         params.extend(sec_list)
 
     if art_list:
-        placeholders = ",".join("?" for _ in art_list)
-        joins.append(
-            f"JOIN case_articles ca ON ca.case_id = c.case_id AND ca.article IN ({placeholders})"
+        # case_articles legacy rows can store compound strings ("34, 8, 41"),
+        # so an exact IN match against the user's clicked filter ("8") would
+        # miss those cases.  Cover all four positional patterns: exact, head,
+        # mid, tail.  Use EXISTS so multiple matching rows don't duplicate
+        # the parent case row.
+        sub_conds = []
+        sub_params: list[Any] = []
+        for art in art_list:
+            sub_conds.append("(ca.article = ? OR ca.article LIKE ? OR ca.article LIKE ? OR ca.article LIKE ?)")
+            sub_params.extend([art, f"{art}, %", f"%, {art}, %", f"%, {art}"])
+        where_clauses.append(
+            "EXISTS (SELECT 1 FROM case_articles ca "
+            f"WHERE ca.case_id = c.case_id AND ({' OR '.join(sub_conds)}))"
         )
-        params.extend(art_list)
+        params.extend(sub_params)
 
     if state_list:
         state_conditions = []
@@ -642,15 +687,20 @@ def analytics(
             # Build a json array param for efficient IN-filtering via json_each.
             ids_json = json.dumps(matching_ids)
 
-            # Articles breakdown
+            # Articles breakdown — split compound rows (see _split_article_values
+            # in /api/facets for rationale) and aggregate top 15 by case count.
             cur.execute(
-                "SELECT ca.article AS value, count(DISTINCT ca.case_id) AS count "
+                "SELECT ca.article AS value, ca.case_id "
                 "FROM case_articles ca "
-                "WHERE ca.case_id IN (SELECT value FROM json_each(?)) "
-                "GROUP BY ca.article ORDER BY count DESC LIMIT 15",
+                "WHERE ca.case_id IN (SELECT value FROM json_each(?))",
                 [ids_json],
             )
-            result["articles"] = [_row_to_dict(r) for r in cur.fetchall()]
+            article_to_cases: dict[str, set[str]] = {}
+            for r in cur.fetchall():
+                for tok in _split_article_values(r["value"]):
+                    article_to_cases.setdefault(tok, set()).add(r["case_id"])
+            top_arts = sorted(article_to_cases.items(), key=lambda kv: -len(kv[1]))[:15]
+            result["articles"] = [{"value": k, "count": len(v)} for k, v in top_arts]
 
             # Countries breakdown (split compound entries)
             cur.execute(
@@ -797,11 +847,21 @@ def search(
         params.extend(sec_list)
 
     if art_list:
-        placeholders = ",".join("?" for _ in art_list)
-        joins.append(
-            f"JOIN case_articles ca ON ca.case_id = c.case_id AND ca.article IN ({placeholders})"
+        # case_articles legacy rows can store compound strings ("34, 8, 41"),
+        # so an exact IN match against the user's clicked filter ("8") would
+        # miss those cases.  Cover all four positional patterns: exact, head,
+        # mid, tail.  Use EXISTS so multiple matching rows don't duplicate
+        # the parent case row.
+        sub_conds = []
+        sub_params: list[Any] = []
+        for art in art_list:
+            sub_conds.append("(ca.article = ? OR ca.article LIKE ? OR ca.article LIKE ? OR ca.article LIKE ?)")
+            sub_params.extend([art, f"{art}, %", f"%, {art}, %", f"%, {art}"])
+        where_clauses.append(
+            "EXISTS (SELECT 1 FROM case_articles ca "
+            f"WHERE ca.case_id = c.case_id AND ({' OR '.join(sub_conds)}))"
         )
-        params.extend(art_list)
+        params.extend(sub_params)
 
     if state_list:
         state_conditions = []
@@ -1254,11 +1314,21 @@ def browse(
     params: list[Any] = []
 
     if art_list:
-        placeholders = ",".join("?" for _ in art_list)
-        joins.append(
-            f"JOIN case_articles ca ON ca.case_id = c.case_id AND ca.article IN ({placeholders})"
+        # case_articles legacy rows can store compound strings ("34, 8, 41"),
+        # so an exact IN match against the user's clicked filter ("8") would
+        # miss those cases.  Cover all four positional patterns: exact, head,
+        # mid, tail.  Use EXISTS so multiple matching rows don't duplicate
+        # the parent case row.
+        sub_conds = []
+        sub_params: list[Any] = []
+        for art in art_list:
+            sub_conds.append("(ca.article = ? OR ca.article LIKE ? OR ca.article LIKE ? OR ca.article LIKE ?)")
+            sub_params.extend([art, f"{art}, %", f"%, {art}, %", f"%, {art}"])
+        where_clauses.append(
+            "EXISTS (SELECT 1 FROM case_articles ca "
+            f"WHERE ca.case_id = c.case_id AND ({' OR '.join(sub_conds)}))"
         )
-        params.extend(art_list)
+        params.extend(sub_params)
 
     if state_list:
         state_conditions = []
