@@ -5106,13 +5106,28 @@ function buildCaseMeta(caseObj) {
 // backslashes; keep the `-` at the END of the class so it stays literal.
 const HEADING_ONLY_RE = /^[A-ZÉÀÈÙÂÊÎÔÛÇ0-9\s.()"'/:,\u201C\u201D\u2018\u2019\u2013\u2014-]+$/u;
 const NUMBERED_PARA_RE = /^\d+\s*[.)]\s+\S/;
+const SUBHEADING_RE = /^([A-Z]\.|\([a-z]\)|[IVX]+\.)\s+[A-Z][\p{L}\d \-,/'’()".§]*$/u;
+// Finite/auxiliary verbs that signal prose rather than a noun-phrase heading.
+// Used to reject "B. Smith was the applicant's lawyer in 1995" while still
+// accepting "B. The Court's assessment", "A. Preventive measures…", etc.
+const PROSE_VERB_RE = /\b(was|were|is|are|had|have|has|did|does|do|been|being)\b/i;
 
 function isStructuralHeading(text) {
   if (!text) return false;
   const t = text.trim();
   if (t.length === 0 || t.length > 220) return false;
   if (NUMBERED_PARA_RE.test(t)) return false;       // real numbered paragraph
-  return HEADING_ONLY_RE.test(t);
+  if (HEADING_ONLY_RE.test(t)) return true;
+  // Title-case sub-headings — short noun-phrase lines that mark
+  // sub-sections within a numbered judgment.  After the P34 HUDOC-rebuild
+  // these come straight from the source DOCX, e.g.:
+  //   "A. Damage", "B. Costs and expenses", "C. Default interest",
+  //   "(a) The applicant", "(b) Application of the above principles…",
+  //   "B. Merits 1. The applicant", "B. The Court's assessment".
+  // Anchored at the marker; capped to 100 chars; rejected if the line
+  // contains a finite/auxiliary verb (signals prose, e.g. "B. Smith was…").
+  if (t.length <= 100 && SUBHEADING_RE.test(t) && !PROSE_VERB_RE.test(t)) return true;
+  return false;
 }
 
 /**
