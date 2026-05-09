@@ -4,10 +4,20 @@
 
 ## What's in the dataset
 
-- **24,669 cases** from the European Court of Human Rights (1960 – present)
-- **2.0 million paragraphs** segmented from judgment, decision, and admissibility-decision texts
+- **19,720 court rulings** from the European Court of Human Rights (1960 – present)
+- **2.19 million paragraphs** segmented from judgment, decision, and admissibility-decision texts
 - **Source:** the official HUDOC portal (cases harvested by the Court itself)
 - **Coverage:** all 47 Council of Europe contracting parties plus their successor states
+
+### Press releases excluded
+
+The HUDOC portal indexes ~4,949 press releases alongside the actual court rulings — short journalistic summaries the Registry issues for chamber judgments. These were excluded from the dashboard corpus on 2026-05-09 because:
+
+- They are not court rulings; they are summaries of rulings already in the corpus.
+- They have no numbered paragraphs (`¶ 1`, `¶ 2`…) — segmentation produces meaningless results.
+- They double-count cases in paragraph-level search (the same finding appears once in the press release and once in the underlying judgment).
+
+Backup tables (`_press_releases_backup_*`) on the source database preserve the removed rows so the decision is fully reversible.
 
 ## Why labelling is non-trivial
 
@@ -16,14 +26,14 @@ ECHR judgments do not follow a single template. The Court's drafting style has e
 | Population | Years | Cases | Typical structure |
 |---|---|---:|---|
 | **Classical** (pre-1998) | 1960 – ~1998 | ~4,500 | Header → Procedure → Facts → As to the Law → Operative Part → Separate Opinions |
-| **Modern Chamber** | 1999 – present | ~13,400 | Introduction → Facts → Legal Framework → Merits → Just Satisfaction → Operative Part |
+| **Modern Chamber** | 1999 – present | ~9,000 | Introduction → Facts → Legal Framework → Merits → Just Satisfaction → Operative Part |
 | **Committee / mass cases** | 2009 – present | ~6,200 | Introduction → Relevant legal framework → Facts → Merits → Operative part *(lowercase, often compressed)* |
 
 The same content (e.g., a "violation finding") can appear under quite different section headings depending on the population, the rapporteur's drafting habits, or PDF-extraction quirks. Naïve segmentation produces noisy labels — paragraphs of substantive analysis end up in `Facts`, just-satisfaction reasoning ends up in `Merits`, dispositif clauses bleed into `Just Satisfaction`, and so on.
 
 ## What we did
 
-A series of **fourteen rule-based cleaning passes** were applied on top of the initial segmentation. Each pass targets a specific, well-defined misclassification pattern (for example: "Article 41 reasoning blocks misfiled into Merits", "dissenting opinions bleeding into the Operative Part", "numbered Holds clauses stranded in Just Satisfaction"). Together they relabelled approximately **319,000 paragraphs — about 16 % of the corpus** — to bring section labels into closer agreement with HUDOC-canonical structure.
+A series of **fifteen rule-based cleaning passes** were applied on top of the initial segmentation. Earlier passes (P1–P33) target specific misclassification patterns: "Article 41 reasoning blocks misfiled into Merits", "dissenting opinions bleeding into the Operative Part", "numbered Holds clauses stranded in Just Satisfaction", and similar. The most recent pass (**P34**, 2026-05-08) re-ingests every case directly from its HUDOC source DOCX as the single source of truth, replacing legacy PDF-segmenter fragments with one canonical paragraph per `<w:p>` element. Together these passes relabelled or rebuilt over **2 million paragraph rows** — substantially the entire corpus.
 
 Two new section labels (`Commission Proceedings`, `Final Submissions`) were added to capture pre-Protocol-11 procedural sub-sections that the Court no longer uses. Two structural columns (`hudoc_para_no`, `numbering_block`) were derived to support cross-reference against source PDFs.
 

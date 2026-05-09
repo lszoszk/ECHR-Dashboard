@@ -30,24 +30,50 @@ PARA_NUM_RE = re.compile(r"^\s*(\d+)\.\s+")
 ctx = ssl._create_unverified_context()
 
 # Section assignment from major all-caps headers.  Order = priority (longer
-# match first when needles overlap).
+# match first when needles overlap).  Tagged with language so we can mark
+# the case as French at output time.
 HEADING_RULES = [
-    ("FOR THESE REASONS",            "Operative part"),
-    ("APPLICATION OF ARTICLE 41",    "Just Satisfaction"),
-    ("JUST SATISFACTION",            "Just Satisfaction"),
-    ("OTHER ALLEGED VIOLATIONS",     "Merits"),
-    ("OTHER COMPLAINTS",             "Merits"),
-    ("ALLEGED VIOLATION OF",         "Merits"),
-    ("THE COURT'S ASSESSMENT",       "Merits"),
-    ("THE COURT’S ASSESSMENT",  "Merits"),
-    ("SUBJECT MATTER OF THE CASE",   "Facts"),
-    ("THE FACTS",                    "Facts"),
-    ("THE CIRCUMSTANCES OF THE CASE","Facts"),
-    ("PROCEDURE",                    "Facts"),
-    ("RELEVANT LEGAL FRAMEWORK",     "Legal Framework"),
-    ("RELEVANT DOMESTIC LAW",        "Legal Framework"),
-    ("RELEVANT INTERNATIONAL",       "Legal Framework"),
-    ("THE LAW",                      "Merits"),
+    # ── English ───────────────────────────────────────────────────────
+    ("FOR THESE REASONS",            "Operative part",    "en"),
+    ("APPLICATION OF ARTICLE 41",    "Just Satisfaction", "en"),
+    ("JUST SATISFACTION",            "Just Satisfaction", "en"),
+    ("OTHER ALLEGED VIOLATIONS",     "Merits",            "en"),
+    ("OTHER COMPLAINTS",             "Merits",            "en"),
+    ("ALLEGED VIOLATION OF",         "Merits",            "en"),
+    ("THE COURT'S ASSESSMENT",       "Merits",            "en"),
+    ("THE COURT’S ASSESSMENT",  "Merits",            "en"),
+    ("SUBJECT MATTER OF THE CASE",   "Facts",             "en"),
+    ("THE FACTS",                    "Facts",             "en"),
+    ("THE CIRCUMSTANCES OF THE CASE","Facts",             "en"),
+    ("PROCEDURE",                    "Facts",             "en"),
+    ("RELEVANT LEGAL FRAMEWORK",     "Legal Framework",   "en"),
+    ("RELEVANT DOMESTIC LAW",        "Legal Framework",   "en"),
+    ("RELEVANT INTERNATIONAL",       "Legal Framework",   "en"),
+    ("THE LAW",                      "Merits",            "en"),
+    # ── French ────────────────────────────────────────────────────────
+    ("PAR CES MOTIFS",               "Operative part",    "fr"),
+    ("APPLICATION DE L'ARTICLE 41",  "Just Satisfaction", "fr"),
+    ("APPLICATION DE L’ARTICLE 41",  "Just Satisfaction", "fr"),
+    ("SATISFACTION ÉQUITABLE",       "Just Satisfaction", "fr"),
+    ("DOMMAGE",                      "Just Satisfaction", "fr"),
+    ("AUTRES VIOLATIONS ALLÉGUÉES",  "Merits",            "fr"),
+    ("AUTRES GRIEFS",                "Merits",            "fr"),
+    ("VIOLATION ALLÉGUÉE DE",        "Merits",            "fr"),
+    ("VIOLATION ALLEGUEE DE",        "Merits",            "fr"),
+    ("APPRÉCIATION DE LA COUR",      "Merits",            "fr"),
+    ("APPRECIATION DE LA COUR",      "Merits",            "fr"),
+    ("OBJET DE L'AFFAIRE",           "Facts",             "fr"),
+    ("OBJET DE L’AFFAIRE",           "Facts",             "fr"),
+    ("EN FAIT",                      "Facts",             "fr"),
+    ("LES CIRCONSTANCES DE L'ESPÈCE","Facts",             "fr"),
+    ("LES CIRCONSTANCES DE L’ESPÈCE","Facts",             "fr"),
+    ("PROCÉDURE",                    "Facts",             "fr"),
+    ("PROCEDURE DEVANT LA COUR",     "Facts",             "fr"),
+    ("CADRE JURIDIQUE INTERNE",      "Legal Framework",   "fr"),
+    ("DROIT ET PRATIQUE INTERNES",   "Legal Framework",   "fr"),
+    ("DROIT INTERNE PERTINENT",      "Legal Framework",   "fr"),
+    ("TEXTES INTERNATIONAUX",        "Legal Framework",   "fr"),
+    ("EN DROIT",                     "Merits",            "fr"),
 ]
 
 # Stop processing main judgment when we hit one of these — separate
@@ -60,22 +86,49 @@ STOP_PATTERNS = [
 ]
 
 
+FETCH_DELAY_S = float(__import__("os").environ.get("P34_FETCH_DELAY", "0"))
+_last_fetch = [0.0]
+_fetch_lock = __import__("threading").Lock()
+
+
 def fetch_docx(cid):
-    """Fetch DOCX with exponential backoff on 403/429 (rate-limit) errors."""
-    backoff = [3, 10, 30]
+    """Fetch DOCX with throttle + exponential backoff on rate-limit errors.
+
+    Distinguish failure modes:
+      - 403/429: rate-limit → retry with backoff
+      - 500/502/503: HUDOC server bug for this case → fail immediately
+        (these are persistent, retrying wastes time)
+      - Other transient errors (timeout, network): retry once
+      - 204: empty content → fail immediately (rare, but means nothing
+        to parse)
+    Per-request throttle via FETCH_DELAY_S (env var P34_FETCH_DELAY).
+    """
+    if FETCH_DELAY_S > 0:
+        with _fetch_lock:
+            now = time.time()
+            sleep_for = (_last_fetch[0] + FETCH_DELAY_S) - now
+            if sleep_for > 0:
+                time.sleep(sleep_for)
+            _last_fetch[0] = time.time()
+
+    backoff = [5, 20, 60]
     for attempt, wait in enumerate([0] + backoff):
         if wait:
             time.sleep(wait)
         try:
             req = urllib.request.Request(DOCX_URL.format(cid=cid),
                 headers={"User-Agent": "Mozilla/5.0", "Accept": "*/*"})
-            return urllib.request.urlopen(req, context=ctx, timeout=25).read()
+            resp = urllib.request.urlopen(req, context=ctx, timeout=25)
+            data = resp.read()
+            if len(data) < 100:
+                raise RuntimeError(f"empty response ({len(data)} bytes)")
+            return data
         except urllib.error.HTTPError as e:
             if e.code in (403, 429) and attempt < len(backoff):
-                continue
-            raise
-        except Exception:
-            if attempt < len(backoff):
+                continue  # rate-limit, retry
+            raise  # 500 etc — give up
+        except (urllib.error.URLError, TimeoutError):
+            if attempt < 1:  # only retry transient errors once
                 continue
             raise
     raise RuntimeError("fetch_docx exhausted retries")
@@ -97,14 +150,15 @@ def is_likely_heading(text):
 
 
 def section_for_header(text):
+    """Return (section, language) or (None, None) if not a recognised header."""
     if not is_likely_heading(text):
-        return None
+        return (None, None)
     upper = text.upper()
-    for needle, sec in HEADING_RULES:
+    for needle, sec, lang in HEADING_RULES:
         # word-boundary match — avoids "THE LAW" hitting "THE LAWFULNESS"
         if re.search(r"\b" + re.escape(needle.upper()) + r"\b", upper):
-            return sec
-    return None
+            return (sec, lang)
+    return (None, None)
 
 
 def parse_docx(blob):
@@ -127,10 +181,8 @@ def parse_docx(blob):
     in_legal_framework = False
     max_para_seen = 0
     para_accept_count = 0
-    # Skip the cover page / pre-PROCEDURE preamble (case caption, dateline,
-    # composition, "Having regard to…").  Start emitting only after we hit
-    # the first big section heading.
     started = False
+    language_votes = {"en": 0, "fr": 0}
 
     for p in doc.paragraphs:
         text = (p.text or "").strip()
@@ -142,8 +194,10 @@ def parse_docx(blob):
             break
 
         # Big section header?
-        new_section = section_for_header(text)
+        new_section, lang = section_for_header(text)
         if new_section:
+            if lang:
+                language_votes[lang] = language_votes.get(lang, 0) + 1
             if not started:
                 started = True
             # Operative part marks the end of main judgment
@@ -209,7 +263,12 @@ def parse_docx(blob):
             "text": text,
         })
 
-    return out
+    # Determine language: majority vote from matched headers; default "en".
+    if language_votes["fr"] > language_votes["en"]:
+        lang = "fr"
+    else:
+        lang = "en"
+    return (out, lang)
 
 
 def get_existing_rows(cid):
@@ -240,7 +299,7 @@ def process_case(cid):
     try:
         existing = get_existing_rows(cid)
         blob = fetch_docx(cid)
-        new_rows = parse_docx(blob)
+        new_rows, lang = parse_docx(blob)
     except Exception as e:
         return {"cid": cid, "status": "FAIL", "err": str(e)[:80]}
 
@@ -280,7 +339,7 @@ def process_case(cid):
         )
 
     return {
-        "cid": cid, "status": "OK",
+        "cid": cid, "status": "OK", "language": lang,
         "sql": forward, "rollback": rollback,
         "old_count": len(replaced_rows), "new_count": len(new_rows),
     }
@@ -343,23 +402,49 @@ def main():
 
     out_name = os.environ.get("P34_OUT", "/tmp/p34_rebuild.sql")
     rb_name = os.environ.get("P34_ROLLBACK", "/tmp/p34_rebuild_rollback.sql")
+    fr_name = os.environ.get("P34_OUT_FR", out_name.replace(".sql", "_fr.sql"))
+    fr_rb_name = os.environ.get("P34_ROLLBACK_FR", rb_name.replace(".sql", "_fr.sql"))
+    fr_list_name = os.environ.get("P34_FR_LIST", "/tmp/p34_fr_cases.txt")
     append = os.environ.get("P34_APPEND") == "1"
-    out = Path(out_name)
-    rb = Path(rb_name)
-    all_fwd, all_rb = [], []
+
+    en_fwd, en_rb, fr_fwd, fr_rb, fr_cases = [], [], [], [], []
     for r in results:
-        all_fwd.extend(r.get("sql", []))
-        all_rb.extend(r.get("rollback", []))
-    fwd_text = "\n".join(all_fwd) + "\n"
-    rb_text = "\n".join(all_rb) + "\n"
-    if append and out.exists():
-        with out.open("a") as f: f.write(fwd_text)
-        with rb.open("a") as f: f.write(rb_text)
+        if r.get("status") != "OK":
+            continue
+        if r.get("language") == "fr":
+            fr_fwd.extend(r.get("sql", []))
+            fr_rb.extend(r.get("rollback", []))
+            fr_cases.append(r["cid"])
+        else:
+            en_fwd.extend(r.get("sql", []))
+            en_rb.extend(r.get("rollback", []))
+
+    def _write(path, text, append):
+        p = Path(path)
+        if append and p.exists():
+            with p.open("a") as f: f.write(text)
+        else:
+            p.write_text(text)
+        return p
+
+    en_out_p = _write(out_name,    "\n".join(en_fwd) + "\n", append)
+    en_rb_p  = _write(rb_name,     "\n".join(en_rb)  + "\n", append)
+    fr_out_p = _write(fr_name,     "\n".join(fr_fwd) + "\n", append)
+    fr_rb_p  = _write(fr_rb_name,  "\n".join(fr_rb)  + "\n", append)
+    # FR case list
+    fr_list_path = Path(fr_list_name)
+    if append and fr_list_path.exists():
+        existing_fr = set(fr_list_path.read_text().split())
+        for c in fr_cases: existing_fr.add(c)
+        fr_list_path.write_text("\n".join(sorted(existing_fr)) + "\n")
     else:
-        out.write_text(fwd_text)
-        rb.write_text(rb_text)
-    print(f"\nForward  SQL: {out}  ({out.stat().st_size:,} bytes, +{len(all_fwd)} stmts {'APPENDED' if append else 'WRITTEN'})")
-    print(f"Rollback SQL: {rb}  ({rb.stat().st_size:,} bytes, +{len(all_rb)} stmts {'APPENDED' if append else 'WRITTEN'})")
+        fr_list_path.write_text("\n".join(sorted(fr_cases)) + "\n")
+
+    print(f"\nEN Forward  SQL: {en_out_p}  ({en_out_p.stat().st_size:,} bytes, +{len(en_fwd)} stmts {'APPENDED' if append else 'WRITTEN'})")
+    print(f"EN Rollback SQL: {en_rb_p}  ({en_rb_p.stat().st_size:,} bytes, +{len(en_rb)} stmts)")
+    print(f"FR Forward  SQL: {fr_out_p}  ({fr_out_p.stat().st_size:,} bytes, +{len(fr_fwd)} stmts)")
+    print(f"FR Rollback SQL: {fr_rb_p}  ({fr_rb_p.stat().st_size:,} bytes, +{len(fr_rb)} stmts)")
+    print(f"FR case list:    {fr_list_path}  ({len(fr_cases)} new cases)")
 
 
 if __name__ == "__main__":
