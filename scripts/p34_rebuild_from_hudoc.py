@@ -236,20 +236,20 @@ def parse_docx(blob):
         style = p.style.name if p.style else ""
         role = classify_style(style)
 
-        # Universal STOP — reached "Done in English…" / "DISSENTING
-        # OPINION OF JUDGE …" / similar.  Check BEFORE role-based skips
-        # because HUDOC's template occasionally misclassifies opinion
-        # subsection headings (e.g. ESCOUBET 1999 has "A. Immediate
-        # withdrawal" tagged Opi_H_A even though it's a Ju_H_A — using
-        # the role to break would lose ¶ 17–40).
-        if any(pat.match(text) for pat in STOP_PATTERNS):
-            break
+        # TOC filter first — DANILEŢ's TOC contains lines like
+        # "CONCURRING OPINION OF JUDGE KRENC\t71" which would otherwise
+        # match STOP_PATTERNS and cut the parse short.
         if TOC_LINE_RE.search(text):
             continue
-
-        # Always-skip: TOC entries, document metadata.
         if role == "toc":
             continue
+
+        # Universal STOP — "Done in English…", separate-opinion title.
+        # Comes after the TOC filter so it doesn't fire on TOC mentions.
+        if any(pat.match(text) for pat in STOP_PATTERNS):
+            break
+
+        # Always-skip: document metadata.
         if role == "metadata":
             continue
         # Opinion paragraphs (Opi_Para) are out of scope — main judgment
@@ -258,6 +258,29 @@ def parse_docx(blob):
         # mis-styles them in main-judgment territory.
         if role == "opinion" and style == "Opi_Para":
             break
+
+        # Universal section-header detection by TEXT (works for both
+        # styled Ju_H_* paragraphs and old-template "Normal" docs that
+        # don't carry the modern style names — without this, cases that
+        # have no Ju_H_* style at all never flip `started=True` and
+        # everything after metadata is skipped).
+        if role != "judgment" and role != "quote":
+            text_section, text_lang = section_for_header(text)
+            if text_section:
+                if text_lang:
+                    language_votes[text_lang] = language_votes.get(text_lang, 0) + 1
+                if not started:
+                    started = True
+                if text_section == "Operative part":
+                    break
+                section = text_section
+                out.append({
+                    "section": "Header",
+                    "hudoc_para_no": None,
+                    "numbering_block": None,
+                    "text": text,
+                })
+                continue
 
         # Heading?
         if role == "heading":
@@ -291,6 +314,14 @@ def parse_docx(blob):
         # Operative-part list ("Holds…", "Decides…") — main judgment ends.
         if role == "list":
             break
+
+        # Auto-start when we see the first Ju_Para with a leading number
+        # — covers cases that lack Ju_H_* headings entirely (some
+        # 1990s-era templates just use Normal + Ju_Para).
+        if role == "judgment" and not started:
+            m_check = PARA_NUM_RE.match(text)
+            if m_check and int(m_check.group(1)) <= 3:
+                started = True
 
         # Skip preamble before first big heading (Ju_Para can appear in
         # cover/intro before PROCEDURE — e.g. the keyword summary line).
