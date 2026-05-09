@@ -168,24 +168,62 @@ def section_for_header(text):
     return (None, None)
 
 
+# Style-name → semantic role mapping (HUDOC's Word template scheme,
+# consistent across 1986 Plenary, 2010s Chamber, 2020s GC).  Discovered
+# by paragraph-style frequency tally on stratified samples.
+def classify_style(s):
+    """Return one of:
+       'toc'       — table of contents entry
+       'judgment'  — main numbered paragraph (Ju_Para)
+       'quote'     — indented blockquote (Ju_Quot — its own \\d+. numbers
+                      are quoting an external source, NOT main ¶ numbering)
+       'heading'   — section / sub-section title
+       'opinion'   — separate / dissenting / concurring opinion (out of scope)
+       'list'      — operative-part list item (Ju_List)
+       'metadata'  — case caption, judges list, signature etc.
+       'normal'    — unstyled / catch-all (often the Convention quote
+                      blockquotes that aren't tagged Ju_Quot)
+    """
+    s = (s or "").strip()
+    if not s:
+        return "normal"
+    sl = s.lower()
+    if sl.startswith("toc"):
+        return "toc"
+    if s in ("Ju_Para", "Ju_Para_Last"):
+        return "judgment"
+    if s == "Ju_Quot":
+        return "quote"
+    if s.startswith("Opi_"):
+        return "opinion"
+    if s.startswith("Ju_H_") or s == "Ju_H_Head":
+        return "heading"
+    if s.startswith("Ju_List"):
+        return "list"
+    if s.startswith("Dec_") or s in (
+        "Ju_Title", "Ju_Case", "Ju_Judges", "Ju_Court", "Ju_Signed",
+        "ECHR_Cover_Title_4", "ECHR_Placeholder",
+    ):
+        return "metadata"
+    return "normal"
+
+
 def parse_docx(blob):
     """Return ordered list of paragraph dicts for the main-judgment portion.
 
-    Each dict: {section, hudoc_para_no, numbering_block, text}
-
-    Section is inherited from the most recent recognised heading.  Big
-    headers themselves are emitted as Header rows (numbering_block=NULL).
-    Numbered paragraphs (¶ N) become main_judgment rows with hudoc_para_no=N.
-    Everything else (sub-section titles like "A. Damage", "(a) The
-    applicant") becomes a NULL-numbered main_judgment row — the frontend's
-    isStructuralHeading regex picks them up as headings at render time.
-    Monotonic-only ¶ N filter to avoid Legal-Framework numbered list items
-    polluting paragraph numbering.
+    P36 redesign: classify by paragraph STYLE first, fall back to text-
+    pattern matching only when style is missing or ambiguous.  This lets
+    us tell apart:
+      - HUDOC's main numbered ¶s (style "Ju_Para") — these get hudoc_para_no
+      - Indented quote blocks (style "Ju_Quot") whose internal "57.", "67."
+        numbering is the quoted source's own numbering, NOT the ECHR's
+      - TOC entries (style "toc 1..4") — completely ignored
+      - Section / sub-section headings (Ju_H_*) — emitted as Header rows
+      - Separate opinions (Opi_*) — break out of main-judgment processing
     """
     doc = Document(io.BytesIO(blob))
     out = []
     section = "Facts"
-    in_legal_framework = False
     max_para_seen = 0
     para_accept_count = 0
     started = False
@@ -195,28 +233,53 @@ def parse_docx(blob):
         text = (p.text or "").strip()
         if not text:
             continue
+        style = p.style.name if p.style else ""
+        role = classify_style(style)
 
-        # Skip table-of-contents lines ("PROCEDURE\t1", "1.\tProceedings…\t4")
+        # Universal STOP — reached "Done in English…" / "DISSENTING
+        # OPINION OF JUDGE …" / similar.  Check BEFORE role-based skips
+        # because HUDOC's template occasionally misclassifies opinion
+        # subsection headings (e.g. ESCOUBET 1999 has "A. Immediate
+        # withdrawal" tagged Opi_H_A even though it's a Ju_H_A — using
+        # the role to break would lose ¶ 17–40).
+        if any(pat.match(text) for pat in STOP_PATTERNS):
+            break
         if TOC_LINE_RE.search(text):
             continue
 
-        # Stop at separate-opinion / footer
-        if any(pat.match(text) for pat in STOP_PATTERNS):
+        # Always-skip: TOC entries, document metadata.
+        if role == "toc":
+            continue
+        if role == "metadata":
+            continue
+        # Opinion paragraphs (Opi_Para) are out of scope — main judgment
+        # has ended.  Opinion sub-section headings (Opi_H_*) alone are
+        # NOT trusted to signal the boundary, because HUDOC sometimes
+        # mis-styles them in main-judgment territory.
+        if role == "opinion" and style == "Opi_Para":
             break
 
-        # Big section header?
-        new_section, lang = section_for_header(text)
-        if new_section:
+        # Heading?
+        if role == "heading":
+            new_section, lang = section_for_header(text)
+            if not new_section:
+                # Sub-section heading without a section keyword (e.g. "A.
+                # Damage", "(a) The applicant") — keep as a header row in
+                # the current section.
+                out.append({
+                    "section": section if started else "Header",
+                    "hudoc_para_no": None,
+                    "numbering_block": None,
+                    "text": text,
+                })
+                continue
             if lang:
                 language_votes[lang] = language_votes.get(lang, 0) + 1
             if not started:
                 started = True
-            # Operative part marks the end of main judgment
             if new_section == "Operative part":
-                # Emit nothing — existing operative_dispositif rows stay
-                break
+                break  # main judgment ends
             section = new_section
-            in_legal_framework = (section == "Legal Framework")
             out.append({
                 "section": "Header",
                 "hudoc_para_no": None,
@@ -225,16 +288,20 @@ def parse_docx(blob):
             })
             continue
 
+        # Operative-part list ("Holds…", "Decides…") — main judgment ends.
+        if role == "list":
+            break
+
+        # Skip preamble before first big heading (Ju_Para can appear in
+        # cover/intro before PROCEDURE — e.g. the keyword summary line).
         if not started:
-            # Skip cover page / pre-PROCEDURE preamble entirely
             continue
 
-        # Numbered paragraph?
-        m = PARA_NUM_RE.match(text)
-        if m:
-            n = int(m.group(1))
-            if in_legal_framework:
-                # Don't number Legal Framework list items — they reset
+        # Main judgment paragraph — extract the ¶ number.
+        if role == "judgment":
+            m = PARA_NUM_RE.match(text)
+            if not m:
+                # Ju_Para without a leading number — keep as continuation.
                 out.append({
                     "section": section,
                     "hudoc_para_no": None,
@@ -242,11 +309,9 @@ def parse_docx(blob):
                     "text": text,
                 })
                 continue
+            n = int(m.group(1))
             if para_accept_count > 0 and n <= max_para_seen:
-                # Allow exactly one small early reset
                 if not (para_accept_count == 1 and n <= 3 and max_para_seen <= 3):
-                    # Treat as non-paragraph content (probably a numbered
-                    # list item embedded in text we shouldn't renumber)
                     out.append({
                         "section": section,
                         "hudoc_para_no": None,
@@ -264,9 +329,35 @@ def parse_docx(blob):
             para_accept_count += 1
             continue
 
-        # Sub-section heading or unmarked content — keep as
-        # main_judgment NULL-numbered.  Frontend isStructuralHeading
-        # picks up real headings (A. Damage, (a) The applicant, etc.).
+        # Quoted blockquote — never gets a ¶ number, even if its text
+        # starts with "57. ...".  Numbering inside quotes belongs to the
+        # quoted source (e.g. Romanian High Court).
+        if role == "quote":
+            out.append({
+                "section": section,
+                "hudoc_para_no": None,
+                "numbering_block": "main_judgment",
+                "text": text,
+            })
+            continue
+
+        # Normal / fallback — text-pattern numbered ¶ for unstyled cases
+        # (older Plenary judgments occasionally fall here).
+        m = PARA_NUM_RE.match(text)
+        if m:
+            n = int(m.group(1))
+            if para_accept_count == 0 or n > max_para_seen or (
+                para_accept_count == 1 and n <= 3 and max_para_seen <= 3
+            ):
+                out.append({
+                    "section": section,
+                    "hudoc_para_no": n,
+                    "numbering_block": "main_judgment",
+                    "text": text,
+                })
+                max_para_seen = max(max_para_seen, n)
+                para_accept_count += 1
+                continue
         out.append({
             "section": section,
             "hudoc_para_no": None,
