@@ -27,6 +27,13 @@ from docx import Document
 DOCX_URL = "https://hudoc.echr.coe.int/app/conversion/docx/?library=ECHR&id={cid}&filename={cid}.docx"
 API_BASE = "https://150.254.115.204/echr-api/api"
 PARA_NUM_RE = re.compile(r"^\s*(\d+)\.\s+")
+# Table-of-contents entry: ends with "<TAB><page-number>" (1–4 digits).
+# Recent Grand Chamber judgments (e.g. DANILEŢ v ROMANIA, 2025) prefix the
+# main body with a TOC.  Each TOC line repeats a heading or sub-heading
+# followed by a tab and a page number.  Without filtering, the parser
+# captures TOC subsection numbers as if they were main paragraph numbers,
+# then the monotonic guard rejects the real ¶ 1+ when it finally appears.
+TOC_LINE_RE = re.compile(r"\t\d{1,4}\s*$")
 ctx = ssl._create_unverified_context()
 
 # Section assignment from major all-caps headers.  Order = priority (longer
@@ -187,6 +194,10 @@ def parse_docx(blob):
     for p in doc.paragraphs:
         text = (p.text or "").strip()
         if not text:
+            continue
+
+        # Skip table-of-contents lines ("PROCEDURE\t1", "1.\tProceedings…\t4")
+        if TOC_LINE_RE.search(text):
             continue
 
         # Stop at separate-opinion / footer
