@@ -59,6 +59,7 @@ guesses.  Expect one round of tuning after the golden-query A/B.
 from __future__ import annotations
 
 import json
+import re
 from typing import Any, Iterable
 
 
@@ -114,6 +115,27 @@ BODY_DEFAULT_BOOST: float = 1.00
 #: (mirrors the pattern used elsewhere in ``main.py``).
 DOC_TYPE_BOOST_PRESS_RELEASE: float = 0.75
 DOC_TYPE_BOOST_JUDGMENT: float = 1.00
+
+
+#: Strong multiplicative boost applied when at least one query term appears
+#: in the case title.  Rationale: short title fields are normalised by
+#: SQLite FTS5 BM25 in a way that doesn't always beat repeated body matches
+#: from other cases citing the same name (e.g. searching "KRASNOSHAPKA"
+#: returned 38 cases citing it before the source case itself).  An explicit
+#: rerank boost is needed on top of the BM25F column weights so that a
+#: query that *is* a case name ranks the source case first.  The boost is
+#: only applied to terms that look like proper nouns (5+ chars, not a
+#: common stopword) to avoid spuriously inflating cases whose title happens
+#: to contain "the" / "article".
+TITLE_MATCH_BOOST: float = 3.0
+
+#: Tokens too short or too common to drive a title-match boost.  Title
+#: matches on these would fire on any case ("article", "the").
+TITLE_MATCH_STOPWORDS: set[str] = {
+    "the", "a", "an", "of", "and", "or", "in", "on", "v", "vs",
+    "case", "court", "article", "convention", "human", "rights",
+    "european", "judgment", "decision", "application", "no",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -214,12 +236,43 @@ def _resolve_doc_type_boost(document_type: Any) -> float:
     return DOC_TYPE_BOOST_JUDGMENT
 
 
+_TOKEN_RE = re.compile(r"[A-Za-zÀ-ſ]{2,}")
+
+
+def title_matches_query(title: Any, query_terms: Iterable[str]) -> bool:
+    """Return True iff at least one non-stopword query term appears as a
+    whole word in the case title (case-insensitive).
+
+    Used to fire ``TITLE_MATCH_BOOST`` on the canonical "I searched for
+    a case name and want that case first" path.  Title-match detection
+    is intentionally Python-side rather than via FTS: the rerank pass
+    already has every case's title in hand, and an explicit substring
+    check is both cheaper and more controllable than fighting BM25's
+    field-length normalisation.
+    """
+    if not title or not query_terms:
+        return False
+    title_tokens = {tok.lower() for tok in _TOKEN_RE.findall(str(title))}
+    if not title_tokens:
+        return False
+    for term in query_terms:
+        if not term:
+            continue
+        t = term.strip().lower()
+        if len(t) < 4 or t in TITLE_MATCH_STOPWORDS:
+            continue
+        if t in title_tokens:
+            return True
+    return False
+
+
 def compute_final_score(
     sum_bm25: float | None,
     *,
     importance: Any = None,
     originating_body: Any = None,
     document_type: Any = None,
+    title_match: bool = False,
 ) -> float:
     """Apply multiplicative metadata boosts to ``sum_bm25``.
 
@@ -238,8 +291,9 @@ def compute_final_score(
     imp_mult = _resolve_importance_boost(importance)
     body_mult = _resolve_body_boost(originating_body)
     doc_mult = _resolve_doc_type_boost(document_type)
+    title_mult = TITLE_MATCH_BOOST if title_match else 1.0
 
-    return base * imp_mult * body_mult * doc_mult
+    return base * imp_mult * body_mult * doc_mult * title_mult
 
 
 def rerank_candidates(candidates: Iterable[dict]) -> list[dict]:
@@ -267,6 +321,7 @@ def rerank_candidates(candidates: Iterable[dict]) -> list[dict]:
             importance=cand.get("importance"),
             originating_body=cand.get("originating_body"),
             document_type=cand.get("document_type"),
+            title_match=bool(cand.get("title_match")),
         )
         enriched = dict(cand)
         enriched["final_score"] = final

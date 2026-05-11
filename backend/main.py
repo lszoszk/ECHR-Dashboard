@@ -340,6 +340,50 @@ def _attach_citation_counts(cur: sqlite3.Cursor,
         cd.setdefault("cited_by_count", 0)
 
 
+_COLUMN_CACHE: dict[tuple[str, str], bool] = {}
+
+
+def _has_column(cur: sqlite3.Cursor, table: str, column: str) -> bool:
+    """Return whether `table.column` exists in the currently opened DB.
+
+    The API code is deployed against DBs that may lag the latest schema while
+    a rebuild is in progress.  Optional projections let new code read both the
+    legacy and source-exact schemas without dropping the request.
+    """
+    key = (table, column)
+    if key not in _COLUMN_CACHE:
+        cur.execute(f"PRAGMA table_info({table})")
+        _COLUMN_CACHE[key] = any(r[1] == column for r in cur.fetchall())
+    return _COLUMN_CACHE[key]
+
+
+def _optional_column_expr(cur: sqlite3.Cursor, table: str, column: str,
+                          alias: str | None = None,
+                          source_alias: str | None = None) -> str:
+    out_alias = alias or column
+    if _has_column(cur, table, column):
+        prefix = f"{source_alias}." if source_alias else ""
+        return f"{prefix}{column} AS {out_alias}"
+    return f"NULL AS {out_alias}"
+
+
+def _case_projection(cur: sqlite3.Cursor, include_ecli: bool = False) -> str:
+    fields = [
+        "case_id", "case_no", "title", "judgment_date", "hudoc_url",
+    ]
+    if include_ecli:
+        fields.append("ecli")
+    fields.extend([
+        "respondent_state", "importance", "conclusion", "violation",
+        "non_violation", "violation_inferred", "non_violation_inferred",
+        "keywords", "originating_body", "document_type",
+    ])
+    for col in ("strasbourg_caselaw", "domestic_law",
+                "international_law", "rules_of_court"):
+        fields.append(_optional_column_expr(cur, "cases", col))
+    return ", ".join(fields)
+
+
 # ---------------------------------------------------------------------------
 # Endpoints
 # ---------------------------------------------------------------------------
@@ -1080,9 +1124,16 @@ def search(
             if rerank_active:
                 # Fetch ALL matching cases + the metadata needed for the
                 # boost pass in a single query.  No LIMIT — reranking
-                # must see every match.
+                # must see every match.  Title is included so the rerank
+                # pass can detect query-in-title matches and apply
+                # ``ranking.TITLE_MATCH_BOOST`` (otherwise a search for
+                # "KRASNOSHAPKA" returns the 38 cases that cite it
+                # ahead of KRASNOSHAPKA v UKRAINE itself — short title
+                # fields don't beat repeated body matches under FTS5
+                # BM25's field-length normalisation alone).
                 case_ids_sql = (
                     "SELECT c.case_id, "
+                    "       c.title, "
                     "       c.importance, "
                     "       c.originating_body, "
                     "       c.document_type, "
@@ -1111,6 +1162,11 @@ def search(
                     for r in case_rows
                 }
 
+                # Title-match detection: tokenise the raw user query
+                # rather than the FTS expression, so quoted phrases /
+                # operator syntax don't pollute the boost.
+                query_terms = ranking._TOKEN_RE.findall(q or "")
+
                 # Rerank the full match set, then slice the requested
                 # page.  Step 3 / Step 4 only pay for the final
                 # page_size cases.
@@ -1125,6 +1181,7 @@ def search(
                         "importance": r["importance"],
                         "originating_body": r["originating_body"],
                         "document_type": r["document_type"],
+                        "title_match": ranking.title_matches_query(r["title"], query_terms),
                     }
                     for r in case_rows
                 ]
@@ -1183,11 +1240,9 @@ def search(
             # Step 3: Fetch case details.
             # ----------------------------------------------------------
             id_placeholders = ",".join("?" for _ in case_ids)
+            case_projection = _case_projection(cur)
             cur.execute(
-                "SELECT case_id, case_no, title, judgment_date, hudoc_url, "
-                "respondent_state, importance, conclusion, violation, "
-                "non_violation, violation_inferred, non_violation_inferred, keywords, originating_body, document_type, "
-                "strasbourg_caselaw, domestic_law, international_law, rules_of_court "
+                f"SELECT {case_projection} "
                 f"FROM cases WHERE case_id IN ({id_placeholders})",
                 case_ids,
             )
@@ -1221,8 +1276,10 @@ def search(
             # Within-case paragraph ordering uses `pf.rank` (which is the
             # stored BM25F-weighted score, via the rank config set in
             # build_db.py) so it stays consistent with cross-case ranking.
+            row_role_expr = _optional_column_expr(cur, "paragraphs", "row_role", source_alias="p")
             snippet_sql = (
                 "SELECT p.case_id, p.section, p.para_idx, p.hudoc_para_no, p.numbering_block, "
+                f"{row_role_expr}, "
                 "snippet(paragraphs_fts, 2, '<b>', '</b>', '...', 80) AS snippet, "
                 "pf.rank AS para_score "
                 "FROM paragraphs_fts pf "
@@ -1245,6 +1302,7 @@ def search(
                     "para_idx": r["para_idx"],
                     "hudoc_para_no": r["hudoc_para_no"],
                     "numbering_block": r["numbering_block"],
+                    "row_role": r["row_role"],
                     "snippet": r["snippet"],
                 })
 
@@ -1287,11 +1345,9 @@ def get_case(case_id: str):
     """Return full case detail with all paragraphs."""
     try:
         with get_cursor() as cur:
+            case_projection = _case_projection(cur, include_ecli=True)
             cur.execute(
-                "SELECT case_id, case_no, title, judgment_date, hudoc_url, ecli, "
-                "respondent_state, importance, conclusion, violation, "
-                "non_violation, violation_inferred, non_violation_inferred, keywords, originating_body, document_type, "
-                "strasbourg_caselaw, domestic_law, international_law, rules_of_court "
+                f"SELECT {case_projection} "
                 "FROM cases WHERE case_id = ?",
                 (case_id,),
             )
@@ -1311,9 +1367,11 @@ def get_case(case_id: str):
             # All paragraphs (includes hudoc_para_no from P10 and numbering_block from P12 —
             # see data-cleaning-full.md §11 for the para_idx / hudoc_para_no / numbering_block
             # disambiguation rationale).
+            row_role_expr = _optional_column_expr(cur, "paragraphs", "row_role")
             cur.execute(
-                "SELECT section, para_idx, hudoc_para_no, numbering_block, text "
-                "FROM paragraphs WHERE case_id = ? ORDER BY para_idx",
+                "SELECT section, para_idx, hudoc_para_no, numbering_block, "
+                f"{row_role_expr}, text "
+                "FROM paragraphs WHERE case_id = ? ORDER BY para_idx IS NULL, para_idx, rowid",
                 (case_id,),
             )
             case["paragraphs"] = [_row_to_dict(r) for r in cur.fetchall()]
@@ -1574,11 +1632,9 @@ def browse(
 
             # Case details.
             id_ph = ",".join("?" for _ in case_ids)
+            case_projection = _case_projection(cur)
             cur.execute(
-                "SELECT case_id, case_no, title, judgment_date, hudoc_url, "
-                "respondent_state, importance, conclusion, violation, "
-                "non_violation, violation_inferred, non_violation_inferred, keywords, originating_body, document_type, "
-                "strasbourg_caselaw, domestic_law, international_law, rules_of_court "
+                f"SELECT {case_projection} "
                 f"FROM cases WHERE case_id IN ({id_ph})",
                 case_ids,
             )
