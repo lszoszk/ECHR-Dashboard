@@ -241,6 +241,7 @@ const CLASSIFIER_METHODS = {
 // docs/TODO-facts-reclassify.md remains the plan for proper Phase 2
 // procedure/circumstances re-segmentation.
 const SECTION_ORDER = [
+  "header",
   "introduction",
   "facts",
   "legal_framework",
@@ -256,6 +257,7 @@ const SECTION_ORDER = [
 ];
 
 const SECTION_LABELS = {
+  header: "Judgment Header",
   introduction: "Introduction",
   facts: "Facts of the case",
   legal_framework: "Relevant legal framework",
@@ -271,6 +273,7 @@ const SECTION_LABELS = {
 };
 
 const SECTION_COLORS = {
+  header: "#8C8C8C",
   introduction: "#4C72B0",
   facts: "#DD8452",
   legal_framework: "#937860",
@@ -290,6 +293,7 @@ const SECTION_COLORS = {
 // (e.g. "facts" covers both "Facts Background" and "Facts Proceedings";
 // "legal_framework" also absorbs the orphan "Legal Context" bucket).
 const SECTION_DB_NAMES = {
+  header: ["Header"],
   introduction: ["Introduction"],
   facts: ["Facts Background", "Facts Proceedings", "Facts"],
   legal_framework: ["Legal Framework", "Legal Context", "Relevant legal framework"],
@@ -1417,12 +1421,14 @@ function normalizeCases(rawCases) {
       const hudocParaNo = (para.hudoc_para_no != null && Number.isFinite(Number(para.hudoc_para_no)))
         ? Number(para.hudoc_para_no) : null;
       const numberingBlock = para.numbering_block || null;
+      const rowRole = para.row_role || null;
 
       parsedParagraphs.push({
         section,
         paraIdx,
         hudocParaNo,
         numberingBlock,
+        rowRole,
         localIdx: parsedParagraphs.length,
         text,
         textLower: text.toLowerCase(),
@@ -2089,7 +2095,7 @@ function enrichContinuationParaNos(paragraphs) {
       lastSection = p.section;
       lastNumberedParaNo = null;
     }
-    if (isStructuralHeading(p.text)) {
+    if (["heading", "metadata", "signature", "footer", "table_cell"].includes(p.rowRole) || isStructuralHeading(p.text)) {
       lastNumberedParaNo = null;
       pendingOrphans = [];
       p.inheritedParaNo = null;
@@ -2167,6 +2173,7 @@ function buildParagraphResult(para, terms) {
     paraIdx: para.paraIdx,
     hudocParaNo: para.hudocParaNo,
     numberingBlock: para.numberingBlock,
+    rowRole: para.rowRole,
     rawText: para.text,
     textHtml: terms.length ? highlightTerms(para.text, terms) : escapeHtml(para.text),
   };
@@ -4743,6 +4750,7 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
           paraIdx: p.para_idx,
           hudocParaNo: (p.hudoc_para_no != null) ? Number(p.hudoc_para_no) : null,
           numberingBlock: p.numbering_block || null,
+          rowRole: p.row_role || null,
           rawText: serverSnippetToPlainText(p.snippet, p.text),
           textHtml: serverSnippetToHtml(p.snippet, p.text),
         };
@@ -4933,6 +4941,7 @@ async function exportCsv() {
             paraIdx: p.para_idx,
             hudocParaNo: (p.hudoc_para_no != null) ? Number(p.hudoc_para_no) : null,
             numberingBlock: p.numbering_block || null,
+            rowRole: p.row_role || null,
             rawText: serverSnippetToPlainText(p.snippet, p.text),
           };
         });
@@ -5246,9 +5255,14 @@ function renderModalSection(sectionKey, paragraphs) {
   // embedded in a paragraph.
   const paragraphsHtml = paragraphs
     .map((p) => {
-      if (isStructuralHeading(p.text)) {
+      const role = p.rowRole || "";
+      const isHeadingLike = role === "heading" || role === "metadata" ||
+        role === "signature" || role === "footer" || isStructuralHeading(p.text);
+      const hasNumber = p.hudocParaNo != null || p.inheritedParaNo != null;
+      if (isHeadingLike || (role === "operative_list" && !hasNumber)) {
+        const roleClass = role ? ` modal-para-${role.replace(/[^a-z0-9_-]/gi, "-")}` : "";
         return `
-          <p class="modal-para-heading" data-section="${escapeHtml(sectionKey)}" data-text="${escapeHtml(p.textLower)}">${escapeHtml(p.text)}</p>
+          <p class="modal-para-heading${roleClass}" data-section="${escapeHtml(sectionKey)}" data-text="${escapeHtml(p.textLower)}">${escapeHtml(p.text)}</p>
         `;
       }
       const displayText = stripLeadingParaNumber(p);
@@ -5312,27 +5326,41 @@ function openCaseModal(caseId) {
 
   el.modalMeta.innerHTML = buildCaseMeta(c);
 
-  // Group paragraphs by section; skip "header" — its content (case title,
-  // "JUDGMENT", court composition) is already shown in the modal metadata.
-  // Run dedup first to absorb the "same paragraph in 2 sections" Pop C
-  // contamination — see dedupCaseParagraphs() above for rationale.
-  const dedupedParagraphs = dedupCaseParagraphs(c.__paragraphs);
-  const grouped = new Map();
+  // Render source paragraphs in HUDOC order.  Earlier versions grouped rows
+  // by semantic section and then rendered groups in SECTION_ORDER; that moved
+  // opening judgment metadata such as "JUDGMENT (Just satisfaction)" down
+  // near the merits/Article 41 section.  Source-exact rows must stay in their
+  // DOCX order, while section labels remain available for filtering.
+  // Legacy Pop-C rows sometimes duplicated the same paragraph across
+  // sections, but source-exact HUDOC rows intentionally keep repeated
+  // visible text (especially table cells such as "(in euros)" or "pending").
+  // When row_role is present, do not deduplicate display rows.
+  const sourceExactRows = (c.__paragraphs || []).some((p) => p && p.rowRole);
+  const dedupedParagraphs = sourceExactRows
+    ? (c.__paragraphs || [])
+    : dedupCaseParagraphs(c.__paragraphs);
+  const chunks = [];
+  const availableSections = [];
+  const availableSectionSet = new Set();
   let totalDisplayed = 0;
   for (const para of dedupedParagraphs) {
-    if (para.section === "header") continue;
-    if (!grouped.has(para.section)) {
-      grouped.set(para.section, []);
+    const section = para.section || "Other";
+    if (!availableSectionSet.has(section)) {
+      availableSectionSet.add(section);
+      availableSections.push(section);
     }
-    grouped.get(para.section).push(para);
+    const lastChunk = chunks[chunks.length - 1];
+    if (!lastChunk || lastChunk.section !== section) {
+      chunks.push({ section, paragraphs: [] });
+    }
+    chunks[chunks.length - 1].paragraphs.push(para);
     totalDisplayed++;
   }
 
-  const availableSections = [...grouped.keys()];
   el.modalSectionFilter.innerHTML = `<option value="all">All sections</option>`;
 
   for (const sec of SECTION_ORDER) {
-    if (!grouped.has(sec)) continue;
+    if (!availableSectionSet.has(sec)) continue;
     el.modalSectionFilter.insertAdjacentHTML(
       "beforeend",
       `<option value="${escapeHtml(sec)}">${escapeHtml(SECTION_LABELS[sec] || sec)}</option>`
@@ -5346,15 +5374,7 @@ function openCaseModal(caseId) {
     );
   }
 
-  const parts = [];
-  for (const sec of SECTION_ORDER) {
-    if (!grouped.has(sec)) continue;
-    parts.push(renderModalSection(sec, grouped.get(sec)));
-  }
-  for (const sec of availableSections.sort()) {
-    if (SECTION_ORDER.includes(sec)) continue;
-    parts.push(renderModalSection(sec, grouped.get(sec)));
-  }
+  const parts = chunks.map((chunk) => renderModalSection(chunk.section, chunk.paragraphs));
 
   el.modalBody.innerHTML = parts.join("");
   el.modalQuery.value = "";
@@ -5392,6 +5412,7 @@ async function openCaseModalFromServer(caseId, caseStub) {
       paraIdx: p.para_idx,
       hudocParaNo: (p.hudoc_para_no != null) ? Number(p.hudoc_para_no) : null,
       numberingBlock: p.numbering_block || null,
+      rowRole: p.row_role || null,
       textLower: (p.text || "").toLowerCase(),
     }));
     enrichContinuationParaNos(paragraphs);

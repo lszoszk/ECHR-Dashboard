@@ -435,9 +435,13 @@ def normalize_case(case):
     for para in case.get("paragraphs", []):
         text = str((para or {}).get("text", "")).strip()
         section = normalize_section_key((para or {}).get("section", "unknown"))
-        if not text or section == "header":
+        if not text:
             continue
-        paragraphs.append({"section": section, "text": text})
+        paragraphs.append({
+            "section": section,
+            "text": text,
+            "row_role": (para or {}).get("row_role"),
+        })
 
     return {
         "date": parse_date(str(case.get("judgment_date", "")).strip()),

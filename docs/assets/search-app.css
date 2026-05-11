@@ -765,6 +765,24 @@ button.export-btn:disabled {
   user-select: text;
 }
 
+.modal-para-operative_list,
+.modal-para-footer,
+.modal-para-signature,
+.modal-para-metadata {
+  text-transform: none;
+  letter-spacing: 0;
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
+.modal-para-signature,
+.modal-para-metadata {
+  white-space: pre-line;
+}
+
 [data-theme="dark"] .modal-para-heading {
   color: rgba(255, 255, 255, 0.38);
 }

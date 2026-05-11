@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""P34 full rebuild — replace each case's main-judgment paragraphs with what
-HUDOC's source DOCX actually contains.
+"""P34/P37 full rebuild — replace each case's paragraphs with the visible
+text from HUDOC's source DOCX.
 
 Rationale: rather than chasing fragment-vs-canonical heuristics (P26b, P32,
 P33), trust HUDOC as the single source of truth.  python-docx returns one
@@ -8,21 +8,27 @@ string per `<w:p>` element with all styled runs concatenated, so styled
 case-name spans / hyperlinked numbers no longer fragment paragraphs.
 
 Scope:
-  REPLACES rows where  numbering_block IS NULL OR numbering_block = 'main_judgment'
-  KEEPS    rows where  numbering_block = 'operative_dispositif'
-                   OR  numbering_block LIKE 'separate_opinion_%'
-                   OR  numbering_block = 'pop_c_*'  (any other custom tag)
+  REPLACES all paragraph rows for each rebuilt case.  Earlier versions kept
+  pre-existing operative_dispositif rows and stopped parsing at
+  "FOR THESE REASONS"; that silently cut visible HUDOC text such as operative
+  headings, list continuations, final notification lines, and signatures.
+  The current contract is source-exact visible DOCX text in source order.
 
 Output:
   /tmp/p34_rebuild.sql           — forward (DELETE + INSERTs)
   /tmp/p34_rebuild_rollback.sql  — pre-state snapshot of replaced rows
                                     (full INSERT statements to restore)
 """
-import json, re, ssl, sys, urllib.request, io, time
+import json, re, ssl, sys, urllib.request, io, time, subprocess, tempfile, zipfile
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Lock
 from docx import Document
+from docx.document import Document as DocxDocument
+from docx.oxml.table import CT_Tbl
+from docx.oxml.text.paragraph import CT_P
+from docx.table import Table, _Cell
+from docx.text.paragraph import Paragraph
 
 DOCX_URL = "https://hudoc.echr.coe.int/app/conversion/docx/?library=ECHR&id={cid}&filename={cid}.docx"
 API_BASE = "https://150.254.115.204/echr-api/api"
@@ -34,6 +40,11 @@ PARA_NUM_RE = re.compile(r"^\s*(\d+)\.\s+")
 # captures TOC subsection numbers as if they were main paragraph numbers,
 # then the monotonic guard rejects the real ¶ 1+ when it finally appears.
 TOC_LINE_RE = re.compile(r"\t\d{1,4}\s*$")
+OLE_WORD_MAGIC = b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1"
+CONVERTED_PAGE_ARTIFACT_RE = re.compile(
+    r"^(?:PAGE\s+\d+\s*\t.+|.+\t\s*PAGE\s+\d+)$",
+    re.I,
+)
 ctx = ssl._create_unverified_context()
 
 # Section assignment from major all-caps headers.  Order = priority (longer
@@ -141,6 +152,47 @@ def fetch_docx(cid):
     raise RuntimeError("fetch_docx exhausted retries")
 
 
+def is_docx_zip(blob):
+    return zipfile.is_zipfile(io.BytesIO(blob))
+
+
+def is_legacy_word_doc(blob):
+    return blob.startswith(OLE_WORD_MAGIC)
+
+
+def convert_legacy_word_to_docx(blob):
+    """Convert HUDOC's occasional old binary Word payload into OOXML.
+
+    Some legacy HUDOC records are served from the ``/conversion/docx`` URL
+    with a DOCX content type but the bytes are actually pre-OOXML ``.doc``.
+    python-docx cannot read that container, so local corpus rebuilds use
+    macOS ``textutil`` as a narrow compatibility bridge for those cases.
+    """
+    with tempfile.TemporaryDirectory(prefix="hudoc_legacy_doc_") as tmp:
+        tmp_dir = Path(tmp)
+        src = tmp_dir / "source.doc"
+        dst = tmp_dir / "source.docx"
+        src.write_bytes(blob)
+        try:
+            subprocess.run(
+                ["textutil", "-convert", "docx", "-output", str(dst), str(src)],
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=90,
+            )
+        except FileNotFoundError as exc:
+            raise RuntimeError(
+                "legacy Word document requires macOS textutil for conversion"
+            ) from exc
+        except subprocess.CalledProcessError as exc:
+            msg = (exc.stderr or exc.stdout or "").strip()
+            raise RuntimeError(f"textutil legacy Word conversion failed: {msg}") from exc
+        if not dst.exists():
+            raise RuntimeError("textutil did not create converted DOCX")
+        return dst.read_bytes()
+
+
 def is_likely_heading(text):
     """A line that *looks like* a heading: short and dominantly uppercase.
     Real numbered paragraphs are long and have plenty of lowercase, so they
@@ -178,9 +230,10 @@ def classify_style(s):
        'quote'     — indented blockquote (Ju_Quot — its own \\d+. numbers
                       are quoting an external source, NOT main ¶ numbering)
        'heading'   — section / sub-section title
-       'opinion'   — separate / dissenting / concurring opinion (out of scope)
+       'opinion'   — separate / dissenting / concurring opinion text
        'list'      — operative-part list item (Ju_List)
-       'metadata'  — case caption, judges list, signature etc.
+       'signature' — signature block
+       'metadata'  — visible cover / case caption / judges list
        'normal'    — unstyled / catch-all (often the Convention quote
                       blockquotes that aren't tagged Ju_Quot)
     """
@@ -200,38 +253,85 @@ def classify_style(s):
         return "heading"
     if s.startswith("Ju_List"):
         return "list"
+    if s == "Ju_Signed":
+        return "signature"
     if s.startswith("Dec_") or s in (
-        "Ju_Title", "Ju_Case", "Ju_Judges", "Ju_Court", "Ju_Signed",
+        "Ju_Title", "Ju_Case", "Ju_Judges", "Ju_Court",
         "ECHR_Cover_Title_4", "ECHR_Placeholder",
     ):
         return "metadata"
     return "normal"
 
 
-def parse_docx(blob):
-    """Return ordered list of paragraph dicts for the main-judgment portion.
+def iter_visible_paragraphs(parent, in_table=False):
+    """Yield Word paragraphs in body order, including table-cell paragraphs.
 
-    P36 redesign: classify by paragraph STYLE first, fall back to text-
-    pattern matching only when style is missing or ambiguous.  This lets
-    us tell apart:
+    ``python-docx`` exposes ``document.paragraphs`` for top-level body
+    paragraphs only.  HUDOC judgments frequently store appendices and
+    applicant lists as Word tables, so the source-exact rebuild must descend
+    into table cells instead of silently dropping visible text.
+    """
+    if isinstance(parent, DocxDocument):
+        parent_elm = parent.element.body
+    elif isinstance(parent, _Cell):
+        parent_elm = parent._tc
+    else:
+        parent_elm = parent._element
+
+    for child in parent_elm.iterchildren():
+        if isinstance(child, CT_P):
+            yield Paragraph(child, parent), in_table
+        elif isinstance(child, CT_Tbl):
+            table = Table(child, parent)
+            for tr in table._tbl.tr_lst:
+                for tc in tr.tc_lst:
+                    cell = _Cell(tc, table)
+                    yield from iter_visible_paragraphs(cell, True)
+
+
+def parse_docx(blob, *, skip_converted_page_artifacts=False):
+    """Return ordered visible HUDOC DOCX paragraphs.
+
+    P37 source-exact contract: keep every non-empty visible DOCX paragraph
+    in source order.  Classify by paragraph STYLE first, then use heading
+    text to update section labels.  This lets us tell apart:
       - HUDOC's main numbered ¶s (style "Ju_Para") — these get hudoc_para_no
       - Indented quote blocks (style "Ju_Quot") whose internal "57.", "67."
         numbering is the quoted source's own numbering, NOT the ECHR's
       - TOC entries (style "toc 1..4") — completely ignored
-      - Section / sub-section headings (Ju_H_*) — emitted as Header rows
-      - Separate opinions (Opi_*) — break out of main-judgment processing
+      - Section / sub-section headings (Ju_H_*) — retained as visible rows
+      - Operative list items (Ju_List*) — retained exactly, not merged/deleted
+      - Notification/footer/signature lines — retained exactly
     """
+    if is_legacy_word_doc(blob):
+        converted = convert_legacy_word_to_docx(blob)
+        return parse_docx(converted, skip_converted_page_artifacts=True)
+    if not is_docx_zip(blob):
+        # Fall through to python-docx so callers still get its precise
+        # package-level error for unexpected payloads.
+        pass
     doc = Document(io.BytesIO(blob))
     out = []
-    section = "Facts"
+    section = "Header"
     max_para_seen = 0
     para_accept_count = 0
-    started = False
     language_votes = {"en": 0, "fr": 0}
 
-    for p in doc.paragraphs:
+    def append_row(text, section, hudoc_para_no=None, numbering_block=None, row_role="paragraph"):
+        out.append({
+            "section": section,
+            "para_idx": len(out),
+            "hudoc_para_no": hudoc_para_no,
+            "numbering_block": numbering_block,
+            "row_role": row_role,
+            "text": text,
+        })
+
+    for p, in_table in iter_visible_paragraphs(doc):
         text = (p.text or "").strip()
         if not text:
+            continue
+        if skip_converted_page_artifacts and CONVERTED_PAGE_ARTIFACT_RE.match(text):
             continue
         style = p.style.name if p.style else ""
         role = classify_style(style)
@@ -244,42 +344,33 @@ def parse_docx(blob):
         if role == "toc":
             continue
 
-        # Universal STOP — "Done in English…", separate-opinion title.
-        # Comes after the TOC filter so it doesn't fire on TOC mentions.
-        if any(pat.match(text) for pat in STOP_PATTERNS):
-            break
-
-        # Always-skip: document metadata.
-        if role == "metadata":
+        # Skip only non-visible placeholders.  Visible cover metadata,
+        # judges, signatures and final notification lines are part of the
+        # source text and must be preserved.
+        if style == "ECHR_Placeholder":
             continue
-        # Opinion paragraphs (Opi_Para) are out of scope — main judgment
-        # has ended.  Opinion sub-section headings (Opi_H_*) alone are
-        # NOT trusted to signal the boundary, because HUDOC sometimes
-        # mis-styles them in main-judgment territory.
-        if role == "opinion" and style == "Opi_Para":
-            break
+
+        if in_table:
+            append_row(text, section, None, "table", "table_cell")
+            continue
+
+        if role == "opinion":
+            section = "Separate Opinion"
+            row_role = "heading" if style.startswith("Opi_H_") else "paragraph"
+            append_row(text, section, None, "separate_opinion", row_role)
+            continue
 
         # Universal section-header detection by TEXT (works for both
         # styled Ju_H_* paragraphs and old-template "Normal" docs that
         # don't carry the modern style names — without this, cases that
-        # have no Ju_H_* style at all never flip `started=True` and
-        # everything after metadata is skipped).
+        # have no Ju_H_* style at all still get useful section labels).
         if role != "judgment" and role != "quote":
             text_section, text_lang = section_for_header(text)
             if text_section:
                 if text_lang:
                     language_votes[text_lang] = language_votes.get(text_lang, 0) + 1
-                if not started:
-                    started = True
-                if text_section == "Operative part":
-                    break
                 section = text_section
-                out.append({
-                    "section": "Header",
-                    "hudoc_para_no": None,
-                    "numbering_block": None,
-                    "text": text,
-                })
+                append_row(text, section, None, None, "heading")
                 continue
 
         # Heading?
@@ -287,75 +378,57 @@ def parse_docx(blob):
             new_section, lang = section_for_header(text)
             if not new_section:
                 # Sub-section heading without a section keyword (e.g. "A.
-                # Damage", "(a) The applicant") — keep as a header row in
+                # Damage", "(a) The applicant") — keep as a visible row in
                 # the current section.
-                out.append({
-                    "section": section if started else "Header",
-                    "hudoc_para_no": None,
-                    "numbering_block": None,
-                    "text": text,
-                })
+                append_row(text, section, None, None, "heading")
                 continue
             if lang:
                 language_votes[lang] = language_votes.get(lang, 0) + 1
-            if not started:
-                started = True
-            if new_section == "Operative part":
-                break  # main judgment ends
             section = new_section
-            out.append({
-                "section": "Header",
-                "hudoc_para_no": None,
-                "numbering_block": None,
-                "text": text,
-            })
+            append_row(text, section, None, None, "heading")
             continue
 
-        # Operative-part list ("Holds…", "Decides…") — main judgment ends.
+        # Operative-part list ("Holds…", "Decides…") — visible source text.
         if role == "list":
-            break
+            if section != "Operative part":
+                section = "Operative part"
+            append_row(text, section, None, "operative_dispositif", "operative_list")
+            continue
+
+        # Visible cover / court-composition metadata and signatures.
+        if role == "metadata":
+            append_row(text, section, None, "metadata", "metadata")
+            continue
+        if role == "signature":
+            append_row(text, section, None, "signature", "signature")
+            continue
 
         # Auto-start when we see the first Ju_Para with a leading number
         # — covers cases that lack Ju_H_* headings entirely (some
         # 1990s-era templates just use Normal + Ju_Para).
-        if role == "judgment" and not started:
-            m_check = PARA_NUM_RE.match(text)
-            if m_check and int(m_check.group(1)) <= 3:
-                started = True
-
-        # Skip preamble before first big heading (Ju_Para can appear in
-        # cover/intro before PROCEDURE — e.g. the keyword summary line).
-        if not started:
-            continue
-
-        # Main judgment paragraph — extract the ¶ number.
         if role == "judgment":
+            m_check = PARA_NUM_RE.match(text)
+            if section == "Header" and m_check and int(m_check.group(1)) <= 3:
+                section = "Facts"
             m = PARA_NUM_RE.match(text)
             if not m:
-                # Ju_Para without a leading number — keep as continuation.
-                out.append({
-                    "section": section,
-                    "hudoc_para_no": None,
-                    "numbering_block": "main_judgment",
-                    "text": text,
-                })
+                # Ju_Para without a leading number — preamble, footer, or
+                # continuation.  Keep it exactly.
+                footer = any(pat.match(text) for pat in STOP_PATTERNS)
+                append_row(
+                    text,
+                    section,
+                    None,
+                    "judgment_footer" if footer else None,
+                    "footer" if footer else "paragraph",
+                )
                 continue
             n = int(m.group(1))
             if para_accept_count > 0 and n <= max_para_seen:
                 if not (para_accept_count == 1 and n <= 3 and max_para_seen <= 3):
-                    out.append({
-                        "section": section,
-                        "hudoc_para_no": None,
-                        "numbering_block": "main_judgment",
-                        "text": text,
-                    })
+                    append_row(text, section, None, "main_judgment", "paragraph")
                     continue
-            out.append({
-                "section": section,
-                "hudoc_para_no": n,
-                "numbering_block": "main_judgment",
-                "text": text,
-            })
+            append_row(text, section, n, "main_judgment", "paragraph")
             max_para_seen = max(max_para_seen, n)
             para_accept_count += 1
             continue
@@ -364,12 +437,7 @@ def parse_docx(blob):
         # starts with "57. ...".  Numbering inside quotes belongs to the
         # quoted source (e.g. Romanian High Court).
         if role == "quote":
-            out.append({
-                "section": section,
-                "hudoc_para_no": None,
-                "numbering_block": "main_judgment",
-                "text": text,
-            })
+            append_row(text, section, None, "main_judgment", "quote")
             continue
 
         # Normal / fallback — text-pattern numbered ¶ for unstyled cases
@@ -380,21 +448,11 @@ def parse_docx(blob):
             if para_accept_count == 0 or n > max_para_seen or (
                 para_accept_count == 1 and n <= 3 and max_para_seen <= 3
             ):
-                out.append({
-                    "section": section,
-                    "hudoc_para_no": n,
-                    "numbering_block": "main_judgment",
-                    "text": text,
-                })
+                append_row(text, section, n, "main_judgment", "paragraph")
                 max_para_seen = max(max_para_seen, n)
                 para_accept_count += 1
                 continue
-        out.append({
-            "section": section,
-            "hudoc_para_no": None,
-            "numbering_block": "main_judgment",
-            "text": text,
-        })
+        append_row(text, section, None, "main_judgment", "paragraph")
 
     # Determine language: majority vote from matched headers; default "en".
     if language_votes["fr"] > language_votes["en"]:
@@ -436,39 +494,37 @@ def process_case(cid):
     except Exception as e:
         return {"cid": cid, "status": "FAIL", "err": str(e)[:80]}
 
-    # Capture pre-state of rows we'll replace (numbering_block IS NULL or 'main_judgment')
-    replaced_rows = [
-        r for r in existing
-        if r.get("numbering_block") in (None, "main_judgment")
-    ]
+    # Capture the full pre-state.  Source-exact rebuilds replace every
+    # visible text row for the case; preserving stale operative_dispositif
+    # rows is exactly what caused truncated judgments such as 001-249785.
+    replaced_rows = list(existing)
 
     if not new_rows:
         return {"cid": cid, "status": "NOCAN", "old_count": len(replaced_rows)}
 
     forward = []
     forward.append(
-        f"DELETE FROM paragraphs WHERE case_id = '{cid}' "
-        f"AND (numbering_block IS NULL OR numbering_block = 'main_judgment');"
+        f"DELETE FROM paragraphs WHERE case_id = '{cid}';"
     )
     for r in new_rows:
         forward.append(
-            f"INSERT INTO paragraphs (case_id, section, para_idx, hudoc_para_no, numbering_block, text) "
-            f"VALUES ('{cid}', {sql_value(r['section'])}, NULL, {sql_value(r['hudoc_para_no'])}, "
-            f"{sql_value(r['numbering_block'])}, {sql_value(r['text'])});"
+            f"INSERT INTO paragraphs (case_id, section, para_idx, hudoc_para_no, numbering_block, row_role, text) "
+            f"VALUES ('{cid}', {sql_value(r['section'])}, {sql_value(r['para_idx'])}, "
+            f"{sql_value(r['hudoc_para_no'])}, {sql_value(r['numbering_block'])}, "
+            f"{sql_value(r['row_role'])}, {sql_value(r['text'])});"
         )
 
     # Rollback: restore pre-state via INSERTs (and DELETE everything we'll write).
     rollback = []
     rollback.append(
-        f"DELETE FROM paragraphs WHERE case_id = '{cid}' "
-        f"AND (numbering_block IS NULL OR numbering_block = 'main_judgment');"
+        f"DELETE FROM paragraphs WHERE case_id = '{cid}';"
     )
     for r in replaced_rows:
         rollback.append(
-            f"INSERT INTO paragraphs (case_id, section, para_idx, hudoc_para_no, numbering_block, text) "
-            f"VALUES ('{cid}', {sql_value(r.get('section'))}, NULL, "
+            f"INSERT INTO paragraphs (case_id, section, para_idx, hudoc_para_no, numbering_block, row_role, text) "
+            f"VALUES ('{cid}', {sql_value(r.get('section'))}, {sql_value(r.get('para_idx'))}, "
             f"{sql_value(r.get('hudoc_para_no'))}, {sql_value(r.get('numbering_block'))}, "
-            f"{sql_value(r.get('text'))});"
+            f"{sql_value(r.get('row_role'))}, {sql_value(r.get('text'))});"
         )
 
     return {

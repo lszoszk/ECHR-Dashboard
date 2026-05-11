@@ -51,7 +51,11 @@ CREATE TABLE IF NOT EXISTS cases (
     non_violation_inferred TEXT, -- JSON array: articles inferred from conclusion text (not in HUDOC)
     keywords         TEXT,   -- JSON array stored as text
     originating_body TEXT,   -- JSON array stored as text
-    document_type    TEXT    -- e.g. "Judgment (Merits and Just Satisfaction)", "Press Release - Chamber Judgments"
+    document_type    TEXT,   -- e.g. "Judgment (Merits and Just Satisfaction)", "Press Release - Chamber Judgments"
+    strasbourg_caselaw TEXT, -- JSON array stored as text
+    domestic_law       TEXT, -- JSON array stored as text
+    international_law  TEXT, -- JSON array stored as text
+    rules_of_court     TEXT  -- JSON array stored as text
 );
 
 CREATE TABLE IF NOT EXISTS paragraphs (
@@ -59,6 +63,9 @@ CREATE TABLE IF NOT EXISTS paragraphs (
     case_id       TEXT NOT NULL REFERENCES cases(case_id),
     section       TEXT,
     para_idx      INTEGER,
+    hudoc_para_no INTEGER,
+    numbering_block TEXT,
+    row_role      TEXT,
     title         TEXT,   -- denormalized from cases.title for BM25F title weight
     keywords_text TEXT,   -- denormalized, " ; "-joined from cases.keywords for BM25F keyword weight
     text          TEXT
@@ -555,15 +562,18 @@ def build_database(input_path: Path, output_path: Path, batch_size: int) -> None
                         ecli, respondent_state, importance,
                         conclusion, violation, non_violation,
                         violation_inferred, non_violation_inferred,
-                        keywords, originating_body, document_type)
-                       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                        keywords, originating_body, document_type,
+                        strasbourg_caselaw, domestic_law,
+                        international_law, rules_of_court)
+                       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                     case_rows,
                 )
             if para_rows:
                 conn.executemany(
                     """INSERT INTO paragraphs
-                       (case_id, section, para_idx, title, keywords_text, text)
-                       VALUES (?,?,?,?,?,?)""",
+                       (case_id, section, para_idx, hudoc_para_no,
+                        numbering_block, row_role, title, keywords_text, text)
+                       VALUES (?,?,?,?,?,?,?,?,?)""",
                     para_rows,
                 )
             if article_rows:
@@ -634,6 +644,10 @@ def build_database(input_path: Path, output_path: Path, batch_size: int) -> None
                 _json_field(record.get("keywords")),
                 _json_field(record.get("originating_body")),
                 record.get("document_type") or "",
+                _json_field(record.get("strasbourg_caselaw")),
+                _json_field(record.get("domestic_law")),
+                _json_field(record.get("international_law")),
+                _json_field(record.get("rules_of_court")),
             ))
 
             # Paragraphs — with section re-segmentation.
@@ -668,7 +682,17 @@ def build_database(input_path: Path, output_path: Path, batch_size: int) -> None
             case_keywords_text = " ; ".join(str(k) for k in raw_keywords if k)
 
             raw_paragraphs = record.get("paragraphs") or []
-            paragraphs = _resegment_case(raw_paragraphs)
+            # Source-exact rebuilds already carry HUDOC-derived structure.
+            # Re-segmenting those rows would risk dropping or relabelling
+            # visible headings/operative text that the source parser preserved.
+            source_exact = any(
+                isinstance(p, dict) and (
+                    "row_role" in p or "hudoc_para_no" in p
+                    or "numbering_block" in p or "para_idx" in p
+                )
+                for p in raw_paragraphs
+            )
+            paragraphs = raw_paragraphs if source_exact else _resegment_case(raw_paragraphs)
             first_populated = True
             for para in paragraphs:
                 text = para.get("text", "")
@@ -685,6 +709,9 @@ def build_database(input_path: Path, output_path: Path, batch_size: int) -> None
                     case_id,
                     para.get("section"),
                     para.get("para_idx"),
+                    para.get("hudoc_para_no"),
+                    para.get("numbering_block"),
+                    para.get("row_role"),
                     row_title,
                     row_kw,
                     text,
