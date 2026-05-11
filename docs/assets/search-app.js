@@ -5326,15 +5326,26 @@ function openCaseModal(caseId) {
 
   el.modalMeta.innerHTML = buildCaseMeta(c);
 
-  // Render source paragraphs in HUDOC order.  Earlier versions grouped rows
-  // by semantic section and then rendered groups in SECTION_ORDER; that moved
-  // opening judgment metadata such as "JUDGMENT (Just satisfaction)" down
-  // near the merits/Article 41 section.  Source-exact rows must stay in their
-  // DOCX order, while section labels remain available for filtering.
-  // Legacy Pop-C rows sometimes duplicated the same paragraph across
-  // sections, but source-exact HUDOC rows intentionally keep repeated
-  // visible text (especially table cells such as "(in euros)" or "pending").
-  // When row_role is present, do not deduplicate display rows.
+  // Modal layout depends on whether the data is source-exact.
+  //
+  // Source-exact (P37): paragraph rows are in HUDOC document order with
+  // semantic ``rowRole`` tagging.  Render in their stored order so cover
+  // metadata appears at the top, sub-section headings interleave inline,
+  // operative list lands at the bottom, and signature/footer trail.  We
+  // create a new chunk every time the section changes — matches the
+  // natural flow of the source document.
+  //
+  // Legacy (pre-P37): rows were inserted by a mix of cleaning passes
+  // and aren't guaranteed to be in HUDOC document order — in particular,
+  // operative_dispositif rows often sit at the start of the table from
+  // a much earlier insert.  Falling back to SECTION_ORDER grouping keeps
+  // legacy cases visually correct (one chunk per section, operative
+  // part at the bottom) until P37 data rebuild lands.
+  //
+  // Dedup is also conditional: source-exact rows intentionally repeat
+  // visible text (annex table cells such as "(in euros)" or "pending"),
+  // legacy Pop-C rows duplicated the same paragraph across sections and
+  // need the safety net.
   const sourceExactRows = (c.__paragraphs || []).some((p) => p && p.rowRole);
   const dedupedParagraphs = sourceExactRows
     ? (c.__paragraphs || [])
@@ -5343,18 +5354,43 @@ function openCaseModal(caseId) {
   const availableSections = [];
   const availableSectionSet = new Set();
   let totalDisplayed = 0;
-  for (const para of dedupedParagraphs) {
-    const section = para.section || "Other";
-    if (!availableSectionSet.has(section)) {
-      availableSectionSet.add(section);
-      availableSections.push(section);
+  if (sourceExactRows) {
+    for (const para of dedupedParagraphs) {
+      const section = para.section || "Other";
+      if (!availableSectionSet.has(section)) {
+        availableSectionSet.add(section);
+        availableSections.push(section);
+      }
+      const lastChunk = chunks[chunks.length - 1];
+      if (!lastChunk || lastChunk.section !== section) {
+        chunks.push({ section, paragraphs: [] });
+      }
+      chunks[chunks.length - 1].paragraphs.push(para);
+      totalDisplayed++;
     }
-    const lastChunk = chunks[chunks.length - 1];
-    if (!lastChunk || lastChunk.section !== section) {
-      chunks.push({ section, paragraphs: [] });
+  } else {
+    // Group legacy rows into one chunk per section, then emit chunks in
+    // SECTION_ORDER (any unknown sections trailing in alpha order).
+    const bySection = new Map();
+    for (const para of dedupedParagraphs) {
+      const section = para.section || "Other";
+      if (!availableSectionSet.has(section)) {
+        availableSectionSet.add(section);
+        availableSections.push(section);
+      }
+      if (!bySection.has(section)) bySection.set(section, []);
+      bySection.get(section).push(para);
+      totalDisplayed++;
     }
-    chunks[chunks.length - 1].paragraphs.push(para);
-    totalDisplayed++;
+    for (const sec of SECTION_ORDER) {
+      if (bySection.has(sec)) {
+        chunks.push({ section: sec, paragraphs: bySection.get(sec) });
+        bySection.delete(sec);
+      }
+    }
+    for (const sec of Array.from(bySection.keys()).sort()) {
+      chunks.push({ section: sec, paragraphs: bySection.get(sec) });
+    }
   }
 
   el.modalSectionFilter.innerHTML = `<option value="all">All sections</option>`;
