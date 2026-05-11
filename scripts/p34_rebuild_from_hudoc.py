@@ -109,8 +109,21 @@ _last_fetch = [0.0]
 _fetch_lock = __import__("threading").Lock()
 
 
+_DOCX_CACHE_DIR = __import__("os").environ.get(
+    "P34_DOCX_CACHE_DIR",
+    str(Path.home() / "Desktop" / "HUDOC-Docx"),
+)
+_DOCX_CACHE_MIN_BYTES = 1024
+
+
 def fetch_docx(cid):
     """Fetch DOCX with throttle + exponential backoff on rate-limit errors.
+
+    Local cache lookup happens first: if ``$P34_DOCX_CACHE_DIR/{cid}.docx``
+    exists and is at least ``_DOCX_CACHE_MIN_BYTES``, read it from disk
+    instead of contacting HUDOC.  Cache misses fall through to the network
+    fetch and are persisted to the cache on success so subsequent runs are
+    fast.  Set ``P34_DOCX_CACHE_DIR=""`` to disable.
 
     Distinguish failure modes:
       - 403/429: rate-limit → retry with backoff
@@ -121,6 +134,13 @@ def fetch_docx(cid):
         to parse)
     Per-request throttle via FETCH_DELAY_S (env var P34_FETCH_DELAY).
     """
+    cache_path = None
+    if _DOCX_CACHE_DIR:
+        cache_path = Path(_DOCX_CACHE_DIR) / f"{cid}.docx"
+        if cache_path.exists() and cache_path.stat().st_size >= _DOCX_CACHE_MIN_BYTES:
+            return cache_path.read_bytes()
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+
     if FETCH_DELAY_S > 0:
         with _fetch_lock:
             now = time.time()
@@ -140,6 +160,16 @@ def fetch_docx(cid):
             data = resp.read()
             if len(data) < 100:
                 raise RuntimeError(f"empty response ({len(data)} bytes)")
+            # Persist to local cache atomically (.tmp → rename) so partial
+            # writes can never poison subsequent runs.
+            if cache_path is not None and len(data) >= _DOCX_CACHE_MIN_BYTES:
+                tmp = cache_path.with_suffix(".tmp")
+                try:
+                    tmp.write_bytes(data)
+                    tmp.replace(cache_path)
+                except OSError:
+                    # Cache write is best-effort; never block the rebuild.
+                    pass
             return data
         except urllib.error.HTTPError as e:
             if e.code in (403, 429) and attempt < len(backoff):
