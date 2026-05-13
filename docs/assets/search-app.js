@@ -5382,24 +5382,65 @@ function stripLeadingParaNumber(p) {
  */
 function renderModalTable(cells) {
   if (!cells.length) return "";
-  const rows = new Map();
+
+  // P41 anti-fragmentation: cells may come from multiple physical Word
+  // <w:tbl> elements that together form ONE logical HUDOC annex.  This
+  // happens in multi-applicant Russian/Ukrainian admissibility lists
+  // where the author used side-by-side <w:tbl> elements per column
+  // (SHLYKOV: tid=2 + tid=3 alternating; MOROŞANU: tid=1 + tid=null
+  // continuation rows).  Each tid keeps its own (row, col) numbering
+  // starting at 0, so naively keying by (row, col) would collapse
+  // header row 0 of every tid into the same TR.  We namespace rows by
+  // tid and lay them out in source-document order (tid first seen
+  // wins the lower-row slot).
+  //
+  // Pre-fix this code returned one <table> per tid (22 tables for
+  // SHLYKOV); post-fix it yields a single coherent table where tid=2
+  // header sits at the top, tid=3 sub-rows follow.  Imperfect when
+  // the author truly meant two side-by-side columns to be parallel,
+  // but a single scrollable grid is strictly less broken than a
+  // 22-fragment stack.
+  const tidOrder = [];
+  const tidSeen = new Set();
+  for (const c of cells) {
+    const tid = c.tableId ?? "__null__";
+    if (!tidSeen.has(tid)) {
+      tidSeen.add(tid);
+      tidOrder.push(tid);
+    }
+  }
+
+  // Build (tid → row → col → text)
+  const grid = new Map();
   let maxCol = 0;
   for (const c of cells) {
+    const tid = c.tableId ?? "__null__";
     const r = c.tableRow ?? 0;
     const k = c.tableCol ?? 0;
-    if (!rows.has(r)) rows.set(r, new Map());
-    // Multiple paragraphs can share one (row,col) → concatenate with <br>
-    const prev = rows.get(r).get(k);
+    if (!grid.has(tid)) grid.set(tid, new Map());
+    const tidRows = grid.get(tid);
+    if (!tidRows.has(r)) tidRows.set(r, new Map());
+    const cellMap = tidRows.get(r);
+    const prev = cellMap.get(k);
     const txt = c.text || "";
-    rows.get(r).set(k, prev ? `${prev}\n${txt}` : txt);
+    cellMap.set(k, prev ? `${prev}\n${txt}` : txt);
     if (k > maxCol) maxCol = k;
   }
-  const sortedRows = [...rows.keys()].sort((a, b) => a - b);
-  const trs = sortedRows.map((r, idx) => {
-    const row = rows.get(r);
+
+  // Flatten: emit rows in (tid-encountered-order, row-asc) order.
+  const flatRows = [];
+  for (const tid of tidOrder) {
+    const tidRows = grid.get(tid);
+    const sorted = [...tidRows.keys()].sort((a, b) => a - b);
+    for (const r of sorted) {
+      flatRows.push({ tid, row: r, cells: tidRows.get(r) });
+    }
+  }
+
+  const trs = flatRows.map((row, idx) => {
     const tds = [];
     for (let c = 0; c <= maxCol; c++) {
-      const raw = row.get(c) || "";
+      const raw = row.cells.get(c) || "";
       const cellHtml = escapeHtml(raw).replace(/\n/g, "<br>");
       const tag = idx === 0 ? "th" : "td";
       tds.push(`<${tag}>${cellHtml}</${tag}>`);
@@ -5421,8 +5462,12 @@ function renderModalSection(sectionKey, paragraphs) {
   // mirroring HUDOC's visual treatment of statute/treaty quotations
   // embedded in a paragraph.
 
-  // Table-cell aggregation: walk paragraphs in order; consecutive cells
-  // with the same `tableId` are accumulated into one HTML <table>.
+  // Table-cell aggregation: walk paragraphs in order; CONSECUTIVE
+  // table_cell rows in the same section are accumulated into one
+  // <table>, even when their `tableId` differs.  Side-by-side <w:tbl>
+  // elements in DOCX (used by HUDOC for multi-applicant annexes) are
+  // logically ONE table from the reader's perspective; only a real
+  // non-table paragraph between them constitutes a true break.
   const parts = [];
   let tableBuf = null;
 
@@ -5433,11 +5478,24 @@ function renderModalSection(sectionKey, paragraphs) {
     tableBuf = null;
   }
 
+  function isTableCell(p) {
+    // A paragraph belongs to a table when its rowRole is explicitly
+    // ``table_cell`` OR it carries a tableId (the latter handles old
+    // entries where rowRole drifted away from the metadata).  Block-
+    // identified table rows that are missing coords (G1 anomaly,
+    // ~0.55% of cells) still count — they would otherwise punch a
+    // hole in the buffer and re-fragment the annex.
+    return (
+      p.rowRole === "table_cell"
+      || p.tableId != null
+      || p.numberingBlock === "table"
+    );
+  }
+
   for (const p of paragraphs) {
-    if (p.tableId != null) {
-      if (!tableBuf || tableBuf.tableId !== p.tableId) {
-        flushTable();
-        tableBuf = { tableId: p.tableId, cells: [] };
+    if (isTableCell(p)) {
+      if (!tableBuf) {
+        tableBuf = { cells: [] };
       }
       tableBuf.cells.push(p);
       continue;
