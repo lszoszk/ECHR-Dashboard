@@ -464,6 +464,18 @@ def parse_docx(blob, *, skip_converted_page_artifacts=False):
             if text_section:
                 if text_lang:
                     language_votes[text_lang] = language_votes.get(text_lang, 0) + 1
+                # Pre-1995 ECHR judgments restart ¶ numbering when crossing
+                # a top-level section boundary (PROCEDURE → THE FACTS →
+                # AS TO THE LAW each starts at ¶ 1).  Resetting the
+                # running-max guard here lets the numbered-paragraph
+                # detector accept the new sequence.  Modern Ju_* judgments
+                # keep monotone numbering across sections, but their
+                # paragraph numbers also keep climbing, so the reset
+                # remains a no-op for them (n > max_para_seen will still
+                # hold).
+                if text_section != section:
+                    max_para_seen = 0
+                    para_accept_count = 0
                 section = text_section
                 append_row(text, section, None, None, "heading")
                 continue
@@ -479,6 +491,11 @@ def parse_docx(blob, *, skip_converted_page_artifacts=False):
                 continue
             if lang:
                 language_votes[lang] = language_votes.get(lang, 0) + 1
+            if new_section != section:
+                # Same rationale as above — reset running-max on
+                # top-level section boundary.
+                max_para_seen = 0
+                para_accept_count = 0
             section = new_section
             append_row(text, section, None, None, "heading")
             continue
@@ -549,12 +566,95 @@ def parse_docx(blob, *, skip_converted_page_artifacts=False):
                 continue
         append_row(text, section, None, "main_judgment", "paragraph")
 
+    # Pre-1995 HUDOC DOCX files use hard line-breaks (one <w:p> per
+    # rendered line, ~60–80 chars), so a logical paragraph spans many
+    # rows.  Reflow them into single rows now so the modal renders
+    # coherent ¶ 1 ... ¶ N units instead of an exploded line list.
+    out = _reflow_line_wrapped(out)
+
     # Determine language: majority vote from matched headers; default "en".
     if language_votes["fr"] > language_votes["en"]:
         lang = "fr"
     else:
         lang = "en"
     return (out, lang)
+
+
+# Sentence-terminating punctuation we treat as a hard break for the
+# line-wrap detector.  Trailing close-quote/paren/comma are tolerated.
+_SENTENCE_END = (".", "?", "!", ":", ";", "”", "”", "\"", "”")
+_LINE_WRAP_NUM_RE = re.compile(r"^\s*\d+\.\s")
+_LINE_WRAP_FOOTNOTE_RE = re.compile(r"^\s*\*+\s")
+
+
+def _reflow_line_wrapped(rows):
+    """If ``rows`` was produced from a line-wrapped pre-1995 DOCX,
+    merge body-paragraph continuation lines into their preceding
+    numbered ¶ row.  Conservative: only merges into rows that already
+    have a ``hudoc_para_no`` (i.e. confirmed start-of-paragraph), so
+    Header / cover-metadata fragments stay untouched.
+
+    Detection heuristic
+    -------------------
+    A case is "line-wrapped" when many of its body paragraphs are
+    SHORT (under ~90 chars after strip) AND do NOT end with a
+    sentence-terminating punctuation mark.  Modern flowed DOCX has
+    long paragraphs ending in ".", "?", ";" etc., so the ratio drops
+    below the threshold and reflow is skipped entirely.
+
+    Merge boundaries
+    ----------------
+    Stop appending continuation lines when the next row:
+      * has its own ``hudoc_para_no`` (= next paragraph),
+      * is a heading / list / metadata / signature row,
+      * sits in a different ``section``,
+      * starts with the leading-number prefix ``"\\d+\\.\\s"``
+        (defensive — should also be picked up by hudoc_para_no but the
+        old fallback branch sometimes leaves it null),
+      * starts with a footnote marker ``"*"`` / ``"**"`` / ``"***"``,
+      * looks like a section heading (``is_likely_heading``).
+    """
+    if len(rows) < 30:
+        return rows
+    body = [r for r in rows if r.get("row_role") == "paragraph"]
+    if not body:
+        return rows
+
+    def is_unterminated(text):
+        s = (text or "").rstrip().rstrip(")\"'`")
+        if not s:
+            return False
+        return s[-1] not in _SENTENCE_END
+
+    short_unterm = sum(
+        1 for r in body
+        if len(r["text"]) < 90 and is_unterminated(r["text"])
+    )
+    if short_unterm / max(len(body), 1) < 0.30:
+        return rows
+
+    out_rows = []
+    for r in rows:
+        if (
+            out_rows
+            and out_rows[-1].get("row_role") == "paragraph"
+            and out_rows[-1].get("hudoc_para_no") is not None
+            and r.get("row_role") == "paragraph"
+            and r.get("hudoc_para_no") is None
+            and r.get("section") == out_rows[-1].get("section")
+            and not _LINE_WRAP_NUM_RE.match(r["text"])
+            and not _LINE_WRAP_FOOTNOTE_RE.match(r["text"])
+            and not is_likely_heading(r["text"])
+        ):
+            # Continuation of the previous numbered paragraph.
+            merged = dict(out_rows[-1])
+            merged["text"] = (
+                merged["text"].rstrip() + " " + r["text"].lstrip()
+            )
+            out_rows[-1] = merged
+            continue
+        out_rows.append(r)
+    return out_rows
 
 
 def get_existing_rows(cid):
