@@ -256,16 +256,25 @@ def section_for_header(text):
 def classify_style(s):
     """Return one of:
        'toc'       — table of contents entry
-       'judgment'  — main numbered paragraph (Ju_Para)
-       'quote'     — indented blockquote (Ju_Quot — its own \\d+. numbers
-                      are quoting an external source, NOT main ¶ numbering)
-       'heading'   — section / sub-section title
+       'judgment'  — main numbered paragraph (Ju_Para / ECHR_Para)
+       'quote'     — indented blockquote (Ju_Quot / ECHR_Para_Quote
+                      — their own \\d+. numbers are quoting an external
+                      source, NOT main ¶ numbering)
+       'heading'   — section / sub-section title (Ju_H_* OR ECHR_Title_*
+                      / ECHR_Heading_1..7 from old template family)
        'opinion'   — separate / dissenting / concurring opinion text
        'list'      — operative-part list item (Ju_List)
        'signature' — signature block
        'metadata'  — visible cover / case caption / judges list
        'normal'    — unstyled / catch-all (often the Convention quote
                       blockquotes that aren't tagged Ju_Quot)
+
+    Two HUDOC template families are recognised:
+      - NEW (~2022+):  Ju_Para / Ju_Quot / Ju_H_* / Ju_List / Opi_*
+      - OLD (~pre-2022): ECHR_Para / ECHR_Para_Quote / ECHR_Heading_N /
+                          ECHR_Title_N — GAUGHRAN v. UK (001-200817),
+                          and ~thousands of other Court / Section
+                          judgments before the template refresh.
     """
     s = (s or "").strip()
     if not s:
@@ -289,6 +298,26 @@ def classify_style(s):
         "Ju_Title", "Ju_Case", "Ju_Judges", "Ju_Court",
         "ECHR_Cover_Title_4", "ECHR_Placeholder",
     ):
+        return "metadata"
+    # OLD ECHR_ template family ────────────────────────────────────
+    # ECHR_Title_1..3       = top-level section title (PROCEDURE,
+    #                          THE FACTS, THE LAW, FOR THESE REASONS)
+    # ECHR_Heading_1..7     = nested headings (I., A., 1., (a), (i),
+    #                          (α), free text) — level N is encoded
+    #                          in the style name, mapped to h1..h4
+    #                          by extract_correct_data.py.
+    # ECHR_Para             = main numbered judgment paragraph
+    # ECHR_Para_Quote       = quoted blockquote (external source
+    #                          numbering, never main ¶)
+    if s.startswith("ECHR_Title_"):
+        return "heading"
+    if s.startswith("ECHR_Heading_"):
+        return "heading"
+    if s == "ECHR_Para_Quote":
+        return "quote"
+    if s == "ECHR_Para":
+        return "judgment"
+    if s == "ECHR_Decision_Body":
         return "metadata"
     return "normal"
 
