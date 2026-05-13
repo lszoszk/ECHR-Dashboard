@@ -63,8 +63,25 @@ const serverSearch = {
     // Convert normalized section keys back to raw DB names.
     // SECTION_DB_NAMES values are arrays (one UI bucket may cover multiple
     // raw DB values — e.g. "facts" → ["Facts Background", "Facts Proceedings"]).
+    //
+    // Default search scope: BODY content only (Facts → Operative part).
+    // The user can opt-in to including separate opinions and/or
+    // header/summary/appendix via the search-scope toggles.  A manual
+    // section filter (any checkbox in the Sections filter group) takes
+    // precedence and disables the scope defaults.
     if (filters.sections.size) {
       const dbSections = [...filters.sections].flatMap(s => SECTION_DB_NAMES[s] || [s]);
+      p.set("sections", dbSections.join(","));
+    } else {
+      const scope = [
+        "introduction", "facts", "legal_framework",
+        "commission_proceedings", "final_submissions",
+        "admissibility", "merits", "just_satisfaction",
+        "article_46", "operative_part",
+      ];
+      if (filters.includeOpinions) scope.push("separate_opinion");
+      if (filters.includeMeta) scope.push("header", "summary", "appendix");
+      const dbSections = scope.flatMap(s => SECTION_DB_NAMES[s] || [s]);
       p.set("sections", dbSections.join(","));
     }
     if (filters.articles.size) p.set("articles", [...filters.articles].join(","));
@@ -242,6 +259,7 @@ const CLASSIFIER_METHODS = {
 // procedure/circumstances re-segmentation.
 const SECTION_ORDER = [
   "header",
+  "summary",
   "introduction",
   "facts",
   "legal_framework",
@@ -258,6 +276,7 @@ const SECTION_ORDER = [
 
 const SECTION_LABELS = {
   header: "Judgment Header",
+  summary: "Summary",
   introduction: "Introduction",
   facts: "Facts of the case",
   legal_framework: "Relevant legal framework",
@@ -274,6 +293,7 @@ const SECTION_LABELS = {
 
 const SECTION_COLORS = {
   header: "#8C8C8C",
+  summary: "#5B7B96",                  // muted navy — keyword block
   introduction: "#4C72B0",
   facts: "#DD8452",
   legal_framework: "#937860",
@@ -294,6 +314,7 @@ const SECTION_COLORS = {
 // "legal_framework" also absorbs the orphan "Legal Context" bucket).
 const SECTION_DB_NAMES = {
   header: ["Header"],
+  summary: ["Summary"],
   introduction: ["Introduction"],
   facts: ["Facts Background", "Facts Proceedings", "Facts"],
   legal_framework: ["Legal Framework", "Legal Context", "Relevant legal framework"],
@@ -650,6 +671,89 @@ function escapeHtml(text) {
 
 function escapeRegExp(text) {
   return String(text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * Collapse paragraph hits that share the same logical_para_rowid into
+ * one result.  A "logical paragraph" is the unit returned by the
+ * paragraph-level search: a body ¶ + any quotes it contains + any
+ * preceding sub-headings.  The whole operative section is also one
+ * unit per case.
+ *
+ * The first hit in the list (which the server has ordered by best
+ * BM25F rank) wins as the "representative".  We tag matchedRoles
+ * with every row_role that contributed a hit, so the UI can show
+ * "hit in heading" / "hit in quote" badges.
+ */
+/**
+ * Build small inline badges showing where the FTS match landed inside
+ * the logical paragraph unit — body match (no badge), heading match
+ * ("in heading"), or quoted-text match ("in quote").  Multiple badges
+ * stack when the same logical ¶ matched in several places (e.g. the
+ * query hits both the section heading AND a quoted statute below it).
+ *
+ * `matchedRoles` is a Set populated by dedupParagraphHits().
+ */
+function buildMatchSourceBadgesHtml(matchedRoles) {
+  if (!matchedRoles || matchedRoles.size === 0) return "";
+  const badges = [];
+  if (matchedRoles.has("heading")) {
+    badges.push('<span class="match-source-badge match-source-heading" title="The query matched in a section heading attached to this paragraph">in heading</span>');
+  }
+  if (matchedRoles.has("quote")) {
+    badges.push('<span class="match-source-badge match-source-quote" title="The query matched in a quote nested inside this paragraph">in quote</span>');
+  }
+  if (matchedRoles.has("operative_list")) {
+    badges.push('<span class="match-source-badge match-source-operative" title="The query matched in an operative-part clause">operative</span>');
+  }
+  return badges.join("");
+}
+
+function dedupParagraphHits(hits) {
+  if (!hits || hits.length === 0) return [];
+  const byKey = new Map();
+  const order = [];
+  for (const h of hits) {
+    const key = h.logicalParaRowid != null
+      ? `L:${h.logicalParaRowid}`
+      : `P:${h.paraIdx}:${h.section}`; // fallback for legacy rows
+    if (!byKey.has(key)) {
+      const entry = { ...h, matchedRoles: new Set() };
+      byKey.set(key, entry);
+      order.push(key);
+    }
+    const entry = byKey.get(key);
+    const role = (h.rowRole || "paragraph").replace(/_h\d+$/, "_heading");
+    // Collapse heading_h0/h1/h2/h3/h4 → "heading" for badge purposes
+    const badgeRole = role.startsWith("heading") ? "heading" : role;
+    entry.matchedRoles.add(badgeRole);
+  }
+  return order.map((k) => byKey.get(k));
+}
+
+/**
+ * Linkify HUDOC application numbers (the "N/Y" pattern that appears in
+ * judgment text as a case reference) inside already-html-escaped text.
+ *
+ * Strategy: detect 4-7 digits before "/" and 2-4 digits after — this is
+ * tight enough to skip "Article 8/2", "Rule 47/3", page ranges like "12/15"
+ * etc., and to catch real applications like "39650/18", "32555/96",
+ * "43572/18", "5310/71".
+ *
+ * Link target: our own search using the `case:N/Y` operator which the
+ * /api/search endpoint resolves to cases mentioning that number — keeps
+ * the user inside the dashboard.  Falls back gracefully if the search
+ * returns nothing (no harm — the link just shows zero results).
+ */
+function linkifyHudocRefs(escapedHtml) {
+  if (!escapedHtml) return escapedHtml;
+  return escapedHtml.replace(
+    /\b(\d{4,7}\/\d{2,4})\b/g,
+    (m) =>
+      `<a class="ref-link ref-link-app" data-app-no="${m}" ` +
+      `href="?q=case%3A${encodeURIComponent(m)}" ` +
+      `title="Search this dashboard for application no. ${m}">${m}</a>`
+  );
 }
 
 function normalizeSearchText(value) {
@@ -1912,6 +2016,11 @@ function getCurrentFilters() {
     precedent: normalizeSearchText(String(el.precedentFilterInput.value || "").trim()),
     dateFrom: parseDateInput(el.dateFrom.value),
     dateTo: parseDateInput(el.dateTo.value),
+    // Search-scope toggles: by default we search only judgment BODY
+    // sections (Facts → Operative).  These flags opt-in to the
+    // additional content classes.
+    includeOpinions: !!document.getElementById("scopeIncludeOpinions")?.checked,
+    includeMeta: !!document.getElementById("scopeIncludeMeta")?.checked,
   };
 }
 
@@ -2038,7 +2147,10 @@ function formatParaNum(p) {
   if (p.hudocParaNo != null) {
     num = `¶ ${p.hudocParaNo}`;
   } else if (p.inheritedParaNo != null) {
-    num = `¶ ${p.inheritedParaNo} cont.`;
+    // Continuation row: NO visible marker.  CSS (.modal-para-continuation)
+    // provides the visual indent + left rule; the row is treated as part
+    // of the parent paragraph for citation/search-result purposes.
+    num = "";
   } else {
     num = "¶ —";
   }
@@ -2095,7 +2207,19 @@ function enrichContinuationParaNos(paragraphs) {
       lastSection = p.section;
       lastNumberedParaNo = null;
     }
-    if (["heading", "metadata", "signature", "footer", "table_cell"].includes(p.rowRole) || isStructuralHeading(p.text)) {
+    const isHeadingRole = p.rowRole && (
+      p.rowRole === "heading" ||
+      p.rowRole.startsWith("heading_") ||
+      ["metadata", "signature", "footer", "table_cell"].includes(p.rowRole)
+    );
+    // Quote rows (Ju_Quot) carry the source document's own numbering
+    // including elision markers like "..." that look all-uppercase /
+    // all-digit-and-punctuation to `isStructuralHeading`.  Don't let
+    // that misclassification break the quote→parent chain: only check
+    // structural heading text when the row is NOT already tagged as
+    // a quote.
+    const looksStructural = p.rowRole !== "quote" && isStructuralHeading(p.text);
+    if (isHeadingRole || looksStructural) {
       lastNumberedParaNo = null;
       pendingOrphans = [];
       p.inheritedParaNo = null;
@@ -4173,6 +4297,7 @@ function buildCaseCard(caseId, row, rank = 1) {
           <div class="para-header">
             <span class="para-section">${escapeHtml(p.sectionLabel)}</span>
             <span class="para-num" title="${escapeHtml(formatParaNumTitle(p))}">${escapeHtml(formatParaNum(p))}</span>
+            ${buildMatchSourceBadgesHtml(p.matchedRoles)}
             ${buildParagraphLabelBadgesHtml(p.key)}
             <button class="copy-btn" data-action="copy-paragraph" data-text="${escapeHtml(p.rawText)}">Copy</button>
           </div>
@@ -4741,7 +4866,7 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
       // Store adapted case for modal access
       state.caseById.set(c.case_id, c);
 
-      const paragraphs = (apiCase.paragraphs || []).map((p) => {
+      const rawHits = (apiCase.paragraphs || []).map((p) => {
         const sec = normalizeSectionKey(p.section);
         return {
           key: `${c.case_id}:${sec}:${p.para_idx}`,
@@ -4751,10 +4876,16 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
           hudocParaNo: (p.hudoc_para_no != null) ? Number(p.hudoc_para_no) : null,
           numberingBlock: p.numbering_block || null,
           rowRole: p.row_role || null,
+          logicalParaRowid: p.logical_para_rowid || null,
           rawText: serverSnippetToPlainText(p.snippet, p.text),
           textHtml: serverSnippetToHtml(p.snippet, p.text),
         };
       });
+      // Paragraph-as-unit dedupe: collapse multiple FTS hits that share
+      // the same logical_para_rowid into one search result.  Track which
+      // row roles contributed to the match so we can display
+      // "matched in heading / quote / body" badges.
+      const paragraphs = dedupParagraphHits(rawHits);
 
       // Client-side post-filter for filters the server doesn't support
       if (!passesCaseFilters(c, filters)) continue;
@@ -5243,6 +5374,42 @@ function stripLeadingParaNumber(p) {
   return text.slice(m[0].length);
 }
 
+/**
+ * Build an HTML <table> from a buffered run of consecutive table-cell
+ * paragraphs that share the same `tableId`.  Cells are placed via
+ * (tableRow, tableCol).  Row 0 is treated as the header row.
+ * Missing cells render empty.
+ */
+function renderModalTable(cells) {
+  if (!cells.length) return "";
+  const rows = new Map();
+  let maxCol = 0;
+  for (const c of cells) {
+    const r = c.tableRow ?? 0;
+    const k = c.tableCol ?? 0;
+    if (!rows.has(r)) rows.set(r, new Map());
+    // Multiple paragraphs can share one (row,col) → concatenate with <br>
+    const prev = rows.get(r).get(k);
+    const txt = c.text || "";
+    rows.get(r).set(k, prev ? `${prev}\n${txt}` : txt);
+    if (k > maxCol) maxCol = k;
+  }
+  const sortedRows = [...rows.keys()].sort((a, b) => a - b);
+  const trs = sortedRows.map((r, idx) => {
+    const row = rows.get(r);
+    const tds = [];
+    for (let c = 0; c <= maxCol; c++) {
+      const raw = row.get(c) || "";
+      const cellHtml = escapeHtml(raw).replace(/\n/g, "<br>");
+      const tag = idx === 0 ? "th" : "td";
+      tds.push(`<${tag}>${cellHtml}</${tag}>`);
+    }
+    return `<tr>${tds.join("")}</tr>`;
+  });
+  return `<div class="modal-table-wrap"><table class="modal-table"><tbody>${trs.join("")}</tbody></table></div>`;
+}
+
+
 function renderModalSection(sectionKey, paragraphs) {
   const label = SECTION_LABELS[sectionKey] || sectionKey;
   const color = SECTION_COLORS[sectionKey] || "#4C72B0";
@@ -5253,13 +5420,100 @@ function renderModalSection(sectionKey, paragraphs) {
   // carries `inheritedParaNo`.  Render those as indented blockquotes
   // mirroring HUDOC's visual treatment of statute/treaty quotations
   // embedded in a paragraph.
-  const paragraphsHtml = paragraphs
-    .map((p) => {
+
+  // Table-cell aggregation: walk paragraphs in order; consecutive cells
+  // with the same `tableId` are accumulated into one HTML <table>.
+  const parts = [];
+  let tableBuf = null;
+
+  function flushTable() {
+    if (tableBuf && tableBuf.cells.length) {
+      parts.push(renderModalTable(tableBuf.cells));
+    }
+    tableBuf = null;
+  }
+
+  for (const p of paragraphs) {
+    if (p.tableId != null) {
+      if (!tableBuf || tableBuf.tableId !== p.tableId) {
+        flushTable();
+        tableBuf = { tableId: p.tableId, cells: [] };
+      }
+      tableBuf.cells.push(p);
+      continue;
+    }
+    flushTable();
+    parts.push(renderModalParagraph(p, sectionKey));
+  }
+  flushTable();
+
+  const paragraphsHtml = parts.join("");
+
+  return `
+    <section class="modal-section" data-section="${escapeHtml(sectionKey)}">
+      <h3 style="border-left-color:${escapeHtml(color)}">${escapeHtml(label)}</h3>
+      ${paragraphsHtml}
+    </section>
+  `;
+}
+
+
+function renderModalParagraph(p, sectionKey) {
+  return ((p) => {
       const role = p.rowRole || "";
-      const isHeadingLike = role === "heading" || role === "metadata" ||
-        role === "signature" || role === "footer" || isStructuralHeading(p.text);
+      // Quote rows must NEVER fall into the heading-like render path —
+      // they carry the source document's own numbering and elision
+      // markers ("..." gets matched by the all-caps/punctuation
+      // structural-heading regex otherwise) and would lose their quote
+      // block treatment entirely.
+      const isHeadingLike = role === "heading" || role.startsWith("heading_") ||
+        role === "metadata" || role === "signature" || role === "footer" ||
+        (role !== "quote" && isStructuralHeading(p.text));
       const hasNumber = p.hudocParaNo != null || p.inheritedParaNo != null;
-      if (isHeadingLike || (role === "operative_list" && !hasNumber)) {
+
+      // Operative clauses: render with CSS counters for numbered list +
+      // sub-clause detection.  Sub-clauses start with lowercase "that "
+      // or "(a)/(b)/(c)..." pattern (HUDOC Ju_List_a style).
+      if (role === "operative_list" && !hasNumber) {
+        const txt = (p.text || "").trim();
+        // "List of separate opinions" pattern — short rows like
+        // "(a) concurring opinion of Judge Krenc;" / "(b) dissenting
+        // opinion of Judges X and Y" that P37 mis-tagged as operative_list
+        // but are actually a meta-list announcing the annexed opinions.
+        // These should render as plain metadata, NOT as numbered operative
+        // clauses or sub-clauses.
+        const isOpinionListItem = /^\([a-z]\)/.test(txt) &&
+          /\b(opinion|déclaration|déclaration)\b/i.test(txt) &&
+          txt.length < 220;
+        if (isOpinionListItem) {
+          return `
+            <p class="modal-para-heading modal-para-metadata" data-section="${escapeHtml(sectionKey)}" data-text="${escapeHtml(p.textLower)}">${escapeHtml(txt)}</p>
+          `;
+        }
+        // Sub-clause = continuation of a parent operative clause.
+        // Detection: starts with lowercase "that " (Ju_List_a typical).
+        // "(a)/(b)/(c)" pattern is ambiguous in HUDOC (could be sub-clause
+        // OR opinion-list item) — handled above; if we get here it isn't
+        // an opinion list and we treat it as a sub-clause.
+        const isSubclause = /^that\s+[a-z]/.test(txt) ||
+          (/^\([a-z]\)/.test(txt) && /^\([a-z]\)\s+that\s/i.test(txt));
+        // Wrap first word in <em> for italic verb (HUDOC style:
+        // "Declares" / "Holds" / "Dismisses" italic, body upright).
+        const escapedText = escapeHtml(txt);
+        const firstWordMatch = txt.match(/^([A-Z][\p{L}']+)(\b[\s\S]*)$/u);
+        let inner;
+        if (firstWordMatch && !isSubclause) {
+          inner = `<em>${escapeHtml(firstWordMatch[1])}</em>${escapeHtml(firstWordMatch[2])}`;
+        } else {
+          inner = escapedText;
+        }
+        const subClass = isSubclause ? " modal-para-operative-sub" : " modal-para-operative-main";
+        return `
+          <p class="modal-para-operative_list${subClass}" data-section="${escapeHtml(sectionKey)}" data-text="${escapeHtml(p.textLower)}">${inner}</p>
+        `;
+      }
+
+      if (isHeadingLike) {
         const roleClass = role ? ` modal-para-${role.replace(/[^a-z0-9_-]/gi, "-")}` : "";
         return `
           <p class="modal-para-heading${roleClass}" data-section="${escapeHtml(sectionKey)}" data-text="${escapeHtml(p.textLower)}">${escapeHtml(p.text)}</p>
@@ -5272,22 +5526,19 @@ function renderModalSection(sectionKey, paragraphs) {
       const parentAttr = isContinuation
         ? ` data-parent-para-no="${escapeHtml(String(p.inheritedParaNo))}"`
         : "";
+      const numStr = formatParaNum(p);
+      const numSpan = numStr
+        ? `<span class="modal-para-num" title="${escapeHtml(formatParaNumTitle(p))}">${escapeHtml(numStr)}</span>`
+        : "";
       return `
         <p class="${classes}" data-section="${escapeHtml(sectionKey)}" data-text="${escapeHtml(p.textLower)}"${parentAttr}>
-          <span class="modal-para-num" title="${escapeHtml(formatParaNumTitle(p))}">${escapeHtml(formatParaNum(p))}</span>
-          <span>${escapeHtml(displayText)}</span>
+          ${numSpan}
+          <span>${linkifyHudocRefs(escapeHtml(displayText))}</span>
         </p>
       `;
-    })
-    .join("");
-
-  return `
-    <section class="modal-section" data-section="${escapeHtml(sectionKey)}">
-      <h3 style="border-left-color:${escapeHtml(color)}">${escapeHtml(label)}</h3>
-      ${paragraphsHtml}
-    </section>
-  `;
+  })(p);
 }
+
 
 function openCaseModal(caseId) {
   const c = state.caseById.get(caseId);
@@ -5355,8 +5606,32 @@ function openCaseModal(caseId) {
   const availableSectionSet = new Set();
   let totalDisplayed = 0;
   if (sourceExactRows) {
+    // Emit chunks in source-document order: start a new chunk every
+    // time the section changes.  This preserves HUDOC's nested
+    // article-by-article hierarchy (Art 6 → Admissibility → Merits,
+    // Art 10 → Admissibility → Merits, …) rather than collapsing all
+    // "Admissibility" rows from different articles into one big chunk.
+    //
+    // Section repair: the appendix sits last in HUDOC, but some appendix
+    // table cells and captions are mis-tagged "Operative part" by the
+    // section detector (their parent <w:tbl> is a continuation of the
+    // operative-part anchor row).  Once we cross into "Appendix", force
+    // every subsequent table cell / metadata row to stay "Appendix" so
+    // the multi-column appendix table is not split into fragments.
+    let appendixSeen = false;
+    const APPENDIX_REPAIR_BLOCKS = new Set(["table", "metadata"]);
     for (const para of dedupedParagraphs) {
-      const section = para.section || "Other";
+      let section = para.section || "Other";
+      if (section === "appendix") {
+        appendixSeen = true;
+      } else if (
+        appendixSeen &&
+        APPENDIX_REPAIR_BLOCKS.has(para.numberingBlock) &&
+        !para.hudocParaNo
+      ) {
+        section = "appendix";
+        para.section = "appendix";
+      }
       if (!availableSectionSet.has(section)) {
         availableSectionSet.add(section);
         availableSections.push(section);
@@ -5449,6 +5724,9 @@ async function openCaseModalFromServer(caseId, caseStub) {
       hudocParaNo: (p.hudoc_para_no != null) ? Number(p.hudoc_para_no) : null,
       numberingBlock: p.numbering_block || null,
       rowRole: p.row_role || null,
+      tableId: (p.table_id != null) ? Number(p.table_id) : null,
+      tableRow: (p.table_row != null) ? Number(p.table_row) : null,
+      tableCol: (p.table_col != null) ? Number(p.table_col) : null,
       textLower: (p.text || "").toLowerCase(),
     }));
     enrichContinuationParaNos(paragraphs);
@@ -6263,6 +6541,43 @@ function bindEvents() {
   el.clearHighlightsBtn.addEventListener("click", clearAllHighlights);
   el.exportXlsxBtn.addEventListener("click", exportHighlightsXlsx);
   el.modalBody.addEventListener("scroll", hideHighlightTooltip);
+
+  // Delegated click handler for in-judgment application-number refs.
+  // linkifyHudocRefs() inserts <a class="ref-link-app" data-app-no="N/Y">
+  // around N/Y patterns; here we intercept the click, resolve the
+  // app-no to a case_id via /api/search?q=case:N/Y, and open that
+  // case in the modal — keeping the user inside the dashboard.
+  el.modalBody.addEventListener("click", async (e) => {
+    const a = e.target.closest(".ref-link-app");
+    if (!a) return;
+    e.preventDefault();
+    const appNo = a.dataset.appNo;
+    if (!appNo) return;
+    try {
+      const url = `${API_BASE_URL}/search?q=case:${encodeURIComponent(appNo)}&page_size=20`;
+      const r = await fetch(url);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const data = await r.json();
+      const cases = data.cases || [];
+      // Prefer exact case_no match; otherwise take the first result
+      const exact = cases.find(c =>
+        (c.case_no || "").split(";").map(s => s.trim()).includes(appNo)
+      );
+      const target = exact || cases[0];
+      if (!target) {
+        console.warn("[ref-link] no case found for app no", appNo);
+        return;
+      }
+      // Cache + open
+      if (!state.caseById.has(target.case_id)) {
+        const adapted = serverSearch._adaptCase(target);
+        state.caseById.set(target.case_id, adapted);
+      }
+      openCaseModal(target.case_id);
+    } catch (err) {
+      console.warn("[ref-link] resolution failed for", appNo, err);
+    }
+  });
   document.addEventListener("mousedown", function (e) {
     if (!el.highlightTooltip.contains(e.target)) hideHighlightTooltip();
   });

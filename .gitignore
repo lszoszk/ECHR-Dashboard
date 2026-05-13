@@ -41,3 +41,6 @@ methodology-internal/*audit*.html
 scripts/p27_aueb*.py
 scripts/*_aueb_*.py
 scripts/*aueb*.py
+
+# Local HUDOC reference HTML snapshots (for side-by-side compare; not shipped)
+docs/*_hudoc.html

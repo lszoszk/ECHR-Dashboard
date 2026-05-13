@@ -293,6 +293,38 @@ def classify_style(s):
     return "normal"
 
 
+def para_text_full(p):
+    """Concatenate every visible `<w:t>`, `<w:tab/>`, `<w:br/>` descendant
+    of a `<w:p>` — *including* text inside `<w:fldSimple>` (Word's
+    auto-numbered SEQ fields, which carry HUDOC's "48.", "49.", … list
+    markers) and `<w:hyperlink>` wrappers.
+
+    python-docx's `Paragraph.text` only walks top-level `<w:r>` children,
+    so it silently drops paragraph numbers wrapped in `<w:fldSimple>`.
+    For ŻUREK v. POLAND (001-217705) this turned every numbered body
+    paragraph into the bug-pattern ".\\xa0\\xa0Word…" with no leading digit
+    and no `hudoc_para_no` — until we walk the full XML tree.
+
+    Excludes `<w:instrText>` (field instruction codes like
+    "SEQ level0 \\*arabic \\* MERGEFORMAT") which are non-visible.
+    """
+    parts = []
+    # python-docx XML elements are lxml — iter() walks all descendants.
+    for el in p._element.iter():
+        tag = el.tag
+        # Tag is in clark notation "{ns}local" — strip namespace once.
+        local = tag.rsplit("}", 1)[-1] if "}" in tag else tag
+        if local == "t":
+            if el.text:
+                parts.append(el.text)
+        elif local == "tab":
+            parts.append("\t")
+        elif local == "br":
+            parts.append("\n")
+        # instrText / fldChar / etc. are skipped (non-visible)
+    return "".join(parts)
+
+
 def iter_visible_paragraphs(parent, in_table=False):
     """Yield Word paragraphs in body order, including table-cell paragraphs.
 
@@ -358,7 +390,11 @@ def parse_docx(blob, *, skip_converted_page_artifacts=False):
         })
 
     for p, in_table in iter_visible_paragraphs(doc):
-        text = (p.text or "").strip()
+        # Use full-tree text extraction (includes <w:fldSimple> auto-number
+        # SEQ fields).  python-docx's `.text` drops them, which breaks
+        # numbered-paragraph parsing for ŻUREK-class judgments where HUDOC
+        # uses Word's auto-numbering instead of literal "48." in a run.
+        text = (para_text_full(p) or "").strip()
         if not text:
             continue
         if skip_converted_page_artifacts and CONVERTED_PAGE_ARTIFACT_RE.match(text):

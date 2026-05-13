@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="assets/dashboard.css?v=20260507-hudoc-researcher-4">
   <link rel="stylesheet" href="assets/search-app.css?v=20260507-hudoc-researcher-4">
   <link rel="stylesheet" href="assets/editorial-redesign.css?v=20260507-hudoc-researcher-4">
+  <link rel="stylesheet" href="assets/judgment-hudoc.css?v=20260513-table-repair2">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
 </head>
@@ -97,6 +98,18 @@
             <span class="tip"><code>state:</code></span>
             <span class="tip"><code>judge:</code></span>
             <span class="tip"><code>ecli:</code></span>
+          </div>
+          <div class="search-scope-bar">
+            <span class="scope-label">Search in</span>
+            <span class="scope-chip scope-chip-default">Body</span>
+            <label class="scope-toggle">
+              <input type="checkbox" id="scopeIncludeOpinions">
+              <span>+ Separate opinions</span>
+            </label>
+            <label class="scope-toggle">
+              <input type="checkbox" id="scopeIncludeMeta">
+              <span>+ Header / Summary / Appendix</span>
+            </label>
           </div>
 
           <div class="advanced-query-bar">
@@ -500,6 +513,6 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
-  <script src="assets/search-app.js?v=20260511-section-order-fix"></script>
+  <script src="assets/search-app.js?v=20260513-table-repair2"></script>
 </body>
 </html>

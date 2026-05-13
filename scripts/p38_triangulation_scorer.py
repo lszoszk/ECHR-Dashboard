@@ -321,6 +321,34 @@ def merge_html_features(blocks: list[BlockFeatures], html_path: Path) -> None:
             j += 1
 
 
+def _is_main_para_candidate(b: BlockFeatures) -> bool:
+    """A block can contribute to the main-paragraph sequence only when its
+    DOCX style says "judgment body" (or is unset, for legacy templates).
+    TOC entries, quotes, list items, opinion paragraphs, document metadata
+    and table cells must NOT pollute the sequence — they often carry their
+    own numbering that would otherwise shadow the real ¶ 1, ¶ 2, … in
+    DANILEŢ-style judgments (where the TOC sits before the body)."""
+    s = b.docx_style or ""
+    if s in ("Ju_Para", "Ju_Para_Last", "Ju_Para Char"):
+        return True
+    sl = s.lower()
+    if sl.startswith("toc"):
+        return False
+    if s.startswith(("Ju_Quot", "Ju_List", "Opi_", "Dec_", "Ju_H_",
+                     "Ju_Title", "Ju_Case", "Ju_Judges", "Ju_Court",
+                     "Ju_Signed", "ECHR_")):
+        return False
+    if b.html_in_table:
+        return False
+    # Legacy templates use Normal — admit it but only if text is heading-
+    # neither and contains lowercase (= body prose, not all-caps headers).
+    if not s or s == "Normal":
+        if looks_like_heading_only(b.text):
+            return False
+        return True
+    return False
+
+
 def populate_sequence(blocks: list[BlockFeatures]) -> None:
     last_main: Optional[int] = None
     max_seen = 0
@@ -328,13 +356,16 @@ def populate_sequence(blocks: list[BlockFeatures]) -> None:
     for b in blocks:
         b.prev_main_number = last_main
         b.expected_next_main = (last_main + 1) if last_main else 1
+        if not _is_main_para_candidate(b):
+            continue
         n = b.leading_number
-        if n is not None:
-            if accept_count > 0 and n <= max_seen:
-                continue  # quote / non-main; don't update
-            last_main = n
-            max_seen = max(max_seen, n)
-            accept_count += 1
+        if n is None:
+            continue
+        if accept_count > 0 and n <= max_seen:
+            continue  # quoted / out-of-sequence — don't update
+        last_main = n
+        max_seen = max(max_seen, n)
+        accept_count += 1
 
 
 # ---------------------------------------------------------------------------
