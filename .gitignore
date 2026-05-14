@@ -44,3 +44,12 @@ scripts/*aueb*.py
 
 # Local HUDOC reference HTML snapshots (for side-by-side compare; not shipped)
 docs/*_hudoc.html
+
+# Internal LLM-judge evaluation artefacts (don't push — contain raw
+# paragraph text + judge findings that are working notes, not product)
+scripts/_judge_internal/
+scripts/_judge_internal/**
+scripts/p52_judge_segmentation.py
+scripts/p52_judge_sample.txt
+echr_judge_runs/
+echr_judge_runs/**

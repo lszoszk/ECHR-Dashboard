@@ -150,6 +150,60 @@ APPENDIX_HEAD_RE = re.compile(
     re.I,
 )
 
+# Article 41 / Article 46 boundary markers — used to flip section to
+# "Just Satisfaction" when the parser is still inside Merits but the
+# text is plainly Article 41 content.  See LLM-judge findings (13 N
+# cases with `boundary-off-by-N`).
+ART41_QUOTE_RE = re.compile(
+    r"\bArticle\s*4[16]\s+of the Convention\s+(provides|reads)",
+    re.I,
+)
+ART41_HEADING_RE = re.compile(
+    r"^\s*([IVX]+\.\s+)?APPLICATION\s+OF\s+ARTICLE\s*4[16]\b",
+    re.I,
+)
+DEFAULT_INTEREST_RE = re.compile(
+    r"default\s+interest.{0,80}marginal\s+lending\s+rate\s+of\s+the\s+European\s+Central\s+Bank",
+    re.I,
+)
+
+# Operative-part role-tightening (P54 corollary).  Annex-notice
+# boilerplate that sits between the dispositif and the appended
+# separate opinions, plus registrar/president signature blocks that
+# old templates style as Normal/Ju_Para instead of Ju_Signed.  Both
+# should NOT render as operative dispositif paragraphs in the modal
+# or appear in body-text search results.
+ANNEX_NOTICE_RE = re.compile(
+    r"(In accordance with\s+Article\s*45\s*§\s*2\b"
+    r"|Conform[ée]ment\s+(?:à\s+)?l['’]article\s*45\s*§\s*2\b)",
+    re.I,
+)
+SIG_REGISTRAR_RE = re.compile(
+    r"\b(Deputy\s+)?(Section\s+|Grand\s+Chamber\s+)?(Registrar|Greffier)(?:\s+adjoint)?\b",
+    re.I,
+)
+SIG_PRESIDENT_RE = re.compile(
+    r"\b(Vice-?\s*)?(President|Pr[ée]sident)\b",
+    re.I,
+)
+
+
+def looks_like_signature_block(text):
+    """Tab/whitespace-separated registrar/president signature block."""
+    if not text:
+        return False
+    t = text.strip()
+    if not t or len(t) > 220:
+        return False
+    if not SIG_REGISTRAR_RE.search(t):
+        return False
+    if not SIG_PRESIDENT_RE.search(t):
+        return False
+    # Substantive sentence guard
+    if re.search(r"[.?!]\s+[A-Z]", t):
+        return False
+    return True
+
 FETCH_DELAY_S = float(__import__("os").environ.get("P34_FETCH_DELAY", "0"))
 _last_fetch = [0.0]
 _fetch_lock = __import__("threading").Lock()
@@ -282,6 +336,56 @@ def is_likely_heading(text):
         return False
     # Mostly uppercase, OR very short title-case ("THE LAW", "PROCEDURE").
     return upper >= lower * 2 or (len(text) <= 50 and upper >= 4)
+
+
+# Stricter heading detector — also matches mixed-case structural labels
+# ("A. Pecuniary damage", "(b) The Government", "1. Admissibility")
+# without confusing them with body paragraphs.  Mirrors P52 multi-heal's
+# is_heading_only().  Used at parse time to demote paragraph rows whose
+# text is plainly a heading.  See LLM-judge findings: 41/60 HEADING-rows
+# were originally tagged 'paragraph'.
+_HEADING_BODY_RE = re.compile(r"[.?!;]\s+(?=[a-z])")
+_H_CHAR_P34 = r"[A-Za-zÀ-ſ \-–—'‘’/&:(),]"
+_STRUCTURAL_HEADING_PATTERNS = [
+    re.compile(r"^\s*(THE LAW|THE FACTS|PROCEDURE|THE COURT|JUDGMENT)\s*$", re.I),
+    re.compile(r"^\s*(PROCÉDURE|EN FAIT|EN DROIT)\s*$", re.I),
+    re.compile(r"^\s*[IVX]+\.\s+[A-Z][A-Z " + _H_CHAR_P34 + r"]{2,180}\s*$"),
+    re.compile(r"^\s*[A-Z]\.\s+[A-Z]" + _H_CHAR_P34 + r"{2,180}\s*$"),
+    re.compile(r"^\s*\d+\.\s+[A-Z]" + _H_CHAR_P34 + r"{2,160}\s*$"),
+    re.compile(r"^\s*\([a-z]+\)\s+[A-Z]" + _H_CHAR_P34 + r"{2,160}\s*$"),
+    re.compile(r"^\s*\([ivx]+\)\s+[A-Z]" + _H_CHAR_P34 + r"{2,160}\s*$"),
+    re.compile(r"^\s*FOR THESE REASONS\b.*$", re.I),
+    re.compile(r"^\s*PAR CES MOTIFS\b.*$", re.I),
+    re.compile(r"^\s*APPLICATION OF ARTICLE 4[16]\s*", re.I),
+    re.compile(r"^\s*ALLEGED VIOLATION OF\b", re.I),
+    re.compile(r"^\s*RELEVANT (DOMESTIC|INTERNATIONAL)\b", re.I),
+]
+
+
+def is_structural_heading(text):
+    """True iff text is a structural heading with no paragraph body."""
+    if not text:
+        return False
+    t = text.strip()
+    if not t or len(t) > 220:
+        return False
+    for pat in _STRUCTURAL_HEADING_PATTERNS:
+        if pat.match(t):
+            return True
+    # Body-like detection: if it has a sentence terminator followed by
+    # lowercase AND is dominantly lowercase, it's body.
+    if _HEADING_BODY_RE.search(t) or len(t) >= 120:
+        lower = sum(1 for c in t if c.isalpha() and c.islower())
+        upper = sum(1 for c in t if c.isalpha() and c.isupper())
+        if lower > upper * 2:
+            return False
+    # Fallback: short and dominantly uppercase
+    if len(t) <= 90:
+        upper = sum(1 for c in t if c.isalpha() and c.isupper())
+        lower = sum(1 for c in t if c.isalpha() and c.islower())
+        if upper >= 4 and upper >= lower * 2:
+            return True
+    return False
 
 
 def section_for_header(text):
@@ -464,6 +568,12 @@ def parse_docx(blob, *, skip_converted_page_artifacts=False):
     # Government" poisoned 80 Court paragraphs.
     operative_part_seen = False
     done_line_seen = False
+    # Article 41 ratchet: once we've seen an explicit "APPLICATION OF
+    # ARTICLE 41" heading or the Convention's Article 41 quote, every
+    # subsequent paragraph (until OPI_HEAD or DONE_LINE) belongs to
+    # Just Satisfaction.  Closes the merits→JS boundary gap (LLM-judge
+    # found 13 of these mislabelled in our 1000-row sample).
+    art41_seen = False
 
     def append_row(text, section, hudoc_para_no=None, numbering_block=None, row_role="paragraph"):
         out.append({
@@ -503,6 +613,16 @@ def parse_docx(blob, *, skip_converted_page_artifacts=False):
             continue
 
         if in_table:
+            # Post-dispositif table cells are part of an annex/appendix
+            # (compensation schedules, applicant lists).  Promote
+            # section to 'Appendix' so search and downstream filters
+            # don't treat them as Operative-part or Separate-Opinion
+            # body text.  Closes the 'annex-confusion' gap surfaced by
+            # the LLM-judge (54 of 124 false labels in 1000-row sample).
+            if (operative_part_seen or done_line_seen) and section in (
+                "Operative part", "Separate Opinion"
+            ):
+                section = "Appendix"
             append_row(text, section, None, "table", "table_cell")
             continue
 
@@ -515,6 +635,20 @@ def parse_docx(blob, *, skip_converted_page_artifacts=False):
             operative_part_seen = True
         if DONE_LINE_RE.match(text):
             done_line_seen = True
+        # Article 41 ratchet — flip once.  Only valid before the
+        # dispositif (the operative part itself is not Just Satisfaction).
+        if not art41_seen and not operative_part_seen:
+            if (
+                ART41_HEADING_RE.match(text)
+                or ART41_QUOTE_RE.search(text)
+                or DEFAULT_INTEREST_RE.search(text)
+            ):
+                art41_seen = True
+                # Don't retro-rewrite earlier rows; just flip section
+                # forward.  If we're inside Merits / Final Submissions,
+                # move to Just Satisfaction.
+                if section in ("Merits", "Admissibility", "Final Submissions"):
+                    section = "Just Satisfaction"
 
         # ─────────────────────────────────────────────────────────────
         # RULE A — Hard text anchor.  An explicit opinion heading
@@ -687,6 +821,45 @@ def parse_docx(blob, *, skip_converted_page_artifacts=False):
     # rows.  Reflow them into single rows now so the modal renders
     # coherent ¶ 1 ... ¶ N units instead of an exploded line list.
     out = _reflow_line_wrapped(out)
+
+    # Promote structural-heading rows mis-tagged as paragraph.  The
+    # earlier branches treat anything that didn't match a section
+    # keyword (PROCEDURE / THE LAW / etc.) as paragraph by default,
+    # which buries "A. Pecuniary damage", "(b) The Government" etc.
+    # inside the body.  LLM-judge confirmed 41/60 HEADING-bucket rows
+    # were originally paragraph-typed.  Conservative: only flip when
+    # text matches `is_structural_heading` AND row has no hudoc_para_no
+    # AND text is short enough (<=220 chars).
+    for r in out:
+        if r.get("row_role") != "paragraph":
+            continue
+        if r.get("hudoc_para_no") is not None:
+            continue
+        if is_structural_heading(r.get("text") or ""):
+            r["row_role"] = "heading"
+
+    # P54 role-tightening: demote annex-notice / signature / done-line
+    # rows in Operative-part section out of `paragraph` role so they
+    # don't surface in body-text search results and don't render as
+    # dispositif paragraphs in the modal.  LLM-judge identified ~2.2 K
+    # such rows on post-P52 DB.  Conservative: only acts inside
+    # Operative part (no risk of touching real merits paragraphs).
+    for r in out:
+        if r.get("section") not in ("Operative part", "Operative Part"):
+            continue
+        role = r.get("row_role")
+        if role not in ("paragraph", "footer"):
+            continue
+        text = r.get("text") or ""
+        if ANNEX_NOTICE_RE.search(text):
+            r["row_role"] = "metadata"
+        elif looks_like_signature_block(text):
+            r["row_role"] = "signature"
+        elif role == "paragraph" and DONE_LINE_RE.match(text):
+            # Done-in-English landed in the body — surface it as footer
+            # so the modal still shows it visually distinct without
+            # confusing it with the dispositif.
+            r["row_role"] = "footer"
 
     # Determine language: majority vote from matched headers; default "en".
     if language_votes["fr"] > language_votes["en"]:
