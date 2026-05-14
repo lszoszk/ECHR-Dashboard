@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="assets/dashboard.css?v=20260507-hudoc-researcher-4">
   <link rel="stylesheet" href="assets/search-app.css?v=20260507-hudoc-researcher-4">
   <link rel="stylesheet" href="assets/editorial-redesign.css?v=20260507-hudoc-researcher-4">
-  <link rel="stylesheet" href="assets/judgment-hudoc.css?v=20260514-bullet-grouping">
+  <link rel="stylesheet" href="assets/judgment-hudoc.css?v=20260514-appendix-bucket">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
 </head>
@@ -121,10 +121,14 @@
               <input type="checkbox" data-name="buckets" value="individual_opinions">
               <span>Individual opinions</span>
             </label>
+            <label class="bucket-pill" title="Annexes — compensation tables, applicant lists (after dispositif)">
+              <input type="checkbox" data-name="buckets" value="appendix">
+              <span>Appendix</span>
+            </label>
             <span class="scope-divider" aria-hidden="true">·</span>
-            <label class="scope-toggle" title="Include cover page metadata, summary digest, and appendix tables">
+            <label class="scope-toggle" title="Include cover page metadata and summary digest">
               <input type="checkbox" id="scopeIncludeMeta">
-              <span>+ Header/Summary/Appendix</span>
+              <span>+ Header/Summary</span>
             </label>
             <label class="scope-toggle" title="Search within sub-section heading labels (rare — most users want body)">
               <input type="checkbox" id="scopeIncludeHeadings">
@@ -539,6 +543,6 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
-  <script src="assets/search-app.js?v=20260514-bullet-grouping"></script>
+  <script src="assets/search-app.js?v=20260514-appendix-bucket"></script>
 </body>
 </html>

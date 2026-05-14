@@ -82,7 +82,9 @@ const serverSearch = {
             .filter(([_, b]) => b.defaultOn)
             .map(([k]) => k);
       const scope = activeBuckets.flatMap(b => SECTION_BUCKETS[b]?.sections || []);
-      if (filters.includeMeta) scope.push("header", "summary", "appendix");
+      // Appendix is now its own bucket (defaultOn=false).  includeMeta
+      // adds only the cover/header rows that no bucket owns.
+      if (filters.includeMeta) scope.push("header", "summary");
       const dbSections = scope.flatMap(s => SECTION_DB_NAMES[s] || [s]);
       p.set("sections", dbSections.join(","));
     }
@@ -359,6 +361,13 @@ const SECTION_BUCKETS = {
     description: "Concurring, dissenting and partly concurring/dissenting opinions",
     sections: ["separate_opinion"],
     color: "#8C8C8C",
+    defaultOn: false,
+  },
+  appendix: {
+    label: "Appendix",
+    description: "Annexes, compensation schedules, applicant lists (after the dispositif)",
+    sections: ["appendix"],
+    color: "#A5A58D",
     defaultOn: false,
   },
 };
