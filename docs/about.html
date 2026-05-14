@@ -179,17 +179,72 @@
       <section class="about-section">
         <h2>What Is This?</h2>
         <p>
-          HUDOC Researcher is a free, open-source tool for exploring
-          decisions of the European Court of Human Rights. It offers paragraph-level
-          full-text search across thousands of judgments, an interactive statistics
-          dashboard, and comparative country analysis &mdash; all running entirely in
-          the browser with no server required.
+          <strong>HUDOC Researcher is a paragraph-level companion to the European
+          Court of Human Rights.</strong> It indexes every visible paragraph
+          across 19,720 judgments and lets researchers find the precise
+          passage they need &mdash; then jumps them straight into HUDOC for
+          the authoritative full text.
         </p>
         <p>
-          The project aims to make ECHR case law more accessible to researchers,
-          legal practitioners, students, and anyone interested in the protection of
-          human rights in Europe.
+          A typical workflow:
         </p>
+        <ol>
+          <li>Search a phrase or concept (e.g. <em>"reasonable suspicion"</em>,
+            <em>article:8 "right to be forgotten"</em>) across the whole corpus.</li>
+          <li>Filter by the part of the judgment you care about &mdash; <em>Facts</em>,
+            <em>Admissibility&nbsp;+&nbsp;Merits</em>, <em>Just&nbsp;Satisfaction</em>,
+            <em>Operative&nbsp;Part</em>, or <em>Individual Opinions</em>.</li>
+          <li>Refine with state, Convention article, importance, date, outcome.</li>
+          <li>Each hit shows the paragraph number, section label, and a
+            one-click <strong>HUDOC&nbsp;↗</strong> link that opens the case
+            in the Court's official viewer at the right paragraph anchor.</li>
+          <li>Use <strong>Cite&nbsp;¶</strong> to copy a ready-to-paste
+            citation in the form
+            <em>Smith&nbsp;v.&nbsp;Croatia, App.&nbsp;no.&nbsp;12345/05, §&nbsp;47
+            (ECtHR&nbsp;2024)</em>.</li>
+        </ol>
+        <p>
+          The dashboard does not try to re-render the full text of each
+          judgment &mdash; HUDOC is and remains the authoritative source.
+          What we add is <em>findability across the corpus at paragraph
+          granularity</em>, which HUDOC does not expose.
+        </p>
+        <p>
+          Free, open-source, paragraph-level search + analytics for ECHR
+          case law. The goal: make Strasbourg jurisprudence more
+          findable for researchers, legal practitioners, students, and
+          anyone working on human rights in Europe.
+        </p>
+      </section>
+
+      <section class="about-section">
+        <h2>Scope and Limits (v1)</h2>
+        <ul>
+          <li><strong>Corpus</strong>: 19,720 ECHR judgments &mdash; every
+            Court / Grand Chamber decision available from HUDOC's public
+            DOCX endpoint as of the last data refresh. Press releases and
+            inadmissibility decisions are excluded.</li>
+          <li><strong>Segmentation</strong>: paragraphs are extracted with
+            their HUDOC paragraph numbers preserved, plus a section label
+            (Facts / Admissibility / Merits / Just&nbsp;Satisfaction /
+            Operative / Separate Opinion / Appendix). Quotes, headings and
+            operative-list items are tagged separately so the search can
+            filter them in or out.</li>
+          <li><strong>Where we differ from HUDOC</strong>: HUDOC searches
+            <em>whole judgments</em>; we search <em>individual paragraphs</em>.
+            HUDOC renders the canonical text; we always link you back to
+            HUDOC for that. We do not host PDFs, audio, language versions,
+            or executions data &mdash; HUDOC does that better.</li>
+          <li><strong>Known caveats</strong>: very old (pre-1995)
+            Court&nbsp;and&nbsp;Commission judgments use a different DOCX
+            template; segmentation is correct on a stratified
+            <a href="https://github.com/lszoszk/ECHR-Dashboard/blob/main/scripts/p43_battery_test.py" target="_blank" rel="noopener">50-case battery</a>
+            but edge cases (e.g. multi-applicant pilot judgments with
+            12&nbsp;000+ applicant rows like
+            <em>Burmych&nbsp;and&nbsp;Others&nbsp;v.&nbsp;Ukraine</em>) may
+            show occasional drift. For canonical work always cross-check
+            against HUDOC.</li>
+        </ul>
       </section>
 
       <section class="about-section">
