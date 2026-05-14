@@ -113,6 +113,42 @@ STOP_PATTERNS = [
     re.compile(r"^OPINION (CONCORDANT|DISSIDENT|S[EÉ]PAR[EÉ]E)", re.I),
 ]
 
+# Authoritative opinion-heading text patterns.  These are the ONLY way
+# we will flip section to "Separate Opinion" — a misapplied DOCX
+# `Opi_H_*` style alone is not enough (S. and Marper v. UK proved a
+# single tag can poison 80 paragraphs of Court text).  Patterns are
+# anchored to require "OF JUDGE(S)" / "DE … JUGE" so they cannot match
+# body prose like "in his concurring opinion".
+OPI_HEAD_RE = re.compile(
+    r"^\s*("
+    # English: (JOINT) (PARTLY) {CONCURRING|DISSENTING} (, PARTLY {CONCURRING|DISSENTING}) OPINION OF JUDGES?
+    r"(JOINT\s+)?(PARTLY\s+)?(CONCURRING|DISSENTING)"
+    r"(\s*,\s*PARTLY\s+(CONCURRING|DISSENTING))?\s+OPINION\s+(OF|BY)\s+JUDGES?\b"
+    r"|SEPARATE\s+OPINION\s+OF\s+JUDGES?\b"
+    r"|DECLARATION\s+OF\s+JUDGE\b"
+    # French: OPINION {CONCORDANTE|DISSIDENTE|SÉPARÉE|COMMUNE|CONJOINTE}
+    r"|OPINION\s+(CONCORDANTE|DISSIDENTE|S[EÉ]PAR[EÉ]E|COMMUNE|CONJOINTE)"
+    r"|OPINION\s+(EN\s+PARTIE|PARTIELLEMENT)\s+(CONCORDANTE|DISSIDENTE)"
+    r"|D[EÉ]CLARATION\s+(DU|DE\s+LA)\s+JUGE\b"
+    r")",
+    re.I,
+)
+
+# "Done in English/French" / "Fait en anglais/français" — the formal
+# notification line that closes the Court's judgment text and (often)
+# precedes the appended separate opinions.  Used as a forward-only
+# ratchet to gate trust in `Opi_*` style tags.
+DONE_LINE_RE = re.compile(
+    r"^\s*(Done in (English|French)|Fait en (anglais|fran[cç]ais))",
+    re.I,
+)
+
+# Appendix / annex section start — terminates the sticky "Separate
+# Opinion" state when applicants' tables come after the opinions.
+APPENDIX_HEAD_RE = re.compile(
+    r"^\s*(APPENDIX|ANNEX|ANNEXE|LIST OF (APPLICANTS|CASES))\b",
+    re.I,
+)
 
 FETCH_DELAY_S = float(__import__("os").environ.get("P34_FETCH_DELAY", "0"))
 _last_fetch = [0.0]
@@ -417,6 +453,17 @@ def parse_docx(blob, *, skip_converted_page_artifacts=False):
     max_para_seen = 0
     para_accept_count = 0
     language_votes = {"en": 0, "fr": 0}
+    # Forward-only ratchets that gate trust in `Opi_*` DOCX styles.
+    # Once we've seen the dispositif ("FOR THESE REASONS, THE COURT")
+    # OR the "Done in English/French" notification line, the document
+    # has formally closed the Court's voice and we may believe later
+    # `Opi_*` styles.  Before either landmark, an `Opi_*` style is
+    # treated as a HUDOC authoring error (mis-applied to Court text)
+    # and demoted to its judgment-equivalent role.  Cf. S. AND MARPER
+    # v. UK (001-90051) where DOCX style `Opi_H_a` on "(b) The
+    # Government" poisoned 80 Court paragraphs.
+    operative_part_seen = False
+    done_line_seen = False
 
     def append_row(text, section, hudoc_para_no=None, numbering_block=None, row_role="paragraph"):
         out.append({
@@ -459,10 +506,67 @@ def parse_docx(blob, *, skip_converted_page_artifacts=False):
             append_row(text, section, None, "table", "table_cell")
             continue
 
-        if role == "opinion":
+        # Bookkeeping for the opinion-gating ratchets BEFORE we decide
+        # how to classify this row.  Section transition into "Operative
+        # part" is detected later when section_for_header matches FOR
+        # THESE REASONS / PAR CES MOTIFS; for now we treat any prior
+        # operative_part section state as the landmark.
+        if section == "Operative part":
+            operative_part_seen = True
+        if DONE_LINE_RE.match(text):
+            done_line_seen = True
+
+        # ─────────────────────────────────────────────────────────────
+        # RULE A — Hard text anchor.  An explicit opinion heading
+        # ("CONCURRING OPINION OF JUDGE X", "OPINION SÉPARÉE DE …",
+        # "DECLARATION OF JUDGE …") unambiguously opens the Separate
+        # Opinion stream regardless of DOCX style.  Anchored with
+        # "OF JUDGE(S)" / "DE … JUGE" so body prose can't false-match.
+        # ─────────────────────────────────────────────────────────────
+        if OPI_HEAD_RE.match(text) and is_likely_heading(text):
             section = "Separate Opinion"
-            row_role = "heading" if style.startswith("Opi_H_") else "paragraph"
-            append_row(text, section, None, "separate_opinion", row_role)
+            append_row(text, section, None, "separate_opinion", "heading")
+            continue
+
+        # ─────────────────────────────────────────────────────────────
+        # RULE B — Style signal is honoured ONLY behind a forward-only
+        # gate (operative_part_seen OR done_line_seen).  Pre-gate
+        # `Opi_*` is treated as a HUDOC authoring error and demoted to
+        # the judgment-style equivalent.  This is the S. AND MARPER
+        # fix: an Opi_H_a accidentally applied to a Court sub-heading
+        # no longer poisons section state.
+        # ─────────────────────────────────────────────────────────────
+        if role == "opinion":
+            if section == "Separate Opinion":
+                # We're already in opinion territory — keep classifying
+                # this row as an opinion paragraph or heading.
+                row_role = "heading" if style.startswith("Opi_H_") else "paragraph"
+                append_row(text, section, None, "separate_opinion", row_role)
+                continue
+            if operative_part_seen or done_line_seen:
+                # Post-gate Opi_* — trust the style; we're past the
+                # Court's formal closure of the judgment text.
+                section = "Separate Opinion"
+                row_role = "heading" if style.startswith("Opi_H_") else "paragraph"
+                append_row(text, section, None, "separate_opinion", row_role)
+                continue
+            # Pre-gate Opi_* — demote to Ju_* equivalent and fall through
+            # to the normal classification branches below.  Heading-like
+            # opinion rows become headings; body rows become judgment.
+            role = "heading" if style.startswith("Opi_H_") else "judgment"
+
+        # ─────────────────────────────────────────────────────────────
+        # RULE C — Recovery: APPENDIX/ANNEX heading terminates the
+        # sticky "Separate Opinion" state so applicant tables aren't
+        # mis-attributed to opinions (BURMYCH / SANDU class).
+        # ─────────────────────────────────────────────────────────────
+        if (
+            section == "Separate Opinion"
+            and APPENDIX_HEAD_RE.match(text)
+            and is_likely_heading(text)
+        ):
+            section = "Appendix"
+            append_row(text, section, None, None, "heading")
             continue
 
         # Universal section-header detection by TEXT (works for both
