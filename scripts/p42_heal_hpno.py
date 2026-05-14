@@ -31,12 +31,20 @@ def main():
         n_seen += 1
         if not text:
             continue
-        # Skip rows we know shouldn't have a leading-N prefix style
+        # Skip rows we know shouldn't have a leading-N prefix style.
+        # ``quote`` rows are critical here — the leading digit of a
+        # quoted "13. After an investigation…" belongs to the source
+        # document being quoted (e.g. the Commission's Article 31
+        # report), not to the Court's own paragraph counter.  Quote
+        # rows must always render with hpno = NULL.
         if role in ("table_cell", "metadata", "footer", "signature",
                     "heading", "heading_h0", "heading_h1", "heading_h2",
-                    "heading_h3", "heading_h4", "operative_list"):
-            # If a heading still carries hpno (residual C1), null it.
-            if role.startswith("heading") and hp is not None:
+                    "heading_h3", "heading_h4", "operative_list",
+                    "quote"):
+            # Heading / quote phantoms — null them if they're set.
+            if hp is not None and (
+                role.startswith("heading") or role == "quote"
+            ):
                 nulls.append((rowid,))
                 n_null_phantom += 1
             continue
