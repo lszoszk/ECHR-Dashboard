@@ -4404,27 +4404,92 @@ function buildCaseCard(caseId, row, rank = 1) {
       : "No paragraphs for current filters.");
   const displayHitCount = caseOnlyBrowse ? 1 : row.hitCount;
 
-  const paraBlocks = row.paragraphs
-    .map((p) => {
-      const hudocUrl = paragraphHudocUrl(c, p);
-      const paraLabel = formatParaNum(p);
-      const hudocLink = hudocUrl
-        ? `<a class="hudoc-para-link" href="${escapeHtml(hudocUrl)}" target="_blank" rel="noopener noreferrer" title="Open this paragraph's case in HUDOC (use Ctrl-F for ${escapeHtml(paraLabel)})">HUDOC ↗</a>`
-        : "";
+  // v1.1 bullet grouping: consecutive quote-role hits in the same
+  // section (CATT-class Convention 108 enumerations) collapse into a
+  // single visual block headed by "{Section} · in quote · N matches".
+  // Researchers see one "logical quote block" instead of 5 disjoint
+  // bullet hits.  Heuristic: same case + same section + same row
+  // role (quote/operative_list) + para_idx gap ≤ BULLET_GAP_MAX.
+  const BULLET_GAP_MAX = 5;
+  const groups = [];
+  for (const p of row.paragraphs) {
+    const role = p.rowRole || "paragraph";
+    const isGroupable = role === "quote" || role === "operative_list";
+    const last = groups[groups.length - 1];
+    if (
+      isGroupable && last && last.type === "group"
+      && last.role === role && last.section === p.section
+      && p.paraIdx != null && last.lastParaIdx != null
+      && (p.paraIdx - last.lastParaIdx) <= BULLET_GAP_MAX
+    ) {
+      last.paras.push(p);
+      last.lastParaIdx = p.paraIdx;
+    } else if (isGroupable) {
+      groups.push({
+        type: "group",
+        role,
+        section: p.section,
+        sectionLabel: p.sectionLabel,
+        paras: [p],
+        firstParaIdx: p.paraIdx,
+        lastParaIdx: p.paraIdx,
+      });
+    } else {
+      groups.push({ type: "single", para: p });
+    }
+  }
+  // Drop the group wrapper for trivially-single bullet groups
+  // (1-row "groups" render the same as a single hit, no need for
+  // the group header chrome).
+  const finalGroups = groups.map((g) => (
+    g.type === "group" && g.paras.length === 1
+      ? { type: "single", para: g.paras[0] }
+      : g
+  ));
+
+  const renderParaItem = (p, isGrouped = false) => {
+    const hudocUrl = paragraphHudocUrl(c, p);
+    const paraLabel = formatParaNum(p);
+    const hudocLink = hudocUrl
+      ? `<a class="hudoc-para-link" href="${escapeHtml(hudocUrl)}" target="_blank" rel="noopener noreferrer" title="Open in HUDOC (use Ctrl-F for ${escapeHtml(paraLabel)})">HUDOC ↗</a>`
+      : "";
+    return `
+      <div class="paragraph-item${isGrouped ? " grouped-item" : ""}">
+        <div class="para-header">
+          ${isGrouped ? "" : `<span class="para-section">${escapeHtml(p.sectionLabel)}</span>`}
+          <span class="para-num" title="${escapeHtml(formatParaNumTitle(p))}">${escapeHtml(paraLabel)}</span>
+          ${isGrouped ? "" : buildMatchSourceBadgesHtml(p.matchedRoles)}
+          ${buildParagraphLabelBadgesHtml(p.key)}
+          <span class="para-actions">
+            ${hudocLink}
+            <button class="cite-para-btn" data-action="copy-paragraph-citation" data-case-id="${escapeHtml(caseId)}" data-para-key="${escapeHtml(p.key || "")}" title="Copy paragraph citation">Cite ¶</button>
+            <button class="copy-btn" data-action="copy-paragraph" data-text="${escapeHtml(p.rawText)}" title="Copy paragraph text">Copy</button>
+          </span>
+        </div>
+        <p class="para-text">${p.textHtml}</p>
+      </div>
+    `;
+  };
+
+  const paraBlocks = finalGroups
+    .map((g) => {
+      if (g.type === "single") {
+        return renderParaItem(g.para);
+      }
+      // group with N≥2 paragraphs — render a quote block container
+      const roleBadge = g.role === "quote"
+        ? '<span class="match-source-badge match-source-quote">in quote</span>'
+        : '<span class="match-source-badge match-source-operative">operative</span>';
+      const countLabel = `${g.paras.length} match${g.paras.length === 1 ? "" : "es"} in same quote block`;
+      const inner = g.paras.map((p) => renderParaItem(p, /*isGrouped*/ true)).join("");
       return `
-        <div class="paragraph-item">
-          <div class="para-header">
-            <span class="para-section">${escapeHtml(p.sectionLabel)}</span>
-            <span class="para-num" title="${escapeHtml(formatParaNumTitle(p))}">${escapeHtml(paraLabel)}</span>
-            ${buildMatchSourceBadgesHtml(p.matchedRoles)}
-            ${buildParagraphLabelBadgesHtml(p.key)}
-            <span class="para-actions">
-              ${hudocLink}
-              <button class="cite-para-btn" data-action="copy-paragraph-citation" data-case-id="${escapeHtml(caseId)}" data-para-key="${escapeHtml(p.key || "")}" title="Copy paragraph citation">Cite ¶</button>
-              <button class="copy-btn" data-action="copy-paragraph" data-text="${escapeHtml(p.rawText)}" title="Copy paragraph text">Copy</button>
-            </span>
+        <div class="paragraph-group">
+          <div class="paragraph-group-header">
+            <span class="para-section">${escapeHtml(g.sectionLabel)}</span>
+            ${roleBadge}
+            <span class="paragraph-group-count">${escapeHtml(countLabel)}</span>
           </div>
-          <p class="para-text">${p.textHtml}</p>
+          <div class="paragraph-group-body">${inner}</div>
         </div>
       `;
     })

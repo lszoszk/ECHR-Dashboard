@@ -231,6 +231,52 @@
   color: var(--accent-link, #4C72B0);
 }
 
+/* v1.1 bullet group: consecutive quote/operative hits in same section. */
+.paragraph-group {
+  border-left: 3px solid rgba(140, 116, 100, 0.45);
+  padding-left: 12px;
+  margin-bottom: 14px;
+  background: rgba(0, 0, 0, 0.012);
+  border-radius: 0 6px 6px 0;
+}
+
+[data-theme="dark"] .paragraph-group {
+  background: rgba(255, 255, 255, 0.025);
+  border-left-color: rgba(189, 165, 145, 0.45);
+}
+
+.paragraph-group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0 6px;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.paragraph-group-count {
+  font-style: italic;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+.paragraph-group-body .paragraph-item.grouped-item {
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px dotted var(--border);
+}
+
+.paragraph-group-body .paragraph-item.grouped-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.paragraph-group-body .paragraph-item.grouped-item .para-header {
+  /* grouped items don't repeat the section badge — header is at group level */
+  padding-bottom: 2px;
+}
+
 
 /* ============================================================
  * judgment-hudoc.css
