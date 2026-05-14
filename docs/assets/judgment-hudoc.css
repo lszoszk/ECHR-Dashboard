@@ -124,6 +124,113 @@
   color: var(--text-primary);
 }
 
+/* ---------- v1 bucket pills ------------------------------- */
+.bucket-scope .bucket-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+  padding: 4px 11px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+
+.bucket-scope .bucket-pill input {
+  margin: 0;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  accent-color: var(--accent, #4C72B0);
+}
+
+.bucket-scope .bucket-pill:hover {
+  background: rgba(0, 0, 0, 0.025);
+  border-color: var(--border-strong, #999);
+}
+
+[data-theme="dark"] .bucket-scope .bucket-pill:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.bucket-scope .bucket-pill:has(input:checked) {
+  background: rgba(76, 114, 176, 0.12);
+  border-color: rgba(76, 114, 176, 0.40);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Color each bucket pill when checked, mirroring SECTION_BUCKETS */
+.bucket-scope .bucket-pill:has(input[value="facts"]:checked) {
+  background: rgba(221, 132, 82, 0.12);
+  border-color: rgba(221, 132, 82, 0.40);
+}
+.bucket-scope .bucket-pill:has(input[value="adm_merits"]:checked) {
+  background: rgba(85, 168, 104, 0.12);
+  border-color: rgba(85, 168, 104, 0.40);
+}
+.bucket-scope .bucket-pill:has(input[value="just_satisfaction"]:checked) {
+  background: rgba(218, 139, 195, 0.12);
+  border-color: rgba(218, 139, 195, 0.40);
+}
+.bucket-scope .bucket-pill:has(input[value="operative_part"]:checked) {
+  background: rgba(100, 181, 205, 0.12);
+  border-color: rgba(100, 181, 205, 0.40);
+}
+.bucket-scope .bucket-pill:has(input[value="individual_opinions"]:checked) {
+  background: rgba(140, 140, 140, 0.12);
+  border-color: rgba(140, 140, 140, 0.40);
+}
+
+.bucket-scope .scope-divider {
+  color: var(--text-muted);
+  font-weight: 600;
+  margin: 0 2px;
+}
+
+/* Per-paragraph action row (HUDOC ¶ link, Cite, Copy) */
+.paragraph-item .para-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.paragraph-item .para-actions a,
+.paragraph-item .para-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  white-space: nowrap;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+
+.paragraph-item .para-actions a:hover,
+.paragraph-item .para-actions button:hover {
+  background: rgba(76, 114, 176, 0.08);
+  border-color: rgba(76, 114, 176, 0.30);
+  color: var(--text-primary);
+}
+
+.paragraph-item .para-actions .hudoc-para-link {
+  color: var(--accent-link, #4C72B0);
+}
+
 
 /* ============================================================
  * judgment-hudoc.css

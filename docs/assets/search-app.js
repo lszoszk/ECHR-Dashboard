@@ -64,25 +64,33 @@ const serverSearch = {
     // SECTION_DB_NAMES values are arrays (one UI bucket may cover multiple
     // raw DB values — e.g. "facts" → ["Facts Background", "Facts Proceedings"]).
     //
-    // Default search scope: BODY content only (Facts → Operative part).
-    // The user can opt-in to including separate opinions and/or
-    // header/summary/appendix via the search-scope toggles.  A manual
-    // section filter (any checkbox in the Sections filter group) takes
-    // precedence and disables the scope defaults.
-    if (filters.sections.size) {
+    // v1 bucket-based scope.  Five high-level researcher buckets
+    // (SECTION_BUCKETS) cover the body of the judgment; appendix and
+    // header sit behind a separate "+ Header/Appendix" toggle for
+    // power users.  ``filters.buckets`` is a Set<bucketKey>; when
+    // empty we treat it as "search everywhere visible" and fall back
+    // to the union of all defaultOn buckets.  The legacy
+    // ``filters.sections`` granular-section filter still works as an
+    // override (advanced disclosure).
+    if (filters.sections && filters.sections.size) {
       const dbSections = [...filters.sections].flatMap(s => SECTION_DB_NAMES[s] || [s]);
       p.set("sections", dbSections.join(","));
     } else {
-      const scope = [
-        "introduction", "facts", "legal_framework",
-        "commission_proceedings", "final_submissions",
-        "admissibility", "merits", "just_satisfaction",
-        "article_46", "operative_part",
-      ];
-      if (filters.includeOpinions) scope.push("separate_opinion");
+      const activeBuckets = (filters.buckets && filters.buckets.size)
+        ? [...filters.buckets]
+        : Object.entries(SECTION_BUCKETS)
+            .filter(([_, b]) => b.defaultOn)
+            .map(([k]) => k);
+      const scope = activeBuckets.flatMap(b => SECTION_BUCKETS[b]?.sections || []);
       if (filters.includeMeta) scope.push("header", "summary", "appendix");
       const dbSections = scope.flatMap(s => SECTION_DB_NAMES[s] || [s]);
       p.set("sections", dbSections.join(","));
+    }
+    // v1: heading rows are search noise (researchers don't search
+    // "PROCEDURE" as a body paragraph).  Exclude unless the user
+    // explicitly opts in via the "+ Search in headings" toggle.
+    if (!filters.includeHeadings) {
+      p.set("exclude_roles", "heading,heading_h0,heading_h1,heading_h2,heading_h3,heading_h4");
     }
     if (filters.articles.size) p.set("articles", [...filters.articles].join(","));
     if (filters.countries.size) p.set("states", [...filters.countries].join(","));
@@ -307,6 +315,60 @@ const SECTION_COLORS = {
   separate_opinion: "#8C8C8C",
   appendix: "#A5A58D",
 };
+
+// v1 high-level filter buckets that researchers think in, regardless of
+// the dozen-or-so raw HUDOC sub-section variants.  Each bucket maps to
+// a list of normalized section keys (which themselves flatten further
+// into raw DB names via SECTION_DB_NAMES).  Order matches the visible
+// HUDOC document flow (Facts → Adm/Merits → Just Sat → Operative →
+// Separate Opinions).  Defaults: all body buckets ON, opinions OFF.
+const SECTION_BUCKETS = {
+  facts: {
+    label: "Facts",
+    description: "Facts of the case, legal framework, procedure, summary",
+    sections: [
+      "introduction", "facts", "legal_framework",
+      "commission_proceedings", "summary",
+    ],
+    color: "#DD8452",
+    defaultOn: true,
+  },
+  adm_merits: {
+    label: "Admissibility + Merits",
+    description: "Court's reasoning on admissibility and merits, including final submissions",
+    sections: ["admissibility", "merits", "final_submissions"],
+    color: "#55A868",
+    defaultOn: true,
+  },
+  just_satisfaction: {
+    label: "Just Satisfaction",
+    description: "Article 41 (and pre-1998 Article 50) — damages, costs, compensation",
+    sections: ["just_satisfaction", "article_46"],
+    color: "#DA8BC3",
+    defaultOn: true,
+  },
+  operative_part: {
+    label: "Operative Part",
+    description: "Dispositif — \"Holds…\", \"Decides…\", \"Declares…\"",
+    sections: ["operative_part"],
+    color: "#64B5CD",
+    defaultOn: true,
+  },
+  individual_opinions: {
+    label: "Individual Opinions",
+    description: "Concurring, dissenting and partly concurring/dissenting opinions",
+    sections: ["separate_opinion"],
+    color: "#8C8C8C",
+    defaultOn: false,
+  },
+};
+
+// Inverse: section-key → bucket-key (for breadcrumb labelling).
+const SECTION_TO_BUCKET = Object.fromEntries(
+  Object.entries(SECTION_BUCKETS).flatMap(
+    ([bk, b]) => b.sections.map((s) => [s, bk])
+  )
+);
 
 // Reverse map: normalized key → raw DB section name(s) (as stored in SQLite).
 // Values are ARRAYS because one UI bucket may cover multiple raw DB values
@@ -1184,6 +1246,50 @@ function buildEcliCitation(caseObj) {
   return caseObj.ecli || buildStandardCitation(caseObj);
 }
 
+/* v1 paragraph-level citation:
+ *   Smith v. Croatia, no. 12345/05, § 47, ECtHR 2024
+ *   https://hudoc.echr.coe.int/?i=001-XXXXX
+ *
+ * Used by the per-paragraph "Cite ¶" button in result rows.  Falls
+ * back gracefully when the paragraph has no hudoc_para_no
+ * (continuation row, operative item, heading) by emitting the case
+ * citation without a paragraph anchor. */
+function buildParagraphCitation(caseObj, para) {
+  const head = buildStandardCitation(caseObj);
+  const url = caseObj.hudoc_url || "";
+  const hp = para && para.hudocParaNo;
+  const block = para && para.numberingBlock;
+  let anchor = "";
+  if (hp != null) {
+    if (block === "operative_dispositif" || block === "separate_opinion") {
+      anchor = `, Op. § ${hp}`;
+    } else {
+      anchor = `, § ${hp}`;
+    }
+  }
+  // Insert the anchor BEFORE the trailing year-parenthesis if present
+  // ("Smith v. Croatia, App. no. … (ECtHR YYYY)"), otherwise append.
+  const withAnchor = anchor
+    ? head.replace(/\s\(ECtHR\b/, `${anchor} (ECtHR`).replace(
+        /^(.+)$/,
+        head.includes("(ECtHR") ? "$1" : `$1${anchor}`,
+      )
+    : head;
+  return url ? `${withAnchor}\n${url}` : withAnchor;
+}
+
+/* Build a per-paragraph HUDOC URL.  HUDOC's modern viewer doesn't
+ * natively honour `#paragraph_N`, so we keep the case-level URL but
+ * append a fragment that the user can paste / Ctrl-F against in the
+ * HUDOC page.  Falls back to the case URL when no para number. */
+function paragraphHudocUrl(caseObj, para) {
+  const base = caseObj.hudoc_url || "";
+  if (!base) return "";
+  const hp = para && para.hudocParaNo;
+  if (hp == null) return base;
+  return `${base}#${"{"}\"paragraphno\":\"${hp}\"${"}"}`;
+}
+
 function buildKeyInfoBlock(caseObj) {
   const lines = [];
   const title = (caseObj.title || "Untitled").replace(/^CASE OF\s+/i, "");
@@ -2002,8 +2108,14 @@ function collectCheckedValuesIn(container) {
 }
 
 function getCurrentFilters() {
+  // v1 bucket toggles — checkbox `data-name="buckets" value="<bucket-key>"`.
+  // When none are checked AND no granular section is selected, fall
+  // back to all defaultOn buckets (Facts + Adm/Merits + Just Sat +
+  // Operative).  Individual opinions are off by default.
+  const buckets = collectChecked("buckets");
   return {
     sections: collectChecked("sections"),
+    buckets,
     countries: collectChecked("countries"),
     articles: collectChecked("articles"),
     bodies: collectChecked("bodies"),
@@ -2019,8 +2131,9 @@ function getCurrentFilters() {
     // Search-scope toggles: by default we search only judgment BODY
     // sections (Facts → Operative).  These flags opt-in to the
     // additional content classes.
-    includeOpinions: !!document.getElementById("scopeIncludeOpinions")?.checked,
+    includeOpinions: buckets.has("individual_opinions") || !!document.getElementById("scopeIncludeOpinions")?.checked,
     includeMeta: !!document.getElementById("scopeIncludeMeta")?.checked,
+    includeHeadings: !!document.getElementById("scopeIncludeHeadings")?.checked,
   };
 }
 
@@ -4292,18 +4405,29 @@ function buildCaseCard(caseId, row, rank = 1) {
   const displayHitCount = caseOnlyBrowse ? 1 : row.hitCount;
 
   const paraBlocks = row.paragraphs
-    .map((p) => `
+    .map((p) => {
+      const hudocUrl = paragraphHudocUrl(c, p);
+      const paraLabel = formatParaNum(p);
+      const hudocLink = hudocUrl
+        ? `<a class="hudoc-para-link" href="${escapeHtml(hudocUrl)}" target="_blank" rel="noopener noreferrer" title="Open this paragraph's case in HUDOC (use Ctrl-F for ${escapeHtml(paraLabel)})">HUDOC ↗</a>`
+        : "";
+      return `
         <div class="paragraph-item">
           <div class="para-header">
             <span class="para-section">${escapeHtml(p.sectionLabel)}</span>
-            <span class="para-num" title="${escapeHtml(formatParaNumTitle(p))}">${escapeHtml(formatParaNum(p))}</span>
+            <span class="para-num" title="${escapeHtml(formatParaNumTitle(p))}">${escapeHtml(paraLabel)}</span>
             ${buildMatchSourceBadgesHtml(p.matchedRoles)}
             ${buildParagraphLabelBadgesHtml(p.key)}
-            <button class="copy-btn" data-action="copy-paragraph" data-text="${escapeHtml(p.rawText)}">Copy</button>
+            <span class="para-actions">
+              ${hudocLink}
+              <button class="cite-para-btn" data-action="copy-paragraph-citation" data-case-id="${escapeHtml(caseId)}" data-para-key="${escapeHtml(p.key || "")}" title="Copy paragraph citation">Cite ¶</button>
+              <button class="copy-btn" data-action="copy-paragraph" data-text="${escapeHtml(p.rawText)}" title="Copy paragraph text">Copy</button>
+            </span>
           </div>
           <p class="para-text">${p.textHtml}</p>
         </div>
-      `)
+      `;
+    })
     .join("");
 
   const hitLabel = caseOnlyBrowse
@@ -4337,10 +4461,10 @@ function buildCaseCard(caseId, row, rank = 1) {
         </div>
 
         <div class="case-actions-inline compact-actions">
-          <button type="button" class="case-open-link primary" data-action="open-case" data-case-id="${escapeHtml(caseId)}">Open judgment</button>
-          ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="case-open-secondary" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>` : ""}
+          ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="case-open-link primary" target="_blank" rel="noopener noreferrer">Open in HUDOC ↗</a>` : ""}
           <button type="button" class="case-open-secondary cite-btn" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}" title="Copy citation to clipboard">Cite</button>
           <button type="button" class="case-open-secondary info-btn" data-action="copy-info-card" data-case-id="${escapeHtml(caseId)}" title="Copy key info block to clipboard">Info</button>
+          <button type="button" class="case-open-secondary preview-btn" data-action="open-case" data-case-id="${escapeHtml(caseId)}" title="In-app preview (v0.x — for full text use HUDOC)">Preview</button>
           <button
             type="button"
             class="case-open-secondary expand-paras-btn"
@@ -4885,7 +5009,20 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
       // the same logical_para_rowid into one search result.  Track which
       // row roles contributed to the match so we can display
       // "matched in heading / quote / body" badges.
-      const paragraphs = dedupParagraphHits(rawHits);
+      let paragraphs = dedupParagraphHits(rawHits);
+
+      // v1 frontend filter: drop heading rows unless explicitly opted-in.
+      // Server doesn't currently honour `exclude_roles`, so this lives
+      // here to keep "PROCEDURE" / "THE FACTS" / sub-section labels out
+      // of the result list by default.  Researchers can flip the
+      // "+ Headings" toggle in the scope bar to include them.
+      if (!filters.includeHeadings) {
+        paragraphs = paragraphs.filter((p) => {
+          const r = p.rowRole || "";
+          return !r.startsWith("heading");
+        });
+      }
+      if (!paragraphs.length) continue;
 
       // Client-side post-filter for filters the server doesn't support
       if (!passesCaseFilters(c, filters)) continue;
@@ -6304,6 +6441,15 @@ function bindEvents() {
     applySearch(true);
   });
 
+  // v1 bucket scope bar — bucket pills + headings/meta toggles sit
+  // above the filters panel, outside its change listener.  Wire them
+  // up to re-run the search on any change.
+  document.getElementById("bucketScope")?.addEventListener("change", () => {
+    if (!state.loaded && !serverSearch.available) return;
+    updateActiveFilterCount();
+    applySearch(true);
+  });
+
   el.keywordFilterInput.addEventListener("change", () => {
     if (!state.loaded && !serverSearch.available) return;
     updateActiveFilterCount();
@@ -6503,6 +6649,26 @@ function bindEvents() {
       e.preventDefault();
       const caseObj = state.caseById.get(caseId);
       if (caseObj) copyToClipboardWithFeedback(buildStandardCitation(caseObj), clickable);
+      return;
+    }
+
+    if (action === "copy-paragraph-citation" && caseId) {
+      e.preventDefault();
+      const caseObj = state.caseById.get(caseId);
+      const paraKey = clickable.getAttribute("data-para-key") || "";
+      if (caseObj) {
+        // Look up the paragraph object so the citation can include
+        // the proper § N anchor.  We search the case's __paragraphs
+        // list by the same key the result row was built from.
+        let para = null;
+        for (const p of (caseObj.__paragraphs || [])) {
+          if ((p.key || "") === paraKey) { para = p; break; }
+        }
+        copyToClipboardWithFeedback(
+          buildParagraphCitation(caseObj, para),
+          clickable,
+        );
+      }
       return;
     }
 

@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="assets/dashboard.css?v=20260507-hudoc-researcher-4">
   <link rel="stylesheet" href="assets/search-app.css?v=20260507-hudoc-researcher-4">
   <link rel="stylesheet" href="assets/editorial-redesign.css?v=20260507-hudoc-researcher-4">
-  <link rel="stylesheet" href="assets/judgment-hudoc.css?v=20260513-anti-fragmentation">
+  <link rel="stylesheet" href="assets/judgment-hudoc.css?v=20260514-v1-buckets">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
 </head>
@@ -99,17 +99,38 @@
             <span class="tip"><code>judge:</code></span>
             <span class="tip"><code>ecli:</code></span>
           </div>
-          <div class="search-scope-bar">
+          <div class="search-scope-bar bucket-scope" id="bucketScope">
             <span class="scope-label">Search in</span>
-            <span class="scope-chip scope-chip-default">Body</span>
-            <label class="scope-toggle">
-              <input type="checkbox" id="scopeIncludeOpinions">
-              <span>+ Separate opinions</span>
+            <label class="bucket-pill" title="Facts of the case, legal framework, procedure">
+              <input type="checkbox" data-name="buckets" value="facts" checked>
+              <span>Facts</span>
             </label>
-            <label class="scope-toggle">
+            <label class="bucket-pill" title="Court's reasoning on admissibility &amp; merits">
+              <input type="checkbox" data-name="buckets" value="adm_merits" checked>
+              <span>Admissibility + Merits</span>
+            </label>
+            <label class="bucket-pill" title="Article 41 — damages, costs, compensation">
+              <input type="checkbox" data-name="buckets" value="just_satisfaction" checked>
+              <span>Just Satisfaction</span>
+            </label>
+            <label class="bucket-pill" title="Dispositif — &quot;Holds…&quot;, &quot;Decides…&quot;">
+              <input type="checkbox" data-name="buckets" value="operative_part" checked>
+              <span>Operative</span>
+            </label>
+            <label class="bucket-pill" title="Concurring &amp; dissenting opinions">
+              <input type="checkbox" data-name="buckets" value="individual_opinions">
+              <span>Individual opinions</span>
+            </label>
+            <span class="scope-divider" aria-hidden="true">·</span>
+            <label class="scope-toggle" title="Include cover page metadata, summary digest, and appendix tables">
               <input type="checkbox" id="scopeIncludeMeta">
-              <span>+ Header / Summary / Appendix</span>
+              <span>+ Header/Summary/Appendix</span>
             </label>
+            <label class="scope-toggle" title="Search within sub-section heading labels (rare — most users want body)">
+              <input type="checkbox" id="scopeIncludeHeadings">
+              <span>+ Headings</span>
+            </label>
+            <input type="checkbox" id="scopeIncludeOpinions" hidden>
           </div>
 
           <div class="advanced-query-bar">
@@ -217,10 +238,15 @@
                 <div class="checkbox-grid compact" id="docTypeFilters"></div>
               </div>
 
-              <!-- 7. Case Sections — paragraph-level, specific to this tool -->
+              <!-- 7. Case Sections — granular fallback for the top-bar buckets.
+                   Hidden behind a disclosure; most users want the 5 buckets
+                   above the search input. -->
               <div class="filter-group">
-                <h3 class="filter-title">Case Sections</h3>
-                <div class="checkbox-grid compact" id="sectionsFilters"></div>
+                <details class="filter-disclosure">
+                  <summary><h3 class="filter-title inline">Case Sections (advanced)</h3></summary>
+                  <p class="filter-hint">Override the bucket scope with granular HUDOC sub-section keys. When any box here is ticked, the bucket pills at the top are ignored.</p>
+                  <div class="checkbox-grid compact" id="sectionsFilters"></div>
+                </details>
               </div>
 
               <!-- 8. Separate Opinion -->
@@ -513,6 +539,6 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
-  <script src="assets/search-app.js?v=20260513-anti-fragmentation"></script>
+  <script src="assets/search-app.js?v=20260514-v1-buckets"></script>
 </body>
 </html>
