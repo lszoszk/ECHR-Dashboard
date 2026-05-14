@@ -54,6 +54,9 @@ HEADING_RULES = [
     # ── English ───────────────────────────────────────────────────────
     ("FOR THESE REASONS",            "Operative part",    "en"),
     ("APPLICATION OF ARTICLE 41",    "Just Satisfaction", "en"),
+    # Pre-Protocol-11 (pre-1998) judgments used Article 50 as the
+    # just-satisfaction clause; renamed to Article 41 in 1998.
+    ("APPLICATION OF ARTICLE 50",    "Just Satisfaction", "en"),
     ("JUST SATISFACTION",            "Just Satisfaction", "en"),
     ("OTHER ALLEGED VIOLATIONS",     "Merits",            "en"),
     ("OTHER COMPLAINTS",             "Merits",            "en"),
@@ -67,6 +70,13 @@ HEADING_RULES = [
     ("RELEVANT LEGAL FRAMEWORK",     "Legal Framework",   "en"),
     ("RELEVANT DOMESTIC LAW",        "Legal Framework",   "en"),
     ("RELEVANT INTERNATIONAL",       "Legal Framework",   "en"),
+    # Pre-1995 ECHR/Commission templates used these mid-Facts headings.
+    # Treated as Facts so the section label doesn't flip, but emitting
+    # them as headings resets the ¶-numbering watermark so the new
+    # sub-sequence (¶ 10, ¶ 11, …) is accepted instead of suppressed.
+    ("PROCEEDINGS BEFORE THE COMMISSION", "Facts",         "en"),
+    ("FINAL SUBMISSIONS TO THE COURT",    "Facts",         "en"),
+    ("AS TO THE LAW",                "Merits",            "en"),
     ("THE LAW",                      "Merits",            "en"),
     # ── French ────────────────────────────────────────────────────────
     ("PAR CES MOTIFS",               "Operative part",    "fr"),
@@ -464,18 +474,20 @@ def parse_docx(blob, *, skip_converted_page_artifacts=False):
             if text_section:
                 if text_lang:
                     language_votes[text_lang] = language_votes.get(text_lang, 0) + 1
-                # Pre-1995 ECHR judgments restart ¶ numbering when crossing
-                # a top-level section boundary (PROCEDURE → THE FACTS →
-                # AS TO THE LAW each starts at ¶ 1).  Resetting the
-                # running-max guard here lets the numbered-paragraph
-                # detector accept the new sequence.  Modern Ju_* judgments
-                # keep monotone numbering across sections, but their
-                # paragraph numbers also keep climbing, so the reset
-                # remains a no-op for them (n > max_para_seen will still
-                # hold).
-                if text_section != section:
-                    max_para_seen = 0
-                    para_accept_count = 0
+                # Pre-1995 ECHR/Commission judgments restart ¶ numbering
+                # whenever a major heading is encountered — PROCEDURE,
+                # THE FACTS, PROCEEDINGS BEFORE THE COMMISSION, AS TO
+                # THE LAW and APPLICATION OF ARTICLE 50 each open with a
+                # fresh ¶ 1.  We reset the running-max guard on EVERY
+                # recognised heading rather than only on section-name
+                # changes, because mid-Facts sub-headings (PROCEEDINGS
+                # BEFORE THE COMMISSION → still "Facts") need the reset
+                # too.  Modern Ju_* judgments keep monotone numbering
+                # across sections, but their paragraph numbers also keep
+                # climbing, so the reset is a no-op for them
+                # (n > max_para_seen will still hold).
+                max_para_seen = 0
+                para_accept_count = 0
                 section = text_section
                 append_row(text, section, None, None, "heading")
                 continue
