@@ -1,36 +1,8 @@
-"""Second-pass line-wrap reflow after the P42 heal_hpno backfilled
-``hudoc_para_no`` from text prefixes.
-
-The original reflow in P34 (``_reflow_line_wrapped``) only merges
-continuation lines into a parent paragraph that already has
-``hudoc_para_no``.  Pre-1995 line-wrapped DOCX where the parser's
-running-max guard rejected a number (e.g. VIEZZER ¶ 10 with text
-"10. According to information…" arrived after a Commission-quote
-block that bumped max_para_seen to 21) leaves the parent with
-``hp=None`` and the continuation lines stranded as separate rows.
-
-P42 then backfills the parent's ``hp`` from its text prefix — but by
-then the reflow phase has long since finished, so the continuation
-lines stay orphaned in the DB:
-
-    pi=180  paragraph hp=10  "10.  According to information supplied to the Court by the"
-    pi=181  paragraph hp=None  "Government and the applicant's lawyer the investigation is still"
-    pi=182  paragraph hp=None  "pending."
-
-P45 walks the DB after P42 has run, finds parent rows with ``hp``
-that are *immediately* followed by orphan continuation rows (same
-case, same section, no ``hp``, no leading number, not a heading or
-quote), and merges the orphans' text into the parent row.  Each
-merge deletes the orphan row.
-
-Conservative — stops on:
-  * row in a different section,
-  * row whose role is not "paragraph",
-  * row whose text starts with "<digits>. " (a new numbered paragraph),
-  * row whose text starts with a heading-like prefix.
-"""
+"""Streaming version of P45 — processes case-by-case to avoid loading
+all 3.3M paragraphs into memory at once."""
 import re
 import sqlite3
+import sys
 
 DB = "/data/echr_search.db"
 NUM_RE = re.compile(r"^\s*\d+\.\s")
@@ -43,70 +15,80 @@ def main():
     con = sqlite3.connect(DB)
     con.execute("PRAGMA journal_mode = WAL")
 
-    rows_by_case = {}
-    for case_id, rowid, pi, role, hp, text, section in con.execute(
-        "SELECT case_id, rowid, para_idx, row_role, hudoc_para_no, text, section "
-        "FROM paragraphs "
-        "ORDER BY case_id, para_idx IS NULL, para_idx, rowid"
-    ):
-        rows_by_case.setdefault(case_id, []).append({
-            "rowid": rowid, "pi": pi, "role": role or "",
-            "hp": hp, "text": text or "", "section": section,
-        })
+    cases = [r[0] for r in con.execute(
+        "SELECT DISTINCT case_id FROM paragraphs"
+    )]
+    print(f"processing {len(cases):,} cases", flush=True)
 
-    text_updates = []   # (new_text, rowid)
-    deletes = []        # rowids
-    n_merges = 0
+    total_merges = 0
+    total_deletes = 0
+    cases_touched = 0
 
-    for case_id, rows in rows_by_case.items():
+    for ci, case_id in enumerate(cases, 1):
+        rows = list(con.execute(
+            "SELECT rowid, para_idx, row_role, hudoc_para_no, text, section "
+            "FROM paragraphs WHERE case_id=? "
+            "ORDER BY para_idx IS NULL, para_idx, rowid",
+            (case_id,)
+        ))
+        if not rows:
+            continue
+
+        text_updates = []
+        deletes = []
         i = 0
         while i < len(rows):
-            r = rows[i]
-            if r["role"] != "paragraph" or r["hp"] is None:
+            rid, pi, role, hp, text, sec = rows[i]
+            if (role or "") != "paragraph" or hp is None:
                 i += 1
                 continue
-            # Found a numbered parent — sweep forward for continuations.
-            merged_text = r["text"]
+            merged = text or ""
             j = i + 1
             consumed = []
             while j < len(rows):
-                nxt = rows[j]
-                if nxt["role"] != "paragraph":
-                    break
-                if nxt["section"] != r["section"]:
-                    break
-                if nxt["hp"] is not None:
-                    break
-                if NUM_RE.match(nxt["text"]):
-                    break
-                if HEAD_RE.match(nxt["text"]):
-                    break
-                # Looks like a continuation — merge it.
-                merged_text = merged_text.rstrip() + " " + nxt["text"].lstrip()
-                consumed.append(nxt["rowid"])
+                nrid, npi, nrole, nhp, ntext, nsec = rows[j]
+                if (nrole or "") != "paragraph": break
+                if nsec != sec: break
+                if nhp is not None: break
+                if NUM_RE.match(ntext or ""): break
+                if HEAD_RE.match(ntext or ""): break
+                merged = merged.rstrip() + " " + (ntext or "").lstrip()
+                consumed.append(nrid)
                 j += 1
             if consumed:
-                text_updates.append((merged_text, r["rowid"]))
+                text_updates.append((merged, rid))
                 deletes.extend(consumed)
-                n_merges += len(consumed)
             i = j if consumed else i + 1
 
-    print(f"merging {n_merges:,} continuation rows into "
-          f"{len(text_updates):,} parents")
-    batch = 20000
-    for i in range(0, len(text_updates), batch):
-        con.executemany(
-            "UPDATE paragraphs SET text = ? WHERE rowid = ?",
-            text_updates[i:i + batch],
-        )
-        con.commit()
-    for i in range(0, len(deletes), batch):
-        con.executemany(
-            "DELETE FROM paragraphs WHERE rowid = ?",
-            [(rid,) for rid in deletes[i:i + batch]],
-        )
-        con.commit()
-    print(f"done: {len(text_updates):,} updates, {len(deletes):,} deletes")
+        if text_updates:
+            con.executemany(
+                "UPDATE paragraphs SET text=? WHERE rowid=?",
+                text_updates,
+            )
+        if deletes:
+            con.executemany(
+                "DELETE FROM paragraphs WHERE rowid=?",
+                [(r,) for r in deletes],
+            )
+        if text_updates or deletes:
+            con.commit()
+            cases_touched += 1
+            total_merges += len(text_updates)
+            total_deletes += len(deletes)
+
+        if ci % 1000 == 0:
+            print(
+                f"  {ci:,}/{len(cases):,}  "
+                f"touched={cases_touched:,}  "
+                f"merges={total_merges:,}  deletes={total_deletes:,}",
+                flush=True,
+            )
+
+    print(
+        f"\ndone: {total_merges:,} parents merged, "
+        f"{total_deletes:,} orphan rows deleted, "
+        f"{cases_touched:,} cases touched"
+    )
 
 
 if __name__ == "__main__":
