@@ -248,6 +248,27 @@
       </section>
 
       <section class="about-section">
+        <h2>How the Data Is Built</h2>
+        <p>
+          Each judgment is fetched from HUDOC as a DOCX file, parsed into
+          numbered paragraphs, and segmented into sections (Facts /
+          Admissibility&nbsp;+&nbsp;Merits / Just&nbsp;Satisfaction /
+          Operative / Separate Opinion / Appendix). Headings, quotes and
+          operative-list items are tagged so search can filter them.
+        </p>
+        <p>
+          Segmentation accuracy is checked with a recurring
+          <strong>LLM-as-judge audit</strong>: a large language model
+          reviews a stratified sample of ~1,000 paragraphs against the
+          assigned section labels, and any systematic errors it surfaces
+          are corrected by targeted, reviewable cleanup passes. The most
+          recent audit puts the effective segmentation error rate near
+          <strong>1%</strong>. For canonical work always cross-check
+          against HUDOC.
+        </p>
+      </section>
+
+      <section class="about-section">
         <h2>Data Sources</h2>
         <p>
           The dataset is assembled from public ECHR sources and enriched with

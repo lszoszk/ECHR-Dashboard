@@ -208,9 +208,20 @@ PRE98_ANNEX_NOTICE_RE = re.compile(
     re.I,
 )
 OPINION_BULLET_RE = re.compile(
-    r"^\s*[\-–—•]\s*(joint\s+)?(partly\s+)?"
+    r"^\s*(\([a-z]\)\s*)?[\-–—•]?\s*(joint\s+)?(partly\s+)?"
     r"(concurring|dissenting|separate)(?:\s*,\s*partly\s+(?:concurring|dissenting))?"
     r"\s+opinion\s+of\s+",
+    re.I,
+)
+
+# P57 — opinion-voice guard: paragraphs the operative-tail heal must
+# NOT sweep into Appendix (stray separate-opinion content that lacks
+# an OPI_HEAD anchor and is still sitting in the Operative part).
+OPINION_VOICE_RE = re.compile(
+    r"\b(I\s+(respectfully\s+)?(dissent|disagree|am unable to agree|"
+    r"am of the opinion|share|voted)|we\s+(share|do not|cannot|are unable|"
+    r"voted|had no)|in my (view|opinion)|in our (view|opinion)|"
+    r"my (general remarks|view|opinion))\b",
     re.I,
 )
 
@@ -956,6 +967,60 @@ def parse_docx(blob, *, skip_converted_page_artifacts=False):
             # so the modal still shows it visually distinct without
             # confusing it with the dispositif.
             r["row_role"] = "footer"
+
+    # P57 — Operative-tail heal: move the post-dispositif tail of the
+    # Operative part section into Appendix.  Everything after the LAST
+    # operative_list row (signatures, footers, annex notices, ANNEX
+    # headings, annex tables) belongs to Appendix, not OPERATIVE.
+    # Selective: only unambiguous tail material; never numbered
+    # judgment ¶, opinion-voiced prose, or quote rows (those may be
+    # stray separate-opinion content).  Stops at Separate Opinion.
+    last_op_idx = None
+    for i, r in enumerate(out):
+        if (
+            r.get("row_role") == "operative_list"
+            and r.get("section") in ("Operative part", "Operative Part")
+        ):
+            last_op_idx = i
+    if last_op_idx is not None:
+        annex_sticky = False
+        for i in range(last_op_idx + 1, len(out)):
+            r = out[i]
+            sec = r.get("section")
+            if sec == "Separate Opinion":
+                break
+            if sec not in ("Operative part", "Operative Part"):
+                continue
+            role = r.get("row_role") or ""
+            text = r.get("text") or ""
+            move = False
+            if role in ("signature", "footer", "metadata", "table_cell"):
+                move = True
+            elif role.startswith("heading"):
+                if APPENDIX_HEAD_RE.match(text):
+                    move = True
+                    annex_sticky = True
+                elif looks_like_initials_signature(text):
+                    move = True
+            elif role == "operative_list":
+                continue
+            elif role == "paragraph":
+                if r.get("hudoc_para_no") is not None:
+                    continue
+                if OPINION_VOICE_RE.search(text):
+                    continue
+                if (
+                    ANNEX_NOTICE_RE.search(text)
+                    or PRE98_ANNEX_NOTICE_RE.search(text)
+                    or OPINION_BULLET_RE.match(text)
+                    or DONE_LINE_RE.match(text)
+                ):
+                    move = True
+                elif annex_sticky and len(text.strip()) <= 90 \
+                        and not re.search(r"[.?!]\s", text):
+                    move = True
+            if move:
+                r["section"] = "Appendix"
 
     # Determine language: majority vote from matched headers; default "en".
     if language_votes["fr"] > language_votes["en"]:
