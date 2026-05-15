@@ -644,10 +644,6 @@ function cacheElements() {
   el.outcomeFilters = byId("outcomeFilters");
   el.separateOpinionFilters = byId("separateOpinionFilters");
   el.presenceFilters = byId("presenceFilters");
-  el.keywordFilterInput = byId("keywordFilterInput");
-  el.precedentFilterInput = byId("precedentFilterInput");
-  el.advancedQueryToggle = byId("advancedQueryToggle");
-  el.advancedQueryPanel = byId("advancedQueryPanel");
   el.powerUserToggle = byId("powerUserToggle");
   el.powerUserPanel = byId("powerUserPanel");
   el.dateFrom = byId("dateFrom");
@@ -1412,12 +1408,9 @@ function setSearchEnabled(enabled) {
   if (el.inlineSearchInput) el.inlineSearchInput.disabled = !enabled;
   if (el.inlineSearchBtn) el.inlineSearchBtn.disabled = !enabled;
   el.filterToggleBtn.disabled = !enabled;
-  el.advancedQueryToggle.disabled = !enabled;
   el.powerUserToggle.disabled = !enabled;
   el.dateFrom.disabled = !enabled;
   el.dateTo.disabled = !enabled;
-  el.keywordFilterInput.disabled = !enabled;
-  el.precedentFilterInput.disabled = !enabled;
   el.exportIncludeClassifier.disabled = !enabled;
 
   const dynamicInputs = document.querySelectorAll(
@@ -2082,9 +2075,7 @@ function updateActiveFilterCount() {
   if (!el.filterToggleBtn) return;
   const active = document.querySelectorAll('#filtersPanel input[type="checkbox"]:checked').length
     + (el.dateFrom?.value ? 1 : 0)
-    + (el.dateTo?.value ? 1 : 0)
-    + (el.keywordFilterInput?.value?.trim() ? 1 : 0)
-    + (el.precedentFilterInput?.value?.trim() ? 1 : 0);
+    + (el.dateTo?.value ? 1 : 0);
   // Only modify the text node containing "Advanced Filters", keep the icon
   const iconHTML = '<span class="filter-toggle-icon">▼</span>';
   if (active > 0) {
@@ -2149,8 +2140,6 @@ function getCurrentFilters() {
     docTypes: collectChecked("docTypes"),
     separateOpinion: collectChecked("separateOpinion"),
     presence: collectChecked("presence"),
-    keyword: normalizeSearchText(String(el.keywordFilterInput.value || "").trim()),
-    precedent: normalizeSearchText(String(el.precedentFilterInput.value || "").trim()),
     dateFrom: parseDateInput(el.dateFrom.value),
     dateTo: parseDateInput(el.dateTo.value),
     // Search-scope toggles: by default we search only judgment BODY
@@ -2231,14 +2220,6 @@ function passesCaseFilters(c, filters) {
     return false;
   }
   if (filters.presence.has("has_rules_of_court") && !c.__hasRulesOfCourt) {
-    return false;
-  }
-
-  if (filters.keyword && !c.__keywordsText.includes(filters.keyword)) {
-    return false;
-  }
-
-  if (filters.precedent && !arrayIncludesNorm(c.__citationRefsNorm || [], filters.precedent)) {
     return false;
   }
 
@@ -2676,12 +2657,6 @@ function renderActiveFilters(filters) {
       has_rules_of_court: "Has rules of court",
     }[key] || key;
     chips.push(`<span class="filter-chip">${escapeHtml(label)}</span>`);
-  }
-  if (filters.keyword) {
-    chips.push(`<span class="filter-chip">Keyword: ${escapeHtml(filters.keyword)}</span>`);
-  }
-  if (filters.precedent) {
-    chips.push(`<span class="filter-chip">Cites: ${escapeHtml(filters.precedent)}</span>`);
   }
   if (el.dateFrom.value) {
     chips.push(`<span class="filter-chip">From: ${escapeHtml(el.dateFrom.value)}</span>`);
@@ -5243,8 +5218,6 @@ function resetFiltersAndQuery() {
   if (el.inlineSearchInput) el.inlineSearchInput.value = "";
   el.dateFrom.value = "";
   el.dateTo.value = "";
-  el.keywordFilterInput.value = "";
-  el.precedentFilterInput.value = "";
 
   const checks = document.querySelectorAll("#filtersPanel input[type='checkbox']");
   for (const c of checks) {
@@ -6517,16 +6490,6 @@ function bindEvents() {
     el.filterToggleBtn.setAttribute("aria-expanded", open ? "true" : "false");
   });
 
-  el.advancedQueryToggle.addEventListener("click", () => {
-    if (el.advancedQueryToggle.disabled) return;
-    const open = el.advancedQueryPanel.classList.toggle("hidden");
-    // classList.toggle returns true when class was ADDED (panel now hidden)
-    const isOpen = !open;
-    el.advancedQueryToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-    el.advancedQueryToggle.querySelector(".adv-toggle-label").textContent =
-      isOpen ? "− Query options" : "+ Query options";
-  });
-
   el.powerUserToggle.addEventListener("click", () => {
     if (el.powerUserToggle.disabled) return;
     const hidden = el.powerUserPanel.classList.toggle("hidden");
@@ -6564,22 +6527,9 @@ function bindEvents() {
     applySearch(true);
   });
 
-  el.keywordFilterInput.addEventListener("change", () => {
-    if (!state.loaded && !serverSearch.available) return;
-    updateActiveFilterCount();
-    applySearch(true);
-  });
-
-  // Date inputs and keyword/precedent inputs also affect the active count
+  // Date inputs affect the active-filter count badge.
   el.dateFrom?.addEventListener("change", updateActiveFilterCount);
   el.dateTo?.addEventListener("change", updateActiveFilterCount);
-  el.keywordFilterInput?.addEventListener("input", updateActiveFilterCount);
-  el.precedentFilterInput?.addEventListener("input", updateActiveFilterCount);
-
-  el.precedentFilterInput.addEventListener("change", () => {
-    if (!state.loaded && !serverSearch.available) return;
-    applySearch(true);
-  });
 
   el.clearBtn.addEventListener("click", () => {
     if (!state.loaded && !serverSearch.available) return;
