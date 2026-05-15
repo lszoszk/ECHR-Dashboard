@@ -295,6 +295,9 @@
       </div>
 
       <aside class="results-sidebar" id="sidebar">
+        <div class="sidebar-resizer" id="sidebarResizer" role="separator"
+             aria-orientation="vertical" tabindex="0"
+             title="Drag to resize · double-click to reset"></div>
         <section class="case-context-card" id="caseContextRail">
           <div class="folio-label garnet">Case Note</div>
           <h3>Awaiting results</h3>
@@ -342,6 +345,13 @@
           <h4>Frequent Terms</h4>
           <div class="word-cloud" id="analyticsWords"></div>
         </div>
+      </aside>
+
+      <aside class="dossier-panel" id="dossier" aria-label="Paragraph dossier">
+        <div class="dossier-resizer" id="dossierResizer" role="separator"
+             aria-orientation="vertical" tabindex="0"
+             title="Drag to resize · double-click to reset"></div>
+        <div class="dossier-inner" id="dossierContent"></div>
       </aside>
     </div>
   </main>

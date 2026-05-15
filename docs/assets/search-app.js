@@ -13,7 +13,13 @@ const MAX_HITS = 5000;
 const API_BASE_URL = (() => {
   try {
     const qp = new URLSearchParams(location.search).get("api");
-    if (qp) return qp.replace(/\/+$/, "");
+    if (qp) {
+      // Persist an explicit ?api= override so later visits to the bare
+      // URL keep using the same backend (e.g. local dev pointed at prod).
+      const clean = qp.replace(/\/+$/, "");
+      try { localStorage.setItem("echrApiBase", clean); } catch (_) { /* private mode */ }
+      return clean;
+    }
     const ls = localStorage.getItem("echrApiBase");
     if (ls) return ls.replace(/\/+$/, "");
     if (location.hostname === "127.0.0.1" || location.hostname === "localhost") {
@@ -687,6 +693,12 @@ function cacheElements() {
   el.analyticsWords = byId("analyticsWords");
   el.caseContextRail = byId("caseContextRail");
   el.caseContextRailMobile = byId("caseContextRailMobile");
+
+  el.dossier = byId("dossier");
+  el.dossierContent = byId("dossierContent");
+  el.dossierResizer = byId("dossierResizer");
+  el.sidebar = byId("sidebar");
+  el.sidebarResizer = byId("sidebarResizer");
 
   el.caseModal = byId("caseModal");
   el.closeModal = byId("closeModal");
@@ -4307,7 +4319,70 @@ function buildResearcherBars(c, row) {
   return `${bar("hits", hits, true)}${bar("cites", cites)}${bar("cited by", cited)}`;
 }
 
-function renderCaseContextRail(caseId = state.activeCaseId) {
+const CASENOTE_STEP = 5; // paragraphs revealed per ↑/↓ expansion click
+
+/* A ±before/±after window around the matched paragraph, clamped to the
+ * section bounds.  `moreBefore`/`moreAfter` count paragraphs still
+ * hidden on each side — they drive the incremental ↑/↓ expanders. */
+function getCaseNoteContext(paras, activeIdx, before, after) {
+  const secKey = paras[activeIdx].section || "";
+  let start = activeIdx, end = activeIdx;
+  while (start > 0 && (paras[start - 1].section || "") === secKey) start--;
+  while (end < paras.length - 1 && (paras[end + 1].section || "") === secKey) end++;
+  const fromIdx = Math.max(start, activeIdx - before);
+  const toIdx = Math.min(end, activeIdx + after);
+  return {
+    prev: paras.slice(fromIdx, activeIdx),
+    active: paras[activeIdx],
+    next: paras.slice(activeIdx + 1, toIdx + 1),
+    moreBefore: fromIdx - start,
+    moreAfter: end - toIdx,
+    totalInSection: end - start + 1,
+  };
+}
+
+/* Context block for the Case Note: the matched paragraph plus its
+ * neighbours within the section, a section breadcrumb, and incremental
+ * ↑/↓ expanders.  Reuses the .dossier-ctx-* paragraph CSS. */
+function caseNoteContextHtml(ctx, paras, activeIdx) {
+  const terms = state.currentTerms || [];
+  let headingText = "";
+  for (let i = activeIdx; i >= 0; i--) {
+    if ((paras[i].section || "") !== (ctx.active.section || "")) break;
+    const r = paras[i].rowRole || "";
+    if (r === "heading" || r.startsWith("heading")) { headingText = paras[i].text || ""; break; }
+  }
+  const bc = [escapeHtml(ctx.active.sectionLabel || "—")];
+  if (headingText.trim() && headingText.trim().length <= 120) bc.push(escapeHtml(headingText.trim()));
+  const breadcrumb = bc.join('<span class="dossier-bc-sep">›</span>');
+
+  const renderC = (p) => `
+    <div class="dossier-ctx-para">
+      <span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(p))}</span>${escapeHtml(p.text)}
+    </div>`;
+  const active = `
+    <div class="dossier-ctx-para dossier-ctx-active">
+      <span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(ctx.active))}</span>${dossierHighlight(ctx.active.text, terms)}
+    </div>`;
+  const moreBtn = (dir, count) => {
+    const step = Math.min(CASENOTE_STEP, count);
+    const arrow = dir === "before" ? "↑" : "↓";
+    const word = dir === "before" ? "earlier" : "later";
+    const tail = count > step ? ` · ${count} more in section` : "";
+    return `<button type="button" class="dossier-expand casenote-more" data-action="casenote-more-${dir}">${arrow} show ${step} ${word}${tail}</button>`;
+  };
+  return `
+    <div class="case-note-context">
+      <div class="dossier-breadcrumb">${breadcrumb}</div>
+      ${ctx.moreBefore > 0 ? moreBtn("before", ctx.moreBefore) : ""}
+      ${ctx.prev.map(renderC).join("")}
+      ${active}
+      ${ctx.next.map(renderC).join("")}
+      ${ctx.moreAfter > 0 ? moreBtn("after", ctx.moreAfter) : ""}
+    </div>`;
+}
+
+function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
   if (!el.caseContextRail && !el.caseContextRailMobile) return;
   const renderToRails = (html) => {
     if (el.caseContextRail) el.caseContextRail.innerHTML = html;
@@ -4331,58 +4406,107 @@ function renderCaseContextRail(caseId = state.activeCaseId) {
   const outcomeToneClass = getOutcomeToneClass(c.__outcomePrimary);
   const chamberLabel = getChamberLabel(c.__chamberCategory);
   const citations = (c.__citationRefs || []).length;
-  const noParagraphNote = state.currentMode === "browse"
-    ? "This browse result is currently a case record. Run a full-text query to see matched paragraphs in this note."
-    : "No paragraph preview is available for this result.";
-  const paraQuote = primaryPara
-    ? `<blockquote class="case-context-quote">
-        <div class="case-context-para">${escapeHtml(formatParaNum(primaryPara))}</div>
-        ${primaryPara.parentText
-          ? `<p class="para-context-lead">${escapeHtml(truncateForContext(primaryPara.parentText))}</p>`
-          : ""}
-        <p>${primaryPara.textHtml}</p>
-      </blockquote>`
-    : `<p class="case-context-empty">${escapeHtml(noParagraphNote)}</p>`;
 
-  renderToRails(`
+  // Compact, grouped fact header — one block (articles · facts grid ·
+  // outcome) instead of the old loose 6-cell grid + scattered chip row.
+  const headHtml = `
     <div class="folio-label garnet">Case Note</div>
     <h3>${escapeHtml(title)}</h3>
     <div class="case-context-ecli">${escapeHtml(c.ecli || c.case_no || "")}</div>
 
-    <div class="case-context-data">
-      <div><span>Application</span><strong>${escapeHtml(c.case_no || "-")}</strong></div>
-      <div><span>Decided</span><strong>${escapeHtml(formatCaseDateForDisplay(c))}</strong></div>
-      <div><span>Body</span><strong>${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "-")}</strong></div>
-      <div><span>State</span><strong>${escapeHtml(states)}</strong></div>
-      <div><span>Outcome</span><strong class="${escapeHtml(outcomeToneClass)}">${escapeHtml(outcomeLabel)}</strong></div>
-      <div><span>Citations</span><strong>${fmtInt.format(citations)}</strong></div>
-    </div>
+    <div class="case-note-meta">
+      <div class="cnm-articles">
+        <span class="cnm-label">Articles</span>
+        <span class="cnm-article-chips">${buildResearcherArticleChips(c.__articles, 8)}</span>
+      </div>
+      <dl class="cnm-facts">
+        <div><dt>Application</dt><dd>${escapeHtml(c.case_no || "—")}</dd></div>
+        <div><dt>Decided</dt><dd>${escapeHtml(formatCaseDateForDisplay(c))}</dd></div>
+        <div><dt>Court</dt><dd>${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "—")}</dd></div>
+        <div><dt>State</dt><dd>${escapeHtml(states)}</dd></div>
+        <div><dt>Importance</dt><dd${importanceShortLabel(c.__importance) ? ` title="${escapeHtml(importanceTooltip(c.__importance))}"` : ""}>${escapeHtml(importanceShortLabel(c.__importance) || "—")}</dd></div>
+        <div><dt>Citations</dt><dd>${fmtInt.format(citations)}</dd></div>
+      </dl>
+      <div class="cnm-outcome">
+        <span class="cnm-outcome-badge ${escapeHtml(outcomeToneClass)}">${escapeHtml(outcomeLabel)}</span>
+        ${c.document_type ? `<span class="cnm-doctype">${escapeHtml(c.document_type)}</span>` : ""}
+      </div>
+    </div>`;
 
-    <div class="case-context-chips">
-      ${buildResearcherArticleChips(c.__articles, 8)}
-      ${importanceShortLabel(c.__importance) ? `<span class="chip" title="${escapeHtml(importanceTooltip(c.__importance))}">Importance ${escapeHtml(importanceShortLabel(c.__importance))}</span>` : ""}
-      ${c.document_type ? `<span class="chip">${escapeHtml(c.document_type)}</span>` : ""}
-    </div>
+  // Action bar: HUDOC ↗ · Cite · Copy.  `activePara` is the matched
+  // paragraph once context loads; Copy is omitted while it is absent.
+  const actionsHtml = (activePara) => {
+    const hudocUrl = activePara ? paragraphHudocUrl(c, activePara) : (c.hudoc_url || "");
+    return `
+      <div class="case-context-actions">
+        ${hudocUrl ? `<a href="${escapeHtml(hudocUrl)}" class="case-open-secondary" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>` : ""}
+        <button type="button" class="case-open-secondary cite-btn" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}">Cite</button>
+        ${activePara ? `<button type="button" class="case-open-secondary" data-action="copy-paragraph" data-text="${escapeHtml(activePara.text || "")}">Copy</button>` : ""}
+      </div>`;
+  };
 
-    ${paraQuote}
+  if (!primaryPara) {
+    const note = state.currentMode === "browse"
+      ? "This browse result is a case record. Run a full-text query to see matched paragraphs in this note."
+      : "No paragraph preview is available for this result.";
+    renderToRails(headHtml + `<p class="case-context-empty">${escapeHtml(note)}</p>` + actionsHtml(null));
+    return;
+  }
 
-    <div class="case-context-actions">
-      <button type="button" class="case-open-link primary" data-action="open-case" data-case-id="${escapeHtml(caseId)}">Open judgment</button>
-      ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="case-open-secondary" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>` : ""}
-      <button type="button" class="case-open-secondary cite-btn" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}">Cite</button>
-    </div>
-  `);
+  // Initial paint with a placeholder; the context window needs the full
+  // judgment so we fetch it and re-render when it arrives.
+  renderToRails(headHtml
+    + `<div class="case-note-context"><p class="case-context-empty">Loading paragraph context…</p></div>`
+    + actionsHtml(null));
+
+  (async () => {
+    try {
+      const paras = await loadDossierCase(caseId);
+      if (state.activeCaseId !== caseId) return; // selection moved on
+      const wantIdx = (primaryPara.logicalParaIdx != null)
+        ? primaryPara.logicalParaIdx : primaryPara.paraIdx;
+      let activeIdx = (wantIdx != null)
+        ? paras.findIndex((p) => p.paraIdx === wantIdx) : -1;
+      if (activeIdx < 0) activeIdx = paras.findIndex((p) => p.hudocParaNo != null);
+      if (activeIdx < 0) activeIdx = 0;
+      const cn = (state.caseNote && state.caseNote.caseId === caseId)
+        ? state.caseNote : { caseId, before: 1, after: 1 };
+      const ctx = getCaseNoteContext(paras, activeIdx, cn.before, cn.after);
+      renderToRails(headHtml
+        + caseNoteContextHtml(ctx, paras, activeIdx)
+        + actionsHtml(ctx.active));
+      if (opts.center) {
+        // Centre the matched paragraph in the sidebar scroll so the
+        // researcher lands on what they clicked, not the section top.
+        requestAnimationFrame(() => {
+          el.caseContextRail?.querySelector(".dossier-ctx-active")
+            ?.scrollIntoView({ block: "center", behavior: "auto" });
+        });
+      }
+    } catch (err) {
+      console.error("[Case Note] context load failed:", err);
+      if (state.activeCaseId === caseId) {
+        renderToRails(headHtml
+          + `<p class="case-context-empty">Paragraph context unavailable.</p>`
+          + actionsHtml(null));
+      }
+    }
+  })();
 }
 
 function selectCase(caseId) {
   if (!caseId || !state.currentResultsById.has(caseId)) return;
   state.activeCaseId = caseId;
+  // Fresh Case Note for a newly-selected case starts at ±1 paragraph.
+  if (!state.caseNote || state.caseNote.caseId !== caseId) {
+    state.caseNote = { caseId, before: 1, after: 1 };
+  }
   el.casesList?.querySelectorAll(".researcher-result.active").forEach((node) => {
     node.classList.remove("active");
   });
   const selected = byId(`case-${caseId}`);
   if (selected) selected.classList.add("active");
-  renderCaseContextRail(caseId);
+  renderCaseContextRail(caseId, { center: true });
 }
 
 function buildCaseCard(caseId, row, rank = 1) {
@@ -4547,7 +4671,6 @@ function buildCaseCard(caseId, row, rank = 1) {
           ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="case-open-link primary" target="_blank" rel="noopener noreferrer">Open in HUDOC ↗</a>` : ""}
           <button type="button" class="case-open-secondary cite-btn" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}" title="Copy citation to clipboard">Cite</button>
           <button type="button" class="case-open-secondary info-btn" data-action="copy-info-card" data-case-id="${escapeHtml(caseId)}" title="Copy key info block to clipboard">Info</button>
-          <button type="button" class="case-open-secondary preview-btn" data-action="open-case" data-case-id="${escapeHtml(caseId)}" title="In-app preview (v0.x — for full text use HUDOC)">Preview</button>
           <button
             type="button"
             class="case-open-secondary expand-paras-btn"
@@ -5986,6 +6109,263 @@ function closeCaseModal() {
   hideHighlightTooltip();
 }
 
+// ───────────────────────────────────────────────────────────────────
+// Paragraph dossier — resizable right-column panel that shows a clicked
+// paragraph in the context of its ±2 neighbours within the same section.
+// Replaces the in-app case modal as the paragraph-preview surface.
+// ───────────────────────────────────────────────────────────────────
+const dossierCaseCache = new Map(); // caseId -> full ordered paragraph list
+const DOSSIER_WIN = 2;
+const DOSSIER_MIN_W = 320;
+const DOSSIER_MAX_W = 760;
+const DOSSIER_DEFAULT_W = 440;
+const DOSSIER_LS_KEY = "echr.dossierWidth";
+
+async function loadDossierCase(caseId) {
+  if (dossierCaseCache.has(caseId)) return dossierCaseCache.get(caseId);
+  const data = await serverSearch.getCase(caseId);
+  const paras = (data.paragraphs || []).map((p) => {
+    const sec = normalizeSectionKey(p.section);
+    return {
+      section: sec,
+      sectionLabel: SECTION_LABELS[sec] || p.section || sec,
+      text: String(p.text || ""),
+      paraIdx: (p.para_idx != null) ? Number(p.para_idx) : null,
+      hudocParaNo: (p.hudoc_para_no != null) ? Number(p.hudoc_para_no) : null,
+      displayParaNo: (p.display_para_no != null) ? Number(p.display_para_no) : null,
+      logicalParaIdx: (p.logical_para_idx != null) ? Number(p.logical_para_idx) : null,
+      numberingBlock: p.numbering_block || null,
+      rowRole: p.row_role || null,
+    };
+  });
+  dossierCaseCache.set(caseId, paras);
+  return paras;
+}
+
+/* Window of ±`win` paragraphs around `activeIdx`, clamped to the section
+ * the active paragraph belongs to.  `expanded` widens it to the whole
+ * section.  Section identity = the (bucket) `section` key. */
+function getDossierContext(paras, activeIdx, win, expanded) {
+  const secKey = paras[activeIdx].section || "";
+  let start = activeIdx, end = activeIdx;
+  while (start > 0 && (paras[start - 1].section || "") === secKey) start--;
+  while (end < paras.length - 1 && (paras[end + 1].section || "") === secKey) end++;
+  const totalInSection = end - start + 1;
+  const fromIdx = expanded ? start : Math.max(start, activeIdx - win);
+  const toIdx = expanded ? end : Math.min(end, activeIdx + win);
+  return {
+    prev: paras.slice(fromIdx, activeIdx),
+    active: paras[activeIdx],
+    next: paras.slice(activeIdx + 1, toIdx + 1),
+    totalInSection,
+    canExpand: !expanded && (toIdx - fromIdx + 1) < totalInSection,
+  };
+}
+
+function dossierHighlight(text, terms) {
+  let html = escapeHtml(text);
+  for (const t of (terms || [])) {
+    if (!t || t.length < 2) continue;
+    try {
+      html = html.replace(new RegExp("(" + escapeRegExp(t) + ")", "gi"),
+        '<mark class="hl">$1</mark>');
+    } catch { /* skip malformed term */ }
+  }
+  return html;
+}
+
+function dossierParaNumLabel(p) {
+  const n = (p.displayParaNo != null) ? p.displayParaNo
+          : (p.hudocParaNo != null) ? p.hudocParaNo : null;
+  return n != null ? `¶ ${n}` : "¶ —";
+}
+
+async function openDossier(caseId, paraIdx) {
+  if (!caseId) return;
+  state.dossier = {
+    caseId,
+    paraIdx: (paraIdx != null && paraIdx !== "") ? Number(paraIdx) : null,
+    expanded: false,
+  };
+  document.body.classList.add("dossier-open");
+  el.dossierContent.innerHTML = `<div class="dossier-empty">Loading paragraph context…</div>`;
+  try {
+    const paras = await loadDossierCase(caseId);
+    if (!state.dossier || state.dossier.caseId !== caseId) return; // superseded
+    // Resolve the active paragraph. Case-level opens (no para_idx) fall
+    // back to the first numbered body paragraph.
+    let idx = -1;
+    if (state.dossier.paraIdx != null) {
+      idx = paras.findIndex((p) => p.paraIdx === state.dossier.paraIdx);
+    }
+    if (idx < 0) idx = paras.findIndex((p) => p.hudocParaNo != null);
+    if (idx < 0) idx = 0;
+    state.dossier.paraIdx = paras[idx] ? paras[idx].paraIdx : null;
+    paintDossier();
+  } catch (err) {
+    console.error("[Dossier] load failed:", err);
+    el.dossierContent.innerHTML =
+      `<div class="dossier-empty">Could not load this judgment. ` +
+      `<button type="button" class="dossier-expand" data-action="close-dossier">Close</button></div>`;
+  }
+}
+
+function closeDossier() {
+  document.body.classList.remove("dossier-open");
+  state.dossier = null;
+}
+
+function paintDossier() {
+  const d = state.dossier;
+  if (!d || !d.caseId) return;
+  const paras = dossierCaseCache.get(d.caseId);
+  if (!paras) return;
+  const activeIdx = paras.findIndex((p) => p.paraIdx === d.paraIdx);
+  if (activeIdx < 0) {
+    el.dossierContent.innerHTML = `<div class="dossier-empty">Paragraph not found in this judgment.</div>`;
+    return;
+  }
+  const caseObj = state.caseById.get(d.caseId);
+  const ctx = getDossierContext(paras, activeIdx, DOSSIER_WIN, d.expanded);
+  const terms = state.currentTerms || [];
+
+  // Breadcrumb: section bucket label + nearest preceding heading row.
+  let headingText = "";
+  for (let i = activeIdx; i >= 0; i--) {
+    if ((paras[i].section || "") !== (ctx.active.section || "")) break;
+    const r = paras[i].rowRole || "";
+    if (r === "heading" || r.startsWith("heading")) { headingText = paras[i].text || ""; break; }
+  }
+  const bc = [escapeHtml(ctx.active.sectionLabel || "—")];
+  if (headingText.trim() && headingText.trim().length <= 120) {
+    bc.push(escapeHtml(headingText.trim()));
+  }
+  const breadcrumb = bc.join('<span class="dossier-bc-sep">›</span>');
+
+  const renderCtx = (p) => `
+    <div class="dossier-ctx-para">
+      <span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(p))}</span>${escapeHtml(p.text)}
+    </div>`;
+  const activeHtml = `
+    <div class="dossier-ctx-para dossier-ctx-active">
+      <span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(ctx.active))}</span>${dossierHighlight(ctx.active.text, terms)}
+    </div>`;
+
+  let expander = "";
+  if (ctx.canExpand) {
+    expander = `<button type="button" class="dossier-expand" data-action="dossier-expand">Show entire section (${ctx.totalInSection} ¶)</button>`;
+  } else if (d.expanded && ctx.totalInSection > (2 * DOSSIER_WIN + 1)) {
+    expander = `<button type="button" class="dossier-expand" data-action="dossier-collapse">Collapse to ±${DOSSIER_WIN}</button>`;
+  }
+
+  const hudocUrl = caseObj ? paragraphHudocUrl(caseObj, ctx.active) : "";
+  el.dossierContent.innerHTML = `
+    <div class="dossier-header">
+      <div class="dossier-header-text">
+        <div class="dossier-kicker">Dossier · ${escapeHtml(dossierParaNumLabel(ctx.active))}</div>
+        <h3 class="dossier-case-title">${escapeHtml(cleanCaseTitle(caseObj && caseObj.title) || d.caseId)}</h3>
+      </div>
+      <button type="button" class="dossier-close" data-action="close-dossier" title="Close (Esc)" aria-label="Close dossier">×</button>
+    </div>
+    <div class="dossier-body">
+      <div class="dossier-breadcrumb">${breadcrumb}</div>
+      ${ctx.prev.map(renderCtx).join("")}
+      ${activeHtml}
+      ${ctx.next.map(renderCtx).join("")}
+      ${expander}
+    </div>
+    <div class="dossier-footer">
+      ${hudocUrl ? `<a class="case-open-link primary" href="${escapeHtml(hudocUrl)}" target="_blank" rel="noopener noreferrer">Open in HUDOC ↗</a>` : ""}
+      <button type="button" class="case-open-secondary" data-action="dossier-cite">Cite ¶</button>
+    </div>`;
+}
+
+function initDossierResizer() {
+  const handle = el.dossierResizer;
+  if (!handle || !el.dossier) return;
+  const clampW = (px) => Math.max(DOSSIER_MIN_W, Math.min(DOSSIER_MAX_W, Math.round(px)));
+  const setW = (px) => document.documentElement.style.setProperty("--col-dossier", clampW(px) + "px");
+  const persist = () => {
+    const cur = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--col-dossier"), 10);
+    if (!Number.isNaN(cur)) localStorage.setItem(DOSSIER_LS_KEY, String(cur));
+  };
+  const saved = parseInt(localStorage.getItem(DOSSIER_LS_KEY) || "", 10);
+  if (!Number.isNaN(saved)) setW(saved);
+
+  let dragging = false, rightEdge = 0;
+  const onMove = (ev) => { if (dragging && ev.clientX != null) setW(rightEdge - ev.clientX); };
+  const onUp = () => {
+    if (!dragging) return;
+    dragging = false;
+    handle.classList.remove("is-dragging");
+    document.body.classList.remove("is-resizing-dossier");
+    persist();
+    window.removeEventListener("pointermove", onMove);
+    window.removeEventListener("pointerup", onUp);
+  };
+  handle.addEventListener("pointerdown", (ev) => {
+    ev.preventDefault();
+    dragging = true;
+    rightEdge = el.dossier.getBoundingClientRect().right;
+    handle.classList.add("is-dragging");
+    document.body.classList.add("is-resizing-dossier");
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  });
+  handle.addEventListener("dblclick", () => { setW(DOSSIER_DEFAULT_W); persist(); });
+  handle.addEventListener("keydown", (ev) => {
+    if (ev.key !== "ArrowLeft" && ev.key !== "ArrowRight") return;
+    ev.preventDefault();
+    const cur = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--col-dossier"), 10) || DOSSIER_DEFAULT_W;
+    setW(cur + (ev.key === "ArrowLeft" ? 24 : -24));
+    persist();
+  });
+}
+
+// Drag-resize handle for the Case Note sidebar (workspace column 3).
+function initSidebarResizer() {
+  const handle = el.sidebarResizer;
+  if (!handle || !el.sidebar) return;
+  const MIN = 280, MAX = 680, DEF = 360, KEY = "echr.sidebarWidth";
+  const clampW = (px) => Math.max(MIN, Math.min(MAX, Math.round(px)));
+  const setW = (px) => document.documentElement.style.setProperty("--col-sidebar", clampW(px) + "px");
+  const persist = () => {
+    const cur = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--col-sidebar"), 10);
+    if (!Number.isNaN(cur)) localStorage.setItem(KEY, String(cur));
+  };
+  const saved = parseInt(localStorage.getItem(KEY) || "", 10);
+  if (!Number.isNaN(saved)) setW(saved);
+
+  let dragging = false, rightEdge = 0;
+  const onMove = (ev) => { if (dragging && ev.clientX != null) setW(rightEdge - ev.clientX); };
+  const onUp = () => {
+    if (!dragging) return;
+    dragging = false;
+    handle.classList.remove("is-dragging");
+    document.body.classList.remove("is-resizing-dossier");
+    persist();
+    window.removeEventListener("pointermove", onMove);
+    window.removeEventListener("pointerup", onUp);
+  };
+  handle.addEventListener("pointerdown", (ev) => {
+    ev.preventDefault();
+    dragging = true;
+    rightEdge = el.sidebar.getBoundingClientRect().right;
+    handle.classList.add("is-dragging");
+    document.body.classList.add("is-resizing-dossier");
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  });
+  handle.addEventListener("dblclick", () => { setW(DEF); persist(); });
+  handle.addEventListener("keydown", (ev) => {
+    if (ev.key !== "ArrowLeft" && ev.key !== "ArrowRight") return;
+    ev.preventDefault();
+    const cur = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--col-sidebar"), 10) || DEF;
+    setW(cur + (ev.key === "ArrowLeft" ? 24 : -24));
+    persist();
+  });
+}
+
 /** Open case modal by fetching full case from server API. */
 async function openCaseModalFromServer(caseId, caseStub) {
   // Show modal with loading state
@@ -6683,6 +7063,17 @@ function bindEvents() {
       return;
     }
 
+    // HUDOC ↗ link inside a paragraph row: let the browser follow the
+    // anchor, but don't also fire the row's open-dossier action.
+    if (action === "open-hudoc") {
+      return;
+    }
+
+    if (action === "open-dossier" && caseId) {
+      openDossier(caseId, clickable.getAttribute("data-para-idx"));
+      return;
+    }
+
     if (action === "toggle-legal-details" && caseId) {
       e.preventDefault();
       toggleLegalDetails(caseId, clickable);
@@ -6705,7 +7096,7 @@ function bindEvents() {
 
     if (action === "open-case" && caseId) {
       e.preventDefault();
-      openCaseModal(caseId);
+      openDossier(caseId);
       return;
     }
 
@@ -6752,20 +7143,60 @@ function bindEvents() {
     selectCase(result.getAttribute("data-case-id"));
   });
 
+  // Dossier panel — button actions (close / expand / collapse / cite)
+  // plus the drag-to-resize handle.
+  el.dossier?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-action]");
+    if (!btn) return;
+    const action = btn.getAttribute("data-action");
+    if (action === "close-dossier") { closeDossier(); return; }
+    if (action === "dossier-expand") {
+      if (state.dossier) { state.dossier.expanded = true; paintDossier(); }
+      return;
+    }
+    if (action === "dossier-collapse") {
+      if (state.dossier) { state.dossier.expanded = false; paintDossier(); }
+      return;
+    }
+    if (action === "dossier-cite") {
+      const d = state.dossier;
+      if (!d) return;
+      const caseObj = state.caseById.get(d.caseId);
+      const active = (dossierCaseCache.get(d.caseId) || [])
+        .find((p) => p.paraIdx === d.paraIdx);
+      if (caseObj && active) {
+        copyToClipboardWithFeedback(buildParagraphCitation(caseObj, active), btn);
+      }
+      return;
+    }
+  });
+  initDossierResizer();
+  initSidebarResizer();
+
   const bindCaseContextActions = (rail) => rail?.addEventListener("click", (e) => {
     const clickable = e.target.closest("[data-action]");
     if (!clickable) return;
     const action = clickable.getAttribute("data-action");
     const caseId = clickable.getAttribute("data-case-id");
-    if (action === "open-case" && caseId) {
-      e.preventDefault();
-      openCaseModal(caseId);
-      return;
-    }
     if (action === "copy-citation" && caseId) {
       e.preventDefault();
       const caseObj = state.caseById.get(caseId);
       if (caseObj) copyToClipboardWithFeedback(buildStandardCitation(caseObj), clickable);
+      return;
+    }
+    if (action === "copy-paragraph") {
+      e.preventDefault();
+      copyToClipboardWithFeedback(clickable.getAttribute("data-text") || "", clickable);
+      return;
+    }
+    if (action === "casenote-more-before" || action === "casenote-more-after") {
+      e.preventDefault();
+      if (state.caseNote) {
+        if (action === "casenote-more-before") state.caseNote.before += CASENOTE_STEP;
+        else state.caseNote.after += CASENOTE_STEP;
+      }
+      renderCaseContextRail(state.activeCaseId);
+      return;
     }
   });
   bindCaseContextActions(el.caseContextRail);
@@ -6861,7 +7292,7 @@ function bindEvents() {
         const adapted = serverSearch._adaptCase(target);
         state.caseById.set(target.case_id, adapted);
       }
-      openCaseModal(target.case_id);
+      openDossier(target.case_id);
     } catch (err) {
       console.warn("[ref-link] resolution failed for", appNo, err);
     }
@@ -6902,6 +7333,11 @@ function bindEvents() {
       }
       if (state.classifierOpen) {
         closeClassifierPane();
+        return;
+      }
+
+      if (document.body.classList.contains("dossier-open")) {
+        closeDossier();
         return;
       }
 

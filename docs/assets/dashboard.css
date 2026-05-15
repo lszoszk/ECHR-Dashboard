@@ -699,6 +699,285 @@ body {
 .results-sidebar::-webkit-scrollbar { width: 4px; }
 .results-sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
+/* ─── Resizable Case Note sidebar ─────────────────────────────────────
+   The workspace 3rd column (the Case Note sidebar) is drag-resizable.
+   body-scoped selector so it beats the plain .editorial-workspace rule
+   in editorial-redesign.css regardless of stylesheet order. */
+:root { --col-sidebar: 360px; }
+@media (min-width: 1181px) {
+    body .editorial-workspace {
+        grid-template-columns: 280px minmax(0, 1fr) var(--col-sidebar, 360px);
+    }
+}
+.sidebar-resizer {
+    position: absolute;
+    left: -5px; top: 0; bottom: 0;
+    width: 11px;
+    cursor: col-resize;
+    z-index: 6;
+    touch-action: none;
+}
+.sidebar-resizer::after {
+    content: "";
+    position: absolute;
+    left: 5px; top: 0; bottom: 0;
+    width: 1px;
+    background: var(--rule, var(--border));
+    transition: background 0.15s, width 0.15s;
+}
+.sidebar-resizer:hover::after,
+.sidebar-resizer:focus-visible::after,
+.sidebar-resizer.is-dragging::after {
+    background: var(--garnet);
+    width: 3px;
+}
+@media (max-width: 1180px) { .sidebar-resizer { display: none; } }
+
+/* Search Analytics hidden for now — the Case Note owns the sidebar. */
+.results-sidebar .sidebar-title,
+.results-sidebar .sidebar-section { display: none; }
+
+/* Case Note — compact grouped fact header (articles · facts · outcome).
+   Replaces the old loose 6-cell grid + scattered chip row. */
+.case-note-meta {
+    margin: 10px 0 6px;
+    padding: 11px 0;
+    border-top: 1px solid var(--rule, var(--border));
+    border-bottom: 1px solid var(--rule, var(--border));
+}
+.cnm-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-4, var(--text-secondary));
+}
+.cnm-articles { margin-bottom: 9px; }
+.cnm-articles .cnm-label { display: block; margin-bottom: 4px; }
+.cnm-facts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px 16px;
+    margin: 0;
+}
+.cnm-facts > div { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.cnm-facts dt {
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-4, var(--text-secondary));
+}
+.cnm-facts dd {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.3;
+    color: var(--ink, var(--text-primary));
+    font-family: var(--font-serif);
+}
+.cnm-outcome {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    margin-top: 10px;
+}
+.cnm-outcome-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: var(--garnet-soft, var(--highlight));
+    color: var(--garnet, var(--text-primary));
+}
+.cnm-doctype {
+    font-size: 0.68rem;
+    color: var(--ink-4, var(--text-secondary));
+}
+
+/* Case Note context block reuses the .dossier-ctx-* paragraph styling. */
+.case-note-context { margin-top: 8px; }
+.casenote-more {
+    display: block;
+    width: 100%;
+    margin: 6px 0;
+    text-align: center;
+}
+
+/* ─── Paragraph dossier — resizable right panel ───────────────────────
+   The workspace is a 3-column grid (filter-rail · main · sidebar).
+   #sidebar and #dossier both sit in column 3; body.dossier-open swaps
+   which is visible and widens the column to --col-dossier. */
+:root { --col-dossier: 440px; }
+.editorial-workspace .results-sidebar,
+.editorial-workspace .dossier-panel {
+    grid-column: 3;
+    grid-row: 1;
+}
+.dossier-panel {
+    position: sticky;
+    top: 74px;
+    align-self: start;
+    display: none;
+    flex-direction: column;
+    background: var(--paper-2, var(--bg-card));
+    border-left: 1px solid var(--rule, var(--border));
+    max-height: calc(100vh - 74px);
+}
+body.dossier-open .dossier-panel { display: flex; }
+@media (min-width: 1181px) {
+    body.dossier-open .editorial-workspace {
+        grid-template-columns: 280px minmax(0, 1fr) var(--col-dossier);
+    }
+    body.dossier-open .results-sidebar { display: none; }
+}
+
+.dossier-resizer {
+    position: absolute;
+    left: -5px; top: 0; bottom: 0;
+    width: 11px;
+    cursor: col-resize;
+    z-index: 6;
+    touch-action: none;
+}
+.dossier-resizer::after {
+    content: "";
+    position: absolute;
+    left: 5px; top: 0; bottom: 0;
+    width: 1px;
+    background: var(--border);
+    transition: background 0.15s, width 0.15s;
+}
+.dossier-resizer:hover::after,
+.dossier-resizer:focus-visible::after,
+.dossier-resizer.is-dragging::after {
+    background: var(--garnet);
+    width: 3px;
+}
+body.is-resizing-dossier { cursor: col-resize; user-select: none; }
+
+.dossier-inner {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+.dossier-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 16px 18px 12px;
+    border-bottom: 1px solid var(--border);
+}
+.dossier-header-text { flex: 1; min-width: 0; }
+.dossier-kicker {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--garnet);
+    font-weight: 600;
+}
+.dossier-case-title {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    line-height: 1.35;
+    margin: 2px 0 0;
+    color: var(--text-primary);
+}
+.dossier-close {
+    flex: none;
+    border: none;
+    background: transparent;
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+.dossier-close:hover { background: var(--garnet-soft); color: var(--garnet); }
+
+.dossier-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 14px 18px 18px;
+}
+.dossier-breadcrumb {
+    font-size: 0.74rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+.dossier-bc-sep { margin: 0 5px; opacity: 0.6; }
+
+.dossier-ctx-para {
+    font-family: var(--font-serif);
+    font-size: 0.86rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    padding: 6px 0 6px 14px;
+    border-left: 2px solid var(--border);
+    margin: 4px 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.dossier-ctx-num {
+    display: block;
+    font-size: 0.68rem;
+    color: var(--text-secondary);
+    opacity: 0.7;
+    margin-bottom: 2px;
+}
+.dossier-ctx-active {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    border-left: 3px solid var(--garnet);
+    padding-left: 16px;
+    margin: 8px 0;
+}
+.dossier-ctx-active .dossier-ctx-num { color: var(--garnet); opacity: 1; font-weight: 600; }
+.dossier-ctx-para mark.hl { background: var(--highlight); }
+
+.dossier-expand {
+    margin-top: 10px;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 0.74rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+.dossier-expand:hover { border-color: var(--garnet); color: var(--garnet); }
+
+.dossier-footer {
+    flex: none;
+    display: flex;
+    gap: 8px;
+    padding: 12px 18px;
+    border-top: 1px solid var(--border);
+}
+.dossier-empty {
+    padding: 24px 18px;
+    color: var(--text-secondary);
+    font-size: 0.86rem;
+}
+@media (max-width: 1180px) {
+    .dossier-panel {
+        position: fixed;
+        inset: 56px 0 0 auto;
+        width: min(440px, 100vw);
+        z-index: 200;
+        max-height: none;
+        height: calc(100vh - 56px);
+        box-shadow: -8px 0 32px rgba(0, 0, 0, 0.18);
+    }
+    .dossier-resizer { display: none; }
+}
+
 .sidebar-toggle {
     position: absolute;
     top: 8px;
