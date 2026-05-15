@@ -639,6 +639,27 @@ body {
     hyphens: auto;
 }
 
+/* P58 parent-paragraph lead-in: shown above a fragment hit (bullet /
+   quote / continuation) so the matched excerpt reads in context. */
+.para-context-lead {
+    display: block;
+    max-width: min(100%, 115ch);
+    font-family: var(--font-serif);
+    font-size: 0.84rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    font-style: italic;
+    opacity: 0.85;
+    margin: 0 0 0.2rem;
+    overflow-wrap: anywhere;
+}
+/* Inline variant — sits inside the single-line primary snippet <p>. */
+.para-context-lead-inline {
+    color: var(--text-secondary);
+    font-style: italic;
+    opacity: 0.85;
+}
+
 /* Highlight mark */
 .para-text mark.hl, mark.hl {
     background: var(--highlight);

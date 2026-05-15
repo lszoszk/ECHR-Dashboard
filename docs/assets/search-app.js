@@ -785,9 +785,9 @@ function dedupParagraphHits(hits) {
   const byKey = new Map();
   const order = [];
   for (const h of hits) {
-    const key = h.logicalParaRowid != null
-      ? `L:${h.logicalParaRowid}`
-      : `P:${h.paraIdx}:${h.section}`; // fallback for legacy rows
+    const key = h.logicalParaIdx != null
+      ? `L:${h.logicalParaIdx}`
+      : `P:${h.paraIdx}:${h.section}`; // fallback for legacy rows (pre-P58)
     if (!byKey.has(key)) {
       const entry = { ...h, matchedRoles: new Set() };
       byKey.set(key, entry);
@@ -1054,6 +1054,18 @@ function serverSnippetToHtml(snippet, fallbackText = "") {
   }).join("");
 }
 
+/* Trim a parent-paragraph body to a short lead-in displayed above a
+ * fragment hit (a bullet / quote / continuation row).  Cuts on a word
+ * boundary near `max` chars so the matched fragment below it reads in
+ * context instead of being stranded.  Used with P58's `parentText`. */
+function truncateForContext(text, max = 240) {
+  const s = String(text || "").trim();
+  if (s.length <= max) return s;
+  const cut = s.slice(0, max);
+  const sp = cut.lastIndexOf(" ");
+  return (sp > max * 0.6 ? cut.slice(0, sp) : cut).replace(/\s+$/, "") + "…";
+}
+
 function updateCardModeButton() {
   if (!el.cardModeBtn) return;
   const isDetailed = state.cardMode === "detailed";
@@ -1266,7 +1278,9 @@ function buildEcliCitation(caseObj) {
 function buildParagraphCitation(caseObj, para) {
   const head = buildStandardCitation(caseObj);
   const url = caseObj.hudoc_url || "";
-  const hp = para && para.hudocParaNo;
+  // P58: a fragment hit (bullet/quote) has no own hudoc_para_no — cite it
+  // under its parent body ¶ via displayParaNo rather than anchorless.
+  const hp = para && (para.hudocParaNo != null ? para.hudocParaNo : para.displayParaNo);
   const block = para && para.numberingBlock;
   let anchor = "";
   if (hp != null) {
@@ -1294,7 +1308,9 @@ function buildParagraphCitation(caseObj, para) {
 function paragraphHudocUrl(caseObj, para) {
   const base = caseObj.hudoc_url || "";
   if (!base) return "";
-  const hp = para && para.hudocParaNo;
+  // Fall back to the P58 display number so a fragment hit still anchors
+  // at its parent ¶ in HUDOC rather than dropping to the case URL.
+  const hp = para && (para.hudocParaNo != null ? para.hudocParaNo : para.displayParaNo);
   if (hp == null) return base;
   return `${base}#${"{"}\"paragraphno\":\"${hp}\"${"}"}`;
 }
@@ -2266,7 +2282,13 @@ function formatParaNum(p) {
   // looked like a continuation of JS ¶ 37).  An em-dash makes it clear the
   // row is unnumbered.
   let num;
-  if (p.hudocParaNo != null) {
+  if (p.displayParaNo != null) {
+    // P58: persisted display number — for a fragment hit (bullet/quote/
+    // continuation) this is the parent body ¶, so the result row reads
+    // "¶ 54" instead of a stranded "¶ —".  Only search hits carry it;
+    // modal rows don't, so continuation rows there stay marker-less.
+    num = `¶ ${p.displayParaNo}`;
+  } else if (p.hudocParaNo != null) {
     num = `¶ ${p.hudocParaNo}`;
   } else if (p.inheritedParaNo != null) {
     // Continuation row: NO visible marker.  CSS (.modal-para-continuation)
@@ -4340,6 +4362,9 @@ function renderCaseContextRail(caseId = state.activeCaseId) {
   const paraQuote = primaryPara
     ? `<blockquote class="case-context-quote">
         <div class="case-context-para">${escapeHtml(formatParaNum(primaryPara))}</div>
+        ${primaryPara.parentText
+          ? `<p class="para-context-lead">${escapeHtml(truncateForContext(primaryPara.parentText))}</p>`
+          : ""}
         <p>${primaryPara.textHtml}</p>
       </blockquote>`
     : `<p class="case-context-empty">${escapeHtml(noParagraphNote)}</p>`;
@@ -4406,8 +4431,14 @@ function buildCaseCard(caseId, row, rank = 1) {
   const paraTitle = primaryPara ? formatParaNumTitle(primaryPara) : "Case record";
   const dateLabel = formatCaseDateForDisplay(c);
   const title = cleanCaseTitle(c.title);
+  // P58: when the top hit is a fragment (bullet / quote / continuation),
+  // prepend a muted lead-in from its parent body ¶ so the snippet on the
+  // collapsed card reads in context instead of starting mid-list.
+  const primaryContextLead = (primaryPara && primaryPara.parentText)
+    ? `<span class="para-context-lead-inline">${escapeHtml(truncateForContext(primaryPara.parentText))} </span>`
+    : "";
   const primaryText = primaryPara
-    ? primaryPara.textHtml
+    ? primaryContextLead + primaryPara.textHtml
     : (caseOnlyBrowse
       ? '<span class="case-only-note">Case record only in recent-cases browse mode. Enter a full-text query to surface matched paragraphs from this judgment.</span>'
       : "No paragraphs for current filters.");
@@ -4475,6 +4506,9 @@ function buildCaseCard(caseId, row, rank = 1) {
             <button class="copy-btn" data-action="copy-paragraph" data-text="${escapeHtml(p.rawText)}" title="Copy paragraph text">Copy</button>
           </span>
         </div>
+        ${p.parentText
+          ? `<p class="para-context-lead" title="Opening of ${escapeHtml(formatParaNum(p))} — the paragraph this excerpt belongs to">${escapeHtml(truncateForContext(p.parentText))}</p>`
+          : ""}
         <p class="para-text">${p.textHtml}</p>
       </div>
     `;
@@ -5074,7 +5108,13 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
           hudocParaNo: (p.hudoc_para_no != null) ? Number(p.hudoc_para_no) : null,
           numberingBlock: p.numbering_block || null,
           rowRole: p.row_role || null,
-          logicalParaRowid: p.logical_para_rowid || null,
+          // P58 logical-paragraph fields.  `logicalParaIdx` collapses
+          // bullet/quote/continuation hits onto their body ¶; `displayParaNo`
+          // is the ¶ number to label the hit with; `parentText` is the body
+          // ¶ text shown as context when the hit itself is a fragment.
+          logicalParaIdx: (p.logical_para_idx != null) ? Number(p.logical_para_idx) : null,
+          displayParaNo: (p.display_para_no != null) ? Number(p.display_para_no) : null,
+          parentText: p.parent_text || null,
           rawText: serverSnippetToPlainText(p.snippet, p.text),
           textHtml: serverSnippetToHtml(p.snippet, p.text),
         };

@@ -66,6 +66,8 @@ CREATE TABLE IF NOT EXISTS paragraphs (
     hudoc_para_no INTEGER,
     numbering_block TEXT,
     row_role      TEXT,
+    logical_para_idx INTEGER, -- para_idx of the body ¶ this row belongs to (P58); a body ¶ points to itself, a bullet/quote/continuation points to its parent
+    display_para_no  INTEGER, -- HUDOC ¶ no to show in the UI: own hudoc_para_no, or the parent's when this row is a fragment (P58)
     title         TEXT,   -- denormalized from cases.title for BM25F title weight
     keywords_text TEXT,   -- denormalized, " ; "-joined from cases.keywords for BM25F keyword weight
     text          TEXT
@@ -110,6 +112,7 @@ CREATE TABLE IF NOT EXISTS case_articles (
 
 _INDEXES_SQL = """
 CREATE INDEX IF NOT EXISTS idx_paragraphs_case_id      ON paragraphs(case_id);
+CREATE INDEX IF NOT EXISTS idx_paragraphs_case_para     ON paragraphs(case_id, para_idx);
 CREATE INDEX IF NOT EXISTS idx_case_articles_article    ON case_articles(article);
 CREATE INDEX IF NOT EXISTS idx_cases_respondent_state   ON cases(respondent_state);
 CREATE INDEX IF NOT EXISTS idx_cases_judgment_date      ON cases(judgment_date);

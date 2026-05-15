@@ -21,6 +21,11 @@ Output:
 """
 import json, re, ssl, sys, urllib.request, io, time, subprocess, tempfile, zipfile
 from pathlib import Path
+
+# P58 logical-paragraph backfill — shared with p58_logical_para_heal.py so a
+# rebuild reproduces the same logical_para_idx / display_para_no a heal would.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from p58_logical_para_heal import compute_logical_para
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Lock
 from docx import Document
@@ -1022,6 +1027,10 @@ def parse_docx(blob, *, skip_converted_page_artifacts=False):
             if move:
                 r["section"] = "Appendix"
 
+    # P58 — reconstruct the logical paragraph each physical row belongs to
+    # (logical_para_idx + display_para_no) once the row set is final.
+    compute_logical_para(out)
+
     # Determine language: majority vote from matched headers; default "en".
     if language_votes["fr"] > language_votes["en"]:
         lang = "fr"
@@ -1153,10 +1162,11 @@ def process_case(cid):
     )
     for r in new_rows:
         forward.append(
-            f"INSERT INTO paragraphs (case_id, section, para_idx, hudoc_para_no, numbering_block, row_role, text) "
+            f"INSERT INTO paragraphs (case_id, section, para_idx, hudoc_para_no, numbering_block, row_role, logical_para_idx, display_para_no, text) "
             f"VALUES ('{cid}', {sql_value(r['section'])}, {sql_value(r['para_idx'])}, "
             f"{sql_value(r['hudoc_para_no'])}, {sql_value(r['numbering_block'])}, "
-            f"{sql_value(r['row_role'])}, {sql_value(r['text'])});"
+            f"{sql_value(r['row_role'])}, {sql_value(r.get('logical_para_idx'))}, "
+            f"{sql_value(r.get('display_para_no'))}, {sql_value(r['text'])});"
         )
 
     # Rollback: restore pre-state via INSERTs (and DELETE everything we'll write).
@@ -1166,10 +1176,11 @@ def process_case(cid):
     )
     for r in replaced_rows:
         rollback.append(
-            f"INSERT INTO paragraphs (case_id, section, para_idx, hudoc_para_no, numbering_block, row_role, text) "
+            f"INSERT INTO paragraphs (case_id, section, para_idx, hudoc_para_no, numbering_block, row_role, logical_para_idx, display_para_no, text) "
             f"VALUES ('{cid}', {sql_value(r.get('section'))}, {sql_value(r.get('para_idx'))}, "
             f"{sql_value(r.get('hudoc_para_no'))}, {sql_value(r.get('numbering_block'))}, "
-            f"{sql_value(r.get('row_role'))}, {sql_value(r.get('text'))});"
+            f"{sql_value(r.get('row_role'))}, {sql_value(r.get('logical_para_idx'))}, "
+            f"{sql_value(r.get('display_para_no'))}, {sql_value(r.get('text'))});"
         )
 
     return {

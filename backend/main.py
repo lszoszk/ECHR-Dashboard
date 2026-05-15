@@ -1277,13 +1277,38 @@ def search(
             # stored BM25F-weighted score, via the rank config set in
             # build_db.py) so it stays consistent with cross-case ranking.
             row_role_expr = _optional_column_expr(cur, "paragraphs", "row_role", source_alias="p")
+            # P58 logical-paragraph columns.  When a hit row is a fragment
+            # (bullet / quote / continuation) `logical_para_idx` points at
+            # the body ¶ it belongs to; we LEFT JOIN that parent so the UI
+            # can show the fragment in context instead of stranded as "¶ —".
+            has_logical = _has_column(cur, "paragraphs", "logical_para_idx")
+            if has_logical:
+                logical_cols = (
+                    "p.logical_para_idx AS logical_para_idx, "
+                    "p.display_para_no AS display_para_no, "
+                    "CASE WHEN p.logical_para_idx IS NOT NULL "
+                    "AND p.logical_para_idx <> p.para_idx "
+                    "THEN parent.text END AS parent_text"
+                )
+                parent_join = (
+                    "LEFT JOIN paragraphs parent "
+                    "ON parent.case_id = p.case_id "
+                    "AND parent.para_idx = p.logical_para_idx"
+                )
+            else:
+                logical_cols = (
+                    "NULL AS logical_para_idx, NULL AS display_para_no, "
+                    "NULL AS parent_text"
+                )
+                parent_join = ""
             snippet_sql = (
                 "SELECT p.case_id, p.section, p.para_idx, p.hudoc_para_no, p.numbering_block, "
-                f"{row_role_expr}, "
+                f"{row_role_expr}, {logical_cols}, "
                 "snippet(paragraphs_fts, 2, '<b>', '</b>', '...', 80) AS snippet, "
                 "pf.rank AS para_score "
                 "FROM paragraphs_fts pf "
                 "JOIN paragraphs p ON p.rowid = pf.rowid "
+                f"{parent_join} "
                 f"WHERE pf.paragraphs_fts MATCH ? {sec_where} "
                 f"AND p.case_id IN (SELECT value FROM json_each(?) ) "
                 "ORDER BY pf.rank"
@@ -1303,6 +1328,9 @@ def search(
                     "hudoc_para_no": r["hudoc_para_no"],
                     "numbering_block": r["numbering_block"],
                     "row_role": r["row_role"],
+                    "logical_para_idx": r["logical_para_idx"],
+                    "display_para_no": r["display_para_no"],
+                    "parent_text": r["parent_text"],
                     "snippet": r["snippet"],
                 })
 
@@ -1368,9 +1396,11 @@ def get_case(case_id: str):
             # see data-cleaning-full.md §11 for the para_idx / hudoc_para_no / numbering_block
             # disambiguation rationale).
             row_role_expr = _optional_column_expr(cur, "paragraphs", "row_role")
+            logical_idx_expr = _optional_column_expr(cur, "paragraphs", "logical_para_idx")
+            display_no_expr = _optional_column_expr(cur, "paragraphs", "display_para_no")
             cur.execute(
                 "SELECT section, para_idx, hudoc_para_no, numbering_block, "
-                f"{row_role_expr}, text "
+                f"{row_role_expr}, {logical_idx_expr}, {display_no_expr}, text "
                 "FROM paragraphs WHERE case_id = ? ORDER BY para_idx IS NULL, para_idx, rowid",
                 (case_id,),
             )
