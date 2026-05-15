@@ -167,6 +167,69 @@ DEFAULT_INTEREST_RE = re.compile(
     re.I,
 )
 
+# P55 — Long-tail JS-boundary triggers (pre-Protocol-11 Article 50 cases +
+# modern committee judgments that quote Article 41 body directly without
+# a preface).
+ART50_QUOTE_RE = re.compile(
+    r"\bArticle\s*50\s+of the Convention\s+(provides|reads)",
+    re.I,
+)
+ART50_HEADING_RE = re.compile(
+    r"^\s*([IVX]+\.\s+)?APPLICATION\s+OF\s+ARTICLE\s*50\b",
+    re.I,
+)
+ART50_BODY_RE = re.compile(
+    r"^\s*[\"“]?\s*If the Court finds that a decision or a measure taken by a legal authority",
+    re.I,
+)
+ART41_BODY_RE = re.compile(
+    r"^\s*[\"“]?\s*If the Court finds that there has been a violation of the Convention",
+    re.I,
+)
+JS_AMOUNTS_TABLE_RE = re.compile(
+    r"\bamounts\s+claimed\s+by\s+the\s+applicants?\s+under\s+the\s+head\s+of",
+    re.I,
+)
+JS_APPENDED_TABLE_RE = re.compile(
+    r"\b(amounts?\s+(detailed|indicated|listed)\s+in\s+the\s+appended\s+table"
+    r"|appended\s+table\s+(detailing|listing|setting\s+out))",
+    re.I,
+)
+JS_GOV_ART41_RE = re.compile(
+    r"\bArticle\s*4[16]\s+of\s+the\s+Convention\s+should\s+be\s+applied\b",
+    re.I,
+)
+
+# P55 — Old-template initials signatures + pre-1998 annex notice patterns
+PRE98_ANNEX_NOTICE_RE = re.compile(
+    r"(The following separate opinions are annexed to the present judgment"
+    r"|Article\s*51\s*(?:par|para|§)\.?\s*2.*Rule\s*50\s*(?:par|para|§)\.?\s*2"
+    r"|Rule\s*50\s*(?:par|para|§)\.?\s*2.*Article\s*51\s*(?:par|para|§)\.?\s*2)",
+    re.I,
+)
+OPINION_BULLET_RE = re.compile(
+    r"^\s*[\-–—•]\s*(joint\s+)?(partly\s+)?"
+    r"(concurring|dissenting|separate)(?:\s*,\s*partly\s+(?:concurring|dissenting))?"
+    r"\s+opinion\s+of\s+",
+    re.I,
+)
+
+
+def looks_like_initials_signature(text):
+    """Detect old-template judge initials like 'G.W.' or 'M.-A.E.'"""
+    if not text:
+        return False
+    t = text.strip()
+    if not t or len(t) > 30:
+        return False
+    if t.count(".") < 2:
+        return False
+    non_space = [c for c in t if not c.isspace()]
+    if len(non_space) < 3:
+        return False
+    initialy = sum(1 for c in non_space if c.isupper() or c in ".-")
+    return initialy / len(non_space) >= 0.85
+
 # Operative-part role-tightening (P54 corollary).  Annex-notice
 # boilerplate that sits between the dispositif and the appended
 # separate opinions, plus registrar/president signature blocks that
@@ -635,13 +698,27 @@ def parse_docx(blob, *, skip_converted_page_artifacts=False):
             operative_part_seen = True
         if DONE_LINE_RE.match(text):
             done_line_seen = True
-        # Article 41 ratchet — flip once.  Only valid before the
+        # Article 41/50 ratchet — flip once.  Only valid before the
         # dispositif (the operative part itself is not Just Satisfaction).
+        # P55 extends the trigger set:
+        #   - Article 50 (pre-Protocol 11) heading / quote / body
+        #   - Article 41 body text (committee-judgment opening without
+        #     "Article 41 of the Convention provides")
+        #   - Committee-style JS-content phrases (amounts table,
+        #     appended table, "Article 41 should be applied")
         if not art41_seen and not operative_part_seen:
             if (
                 ART41_HEADING_RE.match(text)
                 or ART41_QUOTE_RE.search(text)
                 or DEFAULT_INTEREST_RE.search(text)
+                or ART50_HEADING_RE.match(text)
+                or ART50_QUOTE_RE.search(text)
+                or ART50_BODY_RE.match(text)
+                or ART41_BODY_RE.match(text)
+                or JS_AMOUNTS_TABLE_RE.search(text)
+                or JS_APPENDED_TABLE_RE.search(text)
+                or JS_GOV_ART41_RE.search(text)
+                or section in ("Just Satisfaction", "Article 46")
             ):
                 art41_seen = True
                 # Don't retro-rewrite earlier rows; just flip section
@@ -649,6 +726,18 @@ def parse_docx(blob, *, skip_converted_page_artifacts=False):
                 # move to Just Satisfaction.
                 if section in ("Merits", "Admissibility", "Final Submissions"):
                     section = "Just Satisfaction"
+        # P56 — Sticky propagation: once art41_seen, every subsequent
+        # Merits/Admissibility/Final-Submissions row also belongs to
+        # Just Satisfaction (until OPI_HEAD or operative).  Closes the
+        # quote-block reset bug in modern Ju_* committee judgments
+        # (001-214668..670 cluster): the parser correctly assigned the
+        # Art41 heading + intro to JS, but then quote-block rows fell
+        # back to their structural parent ("Merits"), stranding all
+        # following body rows in the wrong section.
+        elif art41_seen and not operative_part_seen and section in (
+            "Merits", "Admissibility", "Final Submissions"
+        ):
+            section = "Just Satisfaction"
 
         # ─────────────────────────────────────────────────────────────
         # RULE A — Hard text anchor.  An explicit opinion heading
@@ -838,11 +927,12 @@ def parse_docx(blob, *, skip_converted_page_artifacts=False):
         if is_structural_heading(r.get("text") or ""):
             r["row_role"] = "heading"
 
-    # P54 role-tightening: demote annex-notice / signature / done-line
-    # rows in Operative-part section out of `paragraph` role so they
-    # don't surface in body-text search results and don't render as
-    # dispositif paragraphs in the modal.  LLM-judge identified ~2.2 K
-    # such rows on post-P52 DB.  Conservative: only acts inside
+    # P54 + P55 role-tightening: demote annex-notice / signature /
+    # done-line / initials / pre-1998 annex-list rows in Operative-part
+    # section out of `paragraph` role so they don't surface in body-text
+    # search results and don't render as dispositif paragraphs in the
+    # modal.  LLM-judge identified ~2.2 K + ~1.4 K such rows on post-P52
+    # / post-P54 DBs respectively.  Conservative: only acts inside
     # Operative part (no risk of touching real merits paragraphs).
     for r in out:
         if r.get("section") not in ("Operative part", "Operative Part"):
@@ -851,9 +941,15 @@ def parse_docx(blob, *, skip_converted_page_artifacts=False):
         if role not in ("paragraph", "footer"):
             continue
         text = r.get("text") or ""
-        if ANNEX_NOTICE_RE.search(text):
+        if ANNEX_NOTICE_RE.search(text) or PRE98_ANNEX_NOTICE_RE.search(text):
+            r["row_role"] = "metadata"
+        elif OPINION_BULLET_RE.match(text):
+            # "- dissenting opinion of Mr. X;" annex list items
             r["row_role"] = "metadata"
         elif looks_like_signature_block(text):
+            r["row_role"] = "signature"
+        elif looks_like_initials_signature(text):
+            # Pre-1995 templates close with judge initials only
             r["row_role"] = "signature"
         elif role == "paragraph" and DONE_LINE_RE.match(text):
             # Done-in-English landed in the body — surface it as footer
