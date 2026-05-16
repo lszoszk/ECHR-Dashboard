@@ -1264,12 +1264,20 @@ def main():
             en_fwd.extend(r.get("sql", []))
             en_rb.extend(r.get("rollback", []))
 
+    # paragraphs_fts is an external-content FTS5 index synced by triggers;
+    # that sync drifts after bulk DELETE+INSERT.  Every paragraphs-mutating
+    # script therefore ends with exactly one FTS rebuild so applying it
+    # leaves the index consistent.  See scripts/p59_fts_rebuild.py.
+    _FTS_REBUILD = "INSERT INTO paragraphs_fts(paragraphs_fts) VALUES('rebuild');\n"
+
     def _write(path, text, append):
         p = Path(path)
         if append and p.exists():
-            with p.open("a") as f: f.write(text)
+            prior = p.read_text().replace(_FTS_REBUILD, "")
+            body = prior + text
         else:
-            p.write_text(text)
+            body = text
+        p.write_text(body + _FTS_REBUILD)
         return p
 
     en_out_p = _write(out_name,    "\n".join(en_fwd) + "\n", append)
