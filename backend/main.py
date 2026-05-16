@@ -898,6 +898,9 @@ def search(
     date_from: Optional[str] = Query(None, description="Earliest judgment_date (YYYY-MM-DD)"),
     date_to: Optional[str] = Query(None, description="Latest judgment_date (YYYY-MM-DD)"),
     sort: str = Query("relevance", pattern="^(relevance|date_desc|date_asc)$"),
+    group: str = Query("case", pattern="^(case|paragraph)$",
+                       description="case = group hits by judgment; paragraph = flat list, every paragraph ranked independently"),
+    exclude_roles: Optional[str] = Query(None, description="Comma-separated row_role values to drop (paragraph mode — e.g. headings)"),
     export: bool = Query(False, description="If true, allow large page_size for CSV export"),
 ):
     """Full-text search across case paragraphs using FTS5."""
@@ -1075,7 +1078,92 @@ def search(
                     "page": page,
                     "page_size": page_size,
                     "search_time_ms": round(elapsed, 1),
+                    "group": group,
                     "cases": [],
+                    "hits": [],
+                }
+
+            # ----------------------------------------------------------
+            # group=paragraph — flat list: every matching paragraph is an
+            # independent result, ranked by its own BM25F score (pf.rank)
+            # for relevance, or by case date.  Paginated at the paragraph
+            # level (no per-case aggregate, no metadata rerank — "every
+            # paragraph independent").
+            # ----------------------------------------------------------
+            if group == "paragraph":
+                # Drop heading / non-body rows when asked (flat mode would
+                # otherwise surface "THE LAW" etc. as standalone results).
+                excl_roles = _parse_comma_param(exclude_roles)
+                role_where = ""
+                role_params: list[Any] = []
+                if excl_roles and _has_column(cur, "paragraphs", "row_role"):
+                    ph = ",".join("?" for _ in excl_roles)
+                    role_where = f" AND (p.row_role IS NULL OR p.row_role NOT IN ({ph}))"
+                    role_params = excl_roles
+                    cur.execute(
+                        "SELECT count(*) AS n FROM paragraphs_fts pf "
+                        "JOIN paragraphs p ON p.rowid = pf.rowid "
+                        "JOIN cases c ON c.case_id = p.case_id "
+                        f"{join_sql} WHERE {where_sql}{role_where}",
+                        [*params, *role_params],
+                    )
+                    total_hits = cur.fetchone()["n"]
+                rr = _optional_column_expr(cur, "paragraphs", "row_role", source_alias="p")
+                lp = _optional_column_expr(cur, "paragraphs", "logical_para_idx", source_alias="p")
+                dp = _optional_column_expr(cur, "paragraphs", "display_para_no", source_alias="p")
+                if sort == "date_desc":
+                    para_order = f"{date_sort_key} DESC, pf.rank"
+                elif sort == "date_asc":
+                    para_order = f"{date_sort_key} ASC, pf.rank"
+                else:
+                    para_order = "pf.rank"  # bm25(): more-negative = better
+                flat_sql = (
+                    "SELECT p.case_id, p.section, p.para_idx, p.hudoc_para_no, "
+                    f"p.numbering_block, {rr}, {lp}, {dp}, "
+                    "snippet(paragraphs_fts, 2, '<b>', '</b>', '...', 80) AS snippet, "
+                    "(-pf.rank) AS score, "
+                    "c.case_no, c.title, c.judgment_date, c.hudoc_url, "
+                    "c.respondent_state, c.importance, c.conclusion, c.violation, "
+                    "c.non_violation, c.originating_body, c.document_type "
+                    "FROM paragraphs_fts pf "
+                    "JOIN paragraphs p ON p.rowid = pf.rowid "
+                    "JOIN cases c ON c.case_id = p.case_id "
+                    f"{join_sql} WHERE {where_sql}{role_where} "
+                    f"ORDER BY {para_order} LIMIT ? OFFSET ?"
+                )
+                cur.execute(flat_sql, [*params, *role_params, page_size, (page - 1) * page_size])
+                hits = []
+                for r in cur.fetchall():
+                    hits.append({
+                        "section": r["section"],
+                        "para_idx": r["para_idx"],
+                        "hudoc_para_no": r["hudoc_para_no"],
+                        "numbering_block": r["numbering_block"],
+                        "row_role": r["row_role"],
+                        "logical_para_idx": r["logical_para_idx"],
+                        "display_para_no": r["display_para_no"],
+                        "snippet": r["snippet"],
+                        "score": r["score"],
+                        "case": {
+                            "case_id": r["case_id"], "case_no": r["case_no"],
+                            "title": r["title"], "judgment_date": r["judgment_date"],
+                            "hudoc_url": r["hudoc_url"],
+                            "respondent_state": r["respondent_state"],
+                            "importance": r["importance"], "conclusion": r["conclusion"],
+                            "violation": r["violation"], "non_violation": r["non_violation"],
+                            "originating_body": r["originating_body"],
+                            "document_type": r["document_type"],
+                        },
+                    })
+                elapsed = (time.perf_counter() - t0) * 1000
+                return {
+                    "total_cases": total_cases,
+                    "total_hits": total_hits,
+                    "page": page,
+                    "page_size": page_size,
+                    "search_time_ms": round(elapsed, 1),
+                    "group": "paragraph",
+                    "hits": hits,
                 }
 
             # ----------------------------------------------------------

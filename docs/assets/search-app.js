@@ -60,12 +60,13 @@ const serverSearch = {
   },
 
   /** Build query params from the current UI filters. */
-  _buildParams(query, filters, page = 1, sort = null) {
+  _buildParams(query, filters, page = 1, sort = null, group = null) {
     const p = new URLSearchParams();
     if (query) p.set("q", query);
     p.set("page", String(page));
     p.set("page_size", String(PAGE_SIZE));
     if (sort) p.set("sort", sort);
+    if (group && group !== "case") p.set("group", group);
     // Convert normalized section keys back to raw DB names.
     // SECTION_DB_NAMES values are arrays (one UI bucket may cover multiple
     // raw DB values — e.g. "facts" → ["Facts Background", "Facts Proceedings"]).
@@ -198,8 +199,8 @@ const serverSearch = {
   },
 
   /** Full-text search via server API. */
-  async search(query, filters, page = 1, sort = null) {
-    const params = this._buildParams(query, filters, page, sort);
+  async search(query, filters, page = 1, sort = null, group = null) {
+    const params = this._buildParams(query, filters, page, sort, group);
     const endpoint = query ? "search" : "browse";
     const r = await fetch(`${API_BASE_URL}/${endpoint}?${params}`);
     if (!r.ok) throw new Error(`API ${r.status}`);
@@ -585,6 +586,11 @@ const state = {
   limited: false,
   searchTimeMs: 0,
   cardMode: "compact",
+  // Results display mode (generalcomments-inspired): how to sort and
+  // whether to group hits by judgment or list every paragraph flat.
+  resultSort: "relevance",   // "relevance" | "date_desc" | "date_asc"
+  resultGroup: "case",       // "case" | "paragraph"
+  flatHits: [],              // ordered paragraph hits when resultGroup="paragraph"
   openLegalDetails: new Set(),
   classifierOpen: false,
   classifier: null,
@@ -1423,7 +1429,7 @@ function setSearchEnabled(enabled) {
   el.powerUserToggle.disabled = !enabled;
   el.dateFrom.disabled = !enabled;
   el.dateTo.disabled = !enabled;
-  el.exportIncludeClassifier.disabled = !enabled;
+  if (el.exportIncludeClassifier) el.exportIncludeClassifier.disabled = !enabled;
 
   const dynamicInputs = document.querySelectorAll(
     "#sectionsFilters input, #countriesFilters input, #articlesFilters input, #originatingBodyFilters input, #importanceFilters input, #outcomeFilters input, #separateOpinionFilters input, #presenceFilters input"
@@ -1435,10 +1441,10 @@ function setSearchEnabled(enabled) {
   el.searchForm.classList.toggle("search-disabled", !enabled);
 
   el.exportBtn.disabled = !enabled || !state.currentOrderedCaseIds.length;
-  el.cardModeBtn.disabled = !enabled;
-  el.clearBtn.disabled = !enabled;
+  if (el.cardModeBtn) el.cardModeBtn.disabled = !enabled;
+  if (el.clearBtn) el.clearBtn.disabled = !enabled;
   el.openClassifierBtn.disabled = !enabled;
-  el.classifierQuickOpenBtn.disabled = !enabled;
+  if (el.classifierQuickOpenBtn) el.classifierQuickOpenBtn.disabled = !enabled;
 }
 
 function setDatasetLoading(loading) {
@@ -1446,7 +1452,7 @@ function setDatasetLoading(loading) {
   el.fileInput.disabled = loading;
   if (!state.loaded) {
     el.openClassifierBtn.disabled = true;
-    el.classifierQuickOpenBtn.disabled = true;
+    if (el.classifierQuickOpenBtn) el.classifierQuickOpenBtn.disabled = true;
   }
   el.dropZone.classList.toggle("loading", loading);
 }
@@ -4358,7 +4364,7 @@ function caseNoteContextHtml(ctx, paras, activeIdx) {
 
   const renderC = (p) => `
     <div class="dossier-ctx-para">
-      <span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(p))}</span>${escapeHtml(p.text)}
+      <span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(p))}</span>${dossierHighlight(p.text, terms)}
     </div>`;
   const active = `
     <div class="dossier-ctx-para dossier-ctx-active">
@@ -4439,9 +4445,9 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
     const hudocUrl = activePara ? paragraphHudocUrl(c, activePara) : (c.hudoc_url || "");
     return `
       <div class="case-context-actions">
-        ${hudocUrl ? `<a href="${escapeHtml(hudocUrl)}" class="case-open-secondary" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>` : ""}
-        <button type="button" class="case-open-secondary cite-btn" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}">Cite</button>
-        ${activePara ? `<button type="button" class="case-open-secondary" data-action="copy-paragraph" data-text="${escapeHtml(activePara.text || "")}">Copy</button>` : ""}
+        ${hudocUrl ? `<a href="${escapeHtml(hudocUrl)}" class="cn-action" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>` : ""}
+        <button type="button" class="cn-action" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}">Cite</button>
+        ${activePara ? `<button type="button" class="cn-action" data-action="copy-paragraph" data-text="${escapeHtml(activePara.text || "")}">Copy</button>` : ""}
       </div>`;
   };
 
@@ -4463,24 +4469,33 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
     try {
       const paras = await loadDossierCase(caseId);
       if (state.activeCaseId !== caseId) return; // selection moved on
-      const wantIdx = (primaryPara.logicalParaIdx != null)
-        ? primaryPara.logicalParaIdx : primaryPara.paraIdx;
+      const cn = (state.caseNote && state.caseNote.caseId === caseId)
+        ? state.caseNote : { caseId, before: 1, after: 1, paraIdx: null };
+      // Anchor: an explicitly-clicked hit row (cn.paraIdx) wins;
+      // otherwise the row that actually matched the query — so the
+      // centred paragraph carries the keyword and matches the card.
+      const wantIdx = (cn.paraIdx != null) ? cn.paraIdx
+        : (primaryPara.paraIdx != null) ? primaryPara.paraIdx
+        : primaryPara.logicalParaIdx;
       let activeIdx = (wantIdx != null)
         ? paras.findIndex((p) => p.paraIdx === wantIdx) : -1;
       if (activeIdx < 0) activeIdx = paras.findIndex((p) => p.hudocParaNo != null);
       if (activeIdx < 0) activeIdx = 0;
-      const cn = (state.caseNote && state.caseNote.caseId === caseId)
-        ? state.caseNote : { caseId, before: 1, after: 1 };
       const ctx = getCaseNoteContext(paras, activeIdx, cn.before, cn.after);
       renderToRails(headHtml
         + caseNoteContextHtml(ctx, paras, activeIdx)
         + actionsHtml(ctx.active));
       if (opts.center) {
-        // Centre the matched paragraph in the sidebar scroll so the
-        // researcher lands on what they clicked, not the section top.
+        // Centre the active paragraph WITHIN the sidebar scroll only —
+        // scrollIntoView would also nudge the main column / window.
         requestAnimationFrame(() => {
-          el.caseContextRail?.querySelector(".dossier-ctx-active")
-            ?.scrollIntoView({ block: "center", behavior: "auto" });
+          const sb = el.sidebar;
+          const active = el.caseContextRail?.querySelector(".dossier-ctx-active");
+          if (sb && active) {
+            const d = (active.getBoundingClientRect().top - sb.getBoundingClientRect().top)
+              - (sb.clientHeight / 2 - active.offsetHeight / 2);
+            sb.scrollTop += d;
+          }
         });
       }
     } catch (err) {
@@ -4497,10 +4512,30 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
 function selectCase(caseId) {
   if (!caseId || !state.currentResultsById.has(caseId)) return;
   state.activeCaseId = caseId;
-  // Fresh Case Note for a newly-selected case starts at ±1 paragraph.
+  // Fresh Case Note for a newly-selected case: ±1, anchored on the
+  // case's best hit (paraIdx null → renderCaseContextRail picks it).
   if (!state.caseNote || state.caseNote.caseId !== caseId) {
-    state.caseNote = { caseId, before: 1, after: 1 };
+    state.caseNote = { caseId, before: 1, after: 1, paraIdx: null };
   }
+  el.casesList?.querySelectorAll(".researcher-result.active").forEach((node) => {
+    node.classList.remove("active");
+  });
+  const selected = byId(`case-${caseId}`);
+  if (selected) selected.classList.add("active");
+  renderCaseContextRail(caseId, { center: true });
+}
+
+/* Show a SPECIFIC paragraph (a clicked hit row) in the Case Note,
+ * rather than the case's best hit. */
+function selectCaseParagraph(caseId, paraIdx) {
+  if (!caseId || !state.currentResultsById.has(caseId)) return;
+  state.activeCaseId = caseId;
+  state.caseNote = {
+    caseId,
+    before: 1,
+    after: 1,
+    paraIdx: (paraIdx != null && paraIdx !== "") ? Number(paraIdx) : null,
+  };
   el.casesList?.querySelectorAll(".researcher-result.active").forEach((node) => {
     node.classList.remove("active");
   });
@@ -4590,10 +4625,17 @@ function buildCaseCard(caseId, row, rank = 1) {
     const hudocUrl = paragraphHudocUrl(c, p);
     const paraLabel = formatParaNum(p);
     const hudocLink = hudocUrl
-      ? `<a class="hudoc-para-link" href="${escapeHtml(hudocUrl)}" target="_blank" rel="noopener noreferrer" title="Open in HUDOC (use Ctrl-F for ${escapeHtml(paraLabel)})">HUDOC ↗</a>`
+      ? `<a class="hudoc-para-link" data-action="open-hudoc" href="${escapeHtml(hudocUrl)}" target="_blank" rel="noopener noreferrer" title="Open in HUDOC (use Ctrl-F for ${escapeHtml(paraLabel)})">HUDOC ↗</a>`
       : "";
+    // Whole row → show this paragraph in the Case Note. Nested
+    // buttons/links carry their own data-action so the delegated
+    // handler resolves them first.
+    const cnIdx = (p.paraIdx != null) ? p.paraIdx : "";
     return `
-      <div class="paragraph-item${isGrouped ? " grouped-item" : ""}">
+      <div class="paragraph-item${isGrouped ? " grouped-item" : ""}"
+           data-action="select-para" data-case-id="${escapeHtml(caseId)}"
+           data-para-idx="${escapeHtml(String(cnIdx))}"
+           title="Show this paragraph in the Case Note">
         <div class="para-header">
           ${isGrouped ? "" : `<span class="para-section">${escapeHtml(p.sectionLabel)}</span>`}
           <span class="para-num" title="${escapeHtml(formatParaNumTitle(p))}">${escapeHtml(paraLabel)}</span>
@@ -4819,6 +4861,12 @@ function renderResultsPage() {
 
   el.noResults.hidden = true;
 
+  // Flat "by paragraph" mode — every hit is an independent result row.
+  if (state.resultGroup === "paragraph" && state.currentMode === "search") {
+    renderFlatResults();
+    return;
+  }
+
   // In server mode, each API call returns only the current page's cases,
   // so totalPages must come from the server's total count, not the local array.
   const effectiveTotal = state.serverMode
@@ -4848,6 +4896,66 @@ function renderResultsPage() {
 
   renderCaseContextRail(state.activeCaseId);
   renderPagination();
+}
+
+/* One result row in flat "by paragraph" mode: the matched paragraph,
+ * its case title + section + date, ranked independently. Clicking it
+ * opens that paragraph in the Case Note. */
+function buildParagraphResult(h, rank) {
+  const c = h.case;
+  const title = cleanCaseTitle(c.title);
+  const date = formatCaseDateForDisplay(c);
+  const num = (h.displayParaNo != null) ? `¶ ${h.displayParaNo}`
+            : (h.hudocParaNo != null) ? `¶ ${h.hudocParaNo}` : "¶ —";
+  return `
+    <article class="paragraph-result" data-action="select-para"
+             data-case-id="${escapeHtml(c.case_id)}"
+             data-para-idx="${escapeHtml(String(h.paraIdx != null ? h.paraIdx : ""))}"
+             tabindex="0" title="Show this paragraph in the Case Note">
+      <div class="researcher-marginalia">
+        <div class="researcher-rank">№ ${String(rank).padStart(2, "0")}</div>
+        <div class="researcher-para-no">${escapeHtml(num)}</div>
+      </div>
+      <div class="paragraph-result-body">
+        <div class="pr-head">
+          <span class="pr-case">${escapeHtml(title)}</span>
+          <span class="pr-meta">${escapeHtml(h.sectionLabel)} · ${escapeHtml(date)}</span>
+        </div>
+        <p class="para-text">${h.textHtml}</p>
+        <div class="case-actions-inline compact-actions">
+          ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="cn-action" data-action="open-hudoc" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>` : ""}
+          <button type="button" class="cn-action" data-action="copy-paragraph" data-text="${escapeHtml(h.rawText)}">Copy</button>
+        </div>
+      </div>
+    </article>`;
+}
+
+function renderFlatResults() {
+  const hits = state.flatHits || [];
+  el.casesList.innerHTML = hits.map((h, i) => buildParagraphResult(h, i + 1)).join("");
+  if (!hits.some((h) => h.caseId === state.activeCaseId)) {
+    state.activeCaseId = hits[0] ? hits[0].caseId : "";
+  }
+  renderCaseContextRail(state.activeCaseId);
+  renderPagination();
+}
+
+/* Sync the Sort / Group segmented controls with state, and disable the
+ * options that need a query (Relevance, By paragraph). */
+function syncResultControls() {
+  const hasQuery = !!(state.query && state.query.trim());
+  document.querySelectorAll("#resultSortControls .rdc-opt").forEach((b) => {
+    const on = b.dataset.sort === state.resultSort;
+    b.classList.toggle("is-active", on);
+    b.setAttribute("aria-pressed", on ? "true" : "false");
+    b.disabled = (b.dataset.sort === "relevance" && !hasQuery);
+  });
+  document.querySelectorAll("#resultGroupControls .rdc-opt").forEach((b) => {
+    const on = b.dataset.group === state.resultGroup;
+    b.classList.toggle("is-active", on);
+    b.setAttribute("aria-pressed", on ? "true" : "false");
+    b.disabled = (b.dataset.group === "paragraph" && !hasQuery);
+  });
 }
 
 function computeAnalytics() {
@@ -5092,7 +5200,7 @@ function updateResultsHeader() {
   if (el.queryMatchLabel) el.queryMatchLabel.textContent = browseMode ? "cases shown" : "¶ matched";
 
   el.exportBtn.disabled = !totalCases;
-  el.clearBtn.disabled = !state.loaded;
+  if (el.clearBtn) el.clearBtn.disabled = !state.loaded;
 }
 
 function applySearch(resetPage = true) {
@@ -5162,8 +5270,13 @@ function applySearch(resetPage = true) {
 
 /** Server-side search — calls API and adapts results to local format. */
 async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
-  const sort = opts.sort || null;
   const defaultView = !!opts.defaultView;
+  // Sort + grouping are driven by the result-bar controls (state).
+  // Relevance only makes sense with a query; paragraph (flat) mode
+  // likewise needs a query — browse always stays case-grouped, date-sorted.
+  const sort = (!query && state.resultSort === "relevance")
+    ? "date_desc" : state.resultSort;
+  const group = (query && state.resultGroup === "paragraph") ? "paragraph" : "case";
 
   state.query = query;
   if (el.inlineSearchInput) el.inlineSearchInput.value = query;
@@ -5185,8 +5298,62 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
 
   const t0 = performance.now();
   try {
-    const data = await serverSearch.search(query, filters, state.currentPage, sort);
+    const data = await serverSearch.search(query, filters, state.currentPage, sort, group);
     const t1 = performance.now();
+
+    // ── group=paragraph — flat list, every paragraph an independent result ──
+    if (group === "paragraph" && Array.isArray(data.hits)) {
+      const flat = [];
+      const resultsById = new Map();
+      const orderedCaseIds = [];
+      for (const h of data.hits) {
+        const c = serverSearch._adaptCase(h.case || {});
+        state.caseById.set(c.case_id, c);
+        const sec = normalizeSectionKey(h.section);
+        const hit = {
+          key: `${c.case_id}:${sec}:${h.para_idx}`,
+          caseId: c.case_id, case: c,
+          section: sec, sectionLabel: SECTION_LABELS[sec] || sec,
+          paraIdx: h.para_idx,
+          hudocParaNo: (h.hudoc_para_no != null) ? Number(h.hudoc_para_no) : null,
+          displayParaNo: (h.display_para_no != null) ? Number(h.display_para_no) : null,
+          logicalParaIdx: (h.logical_para_idx != null) ? Number(h.logical_para_idx) : null,
+          numberingBlock: h.numbering_block || null,
+          rowRole: h.row_role || null,
+          score: h.score || 0,
+          rawText: serverSnippetToPlainText(h.snippet, ""),
+          textHtml: serverSnippetToHtml(h.snippet, ""),
+        };
+        flat.push(hit);
+        // Also group hits by case so the Case Note lookups still work.
+        let entry = resultsById.get(c.case_id);
+        if (!entry) {
+          entry = { case: c, paragraphs: [], hitCount: 0 };
+          resultsById.set(c.case_id, entry);
+          orderedCaseIds.push(c.case_id);
+        }
+        entry.paragraphs.push(hit);
+        entry.hitCount += 1;
+      }
+      state.flatHits = flat;
+      state.currentMode = "search";
+      state.currentResultsById = resultsById;
+      state.currentOrderedCaseIds = orderedCaseIds;
+      state.currentTerms = query.toLowerCase().split(/\s+/).filter(Boolean);
+      state.totalHits = data.total_hits || 0;
+      state.limited = false;
+      state.searchTimeMs = data.search_time_ms || (t1 - t0);
+      state.serverMode = true;
+      // Pagination is paragraph-level in flat mode.
+      state.serverTotalCases = data.total_hits || 0;
+      state.serverTotalPages = Math.ceil((data.total_hits || 0) / PAGE_SIZE) || 1;
+      renderActiveFilters(filters);
+      renderResultsPage();
+      fetchAndRenderServerAnalytics(query, filters);
+      updateResultsHeaderServer(data, { defaultView: false });
+      return;
+    }
+    state.flatHits = [];
 
     const resultsById = new Map();
     const orderedCaseIds = [];
@@ -5333,7 +5500,8 @@ function updateResultsHeaderServer(data, opts = {}) {
   if (el.queryMatchLabel) el.queryMatchLabel.textContent = defaultView ? "recent cases" : "¶ matched";
 
   el.exportBtn.disabled = !state.currentOrderedCaseIds.length;
-  el.clearBtn.disabled = false;
+  if (el.clearBtn) el.clearBtn.disabled = false;
+  syncResultControls();
 }
 
 function resetFiltersAndQuery() {
@@ -6162,10 +6330,15 @@ function getDossierContext(paras, activeIdx, win, expanded) {
   };
 }
 
+const DOSSIER_HL_SKIP = new Set(["and", "or", "not"]);
 function dossierHighlight(text, terms) {
   let html = escapeHtml(text);
-  for (const t of (terms || [])) {
-    if (!t || t.length < 2) continue;
+  for (let t of (terms || [])) {
+    if (!t || t.includes(":")) continue; // skip field operators (article:8)
+    // Strip phrase quotes / edge punctuation so "biometric and data"
+    // (split from a "phrase" query) still matches the bare words.
+    t = t.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, "");
+    if (t.length < 2 || DOSSIER_HL_SKIP.has(t.toLowerCase())) continue;
     try {
       html = html.replace(new RegExp("(" + escapeRegExp(t) + ")", "gi"),
         '<mark class="hl">$1</mark>');
@@ -6911,13 +7084,40 @@ function bindEvents() {
   el.dateFrom?.addEventListener("change", updateActiveFilterCount);
   el.dateTo?.addEventListener("change", updateActiveFilterCount);
 
-  el.clearBtn.addEventListener("click", () => {
+  // Result-display controls: Sort (relevance/newest/oldest) + Group
+  // (by case / by paragraph). Restore persisted choice, then wire.
+  try {
+    const s = localStorage.getItem("echr.resultSort");
+    if (["relevance", "date_desc", "date_asc"].includes(s)) state.resultSort = s;
+    const g = localStorage.getItem("echr.resultGroup");
+    if (["case", "paragraph"].includes(g)) state.resultGroup = g;
+  } catch (_) { /* private mode */ }
+  syncResultControls();
+
+  document.getElementById("resultSortControls")?.addEventListener("click", (e) => {
+    const b = e.target.closest(".rdc-opt[data-sort]");
+    if (!b || b.disabled || state.resultSort === b.dataset.sort) return;
+    state.resultSort = b.dataset.sort;
+    try { localStorage.setItem("echr.resultSort", state.resultSort); } catch (_) {}
+    syncResultControls();
+    applySearch(true);
+  });
+  document.getElementById("resultGroupControls")?.addEventListener("click", (e) => {
+    const b = e.target.closest(".rdc-opt[data-group]");
+    if (!b || b.disabled || state.resultGroup === b.dataset.group) return;
+    state.resultGroup = b.dataset.group;
+    try { localStorage.setItem("echr.resultGroup", state.resultGroup); } catch (_) {}
+    syncResultControls();
+    applySearch(true);
+  });
+
+  el.clearBtn?.addEventListener("click", () => {
     if (!state.loaded && !serverSearch.available) return;
     resetFiltersAndQuery();
   });
 
   el.exportBtn.addEventListener("click", exportCsv);
-  el.cardModeBtn.addEventListener("click", () => {
+  el.cardModeBtn?.addEventListener("click", () => {
     if (!state.loaded) return;
     toggleCardMode();
   });
@@ -6929,7 +7129,7 @@ function bindEvents() {
 
   el.loadSampleBtn.addEventListener("click", loadSampleDataset);
   el.openClassifierBtn.addEventListener("click", openClassifierPane);
-  el.classifierQuickOpenBtn.addEventListener("click", openClassifierPane);
+  el.classifierQuickOpenBtn?.addEventListener("click", openClassifierPane);
   el.closeClassifierBtn.addEventListener("click", closeClassifierPane);
   el.classifierBackdrop.addEventListener("click", closeClassifierPane);
 
@@ -7064,13 +7264,13 @@ function bindEvents() {
     }
 
     // HUDOC ↗ link inside a paragraph row: let the browser follow the
-    // anchor, but don't also fire the row's open-dossier action.
+    // anchor, but don't also fire the row's select-para action.
     if (action === "open-hudoc") {
       return;
     }
 
-    if (action === "open-dossier" && caseId) {
-      openDossier(caseId, clickable.getAttribute("data-para-idx"));
+    if (action === "select-para" && caseId) {
+      selectCaseParagraph(caseId, clickable.getAttribute("data-para-idx"));
       return;
     }
 

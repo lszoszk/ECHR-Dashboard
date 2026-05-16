@@ -268,11 +268,20 @@
             <p>Sorted by relevance and recency. <span id="resultsTime">(0.000s)</span></p>
           </div>
           <div class="results-meta">
-            <button type="button" class="export-btn" id="cardModeBtn" title="Toggle compact/detailed case cards" disabled>Detailed view</button>
             <button type="button" class="export-btn" id="exportBtn" title="Export results to CSV" disabled>Export CSV</button>
-            <label class="export-option"><input type="checkbox" id="exportIncludeClassifier" disabled> Include classifier labels</label>
-            <button type="button" class="export-btn" id="classifierQuickOpenBtn" title="Open classifier panel" disabled>Classifier</button>
-            <button type="button" class="export-btn clear-btn" id="clearBtn" title="Clear current search" disabled>Clear</button>
+          </div>
+          <div class="results-display-controls">
+            <div class="rdc-group" id="resultSortControls" role="group" aria-label="Sort results">
+              <span class="rdc-label">Sort</span>
+              <button type="button" class="rdc-opt" data-sort="relevance">Relevance</button>
+              <button type="button" class="rdc-opt" data-sort="date_desc">Newest</button>
+              <button type="button" class="rdc-opt" data-sort="date_asc">Oldest</button>
+            </div>
+            <div class="rdc-group" id="resultGroupControls" role="group" aria-label="Group results">
+              <span class="rdc-label">Group</span>
+              <button type="button" class="rdc-opt" data-group="case">By case</button>
+              <button type="button" class="rdc-opt" data-group="paragraph">By paragraph</button>
+            </div>
           </div>
           <div class="active-filters" id="activeFilters"></div>
         </div>

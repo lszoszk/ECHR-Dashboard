@@ -793,6 +793,82 @@ body {
     color: var(--ink-4, var(--text-secondary));
 }
 
+/* ─── Result-display controls (Sort / Group segmented bars) ─────────── */
+.results-display-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 10px;
+}
+.rdc-group { display: flex; align-items: center; gap: 4px; }
+.rdc-label {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-4, var(--text-secondary));
+    margin-right: 4px;
+}
+.rdc-opt {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.66rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 4px 9px;
+    border: 1px solid var(--rule, var(--border));
+    border-radius: 3px;
+    background: var(--paper, var(--bg-card));
+    color: var(--ink-2, var(--text-secondary));
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.rdc-opt:hover:not(:disabled) { border-color: var(--garnet); color: var(--garnet); }
+.rdc-opt.is-active {
+    background: var(--garnet);
+    border-color: var(--garnet);
+    color: #fff;
+}
+.rdc-opt:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ─── Flat "by paragraph" result rows ───────────────────────────────── */
+.paragraph-result {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 24px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--rule-soft, var(--border));
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.paragraph-result:hover,
+.paragraph-result.active {
+    background: color-mix(in srgb, var(--garnet-soft, #f4e0dd) 42%, transparent);
+    margin-left: -16px; margin-right: -16px;
+    padding-left: 16px; padding-right: 16px;
+}
+.paragraph-result-body { min-width: 0; }
+.pr-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 12px;
+    margin-bottom: 6px;
+}
+.pr-case {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--ink, var(--text-primary));
+}
+.pr-meta {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-4, var(--text-secondary));
+}
+.paragraph-result .case-actions-inline { margin-top: 8px; }
+
 /* Case Note context block reuses the .dossier-ctx-* paragraph styling. */
 .case-note-context { margin-top: 8px; }
 .casenote-more {
@@ -913,31 +989,61 @@ body.is-resizing-dossier { cursor: col-resize; user-select: none; }
 
 .dossier-ctx-para {
     font-family: var(--font-serif);
-    font-size: 0.86rem;
-    line-height: 1.6;
-    color: var(--text-secondary);
-    padding: 6px 0 6px 14px;
-    border-left: 2px solid var(--border);
-    margin: 4px 0;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
+    font-size: 0.84rem;
+    line-height: 1.55;
+    color: var(--ink-4, var(--text-secondary));
+    padding: 0 0 0 13px;
+    border-left: 2px solid var(--rule, var(--border));
+    margin: 0 0 11px;
+    overflow-wrap: break-word;
 }
+.dossier-ctx-para:last-child { margin-bottom: 0; }
 .dossier-ctx-num {
     display: block;
-    font-size: 0.68rem;
-    color: var(--text-secondary);
-    opacity: 0.7;
-    margin-bottom: 2px;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-4, var(--text-secondary));
+    margin-bottom: 3px;
 }
 .dossier-ctx-active {
-    color: var(--text-primary);
-    font-size: 0.95rem;
+    color: var(--ink, var(--text-primary));
+    font-size: 0.92rem;
+    line-height: 1.62;
     border-left: 3px solid var(--garnet);
-    padding-left: 16px;
-    margin: 8px 0;
+    padding-left: 14px;
+    margin: 13px 0;
 }
-.dossier-ctx-active .dossier-ctx-num { color: var(--garnet); opacity: 1; font-weight: 600; }
+.dossier-ctx-active .dossier-ctx-num { color: var(--garnet); font-weight: 600; }
 .dossier-ctx-para mark.hl { background: var(--highlight); }
+
+/* Case Note action bar — one consistent boxed button style for
+   HUDOC ↗ · Cite · Copy (the old mix of text-link + boxed button). */
+.cn-action {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 5px 11px;
+    border: 1px solid var(--rule, var(--border));
+    border-radius: 3px;
+    background: var(--paper, var(--bg-card));
+    color: var(--ink-2, var(--text-secondary));
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.cn-action:hover {
+    border-color: var(--garnet);
+    color: var(--garnet);
+    background: var(--garnet-soft, var(--highlight));
+}
+.cn-action.copied {
+    border-color: var(--garnet);
+    color: var(--garnet);
+    background: var(--garnet-soft, var(--highlight));
+}
 
 .dossier-expand {
     margin-top: 10px;
