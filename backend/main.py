@@ -246,7 +246,16 @@ def _build_fts_query(raw: str) -> str:
     if parts and parts[-1] in ("AND", "OR"):
         parts.pop()
 
-    return " ".join(parts)
+    expr = " ".join(parts)
+    if not expr:
+        return ""
+    # Scope every match to the paragraph BODY column.  `title` and
+    # `keywords_text` are denormalised onto ~2M paragraph rows, so an
+    # unscoped MATCH makes every paragraph of (e.g.) an Article 8 case
+    # match "private" via the case's HUDOC keyword string — surfacing
+    # elision "..." rows and other paragraphs whose own text is
+    # unrelated.  A paragraph-level search must match paragraph text.
+    return f"{{text}} : ({expr})"
 
 
 def _validate_page_size(page_size: int, *, allow_large: bool = False) -> int:
