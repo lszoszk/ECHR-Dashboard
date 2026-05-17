@@ -660,6 +660,18 @@ body {
     opacity: 0.85;
 }
 
+/* #6: when the matched snippet on a result card is itself quoted
+   material (a row_role='quote' hit), drop it onto its own indented
+   line so the Court's narration lead-in and the quotation read as
+   two distinct things — not one run-on sentence. Mirrors HUDOC's
+   indented block-quote and the Case Note's .dossier-ctx-quote. */
+.pr-snippet-quote {
+    display: block;
+    margin-top: 5px;
+    padding-left: 11px;
+    border-left: 2px solid var(--rule, var(--border));
+}
+
 /* Highlight mark */
 .para-text mark.hl, mark.hl {
     background: var(--highlight);

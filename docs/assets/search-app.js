@@ -4642,11 +4642,18 @@ function buildCaseCard(caseId, row, rank = 1) {
   // P58: when the top hit is a fragment (bullet / quote / continuation),
   // prepend a muted lead-in from its parent body ¶ so the snippet on the
   // collapsed card reads in context instead of starting mid-list.
+  // #6: when the match itself is quoted material, drop it onto its own
+  // indented line so the Court's narration and the quotation read as
+  // two distinct things, not one run-on sentence (mirrors HUDOC).
   const primaryContextLead = (primaryPara && primaryPara.parentText)
-    ? `<span class="para-context-lead-inline">${escapeHtml(truncateForContext(primaryPara.parentText))} </span>`
+    ? `<span class="para-context-lead-inline">${escapeHtml(truncateForContext(primaryPara.parentText))}</span>`
     : "";
+  const primaryBody = !primaryPara ? ""
+    : ((primaryPara.rowRole || "") === "quote"
+        ? `<span class="pr-snippet-quote">${primaryPara.textHtml}</span>`
+        : (primaryContextLead ? " " : "") + primaryPara.textHtml);
   const primaryText = primaryPara
-    ? primaryContextLead + primaryPara.textHtml
+    ? primaryContextLead + primaryBody
     : (caseOnlyBrowse
       ? '<span class="case-only-note">Case record only in recent-cases browse mode. Enter a full-text query to surface matched paragraphs from this judgment.</span>'
       : "No paragraphs for current filters.");
