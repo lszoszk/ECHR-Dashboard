@@ -1266,13 +1266,29 @@ const ARTICLE_GUIDE_URLS = {
 
 /* ── Citation generation helpers ─────────────────────────────────── */
 
+/* Split a HUDOC case_no ("40660/08;60641/08") into clean application
+ * numbers. */
+function splitAppNos(caseNo) {
+  return String(caseNo || "").split(/[;,]/).map((s) => s.trim()).filter(Boolean);
+}
+
+/* Application numbers in ECtHR citation form: "no. X" for a single
+ * application, "nos. X and Y" / "nos. X, Y and Z" for several — the
+ * Court's own convention, not the raw semicolon-joined HUDOC string. */
+function formatAppNosCitation(caseNo) {
+  const nos = splitAppNos(caseNo);
+  if (!nos.length) return "";
+  if (nos.length === 1) return `no. ${nos[0]}`;
+  return `nos. ${nos.slice(0, -1).join(", ")} and ${nos[nos.length - 1]}`;
+}
+
 function buildStandardCitation(caseObj) {
   const title = (caseObj.title || "Untitled").replace(/^CASE OF\s+/i, "");
-  const appNo = caseObj.case_no || "";
+  const apps = formatAppNosCitation(caseObj.case_no);
   const date = caseObj.judgment_date || "";
   const year = date ? date.replace(/.*(\d{4}).*/, "$1") : "";
   const parts = [title];
-  if (appNo) parts[0] += `, App. no. ${appNo}`;
+  if (apps) parts[0] += `, ${apps}`;
   if (year) parts[0] += ` (ECtHR ${year})`;
   return parts.join("");
 }
@@ -4372,15 +4388,31 @@ function getCaseNoteContext(paras, activeIdx, before, after) {
 function caseNoteContextHtml(ctx, paras, activeIdx) {
   const terms = state.currentTerms || [];
   const activeSec = ctx.active.rows[0] || {};
-  let headingText = "";
+
+  // #2 — breadcrumb from the judgment's own heading rows, verbatim from
+  // HUDOC ("THE LAW › II. ALLEGED VIOLATION OF ARTICLE 8 …").  Walk back
+  // collecting the ancestor chain by heading level; fall back to the
+  // section-bucket label only if the document carries no headings.
+  const hlevel = (role) => {
+    const m = /^heading_h(\d)/.exec(role || "");
+    if (m) return Number(m[1]);
+    return ((role || "") === "heading") ? 5 : null;
+  };
+  const segs = [];
+  let minLvl = Infinity;
   for (let i = activeIdx; i >= 0; i--) {
-    if ((paras[i].section || "") !== (activeSec.section || "")) break;
-    const r = paras[i].rowRole || "";
-    if (r === "heading" || r.startsWith("heading")) { headingText = paras[i].text || ""; break; }
+    const L = hlevel(paras[i].rowRole);
+    if (L == null || L >= minLvl) continue;
+    minLvl = L;
+    const t = (paras[i].text || "").trim();
+    if (t && t.length <= 140) segs.unshift(t);
   }
-  const bc = [escapeHtml(activeSec.sectionLabel || "—")];
-  if (headingText.trim() && headingText.trim().length <= 120) bc.push(escapeHtml(headingText.trim()));
-  const breadcrumb = bc.join('<span class="dossier-bc-sep">›</span>');
+  const bcParts = segs.length ? segs : [activeSec.sectionLabel || "—"];
+  const breadcrumb = bcParts.map(escapeHtml).join('<span class="dossier-bc-sep">›</span>');
+
+  // #5 — the matched row's role, to flag a match inside quoted material.
+  const matchedInQuote = !!(paras[activeIdx]
+    && (paras[activeIdx].rowRole || "") === "quote");
 
   // One logical paragraph → one "¶ N" block: the numbered body text,
   // plus any quote / continuation rows rendered as indented sub-blocks
@@ -4395,9 +4427,12 @@ function caseNoteContextHtml(ctx, paras, activeIdx) {
         ? `<div class="dossier-ctx-quote">${html}</div>`
         : `<div class="dossier-ctx-body">${html}</div>`;
     }).join("");
+    const quoteBadge = (isActive && matchedInQuote)
+      ? `<span class="match-source-badge match-source-quote" title="The query matched inside quoted material — a Convention article, domestic law or other source — not the Court's own reasoning">in quote</span>`
+      : "";
     return `
       <div class="dossier-ctx-para${isActive ? " dossier-ctx-active" : ""}">
-        <span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(head))}</span>${inner}
+        <span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(head))}</span>${quoteBadge}${inner}
       </div>`;
   };
   const moreBtn = (dir, count) => {
@@ -4448,7 +4483,7 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
   const headHtml = `
     <div class="folio-label garnet">Case Note</div>
     <h3>${escapeHtml(title)}</h3>
-    <div class="case-context-ecli">${escapeHtml(c.ecli || c.case_no || "")}</div>
+    <div class="case-context-ecli">${escapeHtml(c.ecli || splitAppNos(c.case_no).join(", ") || "")}</div>
 
     <div class="case-note-meta">
       <div class="cnm-articles">
@@ -4456,7 +4491,7 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
         <span class="cnm-article-chips">${buildResearcherArticleChips(c.__articles, 8)}</span>
       </div>
       <dl class="cnm-facts">
-        <div><dt>Application</dt><dd>${escapeHtml(c.case_no || "—")}</dd></div>
+        <div><dt>Application</dt><dd>${escapeHtml(splitAppNos(c.case_no).join(", ") || "—")}</dd></div>
         <div><dt>Decided</dt><dd>${escapeHtml(formatCaseDateForDisplay(c))}</dd></div>
         <div><dt>Court</dt><dd>${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "—")}</dd></div>
         <div><dt>State</dt><dd>${escapeHtml(states)}</dd></div>
@@ -4815,7 +4850,7 @@ function buildCaseCard(caseId, row, rank = 1) {
       <aside class="researcher-influence">
         <div class="folio-label">Influence</div>
         ${buildResearcherBars(c, row)}
-        <div class="researcher-ecli">${escapeHtml(c.ecli || c.case_no || "")}</div>
+        <div class="researcher-ecli">${escapeHtml(c.ecli || splitAppNos(c.case_no).join(", ") || "")}</div>
       </aside>
 
       <div class="case-body" id="body-${escapeHtml(caseId)}">
@@ -4959,6 +4994,7 @@ function buildParagraphResult(h, rank) {
         <div class="pr-head">
           <span class="pr-case">${escapeHtml(title)}</span>
           <span class="pr-meta">${escapeHtml(h.sectionLabel)} · ${escapeHtml(date)}</span>
+          ${(h.rowRole || "") === "quote" ? `<span class="match-source-badge match-source-quote" title="The query matched inside quoted material — a Convention article, domestic law or other source — not the Court's own reasoning">in quote</span>` : ""}
         </div>
         <p class="para-text">${h.textHtml}</p>
         <div class="case-actions-inline compact-actions">
