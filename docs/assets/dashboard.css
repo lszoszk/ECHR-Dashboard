@@ -1017,6 +1017,19 @@ body.is-resizing-dossier { cursor: col-resize; user-select: none; }
 .dossier-ctx-active .dossier-ctx-num { color: var(--garnet); font-weight: 600; }
 .dossier-ctx-para mark.hl { background: var(--highlight); }
 
+/* One ¶ block = numbered body text + indented quote sub-blocks, the
+   way HUDOC renders a paragraph with a quotation inside it. */
+.dossier-ctx-body + .dossier-ctx-body,
+.dossier-ctx-body + .dossier-ctx-quote,
+.dossier-ctx-quote + .dossier-ctx-body,
+.dossier-ctx-quote + .dossier-ctx-quote { margin-top: 6px; }
+.dossier-ctx-quote {
+    margin-left: 14px;
+    padding-left: 11px;
+    border-left: 1px solid var(--rule, var(--border));
+    color: var(--ink-3, var(--text-secondary));
+}
+
 /* Case Note action bar — one consistent boxed button style for
    HUDOC ↗ · Cite · Copy (the old mix of text-link + boxed button). */
 .cn-action {

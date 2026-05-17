@@ -4310,40 +4310,59 @@ function buildResearcherBars(c, row) {
   const cites = Number((c.__citationRefs || []).length || 0);
   const hits = Number(row.hitCount || row.paragraphs?.length || 0);
   const max = Math.max(cited, cites, hits, 1);
-  const bar = (label, value, accent = false) => {
+  // `dimZero`: the citation graph (P29) has partial coverage, so a 0 is
+  // ambiguous — "truly uncited" vs "not in our data". For landmark cases
+  // a bare "0" is misleading and corrodes trust, so render it as "—".
+  const bar = (label, value, accent = false, dimZero = false) => {
+    const na = dimZero && !value;
     const width = Math.max(4, Math.round((value / max) * 100));
     return `
-      <div class="researcher-bar">
+      <div class="researcher-bar${na ? " researcher-bar-na" : ""}"${na ? ' title="Citation-graph coverage is partial — no citation data recorded for this case"' : ""}>
         <div class="researcher-bar-head">
           <span>${escapeHtml(label)}</span>
-          <strong>${fmtInt.format(value)}</strong>
+          <strong>${na ? "—" : fmtInt.format(value)}</strong>
         </div>
         <div class="researcher-bar-track"><div class="researcher-bar-fill${accent ? " accent" : ""}" style="width:${width}%"></div></div>
       </div>
     `;
   };
-  return `${bar("hits", hits, true)}${bar("cites", cites)}${bar("cited by", cited)}`;
+  return `${bar("hits", hits, true)}${bar("cites", cites, false, true)}${bar("cited by", cited, false, true)}`;
 }
 
 const CASENOTE_STEP = 5; // paragraphs revealed per ↑/↓ expansion click
 
-/* A ±before/±after window around the matched paragraph, clamped to the
- * section bounds.  `moreBefore`/`moreAfter` count paragraphs still
- * hidden on each side — they drive the incremental ↑/↓ expanders. */
+/* A ±before/±after window of LOGICAL paragraphs around the matched
+ * paragraph, clamped to the section.  Consecutive physical rows that
+ * share a logical paragraph (a numbered ¶ plus its indented quote /
+ * continuation rows) are grouped into one unit — so the Case Note
+ * renders one "¶ N" block, mirroring HUDOC, instead of repeating the
+ * number for every fragment.  before/after and moreBefore/moreAfter
+ * count logical paragraphs. */
 function getCaseNoteContext(paras, activeIdx, before, after) {
   const secKey = paras[activeIdx].section || "";
   let start = activeIdx, end = activeIdx;
   while (start > 0 && (paras[start - 1].section || "") === secKey) start--;
   while (end < paras.length - 1 && (paras[end + 1].section || "") === secKey) end++;
-  const fromIdx = Math.max(start, activeIdx - before);
-  const toIdx = Math.min(end, activeIdx + after);
+
+  const logKey = (p) => (p.logicalParaIdx != null) ? p.logicalParaIdx : p.paraIdx;
+  const groups = [];
+  for (let i = start; i <= end; i++) {
+    const k = logKey(paras[i]);
+    const last = groups[groups.length - 1];
+    if (last && last.key === k) last.rows.push(paras[i]);
+    else groups.push({ key: k, rows: [paras[i]] });
+  }
+  let activeGi = groups.findIndex((g) => g.rows.includes(paras[activeIdx]));
+  if (activeGi < 0) activeGi = 0;
+  const fromGi = Math.max(0, activeGi - before);
+  const toGi = Math.min(groups.length - 1, activeGi + after);
   return {
-    prev: paras.slice(fromIdx, activeIdx),
-    active: paras[activeIdx],
-    next: paras.slice(activeIdx + 1, toIdx + 1),
-    moreBefore: fromIdx - start,
-    moreAfter: end - toIdx,
-    totalInSection: end - start + 1,
+    prev: groups.slice(fromGi, activeGi),
+    active: groups[activeGi],
+    next: groups.slice(activeGi + 1, toGi + 1),
+    moreBefore: fromGi,
+    moreAfter: (groups.length - 1) - toGi,
+    totalInSection: groups.length,
   };
 }
 
@@ -4352,24 +4371,35 @@ function getCaseNoteContext(paras, activeIdx, before, after) {
  * ↑/↓ expanders.  Reuses the .dossier-ctx-* paragraph CSS. */
 function caseNoteContextHtml(ctx, paras, activeIdx) {
   const terms = state.currentTerms || [];
+  const activeSec = ctx.active.rows[0] || {};
   let headingText = "";
   for (let i = activeIdx; i >= 0; i--) {
-    if ((paras[i].section || "") !== (ctx.active.section || "")) break;
+    if ((paras[i].section || "") !== (activeSec.section || "")) break;
     const r = paras[i].rowRole || "";
     if (r === "heading" || r.startsWith("heading")) { headingText = paras[i].text || ""; break; }
   }
-  const bc = [escapeHtml(ctx.active.sectionLabel || "—")];
+  const bc = [escapeHtml(activeSec.sectionLabel || "—")];
   if (headingText.trim() && headingText.trim().length <= 120) bc.push(escapeHtml(headingText.trim()));
   const breadcrumb = bc.join('<span class="dossier-bc-sep">›</span>');
 
-  const renderC = (p) => `
-    <div class="dossier-ctx-para">
-      <span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(p))}</span>${dossierHighlight(p.text, terms)}
-    </div>`;
-  const active = `
-    <div class="dossier-ctx-para dossier-ctx-active">
-      <span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(ctx.active))}</span>${dossierHighlight(ctx.active.text, terms)}
-    </div>`;
+  // One logical paragraph → one "¶ N" block: the numbered body text,
+  // plus any quote / continuation rows rendered as indented sub-blocks
+  // (HUDOC shows ¶ N once, with the quotation indented inside it).
+  const renderGroup = (g, isActive) => {
+    const head = g.rows.find((r) => !((r.rowRole || "").startsWith("quote")))
+               || g.rows[0];
+    const inner = g.rows.map((r) => {
+      const isQuote = (r.rowRole || "") === "quote";
+      const html = dossierHighlight(r.text, terms);
+      return isQuote
+        ? `<div class="dossier-ctx-quote">${html}</div>`
+        : `<div class="dossier-ctx-body">${html}</div>`;
+    }).join("");
+    return `
+      <div class="dossier-ctx-para${isActive ? " dossier-ctx-active" : ""}">
+        <span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(head))}</span>${inner}
+      </div>`;
+  };
   const moreBtn = (dir, count) => {
     const step = Math.min(CASENOTE_STEP, count);
     const arrow = dir === "before" ? "↑" : "↓";
@@ -4381,9 +4411,9 @@ function caseNoteContextHtml(ctx, paras, activeIdx) {
     <div class="case-note-context">
       <div class="dossier-breadcrumb">${breadcrumb}</div>
       ${ctx.moreBefore > 0 ? moreBtn("before", ctx.moreBefore) : ""}
-      ${ctx.prev.map(renderC).join("")}
-      ${active}
-      ${ctx.next.map(renderC).join("")}
+      ${ctx.prev.map((g) => renderGroup(g, false)).join("")}
+      ${renderGroup(ctx.active, true)}
+      ${ctx.next.map((g) => renderGroup(g, false)).join("")}
       ${ctx.moreAfter > 0 ? moreBtn("after", ctx.moreAfter) : ""}
     </div>`;
 }
@@ -4431,7 +4461,7 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
         <div><dt>Court</dt><dd>${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "—")}</dd></div>
         <div><dt>State</dt><dd>${escapeHtml(states)}</dd></div>
         <div><dt>Importance</dt><dd${importanceShortLabel(c.__importance) ? ` title="${escapeHtml(importanceTooltip(c.__importance))}"` : ""}>${escapeHtml(importanceShortLabel(c.__importance) || "—")}</dd></div>
-        <div><dt>Citations</dt><dd>${fmtInt.format(citations)}</dd></div>
+        <div><dt>Citations</dt><dd${citations > 0 ? "" : ' title="Citation-graph coverage is partial — no citation data recorded for this case"'}>${citations > 0 ? fmtInt.format(citations) : "—"}</dd></div>
       </dl>
       <div class="cnm-outcome">
         <span class="cnm-outcome-badge ${escapeHtml(outcomeToneClass)}">${escapeHtml(outcomeLabel)}</span>
@@ -4441,13 +4471,22 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
 
   // Action bar: HUDOC ↗ · Cite · Copy.  `activePara` is the matched
   // paragraph once context loads; Copy is omitted while it is absent.
-  const actionsHtml = (activePara) => {
-    const hudocUrl = activePara ? paragraphHudocUrl(c, activePara) : (c.hudoc_url || "");
+  // `activeGroup` is the active logical-paragraph group (or null while
+  // loading): HUDOC link anchors on the numbered body row, Copy copies
+  // the whole logical ¶ (body + quote rows).
+  const actionsHtml = (activeGroup) => {
+    const head = activeGroup
+      ? (activeGroup.rows.find((r) => !((r.rowRole || "").startsWith("quote")))
+         || activeGroup.rows[0])
+      : null;
+    const hudocUrl = head ? paragraphHudocUrl(c, head) : (c.hudoc_url || "");
+    const copyText = activeGroup
+      ? activeGroup.rows.map((r) => r.text || "").join("\n") : "";
     return `
       <div class="case-context-actions">
         ${hudocUrl ? `<a href="${escapeHtml(hudocUrl)}" class="cn-action" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>` : ""}
         <button type="button" class="cn-action" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}">Cite</button>
-        ${activePara ? `<button type="button" class="cn-action" data-action="copy-paragraph" data-text="${escapeHtml(activePara.text || "")}">Copy</button>` : ""}
+        ${activeGroup ? `<button type="button" class="cn-action" data-action="copy-paragraph" data-text="${escapeHtml(copyText)}">Copy</button>` : ""}
       </div>`;
   };
 

@@ -1748,6 +1748,16 @@ mark.hl {
   background: var(--garnet);
 }
 
+/* "n/a" influence metric — citation graph has partial coverage, so a 0
+   is rendered as a dimmed "—" rather than asserting zero citations. */
+.researcher-bar-na .researcher-bar-head strong {
+  color: var(--ink-4);
+  opacity: 0.55;
+}
+.researcher-bar-na .researcher-bar-fill {
+  opacity: 0.25;
+}
+
 .researcher-ecli {
   margin-top: 12px;
   color: var(--ink-4);
