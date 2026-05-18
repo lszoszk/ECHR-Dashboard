@@ -199,15 +199,12 @@
                    toggle in the rail head; collapsed by default ──────────── -->
               <div class="filters-advanced" id="filtersAdvanced">
 
-                <!-- Originating Body — court composition (incl. Grand Chamber) -->
+                <!-- Court Formation — the bench that decided the case
+                     (Chamber / Grand Chamber / Committee).  Replaces the raw
+                     "Originating Body" breakdown, which was just this
+                     aggregated by administrative Section number. -->
                 <div class="filter-group">
-                  <h3 class="filter-title">Originating Body</h3>
-                  <div class="checkbox-grid scrollable" id="originatingBodyFilters"></div>
-                </div>
-
-                <!-- Document Type -->
-                <div class="filter-group">
-                  <h3 class="filter-title">Document Type</h3>
+                  <h3 class="filter-title">Court Formation</h3>
                   <div class="checkbox-grid compact" id="docTypeFilters"></div>
                 </div>
 
@@ -234,21 +231,6 @@
                 <div class="filter-group">
                   <h3 class="filter-title">Separate Opinion</h3>
                   <div class="checkbox-grid compact" id="separateOpinionFilters"></div>
-                </div>
-
-                <!-- Power-user filters: metadata presence flags -->
-                <div class="filter-group">
-                  <button type="button" class="power-user-toggle" id="powerUserToggle" aria-expanded="false" disabled>
-                    ⚙ Metadata filters
-                  </button>
-                  <div class="power-user-panel hidden" id="powerUserPanel">
-                    <div class="checkbox-grid compact" id="presenceFilters" style="margin-top:8px">
-                      <label class="cb-label"><input type="checkbox" data-name="presence" value="has_strasbourg_caselaw" disabled> <span>Has Strasbourg citations</span></label>
-                      <label class="cb-label"><input type="checkbox" data-name="presence" value="has_domestic_law" disabled> <span>Has domestic law</span></label>
-                      <label class="cb-label"><input type="checkbox" data-name="presence" value="has_international_law" disabled> <span>Has international law</span></label>
-                      <label class="cb-label"><input type="checkbox" data-name="presence" value="has_rules_of_court" disabled> <span>Has rules of court</span></label>
-                    </div>
-                  </div>
                 </div>
 
               </div>
@@ -539,6 +521,6 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
-  <script src="assets/search-app.js?v=20260518-corpus-strip2"></script>
+  <script src="assets/search-app.js?v=20260518-rail-cleanup"></script>
 </body>
 </html>

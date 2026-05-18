@@ -480,19 +480,29 @@ function importanceTooltip(value) {
 
 // Plain-language descriptions of importance levels for filter UI (M3 finding:
 // users don't know what bare "1", "2", "3" mean in HUDOC's importance scheme).
+// HUDOC's importance is FOUR distinct, mutually-exclusive tiers — Key cases is
+// the top tier, NOT a subset of "1".  IMPORTANCE_ORDER fixes the rail order
+// (default localeCompare wrongly sorts "Key cases" after "3").
+const IMPORTANCE_ORDER = ["Key cases", "1", "2", "3", "Unspecified"];
 const IMPORTANCE_LABELS = {
-  "1": "1 — Key cases",
+  "Key cases": "Key cases",
+  "1": "1 — High",
   "2": "2 — Important",
   "3": "3 — Notable",
-  "Key cases": "Key cases",
 };
 const IMPORTANCE_TOOLTIPS = {
-  "1": "Highest legal significance — leading cases that define a Convention principle",
+  "Key cases": "The Court's most significant judgments — selected for the official Reports of Judgments and Decisions",
+  "1": "High importance — leading cases that develop or clarify a Convention principle",
   "2": "Substantial case-law importance",
   "3": "Standard cases with discernible legal interest",
-  "Key cases": "Subset of Importance 1 explicitly flagged by the Court as 'Key cases'",
   "Unspecified": "Importance level not assigned in HUDOC metadata",
 };
+function sortImportanceLevels(arr) {
+  return [...arr].sort((a, b) => {
+    const ia = IMPORTANCE_ORDER.indexOf(a), ib = IMPORTANCE_ORDER.indexOf(b);
+    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+  });
+}
 
 // Per-section hint tooltips. Empty = no ⓘ icon. Rare/Pop-A-specific sections
 // get a hint so researchers know the filter targets a small subset.
@@ -668,14 +678,10 @@ function cacheElements() {
   el.sectionsFilters = byId("sectionsFilters");
   el.countriesFilters = byId("countriesFilters");
   el.articlesFilters = byId("articlesFilters");
-  el.originatingBodyFilters = byId("originatingBodyFilters");
   el.importanceFilters = byId("importanceFilters");
   el.docTypeFilters = byId("docTypeFilters");
   el.outcomeFilters = byId("outcomeFilters");
   el.separateOpinionFilters = byId("separateOpinionFilters");
-  el.presenceFilters = byId("presenceFilters");
-  el.powerUserToggle = byId("powerUserToggle");
-  el.powerUserPanel = byId("powerUserPanel");
   el.dateFrom = byId("dateFrom");
   el.dateTo = byId("dateTo");
 
@@ -1458,13 +1464,12 @@ function setSearchEnabled(enabled) {
   if (el.inlineSearchInput) el.inlineSearchInput.disabled = !enabled;
   if (el.inlineSearchBtn) el.inlineSearchBtn.disabled = !enabled;
   el.filterToggleBtn.disabled = !enabled;
-  el.powerUserToggle.disabled = !enabled;
   el.dateFrom.disabled = !enabled;
   el.dateTo.disabled = !enabled;
   if (el.exportIncludeClassifier) el.exportIncludeClassifier.disabled = !enabled;
 
   const dynamicInputs = document.querySelectorAll(
-    "#sectionsFilters input, #countriesFilters input, #articlesFilters input, #originatingBodyFilters input, #importanceFilters input, #outcomeFilters input, #separateOpinionFilters input, #presenceFilters input"
+    "#sectionsFilters input, #countriesFilters input, #articlesFilters input, #importanceFilters input, #outcomeFilters input, #separateOpinionFilters input"
   );
   for (const input of dynamicInputs) {
     input.disabled = !enabled;
@@ -1881,7 +1886,7 @@ function preprocessDataset(cases) {
   state.articles = [...articles].sort((a, b) => (a.length - b.length) || a.localeCompare(b));
   state.countries = [...countries].sort((a, b) => (COUNTRY_NAMES[a] || a).localeCompare(COUNTRY_NAMES[b] || b));
   state.bodies = [...bodies].sort((a, b) => a.localeCompare(b));
-  state.importanceLevels = [...importanceLevels].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+  state.importanceLevels = sortImportanceLevels([...importanceLevels]);
   state.sectionsInDataset = [...sections].sort((a, b) => {
     const ai = SECTION_ORDER.indexOf(a);
     const bi = SECTION_ORDER.indexOf(b);
@@ -1919,10 +1924,12 @@ function renderFiltersSkeleton() {
   if (el.sectionsFilters) el.sectionsFilters.innerHTML = loading;
   if (el.countriesFilters) el.countriesFilters.innerHTML = loading;
   if (el.articlesFilters) el.articlesFilters.innerHTML = loading;
-  if (el.originatingBodyFilters) el.originatingBodyFilters.innerHTML = loading;
   if (el.importanceFilters) el.importanceFilters.innerHTML = loading;
 
-  // Fixed filters that don't depend on facets — render immediately
+  // Fixed filters that don't depend on facets — render immediately.
+  // Court Formation = the bench that decided the case (Chamber / Grand
+  // Chamber / Committee); the raw HUDOC "originating_body" breakdown is
+  // just this aggregated, so it isn't shown as a separate filter.
   if (el.docTypeFilters) {
     el.docTypeFilters.innerHTML = [
       makeCheckbox("Chamber", "chamber", "docTypes", null,
@@ -1931,8 +1938,6 @@ function renderFiltersSkeleton() {
         { tooltip: "17-judge Grand Chamber judgments — major principles and inter-state cases." }),
       makeCheckbox("Committee", "committee", "docTypes", null,
         { tooltip: "3-judge Committee judgments — repetitive cases following well-established case-law." }),
-      makeCheckbox("Press Releases", "press_release", "docTypes", null,
-        { tooltip: "Court Registrar press releases — short summaries, not the judgment itself." }),
     ].join("");
   }
   if (el.outcomeFilters) {
@@ -1977,10 +1982,6 @@ function renderFilters() {
     .map((article) => makeCheckbox(`Art. ${article}`, article, "articles", fc.articles[article]))
     .join("");
 
-  el.originatingBodyFilters.innerHTML = state.bodies
-    .map((body) => makeCheckbox(formatBodyLabel(body), body, "bodies", fc.bodies[body]))
-    .join("");
-
   // Importance — descriptive labels + tooltip explaining HUDOC's scheme
   el.importanceFilters.innerHTML = state.importanceLevels
     .map((level) => makeCheckbox(
@@ -1999,8 +2000,6 @@ function renderFilters() {
       { tooltip: "17-judge Grand Chamber judgments — major principles and inter-state cases." }),
     makeCheckbox("Committee", "committee", "docTypes", fc.docTypes.committee,
       { tooltip: "3-judge Committee judgments — repetitive cases following well-established case-law. Often have applicant tables in Introduction." }),
-    makeCheckbox("Press Releases", "press_release", "docTypes", fc.docTypes.press_release,
-      { tooltip: "Court Registrar press releases — short summaries, not the judgment itself." }),
   ].join("");
 
   el.outcomeFilters.innerHTML = [
@@ -2168,7 +2167,6 @@ function attachFilterSearchBoxes() {
   const targets = [
     { container: el.countriesFilters, placeholder: "Search countries…", key: "countries" },
     { container: el.articlesFilters, placeholder: "Search articles…", key: "articles" },
-    { container: el.originatingBodyFilters, placeholder: "Search bodies…", key: "bodies" },
   ];
   for (const t of targets) {
     if (!t.container) continue;
@@ -7322,14 +7320,6 @@ function bindEvents() {
     updateActiveFilterCount();
   });
 
-  el.powerUserToggle.addEventListener("click", () => {
-    if (el.powerUserToggle.disabled) return;
-    const hidden = el.powerUserPanel.classList.toggle("hidden");
-    const isOpen = !hidden;
-    el.powerUserToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-    el.powerUserToggle.textContent = isOpen ? "⚙ Metadata filters ▲" : "⚙ Metadata filters";
-  });
-
   el.searchForm.addEventListener("submit", (e) => {
     e.preventDefault();
     applySearch(true);
@@ -7990,10 +7980,9 @@ function init() {
             .sort((a, b) => a.localeCompare(b));
         }
         if (facets.importance) {
-          state.importanceLevels = facets.importance
-            .filter((f) => f.value)
-            .map((f) => f.value)
-            .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+          state.importanceLevels = sortImportanceLevels(
+            facets.importance.filter((f) => f.value).map((f) => f.value)
+          );
         }
         renderFilters();
         console.log("[Server Facets] Filters updated from server:", {
