@@ -5008,6 +5008,15 @@ function buildParagraphResult(h, rank) {
   const date = formatCaseDateForDisplay(c);
   const num = (h.displayParaNo != null) ? `¶ ${h.displayParaNo}`
             : (h.hudocParaNo != null) ? `¶ ${h.hudocParaNo}` : "¶ —";
+  // #6 parity for by-paragraph results: when the hit is a fragment
+  // (quote / bullet) show its parent body ¶ as a muted lead-in, then
+  // the quoted text on its own indented line — mirrors buildCaseCard.
+  const ctxLead = h.parentText
+    ? `<span class="para-context-lead-inline">${escapeHtml(truncateForContext(h.parentText))}</span>`
+    : "";
+  const prBody = (h.rowRole || "") === "quote"
+    ? `<span class="pr-snippet-quote">${h.textHtml}</span>`
+    : (ctxLead ? " " : "") + h.textHtml;
   return `
     <article class="paragraph-result" data-action="select-para"
              data-case-id="${escapeHtml(c.case_id)}"
@@ -5023,7 +5032,7 @@ function buildParagraphResult(h, rank) {
           <span class="pr-meta">${escapeHtml(h.sectionLabel)} · ${escapeHtml(date)}</span>
           ${(h.rowRole || "") === "quote" ? `<span class="match-source-badge match-source-quote" title="The query matched inside quoted material — a Convention article, domestic law or other source — not the Court's own reasoning">in quote</span>` : ""}
         </div>
-        <p class="para-text">${h.textHtml}</p>
+        <p class="para-text">${ctxLead}${prBody}</p>
         <div class="case-actions-inline compact-actions">
           ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="cn-action" data-action="open-hudoc" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>` : ""}
           <button type="button" class="cn-action" data-action="copy-paragraph" data-text="${escapeHtml(h.rawText)}">Copy</button>
@@ -5425,6 +5434,9 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
           score: h.score || 0,
           rawText: serverSnippetToPlainText(h.snippet, ""),
           textHtml: serverSnippetToHtml(h.snippet, ""),
+          // P58: body ¶ a fragment hit (quote / bullet) belongs to —
+          // shown as a muted lead-in so the excerpt reads in context.
+          parentText: h.parent_text || null,
         };
         flat.push(hit);
         // Also group hits by case so the Case Note lookups still work.

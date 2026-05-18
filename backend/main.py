@@ -1218,6 +1218,25 @@ def search(
                 rr = _optional_column_expr(cur, "paragraphs", "row_role", source_alias="p")
                 lp = _optional_column_expr(cur, "paragraphs", "logical_para_idx", source_alias="p")
                 dp = _optional_column_expr(cur, "paragraphs", "display_para_no", source_alias="p")
+                # P58 parent-paragraph context: when a hit row is a
+                # fragment (bullet / quote / continuation) its
+                # logical_para_idx points at the body ¶ it belongs to.
+                # LEFT JOIN that parent so flat (by-paragraph) results can
+                # show the fragment in context, same as by-case cards.
+                if _has_column(cur, "paragraphs", "logical_para_idx"):
+                    parent_text_col = (
+                        "CASE WHEN p.logical_para_idx IS NOT NULL "
+                        "AND p.logical_para_idx <> p.para_idx "
+                        "THEN parent.text END AS parent_text"
+                    )
+                    parent_join_flat = (
+                        "LEFT JOIN paragraphs parent "
+                        "ON parent.case_id = p.case_id "
+                        "AND parent.para_idx = p.logical_para_idx"
+                    )
+                else:
+                    parent_text_col = "NULL AS parent_text"
+                    parent_join_flat = ""
                 if sort == "date_desc":
                     para_order = f"{date_sort_key} DESC, pf.rank"
                 elif sort == "date_asc":
@@ -1226,7 +1245,7 @@ def search(
                     para_order = "pf.rank"  # bm25(): more-negative = better
                 flat_sql = (
                     "SELECT p.case_id, p.section, p.para_idx, p.hudoc_para_no, "
-                    f"p.numbering_block, {rr}, {lp}, {dp}, "
+                    f"p.numbering_block, {rr}, {lp}, {dp}, {parent_text_col}, "
                     "snippet(paragraphs_fts, 2, '<b>', '</b>', '...', 80) AS snippet, "
                     "(-pf.rank) AS score, "
                     "c.case_no, c.title, c.judgment_date, c.hudoc_url, "
@@ -1234,6 +1253,7 @@ def search(
                     "c.non_violation, c.originating_body, c.document_type "
                     "FROM paragraphs_fts pf "
                     "JOIN paragraphs p ON p.rowid = pf.rowid "
+                    f"{parent_join_flat} "
                     "JOIN cases c ON c.case_id = p.case_id "
                     f"{join_sql} WHERE {where_sql}{role_where} "
                     f"ORDER BY {para_order} LIMIT ? OFFSET ?"
@@ -1249,6 +1269,7 @@ def search(
                         "row_role": r["row_role"],
                         "logical_para_idx": r["logical_para_idx"],
                         "display_para_no": r["display_para_no"],
+                        "parent_text": r["parent_text"],
                         "snippet": r["snippet"],
                         "score": r["score"],
                         "case": {
