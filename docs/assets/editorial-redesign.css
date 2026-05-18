@@ -1991,3 +1991,114 @@ mark.hl {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Export button — lives in the results toolbar, right-aligned,
+   matching the Sort / Group .rdc-opt pills. ───────────────────────── */
+.results-display-controls .export-btn {
+  margin-left: auto;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 4px 11px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: var(--paper);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.results-display-controls .export-btn::before {
+  content: "\2193";   /* down arrow */
+  font-size: 0.9em;
+}
+.results-display-controls .export-btn:hover:not(:disabled) {
+  background: var(--paper-2);
+  color: var(--garnet);
+  border-color: var(--garnet-edge, var(--garnet));
+}
+.results-display-controls .export-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Case Note drawer — header row + "A− / A+" text-size controls. ─── */
+.cn-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.cn-zoom {
+  display: inline-flex;
+  gap: 4px;
+}
+.cn-zoom-btn {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.7rem;
+  line-height: 1;
+  padding: 3px 7px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: var(--paper);
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.cn-zoom-btn:hover {
+  border-color: var(--garnet);
+  color: var(--garnet);
+}
+
+/* ── Case Note drawer — case number / ECLI as a HUDOC link. ───────── */
+a.case-context-ecli-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--garnet);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  width: max-content;
+  max-width: 100%;
+}
+a.case-context-ecli-link:hover {
+  border-bottom-color: var(--garnet-edge, var(--garnet));
+}
+a.case-context-ecli-link .ext-icon {
+  font-size: 0.82em;
+  flex-shrink: 0;
+}
+
+/* ── Hits toggle — render like the Cite / Info secondary actions
+   (plain italic garnet) instead of an uppercase-mono hit-count. ───── */
+.researcher-result .expand-paras-btn {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.researcher-result .expand-paras-btn .hit-count,
+.researcher-result .expand-paras-btn .hit-label {
+  width: auto;
+  height: auto;
+  background: transparent;
+  border-radius: 0;
+  font-family: inherit;
+  font-size: inherit;
+  font-style: inherit;
+  font-weight: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+  color: inherit;
+}
+.researcher-result .expand-paras-btn .toggle-icon {
+  font-size: 0.62em;
+  color: inherit;
+}

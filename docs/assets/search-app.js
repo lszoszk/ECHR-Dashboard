@@ -598,7 +598,11 @@ const state = {
   resultSort: "relevance",   // "relevance" | "date_desc" | "date_asc"
   resultGroup: "case",       // "case" | "paragraph"
   flatHits: [],              // ordered paragraph hits when resultGroup="paragraph"
-  openLegalDetails: new Set(),
+  // Case Note drawer text-size zoom (A− / A+), persisted per browser.
+  cnZoom: (() => {
+    try { const v = parseFloat(localStorage.getItem("cnZoom")); return v > 0 ? v : 1; }
+    catch (e) { return 1; }
+  })(),
   classifierOpen: false,
   classifier: null,
   serverMode: false,
@@ -4269,22 +4273,6 @@ function buildLegalStatusChips(caseObj) {
   return chips.join("");
 }
 
-function toggleLegalDetails(caseId, triggerEl = null) {
-  const panel = byId(`legal-${caseId}`);
-  if (!panel) return;
-  const open = !panel.classList.contains("open");
-  panel.classList.toggle("open", open);
-  if (triggerEl) {
-    triggerEl.setAttribute("aria-expanded", open ? "true" : "false");
-    triggerEl.textContent = open ? "Hide legal details" : "Legal details";
-  }
-  if (open) {
-    state.openLegalDetails.add(caseId);
-  } else {
-    state.openLegalDetails.delete(caseId);
-  }
-}
-
 function formatCaseDateForDisplay(c) {
   const raw = c?.judgment_date || "";
   if (!raw) return "-";
@@ -4468,11 +4456,33 @@ function caseNoteContextHtml(ctx, paras, activeIdx) {
     </div>`;
 }
 
+const CN_ZOOM_STEPS = [0.8, 0.9, 1, 1.15, 1.3, 1.5];
+
+/* Step the Case Note drawer text size ("A−" / "A+").  Applied as a CSS
+ * `zoom` on .cn-zoom-wrap (width pre-divided so the box still fills the
+ * rail exactly); the chosen level is persisted to localStorage. */
+function setCaseNoteZoom(direction) {
+  let idx = CN_ZOOM_STEPS.indexOf(state.cnZoom || 1);
+  if (idx === -1) idx = 2;
+  idx = Math.max(0, Math.min(CN_ZOOM_STEPS.length - 1, idx + direction));
+  state.cnZoom = CN_ZOOM_STEPS[idx];
+  try { localStorage.setItem("cnZoom", String(state.cnZoom)); } catch (e) {}
+  document.querySelectorAll(".cn-zoom-wrap").forEach((w) => {
+    w.style.zoom = String(state.cnZoom);
+    w.style.width = (100 / state.cnZoom).toFixed(2) + "%";
+  });
+}
+
 function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
   if (!el.caseContextRail && !el.caseContextRailMobile) return;
   const renderToRails = (html) => {
-    if (el.caseContextRail) el.caseContextRail.innerHTML = html;
-    if (el.caseContextRailMobile) el.caseContextRailMobile.innerHTML = html;
+    // Wrap in a zoom layer so the "A− / A+" controls can scale the whole
+    // Case Note.  width is pre-divided by the zoom factor so the zoomed
+    // box still fills the rail exactly (no horizontal overflow).
+    const z = state.cnZoom || 1;
+    const wrapped = `<div class="cn-zoom-wrap" style="zoom:${z};width:${(100 / z).toFixed(2)}%">${html}</div>`;
+    if (el.caseContextRail) el.caseContextRail.innerHTML = wrapped;
+    if (el.caseContextRailMobile) el.caseContextRailMobile.innerHTML = wrapped;
   };
   const row = caseId ? state.currentResultsById.get(caseId) : null;
   if (!row) {
@@ -4500,10 +4510,22 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
 
   // Compact, grouped fact header — one block (articles · facts grid ·
   // outcome) instead of the old loose 6-cell grid + scattered chip row.
+  const caseRef = c.ecli || splitAppNos(c.case_no).join(", ") || "";
+  const caseRefHtml = !caseRef
+    ? ""
+    : (c.hudoc_url
+      ? `<a class="case-context-ecli case-context-ecli-link" href="${escapeHtml(c.hudoc_url)}" target="_blank" rel="noopener noreferrer" title="Open this judgment on HUDOC">${escapeHtml(caseRef)}<span class="ext-icon" aria-hidden="true">↗</span></a>`
+      : `<div class="case-context-ecli">${escapeHtml(caseRef)}</div>`);
   const headHtml = `
-    <div class="folio-label garnet">Case Note</div>
+    <div class="cn-head-row">
+      <div class="folio-label garnet">Case Note</div>
+      <div class="cn-zoom" role="group" aria-label="Case Note text size">
+        <button type="button" class="cn-zoom-btn" data-action="cn-zoom-out" title="Smaller text" aria-label="Decrease Case Note text size">A&minus;</button>
+        <button type="button" class="cn-zoom-btn" data-action="cn-zoom-in" title="Larger text" aria-label="Increase Case Note text size">A+</button>
+      </div>
+    </div>
     <h3>${escapeHtml(title)}</h3>
-    <div class="case-context-ecli">${escapeHtml(c.ecli || splitAppNos(c.case_no).join(", ") || "")}</div>
+    ${caseRefHtml}
 
     <div class="case-note-meta">
       <div class="cnm-articles">
@@ -4647,8 +4669,6 @@ function buildCaseCard(caseId, row, rank = 1) {
   const outcomeLabel = OUTCOME_LABELS[c.__outcomePrimary] || c.__outcomePrimary || "-";
   const outcomeToneClass = getOutcomeToneClass(c.__outcomePrimary);
   const chamberLabel = getChamberLabel(c.__chamberCategory);
-  const legalDetailsOpen = state.cardMode === "detailed" || state.openLegalDetails.has(caseId);
-  const legalToggleLabel = legalDetailsOpen ? "Hide legal details" : "Legal details";
   const keyCaseChip = String(c.__importance || "").toLowerCase() === "key cases"
     ? '<span class="legal-chip keycase">Key case</span>'
     : "";
@@ -4825,52 +4845,6 @@ function buildCaseCard(caseId, row, rank = 1) {
             <span class="hit-label">${hitLabel}</span>
             <span class="toggle-icon" id="icon-${escapeHtml(caseId)}">▶</span>
           </button>
-        </div>
-
-        <div class="legal-details-wrap">
-          <button
-            type="button"
-            id="legal-btn-${escapeHtml(caseId)}"
-            class="legal-toggle-btn"
-            data-action="toggle-legal-details"
-            data-case-id="${escapeHtml(caseId)}"
-            aria-expanded="${legalDetailsOpen ? "true" : "false"}">
-            ${legalToggleLabel}
-          </button>
-          <div class="legal-details${legalDetailsOpen ? " open" : ""}" id="legal-${escapeHtml(caseId)}">
-            <div class="legal-row">
-              <span class="legal-row-label">Articles</span>
-              <div class="legal-chip-row">${buildArticleChips(c.__articles)}</div>
-            </div>
-            <div class="legal-row">
-              <span class="legal-row-label">Body</span>
-              <div class="legal-chip-row">
-                <span class="legal-chip">${escapeHtml(formatBodyLabel(c.__originatingBody) || "-")}</span>
-                <span class="legal-chip">${escapeHtml(chamberLabel)}</span>
-                ${importanceShortLabel(c.__importance) ? `<span class="legal-chip" title="${escapeHtml(importanceTooltip(c.__importance))}">Importance ${escapeHtml(importanceShortLabel(c.__importance))}</span>` : `<span class="legal-chip muted" title="${escapeHtml(IMPORTANCE_TOOLTIPS["Unspecified"] || "")}">Importance —</span>`}
-                ${keyCaseChip}
-              </div>
-            </div>
-            <div class="legal-row">
-              <span class="legal-row-label">Legal flags</span>
-              <div class="legal-chip-row">${buildLegalStatusChips(c)}</div>
-            </div>
-            <div class="legal-row">
-              <span class="legal-row-label">Citations</span>
-              <div class="legal-chip-row">
-                ${(() => {
-                  // Prefer the server-computed P29 count when available
-                  // (covers cases not in the JSONL feed); fall back to
-                  // the JSONL-sourced strasbourg_caselaw length.
-                  const cites = (c.__citesCountServer != null)
-                    ? c.__citesCountServer
-                    : (c.__citationRefs || []).length;
-                  return `<span class="legal-chip citation" title="Distinct ECtHR cases cited from this judgment's text">${fmtInt.format(cites)} cites</span>`;
-                })()}
-                ${c.__citedByCount > 0 ? `<span class="legal-chip cited-by" title="Distinct other ECtHR cases that cite this judgment">Cited by ${fmtInt.format(c.__citedByCount)}</span>` : ""}
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -5632,7 +5606,7 @@ function resetFiltersAndQuery() {
   applySearch(true);
 }
 
-async function exportCsv() {
+async function exportResults() {
   if (!state.currentOrderedCaseIds.length) return;
   const includeClassifierLabels = !!el.exportIncludeClassifier?.checked;
 
@@ -5713,7 +5687,7 @@ async function exportCsv() {
       // Fall back to current page data
     } finally {
       el.exportBtn.disabled = false;
-      el.exportBtn.innerHTML = "📥 Export CSV";
+      el.exportBtn.innerHTML = "Export Excel";
     }
   }
 
@@ -5764,20 +5738,52 @@ async function exportCsv() {
     }
   }
 
-  const csv = rows
-    .map((row) =>
-      row
-        .map((cell) => `"${String(cell ?? "").replaceAll('"', '""')}"`)
-        .join(",")
-    )
-    .join("\n");
+  const suffix = state.query ? state.query.slice(0, 24).replace(/\s+/g, "_") : "all_cases";
+  const baseName = `echr_search_${suffix}`;
+  try {
+    const XLSX = await loadSheetJS();
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "ECHR results");
+    XLSX.writeFile(wb, `${baseName}.xlsx`);
+  } catch (err) {
+    // SheetJS unavailable (offline / CDN blocked) \u2014 fall back to CSV so
+    // the export never silently fails.
+    console.warn("[Export] xlsx writer unavailable, exporting CSV:", err);
+    const csv = rows
+      .map((row) =>
+        row
+          .map((cell) => `"${String(cell ?? "").replaceAll('"', '""')}"`)
+          .join(",")
+      )
+      .join("\n");
+    const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" });
+    _triggerDownload(blob, `${baseName}.csv`);
+  }
+}
 
-  const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" });
+// Excel (.xlsx) export uses SheetJS, lazy-loaded from its CDN on first
+// export so the ~900 KB library never touches initial page load.
+let _sheetJsPromise = null;
+function loadSheetJS() {
+  if (window.XLSX) return Promise.resolve(window.XLSX);
+  if (_sheetJsPromise) return _sheetJsPromise;
+  _sheetJsPromise = new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = "https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js";
+    s.onload = () => (window.XLSX ? resolve(window.XLSX)
+                                  : reject(new Error("XLSX not defined")));
+    s.onerror = () => { _sheetJsPromise = null; reject(new Error("CDN load failed")); };
+    document.head.appendChild(s);
+  });
+  return _sheetJsPromise;
+}
+
+function _triggerDownload(blob, filename) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
-  const suffix = state.query ? state.query.slice(0, 24).replace(/\s+/g, "_") : "all_cases";
   link.href = url;
-  link.download = `echr_search_${suffix}.csv`;
+  link.download = filename;
   document.body.appendChild(link);
   link.click();
   link.remove();
@@ -7073,7 +7079,6 @@ async function activateDataset(rawRows, sourceLabel, metaLine, invalidCount = 0)
 
   closeClassifierPane();
   loadClassifierStateForDataset();
-  state.openLegalDetails = new Set();
   setSearchEnabled(true);
 
   // Auto-collapse data source panel after load
@@ -7232,7 +7237,7 @@ function bindEvents() {
     resetFiltersAndQuery();
   });
 
-  el.exportBtn.addEventListener("click", exportCsv);
+  el.exportBtn.addEventListener("click", exportResults);
   el.cardModeBtn?.addEventListener("click", () => {
     if (!state.loaded) return;
     toggleCardMode();
@@ -7390,12 +7395,6 @@ function bindEvents() {
       return;
     }
 
-    if (action === "toggle-legal-details" && caseId) {
-      e.preventDefault();
-      toggleLegalDetails(caseId, clickable);
-      return;
-    }
-
     if (action === "copy-paragraph") {
       const text = clickable.getAttribute("data-text") || "";
       navigator.clipboard?.writeText(text).then(() => {
@@ -7494,6 +7493,11 @@ function bindEvents() {
     if (!clickable) return;
     const action = clickable.getAttribute("data-action");
     const caseId = clickable.getAttribute("data-case-id");
+    if (action === "cn-zoom-in" || action === "cn-zoom-out") {
+      e.preventDefault();
+      setCaseNoteZoom(action === "cn-zoom-in" ? 1 : -1);
+      return;
+    }
     if (action === "copy-citation" && caseId) {
       e.preventDefault();
       const caseObj = state.caseById.get(caseId);
