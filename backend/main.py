@@ -298,6 +298,27 @@ def _split_article_values(raw: Optional[str]) -> list[str]:
     return out
 
 
+# Convention articles run 1-59; Protocol articles take the form
+# "P<protocol>-<article>".  Optional "-N" sub-paragraph and "-x" sub-point
+# suffixes are allowed.  Used to keep the facet / analytics article rails
+# free of extraction artefacts (paragraph numbers, domestic-law article
+# numbers) should any contaminated row slip through ingestion.  The legacy
+# corpus contamination was healed by P61; this is a defensive guard.
+_ARTICLE_TOKEN_RE = re.compile(
+    r"^(P\d{1,2}-\d{1,2}(-\d+)?(-[a-z])?|\d{1,2}(-\d+){0,2}(-[a-z])?)$"
+)
+
+
+def _is_convention_article(token: str) -> bool:
+    """True iff *token* is a plausible ECHR Convention/Protocol article."""
+    t = (token or "").strip()
+    if not _ARTICLE_TOKEN_RE.match(t):
+        return False
+    if t.startswith("P"):
+        return True
+    return 1 <= int(t.split("-", 1)[0]) <= 59
+
+
 def _enrich_case_row(row: dict[str, Any]) -> dict[str, Any]:
     """Parse JSON text fields in a case row into native Python objects."""
     for field in ("conclusion", "violation", "non_violation",
@@ -513,6 +534,8 @@ def facets():
             article_to_cases: dict[str, set[str]] = {}
             for r in cur.fetchall():
                 for tok in _split_article_values(r["article"]):
+                    if not _is_convention_article(tok):
+                        continue
                     article_to_cases.setdefault(tok, set()).add(r["case_id"])
             result["articles"] = sorted(
                 [{"value": k, "count": len(v)} for k, v in article_to_cases.items()],
@@ -792,6 +815,8 @@ def analytics(
             article_to_cases: dict[str, set[str]] = {}
             for r in cur.fetchall():
                 for tok in _split_article_values(r["value"]):
+                    if not _is_convention_article(tok):
+                        continue
                     article_to_cases.setdefault(tok, set()).add(r["case_id"])
             top_arts = sorted(article_to_cases.items(), key=lambda kv: -len(kv[1]))[:15]
             result["articles"] = [{"value": k, "count": len(v)} for k, v in top_arts]
