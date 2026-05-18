@@ -680,7 +680,6 @@ function cacheElements() {
   el.dateTo = byId("dateTo");
 
   el.statTotalCases = byId("statTotalCases");
-  el.statTotalJudgments = byId("statTotalJudgments");
   el.statTotalParagraphs = byId("statTotalParagraphs");
   el.statTotalCountries = byId("statTotalCountries");
   el.statDateRange = byId("statDateRange");
@@ -2287,10 +2286,7 @@ function renderGlobalStats() {
     dateRange = `${first} to ${last}`;
   }
 
-  const pressCount = state.cases.filter(c => c.__isPressRelease).length;
-  const judgmentCount = state.cases.length - pressCount;
   el.statTotalCases.textContent = fmtInt.format(state.cases.length);
-  el.statTotalJudgments.textContent = fmtInt.format(judgmentCount);
   el.statTotalParagraphs.textContent = fmtInt.format(state.paragraphIndex.length);
   el.statTotalCountries.textContent = fmtInt.format(state.countries.length);
   el.statDateRange.textContent = dateRange;
@@ -7909,7 +7905,6 @@ function init() {
         const statsData = await serverSearch.getStats();
         const fmt = new Intl.NumberFormat("en-US");
         el.statTotalCases.textContent = fmt.format(statsData.total_cases || 0);
-        el.statTotalJudgments.textContent = fmt.format(statsData.total_judgments || 0);
         el.statTotalParagraphs.textContent = fmt.format(statsData.total_paragraphs || 0);
         el.statTotalCountries.textContent = fmt.format(statsData.total_countries || 0);
         // Parse DD/MM/YYYY dates into readable range
@@ -8038,7 +8033,6 @@ function init() {
             const s = data.summary;
             const fmt = new Intl.NumberFormat("en-US");
             if (el.statTotalCases.textContent === "-") el.statTotalCases.textContent = fmt.format(s.total_cases || 0);
-            if (el.statTotalJudgments.textContent === "-") el.statTotalJudgments.textContent = fmt.format(s.total_judgments || 0);
             if (el.statTotalParagraphs.textContent === "-") el.statTotalParagraphs.textContent = fmt.format(s.total_paragraphs || 0);
             if (el.statTotalCountries.textContent === "-") el.statTotalCountries.textContent = fmt.format(s.unique_countries || 0);
             if (el.statDateRange.textContent === "-") el.statDateRange.textContent = s.date_range_label || "-";
