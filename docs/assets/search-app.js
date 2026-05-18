@@ -2329,8 +2329,13 @@ function getCurrentFilters() {
     // sections (Facts → Operative).  These flags opt-in to the
     // additional content classes.
     includeOpinions: buckets.has("individual_opinions") || !!document.getElementById("scopeIncludeOpinions")?.checked,
-    includeMeta: !!document.getElementById("scopeIncludeMeta")?.checked,
-    includeHeadings: !!document.getElementById("scopeIncludeHeadings")?.checked,
+    // "Cover page & headings" — a single Advanced-filters toggle that
+    // expands the scope to both the cover-page (header) section and the
+    // section-heading rows.  includeMeta + includeHeadings drive distinct
+    // downstream logic (section list vs exclude_roles) but are now flipped
+    // together by one user-facing switch.
+    includeMeta: !!document.getElementById("scopeIncludeExtra")?.checked,
+    includeHeadings: !!document.getElementById("scopeIncludeExtra")?.checked,
   };
 }
 
