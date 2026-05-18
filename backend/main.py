@@ -227,7 +227,11 @@ def _build_fts_query(raw: str) -> str:
     # with how unicode61 tokenized them at index time.  Then split on
     # whitespace to get clean bare tokens.
     normalised = _FTS5_DANGEROUS_CHARS.sub(" ", remainder).replace('"', " ")
-    tokens = normalised.split()
+    # Cap bare tokens — a pasted multi-page query would otherwise build a
+    # MATCH expression with hundreds of AND-ed terms (~0.2 s/term against
+    # the 3.2M-row index, so 300 terms ≈ 60 s).  40 is far above any
+    # genuine query.
+    tokens = normalised.split()[:40]
     for tok in tokens:
         upper = tok.upper()
         if upper == "OR":
@@ -1009,7 +1013,20 @@ def search(
     page_size = _validate_page_size(page_size, allow_large=export)
     fts_expr = _build_fts_query(q)
     if not fts_expr:
-        raise HTTPException(status_code=400, detail="Empty search query after sanitisation.")
+        # The query sanitised to nothing — only punctuation, FTS5
+        # operator words, or whitespace.  Return an empty result set
+        # (HTTP 200), never an error: a search box must not 400 on
+        # whatever the user happens to type.
+        return {
+            "total_cases": 0,
+            "total_hits": 0,
+            "page": page,
+            "page_size": page_size,
+            "search_time_ms": round((time.perf_counter() - t0) * 1000, 1),
+            "group": group,
+            "cases": [],
+            "hits": [],
+        }
 
     sec_list = _parse_comma_param(sections)
     art_list = _parse_comma_param(articles)
