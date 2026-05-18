@@ -319,6 +319,69 @@ def _is_convention_article(token: str) -> bool:
     return 1 <= int(t.split("-", 1)[0]) <= 59
 
 
+# judgment_date is stored DD/MM/YYYY — a text >=/<= compares lexically by
+# day, not chronologically.  Filters must compare on a YYYYMMDD key built
+# with substr() instead (the /api/facets date_range query already does).
+_JUDGMENT_DATE_KEY = (
+    "(substr(c.judgment_date,7,4)||substr(c.judgment_date,4,2)"
+    "||substr(c.judgment_date,1,2))"
+)
+
+
+def _date_key(raw: Optional[str]) -> Optional[str]:
+    """Normalise a date-filter value to a YYYYMMDD key, or None.
+
+    Accepts ISO yyyy-mm-dd (current frontend), dd/mm/yyyy, a bare 8-digit
+    key, or an epoch-millisecond timestamp (tolerated so a stale frontend
+    that still posts Date.getTime() degrades gracefully)."""
+    s = str(raw or "").strip()
+    if not s:
+        return None
+    m = re.match(r"^(\d{4})-(\d{2})-(\d{2})", s)
+    if m:
+        return m.group(1) + m.group(2) + m.group(3)
+    m = re.match(r"^(\d{2})/(\d{2})/(\d{4})", s)
+    if m:
+        return m.group(3) + m.group(2) + m.group(1)
+    if s.isdigit():
+        if len(s) == 8:
+            return s
+        if len(s) >= 12:                       # epoch milliseconds
+            from datetime import datetime, timezone
+            return datetime.fromtimestamp(
+                int(s) / 1000, tz=timezone.utc).strftime("%Y%m%d")
+    return None
+
+
+# respondent_state may list several states ("Moldova; Russia") and uses
+# legacy alias spellings.  _RESPONDENT_NORM canonicalises a row in SQL so
+# the positional LIKE patterns match reliably; _split_states() does the
+# equivalent in Python for the /api/facets country rail.
+_RESPONDENT_NORM = (
+    "REPLACE(REPLACE(REPLACE(c.respondent_state,"
+    "'Republic of Moldova','Moldova'),'Türkiye','Turkey'),';',',')"
+)
+_STATE_ALIASES = {
+    "Republic of Moldova": "Moldova",
+    "Türkiye": "Turkey",
+}
+
+
+def _split_states(raw: Optional[str]) -> list[str]:
+    """Split a respondent_state cell into canonical country names."""
+    out: list[str] = []
+    seen: set[str] = set()
+    for part in re.split(r"[;,]", raw or ""):
+        p = part.strip()
+        if not p:
+            continue
+        canon = _STATE_ALIASES.get(p, p)
+        if canon not in seen:
+            seen.add(canon)
+            out.append(canon)
+    return out
+
+
 def _enrich_case_row(row: dict[str, Any]) -> dict[str, Any]:
     """Parse JSON text fields in a case row into native Python objects."""
     for field in ("conclusion", "violation", "non_violation",
@@ -542,8 +605,10 @@ def facets():
                 key=lambda x: -x["count"],
             )
 
-            # Respondent states — split compound entries ("Italy, San Marino")
-            # into individual unique countries with aggregated counts
+            # Respondent states — split compound entries (";"/"," joined,
+            # e.g. "Moldova; Russia") into individual canonical countries
+            # with aggregated counts.  _split_states also folds alias
+            # spellings (Republic of Moldova -> Moldova, Türkiye -> Turkey).
             cur.execute(
                 "SELECT respondent_state, count(*) AS count "
                 "FROM cases WHERE respondent_state IS NOT NULL AND respondent_state != '' "
@@ -551,9 +616,7 @@ def facets():
             )
             country_counts: dict[str, int] = {}
             for row in cur.fetchall():
-                raw = row["respondent_state"]
-                parts = [p.strip() for p in raw.split(",") if p.strip()]
-                for part in parts:
+                for part in _split_states(row["respondent_state"]):
                     country_counts[part] = country_counts.get(part, 0) + row["count"]
             result["states"] = sorted(
                 [{"value": k, "count": v} for k, v in country_counts.items()],
@@ -679,9 +742,11 @@ def _build_case_filter_sql(
     if state_list:
         state_conditions = []
         for st in state_list:
+            # respondent_state may be ";"/","-joined and use alias
+            # spellings — _RESPONDENT_NORM canonicalises before matching.
             state_conditions.append(
-                "(c.respondent_state = ? OR c.respondent_state LIKE ? "
-                "OR c.respondent_state LIKE ? OR c.respondent_state LIKE ?)"
+                f"({_RESPONDENT_NORM} = ? OR {_RESPONDENT_NORM} LIKE ? "
+                f"OR {_RESPONDENT_NORM} LIKE ? OR {_RESPONDENT_NORM} LIKE ?)"
             )
             params.extend([st, f"{st}, %", f"%, {st}, %", f"%, {st}"])
         where_clauses.append(f"({' OR '.join(state_conditions)})")
@@ -735,13 +800,15 @@ def _build_case_filter_sql(
         if dt_conditions:
             where_clauses.append(f"({' OR '.join(dt_conditions)})")
 
-    if date_from:
-        where_clauses.append("c.judgment_date >= ?")
-        params.append(date_from)
+    _df_key = _date_key(date_from)
+    if _df_key:
+        where_clauses.append(f"{_JUDGMENT_DATE_KEY} >= ?")
+        params.append(_df_key)
 
-    if date_to:
-        where_clauses.append("c.judgment_date <= ?")
-        params.append(date_to)
+    _dt_key = _date_key(date_to)
+    if _dt_key:
+        where_clauses.append(f"{_JUDGMENT_DATE_KEY} <= ?")
+        params.append(_dt_key)
 
     join_sql = " ".join(joins)
     where_sql = " AND ".join(where_clauses) if where_clauses else "1=1"
@@ -988,9 +1055,11 @@ def search(
     if state_list:
         state_conditions = []
         for st in state_list:
-            # Match both exact ("Italy") and compound ("Italy, San Marino")
+            # respondent_state may be ";"/","-joined and use alias
+            # spellings — _RESPONDENT_NORM canonicalises before matching.
             state_conditions.append(
-                "(c.respondent_state = ? OR c.respondent_state LIKE ? OR c.respondent_state LIKE ? OR c.respondent_state LIKE ?)"
+                f"({_RESPONDENT_NORM} = ? OR {_RESPONDENT_NORM} LIKE ? "
+                f"OR {_RESPONDENT_NORM} LIKE ? OR {_RESPONDENT_NORM} LIKE ?)"
             )
             params.extend([st, f"{st}, %", f"%, {st}, %", f"%, {st}"])
         where_clauses.append(f"({' OR '.join(state_conditions)})")
@@ -1044,13 +1113,15 @@ def search(
         if dt_conditions:
             where_clauses.append(f"({' OR '.join(dt_conditions)})")
 
-    if date_from:
-        where_clauses.append("c.judgment_date >= ?")
-        params.append(date_from)
+    _df_key = _date_key(date_from)
+    if _df_key:
+        where_clauses.append(f"{_JUDGMENT_DATE_KEY} >= ?")
+        params.append(_df_key)
 
-    if date_to:
-        where_clauses.append("c.judgment_date <= ?")
-        params.append(date_to)
+    _dt_key = _date_key(date_to)
+    if _dt_key:
+        where_clauses.append(f"{_JUDGMENT_DATE_KEY} <= ?")
+        params.append(_dt_key)
 
     where_sql = " AND ".join(where_clauses)
     join_sql = " ".join(joins)
@@ -1664,9 +1735,11 @@ def browse(
     if state_list:
         state_conditions = []
         for st in state_list:
-            # Match both exact ("Italy") and compound ("Italy, San Marino")
+            # respondent_state may be ";"/","-joined and use alias
+            # spellings — _RESPONDENT_NORM canonicalises before matching.
             state_conditions.append(
-                "(c.respondent_state = ? OR c.respondent_state LIKE ? OR c.respondent_state LIKE ? OR c.respondent_state LIKE ?)"
+                f"({_RESPONDENT_NORM} = ? OR {_RESPONDENT_NORM} LIKE ? "
+                f"OR {_RESPONDENT_NORM} LIKE ? OR {_RESPONDENT_NORM} LIKE ?)"
             )
             params.extend([st, f"{st}, %", f"%, {st}, %", f"%, {st}"])
         where_clauses.append(f"({' OR '.join(state_conditions)})")
@@ -1720,13 +1793,15 @@ def browse(
         if dt_conditions:
             where_clauses.append(f"({' OR '.join(dt_conditions)})")
 
-    if date_from:
-        where_clauses.append("c.judgment_date >= ?")
-        params.append(date_from)
+    _df_key = _date_key(date_from)
+    if _df_key:
+        where_clauses.append(f"{_JUDGMENT_DATE_KEY} >= ?")
+        params.append(_df_key)
 
-    if date_to:
-        where_clauses.append("c.judgment_date <= ?")
-        params.append(date_to)
+    _dt_key = _date_key(date_to)
+    if _dt_key:
+        where_clauses.append(f"{_JUDGMENT_DATE_KEY} <= ?")
+        params.append(_dt_key)
 
     where_sql = (" WHERE " + " AND ".join(where_clauses)) if where_clauses else ""
     join_sql = " ".join(joins)

@@ -108,8 +108,15 @@ const serverSearch = {
     const serverOutcomes = [...filters.outcomes].filter(v => PRIMARY_OUTCOMES.has(v));
     if (serverOutcomes.length) p.set("outcomes", serverOutcomes.join(","));
     if (filters.docTypes.size) p.set("doc_types", [...filters.docTypes].join(","));
-    if (filters.dateFrom) p.set("date_from", filters.dateFrom);
-    if (filters.dateTo) p.set("date_to", filters.dateTo);
+    // filters.dateFrom/dateTo are epoch-ms (parseDateInput → getTime()).
+    // The API compares against judgment_date, so send an ISO yyyy-mm-dd
+    // string it can normalise — never the raw timestamp.
+    if (filters.dateFrom) {
+      p.set("date_from", new Date(filters.dateFrom).toISOString().slice(0, 10));
+    }
+    if (filters.dateTo) {
+      p.set("date_to", new Date(filters.dateTo).toISOString().slice(0, 10));
+    }
     return p;
   },
 

@@ -231,7 +231,7 @@ def map_metadata(cols: dict, kpthes: dict, build_db) -> dict:
         "hudoc_url": f"https://hudoc.echr.coe.int/?i={iid}",
         "judgment_date": _hudoc_date(cols),
         "ecli": (cols.get("ecli") or "").strip(),
-        "respondent_state": "; ".join(respondents),
+        "respondent_state": ", ".join(respondents),
         "importance": _importance(cols.get("importance")),
         "conclusion": conclusion,
         "violation": hudoc_v + new_v,
