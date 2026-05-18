@@ -1162,15 +1162,31 @@ def search(
     # ------------------------------------------------------------------
     try:
         with get_cursor() as cur:
+            # "+ Headings" toggle — when it is off the frontend sends
+            # exclude_roles=heading,…  Build the exclusion clause ONCE here
+            # so every query path (count, case-id aggregation, per-case
+            # paragraph fetch, flat paragraph mode) applies it consistently.
+            # Previously it was built only inside the group=="paragraph"
+            # branch, so by-case search (the UI default) leaked heading
+            # rows into results regardless of the toggle.
+            excl_roles = _parse_comma_param(exclude_roles)
+            role_where = ""
+            role_params: list[Any] = []
+            if excl_roles and _has_column(cur, "paragraphs", "row_role"):
+                _rph = ",".join("?" for _ in excl_roles)
+                role_where = (
+                    f" AND (p.row_role IS NULL OR p.row_role NOT IN ({_rph}))"
+                )
+                role_params = excl_roles
             count_sql = (
                 "SELECT count(DISTINCT c.case_id) AS total_cases, count(*) AS total_hits "
                 "FROM paragraphs_fts pf "
                 "JOIN paragraphs p ON p.rowid = pf.rowid "
                 "JOIN cases c ON c.case_id = p.case_id "
                 f"{join_sql} "
-                f"WHERE {where_sql}"
+                f"WHERE {where_sql}{role_where}"
             )
-            cur.execute(count_sql, params)
+            cur.execute(count_sql, [*params, *role_params])
             count_row = cur.fetchone()
             total_cases = count_row["total_cases"]
             total_hits = count_row["total_hits"]
@@ -1196,23 +1212,9 @@ def search(
             # paragraph independent").
             # ----------------------------------------------------------
             if group == "paragraph":
-                # Drop heading / non-body rows when asked (flat mode would
-                # otherwise surface "THE LAW" etc. as standalone results).
-                excl_roles = _parse_comma_param(exclude_roles)
-                role_where = ""
-                role_params: list[Any] = []
-                if excl_roles and _has_column(cur, "paragraphs", "row_role"):
-                    ph = ",".join("?" for _ in excl_roles)
-                    role_where = f" AND (p.row_role IS NULL OR p.row_role NOT IN ({ph}))"
-                    role_params = excl_roles
-                    cur.execute(
-                        "SELECT count(*) AS n FROM paragraphs_fts pf "
-                        "JOIN paragraphs p ON p.rowid = pf.rowid "
-                        "JOIN cases c ON c.case_id = p.case_id "
-                        f"{join_sql} WHERE {where_sql}{role_where}",
-                        [*params, *role_params],
-                    )
-                    total_hits = cur.fetchone()["n"]
+                # role_where (the "+ Headings" exclusion) is built once
+                # above and is already reflected in total_hits via
+                # count_sql, so flat mode just reuses it below.
                 rr = _optional_column_expr(cur, "paragraphs", "row_role", source_alias="p")
                 lp = _optional_column_expr(cur, "paragraphs", "logical_para_idx", source_alias="p")
                 dp = _optional_column_expr(cur, "paragraphs", "display_para_no", source_alias="p")
@@ -1338,11 +1340,11 @@ def search(
                     "JOIN paragraphs p ON p.rowid = pf.rowid "
                     "JOIN cases c ON c.case_id = p.case_id "
                     f"{join_sql} "
-                    f"WHERE {where_sql} "
+                    f"WHERE {where_sql}{role_where} "
                     "GROUP BY c.case_id "
                     f"ORDER BY {order_sql}"
                 )
-                cur.execute(case_ids_sql, params)
+                cur.execute(case_ids_sql, [*params, *role_params])
                 case_rows = cur.fetchall()
                 case_meta = {
                     r["case_id"]: {
@@ -1399,12 +1401,12 @@ def search(
                     "JOIN paragraphs p ON p.rowid = pf.rowid "
                     "JOIN cases c ON c.case_id = p.case_id "
                     f"{join_sql} "
-                    f"WHERE {where_sql} "
+                    f"WHERE {where_sql}{role_where} "
                     "GROUP BY c.case_id "
                     f"ORDER BY {order_sql} "
                     "LIMIT ? OFFSET ?"
                 )
-                cur.execute(case_ids_sql, params + [sql_limit, sql_offset])
+                cur.execute(case_ids_sql, [*params, *role_params, sql_limit, sql_offset])
                 case_rows = cur.fetchall()
                 case_ids = [r["case_id"] for r in case_rows]
                 case_meta = {
@@ -1502,14 +1504,17 @@ def search(
                 "FROM paragraphs_fts pf "
                 "JOIN paragraphs p ON p.rowid = pf.rowid "
                 f"{parent_join} "
-                f"WHERE pf.paragraphs_fts MATCH ? {sec_where} "
+                f"WHERE pf.paragraphs_fts MATCH ? {sec_where}{role_where} "
                 f"AND p.case_id IN (SELECT value FROM json_each(?) ) "
                 "ORDER BY pf.rank"
             )
-            # Use json array to pass case_ids safely.
+            # Use json array to pass case_ids safely.  Param order must
+            # match the SQL: MATCH ?, then sec_where, then role_where,
+            # then the json_each case-id list.
             snippet_params_final: list[Any] = [fts_expr]
             if sec_list:
                 snippet_params_final.extend(sec_list)
+            snippet_params_final.extend(role_params)
             snippet_params_final.append(json.dumps(case_ids))
 
             cur.execute(snippet_sql, snippet_params_final)
