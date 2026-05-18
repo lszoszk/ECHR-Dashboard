@@ -272,6 +272,15 @@
   opacity: 0.75;
 }
 
+/* A facet value with no hits in the current search — kept visible (the
+   value still exists in the corpus) but de-emphasised so the eye skips it. */
+.filter-count.is-zero {
+  opacity: 0.4;
+}
+.cb-label:has(.filter-count.is-zero) {
+  opacity: 0.55;
+}
+
 /* Loading placeholder shown in filter groups while facets API is in-flight.
    Renders during the ~1-2s window between page load and serverSearch.getFacets()
    returning. Once data arrives, renderFilters() replaces these with real

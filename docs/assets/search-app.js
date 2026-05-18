@@ -221,9 +221,15 @@ const serverSearch = {
     return r.json();
   },
 
-  /** Fetch facets from server. */
-  async getFacets() {
-    const r = await fetch(`${API_BASE_URL}/facets`);
+  /** Fetch facets from server.  With no args the counts cover the whole
+   *  corpus; pass {q, date_from, date_to} to scope them to a search. */
+  async getFacets(opts = {}) {
+    const p = new URLSearchParams();
+    if (opts.q) p.set("q", opts.q);
+    if (opts.date_from) p.set("date_from", opts.date_from);
+    if (opts.date_to) p.set("date_to", opts.date_to);
+    const qs = p.toString();
+    const r = await fetch(`${API_BASE_URL}/facets${qs ? `?${qs}` : ""}`);
     if (!r.ok) throw new Error(`API ${r.status}`);
     return r.json();
   },
@@ -1890,8 +1896,11 @@ function preprocessDataset(cases) {
 }
 
 function makeCheckbox(label, value, name, count = null, opts = {}) {
-  const countSuffix = (count != null && count > 0)
-    ? ` <span class="filter-count">${fmtInt.format(count)}</span>`
+  // Show the count whenever one is supplied — including 0, so a value that
+  // exists in the corpus but has no hits in the current search is visibly
+  // de-emphasised rather than silently losing its number.
+  const countSuffix = (count != null)
+    ? ` <span class="filter-count${count === 0 ? " is-zero" : ""}">${fmtInt.format(count)}</span>`
     : "";
   // The hint icon goes INSIDE the label span so it stays inline with the
   // label text rather than wrapping to the next row in a flex/grid layout.
@@ -2023,6 +2032,135 @@ function renderFilters() {
   attachFilterGroupClearButtons();
   // Update toggle button "Advanced Filters (N active)" badge
   updateActiveFilterCount();
+}
+
+/** Transform a raw /api/facets response into the value→count maps that
+ *  renderFilters() / applyRailCounts() consume.  Used both for the
+ *  whole-corpus counts (page load) and the per-search scoped counts. */
+function buildFacetCounts(facets) {
+  const fc = { sections: {}, articles: {}, countries: {}, bodies: {}, importance: {}, docTypes: {} };
+  // Reverse map: DB section name → normalized bucket key.
+  const DB_TO_NORM = {};
+  for (const [norm, dbArr] of Object.entries(SECTION_DB_NAMES)) {
+    for (const db of dbArr) DB_TO_NORM[db] = norm;
+  }
+  if (facets.sections) {
+    // MAX (not SUM) per bucket — a case may have paragraphs in several raw
+    // DB sections that collapse to one bucket; summing would double-count.
+    for (const f of facets.sections) {
+      const key = DB_TO_NORM[f.value] || f.value;
+      if (SECTION_LABELS[key]) {
+        fc.sections[key] = Math.max(fc.sections[key] || 0, f.count || 0);
+      }
+    }
+  }
+  if (facets.states) {
+    for (const f of facets.states) if (f.value) fc.countries[f.value] = f.count || 0;
+  }
+  if (facets.articles) {
+    for (const f of facets.articles) fc.articles[f.value] = f.count || 0;
+  }
+  if (facets.bodies) {
+    for (const f of facets.bodies) fc.bodies[f.value] = f.count || 0;
+  }
+  if (facets.importance) {
+    for (const f of facets.importance) if (f.value) fc.importance[f.value] = f.count || 0;
+  }
+  if (facets.doc_types) {
+    // Collapse raw doc_type strings into the 4 frontend buckets.
+    const dt = fc.docTypes;
+    for (const f of facets.doc_types) {
+      const v = (f.value || "").toLowerCase();
+      if (v.includes("press release")) dt.press_release = (dt.press_release || 0) + (f.count || 0);
+      else if (v.includes("committee")) dt.committee = (dt.committee || 0) + (f.count || 0);
+      else dt.chamber = (dt.chamber || 0) + (f.count || 0);
+    }
+    // Grand Chamber count comes from the originating_body facet.
+    const gcBody = (facets.bodies || []).find(
+      (b) => (b.value || "").toLowerCase().includes("grand chamber"));
+    if (gcBody) {
+      dt.grand_chamber = gcBody.count;
+      dt.chamber = Math.max(0, (dt.chamber || 0) - gcBody.count);
+    }
+  }
+  return fc;
+}
+
+/** Update the filter-rail count badges in place from state.facetCounts —
+ *  without re-rendering the rail, so checkbox + filter-search-box state is
+ *  preserved.  Counts of 0 are shown (de-emphasised via .is-zero). */
+function applyRailCounts() {
+  const fc = state.facetCounts;
+  if (!fc || !el.filtersPanel) return;
+  const groupMap = {
+    sections: fc.sections, countries: fc.countries, articles: fc.articles,
+    bodies: fc.bodies, importance: fc.importance, docTypes: fc.docTypes,
+  };
+  el.filtersPanel.querySelectorAll('input[type="checkbox"][data-name]').forEach((input) => {
+    const map = groupMap[input.getAttribute("data-name")];
+    if (!map) return; // outcomes / separateOpinion — no facet data
+    const count = map[input.value];
+    const labelSpan = input.parentElement.querySelector("span");
+    if (!labelSpan) return;
+    let span = labelSpan.querySelector(".filter-count");
+    if (count == null) {
+      if (span) span.remove();
+      return;
+    }
+    if (!span) {
+      // Insert before the hint icon so order stays "label  N  ⓘ".
+      span = document.createElement("span");
+      span.className = "filter-count";
+      const hint = labelSpan.querySelector(".section-hint-icon");
+      labelSpan.insertBefore(document.createTextNode(" "), hint || null);
+      labelSpan.insertBefore(span, hint || null);
+    }
+    span.textContent = fmtInt.format(count);
+    span.classList.toggle("is-zero", count === 0);
+  });
+}
+
+let _railCountSeq = 0;
+/** Refresh the filter-rail counts so they reflect the active search.
+ *  No query and no date range → whole-corpus counts (cached on load);
+ *  otherwise the counts are scoped to the matching cases via /api/facets.
+ *  The checkbox filters are deliberately NOT applied — the rail shows a
+ *  stable breakdown of the text search, not a self-narrowing facet view. */
+async function refreshRailCounts(query, filters) {
+  if (!serverSearch.available) return;
+  const q = (query || "").trim();
+  const dFrom = (filters && filters.dateFrom)
+    ? new Date(filters.dateFrom).toISOString().slice(0, 10) : "";
+  const dTo = (filters && filters.dateTo)
+    ? new Date(filters.dateTo).toISOString().slice(0, 10) : "";
+  if (!q && !dFrom && !dTo) {
+    // Whole-corpus view — restore the cached global counts.
+    if (state.globalFacetCounts) {
+      state.facetCounts = state.globalFacetCounts;
+      applyRailCounts();
+    }
+    return;
+  }
+  const seq = ++_railCountSeq;
+  try {
+    const facets = await serverSearch.getFacets({ q, date_from: dFrom, date_to: dTo });
+    if (seq !== _railCountSeq) return; // a newer search superseded this one
+    const fc = buildFacetCounts(facets);
+    // Zero-fill against the stable option lists so every checkbox shows a
+    // number (0 = value exists in the corpus, no hits in this search).
+    for (const s of (state.sectionsInDataset || [])) if (fc.sections[s] == null) fc.sections[s] = 0;
+    for (const c of (state.countries || [])) if (fc.countries[c] == null) fc.countries[c] = 0;
+    for (const a of (state.articles || [])) if (fc.articles[a] == null) fc.articles[a] = 0;
+    for (const b of (state.bodies || [])) if (fc.bodies[b] == null) fc.bodies[b] = 0;
+    for (const i of (state.importanceLevels || [])) if (fc.importance[i] == null) fc.importance[i] = 0;
+    for (const d of ["chamber", "grand_chamber", "committee", "press_release"]) {
+      if (fc.docTypes[d] == null) fc.docTypes[d] = 0;
+    }
+    state.facetCounts = fc;
+    applyRailCounts();
+  } catch (e) {
+    console.warn("[Rail Counts] scoped facets fetch failed:", e);
+  }
 }
 
 /** Attach a search input above any scrollable filter list, hiding non-matching
@@ -5367,6 +5505,10 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
   if (el.inlineSearchInput) el.inlineSearchInput.value = query;
   state.currentFilters = filters;
 
+  // Adapt the filter-rail counts to this search (fire-and-forget — runs
+  // in parallel with the search request, updates the rail when it lands).
+  refreshRailCounts(query, filters);
+
   if (resetPage) state.currentPage = 1;
 
   // Show loading state
@@ -5489,7 +5631,12 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
           return !r.startsWith("heading");
         });
       }
-      if (!paragraphs.length) continue;
+      // Drop paragraph-less cases only in SEARCH mode: a query hit whose
+      // sole matches were heading rows (filtered out above) shouldn't show.
+      // In browse mode (no query) /api/browse legitimately returns cases
+      // with no paragraphs — those are the "100 recent cases" cards and
+      // must be kept (buildCaseCard renders them via caseOnlyBrowse).
+      if (query && !paragraphs.length) continue;
 
       // Client-side post-filter for filters the server doesn't support
       if (!passesCaseFilters(c, filters)) continue;
@@ -5503,7 +5650,10 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
       orderedCaseIds.push(c.case_id);
     }
 
-    state.currentMode = defaultView ? "browse" : "search";
+    // Browse mode whenever there is no query (default view OR no-query +
+    // filters); search mode only when a query is present.  Drives the
+    // caseOnlyBrowse rendering path + "para/hit" result labels.
+    state.currentMode = query ? "search" : "browse";
     state.currentOrderedCaseIds = orderedCaseIds;
     state.currentResultsById = resultsById;
     state.currentTerms = query.toLowerCase().split(/\s+/).filter(Boolean);
@@ -7785,31 +7935,23 @@ function init() {
       // Fetch full facets from server and override local sample filters
       try {
         const facets = await serverSearch.getFacets();
-        // Build reverse map: DB section name → normalized key. Multiple DB
-        // values may point at the same normalized key (e.g. both "Facts
-        // Background" and "Facts Proceedings" → "facts"), so expand arrays.
+
+        // Whole-corpus facet counts.  Cached as globalFacetCounts so the
+        // rail can fall back to them whenever there is no active search
+        // (see refreshRailCounts); facetCounts is the currently-shown set.
+        state.globalFacetCounts = buildFacetCounts(facets);
+        state.facetCounts = state.globalFacetCounts;
+
+        // Build the stable filter option lists — the universe of values.
+        // These never change; only the counts beside them do (per search).
+        // Reverse map: DB section name → normalized key. Multiple DB values
+        // may point at the same key (e.g. both "Facts Background" and
+        // "Facts Proceedings" → "facts"), so expand the arrays.
         const DB_TO_NORM = {};
         for (const [norm, dbArr] of Object.entries(SECTION_DB_NAMES)) {
           for (const db of dbArr) DB_TO_NORM[db] = norm;
         }
-
-        // Build facet count maps so renderFilters can show "(N)" beside each checkbox.
-        // Section counts merge multiple DB labels into one normalized bucket.
-        state.facetCounts = { sections: {}, articles: {}, countries: {}, bodies: {}, importance: {}, docTypes: {} };
-
         if (facets.sections) {
-          // Use MAX (not SUM) per bucket: a single case may have paragraphs in
-          // multiple raw DB sections (e.g. Facts Background AND Facts Proceedings)
-          // that collapse to the same bucket. Sum would double-count cases.
-          // Max gives a lower bound: at least this many cases have ≥1 paragraph
-          // in the bucket. This is approximate but never exceeds total cases.
-          for (const f of facets.sections) {
-            const key = DB_TO_NORM[f.value] || f.value;
-            if (SECTION_LABELS[key]) {
-              const prev = state.facetCounts.sections[key] || 0;
-              state.facetCounts.sections[key] = Math.max(prev, f.count || 0);
-            }
-          }
           // Dedupe: two raw DB values may collapse into the same normalized
           // key, which would otherwise render a duplicate filter checkbox.
           const normalized = facets.sections
@@ -7826,47 +7968,26 @@ function init() {
             });
         }
         if (facets.states) {
-          for (const f of facets.states) if (f.value) state.facetCounts.countries[f.value] = f.count || 0;
           state.countries = facets.states
             .filter((f) => f.value)
             .map((f) => f.value)
             .sort((a, b) => a.localeCompare(b));
         }
         if (facets.articles) {
-          for (const f of facets.articles) state.facetCounts.articles[f.value] = f.count || 0;
           state.articles = facets.articles
             .map((f) => f.value)
             .sort((a, b) => (a.length - b.length) || a.localeCompare(b));
         }
         if (facets.bodies) {
-          for (const f of facets.bodies) state.facetCounts.bodies[f.value] = f.count || 0;
           state.bodies = facets.bodies
             .map((f) => f.value)
             .sort((a, b) => a.localeCompare(b));
         }
         if (facets.importance) {
-          for (const f of facets.importance) if (f.value) state.facetCounts.importance[f.value] = f.count || 0;
           state.importanceLevels = facets.importance
             .filter((f) => f.value)
             .map((f) => f.value)
             .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
-        }
-        if (facets.doc_types) {
-          // Map raw doc_type values into our 4 frontend buckets.
-          const dt = state.facetCounts.docTypes;
-          for (const f of facets.doc_types) {
-            const v = (f.value || "").toLowerCase();
-            if (v.includes("press release")) dt.press_release = (dt.press_release || 0) + f.count;
-            else if (v.includes("committee")) dt.committee = (dt.committee || 0) + f.count;
-            else dt.chamber = (dt.chamber || 0) + f.count;
-          }
-          // Grand Chamber count comes from bodies facet (originating_body)
-          const gcBody = (facets.bodies || []).find(b => (b.value || "").toLowerCase().includes("grand chamber"));
-          if (gcBody) {
-            dt.grand_chamber = gcBody.count;
-            // Subtract from chamber bucket (grand chamber would otherwise be double-counted there)
-            dt.chamber = Math.max(0, (dt.chamber || 0) - gcBody.count);
-          }
         }
         renderFilters();
         console.log("[Server Facets] Filters updated from server:", {

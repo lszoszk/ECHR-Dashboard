@@ -588,76 +588,115 @@ def stats():
 # ---- /api/facets -----------------------------------------------------------
 
 @app.get("/api/facets")
-def facets():
-    """Return available filter values with counts."""
+def facets(
+    q: Optional[str] = Query(None, description="Optional full-text query "
+                             "— when given, facet counts are scoped to "
+                             "the matching cases instead of the whole corpus"),
+    date_from: Optional[str] = Query(None),
+    date_to: Optional[str] = Query(None),
+):
+    """Filter-rail facet values with counts.
+
+    With no query and no date range the counts cover the whole corpus.
+    When a query (or date range) is supplied the counts are scoped to
+    the matching cases, so the rail reflects the current search.
+    """
     try:
         result: dict[str, Any] = {}
+        fts_expr = _build_fts_query(q) if (q and q.strip()) else ""
         with get_cursor() as cur:
-            # Articles — case_articles legacy rows can be compound strings
-            # ("34, 6 § 1, 41"); split + aggregate into per-article counts so
-            # the filter rail shows ~120 distinct articles instead of 4,000+
-            # comma-soup checkboxes.
-            cur.execute("SELECT article, case_id FROM case_articles")
-            article_to_cases: dict[str, set[str]] = {}
-            for r in cur.fetchall():
-                for tok in _split_article_values(r["article"]):
-                    if not _is_convention_article(tok):
-                        continue
-                    article_to_cases.setdefault(tok, set()).add(r["case_id"])
-            result["articles"] = sorted(
-                [{"value": k, "count": len(v)} for k, v in article_to_cases.items()],
-                key=lambda x: -x["count"],
-            )
+            # Determine scope.  A query or date range restricts every
+            # facet to the matching case set; otherwise facets cover the
+            # whole corpus.  (The checkbox filters themselves are NOT
+            # applied — the rail shows a stable breakdown of the search.)
+            scoped = bool(fts_expr) or bool(_date_key(date_from)) or bool(_date_key(date_to))
+            ids_json = None
+            if scoped:
+                join_sql, where_sql, params = _build_case_filter_sql(
+                    fts_expr=fts_expr, date_from=date_from, date_to=date_to)
+                cur.execute(
+                    f"SELECT DISTINCT c.case_id FROM cases c {join_sql} "
+                    f"WHERE {where_sql}", params)
+                scope_ids = [r["case_id"] for r in cur.fetchall()]
+                ids_json = json.dumps(scope_ids)
 
-            # Respondent states — split compound entries (";"/"," joined,
-            # e.g. "Moldova; Russia") into individual canonical countries
-            # with aggregated counts.  _split_states also folds alias
-            # spellings (Republic of Moldova -> Moldova, Türkiye -> Turkey).
-            cur.execute(
-                "SELECT respondent_state, count(*) AS count "
-                "FROM cases WHERE respondent_state IS NOT NULL AND respondent_state != '' "
-                "GROUP BY respondent_state"
-            )
-            country_counts: dict[str, int] = {}
-            for row in cur.fetchall():
-                for part in _split_states(row["respondent_state"]):
-                    country_counts[part] = country_counts.get(part, 0) + row["count"]
-            result["states"] = sorted(
-                [{"value": k, "count": v} for k, v in country_counts.items()],
-                key=lambda x: -x["count"],
-            )
+            # `scope_clause` / `scope_params` slot into the cases-table
+            # GROUP BY queries; the articles + sections facets have their
+            # own joins and are scoped separately below.
+            scope_clause = (" AND case_id IN (SELECT value FROM json_each(?))"
+                            if scoped else "")
+            scope_params = [ids_json] if scoped else []
 
-            # Importance
-            cur.execute(
-                "SELECT importance AS value, count(*) AS count "
-                "FROM cases WHERE importance IS NOT NULL "
-                "GROUP BY importance ORDER BY count DESC"
-            )
-            result["importance"] = [_row_to_dict(r) for r in cur.fetchall()]
+            if scoped and not scope_ids:
+                result.update(articles=[], states=[], importance=[],
+                              sections=[], bodies=[], doc_types=[])
+            else:
+                # Articles — case_articles rows are split into individual
+                # tokens; counts are distinct cases per article.
+                if scoped:
+                    cur.execute(
+                        "SELECT article, case_id FROM case_articles "
+                        "WHERE case_id IN (SELECT value FROM json_each(?))",
+                        [ids_json])
+                else:
+                    cur.execute("SELECT article, case_id FROM case_articles")
+                article_to_cases: dict[str, set[str]] = {}
+                for r in cur.fetchall():
+                    for tok in _split_article_values(r["article"]):
+                        if not _is_convention_article(tok):
+                            continue
+                        article_to_cases.setdefault(tok, set()).add(r["case_id"])
+                result["articles"] = sorted(
+                    [{"value": k, "count": len(v)} for k, v in article_to_cases.items()],
+                    key=lambda x: -x["count"],
+                )
 
-            # Sections (exclude Header — it's case metadata, not judgment content)
-            cur.execute(
-                "SELECT section AS value, count(DISTINCT case_id) AS count "
-                "FROM paragraphs WHERE section IS NOT NULL AND section != 'Header' "
-                "GROUP BY section ORDER BY count DESC"
-            )
-            result["sections"] = [_row_to_dict(r) for r in cur.fetchall()]
+                # Respondent states — compound ";"/"," entries split into
+                # canonical countries (alias-folded by _split_states).
+                cur.execute(
+                    "SELECT respondent_state, count(*) AS count "
+                    "FROM cases WHERE respondent_state IS NOT NULL "
+                    "AND respondent_state != ''" + scope_clause
+                    + " GROUP BY respondent_state", scope_params)
+                country_counts: dict[str, int] = {}
+                for row in cur.fetchall():
+                    for part in _split_states(row["respondent_state"]):
+                        country_counts[part] = country_counts.get(part, 0) + row["count"]
+                result["states"] = sorted(
+                    [{"value": k, "count": v} for k, v in country_counts.items()],
+                    key=lambda x: -x["count"],
+                )
 
-            # Originating bodies
-            cur.execute(
-                "SELECT originating_body AS value, count(*) AS count "
-                "FROM cases WHERE originating_body IS NOT NULL AND originating_body != '' "
-                "GROUP BY originating_body ORDER BY count DESC"
-            )
-            result["bodies"] = [_row_to_dict(r) for r in cur.fetchall()]
+                # Importance
+                cur.execute(
+                    "SELECT importance AS value, count(*) AS count "
+                    "FROM cases WHERE importance IS NOT NULL" + scope_clause
+                    + " GROUP BY importance ORDER BY count DESC", scope_params)
+                result["importance"] = [_row_to_dict(r) for r in cur.fetchall()]
 
-            # Document types
-            cur.execute(
-                "SELECT document_type AS value, count(*) AS count "
-                "FROM cases WHERE document_type IS NOT NULL AND document_type != '' "
-                "GROUP BY document_type ORDER BY count DESC"
-            )
-            result["doc_types"] = [_row_to_dict(r) for r in cur.fetchall()]
+                # Sections (exclude Header — case metadata, not content)
+                cur.execute(
+                    "SELECT section AS value, count(DISTINCT case_id) AS count "
+                    "FROM paragraphs WHERE section IS NOT NULL "
+                    "AND section != 'Header'" + scope_clause
+                    + " GROUP BY section ORDER BY count DESC", scope_params)
+                result["sections"] = [_row_to_dict(r) for r in cur.fetchall()]
+
+                # Originating bodies
+                cur.execute(
+                    "SELECT originating_body AS value, count(*) AS count "
+                    "FROM cases WHERE originating_body IS NOT NULL "
+                    "AND originating_body != ''" + scope_clause
+                    + " GROUP BY originating_body ORDER BY count DESC", scope_params)
+                result["bodies"] = [_row_to_dict(r) for r in cur.fetchall()]
+
+                # Document types
+                cur.execute(
+                    "SELECT document_type AS value, count(*) AS count "
+                    "FROM cases WHERE document_type IS NOT NULL "
+                    "AND document_type != ''" + scope_clause
+                    + " GROUP BY document_type ORDER BY count DESC", scope_params)
+                result["doc_types"] = [_row_to_dict(r) for r in cur.fetchall()]
 
             # Date range — judgment_date is DD/MM/YYYY, so naive MIN/MAX
             # is lexicographic-by-DD, not chronological.  Sort by an

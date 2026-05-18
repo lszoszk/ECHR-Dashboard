@@ -125,16 +125,6 @@
               <input type="checkbox" data-name="buckets" value="appendix">
               <span>Appendix</span>
             </label>
-            <span class="scope-divider" aria-hidden="true">·</span>
-            <label class="scope-toggle" title="Include cover page metadata and summary digest">
-              <input type="checkbox" id="scopeIncludeMeta">
-              <span>+ Header/Summary</span>
-            </label>
-            <label class="scope-toggle" title="Search within sub-section heading labels (rare — most users want body)">
-              <input type="checkbox" id="scopeIncludeHeadings">
-              <span>+ Headings</span>
-            </label>
-            <input type="checkbox" id="scopeIncludeOpinions" hidden>
           </div>
         </form>
       </div>
@@ -233,6 +223,16 @@
                   <p class="filter-hint">Override the bucket scope with granular HUDOC sub-section keys. When any box here is ticked, the bucket pills at the top are ignored.</p>
                   <div class="checkbox-grid compact" id="sectionsFilters"></div>
                 </details>
+                <h3 class="filter-title inline-space">Also search in</h3>
+                <div class="checkbox-grid compact">
+                  <label class="cb-label" title="Also search the cover page (case caption, list of judges) and the Court's case-law summary">
+                    <input type="checkbox" id="scopeIncludeMeta"> <span>Cover page &amp; summary</span>
+                  </label>
+                  <label class="cb-label" title="Also search within sub-section heading labels (e.g. &quot;PROCEDURE&quot;, &quot;THE FACTS&quot;) — rarely useful">
+                    <input type="checkbox" id="scopeIncludeHeadings"> <span>Section headings</span>
+                  </label>
+                </div>
+                <input type="checkbox" id="scopeIncludeOpinions" hidden>
               </div>
 
               <!-- 8. Separate Opinion -->
