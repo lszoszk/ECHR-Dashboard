@@ -4323,7 +4323,15 @@ function buildResearcherArticleChips(articles, maxVisible = 4) {
 
 function buildResearcherBars(c, row) {
   const cited = Number(c.__citedByCount || 0);
-  const cites = Number((c.__citationRefs || []).length || 0);
+  // Prefer the P29 server-computed count (covers every case, incl.
+  // recent committee judgments absent from the JSONL feed); fall back
+  // to the JSONL-sourced strasbourg_caselaw length only when the
+  // server didn't ship a count.  Mirrors the cites legal-chip below.
+  const cites = Number(
+    c.__citesCountServer != null
+      ? c.__citesCountServer
+      : (c.__citationRefs || []).length || 0
+  );
   const hits = Number(row.hitCount || row.paragraphs?.length || 0);
   const max = Math.max(cited, cites, hits, 1);
   // `dimZero`: the citation graph (P29) has partial coverage, so a 0 is
@@ -4476,7 +4484,12 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
   const outcomeLabel = OUTCOME_LABELS[c.__outcomePrimary] || c.__outcomePrimary || "-";
   const outcomeToneClass = getOutcomeToneClass(c.__outcomePrimary);
   const chamberLabel = getChamberLabel(c.__chamberCategory);
-  const citations = (c.__citationRefs || []).length;
+  // Outgoing cites for the Case Note meta row — prefer the P29
+  // server-computed count (covers every case); fall back to the
+  // JSONL-sourced strasbourg_caselaw length only when absent.
+  const citations = (c.__citesCountServer != null)
+    ? c.__citesCountServer
+    : (c.__citationRefs || []).length;
 
   // Compact, grouped fact header — one block (articles · facts grid ·
   // outcome) instead of the old loose 6-cell grid + scattered chip row.
@@ -5712,7 +5725,9 @@ async function exportCsv() {
         (data.case.violation || []).join("; "),
         (data.case["non-violation"] || []).join("; "),
         (data.case.keywords || []).join("; "),
-        String((data.case.__citationRefs || []).length),
+        String(data.case.__citesCountServer != null
+          ? data.case.__citesCountServer
+          : (data.case.__citationRefs || []).length),
         (data.case.__citationRefs || []).slice(0, 3).join("; "),
         p.sectionLabel,
         // Display: HUDOC if available, internal index otherwise (with * marker).
