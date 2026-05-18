@@ -250,12 +250,17 @@ def map_metadata(cols: dict, kpthes: dict, build_db) -> dict:
 
 
 # ── SQL emission ─────────────────────────────────────────────────────
+# Mirrors the LIVE production `cases` schema (16 columns).  build_db.py's
+# schema additionally declares strasbourg_caselaw / domestic_law /
+# international_law / rules_of_court, but the production database predates
+# that revision and never had those columns added — so we must not emit
+# them.  If the DB is ever rebuilt from build_db.py's fuller schema, append
+# the four columns here and the matching values in emit_case().
 CASES_COLS = (
     "case_id, case_no, title, hudoc_url, judgment_date, ecli, "
     "respondent_state, importance, conclusion, violation, non_violation, "
     "violation_inferred, non_violation_inferred, keywords, originating_body, "
-    "document_type, strasbourg_caselaw, domestic_law, international_law, "
-    "rules_of_court"
+    "document_type"
 )
 PARA_COLS = (
     "case_id, section, para_idx, hudoc_para_no, numbering_block, row_role, "
@@ -281,10 +286,8 @@ def emit_case(meta: dict, paras: list[dict], build_db, p34) -> list[str]:
         v(build_db._json_field(meta["keywords"])),
         v(build_db._json_field(meta["originating_body"])),
         v(meta["document_type"]),
-        v(build_db._json_field(meta["strasbourg_caselaw"])),
-        v(build_db._json_field(meta["domestic_law"])),
-        v(build_db._json_field(meta["international_law"])),
-        v(build_db._json_field(meta["rules_of_court"])),
+        # strasbourg_caselaw / domestic_law / international_law /
+        # rules_of_court are intentionally not emitted — see CASES_COLS.
     ]
     out.append(f"INSERT OR IGNORE INTO cases ({CASES_COLS}) "
                f"VALUES ({', '.join(cells)});")
