@@ -21,8 +21,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css?v=20260507-hudoc-researcher-4">
-  <link rel="stylesheet" href="assets/search-app.css?v=20260507-hudoc-researcher-4">
-  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20260507-hudoc-researcher-4">
+  <link rel="stylesheet" href="assets/search-app.css?v=20260518-filter-rail">
+  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20260518-filter-rail">
   <link rel="stylesheet" href="assets/judgment-hudoc.css?v=20260514-appendix-bucket">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
@@ -118,12 +118,8 @@
               <span>Operative</span>
             </label>
             <label class="bucket-pill" title="Concurring &amp; dissenting opinions">
-              <input type="checkbox" data-name="buckets" value="individual_opinions">
+              <input type="checkbox" data-name="buckets" value="individual_opinions" checked>
               <span>Individual opinions</span>
-            </label>
-            <label class="bucket-pill" title="Annexes — compensation tables, applicant lists (after dispositif)">
-              <input type="checkbox" data-name="buckets" value="appendix">
-              <span>Appendix</span>
             </label>
           </div>
         </form>
@@ -163,27 +159,29 @@
       <aside class="editorial-filter-rail" aria-label="Search filters">
         <div class="filter-rail-head">
           <span class="folio-label">Filters</span>
-          <button type="button" class="filter-toggle" id="filterToggleBtn" aria-expanded="true" disabled>
+          <button type="button" class="filter-toggle" id="filterToggleBtn" aria-expanded="false" disabled>
             <span class="filter-toggle-icon">▼</span> Advanced Filters
           </button>
         </div>
 
-        <div class="filters-panel open" id="filtersPanel">
+        <div class="filters-panel" id="filtersPanel">
           <div class="filters-grid">
 
-              <!-- 1. Respondent State — most general, primary who-dimension -->
+              <!-- ── Common filters — always visible ─────────────────────── -->
+
+              <!-- Respondent State — primary who-dimension -->
               <div class="filter-group">
                 <h3 class="filter-title">Respondent State</h3>
                 <div class="checkbox-grid scrollable" id="countriesFilters"></div>
               </div>
 
-              <!-- 2. Convention Articles — primary what-dimension -->
+              <!-- Convention Articles — primary what-dimension -->
               <div class="filter-group">
                 <h3 class="filter-title">Convention Articles</h3>
                 <div class="checkbox-grid scrollable" id="articlesFilters"></div>
               </div>
 
-              <!-- 3. Judgment Date — temporal scope -->
+              <!-- Judgment Date — temporal scope -->
               <div class="filter-group">
                 <h3 class="filter-title">Judgment Date</h3>
                 <div class="date-range">
@@ -193,64 +191,74 @@
                 </div>
               </div>
 
-              <!-- 4. Importance — ECHR classification -->
+              <!-- Importance — ECHR classification -->
               <div class="filter-group">
                 <h3 class="filter-title">Importance</h3>
                 <div class="checkbox-grid compact" id="importanceFilters"></div>
               </div>
 
-              <!-- 5. Originating Body — court composition (includes Grand Chamber) -->
-              <div class="filter-group">
-                <h3 class="filter-title">Originating Body</h3>
-                <div class="checkbox-grid scrollable" id="originatingBodyFilters"></div>
-              </div>
-
-              <!-- 6. Outcome + Document Type — result of proceedings -->
+              <!-- Outcome — result of proceedings -->
               <div class="filter-group">
                 <h3 class="filter-title">Outcome</h3>
                 <div class="checkbox-grid compact" id="outcomeFilters"></div>
-
-                <h3 class="filter-title inline-space">Document Type</h3>
-                <div class="checkbox-grid compact" id="docTypeFilters"></div>
               </div>
 
-              <!-- 7. Case Sections — granular fallback for the top-bar buckets.
-                   Hidden behind a disclosure; most users want the 5 buckets
-                   above the search input. -->
-              <div class="filter-group">
-                <details class="filter-disclosure">
-                  <summary><h3 class="filter-title inline">Case Sections (advanced)</h3></summary>
-                  <p class="filter-hint">Override the bucket scope with granular HUDOC sub-section keys. When any box here is ticked, the bucket pills at the top are ignored.</p>
-                  <div class="checkbox-grid compact" id="sectionsFilters"></div>
-                </details>
-                <h3 class="filter-title inline-space">Also search in</h3>
-                <div class="checkbox-grid compact">
-                  <label class="cb-label" title="Also search the cover page (case caption, list of judges, application number) and the section heading labels (e.g. &quot;PROCEDURE&quot;, &quot;THE LAW&quot;) — structural text normally kept out of full-text search as noise">
-                    <input type="checkbox" id="scopeIncludeExtra"> <span>Cover page &amp; headings</span>
-                  </label>
+              <!-- ── Advanced filters — revealed by the "Advanced Filters"
+                   toggle in the rail head; collapsed by default ──────────── -->
+              <div class="filters-advanced" id="filtersAdvanced">
+
+                <!-- Originating Body — court composition (incl. Grand Chamber) -->
+                <div class="filter-group">
+                  <h3 class="filter-title">Originating Body</h3>
+                  <div class="checkbox-grid scrollable" id="originatingBodyFilters"></div>
                 </div>
-                <input type="checkbox" id="scopeIncludeOpinions" hidden>
-              </div>
 
-              <!-- 8. Separate Opinion -->
-              <div class="filter-group">
-                <h3 class="filter-title">Separate Opinion</h3>
-                <div class="checkbox-grid compact" id="separateOpinionFilters"></div>
-              </div>
+                <!-- Document Type -->
+                <div class="filter-group">
+                  <h3 class="filter-title">Document Type</h3>
+                  <div class="checkbox-grid compact" id="docTypeFilters"></div>
+                </div>
 
-              <!-- 9. Power-user filters: metadata presence flags (collapsed by default) -->
-              <div class="filter-group">
-                <button type="button" class="power-user-toggle" id="powerUserToggle" aria-expanded="false" disabled>
-                  ⚙ Metadata filters
-                </button>
-                <div class="power-user-panel hidden" id="powerUserPanel">
-                  <div class="checkbox-grid compact" id="presenceFilters" style="margin-top:8px">
-                    <label class="cb-label"><input type="checkbox" data-name="presence" value="has_strasbourg_caselaw" disabled> <span>Has Strasbourg citations</span></label>
-                    <label class="cb-label"><input type="checkbox" data-name="presence" value="has_domestic_law" disabled> <span>Has domestic law</span></label>
-                    <label class="cb-label"><input type="checkbox" data-name="presence" value="has_international_law" disabled> <span>Has international law</span></label>
-                    <label class="cb-label"><input type="checkbox" data-name="presence" value="has_rules_of_court" disabled> <span>Has rules of court</span></label>
+                <!-- Case Sections (granular) + extra search scope -->
+                <div class="filter-group">
+                  <details class="filter-disclosure">
+                    <summary><h3 class="filter-title inline">Case Sections (advanced)</h3></summary>
+                    <p class="filter-hint">Override the bucket scope with granular HUDOC sub-section keys. When any box here is ticked, the bucket pills at the top are ignored.</p>
+                    <div class="checkbox-grid compact" id="sectionsFilters"></div>
+                  </details>
+                  <h3 class="filter-title inline-space">Also search in</h3>
+                  <div class="checkbox-grid compact">
+                    <label class="cb-label" title="Also search the cover page (case caption, list of judges, application number) and the section heading labels (e.g. &quot;PROCEDURE&quot;, &quot;THE LAW&quot;) — structural text normally kept out of full-text search as noise">
+                      <input type="checkbox" id="scopeIncludeExtra"> <span>Cover page &amp; headings</span>
+                    </label>
+                    <label class="cb-label" title="Also search the annexes — compensation tables and applicant lists — that follow the operative part">
+                      <input type="checkbox" id="scopeIncludeAppendix"> <span>Appendix</span>
+                    </label>
+                  </div>
+                  <input type="checkbox" id="scopeIncludeOpinions" hidden>
+                </div>
+
+                <!-- Separate Opinion -->
+                <div class="filter-group">
+                  <h3 class="filter-title">Separate Opinion</h3>
+                  <div class="checkbox-grid compact" id="separateOpinionFilters"></div>
+                </div>
+
+                <!-- Power-user filters: metadata presence flags -->
+                <div class="filter-group">
+                  <button type="button" class="power-user-toggle" id="powerUserToggle" aria-expanded="false" disabled>
+                    ⚙ Metadata filters
+                  </button>
+                  <div class="power-user-panel hidden" id="powerUserPanel">
+                    <div class="checkbox-grid compact" id="presenceFilters" style="margin-top:8px">
+                      <label class="cb-label"><input type="checkbox" data-name="presence" value="has_strasbourg_caselaw" disabled> <span>Has Strasbourg citations</span></label>
+                      <label class="cb-label"><input type="checkbox" data-name="presence" value="has_domestic_law" disabled> <span>Has domestic law</span></label>
+                      <label class="cb-label"><input type="checkbox" data-name="presence" value="has_international_law" disabled> <span>Has international law</span></label>
+                      <label class="cb-label"><input type="checkbox" data-name="presence" value="has_rules_of_court" disabled> <span>Has rules of court</span></label>
+                    </div>
                   </div>
                 </div>
+
               </div>
 
           </div>
@@ -539,6 +547,6 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
-  <script src="assets/search-app.js?v=20260514-appendix-bucket"></script>
+  <script src="assets/search-app.js?v=20260518-filter-rail"></script>
 </body>
 </html>

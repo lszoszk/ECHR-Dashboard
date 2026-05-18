@@ -1498,8 +1498,17 @@ mark.hl {
   overflow: visible;
 }
 
-.editorial-filter-rail .filters-panel:not(.open) .filters-grid {
+/* The "Advanced Filters" toggle reveals ONLY the advanced subset — the
+   common filters (Respondent State, Articles, Date, Importance, Outcome)
+   stay visible at all times.  Collapsed by default for a shorter rail. */
+.editorial-filter-rail .filters-panel:not(.open) .filters-advanced {
   display: none;
+}
+
+.editorial-filter-rail .filters-advanced {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
 }
 
 .editorial-filter-rail .filters-grid {

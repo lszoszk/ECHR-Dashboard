@@ -89,9 +89,10 @@ const serverSearch = {
             .filter(([_, b]) => b.defaultOn)
             .map(([k]) => k);
       const scope = activeBuckets.flatMap(b => SECTION_BUCKETS[b]?.sections || []);
-      // Appendix is now its own bucket (defaultOn=false).  includeMeta
-      // adds only the cover/header rows that no bucket owns.
+      // Cover page / headings and the appendix are no longer bucket pills —
+      // they opt in via the "Also search in" checkboxes in Advanced filters.
       if (filters.includeMeta) scope.push("header", "summary");
+      if (filters.includeAppendix) scope.push("appendix");
       const dbSections = scope.flatMap(s => SECTION_DB_NAMES[s] || [s]);
       p.set("sections", dbSections.join(","));
     }
@@ -381,7 +382,7 @@ const SECTION_BUCKETS = {
     description: "Concurring, dissenting and partly concurring/dissenting opinions",
     sections: ["separate_opinion"],
     color: "#8C8C8C",
-    defaultOn: false,
+    defaultOn: true,
   },
   appendix: {
     label: "Appendix",
@@ -2256,11 +2257,14 @@ function attachFilterGroupClearButtons() {
  *  know how many filters are currently constraining results. */
 function updateActiveFilterCount() {
   if (!el.filterToggleBtn) return;
-  const active = document.querySelectorAll('#filtersPanel input[type="checkbox"]:checked').length
-    + (el.dateFrom?.value ? 1 : 0)
-    + (el.dateTo?.value ? 1 : 0);
-  // Only modify the text node containing "Advanced Filters", keep the icon
-  const iconHTML = '<span class="filter-toggle-icon">▼</span>';
+  // Count only ADVANCED filters — the badge surfaces selections hidden
+  // inside the collapsed advanced section.  Common filters (countries,
+  // articles, date, importance, outcome) are always visible, so they
+  // need no badge.
+  const active = document.querySelectorAll('#filtersAdvanced input[type="checkbox"]:checked').length;
+  // Caret reflects the collapse state: ▶ collapsed, ▼ expanded.
+  const expanded = el.filterToggleBtn.getAttribute("aria-expanded") === "true";
+  const iconHTML = `<span class="filter-toggle-icon">${expanded ? "▼" : "▶"}</span>`;
   if (active > 0) {
     el.filterToggleBtn.innerHTML = `${iconHTML} Advanced Filters <span class="active-filter-badge">${active}</span>`;
   } else {
@@ -2336,6 +2340,9 @@ function getCurrentFilters() {
     // together by one user-facing switch.
     includeMeta: !!document.getElementById("scopeIncludeExtra")?.checked,
     includeHeadings: !!document.getElementById("scopeIncludeExtra")?.checked,
+    // "Appendix" — its own "Also search in" checkbox (annexes, applicant
+    // tables, compensation schedules that follow the operative part).
+    includeAppendix: !!document.getElementById("scopeIncludeAppendix")?.checked,
   };
 }
 
@@ -7317,6 +7324,8 @@ function bindEvents() {
     if (el.filterToggleBtn.disabled) return;
     const open = el.filtersPanel.classList.toggle("open");
     el.filterToggleBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    // Rebuild the button (caret ▶/▼ + active-filter badge) for the new state.
+    updateActiveFilterCount();
   });
 
   el.powerUserToggle.addEventListener("click", () => {
