@@ -629,7 +629,8 @@ def facets(
 
             if scoped and not scope_ids:
                 result.update(articles=[], states=[], importance=[],
-                              sections=[], bodies=[], doc_types=[])
+                              sections=[], bodies=[], doc_types=[],
+                              keywords=[])
             else:
                 # Articles — case_articles rows are split into individual
                 # tokens; counts are distinct cases per article.
@@ -698,6 +699,19 @@ def facets(
                     + " GROUP BY document_type ORDER BY count DESC", scope_params)
                 result["doc_types"] = [_row_to_dict(r) for r in cur.fetchall()]
 
+                # Keywords — HUDOC thesaurus, JSON array on cases.keywords.
+                # Counts are distinct cases per keyword; pivot via json_each.
+                kw_sql = (
+                    "SELECT j.value AS value, COUNT(DISTINCT c.case_id) AS count "
+                    "FROM cases c, json_each(c.keywords) j "
+                    "WHERE c.keywords IS NOT NULL AND c.keywords != '[]'"
+                )
+                if scoped:
+                    kw_sql += " AND c.case_id IN (SELECT value FROM json_each(?))"
+                kw_sql += " GROUP BY j.value ORDER BY count DESC"
+                cur.execute(kw_sql, [ids_json] if scoped else [])
+                result["keywords"] = [_row_to_dict(r) for r in cur.fetchall()]
+
             # Date range — judgment_date is DD/MM/YYYY, so naive MIN/MAX
             # is lexicographic-by-DD, not chronological.  Sort by an
             # ISO-style YYYYMMDD key and pick the first / last rows.
@@ -740,6 +754,7 @@ def _build_case_filter_sql(
     body_list: list[str] | None = None,
     outcome_list: list[str] | None = None,
     doc_type_list: list[str] | None = None,
+    keyword_list: list[str] | None = None,
     date_from: str | None = None,
     date_to: str | None = None,
 ) -> tuple[str, str, list[Any]]:
@@ -798,6 +813,17 @@ def _build_case_filter_sql(
         placeholders = ",".join("?" for _ in imp_list)
         where_clauses.append(f"c.importance IN ({placeholders})")
         params.extend(imp_list)
+
+    if keyword_list:
+        # HUDOC thesaurus keywords — stored on cases.keywords as a JSON
+        # array of strings ("(Art. 3) Prohibition of torture" etc.).
+        # Multiple keywords in this filter mean OR (HUDOC convention).
+        placeholders = ",".join("?" for _ in keyword_list)
+        where_clauses.append(
+            f"EXISTS (SELECT 1 FROM json_each(c.keywords) j "
+            f"WHERE j.value IN ({placeholders}))"
+        )
+        params.extend(keyword_list)
 
     if body_list:
         body_conditions = []
@@ -1037,6 +1063,7 @@ def search(
     states: Optional[str] = Query(None, description="Comma-separated respondent_state filter"),
     importance: Optional[str] = Query(None, description="Comma-separated importance filter"),
     bodies: Optional[str] = Query(None, description="Comma-separated originating_body filter"),
+    keywords: Optional[str] = Query(None, description="Comma-separated HUDOC thesaurus keyword filter (OR within)"),
     outcomes: Optional[str] = Query(None, description="Comma-separated outcome filter (violation_only,non_violation_only,both,neither)"),
     doc_types: Optional[str] = Query(None, description="Comma-separated document type filter (judgment,press_release,committee,chamber,grand_chamber)"),
     date_from: Optional[str] = Query(None, description="Earliest judgment_date (YYYY-MM-DD)"),
@@ -1072,6 +1099,7 @@ def search(
     state_list = _parse_comma_param(states)
     imp_list = _parse_comma_param(importance)
     body_list = _parse_comma_param(bodies)
+    keyword_list = _parse_comma_param(keywords)
     outcome_list = _parse_comma_param(outcomes)
     doc_type_list = _parse_comma_param(doc_types)
 
@@ -1124,6 +1152,17 @@ def search(
         placeholders = ",".join("?" for _ in imp_list)
         where_clauses.append(f"c.importance IN ({placeholders})")
         params.extend(imp_list)
+
+    if keyword_list:
+        # HUDOC thesaurus keywords — stored on cases.keywords as a JSON
+        # array of strings ("(Art. 3) Prohibition of torture" etc.).
+        # Multiple keywords in this filter mean OR (HUDOC convention).
+        placeholders = ",".join("?" for _ in keyword_list)
+        where_clauses.append(
+            f"EXISTS (SELECT 1 FROM json_each(c.keywords) j "
+            f"WHERE j.value IN ({placeholders}))"
+        )
+        params.extend(keyword_list)
 
     if body_list:
         body_conditions = []
@@ -1776,6 +1815,7 @@ def browse(
     states: Optional[str] = Query(None),
     importance: Optional[str] = Query(None),
     bodies: Optional[str] = Query(None),
+    keywords: Optional[str] = Query(None),
     outcomes: Optional[str] = Query(None),
     doc_types: Optional[str] = Query(None),
     date_from: Optional[str] = Query(None),
@@ -1790,6 +1830,7 @@ def browse(
     state_list = _parse_comma_param(states)
     imp_list = _parse_comma_param(importance)
     body_list = _parse_comma_param(bodies)
+    keyword_list = _parse_comma_param(keywords)
     outcome_list = _parse_comma_param(outcomes)
     doc_type_list = _parse_comma_param(doc_types)
 
@@ -1830,6 +1871,17 @@ def browse(
         placeholders = ",".join("?" for _ in imp_list)
         where_clauses.append(f"c.importance IN ({placeholders})")
         params.extend(imp_list)
+
+    if keyword_list:
+        # HUDOC thesaurus keywords — stored on cases.keywords as a JSON
+        # array of strings ("(Art. 3) Prohibition of torture" etc.).
+        # Multiple keywords in this filter mean OR (HUDOC convention).
+        placeholders = ",".join("?" for _ in keyword_list)
+        where_clauses.append(
+            f"EXISTS (SELECT 1 FROM json_each(c.keywords) j "
+            f"WHERE j.value IN ({placeholders}))"
+        )
+        params.extend(keyword_list)
 
     if body_list:
         body_conditions = []

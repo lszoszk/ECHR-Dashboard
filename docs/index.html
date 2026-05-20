@@ -169,6 +169,15 @@
                 <div class="checkbox-grid scrollable" id="articlesFilters"></div>
               </div>
 
+              <!-- Keywords — HUDOC thesaurus.  The structured legal-issue
+                   labels the Court applies to every case: "(Art. 3)
+                   Prohibition of torture", "(Art. 6-1) Reasonable time",
+                   etc.  Multiple ticks combine with OR (HUDOC convention). -->
+              <div class="filter-group">
+                <h3 class="filter-title">Keywords</h3>
+                <div class="checkbox-grid scrollable" id="keywordsFilters"></div>
+              </div>
+
               <!-- Judgment Date — temporal scope -->
               <div class="filter-group">
                 <h3 class="filter-title">Judgment Date</h3>
@@ -522,6 +531,6 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
-  <script src="assets/search-app.js?v=20260518-hudoc-align"></script>
+  <script src="assets/search-app.js?v=20260518-keywords"></script>
 </body>
 </html>

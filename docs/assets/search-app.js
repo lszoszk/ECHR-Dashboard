@@ -106,6 +106,7 @@ const serverSearch = {
     if (filters.countries.size) p.set("states", [...filters.countries].join(","));
     if (filters.importance.size) p.set("importance", [...filters.importance].join(","));
     if (filters.bodies.size) p.set("bodies", [...filters.bodies].join(","));
+    if (filters.keywords && filters.keywords.size) p.set("keywords", [...filters.keywords].join(","));
     const serverOutcomes = [...filters.outcomes].filter(v => PRIMARY_OUTCOMES.has(v));
     if (serverOutcomes.length) p.set("outcomes", serverOutcomes.join(","));
     if (filters.docTypes.size) p.set("doc_types", [...filters.docTypes].join(","));
@@ -601,6 +602,7 @@ const state = {
   articles: [],
   countries: [],
   bodies: [],
+  keywords: [],
   importanceLevels: [],
   query: "",
   currentFilters: null,
@@ -682,6 +684,7 @@ function cacheElements() {
   el.sectionsFilters = byId("sectionsFilters");
   el.countriesFilters = byId("countriesFilters");
   el.articlesFilters = byId("articlesFilters");
+  el.keywordsFilters = byId("keywordsFilters");
   el.importanceFilters = byId("importanceFilters");
   el.docTypeFilters = byId("docTypeFilters");
   el.outcomeFilters = byId("outcomeFilters");
@@ -1473,7 +1476,7 @@ function setSearchEnabled(enabled) {
   if (el.exportIncludeClassifier) el.exportIncludeClassifier.disabled = !enabled;
 
   const dynamicInputs = document.querySelectorAll(
-    "#sectionsFilters input, #countriesFilters input, #articlesFilters input, #importanceFilters input, #outcomeFilters input, #separateOpinionFilters input"
+    "#sectionsFilters input, #countriesFilters input, #articlesFilters input, #keywordsFilters input, #importanceFilters input, #outcomeFilters input, #separateOpinionFilters input"
   );
   for (const input of dynamicInputs) {
     input.disabled = !enabled;
@@ -1928,6 +1931,7 @@ function renderFiltersSkeleton() {
   if (el.sectionsFilters) el.sectionsFilters.innerHTML = loading;
   if (el.countriesFilters) el.countriesFilters.innerHTML = loading;
   if (el.articlesFilters) el.articlesFilters.innerHTML = loading;
+  if (el.keywordsFilters) el.keywordsFilters.innerHTML = loading;
   if (el.importanceFilters) el.importanceFilters.innerHTML = loading;
 
   // Fixed filters that don't depend on facets — render immediately.
@@ -1986,6 +1990,16 @@ function renderFilters() {
     .map((article) => makeCheckbox(`Art. ${article}`, article, "articles", fc.articles[article]))
     .join("");
 
+  // Keywords — HUDOC thesaurus labels (full verbatim, no truncation:
+  // researchers recognise them in their entirety).  Search-as-you-type
+  // box above is attached by attachFilterSearchBoxes for the 500-ish
+  // value list.
+  if (el.keywordsFilters) {
+    el.keywordsFilters.innerHTML = state.keywords
+      .map((kw) => makeCheckbox(kw, kw, "keywords", (fc.keywords || {})[kw]))
+      .join("");
+  }
+
   // Importance — descriptive labels + tooltip explaining HUDOC's scheme
   el.importanceFilters.innerHTML = state.importanceLevels
     .map((level) => makeCheckbox(
@@ -2040,7 +2054,7 @@ function renderFilters() {
  *  renderFilters() / applyRailCounts() consume.  Used both for the
  *  whole-corpus counts (page load) and the per-search scoped counts. */
 function buildFacetCounts(facets) {
-  const fc = { sections: {}, articles: {}, countries: {}, bodies: {}, importance: {}, docTypes: {} };
+  const fc = { sections: {}, articles: {}, countries: {}, bodies: {}, importance: {}, docTypes: {}, keywords: {} };
   // Reverse map: DB section name → normalized bucket key.
   const DB_TO_NORM = {};
   for (const [norm, dbArr] of Object.entries(SECTION_DB_NAMES)) {
@@ -2061,6 +2075,9 @@ function buildFacetCounts(facets) {
   }
   if (facets.articles) {
     for (const f of facets.articles) fc.articles[f.value] = f.count || 0;
+  }
+  if (facets.keywords) {
+    for (const f of facets.keywords) if (f.value) fc.keywords[f.value] = f.count || 0;
   }
   if (facets.bodies) {
     for (const f of facets.bodies) fc.bodies[f.value] = f.count || 0;
@@ -2096,7 +2113,8 @@ function applyRailCounts() {
   if (!fc || !el.filtersPanel) return;
   const groupMap = {
     sections: fc.sections, countries: fc.countries, articles: fc.articles,
-    bodies: fc.bodies, importance: fc.importance, docTypes: fc.docTypes,
+    keywords: fc.keywords, bodies: fc.bodies, importance: fc.importance,
+    docTypes: fc.docTypes,
   };
   el.filtersPanel.querySelectorAll('input[type="checkbox"][data-name]').forEach((input) => {
     const map = groupMap[input.getAttribute("data-name")];
@@ -2153,6 +2171,7 @@ async function refreshRailCounts(query, filters) {
     for (const s of (state.sectionsInDataset || [])) if (fc.sections[s] == null) fc.sections[s] = 0;
     for (const c of (state.countries || [])) if (fc.countries[c] == null) fc.countries[c] = 0;
     for (const a of (state.articles || [])) if (fc.articles[a] == null) fc.articles[a] = 0;
+    for (const k of (state.keywords || [])) if (fc.keywords[k] == null) fc.keywords[k] = 0;
     for (const b of (state.bodies || [])) if (fc.bodies[b] == null) fc.bodies[b] = 0;
     for (const i of (state.importanceLevels || [])) if (fc.importance[i] == null) fc.importance[i] = 0;
     for (const d of ["chamber", "grand_chamber", "committee", "press_release"]) {
@@ -2171,6 +2190,7 @@ function attachFilterSearchBoxes() {
   const targets = [
     { container: el.countriesFilters, placeholder: "Search countries…", key: "countries" },
     { container: el.articlesFilters, placeholder: "Search articles…", key: "articles" },
+    { container: el.keywordsFilters, placeholder: "Search keywords…", key: "keywords" },
   ];
   for (const t of targets) {
     if (!t.container) continue;
@@ -2317,6 +2337,7 @@ function getCurrentFilters() {
     buckets,
     countries: collectChecked("countries"),
     articles: collectChecked("articles"),
+    keywords: collectChecked("keywords"),
     bodies: collectChecked("bodies"),
     importance: collectChecked("importance"),
     outcomes: collectChecked("outcomes"),
@@ -2819,6 +2840,11 @@ function renderActiveFilters(filters) {
   }
   for (const a of filters.articles) {
     chips.push(`<span class="filter-chip">Art. ${escapeHtml(a)}</span>`);
+  }
+  if (filters.keywords) {
+    for (const kw of filters.keywords) {
+      chips.push(`<span class="filter-chip" title="HUDOC keyword">${escapeHtml(kw)}</span>`);
+    }
   }
   for (const c of filters.countries) {
     chips.push(`<span class="filter-chip">${escapeHtml(COUNTRY_NAMES[c] || c)}</span>`);
@@ -5361,6 +5387,7 @@ async function fetchAndRenderServerAnalytics(query, filters) {
     if (filters.countries.size) p.set("states", [...filters.countries].join(","));
     if (filters.importance.size) p.set("importance", [...filters.importance].join(","));
     if (filters.bodies.size) p.set("bodies", [...filters.bodies].join(","));
+    if (filters.keywords && filters.keywords.size) p.set("keywords", [...filters.keywords].join(","));
     const serverOutcomes = [...filters.outcomes].filter(v => PRIMARY_OUTCOMES.has(v));
     if (serverOutcomes.length) p.set("outcomes", serverOutcomes.join(","));
     if (filters.docTypes.size) p.set("doc_types", [...filters.docTypes].join(","));
@@ -5451,6 +5478,7 @@ function applySearch(resetPage = true) {
       filters.sections.size ||
       filters.articles.size ||
       filters.countries.size ||
+      (filters.keywords && filters.keywords.size) ||
       filters.importance.size ||
       filters.bodies.size ||
       filters.outcomes.size ||
@@ -7977,6 +8005,11 @@ function init() {
           state.articles = facets.articles
             .map((f) => f.value)
             .sort((a, b) => (a.length - b.length) || a.localeCompare(b));
+        }
+        if (facets.keywords) {
+          // Preserve server order (descending by case count) — most-cited
+          // HUDOC keywords come first, which is what a researcher wants.
+          state.keywords = facets.keywords.map((f) => f.value).filter(Boolean);
         }
         if (facets.bodies) {
           state.bodies = facets.bodies
