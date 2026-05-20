@@ -92,12 +92,8 @@
 
           <div class="search-tips">
             <span class="tip">Operators</span>
-            <span class="tip"><code>"exact phrase"</code></span>
-            <span class="tip"><code>OR</code></span>
-            <span class="tip"><code>article:</code></span>
-            <span class="tip"><code>state:</code></span>
-            <span class="tip"><code>judge:</code></span>
-            <span class="tip"><code>ecli:</code></span>
+            <span class="tip" title="Force exact-word order"><code>"exact phrase"</code></span>
+            <span class="tip" title="Disjunction between terms — torture OR inhuman"><code>OR</code></span>
           </div>
           <div class="search-scope-bar bucket-scope" id="bucketScope">
             <span class="scope-label">Search in</span>
@@ -183,9 +179,14 @@
                 </div>
               </div>
 
-              <!-- Importance — ECHR classification -->
+              <!-- Importance — HUDOC's four-tier classification.
+                   HUDOC restricts its analytical fields (Strasbourg case-law,
+                   Domestic Law, etc.) to levels 1 and 2; we re-extract them
+                   across the whole corpus, so the citation graph and
+                   cross-references work for level-3 cases too. -->
               <div class="filter-group">
                 <h3 class="filter-title">Importance</h3>
+                <p class="filter-hint">Citation analysis covers <strong>all levels</strong> — including level&nbsp;3, where HUDOC's analytical fields stop.</p>
                 <div class="checkbox-grid compact" id="importanceFilters"></div>
               </div>
 
@@ -521,6 +522,6 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
-  <script src="assets/search-app.js?v=20260518-rail-cleanup"></script>
+  <script src="assets/search-app.js?v=20260518-hudoc-align"></script>
 </body>
 </html>

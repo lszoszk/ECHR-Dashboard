@@ -484,17 +484,21 @@ function importanceTooltip(value) {
 // the top tier, NOT a subset of "1".  IMPORTANCE_ORDER fixes the rail order
 // (default localeCompare wrongly sorts "Key cases" after "3").
 const IMPORTANCE_ORDER = ["Key cases", "1", "2", "3", "Unspecified"];
+// Labels follow HUDOC's official wording (Case Reports / 1 = High /
+// 2 = Medium / 3 = Low) — see the HUDOC FAQ "What do the importance
+// levels correspond to?"  Diverging from HUDOC's vocabulary would
+// confuse researchers who arrive from there.
 const IMPORTANCE_LABELS = {
   "Key cases": "Key cases",
   "1": "1 — High",
-  "2": "2 — Important",
-  "3": "3 — Notable",
+  "2": "2 — Medium",
+  "3": "3 — Low",
 };
 const IMPORTANCE_TOOLTIPS = {
-  "Key cases": "The Court's most significant judgments — selected for the official Reports of Judgments and Decisions",
-  "1": "High importance — leading cases that develop or clarify a Convention principle",
-  "2": "Substantial case-law importance",
-  "3": "Standard cases with discernible legal interest",
+  "Key cases": "The Court's most significant judgments — selected (or proposed) for publication in the official Reports of Judgments and Decisions",
+  "1": "High importance — judgments that make a significant contribution to the development, clarification or modification of the case-law",
+  "2": "Medium importance — judgments that, while not significantly contributing to the case-law, go beyond merely applying existing case-law",
+  "3": "Low importance — judgments of little legal interest (apply existing case-law, friendly settlements, strike-outs)",
   "Unspecified": "Importance level not assigned in HUDOC metadata",
 };
 function sortImportanceLevels(arr) {
