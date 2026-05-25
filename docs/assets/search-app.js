@@ -6807,8 +6807,11 @@ function initDossierResizer() {
 function initSidebarResizer() {
   const handle = el.sidebarResizer;
   if (!handle || !el.sidebar) return;
-  const MIN = 280, MAX = 680, DEF = 360, KEY = "echr.sidebarWidth";
-  const clampW = (px) => Math.max(MIN, Math.min(MAX, Math.round(px)));
+  const MIN = 280, DEF = 360, KEY = "echr.sidebarWidth";
+  // Cap the Case Note at half the viewport so it can be widened for reading
+  // context (recomputed each clamp so it adapts to window resizes).
+  const maxW = () => Math.max(MIN, Math.round(window.innerWidth * 0.5));
+  const clampW = (px) => Math.max(MIN, Math.min(maxW(), Math.round(px)));
   const setW = (px) => document.documentElement.style.setProperty("--col-sidebar", clampW(px) + "px");
   const persist = () => {
     const cur = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--col-sidebar"), 10);
