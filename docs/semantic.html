@@ -1,0 +1,2844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HUDOC Researcher — Semantic Search</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== Unified top bar — faithful replica of the dashboard editorial navbar ===== */
+.navbar { position:sticky; top:0; z-index:200; background:#fbfaf6; border-bottom:1px solid #242328; }
+.nav-container { max-width:1480px; margin:0 auto; height:74px; padding:12px 32px 10px; display:flex; align-items:flex-end; gap:28px; }
+.nav-brand { display:flex; align-items:baseline; gap:10px; text-decoration:none; color:#242328; font-family:'Source Serif 4',Georgia,serif; font-size:1.5rem; font-weight:500; white-space:nowrap; }
+.nav-brand .brand-icon { color:#8d2f2f; font-family:'JetBrains Mono',ui-monospace,monospace; font-size:1.05rem; line-height:1; }
+.nav-brand .brand-text { line-height:1; }
+.nav-brand::after { content:"A paragraph-level companion to the Court"; margin-left:4px; color:#6b6660; font-family:'Source Serif 4',Georgia,serif; font-size:0.78rem; font-style:italic; font-weight:400; white-space:nowrap; }
+.nav-links { display:flex; flex:1; justify-content:flex-end; gap:18px; flex-wrap:nowrap; white-space:nowrap; }
+.nav-links a { color:#403e44; text-decoration:none; padding:0 0 4px; font-family:'Source Serif 4',Georgia,serif; font-size:0.92rem; font-weight:500; border-bottom:2px solid transparent; transition:color .15s, border-color .15s; }
+.nav-links a:hover { color:#242328; border-bottom-color:#d8d0c3; }
+.nav-links a.active { color:#8d2f2f; border-bottom-color:#8d2f2f; }
+.nav-meta { display:flex; align-items:center; gap:10px; padding-bottom:6px; flex-shrink:0; }
+.nav-meta #count-pill { display:none; }  /* trust-count lives on the Methodology page; keeps the bar one-line like the dashboard */
+.nav-meta .status-pill { display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',ui-monospace,monospace; font-size:10.5px; color:#6b6660; background:#fff; border:1px solid #d8d0c3; border-radius:999px; padding:4px 10px; white-space:nowrap; }
+.nav-meta select { background:#fff; color:#242328; border:1px solid #d8d0c3; border-radius:6px; padding:5px 8px; font-size:12px; font-family:'Source Serif 4',Georgia,serif; cursor:pointer; }
+.nav-meta select:focus-visible { outline:2px solid #8d2f2f; outline-offset:1px; }
+@media (max-width:860px){ .nav-brand::after{ display:none; } .nav-meta .status-pill{ display:none; } .nav-container{ height:auto; min-height:60px; padding:10px 16px; gap:14px; align-items:center; flex-wrap:wrap; } }
+
+/* =========================================================
+   ECHR · Strasbourg — MODERN TRUST EDITION
+   ---------------------------------------------------------
+   Sans-first, navy-led palette. Soft shadows, deliberate radii.
+   CSS variable NAMES preserved (--garnet, --ink, --paper …) so the
+   SVG markers and inline-styled fragments in the JS keep working.
+   Their VALUES are completely rebound.
+   ========================================================= */
+:root, body[data-theme="navy"] {
+  /* surfaces — cool whites with the faintest blue temperature */
+  --paper:        oklch(99.2% 0.004 250);
+  --paper-2:      oklch(97.4% 0.008 250);
+  --paper-3:      oklch(94.6% 0.012 248);
+  --rule:         oklch(90% 0.012 245);
+  --rule-soft:    oklch(94% 0.009 245);
+
+  /* type colours — deep slate-blue charcoal */
+  --ink:          oklch(22% 0.040 252);
+  --ink-2:        oklch(36% 0.034 252);
+  --ink-3:        oklch(52% 0.024 252);
+  --ink-4:        oklch(66% 0.018 252);
+
+  /* primary brand — historically named "garnet". Now: institutional cobalt. */
+  --garnet:       oklch(46% 0.165 254);
+  --garnet-2:     oklch(38% 0.165 254);
+  --garnet-soft:  oklch(95.5% 0.030 254);
+  --garnet-edge:  oklch(82% 0.080 254);
+
+  /* secondary accents */
+  --hl:           oklch(94% 0.085 95);
+  --hl-edge:      oklch(82% 0.130 95);
+  --pos:          oklch(52% 0.130 158);
+  --pos-soft:     oklch(94% 0.040 158);
+  --neg:          oklch(56% 0.180 25);
+  --warn:         oklch(74% 0.140 70);
+
+  /* type families */
+  --display: 'Source Serif 4', 'Iowan Old Style', Georgia, serif;
+  --body:    'Manrope', 'Helvetica Neue', system-ui, sans-serif;
+  --mono:    'JetBrains Mono', ui-monospace, monospace;
+
+  /* elevation */
+  --shadow-1: 0 1px 2px rgba(15, 28, 56, .04), 0 1px 1px rgba(15, 28, 56, .03);
+  --shadow-2: 0 2px 4px rgba(15, 28, 56, .04), 0 8px 24px rgba(15, 28, 56, .06);
+  --shadow-3: 0 4px 12px rgba(15, 28, 56, .08), 0 24px 60px rgba(15, 28, 56, .12);
+
+  /* radius scale */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-pill: 999px;
+}
+
+/* Alternate palettes (Tweaks panel can flip data-theme on <body>) */
+body[data-theme="teal"] {
+  --paper:        oklch(99.2% 0.005 200);
+  --paper-2:      oklch(97.4% 0.010 200);
+  --paper-3:      oklch(94.6% 0.014 200);
+  --rule:         oklch(90% 0.013 200);
+  --rule-soft:    oklch(94% 0.010 200);
+  --ink:          oklch(22% 0.035 215);
+  --ink-2:        oklch(36% 0.030 215);
+  --ink-3:        oklch(52% 0.022 215);
+  --ink-4:        oklch(66% 0.016 215);
+  --garnet:       oklch(46% 0.115 210);
+  --garnet-2:     oklch(38% 0.115 210);
+  --garnet-soft:  oklch(95% 0.032 210);
+  --garnet-edge:  oklch(82% 0.075 210);
+}
+body[data-theme="forest"] {
+  --paper:        oklch(99% 0.005 130);
+  --paper-2:      oklch(97% 0.010 130);
+  --paper-3:      oklch(94% 0.015 130);
+  --rule:         oklch(90% 0.014 130);
+  --rule-soft:    oklch(94% 0.010 130);
+  --ink:          oklch(22% 0.030 150);
+  --ink-2:        oklch(36% 0.026 150);
+  --ink-3:        oklch(52% 0.022 150);
+  --ink-4:        oklch(66% 0.016 150);
+  --garnet:       oklch(40% 0.110 158);
+  --garnet-2:     oklch(32% 0.110 158);
+  --garnet-soft:  oklch(94% 0.038 158);
+  --garnet-edge:  oklch(80% 0.080 158);
+}
+body[data-theme="slate"] {
+  --paper:        oklch(99% 0.002 270);
+  --paper-2:      oklch(97% 0.004 270);
+  --paper-3:      oklch(94% 0.008 270);
+  --rule:         oklch(90% 0.008 270);
+  --rule-soft:    oklch(94% 0.006 270);
+  --ink:          oklch(20% 0.020 270);
+  --ink-2:        oklch(34% 0.018 270);
+  --ink-3:        oklch(50% 0.014 270);
+  --ink-4:        oklch(64% 0.012 270);
+  --garnet:       oklch(38% 0.030 270);
+  --garnet-2:     oklch(28% 0.030 270);
+  --garnet-soft:  oklch(95% 0.012 270);
+  --garnet-edge:  oklch(80% 0.022 270);
+}
+
+/* ===== CLASSIC — editorial, matches the ECHR Dashboard (old-school) ===== */
+body[data-theme="classic"] {
+  --paper:#fbfaf6; --paper-2:#f4f1ea; --paper-3:#ebe6dc;
+  --rule:#d8d0c3; --rule-soft:#e8e0d4;
+  --ink:#242328; --ink-2:#48464c; --ink-3:#706d72; --ink-4:#969197;
+  --garnet:#8d2f2f; --garnet-2:#6f2427; --garnet-soft:#f4e0dd; --garnet-edge:#d9aaa4;
+  --hl:#f8edb8; --hl-edge:#e6d27a;
+  --display:"Spectral","Iowan Old Style",Georgia,serif;
+  --body:"Spectral","Iowan Old Style",Georgia,serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+  --shadow-1:none; --shadow-2:0 1px 0 rgba(0,0,0,.06); --shadow-3:0 2px 0 rgba(0,0,0,.08);
+  --r-sm:3px; --r-md:4px; --r-lg:6px; --r-pill:4px;
+}
+/* ===== ACCESSIBLE — high contrast, large, clear (WCAG-oriented) ===== */
+body[data-theme="a11y"] {
+  --paper:#ffffff; --paper-2:#f4f4f4; --paper-3:#e8e8e8;
+  --rule:#9a9a9a; --rule-soft:#cccccc;
+  --ink:#111111; --ink-2:#1f1f1f; --ink-3:#333333; --ink-4:#4a4a4a;
+  --garnet:#6e1622; --garnet-2:#560f1a; --garnet-soft:#f3e2e4; --garnet-edge:#a05863;
+  --hl:#fff19a; --hl-edge:#caa400; --pos:#0a5a2a; --neg:#9a1414; --warn:#7a4a00;
+  --display:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:ui-monospace,monospace;
+  --shadow-1:none; --shadow-2:none; --shadow-3:none;
+  --r-sm:4px; --r-md:6px; --r-lg:8px; --r-pill:6px;
+}
+body[data-theme="a11y"] { font-size:17px; line-height:1.7; }
+body[data-theme="a11y"] a { text-decoration:underline; }
+body[data-theme="a11y"] *:focus-visible { outline:3px solid #1457c8; outline-offset:2px; }
+
+/* ---------- theme switcher (compact select in masthead) ---------- */
+.theme-pick { display:inline-flex; align-items:center; }
+.theme-pick select { font:inherit; font-size:12px; color:var(--ink-2); background:var(--paper-2);
+  border:1px solid var(--rule); border-radius:var(--r-pill); padding:4px 26px 4px 11px; cursor:pointer; line-height:1.2;
+  -webkit-appearance:none; -moz-appearance:none; appearance:none;
+  background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="%23888" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+  background-repeat:no-repeat; background-position:right 9px center; }
+.theme-pick select:hover { border-color:var(--garnet-edge); }
+.theme-pick select:focus-visible { outline:2px solid var(--garnet); outline-offset:1px; }
+
+/* ---------- BASE ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--body);
+  color: var(--ink);
+  background:
+    radial-gradient(1200px 600px at 100% -10%, color-mix(in oklch, var(--garnet) 6%, transparent), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, color-mix(in oklch, var(--garnet) 4%, transparent), transparent 60%),
+    var(--paper);
+  background-attachment: fixed;
+  font-feature-settings: "kern", "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  line-height: 1.55;
+  letter-spacing: -0.005em;
+}
+::selection { background: color-mix(in oklch, var(--garnet) 22%, var(--paper)); color: var(--ink); }
+
+/* Editorial primitives — repurposed */
+.serif        { font-family: var(--display); }
+.body         { font-family: var(--body); }
+.mono         { font-family: var(--mono); font-feature-settings: "tnum"; }
+.smallcaps    { font-variant-caps: all-small-caps; letter-spacing: 0.08em; }
+.folio        { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; }
+.muted        { color: var(--ink-3); }
+.dim          { color: var(--ink-4); }
+.italic       { font-style: italic; }
+
+/* ---------- MASTHEAD ---------- */
+.masthead {
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+  padding: 18px 40px;
+  position: sticky; top: 0; z-index: 50;
+  backdrop-filter: saturate(160%) blur(10px);
+  background: color-mix(in oklch, var(--paper) 88%, transparent);
+}
+.masthead-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  max-width: 1320px; margin: 0 auto;
+}
+.brand {
+  font-family: var(--body);
+  font-size: 18px; font-weight: 700; letter-spacing: -0.01em; line-height: 1;
+  display: flex; align-items: center; gap: 10px;
+  color: var(--ink);
+}
+.brand .glyph {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 9px;
+  background: var(--garnet); color: var(--paper);
+  font-family: var(--display); font-style: italic; font-weight: 600;
+  font-size: 18px; line-height: 1;
+  box-shadow: var(--shadow-1), inset 0 1px 0 rgba(255,255,255,.18);
+}
+.brand-name   { font-style: normal; }
+.brand-sub    { color: var(--ink-3); font-size: 13px; font-weight: 500; margin-left: 4px; letter-spacing: 0; }
+.masthead-meta { display: flex; gap: 10px; align-items: center; }
+.status-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--ink-2);
+  background: var(--paper-2); border: 1px solid var(--rule);
+  padding: 5px 10px; border-radius: var(--r-pill);
+  font-weight: 500;
+}
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-4); box-shadow: 0 0 0 3px color-mix(in oklch, var(--ink-4) 20%, transparent); }
+.status-dot.green { background: var(--pos); box-shadow: 0 0 0 3px color-mix(in oklch, var(--pos) 22%, transparent); }
+.status-dot.red   { background: var(--neg); box-shadow: 0 0 0 3px color-mix(in oklch, var(--neg) 22%, transparent); }
+.vol {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-4);
+}
+
+/* ---------- SECTION TABS ---------- */
+.section-tabs {
+  background: transparent;
+  padding: 14px 40px 0;
+  display: flex; gap: 6px;
+  max-width: 1320px; margin: 0 auto;
+  border: 0;
+}
+.section-tab {
+  font-family: var(--body); font-size: 14px; font-weight: 600;
+  padding: 10px 16px;
+  color: var(--ink-3);
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: var(--r-md) var(--r-md) 0 0;
+  display: inline-flex; align-items: center; gap: 8px;
+  white-space: nowrap;
+  transition: color .15s ease, background .15s ease, border-color .15s ease;
+}
+.section-tab:first-child { border-left: 1px solid transparent; }
+.section-tab .num {
+  font-family: var(--mono); font-style: normal; font-size: 10px; letter-spacing: .08em;
+  color: var(--ink-4); background: var(--paper-2);
+  padding: 2px 6px; border-radius: var(--r-sm); font-weight: 500;
+}
+.section-tab:hover { color: var(--ink); background: var(--paper-2); }
+.section-tab.active {
+  background: var(--paper);
+  color: var(--ink);
+  border-color: var(--rule);
+  border-bottom-color: var(--paper);
+  margin-bottom: -1px;
+  box-shadow: 0 -1px 0 var(--garnet) inset;
+}
+.section-tab.active .num { color: var(--paper); background: var(--garnet); }
+.section-tabs-spacer { flex: 1; border-bottom: 1px solid var(--rule); align-self: stretch; }
+
+/* ---------- VIEW TOGGLE ---------- */
+.view-bar {
+  display: flex; align-items: center; gap: 16px;
+  padding: 14px 0;
+}
+.view-bar.inline-bar {
+  padding: 14px 18px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  border-radius: var(--r-lg);
+  margin: 18px 0 24px;
+  box-shadow: var(--shadow-1);
+  position: sticky; top: 78px; z-index: 30;
+}
+.view-toggle {
+  display: inline-flex; gap: 4px;
+  background: var(--paper-2);
+  padding: 4px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--rule-soft);
+}
+.view-btn {
+  font-family: var(--body); font-size: 13px; font-weight: 600;
+  padding: 7px 14px;
+  background: transparent; color: var(--ink-2);
+  border: 0; border-radius: var(--r-sm);
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 7px;
+  white-space: nowrap;
+  transition: background .12s ease, color .12s ease, box-shadow .12s ease;
+}
+.view-btn .num {
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .08em;
+  color: var(--ink-4); background: var(--paper);
+  padding: 2px 5px; border-radius: 4px;
+  border: 1px solid var(--rule-soft);
+  font-weight: 600;
+}
+.view-btn:hover { color: var(--ink); background: var(--paper); }
+.view-btn.active {
+  background: var(--paper); color: var(--ink);
+  box-shadow: var(--shadow-1), 0 0 0 1px var(--rule);
+}
+.view-btn.active .num { background: var(--garnet); color: var(--paper); border-color: transparent; }
+.view-desc { font-family: var(--body); color: var(--ink-3); font-size: 13px; }
+
+/* ---------- BUTTONS / CHIPS / FIELDS ---------- */
+.btn {
+  font-family: var(--body); font-size: 13px; font-weight: 600;
+  padding: 8px 14px;
+  border: 1px solid var(--rule);
+  background: var(--paper); color: var(--ink);
+  cursor: pointer; letter-spacing: -0.005em;
+  border-radius: var(--r-md);
+  white-space: nowrap;
+  transition: background .12s ease, color .12s ease, border-color .12s ease, box-shadow .12s ease, transform .05s ease;
+  display: inline-flex; align-items: center; gap: 7px;
+}
+.btn:hover { background: var(--paper-2); border-color: var(--ink-3); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-ghost { border-color: transparent; color: var(--ink-2); background: transparent; }
+.btn-ghost:hover { background: var(--paper-2); color: var(--ink); border-color: var(--rule); }
+.btn-garnet {
+  border-color: var(--garnet); background: var(--garnet); color: var(--paper);
+  box-shadow: var(--shadow-1), inset 0 1px 0 rgba(255,255,255,.18);
+}
+.btn-garnet:hover {
+  background: var(--garnet-2); border-color: var(--garnet-2);
+  box-shadow: var(--shadow-2), inset 0 1px 0 rgba(255,255,255,.18);
+}
+.btn-block { display: flex; width: 100%; justify-content: center; }
+.btn-lg { font-size: 14px; padding: 12px 20px; letter-spacing: 0; }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 10.5px; font-weight: 500;
+  padding: 4px 10px;
+  border: 1px solid var(--rule);
+  background: var(--paper); color: var(--ink-2);
+  letter-spacing: .03em; text-transform: uppercase;
+  border-radius: var(--r-pill);
+}
+.chip.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.chip.garnet { background: var(--garnet-soft); color: var(--garnet); border-color: var(--garnet-edge); }
+.chip.solid-garnet { background: var(--garnet); color: var(--paper); border-color: var(--garnet); }
+
+label {
+  display: block;
+  font-family: var(--body); font-size: 11.5px; font-weight: 600;
+  letter-spacing: 0; text-transform: none;
+  color: var(--ink-2);
+  margin-bottom: 6px;
+}
+.field, input[type="text"], input[type="number"], select, textarea {
+  font-family: var(--body); font-size: 14px; width: 100%;
+  background: var(--paper); border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  padding: 10px 12px; color: var(--ink); outline: none;
+  transition: border-color .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.field::placeholder, input::placeholder, textarea::placeholder { color: var(--ink-4); }
+textarea {
+  resize: vertical; min-height: 130px; line-height: 1.55;
+  font-family: var(--body); font-style: normal; font-size: 15px;
+}
+.field:focus, input:focus, select:focus, textarea:focus {
+  border-color: var(--garnet);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--garnet) 18%, transparent);
+}
+select {
+  -webkit-appearance: none; appearance: none;
+  padding-right: 32px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink-3) 50%), linear-gradient(135deg, var(--ink-3) 50%, transparent 50%);
+  background-position: calc(100% - 14px) 17px, calc(100% - 10px) 17px;
+  background-size: 4px 4px;
+  background-repeat: no-repeat;
+}
+
+/* Rules */
+.rule         { border: 0; border-top: 1px solid var(--rule); margin: 0; }
+.rule-thin    { border: 0; border-top: 1px solid var(--rule-soft); margin: 0; }
+.rule-double  { border: 0; border-top: 1px solid var(--rule); margin: 0; }
+.rule-thick   { border: 0; border-top: 1px solid var(--ink-3); margin: 0; }
+
+/* Highlight */
+mark.hl { background: var(--hl); color: var(--ink); padding: 0 .2em; border-radius: 3px; box-shadow: inset 0 -2px 0 var(--hl-edge); }
+
+/* Drop cap — restrained version */
+.dropcap::first-letter {
+  font-family: var(--display); float: left;
+  font-size: 3.6em; line-height: 0.88;
+  padding: 0.04em 0.10em 0 0;
+  font-weight: 600; color: var(--garnet);
+}
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp .35s ease both; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { display: inline-block; width: 14px; height: 14px; border: 1.8px solid var(--rule); border-top-color: var(--garnet); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: -2px; margin-right: 8px; }
+@keyframes blink { 50% { opacity: 0; } }
+.caret::after { content: "▍"; color: var(--garnet); margin-left: 2px; animation: blink 1s steps(1) infinite; }
+
+/* Scrollbars */
+* { scrollbar-width: thin; scrollbar-color: var(--ink-4) transparent; }
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-thumb { background: var(--ink-4); border-radius: 999px; }
+
+/* =========================================================
+   PAGE LAYOUT
+   ========================================================= */
+.page { padding: 28px 40px 80px; }
+.column { max-width: 1320px; margin: 0 auto; }
+
+/* ---------- STANDFIRST ---------- */
+.standfirst {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 40px;
+  align-items: end;
+  padding: 8px 0 32px;
+  margin-bottom: 12px;
+}
+.standfirst h1 {
+  font-family: var(--display);
+  font-size: 56px; font-weight: 500; letter-spacing: -0.025em; line-height: 1.02;
+  margin: 0 0 12px; font-style: normal;
+  color: var(--ink);
+}
+.standfirst .kicker {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--garnet); margin-bottom: 14px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.standfirst .kicker::before {
+  content: ""; width: 22px; height: 1px; background: var(--garnet); display: inline-block;
+}
+.standfirst .deck {
+  font-family: var(--body); font-size: 17px; font-style: normal; color: var(--ink-2);
+  max-width: 680px; line-height: 1.55; font-weight: 400;
+}
+.standfirst .stats {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  gap: 0;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  padding: 0;
+  box-shadow: var(--shadow-1);
+  overflow: hidden;
+}
+.stat-line {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 14px 22px;
+  border-right: 1px solid var(--rule);
+}
+.stat-line:last-child { border-right: 0; }
+.stat-num  {
+  font-family: var(--display); font-size: 22px; font-style: normal; font-weight: 500;
+  color: var(--ink); letter-spacing: -0.01em; line-height: 1;
+}
+.stat-label {
+  font-family: var(--body); font-size: 11px; letter-spacing: 0; text-transform: none;
+  color: var(--ink-3); font-weight: 500;
+}
+
+/* =========================================================
+   SEARCH PANEL
+   ========================================================= */
+.search-panel {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 0;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  overflow: hidden;
+  box-shadow: var(--shadow-2);
+}
+.search-main { padding: 26px 28px 24px; border-right: 1px solid var(--rule); }
+.search-side { padding: 26px 26px 24px; background: var(--paper-2); }
+
+.mode-toggle {
+  display: inline-flex;
+  margin-bottom: 22px;
+  border: 1px solid var(--rule);
+  background: var(--paper-2);
+  padding: 4px;
+  border-radius: var(--r-md);
+  gap: 2px;
+  width: fit-content;
+}
+.mode-toggle input { display: none; }
+.mode-toggle label {
+  font-family: var(--body); font-style: normal; font-size: 13px; font-weight: 600;
+  padding: 8px 14px;
+  border: 0;
+  cursor: pointer; color: var(--ink-3);
+  margin-bottom: 0; text-transform: none; letter-spacing: 0;
+  display: inline-flex; align-items: center; gap: 7px;
+  white-space: nowrap;
+  border-radius: var(--r-sm);
+  transition: background .12s ease, color .12s ease;
+}
+.mode-toggle label small {
+  font-family: var(--body); font-size: 11px; font-style: normal;
+  color: var(--ink-4); letter-spacing: 0; font-weight: 500;
+}
+.mode-toggle label:hover { color: var(--ink); }
+.mode-toggle input:checked + label {
+  background: var(--paper); color: var(--ink);
+  box-shadow: var(--shadow-1), 0 0 0 1px var(--rule);
+}
+.mode-toggle input:checked + label small { color: var(--ink-3); }
+.mode-toggle input:disabled + label { opacity: .4; cursor: not-allowed; }
+
+/* Compact pill toggle for Creative / Conservative — visually mirrors .mode-toggle
+   but sized to sit inline next to the Search button. */
+.style-toggle {
+  display: inline-flex;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  padding: 3px;
+  border-radius: var(--r-sm);
+  gap: 2px;
+}
+.style-toggle input { display: none; }
+.style-toggle label {
+  font-family: var(--body); font-size: 12px; font-weight: 600;
+  padding: 6px 12px;
+  cursor: pointer; color: var(--ink-3);
+  margin-bottom: 0; text-transform: none; letter-spacing: 0;
+  display: inline-flex; align-items: center; gap: 5px;
+  white-space: nowrap;
+  border-radius: 4px;
+  transition: background .12s, color .12s;
+}
+.style-toggle label small {
+  font-family: var(--mono); font-size: 10px; color: var(--ink-4); font-weight: 500;
+}
+.style-toggle label:hover { color: var(--ink); }
+.style-toggle input:checked + label {
+  background: var(--paper-2); color: var(--ink);
+  box-shadow: 0 0 0 1px var(--rule);
+}
+.style-toggle input:checked + label small { color: var(--ink-3); }
+.style-toggle-wrap { display: inline-flex; align-items: center; gap: 10px; }
+.style-toggle-wrap > .label {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--ink-4);
+}
+
+.search-textarea-wrap {
+  position: relative;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  transition: border-color .12s ease, box-shadow .12s ease;
+}
+.search-textarea-wrap:focus-within {
+  border-color: var(--garnet);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--garnet) 18%, transparent);
+}
+.search-textarea-wrap::before {
+  content: ""; position: absolute; left: 0; top: 16px; bottom: 16px;
+  width: 3px; background: var(--garnet); border-radius: 3px;
+  opacity: 0.85;
+}
+.search-textarea-wrap textarea {
+  border: 0; padding: 0 0 0 10px; min-height: 130px; background: transparent;
+}
+.search-textarea-wrap textarea:focus { border: 0; box-shadow: none; }
+.hint {
+  font-family: var(--body); font-style: normal; font-size: 13px;
+  color: var(--ink-3); margin: 0 0 10px;
+}
+
+.filters-row {
+  display: grid; grid-template-columns: 1.3fr 1fr 1fr 0.7fr;
+  gap: 18px;
+  margin-top: 16px;
+}
+body.mode-natural .filters-row { grid-template-columns: 1fr 0.7fr; }
+body.mode-natural .expert-only { display: none; }
+@media (max-width: 900px) { .filters-row { grid-template-columns: 1fr 1fr; } }
+
+.search-side h2, .search-side h3 {
+  font-family: var(--display); font-style: normal; font-size: 19px; font-weight: 500;
+  margin: 8px 0 14px;
+  letter-spacing: -0.01em;
+}
+.preset-list { list-style: none; padding: 0; margin: 0; }
+.preset-row {
+  padding: 12px 12px 12px 0;
+  border-bottom: 1px solid var(--rule-soft);
+  cursor: pointer;
+  display: grid; grid-template-columns: 26px 1fr auto; gap: 12px; align-items: baseline;
+  transition: background .12s ease;
+  border-radius: var(--r-sm);
+}
+.preset-row:last-child { border-bottom: 0; }
+.preset-row:hover { background: var(--paper); padding-left: 10px; }
+.preset-num { font-family: var(--mono); font-size: 10.5px; color: var(--garnet); padding-top: 2px; font-weight: 600; letter-spacing: .05em; }
+.preset-title { font-family: var(--body); font-size: 13.5px; font-style: normal; font-weight: 600; color: var(--ink); margin: 0 0 3px; }
+.preset-meta { font-family: var(--body); font-size: 12.5px; font-style: normal; color: var(--ink-3); line-height: 1.45; }
+.preset-arts {
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .04em;
+  color: var(--garnet); white-space: nowrap; font-weight: 600;
+  background: var(--garnet-soft); padding: 3px 8px; border-radius: var(--r-pill);
+  border: 1px solid var(--garnet-edge);
+}
+
+.submit-row {
+  display: flex; align-items: center; gap: 14px;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule-soft);
+}
+.kbd-hint {
+  font-family: var(--mono); font-size: 10.5px; color: var(--ink-4); letter-spacing: .04em;
+  background: var(--paper-2); padding: 4px 8px; border-radius: var(--r-sm);
+  border: 1px solid var(--rule);
+}
+
+/* =========================================================
+   RESULTS
+   ========================================================= */
+.results-wrap { padding-top: 24px; }
+.rewrite-card {
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  border-radius: var(--r-lg);
+  padding: 22px 26px;
+  margin-bottom: 22px;
+  box-shadow: var(--shadow-1);
+  position: relative;
+  overflow: hidden;
+}
+.rewrite-card::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 4px; background: var(--garnet);
+}
+.rewrite-card h4 {
+  font-family: var(--body); font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--garnet); margin: 0 0 10px; font-weight: 700;
+}
+.rewrite-text {
+  font-family: var(--display); font-style: normal; font-size: 19px; line-height: 1.45;
+  color: var(--ink); margin: 0 0 14px; font-weight: 400;
+}
+.rewrite-embed {
+  font-family: var(--mono); font-size: 12px; padding: 12px 14px;
+  background: var(--paper-2); border: 1px solid var(--rule); border-radius: var(--r-md);
+  margin-bottom: 14px; line-height: 1.55; color: var(--ink-2);
+}
+.rewrite-embed strong {
+  display: block; font-family: var(--body); font-size: 10.5px; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--garnet); margin-bottom: 6px; font-weight: 700;
+}
+.rewrite-meta {
+  display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center;
+  font-family: var(--body); font-size: 13px; color: var(--ink-3); margin-bottom: 14px;
+}
+.rewrite-meta strong { color: var(--ink-2); font-weight: 600; }
+.article-pill {
+  display: inline-block; background: var(--garnet); color: var(--paper);
+  padding: 3px 9px; font-family: var(--mono); font-size: 10px; font-weight: 600;
+  letter-spacing: .04em; border-radius: var(--r-pill);
+}
+
+.keywords-wrap {
+  margin: 12px 0; padding: 12px 14px;
+  background: var(--paper-2); border: 1px solid var(--rule); border-radius: var(--r-md);
+}
+.keywords-wrap .label {
+  font-family: var(--body); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--garnet); margin-bottom: 8px; font-weight: 700;
+}
+.keywords-wrap .label em {
+  font-style: normal; color: var(--ink-4); text-transform: none; letter-spacing: 0;
+  font-family: var(--body); font-size: 11px; font-weight: 500;
+}
+.keyword-chip {
+  display: inline-block; margin: 0 6px 6px 0;
+  background: var(--paper); color: var(--ink);
+  border: 1px solid var(--rule); padding: 4px 11px;
+  font-family: var(--mono); font-size: 11px; cursor: pointer;
+  border-radius: var(--r-pill);
+  transition: background .12s ease, color .12s ease, border-color .12s ease;
+}
+.keyword-chip:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.keyword-chip.copied { background: var(--pos); color: var(--paper); border-color: var(--pos); }
+
+.to-draft-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--garnet); color: var(--paper);
+  padding: 10px 18px; border: 1px solid var(--garnet);
+  font-family: var(--body); font-style: normal; font-size: 14px; font-weight: 600;
+  text-decoration: none; cursor: pointer;
+  border-radius: var(--r-md);
+  white-space: nowrap;
+  box-shadow: var(--shadow-1), inset 0 1px 0 rgba(255,255,255,.18);
+  transition: background .12s ease, box-shadow .12s ease;
+}
+.to-draft-btn:hover { background: var(--garnet-2); box-shadow: var(--shadow-2), inset 0 1px 0 rgba(255,255,255,.18); }
+
+.results-meta {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .04em;
+  color: var(--ink-3); margin-bottom: 14px;
+  font-weight: 500;
+}
+
+/* CASE CARDS */
+.case-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.case-card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  padding: 20px 22px;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 18px;
+  box-shadow: var(--shadow-1);
+  transition: box-shadow .15s ease, transform .05s ease, border-color .15s ease;
+}
+.case-card:hover { box-shadow: var(--shadow-2); border-color: var(--garnet-edge); }
+.case-rank {
+  font-family: var(--display); font-size: 28px; color: var(--garnet);
+  font-style: normal; font-weight: 500; line-height: 1; padding-top: 2px;
+  letter-spacing: -0.02em;
+}
+.case-rank::before {
+  content: ""; display: block; width: 22px; height: 1px; background: var(--garnet-edge);
+  margin-bottom: 6px;
+}
+.case-body { min-width: 0; }
+.case-title-row { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; }
+.case-title {
+  font-family: var(--display); font-style: normal; font-size: 21px; font-weight: 500;
+  line-height: 1.2; color: var(--ink); text-decoration: none;
+  flex: 1 1 60%; min-width: 220px;
+  letter-spacing: -0.01em;
+}
+.case-title:hover { color: var(--garnet); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.case-title .ext { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: .03em; color: var(--ink-4); white-space: nowrap; margin-left: 8px; vertical-align: 1px; }
+.case-title:hover .ext { color: var(--garnet); }
+.case-pills { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+.match-pill {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .05em; text-transform: uppercase;
+  padding: 3px 9px; color: var(--paper); border-radius: var(--r-pill); font-weight: 600;
+}
+.match-pill.strong { background: var(--pos); }
+.match-pill.good   { background: oklch(58% 0.10 158); }
+.match-pill.fair   { background: var(--ink-3); }
+.match-pill.weak   { background: var(--ink-4); }
+.hits-pill {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .05em; padding: 3px 9px;
+  background: var(--garnet); color: var(--paper); border-radius: var(--r-pill); font-weight: 600;
+}
+
+.case-meta {
+  display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+  margin: 10px 0;
+}
+.meta-tag {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .04em;
+  padding: 3px 9px; border: 1px solid var(--rule); background: var(--paper-2);
+  color: var(--ink-2); border-radius: var(--r-pill); font-weight: 500;
+}
+.meta-tag.article-detected { background: var(--garnet); color: var(--paper); border-color: var(--garnet); }
+.meta-tag.article-other { background: var(--paper-2); color: var(--ink-2); border-color: var(--rule); }
+.more-articles-btn {
+  font-family: var(--mono); font-size: 10px; padding: 3px 9px;
+  border: 1px dashed var(--ink-4); background: transparent; color: var(--ink-3);
+  cursor: pointer; border-radius: var(--r-pill); font-weight: 500;
+}
+.more-articles-btn:hover { border-color: var(--garnet); color: var(--garnet); }
+
+.case-preview {
+  font-family: var(--body); font-style: normal; font-size: 14.5px; line-height: 1.55;
+  color: var(--ink-2); margin: 8px 0 0;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.case-toggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 14px; cursor: pointer;
+  font-family: var(--body); font-size: 12px; letter-spacing: 0; text-transform: none;
+  color: var(--garnet); user-select: none; font-weight: 600;
+  padding: 6px 12px; border-radius: var(--r-sm);
+  background: var(--garnet-soft); border: 1px solid var(--garnet-edge);
+  white-space: nowrap;
+  transition: background .12s ease;
+}
+.case-toggle:hover { background: color-mix(in oklch, var(--garnet) 18%, var(--paper)); color: var(--garnet); }
+.case-toggle .arrow { transition: transform .2s; display: inline-block; }
+.case-card.expanded .case-toggle .arrow { transform: rotate(90deg); }
+.case-hits { display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--rule-soft); }
+.case-card.expanded .case-hits { display: block; }
+.hit-item {
+  display: grid; grid-template-columns: 64px 1fr; gap: 16px;
+  padding: 14px 0; border-bottom: 1px solid var(--rule-soft);
+}
+.hit-item:last-child { border-bottom: 0; }
+.hit-num {
+  font-family: var(--mono); font-size: 11px; color: var(--garnet);
+  text-align: right; padding-top: 4px; font-weight: 600;
+}
+.hit-num small { display: block; color: var(--ink-4); margin-top: 4px; font-size: 10px; font-weight: 500; }
+.cite-btn {
+  display: inline-block; margin-top: 8px; padding: 2px 6px; cursor: pointer;
+  font-family: var(--mono); font-size: 9.5px; font-weight: 600; letter-spacing: .03em;
+  color: var(--ink-4); background: transparent; border: 1px solid var(--rule-soft);
+  border-radius: 4px; line-height: 1.4; transition: color .12s, border-color .12s;
+}
+.cite-btn:hover { color: var(--garnet); border-color: var(--garnet); }
+.cite-btn.copied { color: var(--garnet); border-color: var(--garnet); }
+.hit-text {
+  font-family: var(--body); font-style: normal; font-size: 14.5px; line-height: 1.65;
+  color: var(--ink); margin: 0; white-space: pre-wrap;
+}
+.hit-section {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--ink-3); font-weight: 500; margin-bottom: 4px;
+}
+
+/* Empty / error / loading */
+.state-msg {
+  padding: 40px 20px; text-align: center;
+  font-family: var(--body); font-style: normal; color: var(--ink-3); font-size: 15px;
+}
+.state-msg.error {
+  border: 1px solid color-mix(in oklch, var(--neg) 30%, var(--rule));
+  background: color-mix(in oklch, var(--neg) 6%, var(--paper));
+  color: var(--neg);
+  padding: 18px 22px; text-align: left; font-style: normal;
+  font-family: var(--body); font-size: 14px;
+  border-radius: var(--r-md);
+}
+.state-msg.error strong {
+  display: block; font-family: var(--body); font-style: normal; font-size: 16px; font-weight: 700;
+  color: var(--neg); margin-bottom: 4px;
+}
+
+/* =========================================================
+   VIEW B — DISCOVERY WORKSPACE
+   ========================================================= */
+.workspace {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "graph   graph"
+    "stream  dossier";
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  overflow: hidden;
+  box-shadow: var(--shadow-1);
+}
+.ws-graph    { grid-area: graph;   position: relative; overflow: hidden; min-height: 1020px; border-bottom: 1px solid var(--rule); background: var(--paper); }
+.ws-stream   { grid-area: stream;  border-right: 1px solid var(--rule); background: var(--paper-2); overflow: auto; max-height: 620px; min-height: 480px; }
+.ws-dossier  { grid-area: dossier; overflow: auto; max-height: 620px; min-height: 480px; }
+
+.ws-stream-head { padding: 20px 22px 14px; border-bottom: 1px solid var(--rule); background: var(--paper); }
+.ws-stream-head h3 {
+  font-family: var(--display); font-style: normal; font-size: 22px; font-weight: 500;
+  margin: 6px 0 2px; letter-spacing: -0.01em;
+}
+.ws-stream-head .sub { font-family: var(--body); font-style: normal; font-size: 13px; color: var(--ink-3); }
+
+.para-list { list-style: none; margin: 0; padding: 0; }
+.para-card {
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--rule-soft);
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: background .12s ease, border-color .12s ease;
+}
+.para-card:hover { background: var(--paper); }
+.para-card.active { background: var(--paper); border-left-color: var(--garnet); }
+.para-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.para-cite {
+  font-family: var(--mono); font-size: 10.5px; color: var(--garnet);
+  font-weight: 600; background: var(--garnet-soft); padding: 2px 7px; border-radius: var(--r-sm);
+}
+.para-case {
+  font-family: var(--display); font-style: normal; font-size: 13.5px; font-weight: 500;
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  letter-spacing: -0.005em;
+}
+.para-year { font-family: var(--mono); font-size: 10px; color: var(--ink-4); font-weight: 500; }
+.para-text {
+  font-family: var(--body); font-size: 13px; line-height: 1.55;
+  color: var(--ink-2); margin: 0;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.para-foot { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.sim-meter { display: flex; gap: 2px; align-items: center; }
+.sim-meter span { width: 4px; height: 9px; background: var(--rule); border-radius: 1px; }
+.sim-meter span.on { background: var(--garnet); }
+
+.ws-graph-title { position: absolute; top: 22px; left: 28px; right: 28px; z-index: 5; pointer-events: none; }
+.ws-graph-title .kicker {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--garnet); font-weight: 600;
+}
+.ws-graph-title h2 {
+  font-family: var(--display); font-style: normal; font-size: 26px; font-weight: 500;
+  margin: 6px 0 2px; letter-spacing: -0.015em;
+}
+.ws-graph-title p {
+  font-family: var(--body); font-style: normal; font-size: 13px;
+  color: var(--ink-3); margin: 0; line-height: 1.5; max-width: 760px;
+}
+
+.ws-chart-note {
+  margin: 1.4em 0 2.8em;
+  padding: 8px 14px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .03em;
+  color: var(--garnet);
+  background: var(--garnet-soft);
+  border: 1px solid var(--garnet-edge);
+  border-radius: var(--r-sm);
+  display: inline-block;
+}
+.ws-graph svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ws-legend {
+  position: absolute; bottom: 18px; left: 28px;
+  display: flex; gap: 14px; align-items: center;
+  background: var(--paper); padding: 10px 14px;
+  border: 1px solid var(--rule); border-radius: var(--r-md);
+  font-family: var(--mono); font-size: 10.5px; color: var(--ink-3);
+  box-shadow: var(--shadow-1);
+}
+.ws-legend-item { display: flex; align-items: center; gap: 6px; }
+.ws-legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+.ws-empty { display: flex; align-items: center; justify-content: center; height: 100%; padding: 60px; }
+.ws-empty .inner { text-align: center; max-width: 420px; }
+.ws-empty .glyph {
+  font-family: var(--display); font-style: normal; font-size: 56px; color: var(--garnet);
+  line-height: 1; margin-bottom: 12px; font-weight: 500;
+}
+.ws-empty h3 {
+  font-family: var(--display); font-style: normal; font-weight: 500; font-size: 22px;
+  margin: 12px 0 8px; letter-spacing: -0.01em;
+}
+.ws-empty p { font-family: var(--body); font-style: normal; color: var(--ink-3); font-size: 14px; line-height: 1.5; }
+
+.dossier { padding: 24px 26px 60px; }
+.dossier-kicker {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--garnet); font-weight: 600;
+}
+.dossier h3 {
+  font-family: var(--display); font-style: normal; font-size: 22px; font-weight: 500;
+  line-height: 1.2; margin: 8px 0 6px; letter-spacing: -0.01em;
+}
+.dossier-meta { font-family: var(--mono); font-size: 11px; color: var(--ink-4); margin-bottom: 14px; }
+.dossier-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.dossier-summary { font-family: var(--body); font-size: 14px; line-height: 1.55; color: var(--ink-2); margin: 14px 0; }
+.dossier-section { margin-top: 22px; }
+.dossier-section h4 {
+  font-family: var(--body); font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--garnet); margin: 0 0 12px; font-weight: 700;
+}
+.dossier-passage {
+  padding: 12px 14px 12px 14px; background: var(--paper-2);
+  border-left: 3px solid var(--garnet); border-radius: 0 var(--r-md) var(--r-md) 0;
+  margin-bottom: 12px;
+}
+.dossier-passage .num { font-family: var(--mono); font-size: 10.5px; color: var(--garnet); font-weight: 600; }
+.dossier-passage p {
+  font-family: var(--body); font-size: 13.5px; font-style: normal; line-height: 1.6;
+  margin: 6px 0 0; color: var(--ink-2);
+}
+
+.cite-count {
+  display: inline-block; background: var(--garnet); color: var(--paper);
+  font-family: var(--mono); font-size: 10px; padding: 2px 7px; border-radius: var(--r-pill);
+  margin-left: 4px; letter-spacing: .04em; font-weight: 600;
+}
+.cite-list { list-style: none; padding: 0; margin: 0; }
+.cite-item {
+  display: grid; grid-template-columns: 16px 1fr auto; gap: 8px; align-items: baseline;
+  padding: 6px 0; border-bottom: 1px solid var(--rule-soft);
+  font-family: var(--body); font-size: 12.5px;
+}
+.cite-item:last-child { border-bottom: 0; }
+.cite-arrow { color: var(--garnet); font-family: var(--mono); font-size: 10px; }
+.cite-title { font-style: normal; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.cite-year  { font-family: var(--mono); font-size: 10.5px; color: var(--ink-4); }
+.cite-more  { font-family: var(--body); font-size: 11.5px; color: var(--ink-4); padding: 8px 0 0 24px; font-style: italic; }
+
+/* =========================================================
+   COMPARE TRAY & MODAL
+   ========================================================= */
+.cmp-chip{
+  background:transparent; border:1px solid var(--rule); color:var(--ink-3);
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.08em; text-transform:uppercase;
+  padding:4px 9px; border-radius: var(--r-pill); cursor:pointer; transition:all .12s ease;
+  font-weight: 600;
+}
+.cmp-chip:hover{ border-color:var(--garnet); color:var(--garnet); }
+.cmp-chip.on{ background:var(--garnet); color:var(--paper); border-color:var(--garnet); }
+
+.compare-tray{
+  position:sticky; bottom:14px; margin:14px 18px 0; align-self:stretch;
+  background:var(--ink); color:var(--paper);
+  border:1px solid var(--ink); border-radius: var(--r-lg);
+  padding:12px 16px; display:flex; align-items:center; gap:14px;
+  box-shadow: var(--shadow-3);
+}
+.compare-tray .tray-rule{ flex:0 0 1px; height:20px; background:rgba(255,255,255,.18); }
+.tray-chips{ display:flex; gap:6px; flex-wrap:wrap; flex:1; min-width:0; }
+.tray-chip{
+  display:inline-flex; align-items:center; gap:6px;
+  background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.18);
+  padding:4px 4px 4px 10px; border-radius: var(--r-pill);
+  font-family:var(--body); font-size:12.5px; font-weight: 500;
+}
+.tray-chip em{ font-style:normal; color:var(--paper); }
+.tray-chip button{
+  background:transparent; border:none; color:rgba(255,255,255,.6);
+  cursor:pointer; font-size:14px; line-height:1; padding:2px 6px; border-radius: var(--r-pill);
+}
+.tray-chip button:hover{ color:var(--paper); background: rgba(255,255,255,.1); }
+.tray-cta{
+  background:var(--garnet); color:var(--paper); border:none;
+  font-family:var(--body); font-size:12px; letter-spacing:0; text-transform:none;
+  padding:9px 16px; border-radius: var(--r-md); cursor:pointer; font-weight: 600;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+}
+.tray-cta:disabled{ opacity:.4; cursor:not-allowed; }
+.tray-clear{
+  background:transparent; color:rgba(255,255,255,.65); border:1px solid rgba(255,255,255,.2);
+  font-family:var(--body); font-size:12px; letter-spacing:0; text-transform:none;
+  padding:9px 14px; border-radius: var(--r-md); cursor:pointer; font-weight: 500;
+}
+.tray-clear:hover{ color:var(--paper); border-color:rgba(255,255,255,.4); }
+
+.compare-modal{
+  position:fixed; inset:0; background:rgba(15,28,56,.55);
+  z-index:200; display:flex; align-items:flex-start; justify-content:center;
+  padding:32px; overflow-y:auto;
+  backdrop-filter: blur(4px);
+}
+.compare-shell{
+  width:min(1400px, 100%); background:var(--paper);
+  border:1px solid var(--rule); border-radius: var(--r-lg);
+  box-shadow: var(--shadow-3);
+  overflow: hidden;
+}
+.compare-head{
+  display:flex; justify-content:space-between; align-items:flex-end;
+  padding:20px 24px; border-bottom:1px solid var(--rule);
+  background: var(--paper);
+}
+.compare-head h2 {
+  font-family:var(--display); font-style: normal; font-size:24px; font-weight:500;
+  margin:4px 0 0; letter-spacing: -0.01em;
+}
+.compare-grid{ display:grid; gap:1px; background:var(--rule); }
+.cmp-col{ background:var(--paper); padding:22px; min-height:400px; }
+.cmp-col h3 {
+  font-family:var(--display); font-style: normal; font-size:18px; font-weight:500;
+  margin:6px 0 4px; line-height:1.25; letter-spacing: -0.01em;
+}
+.cmp-meta{ font-family:var(--mono); font-size:11px; color:var(--ink-3); margin-bottom:12px; }
+.cmp-chips{ display:flex; flex-wrap:wrap; gap:5px; margin-bottom:14px; }
+.cmp-passage{
+  border-left:3px solid var(--garnet-edge);
+  background: var(--paper-2);
+  padding:10px 12px; margin:10px 0; border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+.cmp-passage p{
+  font-family:var(--body); font-style: normal; font-size:13.5px; line-height:1.55; color:var(--ink-2);
+  margin:6px 0 0;
+}
+
+/* =========================================================
+   VIEW C — DOCTRINE READER
+   ========================================================= */
+.reader {
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  overflow: hidden;
+  box-shadow: var(--shadow-1);
+}
+.reader-strip {
+  border-bottom: 1px solid var(--rule);
+  padding: 14px 24px;
+  display: flex; align-items: center; gap: 14px;
+  background: var(--paper-2);
+  flex-wrap: wrap;
+}
+.reader-strip .label {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ink-3); font-weight: 600;
+}
+.doctrine-tabs { display: inline-flex; gap: 4px; background: var(--paper); padding: 4px; border-radius: var(--r-md); border: 1px solid var(--rule); }
+.doctrine-tab {
+  font-family: var(--body); font-style: normal; font-size: 13px; font-weight: 600;
+  padding: 7px 14px;
+  background: transparent; color: var(--ink-3);
+  border: 0; border-radius: var(--r-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .12s ease, color .12s ease, box-shadow .12s ease;
+}
+.doctrine-tab:hover { color: var(--ink); }
+.doctrine-tab.active {
+  background: var(--ink); color: var(--paper);
+  box-shadow: var(--shadow-1);
+}
+.doctrine-tab .glyph {
+  font-family: var(--mono); font-style: normal; font-size: 9.5px; opacity: .65;
+  margin-right: 6px; font-weight: 500;
+}
+.reader-strip .nudge {
+  font-family: var(--body); font-style: normal; font-size: 13px;
+  color: var(--ink-3); margin-left: auto;
+}
+
+.reader-body {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto;
+}
+.river { position: relative; overflow: hidden; min-height: 1040px; border-bottom: 1px solid var(--rule); background: var(--paper); }
+.river-title { position: absolute; top: 24px; left: 32px; right: 220px; z-index: 5; }
+.river-title .kicker {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--garnet); font-weight: 600;
+}
+.river-title h2 {
+  font-family: var(--display); font-style: normal; font-size: 36px; font-weight: 500;
+  margin: 8px 0 8px; letter-spacing: -0.02em; line-height: 1.05;
+}
+.river-title p {
+  font-family: var(--body); font-style: normal; font-size: 14px;
+  color: var(--ink-3); line-height: 1.5; margin: 0; max-width: 480px;
+}
+.river-legend {
+  margin-top: 10px !important;
+  padding-top: 10px;
+  border-top: 1px solid var(--rule-soft);
+  font-size: 12px !important;
+  color: var(--ink-4) !important;
+  max-width: 460px;
+}
+.river-legend strong { color: var(--ink-3); font-weight: 600; }
+.river-year { position: absolute; top: 28px; right: 32px; text-align: right; z-index: 5; }
+.river-year .kicker {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--garnet); font-weight: 600;
+}
+.river-year .num {
+  font-family: var(--display); font-style: normal; font-size: 56px; font-weight: 500;
+  line-height: 1; letter-spacing: -0.03em; color: var(--ink);
+}
+.river-year .nudge {
+  font-family: var(--body); font-style: normal; font-size: 12px;
+  color: var(--ink-3); margin-top: 6px;
+}
+.river svg { position: absolute; inset: 0; width: 100%; height: 100%; user-select: none; }
+.river-narration {
+  position: absolute; bottom: 24px; left: 32px; right: 32px;
+  padding: 14px 18px;
+  background: var(--paper-2); border: 1px solid var(--rule); border-radius: var(--r-md);
+  display: flex; gap: 18px; align-items: flex-start;
+  box-shadow: var(--shadow-1);
+}
+.river-narration .label {
+  font-family: var(--body); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--garnet); font-weight: 700;
+}
+.river-narration p {
+  font-family: var(--body); font-style: normal; font-size: 14px; line-height: 1.55;
+  color: var(--ink-2); margin: 0; flex: 1;
+}
+
+.reading-col {
+  padding: 32px 36px 60px; overflow: auto; max-height: 620px; min-height: 480px;
+  background:
+    radial-gradient(900px 500px at 100% 110%, color-mix(in oklch, var(--paper-3) 50%, transparent) 0, transparent 60%),
+    var(--paper);
+}
+.reading-col .kicker {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--garnet); font-weight: 600;
+}
+.reading-col h2 {
+  font-family: var(--display); font-style: normal; font-size: 26px; font-weight: 500;
+  margin: 8px 0 6px; letter-spacing: -0.015em; line-height: 1.15;
+}
+.reading-col .meta {
+  font-family: var(--body); font-style: normal; font-size: 13.5px;
+  color: var(--ink-3); margin-bottom: 18px;
+}
+.para-block {
+  display: grid; grid-template-columns: 44px 1fr; gap: 16px; align-items: baseline;
+  margin-bottom: 24px;
+}
+.para-num {
+  font-family: var(--mono); font-size: 11px; color: var(--ink-4);
+  text-align: right; padding-top: 4px; font-weight: 500;
+}
+.para-prose {
+  font-family: var(--body); font-style: normal; font-size: 15px; line-height: 1.75;
+  margin: 0; color: var(--ink);
+}
+
+footer {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--ink-4); text-align: center; padding: 32px 0 32px; font-weight: 500;
+}
+
+/* Hidden helpers */
+[hidden] { display: none !important; }
+
+/* Small screens */
+@media (max-width: 1100px) {
+  .standfirst { grid-template-columns: 1fr; gap: 16px; }
+  .standfirst .stats { grid-template-columns: repeat(3, 1fr); }
+  .search-panel { grid-template-columns: 1fr; }
+  .search-main { border-right: 0; border-bottom: 1px solid var(--rule); }
+  .workspace { grid-template-columns: 1fr; min-height: 0; }
+  .ws-stream, .ws-dossier, .ws-graph { max-height: none; min-height: 0; border: 0; border-bottom: 1px solid var(--rule); }
+  .ws-graph { min-height: 480px; }
+  .reader-body { grid-template-columns: 1fr; }
+  .river { min-height: 720px; }
+  .page { padding: 24px 22px 60px; }
+  .masthead { padding: 14px 22px; }
+  .section-tabs { padding: 14px 22px 0; }
+}
+@media (max-width: 700px) {
+  .standfirst h1 { font-size: 38px; }
+}
+</style>
+</head>
+<body>
+
+<!-- =========================== UNIFIED NAVBAR (matches dashboard) =========================== -->
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="./" class="nav-brand">
+      <span class="brand-icon">§</span>
+      <span class="brand-text">HUDOC Researcher</span>
+    </a>
+    <div class="nav-links">
+      <a href="./">Search</a>
+      <a href="#" class="active" data-section="search">Semantic Search</a>
+      <a href="analytics.html">Statistics</a>
+      <a href="#" data-section="methodology">Methodology</a>
+      <a href="about.html">About</a>
+    </div>
+    <div class="nav-meta">
+      <span class="status-pill"><span class="status-dot" id="status-dot"></span><span id="status-text">Connecting…</span></span>
+      <span class="status-pill" id="count-pill" hidden>—</span>
+      <span class="status-pill" id="gemini-pill" hidden><span class="status-dot"></span><span>Gemini</span></span>
+      <select id="theme-select" aria-label="Display theme">
+        <option value="classic">Classic</option>
+        <option value="modern">Modern</option>
+        <option value="a11y">Accessible</option>
+      </select>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+  <main class="column" id="main">
+
+    <!-- =========================== HOW IT WORKS (in-page pane) =========================== -->
+    <section id="pane-methodology" class="meth" hidden>
+      <style>
+        .meth{max-width:780px;margin:6px auto 64px;font-family:var(--body);color:var(--ink);line-height:1.65}
+        .meth h1{font-family:var(--display);font-size:26px;line-height:1.2;color:var(--ink);margin:0 0 4px}
+        .meth .sub{color:var(--ink-4);font-size:13.5px;margin:0 0 18px}
+        .meth h2{font-family:var(--display);font-size:19px;color:var(--garnet);border-bottom:2px solid var(--garnet);padding-bottom:4px;margin:30px 0 8px}
+        .meth p,.meth li{font-size:15px}
+        .meth a{color:var(--garnet)}
+        .meth table{border-collapse:collapse;width:100%;margin:10px 0;font-size:14px}
+        .meth th,.meth td{border:1px solid var(--rule);padding:6px 10px;text-align:left}
+        .meth th{background:var(--paper-2)} .meth .num{text-align:right;font-variant-numeric:tabular-nums}
+        .meth .box{background:var(--paper-2);border-left:3px solid var(--garnet);padding:12px 16px;border-radius:0 6px 6px 0;margin:14px 0;font-size:15px}
+        .meth .warn{background:var(--garnet-soft)}
+        .meth .ex{border:1px solid var(--rule);border-radius:6px;padding:10px 14px;margin:8px 0;font-size:14px}
+        .meth .ex b{color:var(--garnet)} .meth ul{padding-left:20px}
+      </style>
+      <h1>How this case-law search works — and how well</h1>
+      <p class="sub">A plain-English note for lawyers. Last reviewed May 2026.</p>
+      <div class="box"><strong>In one sentence.</strong> You describe a legal question; the system returns the most relevant <em>paragraphs</em> of Strasbourg case-law — with the exact §, the case name and a HUDOC link — ranked by legal substance and by how authoritative the case is.</div>
+
+      <h2>What it searches</h2>
+      <p>Every English-language ECtHR judgment in our snapshot — <strong>19,822 cases, ~1.31 million numbered paragraphs</strong> — restricted to substantive text (reasoning, facts, admissibility, just satisfaction, separate opinions). Pure boilerplate (headers, annexes, one-line summaries) is excluded.</p>
+
+      <h2>How it works (without the jargon)</h2>
+      <ul>
+        <li><strong>Meaning, not keywords.</strong> Each paragraph becomes a numeric "meaning fingerprint" (an embedding); your query is fingerprinted the same way and matched by legal substance. That is why it understands plain language — "can the police read my texts?" finds the Article 8 interception case-law even though those words never appear.</li>
+        <li><strong>Authority weighting.</strong> Results are nudged toward the Court's <em>leading</em> cases (HUDOC "Key case"/importance), because a practitioner wants the authoritative judgment.</li>
+        <li><strong>A second read.</strong> The top candidates are re-read against your query by a separate model to sharpen the order.</li>
+      </ul>
+
+      <h2>How we measured it</h2>
+      <p>We did not grade ourselves. We used the Court's own <strong>41 official Case-Law Guides</strong> as an answer key — each states a legal proposition and pinpoints the exact case paragraphs that support it (~8,400 propositions, ~24,000 pinpoint citations) — and checked whether the system returns the cited <em>case</em> and the cited <em>paragraph</em>.</p>
+
+      <h2>How well it works</h2>
+      <table>
+        <tr><th>On the Court-Guides benchmark</th><th class="num">Top 5</th><th class="num">Top 10</th></tr>
+        <tr><td>Correct <strong>case</strong> retrieved</td><td class="num">~80%</td><td class="num">~86%</td></tr>
+        <tr><td>Exact cited <strong>paragraph</strong> retrieved</td><td class="num">~60%</td><td class="num">~70%</td></tr>
+      </table>
+      <p>An independent AI-lawyer review found <strong>~85–90% of the top-10 paragraphs genuinely relevant</strong> — higher than the "exact paragraph" figure, because the Guides cite only <em>some</em> of the relevant paragraphs, so the strict measure understates real usefulness.</p>
+      <div class="box"><strong>A strength:</strong> it works as well on <em>plain-language</em> questions as on expert phrasing — you need not write like a headnote.</div>
+
+      <h2>Where to be cautious</h2>
+      <div class="box warn"><ul>
+        <li><strong>A research aid, not legal advice</strong>, and never a substitute for reading the judgment. Always open the case on HUDOC and verify.</li>
+        <li><strong>Relevant ≠ current law.</strong> A retrieved case may have been refined, distinguished or overtaken by later case-law. Check how the principle stands today.</li>
+        <li><strong>"The paragraph" is rarely one paragraph.</strong> The Court states a principle, applies it, and concludes across several §§; the system may surface the reasoning where you expected the holding. Read around the hit (click a paragraph to expand neighbours).</li>
+        <li><strong>It favours leading cases</strong> — a niche but on-point lesser-known judgment may rank lower.</li>
+        <li><strong>Absence is not proof.</strong> If a point is not in the results, that is not evidence it does not exist — refine the query.</li>
+        <li><strong>Coverage.</strong> English judgments in a point-in-time snapshot; excludes inadmissibility-only and non-judgment documents.</li>
+      </ul></div>
+
+      <h2>Examples</h2>
+      <div class="ex"><b>Lay query:</b> "can the police search my phone without a warrant?" → <b>Saber v. Norway</b>, <b>Kruslin / Huvig v. France</b> (Article 8 search/seizure &amp; interception).</div>
+      <div class="ex"><b>Doctrinal query:</b> "length of proceedings reasonable time" → the Article 6 § 1 reasonable-time line (e.g. <b>Frydlender</b>-type cases).</div>
+      <div class="ex"><b>Tip:</b> use <em>Advanced options</em> to restrict by respondent State or section, and to set how many cases to return.</div>
+    </section>
+
+    <!-- =========================== STANDFIRST =========================== -->
+    <div class="standfirst">
+      <div>
+        <div class="kicker">European Court of Human Rights · paragraph-level retrieval</div>
+        <h1>Semantic Search</h1>
+        <div class="deck">
+          Semantic search over Strasbourg jurisprudence. Describe your case in any language — the index returns the paragraphs that mattered.
+        </div>
+      </div>
+      <div class="stats" style="display:none">
+        <div class="stat-line"><span class="stat-num" id="stat-paragraphs">—</span><span class="stat-label">paragraphs indexed</span></div>
+        <div class="stat-line"><span class="stat-num" id="stat-mode">Natural</span><span class="stat-label">mode</span></div>
+        <div class="stat-line"><span class="stat-num" id="stat-model">—</span><span class="stat-label">model</span></div>
+      </div>
+    </div>
+
+    <!-- =========================== SEARCH PANEL =========================== -->
+    <section class="search-panel">
+      <div class="search-main">
+        <div class="mode-toggle" style="display:none">
+          <input type="radio" name="mode" id="mode-natural" value="natural">
+          <label for="mode-natural"><span>∿ Natural</span><small>any language · AI-assisted</small></label>
+          <input type="radio" name="mode" id="mode-expert" value="expert" checked>
+          <label for="mode-expert"><span>⌘ Expert</span><small>direct · legal English</small></label>
+        </div>
+
+        <label for="query">The case</label>
+        <p class="hint" id="query-hint">Any language. The system rewrites your text into a dense legal query and detects the relevant article(s).</p>
+        <div class="search-textarea-wrap">
+          <textarea id="query" spellcheck="false" autocapitalize="off" autocorrect="off" placeholder="The applicant was held in pre-trial detention for eighteen months during criminal proceedings lasting over seven years…"></textarea>
+        </div>
+
+        <details class="advanced-filters">
+          <summary style="cursor:pointer;color:#7a1f2b;font-size:13px;font-weight:600;margin:4px 0;">Advanced options</summary>
+          <div class="filters-row" style="margin-top:8px;">
+            <div>
+              <label for="respondent">Respondent state</label>
+              <select id="respondent"><option value="">— Any —</option></select>
+            </div>
+            <div>
+              <label for="section-filter">Section</label>
+              <select id="section-filter"><option value="">— All —</option></select>
+            </div>
+            <div>
+              <label for="k">Cases to return</label>
+              <input type="number" id="k" value="30" min="1" max="50">
+            </div>
+          </div>
+          <input type="hidden" id="article" value="">
+        </details>
+
+        <div class="submit-row">
+          <button class="btn btn-garnet btn-lg" id="search-btn">∿ Search case law</button>
+          <span class="kbd-hint">⌘ + ⏎ to run</span>
+          <span class="style-toggle-wrap" style="display:none" title="Creative = 3 query reformulations, faster, wider coverage. Conservative = 6 reformulations, slower, tighter consensus on the most agreed-on cases.">
+            <span class="label">Search style</span>
+            <span class="style-toggle">
+              <input type="radio" name="search-style" id="style-creative" value="creative" checked>
+              <label for="style-creative">Creative <small>· 3×</small></label>
+              <input type="radio" name="search-style" id="style-conservative" value="conservative">
+              <label for="style-conservative">Conservative <small>· 6×</small></label>
+            </span>
+          </span>
+          <span style="flex:1;"></span>
+          <span class="folio" id="result-summary"></span>
+        </div>
+      </div>
+
+      <aside class="search-side">
+        <span class="folio">Try an example</span>
+        <h2>Six exemplary cases</h2>
+        <ul class="preset-list" id="preset-list"></ul>
+      </aside>
+    </section>
+
+    <!-- =========================== RESULTS =========================== -->
+    <div class="results-wrap" id="results-wrap" hidden>
+      <!-- Rewrite card (natural mode only) -->
+      <div class="rewrite-card" id="rewrite-card" hidden>
+        <h4>The court understood you as saying</h4>
+        <p class="rewrite-text" id="rewrite-text"></p>
+        <div class="rewrite-embed" id="rewrite-embed" hidden><strong>Dense query sent to vector search</strong><span id="rewrite-embed-text"></span></div>
+        <div class="keywords-wrap" id="keywords-wrap" hidden>
+          <div class="label">Keywords for HUDOC <em>· click to copy</em></div>
+          <div id="keywords-chips"></div>
+        </div>
+        <div class="rewrite-meta" id="rewrite-meta"></div>
+        <a class="to-draft-btn" id="to-draft-btn" href="/draft" target="echr-draft" rel="noopener">📝 Draft complaint from these results <span style="font-family:var(--mono);font-size:11px;">↗</span></a>
+      </div>
+
+      <hr class="rule">
+      <div class="results-meta" id="results-meta" role="status" aria-live="polite" aria-atomic="true">—</div>
+
+      <!-- =========== VIEW BAR (A / B / C) — sits with results =========== -->
+      <div class="view-bar inline-bar">
+        <span class="folio">Discovery view</span>
+        <div class="view-toggle" role="tablist">
+          <button class="view-btn active" data-view="A" role="tab" aria-selected="true" aria-controls="view-A"><span class="num" aria-hidden="true">A</span><span>Reporter</span></button>
+          <button class="view-btn" data-view="B" role="tab" aria-selected="false" aria-controls="view-B"><span class="num" aria-hidden="true">B</span><span>Discovery Workspace</span></button>
+          <button class="view-btn" data-view="C" role="tab" aria-selected="false" aria-controls="view-C"><span class="num" aria-hidden="true">C</span><span>Doctrine Reader</span></button>
+        </div>
+        <span class="view-desc" id="view-desc">A ranked list of judgments — broadsheet layout.</span>
+      </div>
+
+      <!-- VIEW A — Reporter (broadsheet list) -->
+      <section id="view-A" class="view-pane" role="tabpanel" aria-label="Reporter — ranked list of judgments" tabindex="0">
+        <ul class="case-list" id="case-list"></ul>
+      </section>
+
+      <!-- VIEW B — Discovery workspace -->
+      <section id="view-B" class="view-pane" role="tabpanel" aria-label="Discovery Workspace — citation constellation" tabindex="0" hidden>
+        <div class="workspace">
+          <aside class="ws-stream">
+            <div class="ws-stream-head">
+              <div class="folio" style="color:var(--garnet);">Ranked paragraphs</div>
+              <h3 id="ws-stream-count">— passages</h3>
+              <div class="sub" id="ws-stream-sub">By cosine similarity to your case.</div>
+            </div>
+            <ol class="para-list" id="ws-para-list"></ol>
+          </aside>
+          <section class="ws-graph" aria-label="Citation constellation">
+            <div class="ws-graph-title">
+              <div class="kicker">Citation constellation</div>
+              <h2 id="ws-graph-title">The cases that answered your query</h2>
+              <p><strong>X axis = year of judgment · Y axis = similarity to your case · node size = times cited (log scale)</strong>. Arrows show citations <em>between cases visible in this view</em> — a selected case may also cite or be cited by cases not shown here; check the dossier to see all of them. Foundational doctrines (Klass-style) become large; recent cases stay small.</p>
+              <p class="ws-chart-note" id="ws-chart-note" hidden>⚐ Chart capped at 30 most relevant cases. The full result list lives in the “Ranked passages” panel below.</p>
+            </div>
+            <svg id="ws-svg" viewBox="0 0 1500 1150" preserveAspectRatio="xMidYMid meet"></svg>
+            <div class="ws-legend">
+              <span style="font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);">Legend</span>
+              <span class="ws-legend-item"><span class="ws-legend-dot" style="background:oklch(38% 0.075 75)"></span>weaker match</span>
+              <span class="ws-legend-item"><span class="ws-legend-dot" style="background:oklch(49% 0.105 75)"></span>·</span>
+              <span class="ws-legend-item"><span class="ws-legend-dot" style="background:oklch(60% 0.14 75)"></span>stronger match</span>
+              <span class="ws-legend-item"><span class="ws-legend-dot" style="background:var(--garnet)"></span>selected</span>
+              <span class="ws-legend-item">— solid arrow: direct citation</span>
+              <span class="ws-legend-item">- - dashed: hit-text only</span>
+            </div>
+          </section>
+          <aside class="ws-dossier">
+            <div class="dossier" id="ws-dossier">
+              <div class="ws-empty"><div class="inner"><div class="glyph">§</div><h3>Inspect a judgment</h3><p>Click any paragraph or constellation node to open its dossier here.</p></div></div>
+            </div>
+          </aside>
+        </div>
+        <!-- Compare tray (View B only) -->
+        <div class="compare-tray" id="compare-tray" hidden></div>
+      </section>
+
+
+      <!-- VIEW C — Doctrine reader -->
+      <section id="view-C" class="view-pane" role="tabpanel" aria-label="Doctrine Reader — timeline" tabindex="0" hidden>
+        <div class="reader">
+          <div class="reader-strip" style="display:none">
+            <span class="label">Reading</span>
+            <div class="doctrine-tabs" id="doctrine-tabs"></div>
+            <span class="nudge">Drag the cursor on the river. Watch the doctrine evolve.</span>
+          </div>
+          <div class="reader-body">
+            <section class="river" id="river" aria-label="Doctrine timeline">
+              <div class="river-title">
+                <div class="kicker" id="river-kicker">Doctrine · §I</div>
+                <h2 id="river-doctrine">Strict necessity</h2>
+                <p id="river-blurb">Each waypoint is a case where the doctrine moved. The cursor is yours.</p>
+                <p class="river-legend"><strong>Each dot is one case, placed by year of judgment.</strong> Bigger dot = more matching passages · labelled dots are the closest matches to your query · the highlighted dot is the one you're reading. Click any dot to open it.</p>
+              </div>
+              <div class="river-year">
+                <div class="kicker">Year</div>
+                <div class="num" id="river-year">—</div>
+                <div class="nudge">drag the cursor →</div>
+              </div>
+              <svg id="river-svg" viewBox="0 0 1500 1040" preserveAspectRatio="xMidYMid meet"></svg>
+              <div class="river-narration">
+                <div style="min-width:90px;">
+                  <div class="label">Narration</div>
+                  <div class="folio" id="river-waypoints" style="margin-top:4px;">— waypoints</div>
+                </div>
+                <p id="river-narration"></p>
+              </div>
+            </section>
+            <aside class="reading-col" id="reading-col">
+              <div class="ws-empty"><div class="inner"><div class="glyph">⸙</div><h3>Choose a doctrine</h3><p>Run a search, then drag the river cursor to read how it evolved.</p></div></div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <!-- Compare modal (overlay across views) -->
+      <div class="compare-modal" id="compare-modal" hidden>
+        <div class="compare-shell">
+          <div class="compare-head">
+            <div>
+              <div class="folio" style="color:var(--garnet);">Side-by-side</div>
+              <h2 id="compare-count">Comparing 0 judgments</h2>
+            </div>
+            <button class="btn" onclick="closeCompareView()">Close</button>
+          </div>
+          <div class="compare-grid" id="compare-grid"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+  <footer>ECHR RAG Search · v 2.15 · hosted on AMU VM · NOT legal advice</footer>
+</div>
+
+<script>
+// Name this tab so cross-app links with target="echr-search" reuse it instead of
+// spawning duplicates.
+try { if (window.name !== 'echr-search') window.name = 'echr-search'; } catch (_) {}
+
+/* ---- Display theme switch: Modern (default) / Classic / Accessible ---- */
+(function(){
+  const KEY='echr.theme';
+  function apply(t){ document.body.setAttribute('data-theme', t||''); try{ localStorage.setItem(KEY, t||''); }catch(e){} }
+  function init(){
+    const sel=document.getElementById('theme-select'); if(!sel) return;
+    let saved='classic'; try{ const s=localStorage.getItem(KEY); if(s) saved=s; }catch(e){}
+    sel.value=saved; apply(saved);
+    sel.addEventListener('change', ()=>apply(sel.value));
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+
+/* ---- In-page section tabs: Case Law Search  ⇄  How it works (no navigation) ---- */
+(function(){
+  function show(name){
+    const meth = name === 'methodology';
+    const mp = document.getElementById('pane-methodology'); if (mp) mp.hidden = !meth;
+    document.querySelectorAll('.standfirst, .search-panel').forEach(el => el.style.display = meth ? 'none' : '');
+    const rw = document.getElementById('results-wrap'); if (rw) rw.style.display = meth ? 'none' : '';
+    document.querySelectorAll('[data-section]').forEach(a =>
+      a.classList.toggle('active', a.getAttribute('data-section') === name));
+    try { window.scrollTo(0, 0); } catch(e){}
+  }
+  function init(){
+    document.querySelectorAll('[data-section]').forEach(a =>
+      a.addEventListener('click', e => { e.preventDefault(); show(a.getAttribute('data-section')); }));
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+
+/* =========================================================
+   STATE & CONSTANTS
+   ========================================================= */
+const API = 'https://150.254.115.204/echr-api/rag';  // GitHub Pages page → VM API (CORS + LE cert)
+const SEED_KEYS = {
+  desc:'echr_seed_description', lang:'echr_seed_language', articles:'echr_seed_articles',
+  precedents:'echr_seed_precedents', rewritten:'echr_seed_rewritten', search:'echr_seed_search_query',
+  reasoning:'echr_seed_reasoning', effective:'echr_seed_effective_article'
+};
+
+const PRESETS = [
+  { title: "Length of criminal proceedings", arts: ["6","5"],
+    text: "Criminal proceedings for tax fraud have been ongoing for over 7 years at first instance. The applicant was held in pre-trial detention for 18 months. The court repeatedly adjourned hearings due to the absence of experts. The case file comprises several dozen volumes, but the case is not exceptionally complex. The applicant filed complaints about the excessive length with domestic courts, but without result." },
+  { title: "Freedom of expression — journalist", arts: ["10"],
+    text: "A regional newspaper journalist was convicted of defamation after publishing articles exposing irregularities in the mayor's spending. The articles were based on official documents obtained through freedom of information requests and interviews with former employees. The court imposed a fine equivalent to three months' salary and awarded substantial damages to the mayor. The journalist maintains he acted in the public interest and exercised due diligence." },
+  { title: "Conditions of detention", arts: ["3"],
+    text: "A man was held in a pre-trial detention facility for 11 months in a cell with 2.8 m² of personal space. The cell contained four-tier bunk beds, the toilet was not separated from the rest of the cell. The applicant suffered from chronic bronchial asthma and repeatedly requested a pulmonology consultation, which was ignored. Outdoor exercise was limited to one hour per day in a small concrete yard." },
+  { title: "Child taken from mother", arts: ["8"],
+    text: "A single mother of two minor children was deprived of custody by a family court. The children were placed in foster care based on the mother's difficult housing situation and a probation officer's report based on two 30-minute visits. The mother was not represented by a lawyer at the hearing nor had she received support from social services. Contact with the children was restricted to two hours per month under supervision." },
+  { title: "Unlawful police detention", arts: ["5","11"],
+    text: "A man was detained by police during a peaceful demonstration in front of the Supreme Court. He was not actively participating but standing to the side observing. He was held for 26 hours without charges, without access to a lawyer, and without being able to notify his family. The arrest report cited 'identification purposes' though he immediately presented his ID card. He was released without any charges." },
+  { title: "Death in police custody", arts: ["2"],
+    text: "My father died during a police arrest. The officers claimed he became aggressive and had to be restrained, but witnesses say he was already handcuffed when he lost consciousness. The prosecutor discontinued the investigation after one year, concluding the use of force was proportionate. No independent forensic examination was conducted and the officers were never interviewed under caution." },
+];
+
+const DOCTRINES = [
+  { id: 'strict-nec',  glyph: '§I',   label: 'Strict necessity' },
+  { id: 'qol',         glyph: '§II',  label: '"Quality of law"' },
+  { id: 'weber',       glyph: '§III', label: 'The Weber criteria' },
+  { id: 'e2e',         glyph: '§IV',  label: 'End-to-end safeguards' },
+  { id: 'foresee',     glyph: '§V',   label: 'Foreseeability' },
+];
+
+const state = {
+  geminiEnabled: false,
+  detectedArticles: [],
+  results: null,           // last API result
+  citations: null,         // {edges, in_degree, out_degree, meta} from /citations
+  citationsLoading: false,
+  selectedCaseIdx: 0,
+  selectedParaIdx: 0,
+  view: 'A',
+  doctrine: 'strict-nec',
+  year: 2021,
+  riverActiveId: null,     // case_id of the explicitly-clicked river waypoint
+  riverWaypoints: [],      // last-rendered waypoint list (for click handlers)
+  compareTray: [],         // case_id list (max 4)
+  compareOpen: false,
+};
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+const $ = (id) => document.getElementById(id);
+const escapeHtml = (s) => (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const matchLabel = (s) => s>=.80?{cls:'strong',text:'Strong'}:s>=.72?{cls:'good',text:'Good'}:s>=.65?{cls:'fair',text:'Possible'}:{cls:'weak',text:'Weak'};
+// Robust year extraction — works for ISO ("2011-02-08"), DD/MM/YYYY ("08/02/2011"),
+// DD.MM.YYYY, "Feb 8, 2011", or bare "2011". Returns null when no plausible year is present.
+const extractYear = (d) => { const m = d ? String(d).match(/(19\d{2}|20\d{2})/) : null; return m ? +m[1] : null; };
+const previewText = (t,m=220) => { t=(t||'').trim(); return t.length<=m?t:t.substring(0,m).trimEnd()+'…'; };
+const isArticleDetected = (ca, dl) => { if(!dl||!dl.length) return false; ca=(ca||'').trim(); for(const d of dl){ const dd=(d||'').trim(); if(!dd) continue; if(ca===dd||ca.startsWith(dd+'-')) return true; } return false; };
+
+function flattenCasesForDraft(cases, max=12, ppc=2) {
+  const f = [];
+  for (let r = 0; r < ppc; r++) for (const c of (cases||[])) if (r < (c.hits||[]).length) {
+    const h = c.hits[r];
+    f.push({ score:h.score, case_id:c.case_id, case_no:c.case_no, title:c.title, hudoc_url:c.hudoc_url, judgment_date:c.judgment_date, respondent:c.respondent, articles:c.articles||[], section:h.section, para_idx:h.para_idx, text:h.text });
+    if (f.length >= max) return f;
+  }
+  return f;
+}
+
+/* =========================================================
+   HEALTH / RESPONDENTS
+   ========================================================= */
+async function checkHealth() {
+  try {
+    const r = await fetch(API + '/health');
+    const d = await r.json();
+    $('status-dot').classList.add('green');
+    $('status-text').textContent = 'Connected';
+    state.geminiEnabled = !!d.gemini_enabled;
+
+    const countPill = $('count-pill');
+    countPill.hidden = false;
+    countPill.innerHTML = '<span class="status-dot green"></span><span>' + (d.indexed_points||0).toLocaleString() + ' paragraphs</span>';
+    $('stat-paragraphs').textContent = (d.indexed_points||0).toLocaleString();
+
+    const geminiPill = $('gemini-pill');
+    if (state.geminiEnabled) {
+      geminiPill.innerHTML = '<span class="status-dot green"></span><span>Gemini on' + (d.gemini_models?.length ? ' · ' + d.gemini_models[0] : '') + '</span>';
+      $('stat-model').textContent = (d.gemini_models?.[0]) || 'on';
+    } else {
+      geminiPill.innerHTML = '<span class="status-dot red"></span><span>Gemini off</span>';
+      $('mode-natural').disabled = true;
+      $('mode-expert').checked = true;
+      $('stat-mode').textContent = 'Expert';
+      updateModeHint();
+    }
+    if (d.sections) {
+      const sel = $('section-filter');
+      d.sections.forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; sel.appendChild(o); });
+    }
+  } catch (e) {
+    $('status-dot').classList.add('red');
+    $('status-text').textContent = 'Disconnected';
+  }
+}
+async function loadRespondents() {
+  try {
+    const r = await fetch(API + '/respondents');
+    const d = await r.json();
+    const sel = $('respondent');
+    (d.respondents||[]).forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; sel.appendChild(o); });
+  } catch (e) {}
+}
+
+/* =========================================================
+   PRESETS
+   ========================================================= */
+function renderPresets() {
+  $('preset-list').innerHTML = PRESETS.map((p, i) => `
+    <li class="preset-row" onclick="loadPreset(${i})">
+      <span class="preset-num">${String(i+1).padStart(2,'0')}</span>
+      <div>
+        <div class="preset-title">${escapeHtml(p.title)}</div>
+        <div class="preset-meta">${escapeHtml(p.text.slice(0,110))}…</div>
+      </div>
+      <div class="preset-arts">${p.arts.map(a=>'Art '+a).join(' · ')}</div>
+    </li>`).join('');
+}
+function loadPreset(i) {
+  if (i < 0 || i >= PRESETS.length) return;
+  $('query').value = PRESETS[i].text;
+  $('query').focus();
+  $('query').scrollIntoView({ behavior:'smooth', block:'center' });
+}
+window.loadPreset = loadPreset;
+
+/* =========================================================
+   MODE
+   ========================================================= */
+function currentMode() { return document.querySelector('input[name="mode"]:checked').value; }
+function updateModeHint() {
+  const h = $('query-hint'), t = $('query');
+  const isNatural = currentMode() === 'natural';
+  document.body.classList.toggle('mode-natural', isNatural);
+  document.body.classList.toggle('mode-expert',  !isNatural);
+  if (isNatural) {
+    h.textContent = 'Any language. The system rewrites your text into a dense legal query and detects the relevant article(s).';
+    t.placeholder = 'The applicant was held in pre-trial detention for eighteen months during criminal proceedings lasting over seven years…';
+    $('stat-mode').textContent = 'Natural';
+  } else {
+    h.textContent = 'Direct semantic search. Works best with concise English legal terminology.';
+    t.placeholder = 'effective investigation death in police custody Article 2 procedural obligation';
+    $('stat-mode').textContent = 'Expert';
+  }
+}
+document.querySelectorAll('input[name="mode"]').forEach(r => r.addEventListener('change', updateModeHint));
+updateModeHint();    // apply class on initial load
+
+/* =========================================================
+   COPY / KEYWORDS
+   ========================================================= */
+function copyKeyword(el, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    el.classList.add('copied');
+    const orig = el.textContent;
+    el.textContent = '✓ ' + text;
+    setTimeout(() => { el.classList.remove('copied'); el.textContent = orig; }, 1500);
+  }).catch(()=>{});
+}
+window.copyKeyword = copyKeyword;
+
+/* =========================================================
+   RENDER REWRITE
+   ========================================================= */
+function renderRewrite(data) {
+  const card = $('rewrite-card');
+  if (!data || data.mode !== 'natural') { card.hidden = true; return; }
+  $('rewrite-text').textContent = '"' + (data.rewritten_query||'') + '"';
+  const eb = $('rewrite-embed');
+  if (data.search_query && data.search_query !== data.rewritten_query) {
+    $('rewrite-embed-text').textContent = data.search_query;
+    eb.hidden = false;
+  } else { eb.hidden = true; }
+
+  const kw = data.keywords || [];
+  const kbWrap = $('keywords-wrap'), kc = $('keywords-chips');
+  if (kw.length) {
+    kc.innerHTML = kw.map(k => `<span class="keyword-chip" onclick="copyKeyword(this,'${escapeHtml(k)}')">${escapeHtml(k)}</span>`).join('');
+    kbWrap.hidden = false;
+  } else { kbWrap.hidden = true; }
+
+  const bits = [], arts = data.suggested_articles || [];
+  if (arts.length === 1) bits.push('Detected: <span class="article-pill">Art ' + escapeHtml(arts[0]) + '</span>');
+  else if (arts.length > 1) bits.push('Multi-article: ' + arts.map(a => '<span class="article-pill">Art ' + escapeHtml(a) + '</span>').join(' '));
+  if (data.model_used) bits.push('<strong>' + escapeHtml(data.model_used) + '</strong>');
+  if (data.reasoning) bits.push('<em>' + escapeHtml(data.reasoning) + '</em>');
+  $('rewrite-meta').innerHTML = bits.join(' · ');
+
+  $('to-draft-btn').onclick = (e) => {
+    e.preventDefault();
+    const desc = $('query').value;
+    const fp = flattenCasesForDraft(data.results||[], 12, 2);
+    try {
+      sessionStorage.setItem(SEED_KEYS.desc, desc);
+      sessionStorage.setItem(SEED_KEYS.lang, data.detected_language || 'en');
+      sessionStorage.setItem(SEED_KEYS.articles, JSON.stringify(data.suggested_articles||[]));
+      sessionStorage.setItem(SEED_KEYS.precedents, JSON.stringify(fp));
+      sessionStorage.setItem(SEED_KEYS.rewritten, data.rewritten_query||'');
+      sessionStorage.setItem(SEED_KEYS.search, data.search_query||'');
+      sessionStorage.setItem(SEED_KEYS.reasoning, data.reasoning||'');
+      sessionStorage.setItem(SEED_KEYS.effective, data.effective_article||'');
+    } catch (err) {}
+    window.open('/draft', 'echr-draft');
+  };
+  card.hidden = false;
+}
+
+/* =========================================================
+   RENDER VIEW A — Reporter (broadsheet list)
+   ========================================================= */
+function renderCaseArticles(arts, idx) {
+  arts = arts || [];
+  if (!arts.length) return '';
+  if (!state.detectedArticles.length) return arts.slice(0,6).map(a=>`<span class="meta-tag article-other">Art ${escapeHtml(a)}</span>`).join('');
+  const det = [], oth = [];
+  for (const a of arts) (isArticleDetected(a, state.detectedArticles) ? det : oth).push(a);
+  let h = '';
+  for (const a of det) h += `<span class="meta-tag article-detected">Art ${escapeHtml(a)}</span>`;
+  if (!det.length && oth.length) return oth.slice(0,4).map(a=>`<span class="meta-tag article-other">Art ${escapeHtml(a)}</span>`).join('');
+  if (oth.length) {
+    const lid = 'oa-' + idx;
+    h += `<button class="more-articles-btn" onclick="event.stopPropagation();toggleOA('${lid}',this)">+${oth.length} more</button><span id="${lid}" hidden>${oth.map(a=>`<span class="meta-tag article-other" style="margin-left:6px">Art ${escapeHtml(a)}</span>`).join('')}</span>`;
+  }
+  return h;
+}
+function toggleOA(id, btn) { const l = $(id); if (l && l.hidden) { l.hidden = false; btn.style.display='none'; } }
+window.toggleOA = toggleOA;
+
+function toggleCase(i, btn) {
+  const c = $('case-' + i);
+  if (!c) return;
+  const open = c.classList.toggle('expanded');
+  if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+window.toggleCase = toggleCase;
+
+function copyCite(ev, ci, para) {
+  ev.stopPropagation();
+  const c = ((state.results && state.results.results) || [])[ci];
+  if (!c) return;
+  const title = (c.title || c.case_id || '').replace(/^CASE OF /i, '');
+  const no = c.case_no ? `, no. ${c.case_no}` : '';
+  const cite = `${title}${no}, § ${para}`;
+  const btn = ev.currentTarget;
+  const done = () => { const o = btn.innerHTML; btn.innerHTML = '&#10003; copied'; btn.classList.add('copied'); setTimeout(() => { btn.innerHTML = o; btn.classList.remove('copied'); }, 1300); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(cite).then(done).catch(() => { window.prompt('Copy citation:', cite); });
+  } else { window.prompt('Copy citation:', cite); }
+}
+
+function renderViewA(data) {
+  const list = $('case-list');
+  if (!data.results || !data.results.length) { list.innerHTML = '<li class="state-msg">No matching paragraphs.</li>'; return; }
+  list.innerHTML = data.results.map((c, idx) => {
+    const m = matchLabel(c.top_score);
+    const prev = (c.hits && c.hits.length) ? previewText(c.hits[0].text) : '';
+    const hc = c.hit_count || (c.hits ? c.hits.length : 0);
+    const hl = hc === 1 ? '1 passage' : hc + ' passages';
+    const ah = renderCaseArticles(c.articles || [], idx);
+    return `<li class="case-card" id="case-${idx}">
+      <div class="case-rank">${String(idx+1).padStart(2,'0')}</div>
+      <div class="case-body">
+        <div class="case-title-row">
+          <a class="case-title" href="${escapeHtml(c.hudoc_url||'#')}" target="_blank" rel="noopener" aria-label="${escapeHtml(c.title||c.case_id)} — open in HUDOC, opens in a new tab">${escapeHtml(c.title||c.case_id)}<span class="ext" aria-hidden="true">HUDOC&#8599;</span></a>
+          <div class="case-pills">
+            <span class="match-pill ${m.cls}">${m.text}</span>
+            <span class="hits-pill">${hl}</span>
+          </div>
+        </div>
+        <div class="case-meta">
+          ${c.respondent?`<span class="meta-tag">${escapeHtml(c.respondent)}</span>`:''}
+          ${c.judgment_date?`<span class="meta-tag">${escapeHtml(c.judgment_date)}</span>`:''}
+          ${ah}
+        </div>
+        <p class="case-preview">${escapeHtml(prev)}</p>
+        <button type="button" class="case-toggle" aria-expanded="false" onclick="toggleCase(${idx}, this)"><span class="arrow" aria-hidden="true">▶</span> Read the ${hl}</button>
+        <div class="case-hits">
+          ${(c.hits||[]).map(h => `
+            <div class="hit-item">
+              <div class="hit-num">¶ ${escapeHtml(String(h.para_idx||''))}<small>${(h.score*100).toFixed(0)}%</small><button type="button" class="cite-btn" aria-label="Copy pinpoint citation for paragraph ${escapeHtml(String(h.para_idx||''))}" onclick="copyCite(event, ${idx}, '${escapeHtml(String(h.para_idx||''))}')">&#8862; cite</button></div>
+              <div>
+                <div class="hit-section">${escapeHtml(h.section||'')}</div>
+                <p class="hit-text">${escapeHtml(h.text)}</p>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </li>`;
+  }).join('');
+}
+
+/* =========================================================
+   RENDER VIEW B — Discovery workspace
+   ========================================================= */
+function flattenAllParas(data) {
+  const out = [];
+  (data.results||[]).forEach((c, ci) => {
+    (c.hits||[]).forEach((h, hi) => {
+      out.push({ ...h, case_id: c.case_id, caseIdx: ci, hitIdx: hi, title: c.title, respondent: c.respondent, judgment_date: c.judgment_date, hudoc_url: c.hudoc_url, articles: c.articles||[] });
+    });
+  });
+  return out.sort((a,b)=>b.score-a.score);
+}
+function renderViewB(data) {
+  if (!data.results || !data.results.length) {
+    $('ws-para-list').innerHTML = '<li class="state-msg">No paragraphs.</li>';
+    $('ws-svg').innerHTML = '';
+    $('ws-dossier').innerHTML = '<div class="ws-empty"><div class="inner"><div class="glyph">§</div><h3>Nothing to inspect</h3><p>Try a different query.</p></div></div>';
+    return;
+  }
+  const paras = flattenAllParas(data);
+  $('ws-stream-count').textContent = paras.length + ' passages';
+  $('ws-stream-sub').textContent = (data.mode==='natural' ? 'By cosine similarity to your case.' : 'By BM25 similarity.');
+  $('ws-graph-title').textContent = `${data.results.length} judgments answered your query`;
+
+  // Stream
+  $('ws-para-list').innerHTML = paras.map((p, i) => {
+    const sim = Math.max(0, Math.min(1, p.score));
+    const c = data.results[p.caseIdx];
+    const isActive = (state.selectedCaseIdx === p.caseIdx && state.selectedParaIdx === p.hitIdx);
+    const inCmp = state.compareTray.includes(c.case_id);
+    return `<li class="para-card ${isActive?'active':''}" onclick="selectPara(${p.caseIdx},${p.hitIdx})">
+      <div class="para-card-head">
+        <span class="para-cite">¶${escapeHtml(String(p.para_idx||''))}</span>
+        <span class="para-case">${escapeHtml((c.title||'').replace(/ v\..+$/,''))}</span>
+        <span class="para-year">${escapeHtml(String(extractYear(p.judgment_date) || ''))}</span>
+      </div>
+      <p class="para-text">${escapeHtml(p.text)}</p>
+      <div class="para-foot">
+        <div class="sim-meter">${Array.from({length:12}).map((_,k)=>`<span class="${k/12<sim?'on':''}"></span>`).join('')}</div>
+        <span class="folio">${(sim*100).toFixed(0)}%</span>
+        <span style="flex:1"></span>
+        ${(p.articles||[]).slice(0,2).map(a=>`<span class="meta-tag" style="font-size:9px;padding:1px 5px;">Art ${escapeHtml(a)}</span>`).join('')}
+        <button class="cmp-chip ${inCmp?'on':''}" onclick="event.stopPropagation();toggleCompare('${escapeHtml(c.case_id)}')" title="Add to compare">${inCmp?'✓ COMPARE':'+ COMPARE'}</button>
+      </div>
+    </li>`;
+  }).join('');
+
+  renderConstellation(data);
+  renderDossier(data);
+  renderCompareTray();
+}
+
+function renderConstellation(data) {
+  // padY top now larger to leave room for the title block (which includes a
+  // garnet "chart capped at 30" note when >30 results were returned).
+  const w = 1500, h = 1150, padX = 100, padY = 110, padYTop = 300;
+  const svg = $('ws-svg');
+  // Cap to top 30 by case_score to keep the chart legible — beyond that it's pure noise.
+  const cases = data.results.slice(0, 30);
+  // Show the "capped at 30" note only when there are actually more than 30 results.
+  const note = $('ws-chart-note');
+  if (note) note.hidden = !(data.results && data.results.length > 30);
+  if (!cases.length) { svg.innerHTML = ''; return; }
+
+  // ---- 1) Year axis (X) ----
+  const years = cases.map(c => extractYear(c.judgment_date)).filter(y => y && y > 1950);
+  const minYr = years.length ? Math.min(...years) - 1 : 1975;
+  const maxYr = years.length ? Math.max(...years) + 1 : 2026;
+  const yearToX = (y) => padX + ((y - minYr) / Math.max(1, maxYr - minYr)) * (w - 2*padX);
+
+  // ---- 3) Bubble size driven by cited_by count ----
+  // When the citation graph is loaded, size = log-scaled cited_by count. This makes
+  // foundational cases like Klass (cited by ~300) much bigger than recent ones (cited
+  // by ~1-5). Falls back to similarity scoring during the brief async window before
+  // /citations returns.
+  const cit = state.citations;
+  const citedByOf = (c) => (cit && cit.cited_by_total && cit.cited_by_total[c.case_id]) || 0;
+  const citesOf   = (c) => (cit && cit.cites_total    && cit.cites_total[c.case_id])    || 0;
+  const maxCitedBy = Math.max(0, ...cases.map(citedByOf));
+  const importance = cases.map(c => (c.case_score != null ? c.case_score : (c.top_score || 0)));
+  const minImp = Math.min(...importance);
+  const maxImp = Math.max(...importance);
+  const impSpan = Math.max(0.001, maxImp - minImp);
+  const sizeOf = (c) => {
+    const hits = c.hit_count || (c.hits ? c.hits.length : 1);
+    if (cit && maxCitedBy > 0) {
+      // Log-scaled: a case cited 300× isn't 300× bigger than one cited 5× — visually
+      // we want roughly log-proportional area. Capped so dense clusters stay clickable.
+      const norm = Math.log(1 + citedByOf(c)) / Math.log(1 + maxCitedBy);   // 0..1
+      const hitBoost = Math.min(2, Math.sqrt(hits) * 0.5);
+      return Math.min(28, 9 + norm * 18 + hitBoost);                         // 9..28 px
+    }
+    // Fallback while waiting for /citations — similarity-based
+    const imp = (c.case_score != null ? c.case_score : (c.top_score || 0));
+    const norm = (imp - minImp) / impSpan;
+    const hitBoost = Math.min(6, Math.sqrt(hits) * 1.2);
+    return Math.min(26, 9 + norm * 14 + hitBoost);
+  };
+
+  // ---- 4) Y position by similarity ----
+  const topScores = cases.map(c => c.top_score || 0);
+  const minScore = Math.min(...topScores);
+  const maxScore = Math.max(...topScores);
+  const scoreSpan = Math.max(0.001, maxScore - minScore);
+  // Top of chart sits at padYTop (room for taller title block including the
+  // "capped at 30" note); bottom at h - padY (room for X-axis labels).
+  const baseYof = (c) => h - padY - ((c.top_score - minScore) / scoreSpan) * (h - padY - padYTop - 40);
+
+  // ---- 4) Initial node positions ----
+  const nodes = cases.map((c, i) => {
+    const year = extractYear(c.judgment_date) || minYr;
+    return {
+      id: c.case_id, idx: i,
+      label: (c.title || c.case_id).replace(/^\s*case of\s+/i, '').replace(/ v\..+$/i, '').slice(0, 28),
+      year,
+      x: yearToX(year),
+      y: baseYof(c),
+      r: sizeOf(c),
+      score: c.top_score,
+      m: matchLabel(c.top_score),
+    };
+  });
+
+  // ---- 5) Anti-collision ----
+  // Phase 1: aggressive Y-only repulsion (preserves year axis exactly).
+  // Phase 2: if still overlapping, allow ±15 px X drift to break tightly-clustered years.
+  // X drift is bounded so bubbles don't migrate far from their actual year.
+  nodes.forEach(n => { n.x_orig = n.x; });
+  const yMin = padYTop + 14, yMax = h - padY - 14;
+  const X_DRIFT = 30;        // max horizontal wiggle, in px
+  const MIN_GAP = 26;        // extra clearance between bubble edges
+  for (let pass = 0; pass < 120; pass++) {
+    let moved = false;
+    const phase2 = pass > 60;
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const a = nodes[i], b = nodes[j];
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const dist = Math.sqrt(dx*dx + dy*dy) || 0.01;
+        const minDist = a.r + b.r + MIN_GAP;
+        if (dist < minDist) {
+          const overlap = (minDist - dist);
+          if (phase2) {
+            // Mixed push along the actual collision normal
+            const nx = dx / dist, ny = dy / dist;
+            a.y -= ny * overlap * 0.45;
+            b.y += ny * overlap * 0.45;
+            a.x -= nx * overlap * 0.20;
+            b.x += nx * overlap * 0.20;
+          } else {
+            const sign = dy >= 0 ? 1 : -1;
+            a.y -= sign * overlap * 0.50;
+            b.y += sign * overlap * 0.50;
+          }
+          moved = true;
+        }
+      }
+    }
+    nodes.forEach(n => {
+      n.y = Math.max(yMin, Math.min(yMax, n.y));
+      // Clamp X close to original year position
+      n.x = Math.max(n.x_orig - X_DRIFT, Math.min(n.x_orig + X_DRIFT, n.x));
+    });
+    if (!moved) break;
+  }
+
+  // ---- 6) Citation edges ----
+  // Primary source: /citations endpoint (global graph from build_citations.py).
+  // Fallback: scan retrieved hit text for substring mentions to catch citations the
+  // strict "X v. Y" regex in build_citations.py may have missed (informal references,
+  // unusual punctuation, multi-version case names, etc.). Hit-text-only edges are
+  // rendered dashed to signal "weaker confidence".
+  const idToIdx = {};
+  cases.forEach((c, i) => { if (c.case_id) idToIdx[c.case_id] = i; });
+  const edges = [];
+  const seen = new Set();        // "from|to" key for dedup
+  const addEdge = (fi, ti, weak) => {
+    if (fi == null || ti == null || fi === ti) return;
+    const key = `${fi}|${ti}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    edges.push({ from: fi, to: ti, weak: !!weak });
+  };
+  // 6a) Strong edges from global graph
+  if (cit && cit.edges) {
+    cit.edges.forEach(e => addEdge(idToIdx[e.from], idToIdx[e.to], false));
+  }
+  // 6b) Weak edges from hit-text substring match (only adds NEW edges)
+  const norm = s => (s||'').toString()
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/['\u2018\u2019]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const patterns = cases.map(c => {
+    const title = (c.title||'')
+      .replace(/^\s*case of\s+/i, '')
+      .replace(/\s*\[GC\]\s*/gi, ' ')
+      .replace(/ v\..+$/i, '')
+      .trim();
+    return {
+      applicant: norm(title),
+      case_no:   norm((c.case_no||'').replace(/[^0-9/,]/g, '').split(',')[0]),
+    };
+  });
+  const hitTexts = cases.map(c => norm((c.hits||[]).map(h => h.text).join(' \u0001 ')));
+  for (let i = 0; i < cases.length; i++) {
+    const srcYear = extractYear(cases[i].judgment_date);
+    for (let j = 0; j < cases.length; j++) {
+      if (i === j) continue;
+      const tgtYear = extractYear(cases[j].judgment_date);
+      if (srcYear && tgtYear && tgtYear >= srcYear) continue;       // chronology
+      const p = patterns[j];
+      let cited = false;
+      if (p.case_no && p.case_no.length >= 5 && hitTexts[i].includes(p.case_no)) cited = true;
+      else if (p.applicant && p.applicant.length >= 4 && hitTexts[i].includes(p.applicant)) cited = true;
+      if (cited) addEdge(i, j, true);
+    }
+  }
+
+  if (window.__ECHR_DEBUG !== false) {
+    const strong = edges.filter(e => !e.weak).length;
+    const weak   = edges.filter(e =>  e.weak).length;
+    console.groupCollapsed(`[constellation] ${strong} strong + ${weak} weak edge(s) within result set`
+      + (cit ? ` · primary source: ${(cit.stats||{}).source||'?'}` : ' · waiting for /citations'));
+    if (cit) {
+      const tbl = cases.map((c, i) => ({
+        idx: i,
+        title: (c.title||'').slice(0, 50),
+        cited_by_total: citedByOf(c),
+        cites_total:    citesOf(c),
+      }));
+      console.table(tbl);
+    }
+    console.groupEnd();
+  }
+
+  // ---- 7) Render SVG ----
+  let html = `
+    <defs>
+      <marker id="arrowGarnet" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--garnet)"/>
+      </marker>
+      <marker id="arrowMuted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--ink-4)"/>
+      </marker>
+    </defs>`;
+
+  // Timeline + ticks
+  const span = maxYr - minYr;
+  const tickStep = span > 30 ? 10 : span > 15 ? 5 : span > 6 ? 2 : 1;
+  const firstTick = Math.ceil(minYr / tickStep) * tickStep;
+  html += `<line x1="${padX}" y1="${h-padY+4}" x2="${w-padX}" y2="${h-padY+4}" stroke="var(--rule)"/>`;
+  for (let y = firstTick; y <= maxYr; y += tickStep) {
+    const x = yearToX(y);
+    html += `<line x1="${x}" y1="${padYTop}" x2="${x}" y2="${h-padY+10}" stroke="var(--rule-soft)" stroke-dasharray="2 4"/>`;
+    html += `<text x="${x}" y="${h-padY+24}" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="var(--ink-3)">${y}</text>`;
+  }
+  html += `<text x="${padX-14}" y="${padYTop-12}" font-family="var(--mono)" font-size="9" fill="var(--ink-4)">↑ HIGHER SIMILARITY</text>`;
+  html += `<text x="${w-padX}" y="${h-padY+40}" text-anchor="end" font-family="var(--mono)" font-size="9" fill="var(--ink-4)">YEAR OF JUDGMENT →</text>`;
+
+  // Citation edges (drawn UNDER nodes so they don't cover labels)
+  const sel = state.selectedCaseIdx;
+  const selHasInViewEdges = edges.some(e => e.from === sel || e.to === sel);
+  edges.forEach(e => {
+    const A = nodes[e.from], B = nodes[e.to];
+    const involved = (e.from === sel || e.to === sel);
+    const dx = Math.abs(A.x - B.x);
+    const lift = Math.min(70, dx * 0.12) + 14;
+    const mx = (A.x + B.x) / 2;
+    const my = (A.y + B.y) / 2 - lift;
+    const angA = Math.atan2(A.y - my, A.x - mx);
+    const sx = A.x - Math.cos(angA) * (A.r + 2);
+    const sy = A.y - Math.sin(angA) * (A.r + 2);
+    const angB = Math.atan2(B.y - my, B.x - mx);
+    const tx = B.x - Math.cos(angB) * (B.r + 2);
+    const ty = B.y - Math.sin(angB) * (B.r + 2);
+    const stroke = involved ? 'var(--garnet)' : 'var(--ink-3)';
+    const opacity = involved ? 0.90 : (selHasInViewEdges ? 0.18 : 0.55);
+    const sw = involved ? 1.8 : 1.0;
+    const marker = involved ? 'url(#arrowGarnet)' : 'url(#arrowMuted)';
+    // Weak edges (only found via hit-text substring, not in the global graph) get a dashed
+    // pattern so the user can tell them apart from strong references.
+    const dash = e.weak ? ' stroke-dasharray="4 3"' : '';
+    html += `<path d="M ${sx} ${sy} Q ${mx} ${my} ${tx} ${ty}" fill="none" stroke="${stroke}" stroke-width="${sw}" opacity="${opacity}" marker-end="${marker}"${dash}/>`;
+  });
+
+  // Continuous color: the better the similarity, the brighter & more saturated the green.
+  // Below 0.5 falls into greys. This gives visible contrast even when all results are "good".
+  const colorForScore = (s) => {
+    if (s == null || isNaN(s)) return 'var(--ink-4)';
+    if (s < 0.50) return 'var(--ink-4)';
+    if (s < 0.65) return 'var(--ink-3)';
+    const t = Math.min(1, Math.max(0, (s - 0.65) / 0.30));    // 0..1 across 0.65..0.95
+    const lightness = (35 + t * 25).toFixed(1);                 // 35%..60%
+    const chroma    = (0.07 + t * 0.07).toFixed(3);             // 0.07..0.14
+    return `oklch(${lightness}% ${chroma} 75)`;
+  };
+
+  // Nodes — render in priority order so the most-clickable items end up on top:
+  //   background:  unrelated nodes, largest first (they cover less ground that way)
+  //   middle:      nodes linked to selection (linked cases highlighted in garnet)
+  //   topmost:     selected node — always clickable no matter how dense the cluster
+  const citedBySel = new Set(edges.filter(e => e.from === sel).map(e => e.to));
+  const citingSel  = new Set(edges.filter(e => e.to   === sel).map(e => e.from));
+  const renderOrder = nodes.map((_, i) => i);
+  renderOrder.sort((a, b) => {
+    if (a === sel) return 1;
+    if (b === sel) return -1;
+    const aLinked = citedBySel.has(a) || citingSel.has(a);
+    const bLinked = citedBySel.has(b) || citingSel.has(b);
+    if (aLinked !== bLinked) return aLinked ? 1 : -1;
+    // Among unlinked: bigger first (so smaller end up on top, easier to click)
+    return nodes[b].r - nodes[a].r;
+  });
+  renderOrder.forEach(i => {
+    const n = nodes[i];
+    const isActive  = i === state.selectedCaseIdx;
+    const inCmp     = state.compareTray.includes(n.id);
+    const isLinked  = citedBySel.has(i) || citingSel.has(i);
+    const fill = isActive ? 'var(--garnet)'
+               : isLinked ? 'var(--garnet-soft)'
+               : colorForScore(n.score);
+    const stroke = isLinked && !isActive ? 'var(--garnet)' : 'var(--ink)';
+    const sw     = isActive ? 1.8 : (isLinked ? 1.3 : 1);
+    html += `<g style="cursor:pointer" onclick="selectPara(${i},0)">`;
+    if (isActive) html += `<circle cx="${n.x}" cy="${n.y}" r="${n.r+9}" fill="none" stroke="var(--garnet)" stroke-width="1" opacity="0.55"/>`;
+    html += `<circle cx="${n.x}" cy="${n.y}" r="${n.r}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+    if (inCmp) html += `<circle cx="${n.x + n.r - 1}" cy="${n.y - n.r + 1}" r="4" fill="var(--garnet)" stroke="var(--paper)" stroke-width="1"/>`;
+    html += `<text x="${n.x}" y="${n.y - n.r - 8}" text-anchor="middle" font-family="var(--display)" font-style="italic" font-size="11" fill="var(--ink)">${escapeHtml(n.label)}</text>`;
+    html += `<text x="${n.x}" y="${n.y - n.r - 22}" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="var(--ink-4)">${n.year}</text>`;
+    html += `</g>`;
+  });
+
+  // Edge-count badge (top-right) — also shows whether we're using the global graph
+  let badge;
+  const strongEdges = edges.filter(e => !e.weak).length;
+  const weakEdges   = edges.filter(e =>  e.weak).length;
+  if (state.citationsLoading) {
+    badge = 'loading citation graph…';
+  } else if (!cit) {
+    badge = 'citation graph unavailable';
+  } else {
+    const src = (cit.stats||{}).source;
+    const srcLabel = src === 'graph' ? ' · global graph' : src === 'on-the-fly' ? ' · live scan' : '';
+    const selCase = cases[sel];
+    const selTotalCites    = selCase ? citesOf(selCase)   : 0;
+    const selTotalCitedBy  = selCase ? citedByOf(selCase) : 0;
+    const selInViewEdges   = (citedBySel.size + citingSel.size);
+    const selHasOffscreen  = (selTotalCites + selTotalCitedBy > 0) && (selInViewEdges === 0);
+    const edgeBreakdown = (strongEdges > 0 && weakEdges > 0)
+      ? `${strongEdges} direct + ${weakEdges} hit-text`
+      : (weakEdges > 0 ? `${weakEdges} hit-text only` : `${strongEdges} direct`);
+    if (selHasOffscreen) {
+      badge = `${edgeBreakdown} citation${edges.length===1?'':'s'} in view · selected has ${selTotalCites}↑ / ${selTotalCitedBy}↓ outside${srcLabel}`;
+    } else {
+      badge = edges.length > 0
+        ? `${edgeBreakdown} citation${edges.length===1?'':'s'} in view${srcLabel} · arrow → cited`
+        : `no citations between these cases${srcLabel}`;
+    }
+  }
+  html += `<text x="${w-padX}" y="${padYTop-12}" text-anchor="end" font-family="var(--mono)" font-size="9" fill="var(--ink-4)">${escapeHtml(badge)}</text>`;
+
+  svg.innerHTML = html;
+}
+
+function selectPara(caseIdx, hitIdx) {
+  state.selectedCaseIdx = caseIdx;
+  state.selectedParaIdx = hitIdx || 0;
+  if (state.results) {
+    renderViewB(state.results);
+  }
+}
+window.selectPara = selectPara;
+
+/* =========================================================
+   COMPARE TRAY  (View B)
+   ========================================================= */
+function toggleCompare(caseId) {
+  const idx = state.compareTray.indexOf(caseId);
+  if (idx >= 0) state.compareTray.splice(idx, 1);
+  else if (state.compareTray.length < 4) state.compareTray.push(caseId);
+  if (state.results) renderViewB(state.results);
+}
+window.toggleCompare = toggleCompare;
+
+function clearCompare() {
+  state.compareTray = [];
+  state.compareOpen = false;
+  if (state.results) renderViewB(state.results);
+  $('compare-modal').hidden = true;
+}
+window.clearCompare = clearCompare;
+
+function renderCompareTray() {
+  const tray = $('compare-tray');
+  if (!tray) return;
+  if (!state.compareTray.length) { tray.hidden = true; return; }
+  const cases = state.compareTray.map(id => (state.results?.results||[]).find(c => c.case_id === id)).filter(Boolean);
+  tray.hidden = false;
+  tray.innerHTML = `
+    <span class="folio" style="color:var(--paper);">Compare tray</span>
+    <span class="mono" style="font-size:12px;color:var(--ink-4);">${cases.length} / 4</span>
+    <span class="tray-rule"></span>
+    <div class="tray-chips">
+      ${cases.map(c => `
+        <span class="tray-chip">
+          <em>${escapeHtml((c.title||c.case_id).replace(/ v\..+$/,''))}</em>
+          <button onclick="toggleCompare('${escapeHtml(c.case_id)}')" aria-label="remove">×</button>
+        </span>`).join('')}
+    </div>
+    <span class="tray-rule"></span>
+    <button class="tray-cta" onclick="openCompareView()" ${cases.length<2?'disabled':''}>Open side-by-side →</button>
+    <button class="tray-clear" onclick="clearCompare()">Clear</button>`;
+}
+
+function openCompareView() {
+  if (state.compareTray.length < 2) return;
+  const cases = state.compareTray.map(id => (state.results?.results||[]).find(c => c.case_id === id)).filter(Boolean);
+  state.compareOpen = true;
+  $('compare-modal').hidden = false;
+  $('compare-grid').style.gridTemplateColumns = `repeat(${cases.length}, 1fr)`;
+  $('compare-count').textContent = `Comparing ${cases.length} judgments`;
+  $('compare-grid').innerHTML = cases.map(c => {
+    const arts = (c.articles||[]).slice(0,4).map(a=>`<span class="chip">Art ${escapeHtml(a)}</span>`).join('');
+    const passages = (c.hits||[]).map(h => `
+      <div class="cmp-passage">
+        <div class="folio" style="color:var(--garnet);">¶ ${escapeHtml(String(h.para_idx||''))} · ${(h.score*100).toFixed(0)}%</div>
+        <p>${escapeHtml(h.text)}</p>
+      </div>`).join('');
+    return `<div class="cmp-col">
+      <div class="mono" style="font-size:10px;color:var(--ink-4);">${escapeHtml(c.case_no||'')}</div>
+      <h3>${escapeHtml(c.title||c.case_id)}</h3>
+      <div class="cmp-meta">${escapeHtml(c.respondent||'')} · ${escapeHtml(c.judgment_date||'')}</div>
+      <div class="cmp-chips">
+        <span class="chip garnet">${escapeHtml(matchLabel(c.top_score).text)} match</span>
+        ${arts}
+      </div>
+      <hr class="rule">
+      ${passages || '<p class="muted italic">No passages.</p>'}
+    </div>`;
+  }).join('');
+}
+window.openCompareView = openCompareView;
+
+function closeCompareView() {
+  state.compareOpen = false;
+  $('compare-modal').hidden = true;
+}
+window.closeCompareView = closeCompareView;
+
+function renderDossier(data) {
+  const c = data.results[state.selectedCaseIdx];
+  if (!c) return;
+  const arts = (c.articles||[]).slice(0,6).map(a=>`<span class="chip">Art ${escapeHtml(a)}</span>`).join('');
+  const passages = (c.hits||[]).map(h => `
+    <div class="dossier-passage">
+      <div class="num">¶ ${escapeHtml(String(h.para_idx||''))} · ${escapeHtml(h.section||'')} · ${(h.score*100).toFixed(0)}%</div>
+      <p>${escapeHtml(h.text)}</p>
+    </div>`).join('');
+  const inCmp = state.compareTray.includes(c.case_id);
+
+  // Citation block (only when /citations has returned)
+  let citationBlock = '';
+  const cit = state.citations;
+  if (cit) {
+    const cb_count = (cit.cited_by_total && cit.cited_by_total[c.case_id]) || 0;
+    const ci_count = (cit.cites_total    && cit.cites_total[c.case_id])    || 0;
+    const cb_sample = (cit.cited_by_sample && cit.cited_by_sample[c.case_id]) || [];
+    const ci_sample = (cit.cites_sample    && cit.cites_sample[c.case_id])    || [];
+    const isGlobal  = (cit.stats || {}).source === 'graph';
+
+    const renderList = (sample, totalCount, emptyMsg) => {
+      if (!sample.length) {
+        if (totalCount > 0 && !isGlobal) {
+          // on-the-fly mode: we have a count but no sample
+          return `<p class="muted italic">${totalCount} within current results.</p>`;
+        }
+        return `<p class="muted italic">${escapeHtml(emptyMsg)}</p>`;
+      }
+      const more = totalCount - sample.length;
+      const lis = sample.map(e => {
+        const yr = (extractYear(e.judgment_date) || '');
+        const t = (e.title||'').replace(/^\s*case of\s+/i, '').replace(/ v\..+$/i, '');
+        return `<li class="cite-item"><span class="cite-arrow">↓</span><span class="cite-title">${escapeHtml(t)}</span><span class="cite-year">${escapeHtml(String(yr))}</span></li>`;
+      }).join('');
+      const moreLi = more > 0 ? `<li class="cite-more">…and ${more} more</li>` : '';
+      return `<ul class="cite-list">${lis}${moreLi}</ul>`;
+    };
+
+    citationBlock = `
+      <div class="dossier-section">
+        <h4>Upstream · cites <span class="cite-count">${ci_count}</span></h4>
+        ${renderList(ci_sample, ci_count, isGlobal ? 'None in current dataset.' : 'None in current results.')}
+      </div>
+      <div class="dossier-section">
+        <h4>Downstream · cited by <span class="cite-count">${cb_count}</span></h4>
+        ${renderList(cb_sample, cb_count, isGlobal ? 'None in current dataset.' : 'None in current results.')}
+      </div>`;
+  }
+
+  $('ws-dossier').innerHTML = `
+    <div class="dossier">
+      <div class="dossier-kicker">Dossier · ${escapeHtml(matchLabel(c.top_score).text)} match</div>
+      <h3>${escapeHtml(c.title||c.case_id)}</h3>
+      <div class="dossier-meta">${escapeHtml(c.case_no||'')} · ${escapeHtml(c.respondent||'')} · ${escapeHtml(c.judgment_date||'')}</div>
+      <div class="dossier-chips">
+        <span class="chip garnet">${escapeHtml(c.respondent||'')}</span>
+        ${arts}
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <a class="btn btn-garnet" href="${escapeHtml(c.hudoc_url||'#')}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;">Open in HUDOC ↗</a>
+        <button class="btn ${inCmp?'btn-garnet':''}" onclick="toggleCompare('${escapeHtml(c.case_id)}')" style="cursor:pointer;">${inCmp?'✓ In compare':'+ Compare'}</button>
+      </div>
+      ${citationBlock}
+      <div class="dossier-section">
+        <h4>Hit passages (${(c.hits||[]).length})</h4>
+        ${passages || '<p class="muted italic">No passages.</p>'}
+      </div>
+    </div>`;
+}
+
+/* =========================================================
+   RENDER VIEW C — Doctrine reader
+   ========================================================= */
+function renderDoctrineTabs() {
+  $('doctrine-tabs').innerHTML = DOCTRINES.map(d => `
+    <button class="doctrine-tab ${state.doctrine===d.id?'active':''}" onclick="setDoctrine('${d.id}')">
+      <span class="glyph">${d.glyph}</span>${escapeHtml(d.label)}
+    </button>`).join('');
+}
+function setDoctrine(id) {
+  state.doctrine = id;
+  renderDoctrineTabs();
+  renderViewC(state.results);
+}
+window.setDoctrine = setDoctrine;
+
+function renderViewC(data) {
+  if (!data || !data.results || !data.results.length) {
+    $('river-svg').innerHTML = '';
+    $('reading-col').innerHTML = '<div class="ws-empty"><div class="inner"><div class="glyph">⸙</div><h3>No passages yet</h3><p>Run a search to populate the river with waypoints from your results.</p></div></div>';
+    state.riverWaypoints = [];
+    return;
+  }
+
+  const dEntry = DOCTRINES.find(d => d.id === state.doctrine);
+  $('river-kicker').textContent = `Doctrine · ${dEntry.glyph}`;
+  $('river-doctrine').textContent = dEntry.label;
+  $('river-blurb').textContent = `Tracking the doctrine across ${data.results.length} judgments returned for your query. Each waypoint is a case from your results.`;
+
+  // Build waypoints from result cases — one per case, sorted by year then score
+  const waypoints = data.results
+    .map((c) => ({
+      year: extractYear(c.judgment_date),
+      caseId: c.case_id,
+      caseTitle: (c.title||c.case_id).replace(/ v\..+$/,''),
+      label: c.respondent || '',
+      weight: Math.min(6, (c.hit_count || (c.hits?c.hits.length:1))),
+      score: c.top_score,
+      raw: c,
+    }))
+    .filter(w => w.year && w.year > 1950)
+    .filter(w => !isNaN(w.year))
+    .sort((a,b) => a.year - b.year || (b.score||0) - (a.score||0));
+
+  if (!waypoints.length) {
+    $('river-svg').innerHTML = '';
+    $('reading-col').innerHTML = '<div class="ws-empty"><div class="inner"><div class="glyph">⸙</div><h3>No dated waypoints</h3><p>This result set has no judgment dates we can place on the timeline.</p></div></div>';
+    state.riverWaypoints = [];
+    return;
+  }
+
+  state.riverWaypoints = waypoints;
+
+  // Year bounds
+  const minYr = Math.min(...waypoints.map(w => w.year)) - 1;
+  const maxYr = Math.max(...waypoints.map(w => w.year)) + 1;
+
+  // Resolve the active waypoint. An explicit click (riverActiveId) always wins —
+  // this is what lets you pick a *specific* case when several share a year.
+  // Otherwise fall back to whichever waypoint sits nearest the cursor year.
+  let activeI = state.riverActiveId
+    ? waypoints.findIndex(w => w.caseId === state.riverActiveId)
+    : -1;
+  if (activeI < 0) {
+    state.riverActiveId = null;
+    if (state.year < minYr || state.year > maxYr) state.year = waypoints[waypoints.length-1].year;
+    let bestDist = Infinity;
+    waypoints.forEach((w, i) => {
+      const d = Math.abs(w.year - state.year);
+      if (d < bestDist) { bestDist = d; activeI = i; }
+    });
+  }
+  const active = waypoints[activeI];
+  state.year = active.year;                 // keep the cursor on the selected case
+
+  $('river-year').textContent = state.year;
+  $('river-waypoints').textContent = waypoints.length + ' waypoints';
+
+  drawRiver(waypoints, minYr, maxYr, activeI);
+
+  renderReadingCol(active);
+  $('river-narration').textContent = composeNarration(state.doctrine, state.year, waypoints, active);
+}
+
+function drawRiver(waypoints, minYr, maxYr, activeI) {
+  const W = 1500, H = 1040, padX = 100, padY = 90;
+  const yearToX = (y) => padX + ((y - minYr) / Math.max(1, maxYr - minYr)) * (W - 2*padX);
+  const yAtX = (x) => {
+    const t = (x - padX) / (W - 2*padX);
+    return H/2 + Math.sin(t*6.5)*95 - t*40;
+  };
+
+  let path = `M ${padX} ${H/2 + 40}`;
+  for (let x = padX; x <= W - padX; x += 30) path += ` L ${x} ${yAtX(x)}`;
+
+  let html = `
+    <defs>
+      <linearGradient id="riverGrad" x1="0" x2="1">
+        <stop offset="0" stop-color="var(--rule)"/>
+        <stop offset="0.5" stop-color="var(--ink-3)"/>
+        <stop offset="1" stop-color="var(--garnet)"/>
+      </linearGradient>
+    </defs>`;
+  html += `<path d="${path}" fill="none" stroke="var(--rule)" stroke-width="22" stroke-linecap="round"/>`;
+  html += `<path d="${path}" fill="none" stroke="url(#riverGrad)" stroke-width="2.5" stroke-linecap="round"/>`;
+
+  // Decade ticks
+  const span = maxYr - minYr;
+  const tickStep = span > 30 ? 10 : span > 15 ? 5 : 2;
+  const firstTick = Math.ceil(minYr / tickStep) * tickStep;
+  for (let y = firstTick; y <= maxYr; y += tickStep) {
+    const x = yearToX(y), yy = yAtX(x);
+    html += `<line x1="${x}" y1="${yy+20}" x2="${x}" y2="${yy+36}" stroke="var(--ink-3)"/>`;
+    html += `<text x="${x}" y="${yy+52}" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--ink-3)">${y}</text>`;
+  }
+
+  // ---- Stagger waypoints that share a year ----
+  // Cases decided in the same year would otherwise land on the exact same point —
+  // invisible and impossible to click individually. We fan each year's group
+  // vertically around the river so every case has its own dot & hit-area, while
+  // its X (year) position on the timeline is preserved exactly.
+  const STACK_GAP = 32;
+  const byYear = {};
+  waypoints.forEach((w, i) => { (byYear[w.year] = byYear[w.year] || []).push(i); });
+  const pos = {};   // waypoint index -> { x, y, riverY }
+  Object.keys(byYear).forEach(yr => {
+    const group = byYear[yr];
+    // strongest similarity closest to the river line, then fan outward
+    group.sort((a, b) => (waypoints[b].score||0) - (waypoints[a].score||0));
+    group.forEach((i, gi) => {
+      const x = yearToX(waypoints[i].year);
+      const riverY = yAtX(x);
+      const step = gi === 0 ? 0 : (gi % 2 ? 1 : -1) * Math.ceil(gi / 2);   // 0,+1,-1,+2,-2…
+      pos[i] = { x, y: riverY + step * STACK_GAP, riverY };
+    });
+  });
+
+  // ---- Label-budget: with many waypoints, labelling all of them is unreadable. ----
+  // We label at most LABEL_BUDGET waypoints, picking by score (highest similarity first).
+  // The rest still show as dots on the river — they're clickable, just unlabelled.
+  // The active (selected) waypoint is always labelled regardless of rank.
+  const LABEL_BUDGET = 15;
+  const labelledSet = new Set();
+  if (activeI >= 0) labelledSet.add(activeI);
+  const byScore = waypoints
+    .map((w, i) => ({ i, score: w.score || 0 }))
+    .sort((a, b) => b.score - a.score);
+  for (const { i } of byScore) {
+    if (labelledSet.size >= LABEL_BUDGET) break;
+    labelledSet.add(i);
+  }
+
+  // ---- Label placement for the labelled subset ----
+  const LABEL_W = 200;
+  const SLOT_H  = 50;
+  const BASE_ABOVE = 70;
+  const BASE_BELOW = 80;
+  const labelledIdx = [...labelledSet].sort((a, b) => waypoints[a].year - waypoints[b].year);
+  const placement = {};
+  const placed   = [];
+  labelledIdx.forEach((i, ord) => {
+    const x = pos[i].x;
+    const side = (ord % 2 === 0) ? 'above' : 'below';
+    let slot = 0;
+    while (placed.some(p => p.side === side && p.slot === slot && Math.abs(p.x - x) < LABEL_W)) {
+      slot++;
+    }
+    placement[i] = { side, slot };
+    placed.push({ x, side, slot });
+  });
+
+  // ---- Draw waypoints ----
+  // Each waypoint carries data-wp="<index>" so the SVG handler can open that
+  // exact case — selection is per-case now, not per-year.
+  waypoints.forEach((w, i) => {
+    const { x, y, riverY } = pos[i];
+    const isActive = i === activeI;
+    const isLabelled = labelledSet.has(i);
+    const fill = isActive ? 'var(--garnet)' : 'var(--ink)';
+
+    // thin stem linking a fanned-out dot back to its year on the river
+    if (Math.abs(y - riverY) > 0.5) {
+      html += `<line x1="${x}" y1="${riverY}" x2="${x}" y2="${y}" stroke="var(--rule)" stroke-width="1"/>`;
+    }
+
+    if (!isLabelled) {
+      // Unlabelled: dot only, still individually clickable
+      const r = 6 + Math.min(w.weight * 0.4, 3);
+      html += `<circle data-wp="${i}" cx="${x}" cy="${y}" r="${r}" fill="${isActive?'var(--garnet)':'var(--ink-3)'}" opacity="${isActive?1:0.72}" style="cursor:pointer">
+        <title>${escapeHtml(w.caseTitle)} (${w.year}) — click to open</title>
+      </circle>`;
+      return;
+    }
+
+    const { side, slot } = placement[i];
+    const above = side === 'above';
+    const offset = (above ? BASE_ABOVE : BASE_BELOW) + slot * SLOT_H;
+    const labelY = above ? riverY - offset : riverY + offset;
+    html += `<g data-wp="${i}" style="cursor:pointer">`;
+    const lineEnd = above ? labelY + 8 : labelY - 16;
+    html += `<line x1="${x}" y1="${y}" x2="${x}" y2="${lineEnd}" stroke="${isActive?'var(--garnet)':'var(--rule)'}" stroke-dasharray="${isActive?'0':'2 3'}"/>`;
+    html += `<circle cx="${x}" cy="${y}" r="${isActive?9:6+w.weight*0.6}" fill="${fill}" stroke="var(--paper)" stroke-width="2"/>`;
+    const yearY = above ? labelY - 16 : labelY + 30;
+    html += `<text x="${x}" y="${yearY}" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="${isActive?'var(--garnet)':'var(--ink-4)'}">${w.year}</text>`;
+    html += `<text x="${x}" y="${labelY}" text-anchor="middle" font-family="var(--display)" font-style="italic" font-size="13" font-weight="500" fill="${isActive?'var(--garnet)':'var(--ink)'}">${escapeHtml(w.caseTitle.slice(0,28))}</text>`;
+    html += `<text x="${x}" y="${labelY+16}" text-anchor="middle" font-family="var(--body)" font-size="11" fill="var(--ink-3)" font-style="italic">${escapeHtml(w.label)}</text>`;
+    html += `</g>`;
+  });
+
+  // Cursor
+  const cx = yearToX(state.year), cy = yAtX(cx);
+  html += `<g id="river-cursor" transform="translate(${cx},${cy})" style="cursor:grab">
+    <line x1="0" y1="-440" x2="0" y2="440" stroke="var(--garnet)" stroke-opacity="0.25"/>
+    <circle r="14" fill="var(--paper)" stroke="var(--garnet)" stroke-width="2.5"/>
+    <circle r="5" fill="var(--garnet)"/>
+  </g>`;
+
+  // Waypoint tally — written into the narration box (never overlaps the chart),
+  // not as in-SVG text where labels were colliding with it.
+  const tally = waypoints.length > LABEL_BUDGET
+    ? `${waypoints.length} waypoints · ${labelledSet.size} labelled (top similarity + active) · click any dot`
+    : `${waypoints.length} waypoint${waypoints.length===1?'':'s'} · click any dot`;
+  $('river-waypoints').textContent = tally;
+
+  const svg = $('river-svg');
+  svg.innerHTML = html;
+
+  // Interaction:
+  //  • click a waypoint  → open that exact case (works even for stacked same-year dots)
+  //  • drag empty river  → scrub the cursor by year (clears the explicit selection)
+  let dragging = false;
+  const yearFromX = (clientX) => {
+    const r = svg.getBoundingClientRect();
+    const x = ((clientX - r.left) / r.width) * W;
+    return Math.max(minYr, Math.min(maxYr, Math.round(minYr + ((x - padX) / (W - 2*padX)) * (maxYr - minYr))));
+  };
+  svg.onmousedown = (e) => {
+    const hit = e.target.closest('[data-wp]');
+    if (hit) {                       // clicked an actual case → select it, no scrubbing
+      selectRiverWaypoint(+hit.dataset.wp);
+      return;
+    }
+    dragging = true;
+    state.riverActiveId = null;
+    state.year = yearFromX(e.clientX);
+    renderViewC(state.results);
+  };
+  svg.onmousemove = (e) => {
+    if (!dragging) return;
+    state.riverActiveId = null;
+    state.year = yearFromX(e.clientX);
+    renderViewC(state.results);
+  };
+  svg.onmouseup   = () => dragging = false;
+  svg.onmouseleave = () => dragging = false;
+}
+
+// Select one specific waypoint (case) by its index in the last-rendered list.
+function selectRiverWaypoint(idx) {
+  const w = (state.riverWaypoints || [])[idx];
+  if (!w) return;
+  state.riverActiveId = w.caseId;
+  state.year = w.year;
+  renderViewC(state.results);
+}
+window.selectRiverWaypoint = selectRiverWaypoint;
+
+function setRiverYear(y) { state.riverActiveId = null; state.year = y; renderViewC(state.results); }
+window.setRiverYear = setRiverYear;
+
+function renderReadingCol(w) {
+  const c = w.raw;
+  const passages = (c.hits||[]).map((h, i) => `
+    <div class="para-block">
+      <div class="para-num">¶ ${escapeHtml(String(h.para_idx||''))}</div>
+      <p class="para-prose ${i===0?'dropcap':''}">${escapeHtml(h.text)}</p>
+    </div>`).join('');
+  $('reading-col').innerHTML = `
+    <div class="kicker">Waypoint · ${escapeHtml(DOCTRINES.find(d=>d.id===state.doctrine).glyph)}</div>
+    <h2>${escapeHtml(c.title||c.case_id)}</h2>
+    <div class="meta">${escapeHtml(c.judgment_date||'')} · ${escapeHtml(c.respondent||'')} · ${(c.hit_count||(c.hits?c.hits.length:0))} passage(s) matched</div>
+    <hr class="rule-double" style="margin:18px 0">
+    ${passages || '<p class="state-msg">No passage text.</p>'}
+    <hr class="rule-thin" style="margin:24px 0">
+    <a class="btn btn-garnet" href="${escapeHtml(c.hudoc_url||'#')}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;">Read full judgment ↗</a>
+  `;
+}
+
+function composeNarration(docId, year, waypoints, active) {
+  const d = DOCTRINES.find(x => x.id === docId);
+  if (!active) return `Drag the cursor to read how ${d.label.toLowerCase()} was articulated and reshaped.`;
+  return `In ${active.year}, the Court returned to ${d.label.toLowerCase()} in ${active.caseTitle} (${active.label}). ${(active.raw.hit_count||1)} paragraph${(active.raw.hit_count||1)===1?'':'s'} match your query — the strongest at ${(active.score*100).toFixed(0)}% similarity.`;
+}
+
+/* =========================================================
+   VIEW SWITCHER
+   ========================================================= */
+function setView(v) {
+  state.view = v;
+  document.querySelectorAll('.view-btn').forEach(b => { const on = b.dataset.view === v; b.classList.toggle('active', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
+  ['A','B','C'].forEach(k => $(`view-${k}`).hidden = (k !== v));
+  $('view-desc').textContent = v === 'A' ? 'A ranked list of judgments — broadsheet layout.'
+    : v === 'B' ? 'Three panes: paragraph stream, citation constellation, dossier.'
+    : 'A river of waypoints. Drag the year. Read the doctrine evolve.';
+  if (state.results) {
+    if (v === 'B') renderViewB(state.results);
+    if (v === 'C') renderViewC(state.results);
+  }
+}
+document.querySelectorAll('.view-btn').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+
+/* =========================================================
+   RENDER ALL
+   ========================================================= */
+function renderResults(data) {
+  state.results = data;
+  state.detectedArticles = data.suggested_articles || [];
+  state.selectedCaseIdx = 0;
+  state.selectedParaIdx = 0;
+  state.riverActiveId = null;       // drop any stale river selection
+  state.citations = null;          // reset old graph
+  $('results-wrap').hidden = false;
+  renderRewrite(data);
+
+  const totalHits = (data.results||[]).reduce((s,c)=>s+(c.hit_count||(c.hits?c.hits.length:0)),0);
+  const summary = `${data.count||0} case${(data.count||0)===1?'':'s'} · ${totalHits} passage${totalHits===1?'':'s'}`;
+  $('results-meta').textContent = summary + ' — ' + new Date().toLocaleString('en-GB');
+  $('result-summary').textContent = summary;
+
+  renderViewA(data);
+  if (state.view === 'B') renderViewB(data);
+  if (state.view === 'C') renderViewC(data);
+
+  // Kick off citation graph fetch in background; re-render constellation when it lands.
+  loadCitations(data);
+}
+
+async function loadCitations(data) {
+  if (!data || !data.results || !data.results.length) return;
+  const ids = data.results.map(c => c.case_id).filter(Boolean);
+  if (!ids.length) return;
+  state.citationsLoading = true;
+  // If we're on view B, refresh to show the loading badge
+  if (state.view === 'B' && state.results) renderConstellation(state.results);
+  try {
+    const r = await fetch(API + '/citations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ case_ids: ids }),
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const c = await r.json();
+    // Guard against late responses for an old query
+    if (state.results !== data) return;
+    state.citations = c;
+    state.citationsLoading = false;
+    console.log('[citations]', c.edges.length, 'edge(s)', c.stats);
+    if (state.view === 'B') {
+      renderConstellation(state.results);
+      renderDossier(state.results);
+    }
+  } catch (e) {
+    console.warn('[citations] fetch failed:', e.message);
+    state.citationsLoading = false;
+  }
+}
+
+/* =========================================================
+   SEARCH
+   ========================================================= */
+async function doSearch() {
+  const q = $('query').value.trim();
+  if (!q) { alert('Please enter a description of your case.'); return; }
+  const resp = $('respondent').value, art = $('article').value.trim(), sec = $('section-filter').value, k = $('k').value || 30, mode = currentMode();
+  const styleEl = document.querySelector('input[name="search-style"]:checked');
+  const style = styleEl ? styleEl.value : 'creative';
+  const params = new URLSearchParams({ q, k });
+  if (resp) params.append('respondent', resp);
+  if (art)  params.append('article', art);
+  if (sec)  params.append('section', sec);
+  if (mode === 'natural') params.append('style', style);   // expert mode ignores it
+  const endpoint = mode === 'natural' ? '/smart_search' : '/similar';
+
+  const btn = $('search-btn'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Reading the corpus…';
+  $('results-wrap').hidden = false;
+  $('rewrite-card').hidden = true;
+  $('results-meta').textContent = '';
+  $('case-list').innerHTML = '<li class="state-msg"><span class="spinner"></span>'+(mode==='natural'?'AI is reformulating your case…':'Searching the index…')+'</li>';
+
+  try {
+    const r = await fetch(API + endpoint + '?' + params.toString());
+    if (!r.ok) {
+      const err = await r.json().catch(()=>({detail:'HTTP '+r.status}));
+      throw new Error(err.detail || 'HTTP ' + r.status);
+    }
+    renderResults(await r.json());
+  } catch (e) {
+    $('case-list').innerHTML = '<li class="state-msg error"><strong>The search failed</strong>'+escapeHtml(e.message)+'</li>';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '∿ Search case law';
+  }
+}
+$('search-btn').addEventListener('click', doSearch);
+$('query').addEventListener('keydown', e => { if (e.key==='Enter' && (e.ctrlKey||e.metaKey)) doSearch(); });
+
+/* =========================================================
+   INIT
+   ========================================================= */
+renderPresets();
+renderDoctrineTabs();
+checkHealth();
+loadRespondents();
+updateModeHint();
+</script>
+</body>
+</html>
