@@ -1589,7 +1589,7 @@ try { if (window.name !== 'echr-search') window.name = 'echr-search'; } catch (_
 /* =========================================================
    STATE & CONSTANTS
    ========================================================= */
-const API = '';
+const API = location.pathname.replace(/\/+$/, '');  // mount-aware (served under /echr-api/rag/)
 const SEED_KEYS = {
   desc:'echr_seed_description', lang:'echr_seed_language', articles:'echr_seed_articles',
   precedents:'echr_seed_precedents', rewritten:'echr_seed_rewritten', search:'echr_seed_search_query',

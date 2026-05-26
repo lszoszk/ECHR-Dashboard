@@ -16,6 +16,7 @@ import re
 import sqlite3
 import threading
 import time
+import zlib
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Optional
@@ -500,6 +501,49 @@ def health():
 
 # ---- /api/stats ------------------------------------------------------------
 
+# Lawyer-meaningful paragraph counts + a numbering fingerprint. These scan the
+# full paragraphs table (~11 s) so they are cached and keyed on the DB file's
+# (mtime, size): recomputed only after the DB actually changes (e.g. a § clean-up
+# rewrite), otherwise served instantly from cache.
+_MEANINGFUL_CACHE: dict[str, Any] = {}
+
+
+def _meaningful_counts(cur: sqlite3.Cursor) -> dict[str, Any]:
+    """Citable judgment-body §§, total numbered rows, and a crc32 fingerprint
+    of the sorted (case_id, §) set. Cached by DB (mtime, size)."""
+    try:
+        st = Path(DB_PATH).stat()
+        key = (st.st_mtime_ns, st.st_size)
+    except OSError:
+        key = None
+    if key is not None and _MEANINGFUL_CACHE.get("key") == key:
+        return _MEANINGFUL_CACHE["val"]
+
+    citable = cur.execute(
+        "SELECT count(*) FROM paragraphs WHERE hudoc_para_no IS NOT NULL "
+        "AND row_role='paragraph' "
+        "AND COALESCE(section,'') NOT IN ('Separate Opinion','Operative part')"
+    ).fetchone()[0]
+    numbered = cur.execute(
+        "SELECT count(*) FROM paragraphs WHERE hudoc_para_no IS NOT NULL"
+    ).fetchone()[0]
+    h = 0
+    for cid, hp in cur.execute(
+        "SELECT case_id, hudoc_para_no FROM paragraphs "
+        "WHERE hudoc_para_no IS NOT NULL ORDER BY case_id, hudoc_para_no"
+    ):
+        h = zlib.crc32((cid + ":" + str(hp)).encode(), h)
+    val = {
+        "citable_paragraphs": citable,
+        "numbered_rows": numbered,
+        "numbering_fingerprint": "%08x" % (h & 0xFFFFFFFF),
+    }
+    if key is not None:
+        _MEANINGFUL_CACHE["key"] = key
+        _MEANINGFUL_CACHE["val"] = val
+    return val
+
+
 @app.get("/api/stats")
 def stats():
     """Return high-level database statistics."""
@@ -563,6 +607,8 @@ def stats():
             row = cur.fetchone()
             date_to = row[0] if row else None
 
+            meaningful = _meaningful_counts(cur)
+
         db_size_mb = 0.0
         try:
             db_size_mb = round(Path(DB_PATH).stat().st_size / (1024 * 1024), 2)
@@ -574,11 +620,14 @@ def stats():
             "total_judgments": total_judgments,
             "total_press_releases": total_press_releases,
             "total_paragraphs": total_paragraphs,
+            "citable_paragraphs": meaningful["citable_paragraphs"],
+            "numbered_rows": meaningful["numbered_rows"],
+            "numbering_fingerprint": meaningful["numbering_fingerprint"],
             "total_countries": total_countries,
             "date_from": date_from,
             "date_to": date_to,
             "db_size_mb": db_size_mb,
-            "version": "1.0",
+            "version": "1.1",
         }
     except Exception as exc:
         logger.exception("Stats query failed")
@@ -2092,3 +2141,11 @@ if __name__ == "__main__":
         port=int(os.environ.get("PORT", "8000")),
         reload=True,
     )
+
+# --- RAG semantic-search sub-app (mounted at /rag; lazy-loaded, mmap index) ---
+try:
+    from rag_mod import rag_app
+    app.mount("/rag", rag_app)
+except Exception as _rag_e:  # never let RAG break the core dashboard API
+    import logging
+    logging.getLogger("uvicorn.error").warning("RAG sub-app not mounted: %s", _rag_e)

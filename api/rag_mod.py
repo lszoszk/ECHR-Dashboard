@@ -1,0 +1,186 @@
+"""RAG sub-application mounted into echr-api at /rag.
+
+Lazy-loads a MEMORY-MAPPED FAISS SQ8 index + metadata from /data/rag (low RAM —
+the index stays on disk, OS page-cache reclaimable). Loading happens on first
+request, so the dashboard API isn't delayed at container start and RAM is only
+used if the RAG is actually queried.
+
+Pipeline: voyage-4-large embedding -> FAISS mmap ANN -> rerank-2.5 (top 100)
+-> +importance authority boost -> group by case.
+Endpoints (served under /echr-api/rag via nginx): / , /health , /respondents ,
+/sections , /similar .
+"""
+from __future__ import annotations
+import os, json, math, sqlite3, time
+from pathlib import Path
+from collections import OrderedDict
+import numpy as np, faiss
+from fastapi import FastAPI, Query
+from fastapi.responses import FileResponse
+from pydantic import BaseModel
+import embed  # voyage HTTP client (ships alongside in backend/)
+
+BASE = Path("/data/rag")
+STATIC = Path(__file__).resolve().parent / "rag_static"
+VOYAGE_MODEL = "voyage-4-large"; RERANK_MODEL = "rerank-2.5"
+NPROBE = 128; FETCH = 300; RERANK_POOL = 100; IMP_BOOST = 0.05
+IMP = {"Key cases": 1.0, "1": 1.0, "2": 0.5, "3": 0.25, "Unspecified": 0.0}
+RANK_TOP, RANK_AVG, RANK_LOG = 0.60, 0.25, 0.15; LOGD = math.log(10)
+
+_S = {}  # lazy-loaded state
+
+def _load():
+    if _S:
+        return _S
+    kf = BASE / "voyage_key"
+    if kf.exists() and not os.environ.get("VOYAGE_API_KEY"):
+        os.environ["VOYAGE_API_KEY"] = kf.read_text().strip()
+    idx = faiss.read_index(str(BASE / "ann_index.index"), faiss.IO_FLAG_MMAP); idx.nprobe = NPROBE
+    ids = [json.loads(l) for l in open(BASE / "ids.jsonl", encoding="utf-8")]
+    rowsec = {}
+    for l in open(BASE / "row_section.tsv", encoding="utf-8"):
+        a, b = l.rstrip("\n").split("\t"); rowsec[int(a)] = b
+    art = {}
+    for l in open(BASE / "para_articles.tsv", encoding="utf-8"):
+        c, s, t = l.rstrip("\n").split("\t"); art[(c, int(s))] = t
+    meta = json.loads((BASE / "cases_meta.json").read_text())
+    resp = set()
+    for m in meta.values():
+        for x in str((m or {}).get("state", "")).split(","):
+            x = x.strip()
+            if x: resp.add(x)
+    _S.update(index=idx, case=[r["case_id"] for r in ids], sno=[r["section_no"] for r in ids],
+              rid=[r["rowid"] for r in ids], meta=meta, rowsec=rowsec, artmap=art,
+              fts=sqlite3.connect(f"file:{BASE/'corpus_fts.db'}?mode=ro", uri=True, check_same_thread=False),
+              respondents=sorted(resp), sections=sorted({v for v in rowsec.values() if v}))
+    return _S
+
+def _cit():
+    S = _load()
+    if "citgraph" not in S:  # lazy: only parsed if the citation view is used
+        f = BASE / "citations.json"
+        S["citgraph"] = json.loads(f.read_text()) if f.exists() else {}
+    return S["citgraph"]
+
+def _auth(cid): return IMP.get((_load()["meta"].get(cid, {}) or {}).get("importance"), 0.0)
+def _split(raw): return [p.strip() for p in (raw or "").split(",") if p.strip()]
+
+def run_paragraph_search(q, respondent=None, article=None, section=None):
+    S = _load()
+    qv = np.array(embed.voyage_embed([q[:1500]], model=VOYAGE_MODEL, input_type="query")[0], dtype="float32").reshape(1, -1)
+    faiss.normalize_L2(qv)
+    fetch = FETCH if not (respondent or article or section) else FETCH * 2
+    D, I = S["index"].search(qv, fetch)
+    case, sno, rid, meta, rowsec, art, fts = S["case"], S["sno"], S["rid"], S["meta"], S["rowsec"], S["artmap"], S["fts"]
+    pos = [int(i) for i in I[0] if i >= 0]; rids = [rid[p] for p in pos]
+    txt = {}
+    if rids:
+        txt = {r: t for r, t in fts.execute("SELECT rid,text FROM para WHERE rid IN (%s)" % ",".join("?" * len(rids)), rids)}
+    cand = []
+    for scr, p in zip(D[0], pos):
+        cid = case[p]; s = sno[p]; m = meta.get(cid, {}) or {}
+        if respondent and respondent not in _split(m.get("state", "")): continue
+        arts = [str(x) for x in (m.get("violation") or [])]
+        if article and article not in arts and art.get((cid, s)) != article: continue
+        sec = rowsec.get(rid[p], "")
+        if section and sec != section: continue
+        cand.append((p, float(scr), sec, m, arts))
+    rr = None; src = cand
+    if len(cand) > 1:
+        head = cand[:RERANK_POOL]; docs = [(txt.get(rid[p]) or "")[:1200] for p, *_ in head]
+        try:
+            rr = {i: sc for i, sc in embed.voyage_rerank(q, docs, model=RERANK_MODEL)}; src = head
+        except SystemExit:
+            rr = None; src = cand
+    out = []
+    for idx, (p, cos, sec, m, arts) in enumerate(src):
+        cid = case[p]; s = sno[p]; base = rr.get(idx, 0.0) if rr is not None else cos
+        out.append({"score": round(float(base) + IMP_BOOST * _auth(cid), 4), "case_id": cid,
+            "case_no": m.get("case_no", "") or "", "title": m.get("title", "") or "", "hudoc_url": m.get("hudoc", "") or "",
+            "judgment_date": m.get("date", "") or "", "respondent": m.get("state", "") or "", "articles": arts,
+            "section": sec, "para_idx": s if s is not None else 0, "text": txt.get(rid[p], "")})
+    out.sort(key=lambda x: -x["score"]); return out
+
+def _tier(t): return 0 if t >= 0.80 else 1 if t >= 0.72 else 2 if t >= 0.65 else 3
+def group_by_case(paras, k):
+    g = OrderedDict()
+    for p in paras:
+        cid = p.get("case_id") or "_"
+        if cid not in g:
+            g[cid] = {"case_id": cid, "case_no": p["case_no"], "title": p["title"], "hudoc_url": p["hudoc_url"],
+                      "judgment_date": p["judgment_date"], "respondent": p["respondent"], "articles": list(p["articles"]),
+                      "top_score": p["score"], "hits": []}
+        c = g[cid]
+        if p["score"] > c["top_score"]: c["top_score"] = p["score"]
+        for a in p["articles"]:
+            if a not in c["articles"]: c["articles"].append(a)
+        c["hits"].append({"score": p["score"], "section": p["section"], "para_idx": p["para_idx"], "text": p["text"]})
+    cases = []
+    for c in g.values():
+        c["hits"].sort(key=lambda h: -h["score"]); c["hit_count"] = len(c["hits"])
+        sc = [h["score"] for h in c["hits"]]; top = max(sc); avg = sum(sc) / len(sc); lf = math.log(1 + len(sc)) / LOGD
+        c["avg_score"] = round(avg, 4); c["case_score"] = round(RANK_TOP * top + RANK_AVG * avg + RANK_LOG * lf, 4)
+        cases.append(c)
+    cases.sort(key=lambda c: (_tier(c["top_score"]), -c["hit_count"], -c["case_score"]))
+    return cases[:k]
+
+rag_app = FastAPI(title="ECHR RAG (semantic)")
+
+@rag_app.get("/")
+def root(): return FileResponse(STATIC / "search_ui.html")
+@rag_app.get("/methodology")
+def methodology(): return FileResponse(STATIC / "methodology.html")
+@rag_app.get("/health")
+def health():
+    S = _load()
+    return {"status": "ok", "indexed_points": S["index"].ntotal, "respondents": len(S["respondents"]),
+            "sections": S["sections"], "gemini_enabled": False, "version": "rag-1.0"}
+class CitReq(BaseModel):
+    case_ids: list[str] = []
+
+@rag_app.post("/citations")
+def citations(req: CitReq):
+    """Citation edges + global in/out degrees for the result set, from the
+    prebuilt graph (citations.json). Powers the Discovery Workspace constellation."""
+    t0 = time.time(); graph = _cit()
+    ids = list(dict.fromkeys([c for c in (req.case_ids or []) if c]))
+    empty = {"edges": [], "cited_by_total": {}, "cites_total": {}, "cited_by_sample": {},
+             "cites_sample": {}, "meta": {}, "stats": {"source": "none", "elapsed_seconds": 0.0}}
+    if not ids or not graph:
+        return empty
+    id_set = set(ids); SAMPLE = 12
+    edges = []; cbt = {}; ct = {}; cbs = {}; cs = {}; meta = {}
+    def expand(lst):
+        e = []
+        for c in lst:
+            m = graph.get(c)
+            if not m: continue
+            e.append({"case_id": c, "title": m.get("title", ""), "judgment_date": m.get("judgment_date", ""),
+                      "cited_by_count": len(m.get("cited_by", []))})
+        e.sort(key=lambda x: -x["cited_by_count"]); return e[:SAMPLE]
+    for cid in ids:
+        node = graph.get(cid)
+        if not node:
+            cbt[cid] = ct[cid] = 0; cbs[cid] = []; cs[cid] = []
+            meta[cid] = {"title": "", "case_no": "", "judgment_date": ""}; continue
+        meta[cid] = {"title": node.get("title", ""), "case_no": node.get("case_no", ""),
+                     "judgment_date": node.get("judgment_date", "")}
+        cites = node.get("cites", []); citedby = node.get("cited_by", [])
+        cbt[cid] = len(citedby); ct[cid] = len(cites)
+        for tgt in cites:
+            if tgt in id_set and tgt != cid: edges.append({"from": cid, "to": tgt})
+        cs[cid] = expand(cites); cbs[cid] = expand(citedby)
+    return {"edges": edges, "cited_by_total": cbt, "cites_total": ct, "cited_by_sample": cbs,
+            "cites_sample": cs, "meta": meta,
+            "stats": {"source": "graph", "elapsed_seconds": round(time.time() - t0, 3)}}
+
+@rag_app.get("/respondents")
+def respondents(): return {"respondents": _load()["respondents"]}
+@rag_app.get("/sections")
+def sections(): return {"sections": _load()["sections"]}
+@rag_app.get("/similar")
+def similar(q: str = Query(...), k: int = Query(10, ge=1, le=50),
+            respondent: str | None = Query(None), article: str | None = Query(None), section: str | None = Query(None)):
+    t0 = time.time(); paras = run_paragraph_search(q, respondent, article, section); cases = group_by_case(paras, k)
+    return {"mode": "expert", "query": q, "count": len(cases), "results": cases,
+            "stats": {"paragraphs_pooled": len(paras), "elapsed_ms": int((time.time() - t0) * 1000)}}
