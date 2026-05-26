@@ -1513,14 +1513,14 @@ footer {
           <div class="reader-strip" style="display:none">
             <span class="label">Reading</span>
             <div class="doctrine-tabs" id="doctrine-tabs"></div>
-            <span class="nudge">Drag the cursor on the river. Watch the doctrine evolve.</span>
+            <span class="nudge">Drag the cursor along the timeline.</span>
           </div>
           <div class="reader-body">
             <section class="river" id="river" aria-label="Doctrine timeline">
               <div class="river-title">
-                <div class="kicker" id="river-kicker">Doctrine · §I</div>
-                <h2 id="river-doctrine">Strict necessity</h2>
-                <p id="river-blurb">Each waypoint is a case where the doctrine moved. The cursor is yours.</p>
+                <div class="kicker" id="river-kicker">Timeline</div>
+                <h2 id="river-doctrine">Your results over time</h2>
+                <p id="river-blurb">The judgments that answered your query, placed by year of judgment. Drag the cursor along the timeline.</p>
                 <p class="river-legend"><strong>Each dot is one case, placed by year of judgment.</strong> Bigger dot = more matching passages · labelled dots are the closest matches to your query · the highlighted dot is the one you're reading. Click any dot to open it.</p>
               </div>
               <div class="river-year">
@@ -1538,7 +1538,7 @@ footer {
               </div>
             </section>
             <aside class="reading-col" id="reading-col">
-              <div class="ws-empty"><div class="inner"><div class="glyph">⸙</div><h3>Choose a doctrine</h3><p>Run a search, then drag the river cursor to read how it evolved.</p></div></div>
+              <div class="ws-empty"><div class="inner"><div class="glyph">⸙</div><h3>No timeline yet</h3><p>Run a search to place the matching judgments on a timeline by year.</p></div></div>
             </aside>
           </div>
         </div>
@@ -2450,10 +2450,10 @@ function renderViewC(data) {
     return;
   }
 
-  const dEntry = DOCTRINES.find(d => d.id === state.doctrine);
-  $('river-kicker').textContent = `Doctrine · ${dEntry.glyph}`;
-  $('river-doctrine').textContent = dEntry.label;
-  $('river-blurb').textContent = `Tracking the doctrine across ${data.results.length} judgments returned for your query. Each waypoint is a case from your results.`;
+  const q = (data.query || '').trim();
+  $('river-kicker').textContent = 'Timeline';
+  $('river-doctrine').textContent = q ? (q.length > 70 ? q.slice(0, 70).trim() + '\u2026' : q) : 'Your results over time';
+  $('river-blurb').textContent = `${data.results.length} judgments answered your query, placed by year of judgment. Drag the cursor along the timeline to read each one.`;
 
   // Build waypoints from result cases — one per case, sorted by year then score
   const waypoints = data.results
@@ -2704,7 +2704,7 @@ function renderReadingCol(w) {
       <p class="para-prose ${i===0?'dropcap':''}">${escapeHtml(h.text)}</p>
     </div>`).join('');
   $('reading-col').innerHTML = `
-    <div class="kicker">Waypoint · ${escapeHtml(DOCTRINES.find(d=>d.id===state.doctrine).glyph)}</div>
+    <div class="kicker">Waypoint · ${escapeHtml(String(w.year||''))}</div>
     <h2>${escapeHtml(c.title||c.case_id)}</h2>
     <div class="meta">${escapeHtml(c.judgment_date||'')} · ${escapeHtml(c.respondent||'')} · ${(c.hit_count||(c.hits?c.hits.length:0))} passage(s) matched</div>
     <hr class="rule-double" style="margin:18px 0">
@@ -2715,9 +2715,8 @@ function renderReadingCol(w) {
 }
 
 function composeNarration(docId, year, waypoints, active) {
-  const d = DOCTRINES.find(x => x.id === docId);
-  if (!active) return `Drag the cursor to read how ${d.label.toLowerCase()} was articulated and reshaped.`;
-  return `In ${active.year}, the Court returned to ${d.label.toLowerCase()} in ${active.caseTitle} (${active.label}). ${(active.raw.hit_count||1)} paragraph${(active.raw.hit_count||1)===1?'':'s'} match your query — the strongest at ${(active.score*100).toFixed(0)}% similarity.`;
+  if (!active) return `Drag the cursor along the timeline to read each judgment from your results.`;
+  return `In ${active.year}, ${active.caseTitle} (${active.label}). ${(active.raw.hit_count||1)} paragraph${(active.raw.hit_count||1)===1?'':'s'} match your query — the strongest at ${(active.score*100).toFixed(0)}% similarity.`;
 }
 
 /* =========================================================
@@ -2729,7 +2728,7 @@ function setView(v) {
   ['A','B','C'].forEach(k => $(`view-${k}`).hidden = (k !== v));
   $('view-desc').textContent = v === 'A' ? 'A ranked list of judgments — broadsheet layout.'
     : v === 'B' ? 'Three panes: paragraph stream, citation constellation, dossier.'
-    : 'A river of waypoints. Drag the year. Read the doctrine evolve.';
+    : 'Your results on a timeline — drag the year to read each judgment.';
   if (state.results) {
     if (v === 'B') renderViewB(state.results);
     if (v === 'C') renderViewC(state.results);
