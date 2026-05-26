@@ -1,78 +1,50 @@
-# ECHR Dashboard
+# ECHR Dashboard & Case-Law RAG
 
-This repository includes a full ECHR dashboard project with:
+Tools for searching and analysing European Court of Human Rights (ECtHR)
+case-law at the **paragraph level** — a public dashboard plus a semantic
+retrieval (RAG) system anchored on the Court's official Case-Law Guides.
 
-- Online static search app (no install needed): `docs/index.html`
-- Online analytics dashboard: `docs/analytics.html`
-- Flask app (optional local backend version): `echr_dashboard/`
-- Sample JSONL dataset for testing: `data/echr_decisions_sample.jsonl`
+**Live dashboard:** https://lszoszk.github.io/ECHR-Dashboard/
 
-## Online access (no installation)
+---
 
-After GitHub Pages deploy is active, use:
+## Repository layout
 
-- Search app: `https://lszoszk.github.io/ECHR-Dashboard/`
-- Analytics: `https://lszoszk.github.io/ECHR-Dashboard/analytics.html`
+| Path | What it is |
+|------|------------|
+| **`docs/`** | The **live GitHub Pages dashboard** (HTML/CSS/JS). Auto-deployed from this folder on `main` (`.github/workflows/deploy-pages.yml`). Calls the API for live search. |
+| **`api/`** | **Backend API** (FastAPI) powering the dashboard's search — runs in Docker on the VM (`echr-api`). |
+| **`rag/`** | The **semantic retrieval system** (main research contribution): the search app, the embedding/index pipeline, and the evaluation benchmark. → [`rag/README.md`](rag/README.md) |
+| **`scripts/`** | Corpus extraction, data-pipeline and audit scripts. |
+| **`deploy/`** | Deployment helpers (`deploy.sh`, nginx config, `docker-compose.yml`). |
+| **`legacy/`** | Archived earlier prototype (old Flask dashboard). Reference only. |
+| **`notes-internal/`** | Working notes & methodology (sensitive audits are git-ignored). |
+| **`data/`** | Local & VM data (corpus DB, raw JSONL…). **Git-ignored** — rebuilt by the scripts, never committed. |
 
-On the search app home screen, you can:
+## The RAG system in one paragraph
+Query → **voyage-4-large** embedding → **FAISS** (compressed SQ8) over **1.31 M
+ECtHR paragraphs** → **rerank-2.5** on the top 100 → **authority boost** (HUDOC
+"importance") → results grouped into cases. Evaluated against the Court's 41
+official Case-Law Guides. Full method, accuracy and how-to-run in
+[`rag/README.md`](rag/README.md).
 
-- Load built-in sample dataset (50 decisions)
-- Drag and drop your own `.jsonl` file (same schema as this project)
-
-## Quick start (local)
-
-1. Install dependencies:
-
+## Quick start — RAG search app
 ```bash
-python3 -m pip install -r requirements.txt
+cd rag/app
+pip install -r requirements.txt          # fastapi uvicorn faiss-cpu numpy certifi
+echo "YOUR_VOYAGE_KEY" > voyage_key       # https://dashboard.voyageai.com (free tier ok)
+# put the prebuilt index under rag/app/data/  (build it via rag/pipeline/ — see rag/README.md)
+python rag_api.py                         # → http://127.0.0.1:8000
 ```
 
-2. Launch the app:
+## Data & reproducibility
+Large artifacts — the corpus DB, the ~1.3 GB FAISS index, the 5 GB embeddings —
+are **not in git** (git-ignored). They are rebuildable from `rag/pipeline/` and
+`scripts/`. Curated benchmark data is intended for separate release (e.g.
+HuggingFace). The corpus is a point-in-time snapshot of English ECtHR judgments.
 
-```bash
-bash echr_dashboard/run.sh
-```
-
-Open: `http://127.0.0.1:5001`
-
-## Dataset selection
-
-The app resolves dataset files in this order:
-
-1. `ECHR_DATA_FILE` (if set)
-2. `echr_cases_20260217_103005.jsonl`
-3. `data/echr_decisions_sample.jsonl`
-4. `echr_cases_optionB.jsonl`
-5. `echr_cases_20260207_121847.jsonl`
-
-Example with a custom dataset:
-
-```bash
-ECHR_DATA_FILE=/absolute/path/to/your_cases.jsonl python3 echr_dashboard/app.py
-```
-
-## Build static GitHub Pages dashboard
-
-```bash
-python3 scripts/build_pages_dashboard.py
-```
-
-This regenerates:
-
-- `docs/data/stats.json` (analytics payload)
-- `docs/data/echr_cases.jsonl` (dataset used by the online search app)
-
-## GitHub Pages deployment
-
-Workflow file: `.github/workflows/deploy-pages.yml`
-
-On each push to `main`/`master`, GitHub Actions:
-
-1. Builds `docs/data/stats.json`
-2. Copies JSONL dataset to `docs/data/echr_cases.jsonl`
-3. Uploads `docs/`
-4. Deploys to GitHub Pages
-
-Enable Pages in repository settings:
-
-- Settings → Pages → Source: **GitHub Actions**
+## Licensing / attribution
+- Code: see `LICENSE`.
+- ECtHR judgments & Case-Law Guides are © Council of Europe / ECtHR, reused under
+  HUDOC terms. This project is **not affiliated with or endorsed by** the Court.
+- The search tool is a **research aid, not legal advice.**

@@ -1,3 +1,4 @@
+# ───────────────────────── OS / Python ─────────────────────────
 .DS_Store
 __pycache__/
 *.pyc
@@ -11,45 +12,65 @@ __pycache__/
 .env.*
 *.log
 
-# Large files — kept locally / on VM only
+# ───────────────────────── Secrets (NEVER commit) ─────────────────────────
+*_key
+voyage_key
+gemini_key*
+*.pem
+
+# ───────────────────────── Large data / corpus (local & VM only) ─────────────────────────
 data/
 *.db
 *.db-shm
 *.db-wal
-
-# Keep repo lean (exclude non-essential local assets and tools)
-mysite/
-*.docx
-echr_cases_20260207_121847.jsonl
+*.jsonl.gz
+# big source/derived JSONL kept out of git (rebuild via scripts; publish curated sets to HF)
+echr_cases*.jsonl
+echr_decisions*.jsonl
 echr_cases_cleaned.jsonl
 echr_cases_scraped.jsonl
-echr_dashboard/scraper_hudoc.py
-echr_dashboard/scraper_chrome.html
-echr_dashboard/analysis_selimi.js
+docs/data/echr_cases.jsonl
+docs/data/echr_cases_enriched*.jsonl
+docs/data/*.bak.*
+# NOTE: docs/data/stats.json and docs/data/echr_cases_sample50.jsonl ARE tracked — the live site needs them
 
-# Local tooling / scratch
+# ───────────────────────── RAG artifacts (rebuildable; 5 GB+) ─────────────────────────
+rag/**/data/
+*.index
+*.f32.dat
+*.faiss
+citations.json
+# 10 GB local research tree — code lives in rag/, raw artifacts stay out
+benchmark/
+
+# ───────────────────────── Local tooling / scratch ─────────────────────────
 .claude/
 claude-design-idea/
+mysite/
+*.docx
 
-# Local-only research / private audits (never push)
-methodology-internal/*audit*.md
-methodology-internal/*-audit-*.md
-methodology-internal/*audit*.json
-methodology-internal/*audit*.html
+# legacy Flask scrapers (kept local only)
+legacy/echr_dashboard/scraper_hudoc.py
+legacy/echr_dashboard/scraper_chrome.html
+legacy/echr_dashboard/analysis_selimi.js
 
-# AUEB-related scripts — researcher-private, do not push
+# private internal audits — never push
+notes-internal/*audit*.md
+notes-internal/*-audit-*.md
+notes-internal/*audit*.json
+notes-internal/*audit*.html
+
+# AUEB-related scripts — researcher-private
 scripts/p27_aueb*.py
 scripts/*_aueb_*.py
 scripts/*aueb*.py
 
-# Local HUDOC reference HTML snapshots (for side-by-side compare; not shipped)
-docs/*_hudoc.html
-
-# Internal LLM-judge evaluation artefacts (don't push — contain raw
-# paragraph text + judge findings that are working notes, not product)
+# internal LLM-judge artefacts (raw paragraph text + working notes)
 scripts/_judge_internal/
 scripts/_judge_internal/**
 scripts/p52_judge_segmentation.py
 scripts/p52_judge_sample.txt
 echr_judge_runs/
-echr_judge_runs/**
+
+# local HUDOC reference HTML snapshots (side-by-side compare; not shipped)
+docs/*_hudoc.html

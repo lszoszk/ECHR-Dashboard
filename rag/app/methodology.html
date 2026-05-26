@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How this case-law search works — and how well</title>
+<style>
+  :root{--garnet:#7a1f2b;--ink:#1a1a1a;--ink-3:#555;--ink-4:#888;--line:#e3e3e3;--wash:#faf8f7}
+  *{box-sizing:border-box}
+  body{font:16px/1.65 Georgia,'Times New Roman',serif;color:var(--ink);max-width:820px;margin:0 auto;padding:36px 20px 80px}
+  h1{font-size:27px;line-height:1.2;margin:0 0 6px} h2{font-size:19px;color:var(--garnet);margin:34px 0 8px;border-bottom:2px solid var(--garnet);padding-bottom:4px}
+  h3{font-size:16px;margin:18px 0 4px}
+  .sub{color:var(--ink-4);font-size:14px;margin:0 0 8px}
+  a{color:var(--garnet)} code{font-family:ui-monospace,Menlo,monospace;font-size:13px;background:#f0ecea;padding:1px 5px;border-radius:4px}
+  table{border-collapse:collapse;width:100%;margin:10px 0;font-size:14.5px}
+  th,td{border:1px solid var(--line);padding:6px 10px;text-align:left} th{background:var(--wash)}
+  .num{text-align:right;font-variant-numeric:tabular-nums}
+  .callout{background:var(--wash);border-left:3px solid var(--garnet);padding:12px 16px;border-radius:0 6px 6px 0;margin:14px 0}
+  .warn{background:#fff6f0;border-left:3px solid #b8860b}
+  .ex{background:#fbfbfb;border:1px solid var(--line);border-radius:6px;padding:10px 14px;margin:8px 0;font-size:14.5px}
+  .ex b{color:var(--garnet)}
+  ul{margin:6px 0 6px 2px;padding-left:20px} li{margin:4px 0}
+  .back{display:inline-block;margin-bottom:18px;font-size:14px;text-decoration:none}
+  footer{margin-top:40px;padding-top:14px;border-top:1px solid var(--line);color:var(--ink-4);font-size:13px}
+</style></head>
+<body>
+<a class="back" href="/">← Back to search</a>
+<h1>How this case-law search works — and how well</h1>
+<p class="sub">A plain-English note for lawyers using the ECtHR paragraph search. Last reviewed May 2026.</p>
+
+<div class="callout">
+<strong>In one sentence.</strong> You describe a legal question; the system returns the most relevant <em>paragraphs</em> of Strasbourg case-law — with the exact §, the case name, and a link to HUDOC — ranked by legal substance and by how authoritative the case is.
+</div>
+
+<h2>What it searches</h2>
+<p>Every English-language ECtHR judgment in our snapshot — <strong>19,822 cases, ~1.31 million numbered paragraphs</strong> — restricted to the substantive text (the Court's reasoning, facts, admissibility, just satisfaction and separate opinions). Pure boilerplate (headers, annexes, one-line summaries) is excluded.</p>
+
+<h2>How it works (without the jargon)</h2>
+<ul>
+<li><strong>Meaning, not keywords.</strong> Each paragraph is converted into a numeric "meaning fingerprint" (an <em>embedding</em>). Your query is fingerprinted the same way, and the system returns the closest paragraphs. This is why it understands plain language — "can the police read my texts?" finds the Article 8 interception case-law even though those words never appear in the judgment.</li>
+<li><strong>Authority weighting.</strong> Results are nudged toward the Court's <em>leading</em> cases (using HUDOC's "Key case" / importance grading), because a practitioner wants the authoritative judgment, not an obscure one that happens to use similar words.</li>
+<li><strong>A second read.</strong> The top candidates are re-read against your query by a separate model to sharpen the final order.</li>
+</ul>
+
+<h2>How we measured it</h2>
+<p>We did not grade ourselves. We used the <strong>Court's own 41 official Case-Law Guides</strong> as an answer key: each Guide states a legal proposition and pinpoints the precise case paragraphs that support it. That gave us <strong>~8,400 propositions with ~24,000 pinpoint citations</strong>. For each proposition we ask the system and check two things:</p>
+<ul>
+<li><strong>Right case found?</strong> (is the cited case in the top results — "docHit")</li>
+<li><strong>Right paragraph found?</strong> (is the exact cited § in the top results — "paraHit")</li>
+</ul>
+
+<h2>How well it works</h2>
+<table>
+<tr><th>On the Court-Guides benchmark</th><th class="num">Top 5</th><th class="num">Top 10</th></tr>
+<tr><td>Correct <strong>case</strong> retrieved</td><td class="num">~80%</td><td class="num">~86%</td></tr>
+<tr><td>Exact cited <strong>paragraph</strong> retrieved</td><td class="num">~60%</td><td class="num">~70%</td></tr>
+</table>
+<p>An independent AI-lawyer review of the returned paragraphs found <strong>~85–90% of the top-10 genuinely relevant</strong> — higher than the "exact paragraph" figure above, because the Guides cite only <em>some</em> of the relevant paragraphs, so the strict measure understates real usefulness.</p>
+<div class="callout">
+<strong>A notable strength:</strong> it performs as well on <em>plain-language</em> questions as on expert legal phrasing. Earlier keyword-based tools collapsed on lay wording; this one does not. You do not need to phrase your query like a headnote.
+</div>
+
+<h2>Where to be cautious</h2>
+<div class="callout warn">
+<ul>
+<li><strong>It is a research aid, not legal advice</strong>, and never a substitute for reading the judgment. Always open the case on HUDOC and verify.</li>
+<li><strong>It tells you what is <em>relevant</em>, not what is <em>current law.</em></strong> A retrieved case may have been refined, distinguished or overtaken by later case-law. Check how the principle stands today.</li>
+<li><strong>"The paragraph" is rarely a single paragraph.</strong> The Court states a principle, applies it to the facts, and concludes across several paragraphs. The system may surface the <em>reasoning</em> where you expected the <em>holding</em> (or vice-versa). Read around the hit — click a paragraph to expand its neighbours.</li>
+<li><strong>It favours leading cases.</strong> A niche but squarely on-point lower-profile judgment can rank below a famous one.</li>
+<li><strong>Absence is not proof.</strong> If something is not in the results, that is not evidence the point does not exist — refine the query.</li>
+<li><strong>Coverage.</strong> English-language judgments in our snapshot; excludes inadmissibility-only items and non-judgment documents. The corpus is a point-in-time copy, not a live HUDOC feed.</li>
+</ul>
+</div>
+
+<h2>Examples</h2>
+<div class="ex"><b>Lay query:</b> "can the police search my phone without a warrant?" → top results include <b>Saber v. Norway</b> and <b>Kruslin / Huvig v. France</b> — the leading Article 8 cases on search/seizure and interception.</div>
+<div class="ex"><b>Doctrinal query:</b> "length of proceedings reasonable time" → the Article 6 § 1 reasonable-time line of authority (e.g. the <b>Frydlender</b>-type cases).</div>
+<div class="ex"><b>Tip:</b> use <em>Advanced options</em> to restrict by respondent State or by section (e.g. "Merits" only), and to set how many cases to return.</div>
+
+<footer>
+Engine: semantic retrieval (voyage-4-large embeddings) + Court-authority weighting + neural re-ranking, over the ECtHR English corpus.
+Accuracy figures are measured on the Court's official Case-Law Guides and are approximate. This page describes a retrieval tool and is not affiliated with or endorsed by the European Court of Human Rights.
+</footer>
+</body></html>
