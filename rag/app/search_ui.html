@@ -592,7 +592,7 @@ body.mode-natural .filters-row { grid-template-columns: 1fr 0.7fr; }
 body.mode-natural .expert-only { display: none; }
 @media (max-width: 900px) { .filters-row { grid-template-columns: 1fr 1fr; } }
 
-.search-side h3 {
+.search-side h2, .search-side h3 {
   font-family: var(--display); font-style: normal; font-size: 19px; font-weight: 500;
   margin: 8px 0 14px;
   letter-spacing: -0.01em;
@@ -1284,7 +1284,7 @@ footer {
 </nav>
 
 <div class="page">
-  <div class="column">
+  <main class="column" id="main">
 
     <!-- =========================== HOW IT WORKS (in-page pane) =========================== -->
     <section id="pane-methodology" class="meth" hidden>
@@ -1415,7 +1415,7 @@ footer {
 
       <aside class="search-side">
         <span class="folio">Try an example</span>
-        <h3>Six exemplary cases</h3>
+        <h2>Six exemplary cases</h2>
         <ul class="preset-list" id="preset-list"></ul>
       </aside>
     </section>
@@ -1436,26 +1436,26 @@ footer {
       </div>
 
       <hr class="rule">
-      <div class="results-meta" id="results-meta">—</div>
+      <div class="results-meta" id="results-meta" role="status" aria-live="polite" aria-atomic="true">—</div>
 
       <!-- =========== VIEW BAR (A / B / C) — sits with results =========== -->
       <div class="view-bar inline-bar">
         <span class="folio">Discovery view</span>
         <div class="view-toggle" role="tablist">
-          <button class="view-btn active" data-view="A" role="tab"><span class="num">A</span><span>Reporter</span></button>
-          <button class="view-btn" data-view="B" role="tab"><span class="num">B</span><span>Discovery Workspace</span></button>
-          <button class="view-btn" data-view="C" role="tab"><span class="num">C</span><span>Doctrine Reader</span></button>
+          <button class="view-btn active" data-view="A" role="tab" aria-selected="true" aria-controls="view-A"><span class="num" aria-hidden="true">A</span><span>Reporter</span></button>
+          <button class="view-btn" data-view="B" role="tab" aria-selected="false" aria-controls="view-B"><span class="num" aria-hidden="true">B</span><span>Discovery Workspace</span></button>
+          <button class="view-btn" data-view="C" role="tab" aria-selected="false" aria-controls="view-C"><span class="num" aria-hidden="true">C</span><span>Doctrine Reader</span></button>
         </div>
         <span class="view-desc" id="view-desc">A ranked list of judgments — broadsheet layout.</span>
       </div>
 
       <!-- VIEW A — Reporter (broadsheet list) -->
-      <section id="view-A" class="view-pane">
+      <section id="view-A" class="view-pane" role="tabpanel" aria-label="Reporter — ranked list of judgments" tabindex="0">
         <ul class="case-list" id="case-list"></ul>
       </section>
 
       <!-- VIEW B — Discovery workspace -->
-      <section id="view-B" class="view-pane" hidden>
+      <section id="view-B" class="view-pane" role="tabpanel" aria-label="Discovery Workspace — citation constellation" tabindex="0" hidden>
         <div class="workspace">
           <aside class="ws-stream">
             <div class="ws-stream-head">
@@ -1465,7 +1465,7 @@ footer {
             </div>
             <ol class="para-list" id="ws-para-list"></ol>
           </aside>
-          <main class="ws-graph">
+          <section class="ws-graph" aria-label="Citation constellation">
             <div class="ws-graph-title">
               <div class="kicker">Citation constellation</div>
               <h2 id="ws-graph-title">The cases that answered your query</h2>
@@ -1482,7 +1482,7 @@ footer {
               <span class="ws-legend-item">— solid arrow: direct citation</span>
               <span class="ws-legend-item">- - dashed: hit-text only</span>
             </div>
-          </main>
+          </section>
           <aside class="ws-dossier">
             <div class="dossier" id="ws-dossier">
               <div class="ws-empty"><div class="inner"><div class="glyph">§</div><h3>Inspect a judgment</h3><p>Click any paragraph or constellation node to open its dossier here.</p></div></div>
@@ -1495,7 +1495,7 @@ footer {
 
 
       <!-- VIEW C — Doctrine reader -->
-      <section id="view-C" class="view-pane" hidden>
+      <section id="view-C" class="view-pane" role="tabpanel" aria-label="Doctrine Reader — timeline" tabindex="0" hidden>
         <div class="reader">
           <div class="reader-strip" style="display:none">
             <span class="label">Reading</span>
@@ -1503,7 +1503,7 @@ footer {
             <span class="nudge">Drag the cursor on the river. Watch the doctrine evolve.</span>
           </div>
           <div class="reader-body">
-            <main class="river" id="river">
+            <section class="river" id="river" aria-label="Doctrine timeline">
               <div class="river-title">
                 <div class="kicker" id="river-kicker">Doctrine · §I</div>
                 <h2 id="river-doctrine">Strict necessity</h2>
@@ -1523,7 +1523,7 @@ footer {
                 </div>
                 <p id="river-narration"></p>
               </div>
-            </main>
+            </section>
             <aside class="reading-col" id="reading-col">
               <div class="ws-empty"><div class="inner"><div class="glyph">⸙</div><h3>Choose a doctrine</h3><p>Run a search, then drag the river cursor to read how it evolved.</p></div></div>
             </aside>
@@ -1546,7 +1546,7 @@ footer {
       </div>
     </div>
 
-  </div>
+  </main>
   <footer>ECHR RAG Search · v 2.15 · hosted on AMU VM · NOT legal advice</footer>
 </div>
 
@@ -1827,9 +1827,11 @@ function renderCaseArticles(arts, idx) {
 function toggleOA(id, btn) { const l = $(id); if (l && l.hidden) { l.hidden = false; btn.style.display='none'; } }
 window.toggleOA = toggleOA;
 
-function toggleCase(i) {
+function toggleCase(i, btn) {
   const c = $('case-' + i);
-  if (c) c.classList.toggle('expanded');
+  if (!c) return;
+  const open = c.classList.toggle('expanded');
+  if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
 }
 window.toggleCase = toggleCase;
 
@@ -1860,7 +1862,7 @@ function renderViewA(data) {
       <div class="case-rank">${String(idx+1).padStart(2,'0')}</div>
       <div class="case-body">
         <div class="case-title-row">
-          <a class="case-title" href="${escapeHtml(c.hudoc_url||'#')}" target="_blank" rel="noopener" title="Open the full judgment in HUDOC">${escapeHtml(c.title||c.case_id)}<span class="ext" aria-hidden="true">HUDOC&#8599;</span></a>
+          <a class="case-title" href="${escapeHtml(c.hudoc_url||'#')}" target="_blank" rel="noopener" aria-label="${escapeHtml(c.title||c.case_id)} — open in HUDOC, opens in a new tab">${escapeHtml(c.title||c.case_id)}<span class="ext" aria-hidden="true">HUDOC&#8599;</span></a>
           <div class="case-pills">
             <span class="match-pill ${m.cls}">${m.text}</span>
             <span class="hits-pill">${hl}</span>
@@ -1872,11 +1874,11 @@ function renderViewA(data) {
           ${ah}
         </div>
         <p class="case-preview">${escapeHtml(prev)}</p>
-        <span class="case-toggle" onclick="toggleCase(${idx})"><span class="arrow">▶</span> Read the ${hl}</span>
+        <button type="button" class="case-toggle" aria-expanded="false" onclick="toggleCase(${idx}, this)"><span class="arrow" aria-hidden="true">▶</span> Read the ${hl}</button>
         <div class="case-hits">
           ${(c.hits||[]).map(h => `
             <div class="hit-item">
-              <div class="hit-num">¶ ${escapeHtml(String(h.para_idx||''))}<small>${(h.score*100).toFixed(0)}%</small><button type="button" class="cite-btn" title="Copy pinpoint citation" onclick="copyCite(event, ${idx}, '${escapeHtml(String(h.para_idx||''))}')">&#8862; cite</button></div>
+              <div class="hit-num">¶ ${escapeHtml(String(h.para_idx||''))}<small>${(h.score*100).toFixed(0)}%</small><button type="button" class="cite-btn" aria-label="Copy pinpoint citation for paragraph ${escapeHtml(String(h.para_idx||''))}" onclick="copyCite(event, ${idx}, '${escapeHtml(String(h.para_idx||''))}')">&#8862; cite</button></div>
               <div>
                 <div class="hit-section">${escapeHtml(h.section||'')}</div>
                 <p class="hit-text">${escapeHtml(h.text)}</p>
@@ -2710,7 +2712,7 @@ function composeNarration(docId, year, waypoints, active) {
    ========================================================= */
 function setView(v) {
   state.view = v;
-  document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+  document.querySelectorAll('.view-btn').forEach(b => { const on = b.dataset.view === v; b.classList.toggle('active', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
   ['A','B','C'].forEach(k => $(`view-${k}`).hidden = (k !== v));
   $('view-desc').textContent = v === 'A' ? 'A ranked list of judgments — broadsheet layout.'
     : v === 'B' ? 'Three panes: paragraph stream, citation constellation, dossier.'
