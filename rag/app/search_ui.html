@@ -1245,18 +1245,17 @@ footer {
   <div class="masthead-row">
     <div class="brand">
       <span class="glyph">§</span>
-      <span class="brand-name">Strasbourg</span>
-      <span class="brand-sub">paragraph-level case-law reader</span>
+      <span class="brand-name">HUDOC Researcher</span>
+      <span class="brand-sub">A paragraph-level companion to the Court</span>
     </div>
     <div class="masthead-meta">
-      <span class="vol">Vol · LXXVI · No 412</span>
       <span class="status-pill"><span class="status-dot" id="status-dot"></span><span id="status-text">Connecting…</span></span>
       <span class="status-pill" id="count-pill" hidden>—</span>
       <span class="status-pill" id="gemini-pill" hidden><span class="status-dot"></span><span>Gemini</span></span>
       <label class="theme-pick" title="Display theme">
         <select id="theme-select" aria-label="Display theme">
-          <option value="">Modern</option>
           <option value="classic">Classic</option>
+          <option value="modern">Modern</option>
           <option value="a11y">Accessible</option>
         </select>
       </label>
@@ -1266,8 +1265,11 @@ footer {
 
 <!-- =========================== SECTION TABS (apps) =========================== -->
 <nav class="section-tabs">
-  <a class="section-tab active" href="/echr/search_ui.html" data-section="search"><span class="num">I</span><span>Case Law Search</span></a>
-  <a class="section-tab" href="/methodology" data-section="methodology"><span class="num">II</span><span>How it works &amp; accuracy</span></a>
+  <a class="section-tab" href="https://lszoszk.github.io/ECHR-Dashboard/"><span>Search</span></a>
+  <a class="section-tab active" href="#" data-section="search"><span>Semantic Search</span></a>
+  <a class="section-tab" href="https://lszoszk.github.io/ECHR-Dashboard/analytics.html"><span>Statistics</span></a>
+  <a class="section-tab" href="#" data-section="methodology"><span>Methodology</span></a>
+  <a class="section-tab" href="https://lszoszk.github.io/ECHR-Dashboard/about.html"><span>About</span></a>
   <span class="section-tabs-spacer"></span>
 </nav>
 
@@ -1337,7 +1339,7 @@ footer {
     <div class="standfirst">
       <div>
         <div class="kicker">European Court of Human Rights · paragraph-level retrieval</div>
-        <h1>Case Law Search</h1>
+        <h1>Semantic Search</h1>
         <div class="deck">
           Semantic search over Strasbourg jurisprudence. Describe your case in any language — the index returns the paragraphs that mattered.
         </div>
@@ -1549,7 +1551,7 @@ try { if (window.name !== 'echr-search') window.name = 'echr-search'; } catch (_
   function apply(t){ document.body.setAttribute('data-theme', t||''); try{ localStorage.setItem(KEY, t||''); }catch(e){} }
   function init(){
     const sel=document.getElementById('theme-select'); if(!sel) return;
-    let saved=''; try{ saved=localStorage.getItem(KEY)||''; }catch(e){}
+    let saved='classic'; try{ const s=localStorage.getItem(KEY); if(s) saved=s; }catch(e){}
     sel.value=saved; apply(saved);
     sel.addEventListener('change', ()=>apply(sel.value));
   }
