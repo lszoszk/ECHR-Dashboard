@@ -86,7 +86,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://lszoszk.github.io"],
     allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
-    allow_methods=["GET", "OPTIONS"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Content-Type"],
 )
 
