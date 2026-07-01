@@ -1262,6 +1262,9 @@ footer {
   .ws-graph { min-height: 480px; }
   .reader-body { grid-template-columns: 1fr; }
   .river { min-height: 720px; }
+  /* narrow screens: keep the floating timeline captions legible over the compressed graph */
+  .river-title, .river-year { background: color-mix(in oklch, var(--paper) 82%, transparent); backdrop-filter: blur(2px); padding: 8px 12px; border-radius: 6px; }
+  .river-title { right: 24px; }
   .page { padding: 24px 22px 60px; }
   .masthead { padding: 14px 22px; }
   .section-tabs { padding: 14px 22px 0; }
