@@ -1324,15 +1324,16 @@ footer {
 
       <h2>How we measured it</h2>
       <p>We did not grade ourselves. We used the Court's own <strong>41 official Case-Law Guides</strong> as an answer key — each states a legal proposition and pinpoints the exact case paragraphs that support it (~8,400 propositions, ~24,000 pinpoint citations) — and checked whether the system returns the cited <em>case</em> and the cited <em>paragraph</em>.</p>
+      <p>A <strong>second, larger test</strong> — 1,570 cases that carry an official summary — checks retrieval at scale, including a <em>plain-language</em> track that a layperson (not a lawyer) would type.</p>
 
       <h2>How well it works</h2>
       <table>
         <tr><th>On the Court-Guides benchmark</th><th class="num">Top 5</th><th class="num">Top 10</th></tr>
-        <tr><td>Correct <strong>case</strong> retrieved</td><td class="num">~80%</td><td class="num">~86%</td></tr>
-        <tr><td>Exact cited <strong>paragraph</strong> retrieved</td><td class="num">~60%</td><td class="num">~70%</td></tr>
+        <tr><td>Correct <strong>case</strong> retrieved</td><td class="num">~82%</td><td class="num">~88%</td></tr>
+        <tr><td>Exact cited <strong>paragraph</strong> retrieved</td><td class="num">~60%</td><td class="num">~73%</td></tr>
       </table>
       <p>An independent AI-lawyer review found <strong>~85–90% of the top-10 paragraphs genuinely relevant</strong> — higher than the "exact paragraph" figure, because the Guides cite only <em>some</em> of the relevant paragraphs, so the strict measure understates real usefulness.</p>
-      <div class="box"><strong>A strength:</strong> it works as well on <em>plain-language</em> questions as on expert phrasing — you need not write like a headnote.</div>
+      <div class="box"><strong>It searches by meaning, not keywords.</strong> On the second benchmark, given a <em>plain-language</em> description of a case’s issue, the right judgment is in the top 10 for <strong>~87%</strong> of cases. A keyword (BM25) baseline reaches only ~60% on those same plain-language queries — where this system holds — because it retrieves by legal <em>substance</em>, not matching words. You need not write like a headnote.</div>
 
       <h2>Where to be cautious</h2>
       <div class="box warn"><ul>
