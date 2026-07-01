@@ -849,6 +849,10 @@ body.mode-natural .expert-only { display: none; }
   font-family: var(--mono); font-size: 10px; letter-spacing: .04em; text-transform: uppercase;
   color: var(--ink-3); font-weight: 500; margin-bottom: 4px;
 }
+.hit-section.sep {
+  display: inline-block; color: #8a5a12; background: var(--hl); border: 1px solid var(--hl-edge);
+  border-radius: 3px; padding: 1px 7px; font-weight: 700;
+}
 
 /* Empty / error / loading */
 .state-msg {
@@ -1893,7 +1897,7 @@ function renderViewA(data) {
             <div class="hit-item">
               <div class="hit-num">¶ ${escapeHtml(String(h.para_idx||''))}<small>${(h.score*100).toFixed(0)}%</small><button type="button" class="cite-btn" aria-label="Copy pinpoint citation for paragraph ${escapeHtml(String(h.para_idx||''))}" onclick="copyCite(event, ${idx}, '${escapeHtml(String(h.para_idx||''))}')">&#8862; cite</button></div>
               <div>
-                <div class="hit-section">${escapeHtml(h.section||'')}</div>
+                <div class="hit-section${h.section==='Separate Opinion'?' sep':''}">${h.section==='Separate Opinion'?'\u2691 separate opinion \u00b7 not the Court\u2019s holding':escapeHtml(h.section||'')}</div>
                 <p class="hit-text">${escapeHtml(h.text)}</p>
               </div>
             </div>`).join('')}

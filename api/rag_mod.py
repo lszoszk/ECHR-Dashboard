@@ -24,6 +24,7 @@ BASE = Path("/data/rag")
 STATIC = Path(__file__).resolve().parent / "rag_static"
 VOYAGE_MODEL = "voyage-4-large"; RERANK_MODEL = "rerank-2.5"
 NPROBE = 128; FETCH = 300; RERANK_POOL = 100; IMP_BOOST = 0.05
+SEP_PENALTY = 0.12  # demote separate/dissenting-opinion paragraphs so the Court's holding ranks first
 IMP = {"Key cases": 1.0, "1": 1.0, "2": 0.5, "3": 0.25, "Unspecified": 0.0}
 RANK_TOP, RANK_AVG, RANK_LOG = 0.60, 0.25, 0.15; LOGD = math.log(10)
 
@@ -96,7 +97,8 @@ def run_paragraph_search(q, respondent=None, article=None, section=None):
     out = []
     for idx, (p, cos, sec, m, arts) in enumerate(src):
         cid = case[p]; s = sno[p]; base = rr.get(idx, 0.0) if rr is not None else cos
-        out.append({"score": round(float(base) + IMP_BOOST * _auth(cid), 4), "case_id": cid,
+        pen = SEP_PENALTY if sec == "Separate Opinion" else 0.0
+        out.append({"score": round(float(base) + IMP_BOOST * _auth(cid) - pen, 4), "case_id": cid,
             "case_no": m.get("case_no", "") or "", "title": m.get("title", "") or "", "hudoc_url": m.get("hudoc", "") or "",
             "judgment_date": m.get("date", "") or "", "respondent": m.get("state", "") or "", "articles": arts,
             "section": sec, "para_idx": s if s is not None else 0, "text": txt.get(rid[p], "")})
