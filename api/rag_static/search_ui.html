@@ -1726,8 +1726,7 @@ function renderPresets() {
 function loadPreset(i) {
   if (i < 0 || i >= PRESETS.length) return;
   $('query').value = PRESETS[i].text;
-  $('query').focus();
-  $('query').scrollIntoView({ behavior:'smooth', block:'center' });
+  doSearch();
 }
 window.loadPreset = loadPreset;
 
@@ -1815,18 +1814,20 @@ function renderRewrite(data) {
 /* =========================================================
    RENDER VIEW A — Reporter (broadsheet list)
    ========================================================= */
+function artLabel(a){ a=String(a==null?'':a).trim().replace(/^Art(?:icle)?\.?\s+/i,''); return /^P\d/i.test(a)?escapeHtml(a):'Art '+escapeHtml(a); }
 function renderCaseArticles(arts, idx) {
   arts = arts || [];
+  { const s=new Set(),u=[]; for(const a of arts){const k=artLabel(a); if(!s.has(k)){s.add(k);u.push(a);}} arts=u; }
   if (!arts.length) return '';
-  if (!state.detectedArticles.length) return arts.slice(0,6).map(a=>`<span class="meta-tag article-other">Art ${escapeHtml(a)}</span>`).join('');
+  if (!state.detectedArticles.length) return arts.slice(0,6).map(a=>`<span class="meta-tag article-other">${artLabel(a)}</span>`).join('');
   const det = [], oth = [];
   for (const a of arts) (isArticleDetected(a, state.detectedArticles) ? det : oth).push(a);
   let h = '';
-  for (const a of det) h += `<span class="meta-tag article-detected">Art ${escapeHtml(a)}</span>`;
-  if (!det.length && oth.length) return oth.slice(0,4).map(a=>`<span class="meta-tag article-other">Art ${escapeHtml(a)}</span>`).join('');
+  for (const a of det) h += `<span class="meta-tag article-detected">${artLabel(a)}</span>`;
+  if (!det.length && oth.length) return oth.slice(0,4).map(a=>`<span class="meta-tag article-other">${artLabel(a)}</span>`).join('');
   if (oth.length) {
     const lid = 'oa-' + idx;
-    h += `<button class="more-articles-btn" onclick="event.stopPropagation();toggleOA('${lid}',this)">+${oth.length} more</button><span id="${lid}" hidden>${oth.map(a=>`<span class="meta-tag article-other" style="margin-left:6px">Art ${escapeHtml(a)}</span>`).join('')}</span>`;
+    h += `<button class="more-articles-btn" onclick="event.stopPropagation();toggleOA('${lid}',this)">+${oth.length} more</button><span id="${lid}" hidden>${oth.map(a=>`<span class="meta-tag article-other" style="margin-left:6px">${artLabel(a)}</span>`).join('')}</span>`;
   }
   return h;
 }
@@ -1937,7 +1938,7 @@ function renderViewB(data) {
         <div class="sim-meter">${Array.from({length:12}).map((_,k)=>`<span class="${k/12<sim?'on':''}"></span>`).join('')}</div>
         <span class="folio">${(sim*100).toFixed(0)}%</span>
         <span style="flex:1"></span>
-        ${(p.articles||[]).slice(0,2).map(a=>`<span class="meta-tag" style="font-size:9px;padding:1px 5px;">Art ${escapeHtml(a)}</span>`).join('')}
+        ${(p.articles||[]).slice(0,2).map(a=>`<span class="meta-tag" style="font-size:9px;padding:1px 5px;">${artLabel(a)}</span>`).join('')}
         <button class="cmp-chip ${inCmp?'on':''}" onclick="event.stopPropagation();toggleCompare('${escapeHtml(c.case_id)}')" title="Add to compare">${inCmp?'✓ COMPARE':'+ COMPARE'}</button>
       </div>
     </li>`;
@@ -2321,7 +2322,7 @@ function openCompareView() {
   $('compare-grid').style.gridTemplateColumns = `repeat(${cases.length}, 1fr)`;
   $('compare-count').textContent = `Comparing ${cases.length} judgments`;
   $('compare-grid').innerHTML = cases.map(c => {
-    const arts = (c.articles||[]).slice(0,4).map(a=>`<span class="chip">Art ${escapeHtml(a)}</span>`).join('');
+    const arts = (c.articles||[]).slice(0,4).map(a=>`<span class="chip">${artLabel(a)}</span>`).join('');
     const passages = (c.hits||[]).map(h => `
       <div class="cmp-passage">
         <div class="folio" style="color:var(--garnet);">¶ ${escapeHtml(String(h.para_idx||''))} · ${(h.score*100).toFixed(0)}%</div>
@@ -2351,7 +2352,7 @@ window.closeCompareView = closeCompareView;
 function renderDossier(data) {
   const c = data.results[state.selectedCaseIdx];
   if (!c) return;
-  const arts = (c.articles||[]).slice(0,6).map(a=>`<span class="chip">Art ${escapeHtml(a)}</span>`).join('');
+  const arts = (c.articles||[]).slice(0,6).map(a=>`<span class="chip">${artLabel(a)}</span>`).join('');
   const passages = (c.hits||[]).map(h => `
     <div class="dossier-passage">
       <div class="num">¶ ${escapeHtml(String(h.para_idx||''))} · ${escapeHtml(h.section||'')} · ${(h.score*100).toFixed(0)}%</div>
@@ -2790,7 +2791,7 @@ async function loadCitations(data) {
    ========================================================= */
 async function doSearch() {
   const q = $('query').value.trim();
-  if (!q) { alert('Please enter a description of your case.'); return; }
+  if (!q) { const el=$('query'); el.focus(); el.style.boxShadow='0 0 0 2px var(--neg)'; setTimeout(()=>{el.style.boxShadow='';},1200); return; }
   const resp = $('respondent').value, art = $('article').value.trim(), sec = $('section-filter').value, k = $('k').value || 30, mode = currentMode();
   const styleEl = document.querySelector('input[name="search-style"]:checked');
   const style = styleEl ? styleEl.value : 'creative';
