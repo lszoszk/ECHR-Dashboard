@@ -79,6 +79,7 @@ def run_paragraph_search(q, respondent=None, article=None, section=None):
     cand = []
     for scr, p in zip(D[0], pos):
         cid = case[p]; s = sno[p]; m = meta.get(cid, {}) or {}
+        if s is None or s == 0: continue  # skip uncitable sub-fragments (no HUDOC § number → would render as ¶0)
         if respondent and respondent not in _split(m.get("state", "")): continue
         arts = [str(x) for x in (m.get("violation") or [])]
         if article and article not in arts and art.get((cid, s)) != article: continue
