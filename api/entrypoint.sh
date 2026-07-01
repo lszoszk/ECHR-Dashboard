@@ -22,5 +22,9 @@ else
     echo "Database found at $DB_PATH"
 fi
 
-echo "Starting uvicorn on 0.0.0.0:8000 with 2 workers..."
-exec uvicorn main:app --host 0.0.0.0 --port 8000 --workers 2
+# 1 worker: the RAG mmap index is ~1.3 GB per worker, the workload is network-I/O-bound
+# (Voyage embed+rerank), and sync endpoints run in a threadpool so one worker still serves
+# concurrent requests. 1 worker halves RAM on the shared VM, unifies the query-embedding
+# cache (full repeat/determinism benefit), and removes round-robin cold-worker latency spikes.
+echo "Starting uvicorn on 0.0.0.0:8000 with 1 worker..."
+exec uvicorn main:app --host 0.0.0.0 --port 8000 --workers 1

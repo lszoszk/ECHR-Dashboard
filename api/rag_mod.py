@@ -11,7 +11,7 @@ Endpoints (served under /echr-api/rag via nginx): / , /health , /respondents ,
 /sections , /similar .
 """
 from __future__ import annotations
-import os, json, math, sqlite3, time
+import os, json, math, sqlite3, time, threading
 from pathlib import Path
 from collections import OrderedDict
 import numpy as np, faiss
@@ -29,6 +29,23 @@ IMP = {"Key cases": 1.0, "1": 1.0, "2": 0.5, "3": 0.25, "Unspecified": 0.0}
 RANK_TOP, RANK_AVG, RANK_LOG = 0.60, 0.25, 0.15; LOGD = math.log(10)
 
 _S = {}  # lazy-loaded state
+
+# Query-embedding LRU cache: identical queries skip the Voyage embed call
+# (~300ms faster on repeats) and return the same vector → deterministic ranking.
+_QCACHE = OrderedDict(); _QLOCK = threading.Lock(); QCACHE_MAX = 512
+
+def _embed_query(q):
+    key = (q or "")[:1500]
+    with _QLOCK:
+        hit = _QCACHE.get(key)
+        if hit is not None:
+            _QCACHE.move_to_end(key); return hit.copy()
+    qv = np.array(embed.voyage_embed([key], model=VOYAGE_MODEL, input_type="query")[0], dtype="float32").reshape(1, -1)
+    faiss.normalize_L2(qv)
+    with _QLOCK:
+        _QCACHE[key] = qv; _QCACHE.move_to_end(key)
+        while len(_QCACHE) > QCACHE_MAX: _QCACHE.popitem(last=False)
+    return qv.copy()
 
 def _load():
     if _S:
@@ -68,8 +85,7 @@ def _split(raw): return [p.strip() for p in (raw or "").split(",") if p.strip()]
 
 def run_paragraph_search(q, respondent=None, article=None, section=None):
     S = _load()
-    qv = np.array(embed.voyage_embed([q[:1500]], model=VOYAGE_MODEL, input_type="query")[0], dtype="float32").reshape(1, -1)
-    faiss.normalize_L2(qv)
+    qv = _embed_query(q)
     fetch = FETCH if not (respondent or article or section) else FETCH * 2
     D, I = S["index"].search(qv, fetch)
     case, sno, rid, meta, rowsec, art, fts = S["case"], S["sno"], S["rid"], S["meta"], S["rowsec"], S["artmap"], S["fts"]
@@ -187,3 +203,12 @@ def similar(q: str = Query(...), k: int = Query(10, ge=1, le=50),
     t0 = time.time(); paras = run_paragraph_search(q, respondent, article, section); cases = group_by_case(paras, k)
     return {"mode": "expert", "query": q, "count": len(cases), "results": cases,
             "stats": {"paragraphs_pooled": len(paras), "elapsed_ms": int((time.time() - t0) * 1000)}}
+
+# Background pre-warm: load the mmap index shortly after startup so the first real query
+# doesn't pay the ~8 s cold-load. Daemon + fully guarded → never blocks the dashboard API.
+def _prewarm():
+    try:
+        time.sleep(2); _load()
+    except Exception:
+        pass
+threading.Thread(target=_prewarm, daemon=True).start()
