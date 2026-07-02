@@ -203,12 +203,3 @@ def similar(q: str = Query(...), k: int = Query(10, ge=1, le=50),
     t0 = time.time(); paras = run_paragraph_search(q, respondent, article, section); cases = group_by_case(paras, k)
     return {"mode": "expert", "query": q, "count": len(cases), "results": cases,
             "stats": {"paragraphs_pooled": len(paras), "elapsed_ms": int((time.time() - t0) * 1000)}}
-
-# Background pre-warm: load the mmap index shortly after startup so the first real query
-# doesn't pay the ~8 s cold-load. Daemon + fully guarded → never blocks the dashboard API.
-def _prewarm():
-    try:
-        time.sleep(2); _load()
-    except Exception:
-        pass
-threading.Thread(target=_prewarm, daemon=True).start()

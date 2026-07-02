@@ -506,6 +506,9 @@ def health():
 # (mtime, size): recomputed only after the DB actually changes (e.g. a § clean-up
 # rewrite), otherwise served instantly from cache.
 _MEANINGFUL_CACHE: dict[str, Any] = {}
+# Whole-corpus (unscoped) facet rail is a multi-second aggregation but static until the
+# DB changes; cache it keyed on the DB file (mtime, size) so the filters load instantly.
+_FACETS_CACHE: dict[str, Any] = {}
 
 
 def _meaningful_counts(cur: sqlite3.Cursor) -> dict[str, Any]:
@@ -650,6 +653,16 @@ def facets(
     When a query (or date range) is supplied the counts are scoped to
     the matching cases, so the rail reflects the current search.
     """
+    # Cache the unscoped (whole-corpus) rail — the initial page-load facets — keyed on the
+    # DB file's (mtime, size). First call computes it; every later page load is instant.
+    _fc_key = None
+    if not (q and q.strip()) and not date_from and not date_to:
+        try:
+            _st = Path(DB_PATH).stat(); _fc_key = (_st.st_mtime_ns, _st.st_size)
+        except OSError:
+            _fc_key = None
+        if _fc_key is not None and _FACETS_CACHE.get("key") == _fc_key:
+            return _FACETS_CACHE["val"]
     try:
         result: dict[str, Any] = {}
         fts_expr = _build_fts_query(q) if (q and q.strip()) else ""
@@ -785,6 +798,9 @@ def facets(
             max_date = _r["judgment_date"] if _r else None
             result["date_range"] = {"min": min_date, "max": max_date}
 
+        if _fc_key is not None:
+            _FACETS_CACHE["key"] = _fc_key
+            _FACETS_CACHE["val"] = result
         return result
     except Exception as exc:
         logger.exception("Facets query failed")
@@ -2149,3 +2165,21 @@ try:
 except Exception as _rag_e:  # never let RAG break the core dashboard API
     import logging
     logging.getLogger("uvicorn.error").warning("RAG sub-app not mounted: %s", _rag_e)
+
+
+# --- Filter-rail / stats pre-warm ---------------------------------------------
+# /api/facets and /api/stats each do a multi-second whole-corpus aggregation, cached per
+# worker but cold on first call. Warm them in the background after startup via loopback
+# (several calls so both workers get populated) so the first user's page loads instantly.
+def _prewarm_dashboard() -> None:
+    import urllib.request
+    time.sleep(5)  # let uvicorn bind the port
+    for _ in range(4):
+        for path in ("/api/facets", "/api/stats"):
+            try:
+                urllib.request.urlopen("http://127.0.0.1:8000" + path, timeout=120).read()
+            except Exception:
+                pass
+        time.sleep(1)
+
+threading.Thread(target=_prewarm_dashboard, daemon=True).start()
