@@ -1483,6 +1483,18 @@ def search(
                         "ON parent.case_id = p.case_id "
                         "AND parent.para_idx = p.logical_para_idx"
                     )
+                    # Citable pinpoint for fragments: own display no. → explicit
+                    # logical parent's HUDOC no. → nearest preceding numbered ¶
+                    # in the same section (the enclosing paragraph by document
+                    # order).  The correlated subquery runs only per returned
+                    # row (≤ page_size), so it is cheap.  Kills stranded "¶ —".
+                    dp = (
+                        "COALESCE(p.display_para_no, parent.hudoc_para_no, "
+                        "(SELECT pp.hudoc_para_no FROM paragraphs pp "
+                        " WHERE pp.case_id = p.case_id AND pp.section = p.section "
+                        " AND pp.para_idx < p.para_idx AND pp.hudoc_para_no IS NOT NULL "
+                        " ORDER BY pp.para_idx DESC LIMIT 1)) AS display_para_no"
+                    )
                 else:
                     parent_text_col = "NULL AS parent_text"
                     parent_join_flat = ""
@@ -1750,7 +1762,18 @@ def search(
             if has_logical:
                 logical_cols = (
                     "p.logical_para_idx AS logical_para_idx, "
-                    "p.display_para_no AS display_para_no, "
+                    # Fragments (quotes / bullets / continuations) often have no
+                    # own HUDOC number; fall back to the logical parent's number
+                    # so the UI never shows an uncitable stranded "¶ —".
+                    # Two-tier fallback: explicit logical parent first; else the
+                    # nearest preceding numbered body ¶ in the same section (the
+                    # enclosing paragraph by document order). Correlated subquery
+                    # runs only per RETURNED row (≤ page_size), so it is cheap.
+                    "COALESCE(p.display_para_no, parent.hudoc_para_no, "
+                    "(SELECT pp.hudoc_para_no FROM paragraphs pp "
+                    " WHERE pp.case_id = p.case_id AND pp.section = p.section "
+                    " AND pp.para_idx < p.para_idx AND pp.hudoc_para_no IS NOT NULL "
+                    " ORDER BY pp.para_idx DESC LIMIT 1)) AS display_para_no, "
                     "CASE WHEN p.logical_para_idx IS NOT NULL "
                     "AND p.logical_para_idx <> p.para_idx "
                     "THEN parent.text END AS parent_text"
