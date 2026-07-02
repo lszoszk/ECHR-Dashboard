@@ -50,6 +50,17 @@ Three independent validation mechanisms support the published labels:
 
 The 9.3-percentage-point gap between precision (≈98 %) and recall (≈88 %) reflects boundary cases that the conservative, rule-based approach could not handle without introducing new errors. We chose precision over recall.
 
+### Boilerplate relabelling (P60, July 2026)
+
+A user-experience audit found ~85,000 unnumbered rows (procedural formulae such
+as "Having deliberated in private on …", court-composition and appearance
+lines, signature blocks, elision rows) stored with the body-paragraph role, so
+they could surface as search hits despite having no citable § number. They were
+relabelled (`metadata` / `signature` / `heading` / `quote`) using curated
+template rules plus an LLM cross-check on every remaining distinct text;
+numbered paragraphs were never touched, and search now excludes these roles by
+default. A full pre-change snapshot and a row-level undo table are retained.
+
 ## Citation graph (Cites / Cited by)
 
 Each result card carries two influence metrics — **Cites** (judgments this ruling refers to) and **Cited by** (later judgments that refer back to it). They are drawn from a citation graph of **199,607 paragraph-level references** linking **18,236 cases**.
