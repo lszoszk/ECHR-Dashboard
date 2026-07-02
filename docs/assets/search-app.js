@@ -1196,6 +1196,8 @@ function setTheme(theme) {
   const settings = getAccessibilitySettings();
   settings.theme = theme;
   applyAccessibilitySettings(settings);
+  // Cross-page interop: methodology/about/semantic read the plain "theme" key.
+  try { localStorage.setItem("theme", theme); } catch { /* ignore */ }
 }
 
 function initTheme() {
@@ -1206,6 +1208,12 @@ function initTheme() {
     if (oldTheme && !localStorage.getItem("echr-accessibility")) {
       settings.theme = oldTheme;
     }
+  } catch { /* ignore */ }
+  // Cross-page interop: honour a light/dark choice made on any other subpage
+  // (methodology/about/semantic write the plain "theme" key).
+  try {
+    const shared = localStorage.getItem("theme");
+    if (shared === "dark" || shared === "light") settings.theme = shared;
   } catch { /* ignore */ }
   applyAccessibilitySettings(settings);
 }

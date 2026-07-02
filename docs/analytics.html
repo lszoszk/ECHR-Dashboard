@@ -741,6 +741,11 @@
         const old = localStorage.getItem("echr-theme");
         if (old && !localStorage.getItem("echr-accessibility")) s.theme = old;
       } catch {}
+      // Cross-page interop: honour a light/dark choice made on any other subpage.
+      try {
+        const shared = localStorage.getItem("theme");
+        if (shared === "dark" || shared === "light") s.theme = shared;
+      } catch {}
       applyA11y(s);
 
       // Theme toggle button
@@ -748,6 +753,7 @@
       toggle?.addEventListener("click", () => {
         const cur = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
         const s = getA11y(); s.theme = cur === "dark" ? "light" : "dark"; applyA11y(s);
+        try { localStorage.setItem("theme", s.theme); } catch {}
         syncA11yControls();
       });
 
