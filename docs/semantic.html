@@ -8,22 +8,24 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ===== Unified top bar — faithful replica of the dashboard editorial navbar ===== */
-.navbar { position:sticky; top:0; z-index:200; background:#fbfaf6; border-bottom:1px solid #242328; }
+/* ===== Unified top bar — faithful replica of the dashboard editorial navbar.
+   Colours come from the theme tokens (Classic == the dashboard light palette),
+   so Dark / Accessible restyle the bar consistently with the dashboard. ===== */
+.navbar { position:sticky; top:0; z-index:200; background:var(--paper); border-bottom:1px solid var(--ink); }
 .nav-container { max-width:1480px; margin:0 auto; height:74px; padding:12px 32px 10px; display:flex; align-items:flex-end; gap:28px; }
-.nav-brand { display:flex; align-items:baseline; gap:10px; text-decoration:none; color:#242328; font-family:'Source Serif 4',Georgia,serif; font-size:1.5rem; font-weight:500; white-space:nowrap; }
-.nav-brand .brand-icon { color:#8d2f2f; font-family:'JetBrains Mono',ui-monospace,monospace; font-size:1.05rem; line-height:1; }
+.nav-brand { display:flex; align-items:baseline; gap:10px; text-decoration:none; color:var(--ink); font-family:'Source Serif 4',Georgia,serif; font-size:1.5rem; font-weight:500; white-space:nowrap; }
+.nav-brand .brand-icon { color:var(--garnet); font-family:'JetBrains Mono',ui-monospace,monospace; font-size:1.05rem; line-height:1; }
 .nav-brand .brand-text { line-height:1; }
-.nav-brand::after { content:"A paragraph-level companion to the Court"; margin-left:4px; color:#6b6660; font-family:'Source Serif 4',Georgia,serif; font-size:0.78rem; font-style:italic; font-weight:400; white-space:nowrap; }
+.nav-brand::after { content:"A paragraph-level companion to the Court"; margin-left:4px; color:var(--ink-3); font-family:'Source Serif 4',Georgia,serif; font-size:0.78rem; font-style:italic; font-weight:400; white-space:nowrap; }
 .nav-links { display:flex; flex:1; justify-content:flex-end; gap:18px; flex-wrap:nowrap; white-space:nowrap; }
-.nav-links a { color:#403e44; text-decoration:none; padding:0 0 4px; font-family:'Source Serif 4',Georgia,serif; font-size:0.92rem; font-weight:500; border-bottom:2px solid transparent; transition:color .15s, border-color .15s; }
-.nav-links a:hover { color:#242328; border-bottom-color:#d8d0c3; }
-.nav-links a.active { color:#8d2f2f; border-bottom-color:#8d2f2f; }
+.nav-links a { color:var(--ink-2); text-decoration:none; padding:0 0 4px; font-family:'Source Serif 4',Georgia,serif; font-size:0.92rem; font-weight:500; border-bottom:2px solid transparent; transition:color .15s, border-color .15s; }
+.nav-links a:hover { color:var(--ink); border-bottom-color:var(--rule); }
+.nav-links a.active { color:var(--garnet); border-bottom-color:var(--garnet); }
 .nav-meta { display:flex; align-items:center; gap:10px; padding-bottom:6px; flex-shrink:0; }
 .nav-meta #count-pill { display:none; }  /* trust-count lives on the Methodology page; keeps the bar one-line like the dashboard */
-.nav-meta .status-pill { display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',ui-monospace,monospace; font-size:10.5px; color:#6b6660; background:#fff; border:1px solid #d8d0c3; border-radius:999px; padding:4px 10px; white-space:nowrap; }
-.nav-meta select { background:#fff; color:#242328; border:1px solid #d8d0c3; border-radius:6px; padding:5px 8px; font-size:12px; font-family:'Source Serif 4',Georgia,serif; cursor:pointer; }
-.nav-meta select:focus-visible { outline:2px solid #8d2f2f; outline-offset:1px; }
+.nav-meta .status-pill { display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',ui-monospace,monospace; font-size:10.5px; color:var(--ink-3); background:var(--paper-2); border:1px solid var(--rule); border-radius:999px; padding:4px 10px; white-space:nowrap; }
+.nav-meta select { background:var(--paper-2); color:var(--ink); border:1px solid var(--rule); border-radius:6px; padding:5px 8px; font-size:12px; font-family:'Source Serif 4',Georgia,serif; cursor:pointer; }
+.nav-meta select:focus-visible { outline:2px solid var(--garnet); outline-offset:1px; }
 @media (max-width:860px){ .nav-brand::after{ display:none; } .nav-meta .status-pill{ display:none; } .nav-container{ height:auto; min-height:60px; padding:10px 16px; gap:14px; align-items:center; flex-wrap:wrap; } }
 
 /* =========================================================
@@ -156,6 +158,22 @@ body[data-theme="a11y"] {
 body[data-theme="a11y"] { font-size:17px; line-height:1.7; }
 body[data-theme="a11y"] a { text-decoration:underline; }
 body[data-theme="a11y"] *:focus-visible { outline:3px solid #1457c8; outline-offset:2px; }
+
+/* ===== DARK — mirrors the dashboard's dark palette (editorial-redesign.css) ===== */
+body[data-theme="dark"] {
+  color-scheme: dark;
+  --paper:#18181c; --paper-2:#1f2025; --paper-3:#292930;
+  --rule:#3e3d44; --rule-soft:#302f36;
+  --ink:#f3efe6; --ink-2:#d4cec3; --ink-3:#aca59b; --ink-4:#807a73;
+  --garnet:#d08178; --garnet-2:#e0a19b; --garnet-soft:#3b2224; --garnet-edge:#6e3c3d;
+  --hl:#4e4524; --hl-edge:#8a7a3a;
+  --pos:#8bbf9d; --pos-soft:#22352b; --neg:#e0a19b; --warn:#c9a35a;
+  --display:"Spectral","Iowan Old Style",Georgia,serif;
+  --body:"Spectral","Iowan Old Style",Georgia,serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+  --shadow-1:none; --shadow-2:0 1px 0 rgba(0,0,0,.5); --shadow-3:0 2px 0 rgba(0,0,0,.6);
+  --r-sm:3px; --r-md:4px; --r-lg:6px; --r-pill:4px;
+}
 
 /* ---------- theme switcher (compact select in masthead) ---------- */
 .theme-pick { display:inline-flex; align-items:center; }
@@ -1296,6 +1314,7 @@ footer {
       <span class="status-pill" id="gemini-pill" hidden><span class="status-dot"></span><span>Gemini</span></span>
       <select id="theme-select" aria-label="Display theme">
         <option value="classic">Classic</option>
+        <option value="dark">Dark</option>
         <option value="modern">Modern</option>
         <option value="a11y">Accessible</option>
       </select>
@@ -1582,9 +1601,17 @@ try { if (window.name !== 'echr-search') window.name = 'echr-search'; } catch (_
   function apply(t){ document.body.setAttribute('data-theme', t||''); try{ localStorage.setItem(KEY, t||''); }catch(e){} }
   function init(){
     const sel=document.getElementById('theme-select'); if(!sel) return;
-    let saved='classic'; try{ const s=localStorage.getItem(KEY); if(s) saved=s; }catch(e){}
+    let saved=''; try{ saved=localStorage.getItem(KEY)||''; }catch(e){}
+    if(!saved){
+      // First visit here: inherit the dashboard's light/dark choice.
+      try{ saved = (localStorage.getItem('theme')==='dark') ? 'dark' : 'classic'; }catch(e){ saved='classic'; }
+    }
     sel.value=saved; apply(saved);
-    sel.addEventListener('change', ()=>apply(sel.value));
+    sel.addEventListener('change', ()=>{
+      apply(sel.value);
+      // Keep the dashboard pages in step (they know light/dark only).
+      try{ localStorage.setItem('theme', sel.value==='dark' ? 'dark' : 'light'); }catch(e){}
+    });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

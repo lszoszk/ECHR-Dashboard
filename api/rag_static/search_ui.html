@@ -139,6 +139,22 @@ body[data-theme="a11y"] { font-size:17px; line-height:1.7; }
 body[data-theme="a11y"] a { text-decoration:underline; }
 body[data-theme="a11y"] *:focus-visible { outline:3px solid #1457c8; outline-offset:2px; }
 
+/* ===== DARK — mirrors the dashboard's dark palette (editorial-redesign.css) ===== */
+body[data-theme="dark"] {
+  color-scheme: dark;
+  --paper:#18181c; --paper-2:#1f2025; --paper-3:#292930;
+  --rule:#3e3d44; --rule-soft:#302f36;
+  --ink:#f3efe6; --ink-2:#d4cec3; --ink-3:#aca59b; --ink-4:#807a73;
+  --garnet:#d08178; --garnet-2:#e0a19b; --garnet-soft:#3b2224; --garnet-edge:#6e3c3d;
+  --hl:#4e4524; --hl-edge:#8a7a3a;
+  --pos:#8bbf9d; --pos-soft:#22352b; --neg:#e0a19b; --warn:#c9a35a;
+  --display:"Spectral","Iowan Old Style",Georgia,serif;
+  --body:"Spectral","Iowan Old Style",Georgia,serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+  --shadow-1:none; --shadow-2:0 1px 0 rgba(0,0,0,.5); --shadow-3:0 2px 0 rgba(0,0,0,.6);
+  --r-sm:3px; --r-md:4px; --r-lg:6px; --r-pill:4px;
+}
+
 /* ---------- theme switcher (compact select in masthead) ---------- */
 .theme-pick { display:inline-flex; align-items:center; }
 .theme-pick select { font:inherit; font-size:12px; color:var(--ink-2); background:var(--paper-2);
@@ -1273,6 +1289,7 @@ footer {
       <label class="theme-pick" title="Display theme">
         <select id="theme-select" aria-label="Display theme">
           <option value="classic">Classic</option>
+          <option value="dark">Dark</option>
           <option value="modern">Modern</option>
           <option value="a11y">Accessible</option>
         </select>
@@ -1570,9 +1587,15 @@ try { if (window.name !== 'echr-search') window.name = 'echr-search'; } catch (_
   function apply(t){ document.body.setAttribute('data-theme', t||''); try{ localStorage.setItem(KEY, t||''); }catch(e){} }
   function init(){
     const sel=document.getElementById('theme-select'); if(!sel) return;
-    let saved='classic'; try{ const s=localStorage.getItem(KEY); if(s) saved=s; }catch(e){}
+    let saved=''; try{ saved=localStorage.getItem(KEY)||''; }catch(e){}
+    if(!saved){
+      try{ saved = (localStorage.getItem('theme')==='dark') ? 'dark' : 'classic'; }catch(e){ saved='classic'; }
+    }
     sel.value=saved; apply(saved);
-    sel.addEventListener('change', ()=>apply(sel.value));
+    sel.addEventListener('change', ()=>{
+      apply(sel.value);
+      try{ localStorage.setItem('theme', sel.value==='dark' ? 'dark' : 'light'); }catch(e){}
+    });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

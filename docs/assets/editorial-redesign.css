@@ -2111,3 +2111,30 @@ a.case-context-ecli-link .ext-icon {
   font-size: 0.62em;
   color: inherit;
 }
+
+/* ── All-operators progressive disclosure (search tips row) ─────────────── */
+.ops-more { display: inline-block; position: relative; }
+.ops-more summary {
+  cursor: pointer; list-style: none; color: var(--garnet);
+  font-family: var(--font-serif); font-size: 0.82rem; font-weight: 500;
+  border-bottom: 1px dashed var(--garnet); user-select: none;
+}
+.ops-more summary::-webkit-details-marker { display: none; }
+.ops-more[open] summary { color: var(--ink); border-bottom-color: var(--rule); }
+.ops-pop {
+  position: absolute; z-index: 60; left: 0; top: calc(100% + 8px);
+  min-width: 340px; max-width: 92vw;
+  background: var(--bg-card, #fffdf8); border: 1px solid var(--ink);
+  box-shadow: 0 2px 0 rgba(36,35,40,.16); border-radius: 2px; padding: 12px 14px;
+}
+.ops-pop > div[role="listitem"] {
+  display: flex; gap: 10px; align-items: baseline; padding: 4px 0;
+  border-bottom: 1px solid var(--border-light, var(--rule-soft));
+  font-size: 0.82rem; color: var(--text-secondary, var(--ink-2));
+}
+.ops-pop > div[role="listitem"]:last-of-type { border-bottom: 0; }
+.ops-pop code {
+  font-size: 0.78rem; background: var(--paper-2); border: 1px solid var(--rule-soft);
+  padding: 1px 5px; border-radius: 3px; white-space: nowrap;
+}
+.ops-pop .ops-note { padding-top: 8px; font-size: 0.76rem; color: var(--text-muted, var(--ink-3)); font-style: italic; }

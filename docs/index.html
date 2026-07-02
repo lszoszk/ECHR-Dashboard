@@ -94,7 +94,22 @@
           <div class="search-tips">
             <span class="tip">Operators</span>
             <span class="tip" title="Force exact-word order"><code>"exact phrase"</code></span>
-            <span class="tip" title="Disjunction between terms — torture OR inhuman"><code>OR</code></span>
+            <span class="tip" title="Either term — torture OR inhuman (AND is implicit)"><code>OR</code></span>
+            <span class="tip" title="Limit to a Convention article — also article:P1-1"><code>article:8</code></span>
+            <details class="ops-more">
+              <summary>all operators</summary>
+              <div class="ops-pop" role="list">
+                <div role="listitem"><code>"exact phrase"</code><span>exact word order</span></div>
+                <div role="listitem"><code>torture OR inhuman</code><span>either term &mdash; <code>AND</code> is implicit between words</span></div>
+                <div role="listitem"><code>article:8</code><span>Convention article &mdash; also <code>article:P1-1</code></span></div>
+                <div role="listitem"><code>state:Poland</code><span>respondent State</span></div>
+                <div role="listitem"><code>case:30210/96</code><span>application number</span></div>
+                <div role="listitem"><code>keyword:"positive obligations"</code><span>HUDOC thesaurus keyword</span></div>
+                <div role="listitem"><code>body:"Grand Chamber"</code><span>formation / originating body</span></div>
+                <div role="listitem"><code>ecli:&hellip;</code> <code>hudoc:001-&hellip;</code><span>case identifiers</span></div>
+                <div class="ops-note">Operators combine with each other, with free text and with the filter rail.</div>
+              </div>
+            </details>
           </div>
           <div class="search-scope-bar bucket-scope" id="bucketScope">
             <span class="scope-label">Search in</span>
