@@ -620,7 +620,7 @@ Discovered during expert manual review (2026-04-28).
 
 ## 12. Citation
 
-> Szoszkiewicz, Ł. (2026). *ECHR Dashboard: tier-1 paragraph-level search across European Court of Human Rights case law.* Adam Mickiewicz University, Poznań.
+> Szoszkiewicz, Ł., & Marcisz, S. (2026). *ECHR Dashboard: tier-1 paragraph-level search across European Court of Human Rights case law.* Adam Mickiewicz University, Poznań.
 > Source: <https://github.com/lszoszk/ECHR-Dashboard>
 
 For replication, please reference the specific commit hash matching the dataset version analysed.

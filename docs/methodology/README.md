@@ -81,7 +81,7 @@ All transformation scripts are versioned in the project repository under `script
 
 If you use this dataset in research, please cite:
 
-> Szoszkiewicz, Ł. (2026). *ECHR Dashboard: tier-1 paragraph-level search across European Court of Human Rights case law.* Adam Mickiewicz University, Poznań.
+> Szoszkiewicz, Ł., & Marcisz, S. (2026). *ECHR Dashboard: tier-1 paragraph-level search across European Court of Human Rights case law.* Adam Mickiewicz University, Poznań.
 > Source: <https://github.com/lszoszk/ECHR-Dashboard>
 
 For methodology questions, validation reports, or access to internal documentation: **<l.szoszkiewicz@amu.edu.pl>**.
