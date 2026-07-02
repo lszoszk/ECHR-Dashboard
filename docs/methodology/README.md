@@ -52,7 +52,7 @@ The 9.3-percentage-point gap between precision (≈98 %) and recall (≈88 %) re
 
 ### Boilerplate relabelling (P60, July 2026)
 
-A user-experience audit found ~85,000 unnumbered rows (procedural formulae such
+A user-experience audit found ~90,000 unnumbered rows (procedural formulae such
 as "Having deliberated in private on …", court-composition and appearance
 lines, signature blocks, elision rows) stored with the body-paragraph role, so
 they could surface as search hits despite having no citable § number. They were

@@ -15,7 +15,7 @@ Method (established P5x pattern):
 
 Safety:
   * Pool is narrow: row_role='paragraph' AND hudoc_para_no IS NULL AND
-    3 ≤ len(text) ≤ 130.  Numbered paragraphs are NEVER touched.
+    3 ≤ len(text) ≤ 250.  Numbered paragraphs are NEVER touched.
   * Dry-run by default; --apply required to write.
   * Every change is recorded first in backup table role_backup_p60
     (rowid, old_role, new_role, batch) — restore with --restore.
@@ -38,7 +38,7 @@ RULES: list[tuple[str, str]] = [
     ("metadata", r"^This judgment (is final|may be|will become)"),
     ("metadata", r"^The European Court of Human Rights \((First|Second|Third|Fourth|Fifth|Grand)"),
     ("metadata", r"^Having regard to:?$"),
-    ("metadata", r"^Having deliberated in private on .{4,40},?$"),
+    ("metadata", r"^Having deliberated in private on .{4,200},?$"),
     ("metadata", r"^(the )?parties[’'] observations;?$"),
     ("metadata", r"^Prepared by the Registry"),
     ("metadata", r"^\(Translation\)$"),
@@ -60,7 +60,7 @@ VERDICT_TO_ROLE = {"metadata": "metadata", "signature": "signature",
                    "heading": "heading_h4", "quote": "quote"}
 
 POOL_WHERE = ("row_role='paragraph' AND hudoc_para_no IS NULL "
-              "AND length(text) BETWEEN 3 AND 130")
+              "AND length(text) BETWEEN 3 AND 250")
 
 
 def classify(text: str, rules, verdicts) -> str | None:

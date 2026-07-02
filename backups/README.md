@@ -14,7 +14,7 @@ Checksums are recorded in `CHECKSUMS.sha256` next to the files
 
 ## What P60 changed (why this backup exists)
 
-`scripts/p60_heal_boilerplate.py` relabelled 85,123 rows (two batches: 70,139 + 14,984) that were stored as
+`scripts/p60_heal_boilerplate.py` relabelled 89,519 rows (three batches: 70,139 + 14,984 + 4,396) that were stored as
 `row_role='paragraph'` but are not citable body text (all of them **without** a
 HUDOC ¶ number, length ≤ 90 chars):
 
