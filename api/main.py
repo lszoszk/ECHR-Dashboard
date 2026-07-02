@@ -263,6 +263,34 @@ def _build_fts_query(raw: str) -> str:
     return f"{{text}} : ({expr})"
 
 
+# Inline field operators (article:8, state:Poland, case:30210/96 …) — mirrors the
+# frontend's parseQueryWithPrefixes so the operators advertised in the search box
+# are honoured SERVER-side too (previously the ":" was stripped and e.g.
+# "state:Poland" degraded to the bare tokens "state AND poland").
+# `judge:` is deliberately absent — the DB has no bench-composition column.
+_QUERY_PREFIX_RX = re.compile(
+    r'(^|\s)(case|ecli|hudoc|article|state|body|keyword):(?:"([^"]+)"|(\S+))',
+    re.IGNORECASE,
+)
+
+
+def _extract_prefix_filters(raw: str) -> tuple[str, dict[str, list[str]]]:
+    """Split ``raw`` into (free-text remainder, {prefix: [values]})."""
+    found: dict[str, list[str]] = {k: [] for k in
+                                   ("case", "ecli", "hudoc", "article",
+                                    "state", "body", "keyword")}
+
+    def _grab(m: "re.Match[str]") -> str:
+        key = m.group(2).lower()
+        val = (m.group(3) or m.group(4) or "").strip()
+        if val:
+            found[key].append(val)
+        return m.group(1) or " "
+
+    text = _QUERY_PREFIX_RX.sub(_grab, raw or "")
+    return re.sub(r"\s+", " ", text).strip(), found
+
+
 def _validate_page_size(page_size: int, *, allow_large: bool = False) -> int:
     upper = 5000 if allow_large else 100
     return max(1, min(page_size, upper))
@@ -665,7 +693,14 @@ def facets(
             return _FACETS_CACHE["val"]
     try:
         result: dict[str, Any] = {}
-        fts_expr = _build_fts_query(q) if (q and q.strip()) else ""
+        # Strip inline field operators before the FTS scope (mirrors /api/search);
+        # falls back to operator values when the query is operators-only.
+        if q and q.strip():
+            _q_text, _q_pref = _extract_prefix_filters(q)
+            _src = _q_text or " ".join(v for vs in _q_pref.values() for v in vs)
+            fts_expr = _build_fts_query(_src) if _src else ""
+        else:
+            fts_expr = ""
         with get_cursor() as cur:
             # Determine scope.  A query or date range restricts every
             # facet to the matching case set; otherwise facets cover the
@@ -856,9 +891,13 @@ def _build_case_filter_sql(
         for art in art_list:
             sub_conds.append("(ca.article = ? OR ca.article LIKE ? OR ca.article LIKE ? OR ca.article LIKE ?)")
             sub_params.extend([art, f"{art}, %", f"%, {art}, %", f"%, {art}"])
+        # Non-correlated IN — SQLite materialises the subquery ONCE (a single
+        # scan of case_articles), instead of a correlated EXISTS whose LIKE
+        # patterns re-scan the 77k-row table for every candidate case (which
+        # made broad-query + article-filter searches hang for minutes).
         where_clauses.append(
-            "EXISTS (SELECT 1 FROM case_articles ca "
-            f"WHERE ca.case_id = c.case_id AND ({' OR '.join(sub_conds)}))"
+            "c.case_id IN (SELECT ca.case_id FROM case_articles ca "
+            f"WHERE {' OR '.join(sub_conds)})"
         )
         params.extend(sub_params)
 
@@ -1142,7 +1181,34 @@ def search(
     """Full-text search across case paragraphs using FTS5."""
     t0 = time.perf_counter()
     page_size = _validate_page_size(page_size, allow_large=export)
-    fts_expr = _build_fts_query(q)
+    # Honour inline field operators (article:8, state:Poland, case:30210/96 …):
+    # strip them from the text and apply them as SQL filters below.  When the
+    # query is ONLY operators (e.g. "case:30210/96"), fall back to using the
+    # operator values as FTS tokens so the MATCH-based pipeline still runs —
+    # the SQL filter then guarantees precision.
+    q_text, q_prefix = _extract_prefix_filters(q)
+    fts_source = q_text or " ".join(v for vs in q_prefix.values() for v in vs)
+    # Identifier-only queries (ecli:/hudoc:) — the identifier never appears in the
+    # judgment text, so resolve it to the case's application number first and use
+    # THAT as the FTS source (judgments cite their own app. no.); the SQL filter
+    # below still guarantees precision.
+    if not q_text and (q_prefix["ecli"] or q_prefix["hudoc"]) and not q_prefix["case"]:
+        try:
+            with get_cursor() as _cur:
+                _conds, _p = [], []
+                for _v in q_prefix["ecli"]:
+                    _conds.append("ecli LIKE ?"); _p.append(f"%{_v}%")
+                for _v in q_prefix["hudoc"]:
+                    _conds.append("case_id LIKE ?"); _p.append(f"%{_v}%")
+                _rows = _cur.execute(
+                    f"SELECT case_no FROM cases WHERE {' OR '.join(_conds)} LIMIT 5",
+                    _p).fetchall()
+            _nos = " ".join(r["case_no"] for r in _rows if r["case_no"])
+            if _nos:
+                fts_source = _nos
+        except Exception:
+            pass  # fall back to the raw identifier tokens
+    fts_expr = _build_fts_query(fts_source)
     if not fts_expr:
         # The query sanitised to nothing — only punctuation, FTS5
         # operator words, or whitespace.  Return an empty result set
@@ -1167,6 +1233,11 @@ def search(
     keyword_list = _parse_comma_param(keywords)
     outcome_list = _parse_comma_param(outcomes)
     doc_type_list = _parse_comma_param(doc_types)
+
+    # Merge inline operators into the rail filters (article: reuses the exact
+    # rail semantics; the rest get tolerant LIKE clauses further down).
+    art_list += [a for a in q_prefix["article"] if a not in art_list]
+    body_list += [b for b in q_prefix["body"] if b not in body_list]
 
     # ------------------------------------------------------------------
     # Build the core query.  We join paragraphs_fts -> paragraphs -> cases
@@ -1195,9 +1266,13 @@ def search(
         for art in art_list:
             sub_conds.append("(ca.article = ? OR ca.article LIKE ? OR ca.article LIKE ? OR ca.article LIKE ?)")
             sub_params.extend([art, f"{art}, %", f"%, {art}, %", f"%, {art}"])
+        # Non-correlated IN — SQLite materialises the subquery ONCE (a single
+        # scan of case_articles), instead of a correlated EXISTS whose LIKE
+        # patterns re-scan the 77k-row table for every candidate case (which
+        # made broad-query + article-filter searches hang for minutes).
         where_clauses.append(
-            "EXISTS (SELECT 1 FROM case_articles ca "
-            f"WHERE ca.case_id = c.case_id AND ({' OR '.join(sub_conds)}))"
+            "c.case_id IN (SELECT ca.case_id FROM case_articles ca "
+            f"WHERE {' OR '.join(sub_conds)})"
         )
         params.extend(sub_params)
 
@@ -1235,6 +1310,20 @@ def search(
             body_conditions.append("c.originating_body LIKE ?")
             params.append(f"%{b}%")
         where_clauses.append(f"({' OR '.join(body_conditions)})")
+
+    # Inline-operator filters (tolerant LIKE matching — users type these by hand).
+    _pref_like = [("state", f"{_RESPONDENT_NORM} LIKE ?"),
+                  ("keyword", "EXISTS (SELECT 1 FROM json_each(c.keywords) j WHERE j.value LIKE ?)"),
+                  ("case", "c.case_no LIKE ?"),
+                  ("ecli", "c.ecli LIKE ?"),
+                  ("hudoc", "c.case_id LIKE ?")]
+    for _pk, _sql in _pref_like:
+        if q_prefix[_pk]:
+            conds = []
+            for _v in q_prefix[_pk]:
+                conds.append(_sql)
+                params.append(f"%{_v}%")
+            where_clauses.append(f"({' OR '.join(conds)})")
 
     if outcome_list:
         oc_conditions = []
@@ -1914,9 +2003,13 @@ def browse(
         for art in art_list:
             sub_conds.append("(ca.article = ? OR ca.article LIKE ? OR ca.article LIKE ? OR ca.article LIKE ?)")
             sub_params.extend([art, f"{art}, %", f"%, {art}, %", f"%, {art}"])
+        # Non-correlated IN — SQLite materialises the subquery ONCE (a single
+        # scan of case_articles), instead of a correlated EXISTS whose LIKE
+        # patterns re-scan the 77k-row table for every candidate case (which
+        # made broad-query + article-filter searches hang for minutes).
         where_clauses.append(
-            "EXISTS (SELECT 1 FROM case_articles ca "
-            f"WHERE ca.case_id = c.case_id AND ({' OR '.join(sub_conds)}))"
+            "c.case_id IN (SELECT ca.case_id FROM case_articles ca "
+            f"WHERE {' OR '.join(sub_conds)})"
         )
         params.extend(sub_params)
 
