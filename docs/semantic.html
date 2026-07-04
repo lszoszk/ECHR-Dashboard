@@ -2865,6 +2865,20 @@ async function doSearch() {
   }
 }
 $('search-btn').addEventListener('click', doSearch);
+
+/* Deep-link support: /semantic.html?q=... runs the query immediately (used by
+   the dashboard's concept-query hint). */
+(function(){
+  try{
+    const q=new URLSearchParams(location.search).get('q');
+    if(q && q.trim()){
+      const run=()=>{ const el=document.getElementById('query'); if(!el) return;
+        el.value=q.trim(); doSearch(); };
+      if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
+    }
+  }catch(e){}
+})();
+
 $('query').addEventListener('keydown', e => { if (e.key==='Enter' && (e.ctrlKey||e.metaKey)) doSearch(); });
 
 /* =========================================================

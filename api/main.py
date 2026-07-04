@@ -1186,6 +1186,12 @@ def search(
     # query is ONLY operators (e.g. "case:30210/96"), fall back to using the
     # operator values as FTS tokens so the MATCH-based pipeline still runs —
     # the SQL filter then guarantees precision.
+    # Soft ranking adjustment (UX audit: a bare "privacy" returned 22/30 quoted
+    # instruments, 1/30 Merits).  Quoted-instrument rows must not OUTRANK the
+    # Court's own reasoning at comparable relevance; Merits gets a mild boost.
+    # pf.rank is negative (more negative = better), so factor <1 = penalty.
+    adj_rank = ("(pf.rank * (CASE WHEN p.row_role='quote' THEN 0.85 ELSE 1.0 END)"
+                " * (CASE WHEN p.section='Merits' THEN 1.08 ELSE 1.0 END))")
     q_text, q_prefix = _extract_prefix_filters(q)
     fts_source = q_text or " ".join(v for vs in q_prefix.values() for v in vs)
     # Identifier-only queries (ecli:/hudoc:) — the identifier never appears in the
@@ -1499,16 +1505,16 @@ def search(
                     parent_text_col = "NULL AS parent_text"
                     parent_join_flat = ""
                 if sort == "date_desc":
-                    para_order = f"{date_sort_key} DESC, pf.rank"
+                    para_order = f"{date_sort_key} DESC, {adj_rank}"
                 elif sort == "date_asc":
-                    para_order = f"{date_sort_key} ASC, pf.rank"
+                    para_order = f"{date_sort_key} ASC, {adj_rank}"
                 else:
-                    para_order = "pf.rank"  # bm25(): more-negative = better
+                    para_order = adj_rank  # bm25(): more-negative = better
                 flat_sql = (
                     "SELECT p.case_id, p.section, p.para_idx, p.hudoc_para_no, "
                     f"p.numbering_block, {rr}, {lp}, {dp}, {parent_text_col}, "
                     "snippet(paragraphs_fts, 2, '<b>', '</b>', '...', 80) AS snippet, "
-                    "(-pf.rank) AS score, "
+                    f"(-{adj_rank}) AS score, "
                     "c.case_no, c.title, c.judgment_date, c.hudoc_url, "
                     "c.respondent_state, c.importance, c.conclusion, c.violation, "
                     "c.non_violation, c.originating_body, c.document_type "
@@ -1614,10 +1620,10 @@ def search(
                     "       c.importance, "
                     "       c.originating_body, "
                     "       c.document_type, "
-                    "       sum(-pf.rank) AS sum_bm25, "
-                    "       max(-pf.rank) AS best_bm25, "
+                    f"       sum(-{adj_rank}) AS sum_bm25, "
+                    f"       max(-{adj_rank}) AS best_bm25, "
                     "       count(*) AS hit_count, "
-                    "       max(-pf.rank) * (1.0 + 0.3 * ln(1.0 + count(*))) AS relevance_score "
+                    f"       max(-{adj_rank}) * (1.0 + 0.3 * ln(1.0 + count(*))) AS relevance_score "
                     "FROM paragraphs_fts pf "
                     "JOIN paragraphs p ON p.rowid = pf.rowid "
                     "JOIN cases c ON c.case_id = p.case_id "
@@ -1675,10 +1681,10 @@ def search(
                 sql_offset = (page - 1) * page_size
                 case_ids_sql = (
                     "SELECT c.case_id, "
-                    "       sum(-pf.rank) AS sum_bm25, "
-                    "       max(-pf.rank) AS best_bm25, "
+                    f"       sum(-{adj_rank}) AS sum_bm25, "
+                    f"       max(-{adj_rank}) AS best_bm25, "
                     "       count(*) AS hit_count, "
-                    "       max(-pf.rank) * (1.0 + 0.3 * ln(1.0 + count(*))) AS relevance_score "
+                    f"       max(-{adj_rank}) * (1.0 + 0.3 * ln(1.0 + count(*))) AS relevance_score "
                     "FROM paragraphs_fts pf "
                     "JOIN paragraphs p ON p.rowid = pf.rowid "
                     "JOIN cases c ON c.case_id = p.case_id "
@@ -1793,13 +1799,13 @@ def search(
                 "SELECT p.case_id, p.section, p.para_idx, p.hudoc_para_no, p.numbering_block, "
                 f"{row_role_expr}, {logical_cols}, "
                 "snippet(paragraphs_fts, 2, '<b>', '</b>', '...', 80) AS snippet, "
-                "pf.rank AS para_score "
+                f"{adj_rank} AS para_score "
                 "FROM paragraphs_fts pf "
                 "JOIN paragraphs p ON p.rowid = pf.rowid "
                 f"{parent_join} "
                 f"WHERE pf.paragraphs_fts MATCH ? {sec_where}{role_where} "
                 f"AND p.case_id IN (SELECT value FROM json_each(?) ) "
-                "ORDER BY pf.rank"
+                f"ORDER BY {adj_rank}"
             )
             # Use json array to pass case_ids safely.  Param order must
             # match the SQL: MATCH ?, then sec_where, then role_where,

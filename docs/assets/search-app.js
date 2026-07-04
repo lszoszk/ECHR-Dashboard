@@ -5564,6 +5564,7 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
   const loadingMsg = defaultView
     ? "Loading 100 most recent cases…"
     : (query ? "Searching 18,000+ cases…" : "Browsing cases…");
+  hideSemanticHint();
   el.casesList.innerHTML = `<div class="search-loading" style="text-align:center;padding:2rem;color:var(--text-secondary);">${loadingMsg}</div>`;
   el.noResults.hidden = true;
   el.pagination.hidden = true;
@@ -5576,6 +5577,7 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
   try {
     const data = await serverSearch.search(query, filters, state.currentPage, sort, group);
     const t1 = performance.now();
+    maybeShowSemanticHint(query, data);
 
     // ── group=paragraph — flat list, every paragraph an independent result ──
     if (group === "paragraph" && Array.isArray(data.hits)) {
@@ -8086,3 +8088,32 @@ function init() {
 }
 
 init();
+
+/* ── Concept-query nudge ─────────────────────────────────────────────────
+   A bare 1–2-word query (no phrase/operator) is usually a CONCEPT lookup —
+   the worst case for literal FTS (e.g. "privacy": the Court's own term is
+   "private life", so BM25 surfaces quoted press codes instead of reasoning).
+   Offer a one-click handoff to Semantic Search, which retrieves by meaning. */
+function hideSemanticHint() {
+  const h = byId("semanticHint");
+  if (h) h.hidden = true;
+}
+function maybeShowSemanticHint(query, data) {
+  const q = (query || "").trim();
+  if (!q) return hideSemanticHint();
+  if (/["“”:]|\bOR\b/.test(q)) return hideSemanticHint();          // phrase / operator query
+  if (q.split(/\s+/).length > 2) return hideSemanticHint();         // long = specific enough
+  const hits = (data && (data.total_hits || (data.hits || []).length)) || 0;
+  if (!hits) return hideSemanticHint();
+  let h = byId("semanticHint");
+  if (!h) {
+    h = document.createElement("div");
+    h.id = "semanticHint";
+    h.className = "semantic-hint";
+    el.resultsHeader?.insertAdjacentElement("afterend", h);
+  }
+  h.innerHTML = `Looking for the <em>concept</em> rather than the exact word? ` +
+    `<a href="semantic.html?q=${encodeURIComponent(q)}">Try <strong>Semantic Search</strong> for “${escapeHtml(q)}” →</a>` +
+    `<span class="semantic-hint-why">matches by legal substance — the Court may phrase it differently (e.g. “private life”)</span>`;
+  h.hidden = false;
+}
