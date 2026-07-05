@@ -25,6 +25,12 @@ STATIC = Path(__file__).resolve().parent / "rag_static"
 VOYAGE_MODEL = "voyage-4-large"; RERANK_MODEL = "rerank-2.5"
 NPROBE = 128; FETCH = 300; RERANK_POOL = 100; IMP_BOOST = 0.05
 SEP_PENALTY = 0.12  # demote separate/dissenting-opinion paragraphs so the Court's holding ranks first
+# Legal Framework sections quote instruments (constitutions, statutes,
+# Convention articles), not the Court's reasoning — a bare "privacy" surfaced
+# 4/5 quoted constitutions at the top.  Milder than SEP_PENALTY: these hits
+# stay in the list (they ARE the answer when the user hunts a provision),
+# they just must not outrank Merits at comparable relevance.
+LF_PENALTY = 0.06
 IMP = {"Key cases": 1.0, "1": 1.0, "2": 0.5, "3": 0.25, "Unspecified": 0.0}
 RANK_TOP, RANK_AVG, RANK_LOG = 0.60, 0.25, 0.15; LOGD = math.log(10)
 
@@ -113,7 +119,7 @@ def run_paragraph_search(q, respondent=None, article=None, section=None):
     out = []
     for idx, (p, cos, sec, m, arts) in enumerate(src):
         cid = case[p]; s = sno[p]; base = rr.get(idx, 0.0) if rr is not None else cos
-        pen = SEP_PENALTY if sec == "Separate Opinion" else 0.0
+        pen = SEP_PENALTY if sec == "Separate Opinion" else LF_PENALTY if sec == "Legal Framework" else 0.0
         out.append({"score": round(float(base) + IMP_BOOST * _auth(cid) - pen, 4), "case_id": cid,
             "case_no": m.get("case_no", "") or "", "title": m.get("title", "") or "", "hudoc_url": m.get("hudoc", "") or "",
             "judgment_date": m.get("date", "") or "", "respondent": m.get("state", "") or "", "articles": arts,

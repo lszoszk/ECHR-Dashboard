@@ -871,6 +871,11 @@ body.mode-natural .expert-only { display: none; }
   display: inline-block; color: #8a5a12; background: var(--hl); border: 1px solid var(--hl-edge);
   border-radius: 3px; padding: 1px 7px; font-weight: 700;
 }
+.hit-section.lf {
+  display: inline-block; color: var(--ink-2); background: var(--paper-2); border: 1px solid var(--rule);
+  border-radius: 3px; padding: 1px 7px; font-weight: 700;
+}
+.meta-tag.lf { border-style: dashed; }
 
 
 /* short-query specificity hint */
@@ -1933,6 +1938,7 @@ function renderViewA(data) {
           ${c.respondent?`<span class="meta-tag">${escapeHtml(c.respondent)}</span>`:''}
           ${c.judgment_date?`<span class="meta-tag">${escapeHtml(c.judgment_date)}</span>`:''}
           ${ah}
+          ${(c.hits&&c.hits[0]&&c.hits[0].section==='Legal Framework')?'<span class="meta-tag lf" title="The closest passage sits in the Legal Framework section \u2014 quoted Convention/domestic/international provisions, not the Court\u2019s own reasoning">\u00a7 legal framework</span>':''}
         </div>
         <p class="case-preview">${escapeHtml(prev)}</p>
         <button type="button" class="case-toggle" aria-expanded="false" onclick="toggleCase(${idx}, this)"><span class="arrow" aria-hidden="true">▶</span> Read the ${hl}</button>
@@ -1941,7 +1947,7 @@ function renderViewA(data) {
             <div class="hit-item">
               <div class="hit-num">¶ ${escapeHtml(String(h.para_idx||''))}<small>${(h.score*100).toFixed(0)}%</small><button type="button" class="cite-btn" aria-label="Copy pinpoint citation for paragraph ${escapeHtml(String(h.para_idx||''))}" onclick="copyCite(event, ${idx}, '${escapeHtml(String(h.para_idx||''))}')">&#8862; cite</button></div>
               <div>
-                <div class="hit-section${h.section==='Separate Opinion'?' sep':''}">${h.section==='Separate Opinion'?'\u2691 separate opinion \u00b7 not the Court\u2019s holding':escapeHtml(h.section||'')}</div>
+                <div class="hit-section${h.section==='Separate Opinion'?' sep':h.section==='Legal Framework'?' lf':''}">${h.section==='Separate Opinion'?'\u2691 separate opinion \u00b7 not the Court\u2019s holding':h.section==='Legal Framework'?'\u00a7 legal framework \u00b7 quoted provisions, not the Court\u2019s reasoning':escapeHtml(h.section||'')}</div>
                 <p class="hit-text">${escapeHtml(h.text)}</p>
               </div>
             </div>`).join('')}
