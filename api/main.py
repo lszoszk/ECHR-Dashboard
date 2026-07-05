@@ -233,16 +233,36 @@ def _build_fts_query(raw: str) -> str:
     # the 3.2M-row index, so 300 terms ≈ 60 s).  40 is far above any
     # genuine query.
     tokens = normalised.split()[:40]
+    near_pending = False
     for tok in tokens:
         upper = tok.upper()
         if upper == "OR":
             if parts and parts[-1] == "AND":
                 parts[-1] = "OR"
             continue
+        if upper == "NEAR":
+            # HUDOC-style infix proximity (FAQ §6): "data NEAR retention" →
+            # FTS5 NEAR(data retention, 10).  Only valid between two bare
+            # terms; a leading/trailing NEAR falls through to the swallow.
+            if parts and parts[-1] == "AND" and len(parts) >= 2:
+                parts.pop()          # drop the implicit AND; term stays last
+                near_pending = True
+            continue
         if upper in _FTS5_RESERVED_OPERATORS:
-            # Swallow stray AND/NOT/NEAR — they're implicit or unsupported.
+            # Swallow stray AND/NOT — they're implicit or unsupported.
             continue
         if not tok:
+            continue
+        if near_pending and parts:
+            prev = parts.pop()
+            if prev.startswith("NEAR(") and prev.endswith(")"):
+                # Chain: NEAR(a b, 10) NEAR c → NEAR(a b c, 10).
+                inner = prev[5:prev.rfind(",")]
+                parts.append(f"NEAR({inner} {tok}, 10)")
+            else:
+                parts.append(f"NEAR({prev} {tok}, 10)")
+            parts.append("AND")
+            near_pending = False
             continue
         parts.append(tok)
         parts.append("AND")
@@ -268,8 +288,10 @@ def _build_fts_query(raw: str) -> str:
 # are honoured SERVER-side too (previously the ":" was stripped and e.g.
 # "state:Poland" degraded to the bare tokens "state AND poland").
 # `judge:` is deliberately absent — the DB has no bench-composition column.
+# violation:/nonviolation:/cites: mirror HUDOC's Violation, Non-violation and
+# Strasbourg Case-Law search fields (FAQ §7, §10).
 _QUERY_PREFIX_RX = re.compile(
-    r'(^|\s)(case|ecli|hudoc|article|state|body|keyword):(?:"([^"]+)"|(\S+))',
+    r'(^|\s)(case|ecli|hudoc|article|state|body|keyword|violation|nonviolation|cites):(?:"([^"]+)"|(\S+))',
     re.IGNORECASE,
 )
 
@@ -278,7 +300,8 @@ def _extract_prefix_filters(raw: str) -> tuple[str, dict[str, list[str]]]:
     """Split ``raw`` into (free-text remainder, {prefix: [values]})."""
     found: dict[str, list[str]] = {k: [] for k in
                                    ("case", "ecli", "hudoc", "article",
-                                    "state", "body", "keyword")}
+                                    "state", "body", "keyword",
+                                    "violation", "nonviolation", "cites")}
 
     def _grab(m: "re.Match[str]") -> str:
         key = m.group(2).lower()
@@ -301,6 +324,31 @@ def _parse_comma_param(value: Optional[str]) -> list[str]:
     if not value:
         return []
     return [v.strip() for v in value.split(",") if v.strip()]
+
+
+# All 6,303 Committee judgments were ingested with HUDOC's raw
+# originating-body code ("25"–"29") instead of the label, so a LIKE on the
+# label alone silently misses every Committee case.  The frontend mirrors
+# this map (BODY_CODE_LABELS) for display; here it widens body filters and
+# translates the /api/facets output.
+_BODY_CODE_LABELS = {
+    "25": "Court (First Section Committee)",
+    "26": "Court (Second Section Committee)",
+    "27": "Court (Third Section Committee)",
+    "28": "Court (Fourth Section Committee)",
+    "29": "Court (Fifth Section Committee)",
+}
+
+
+def _body_filter_condition(value: str) -> tuple[str, list[str]]:
+    """SQL condition matching an originating-body value by label OR code."""
+    codes = [code for code, label in _BODY_CODE_LABELS.items()
+             if value.lower() in label.lower()]
+    if codes:
+        ph = ",".join("?" * len(codes))
+        return (f"(c.originating_body LIKE ? OR c.originating_body IN ({ph}))",
+                [f"%{value}%", *codes])
+    return ("c.originating_body LIKE ?", [f"%{value}%"])
 
 
 _WS_RE = re.compile(r"\s+")
@@ -780,13 +828,22 @@ def facets(
                     + " GROUP BY section ORDER BY count DESC", scope_params)
                 result["sections"] = [_row_to_dict(r) for r in cur.fetchall()]
 
-                # Originating bodies
+                # Originating bodies — translate raw HUDOC codes ("25"…"29")
+                # to their labels so the facet list and the body: operator
+                # speak the same vocabulary.
                 cur.execute(
                     "SELECT originating_body AS value, count(*) AS count "
                     "FROM cases WHERE originating_body IS NOT NULL "
                     "AND originating_body != ''" + scope_clause
                     + " GROUP BY originating_body ORDER BY count DESC", scope_params)
-                result["bodies"] = [_row_to_dict(r) for r in cur.fetchall()]
+                body_counts: dict[str, int] = {}
+                for r in cur.fetchall():
+                    label = _BODY_CODE_LABELS.get(r["value"], r["value"])
+                    body_counts[label] = body_counts.get(label, 0) + r["count"]
+                result["bodies"] = [
+                    {"value": v, "count": n}
+                    for v, n in sorted(body_counts.items(), key=lambda kv: -kv[1])
+                ]
 
                 # Document types
                 cur.execute(
@@ -932,8 +989,9 @@ def _build_case_filter_sql(
     if body_list:
         body_conditions = []
         for b in body_list:
-            body_conditions.append("c.originating_body LIKE ?")
-            params.append(f"%{b}%")
+            cond, cond_params = _body_filter_condition(b)
+            body_conditions.append(cond)
+            params.extend(cond_params)
         where_clauses.append(f"({' OR '.join(body_conditions)})")
 
     if outcome_list:
@@ -1313,8 +1371,9 @@ def search(
     if body_list:
         body_conditions = []
         for b in body_list:
-            body_conditions.append("c.originating_body LIKE ?")
-            params.append(f"%{b}%")
+            cond, cond_params = _body_filter_condition(b)
+            body_conditions.append(cond)
+            params.extend(cond_params)
         where_clauses.append(f"({' OR '.join(body_conditions)})")
 
     # Inline-operator filters (tolerant LIKE matching — users type these by hand).
@@ -1330,6 +1389,51 @@ def search(
                 conds.append(_sql)
                 params.append(f"%{_v}%")
             where_clauses.append(f"({' OR '.join(conds)})")
+
+    # violation:8 / nonviolation:8 — HUDOC's per-article Violation and
+    # Non-violation filters (FAQ §7).  The columns hold JSON arrays of
+    # article tokens ('["14", "3"]').  LIKE doubles as case-insensitive
+    # equality; the "-%" pattern pulls in sub-articles (violation:6 also
+    # matches 6-1).  OR within one operator, AND across operators — same
+    # semantics as the filter rail.
+    for _pk, _col in (("violation", "c.violation"),
+                      ("nonviolation", "c.non_violation")):
+        if q_prefix[_pk]:
+            conds = []
+            for _v in q_prefix[_pk]:
+                conds.append(f"EXISTS (SELECT 1 FROM json_each({_col}) j "
+                             "WHERE j.value LIKE ? OR j.value LIKE ?)")
+                params.extend([_v, f"{_v}-%"])
+            where_clauses.append(f"({' OR '.join(conds)})")
+
+    # cites:hatton / cites:36022/97 — HUDOC's "Strasbourg Case-Law" search
+    # (FAQ §10): return cases that cite the given judgment.  Resolve the
+    # target by application number or title, then filter on the citation
+    # graph.  An unresolvable target yields an empty result rather than
+    # silently ignoring the operator.
+    for _v in q_prefix["cites"]:
+        _targets: list[str] = []
+        try:
+            with get_cursor() as _cur:
+                if re.fullmatch(r"\d{1,6}/\d{2}", _v):
+                    _rows = _cur.execute(
+                        "SELECT case_id FROM cases WHERE case_no LIKE ? LIMIT 50",
+                        (f"%{_v}%",)).fetchall()
+                else:
+                    _rows = _cur.execute(
+                        "SELECT case_id FROM cases WHERE title LIKE ? LIMIT 50",
+                        (f"%{_v}%",)).fetchall()
+                _targets = [r["case_id"] for r in _rows]
+        except Exception:
+            _targets = []
+        if _targets:
+            ph = ",".join("?" * len(_targets))
+            where_clauses.append(
+                "c.case_id IN (SELECT citing_case_id FROM case_citations "
+                f"WHERE cited_case_id IN ({ph}))")
+            params.extend(_targets)
+        else:
+            where_clauses.append("1 = 0")
 
     if outcome_list:
         oc_conditions = []
@@ -2089,8 +2193,9 @@ def browse(
     if body_list:
         body_conditions = []
         for b in body_list:
-            body_conditions.append("c.originating_body LIKE ?")
-            params.append(f"%{b}%")
+            cond, cond_params = _body_filter_condition(b)
+            body_conditions.append(cond)
+            params.extend(cond_params)
         where_clauses.append(f"({' OR '.join(body_conditions)})")
 
     if outcome_list:
