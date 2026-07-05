@@ -7371,10 +7371,19 @@ function bindEvents() {
     // The advanced panel sits BELOW two long always-on groups — without this
     // scroll it opens ~1000px under the fold and the click looks like a no-op.
     if (open) {
-      // Wait a beat for the CSS expansion to lay out, then scroll the panel
-      // into view (it sits ~1000px below the toggle, past two long groups).
+      // Bring the advanced panel into view — it sits ~1000px down the rail,
+      // past two long always-on groups, so the click otherwise looks dead.
+      // NB: smooth scrollIntoView dies in this nested-scroller layout
+      // (moves ~8px and stops), so scroll the rail container explicitly.
       setTimeout(() => {
-        byId("filtersAdvanced")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        const adv = byId("filtersAdvanced");
+        if (!adv) return;
+        const rail = adv.closest(".editorial-filter-rail");
+        if (rail && rail.scrollHeight > rail.clientHeight) {
+          rail.scrollTop += adv.getBoundingClientRect().top - rail.getBoundingClientRect().top - 8;
+        } else {
+          adv.scrollIntoView({ block: "nearest" });
+        }
       }, 180);
     }
   });
