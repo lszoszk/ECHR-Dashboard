@@ -501,9 +501,9 @@ const IMPORTANCE_LABELS = {
   "3": "3 — Low",
 };
 const IMPORTANCE_TOOLTIPS = {
-  "Key cases": "The Court's most significant judgments — selected (or proposed) for publication in the official Reports of Judgments and Decisions",
-  "1": "High importance — judgments that make a significant contribution to the development, clarification or modification of the case-law",
-  "2": "Medium importance — judgments that, while not significantly contributing to the case-law, go beyond merely applying existing case-law",
+  "Key cases": "The Court's most significant judgments since 1998 — published in the official Reports (1998–2015) or selected as key cases by the Bureau (2016 on). Pre-1998 (old Court) judgments are classified by levels 1–3 only.",
+  "1": "High importance — judgments that make a significant contribution to the development, clarification or modification of the case-law. Provisional until the Bureau decides on Key-case selection.",
+  "2": "Medium importance — judgments that, while not significantly contributing to the case-law, go beyond merely applying existing case-law. Provisional until the Bureau decides on Key-case selection.",
   "3": "Low importance — judgments of little legal interest (apply existing case-law, friendly settlements, strike-outs)",
   "Unspecified": "Importance level not assigned in HUDOC metadata",
 };
@@ -4676,7 +4676,7 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
   const row = caseId ? state.currentResultsById.get(caseId) : null;
   if (!row) {
     renderToRails(`
-      <div class="folio-label garnet">Case Note</div>
+      <div class="folio-label garnet">Case details</div>
       <h3>Awaiting results</h3>
       <p class="case-context-empty">Run a search or select a result to see judgment context here.</p>
     `);
@@ -4707,7 +4707,7 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
       : `<div class="case-context-ecli">${escapeHtml(caseRef)}</div>`);
   const headHtml = `
     <div class="cn-head-row">
-      <div class="folio-label garnet">Case Note</div>
+      <div class="folio-label garnet">Case details</div>
       <div class="cn-zoom" role="group" aria-label="Case Note text size">
         <button type="button" class="cn-zoom-btn" data-action="cn-zoom-out" title="Smaller text" aria-label="Decrease Case Note text size">A&minus;</button>
         <button type="button" class="cn-zoom-btn" data-action="cn-zoom-in" title="Larger text" aria-label="Increase Case Note text size">A+</button>
