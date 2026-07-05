@@ -872,6 +872,18 @@ body.mode-natural .expert-only { display: none; }
   border-radius: 3px; padding: 1px 7px; font-weight: 700;
 }
 
+
+/* short-query specificity hint */
+.spec-hint { margin: 14px 0 2px; padding: 12px 16px; background: var(--garnet-soft);
+  border: 1px solid var(--garnet-edge); border-radius: var(--r-sm);
+  font-family: var(--body); font-size: 13.5px; color: var(--ink-2); }
+.spec-chips { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
+.spec-chip { cursor: pointer; text-align: left; font-family: var(--body); font-size: 12.5px;
+  color: var(--garnet); background: var(--paper); border: 1px solid var(--garnet-edge);
+  border-radius: var(--r-pill); padding: 5px 12px; transition: background .12s; }
+.spec-chip:hover { background: var(--paper-2); }
+.spec-generic { font-style: italic; color: var(--ink-3); }
+
 /* Empty / error / loading */
 .state-msg {
   padding: 40px 20px; text-align: center;
@@ -2831,6 +2843,62 @@ async function loadCitations(data) {
 /* =========================================================
    SEARCH
    ========================================================= */
+
+/* =========================================================
+   SHORT-QUERY SPECIFICITY HINT
+   Dense retrieval is validated on sentence-length descriptions; a bare
+   keyword ("privacy") is underspecified — its embedding sits in the middle
+   of a broad region, so generic Legal-Framework paragraphs win (top scores
+   ~0.82 vs ~0.90+ for scenarios). Teach the working format with clickable
+   example scenarios.
+   ========================================================= */
+const SPECIFICITY_EXAMPLES = {
+  privacy: ["a newspaper published private photographs of a person without consent",
+            "the police retained DNA samples and fingerprints after an acquittal"],
+  surveillance: ["secret interception of telephone communications without judicial authorisation"],
+  torture: ["ill-treatment in police custody to extract a confession, with no effective investigation"],
+  deportation: ["deportation to a country where the person faces a risk of ill-treatment"],
+  expulsion: ["expulsion of a long-term resident after a criminal conviction, despite family ties"],
+  discrimination: ["difference in treatment because of sexual orientation in adoption proceedings"],
+  property: ["expropriation of land without adequate compensation"],
+  religion: ["dismissal from employment for wearing religious symbols at work"],
+  expression: ["criminal defamation conviction of a journalist for criticising a politician"],
+  speech: ["criminal defamation conviction of a journalist for criticising a politician"],
+  assembly: ["arrest and fine for taking part in a peaceful demonstration"],
+  protest: ["arrest and fine for taking part in a peaceful demonstration"],
+  detention: ["pre-trial detention extended repeatedly without relevant and sufficient reasons"],
+  custody: ["a parent denied contact with their child after a custody dispute"],
+};
+function maybeShowSpecificityHint(q, data) {
+  let host = document.getElementById('specificity-hint');
+  const words = (q || '').trim().split(/\s+/).filter(Boolean);
+  const short = words.length > 0 && words.length <= 3 && !/["“”]/.test(q);
+  if (!short) { if (host) host.hidden = true; return; }
+  const key = words.map(w => w.toLowerCase().replace(/[^a-z]/g, '')).find(w => SPECIFICITY_EXAMPLES[w]);
+  const examples = key ? SPECIFICITY_EXAMPLES[key]
+    : ["describe the situation: who did what, to whom, in what context — e.g. \u201Cthe authorities searched a lawyer\u2019s office and seized client files\u201D"];
+  if (!host) {
+    host = document.createElement('div');
+    host.id = 'specificity-hint';
+    host.className = 'spec-hint';
+    const meta = document.getElementById('results-meta');
+    meta?.insertAdjacentElement('beforebegin', host);
+  }
+  const chips = key
+    ? examples.map(e => `<button type="button" class="spec-chip" onclick="applySpecExample(this)">${escapeHtml(e)}</button>`).join('')
+    : `<span class="spec-generic">${examples[0]}</span>`;
+  host.innerHTML = `<strong>Meaning-based search works best on a description, not a keyword.</strong> ` +
+    (key ? `Try one of these instead of \u201C${escapeHtml(q)}\u201D:` : ``) + `<div class="spec-chips">${chips}</div>`;
+  host.hidden = false;
+}
+function applySpecExample(btn) {
+  const el = document.getElementById('query');
+  el.value = btn.textContent;
+  document.getElementById('specificity-hint').hidden = true;
+  doSearch();
+}
+window.applySpecExample = applySpecExample;
+
 async function doSearch() {
   const q = $('query').value.trim();
   if (!q) { const el=$('query'); el.focus(); el.style.boxShadow='0 0 0 2px var(--neg)'; setTimeout(()=>{el.style.boxShadow='';},1200); return; }
@@ -2856,7 +2924,9 @@ async function doSearch() {
       const err = await r.json().catch(()=>({detail:'HTTP '+r.status}));
       throw new Error(err.detail || 'HTTP ' + r.status);
     }
-    renderResults(await r.json());
+    const _data = await r.json();
+    renderResults(_data);
+    maybeShowSpecificityHint(q, _data);
   } catch (e) {
     $('case-list').innerHTML = '<li class="state-msg error"><strong>The search failed</strong>'+escapeHtml(e.message)+'</li>';
   } finally {

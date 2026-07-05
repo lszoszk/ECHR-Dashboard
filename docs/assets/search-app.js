@@ -7368,6 +7368,12 @@ function bindEvents() {
     el.filterToggleBtn.setAttribute("aria-expanded", open ? "true" : "false");
     // Rebuild the button (caret ▶/▼ + active-filter badge) for the new state.
     updateActiveFilterCount();
+    // The advanced panel sits BELOW two long always-on groups — without this
+    // scroll it opens ~1000px under the fold and the click looks like a no-op.
+    if (open) {
+      const adv = byId("filtersAdvanced");
+      adv?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   });
 
   el.searchForm.addEventListener("submit", (e) => {
