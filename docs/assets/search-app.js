@@ -7371,8 +7371,11 @@ function bindEvents() {
     // The advanced panel sits BELOW two long always-on groups — without this
     // scroll it opens ~1000px under the fold and the click looks like a no-op.
     if (open) {
-      const adv = byId("filtersAdvanced");
-      adv?.scrollIntoView({ behavior: "smooth", block: "start" });
+      // Wait a beat for the CSS expansion to lay out, then scroll the panel
+      // into view (it sits ~1000px below the toggle, past two long groups).
+      setTimeout(() => {
+        byId("filtersAdvanced")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 180);
     }
   });
 
