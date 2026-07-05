@@ -1098,6 +1098,10 @@ function serverSnippetToHtml(snippet, fallbackText = "") {
       return "";
     }
     const safe = escapeHtml(token);
+    // FTS marks every matched term, including function words ("failure TO
+    // protect" paints every "to" on the page).  Keep the match for ranking,
+    // drop the paint for stopwords — same list the context rail uses.
+    if (inHighlight && DOSSIER_HL_SKIP.has(token.trim().toLowerCase())) return safe;
     return inHighlight ? `<mark class="hl">${safe}</mark>` : safe;
   }).join("");
 }

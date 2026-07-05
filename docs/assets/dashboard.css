@@ -765,6 +765,9 @@ body {
 }
 .cnm-articles { margin-bottom: 9px; }
 .cnm-articles .cnm-label { display: block; margin-bottom: 4px; }
+/* Chips are typographic tokens (no boxes); without a flex gap the article
+   list renders as one run-on word: "Art 14Art 3". */
+.cnm-article-chips { display: inline-flex; flex-wrap: wrap; gap: 4px 10px; }
 .cnm-facts {
     display: grid;
     grid-template-columns: 1fr 1fr;
