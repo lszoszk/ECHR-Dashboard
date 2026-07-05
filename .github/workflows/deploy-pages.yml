@@ -64,3 +64,13 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        continue-on-error: true
+      # GitHub Pages intermittently rejects deployments with a transient
+      # "Deployment failed, try again later" — one retry after a pause fixes it.
+      - name: Wait before retry
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 45
+      - name: Retry deploy (transient Pages failures)
+        id: deployment_retry
+        if: steps.deployment.outcome == 'failure'
+        uses: actions/deploy-pages@v4
