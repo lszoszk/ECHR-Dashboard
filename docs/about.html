@@ -182,9 +182,9 @@
         <p>
           <strong>HUDOC Researcher is a paragraph-level companion to the European
           Court of Human Rights.</strong> It indexes every visible paragraph
-          across 19,720 judgments and lets researchers find the precise
-          passage they need &mdash; then jumps them straight into HUDOC for
-          the authoritative full text.
+          across 19,822 judgments (as of May 2026) and lets researchers find
+          the precise passage they need &mdash; then jumps them straight into
+          HUDOC for the authoritative full text.
         </p>
         <p>
           A typical workflow:
@@ -221,10 +221,21 @@
       <section class="about-section">
         <h2>Scope and Limits (v1)</h2>
         <ul>
-          <li><strong>Corpus</strong>: 19,720 ECHR judgments &mdash; every
-            Court / Grand Chamber decision available from HUDOC's public
-            DOCX endpoint as of the last data refresh. Press releases and
-            inadmissibility decisions are excluded.</li>
+          <li><strong>Corpus</strong>: 19,822 ECHR judgments (as of
+            13&nbsp;May&nbsp;2026) &mdash; Grand Chamber, Chamber <em>and</em>
+            Committee judgments from HUDOC's public DOCX endpoint. Note that
+            HUDOC's default search covers Grand Chamber + Chamber only, so
+            counts here can legitimately exceed a default HUDOC search.</li>
+          <li><strong>Judgments only</strong>: HUDOC's other collections
+            &mdash; admissibility <em>Decisions</em>, Communicated Cases,
+            Legal Summaries, Advisory Opinions, Commission decisions &mdash;
+            are not included. A landmark <em>decision</em> (e.g.
+            <em>Bankovi&#263;</em>) returns no results here; press releases
+            are excluded as duplicates of the underlying judgments.</li>
+          <li><strong>English texts only</strong>: judgments delivered only
+            in French are not yet ingested. On Semantic Search,
+            &ldquo;describe your case in any language&rdquo; refers to the
+            <em>query</em> &mdash; results are always the English texts.</li>
           <li><strong>Segmentation</strong>: paragraphs are extracted with
             their HUDOC paragraph numbers preserved, plus a section label
             (Facts / Admissibility / Merits / Just&nbsp;Satisfaction /

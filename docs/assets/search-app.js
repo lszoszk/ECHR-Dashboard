@@ -4727,7 +4727,7 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
         <div><dt>Court</dt><dd>${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "—")}</dd></div>
         <div><dt>State</dt><dd>${escapeHtml(states)}</dd></div>
         <div><dt>Importance</dt><dd${importanceShortLabel(c.__importance) ? ` title="${escapeHtml(importanceTooltip(c.__importance))}"` : ""}>${escapeHtml(IMPORTANCE_LABELS[c.__importance] || importanceShortLabel(c.__importance) || "—")}</dd></div>
-        <div><dt>Citations</dt><dd${citations > 0 ? "" : ' title="Citation-graph coverage is partial — no citation data recorded for this case"'}>${citations > 0 ? fmtInt.format(citations) : "—"}</dd></div>
+        <div><dt>Citations</dt><dd${citations > 0 ? "" : ` title="${c.__importance === "3" ? "No citations recorded. HUDOC does not analyse cited case-law for importance-3 judgments (HUDOC FAQ §12); our text-extracted graph also found none here" : "Citation-graph coverage is partial — no citation data recorded for this case"}"`}>${citations > 0 ? fmtInt.format(citations) : "—"}</dd></div>
       </dl>
       <div class="cnm-outcome">
         <span class="cnm-outcome-badge ${escapeHtml(outcomeToneClass)}">${escapeHtml(outcomeLabel)}</span>
@@ -5486,6 +5486,14 @@ function applySearch(resetPage = true) {
   // when the server is live, so empty-query browse would render nothing.
   const query = el.searchInput.value.trim();
   const filters = getCurrentFilters();
+
+  // Keep the address bar shareable: the current query lives in ?q= (same
+  // contract as semantic.html). Empty query → clean path.
+  try {
+    history.replaceState(null, "", query
+      ? `${location.pathname}?q=${encodeURIComponent(query)}`
+      : location.pathname);
+  } catch (_) { /* sandboxed iframes may block history */ }
 
   if (serverSearch.available) {
     // Default-view mode stays on only while the user hasn't typed a
@@ -7989,7 +7997,7 @@ function init() {
       }
 
       // Update data source panel
-      setDatasetStatus("Connected to HUDOC Researcher API — full-text search across all cases.");
+      setDatasetStatus("Connected to HUDOC Researcher API — full-text search across all judgments (English texts).");
       const badgeEl = document.getElementById("serverBadgeHeader");
       if (badgeEl) {
         badgeEl.textContent = `Connected`;
@@ -8083,10 +8091,16 @@ function init() {
         console.warn("[Server Facets] Could not fetch facets:", e);
       }
 
-      // Default view: load the 100 most recent cases (date_desc),
-      // paginated across 5 pages of PAGE_SIZE.  Empty query + no
-      // filters → applySearch() will route through applyServerSearch
-      // with { sort: "date_desc", defaultView: true }.
+      // Deep link: ?q= runs the query as soon as the server is ready —
+      // same contract as semantic.html, so keyword searches are
+      // shareable/bookmarkable.  Otherwise fall through to the default
+      // view: the 100 most recent cases (date_desc), paginated across
+      // 5 pages of PAGE_SIZE (empty query + no filters → applySearch()
+      // routes through applyServerSearch with { defaultView: true }).
+      const deepQ = new URLSearchParams(location.search).get("q");
+      if (deepQ && deepQ.trim() && !el.searchInput.value.trim()) {
+        el.searchInput.value = deepQ.trim();
+      }
       try {
         applySearch(true);
       } catch (e) {

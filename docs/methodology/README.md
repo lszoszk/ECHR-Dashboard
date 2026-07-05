@@ -4,10 +4,19 @@
 
 ## What's in the dataset
 
-- **19,720 court rulings** from the European Court of Human Rights (1960 – present)
-- **2.19 million paragraphs** segmented from judgment, decision, and admissibility-decision texts
+- **19,822 court rulings** from the European Court of Human Rights (1960 – 13 May 2026)
+- **3.26 million segmented text rows** — body paragraphs, headings, quoted passages and operative formulae — of which **1.24 million carry the Court's own paragraph numbering** (`¶ 1`, `¶ 2`…)
 - **Source:** the official HUDOC portal (cases harvested by the Court itself)
 - **Coverage:** all 47 Council of Europe contracting parties plus their successor states
+
+### Scope: judgments, in English
+
+Two deliberate boundaries a HUDOC user should know about:
+
+- **Judgments only.** The corpus covers the Court's judgments (including ~6,300 Committee judgments, which HUDOC's default search omits). HUDOC's other collections — admissibility **Decisions**, Communicated Cases, Legal Summaries, Advisory Opinions, Commission decisions — are not included. A landmark *decision* (e.g. *Banković*) will therefore return no results here; consult HUDOC for those collections.
+- **English texts only.** Judgments delivered only in French — a substantial share of Chamber and Committee output — are not yet ingested. On the Semantic Search page, "describe your case in any language" refers to the *query* (the embedding model is multilingual); the retrieved paragraphs are always the English texts.
+
+The Statistics page is a static snapshot (its build date is printed under its title) and can lag the live counts shown in the Search header.
 
 ### Press releases excluded
 
@@ -79,6 +88,12 @@ The Court's documentalists maintain a "Strasbourg Case-Law" field — a hand-pic
 The small recall gap is mostly judgments that cite a case by name only — with no application number in the text — and `[Extracts]` cases where HUDOC publishes excerpts only.
 
 Citation coverage is necessarily partial: a case whose precedents fall outside the corpus shows fewer links than reality. A `—` (rather than `0`) marks cases with no recorded citations, so an absence of data is not mistaken for genuine legal isolation.
+
+### Why low-importance cases look metadata-poor everywhere
+
+HUDOC itself analyses cases unevenly. Per the HUDOC FAQ (§ 12, "Which texts are analysed?"), only cases of importance *Key cases*, *1* and *2* receive a full analysis; from 2007 onwards, importance-3 judgments get no **Strasbourg Case-Law**, **Rules of Court**, **Applicability**, **Separate Opinion**, **Domestic Law** or **International Law** fields. So sparse HUDOC-sourced metadata on a level-3 case reflects the Registry's triage, not a gap in this dataset.
+
+Because this tool parses the **full judgment text** rather than relying on those curated fields, two things work here that HUDOC's own filters cannot do for level-3 cases: the *Separate opinion* filter (opinions are detected in the text) and the citation graph above (references are extracted from the text).
 
 ## Honest limits
 
