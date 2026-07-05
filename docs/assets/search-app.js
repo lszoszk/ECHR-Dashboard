@@ -4722,7 +4722,7 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
         <div><dt>Decided</dt><dd>${escapeHtml(formatCaseDateForDisplay(c))}</dd></div>
         <div><dt>Court</dt><dd>${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "—")}</dd></div>
         <div><dt>State</dt><dd>${escapeHtml(states)}</dd></div>
-        <div><dt>Importance</dt><dd${importanceShortLabel(c.__importance) ? ` title="${escapeHtml(importanceTooltip(c.__importance))}"` : ""}>${escapeHtml(importanceShortLabel(c.__importance) || "—")}</dd></div>
+        <div><dt>Importance</dt><dd${importanceShortLabel(c.__importance) ? ` title="${escapeHtml(importanceTooltip(c.__importance))}"` : ""}>${escapeHtml(IMPORTANCE_LABELS[c.__importance] || importanceShortLabel(c.__importance) || "—")}</dd></div>
         <div><dt>Citations</dt><dd${citations > 0 ? "" : ' title="Citation-graph coverage is partial — no citation data recorded for this case"'}>${citations > 0 ? fmtInt.format(citations) : "—"}</dd></div>
       </dl>
       <div class="cnm-outcome">
@@ -5018,7 +5018,7 @@ function buildCaseCard(caseId, row, rank = 1) {
         <div class="case-actions-inline compact-actions">
           ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="case-open-link primary" target="_blank" rel="noopener noreferrer">Open in HUDOC ↗</a>` : ""}
           <button type="button" class="case-open-secondary cite-btn" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}" title="Copy citation to clipboard">Cite</button>
-          <button type="button" class="case-open-secondary info-btn" data-action="copy-info-card" data-case-id="${escapeHtml(caseId)}" title="Copy key info block to clipboard">Info</button>
+          <button type="button" class="case-open-secondary info-btn" data-action="copy-info-card" data-case-id="${escapeHtml(caseId)}" title="Copy key info block to clipboard">Copy info</button>
           <button
             type="button"
             class="case-open-secondary expand-paras-btn"
@@ -6653,7 +6653,13 @@ function getDossierContext(paras, activeIdx, win, expanded) {
   };
 }
 
-const DOSSIER_HL_SKIP = new Set(["and", "or", "not"]);
+// Boolean operators plus function words: highlighting "to" or "of" paints
+// noise over every paragraph of a query like "failure to protect".
+const DOSSIER_HL_SKIP = new Set([
+  "and", "or", "not", "to", "of", "in", "on", "at", "by", "for", "the",
+  "a", "an", "as", "is", "are", "was", "were", "be", "been", "has",
+  "have", "had", "it", "its", "with", "from", "under", "that", "this",
+]);
 function dossierHighlight(text, terms) {
   let html = escapeHtml(text);
   for (let t of (terms || [])) {
@@ -6663,7 +6669,11 @@ function dossierHighlight(text, terms) {
     t = t.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, "");
     if (t.length < 2 || DOSSIER_HL_SKIP.has(t.toLowerCase())) continue;
     try {
-      html = html.replace(new RegExp("(" + escapeRegExp(t) + ")", "gi"),
+      // Leading word-boundary + trailing letter-run: match whole words that
+      // START with the term ("protect" still lights up "protection", like
+      // FTS porter stemming) but never start mid-word ("discrimina|to|ry").
+      html = html.replace(
+        new RegExp("(?<![\\p{L}\\p{N}])(" + escapeRegExp(t) + "\\p{L}*)", "giu"),
         '<mark class="hl">$1</mark>');
     } catch { /* skip malformed term */ }
   }

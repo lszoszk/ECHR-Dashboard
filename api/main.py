@@ -1526,8 +1526,23 @@ def search(
                     f"ORDER BY {para_order} LIMIT ? OFFSET ?"
                 )
                 cur.execute(flat_sql, [*params, *role_params, page_size, (page - 1) * page_size])
+                flat_rows = cur.fetchall()
+                # Case Note (right rail) renders articles for the selected
+                # case; by-case mode ships them, so flat mode must too or the
+                # note shows "No articles listed" for every hit.  One IN query
+                # over the ≤ page_size distinct cases on this page.
+                flat_case_ids = list({r["case_id"] for r in flat_rows})
+                case_articles_flat: dict[str, list[str]] = {}
+                if flat_case_ids:
+                    ph = ",".join("?" * len(flat_case_ids))
+                    cur.execute(
+                        f"SELECT case_id, article FROM case_articles WHERE case_id IN ({ph})",
+                        flat_case_ids,
+                    )
+                    for r in cur.fetchall():
+                        case_articles_flat.setdefault(r["case_id"], []).append(r["article"])
                 hits = []
-                for r in cur.fetchall():
+                for r in flat_rows:
                     hits.append({
                         "section": r["section"],
                         "para_idx": r["para_idx"],
@@ -1548,6 +1563,7 @@ def search(
                             "violation": r["violation"], "non_violation": r["non_violation"],
                             "originating_body": r["originating_body"],
                             "document_type": r["document_type"],
+                            "articles": sorted(case_articles_flat.get(r["case_id"], [])),
                         },
                     })
                 elapsed = (time.perf_counter() - t0) * 1000
