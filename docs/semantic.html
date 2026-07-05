@@ -2872,8 +2872,15 @@ $('search-btn').addEventListener('click', doSearch);
   try{
     const q=new URLSearchParams(location.search).get('q');
     if(q && q.trim()){
-      const run=()=>{ const el=document.getElementById('query'); if(!el) return;
-        el.value=q.trim(); doSearch(); };
+      const run=async()=>{ const el=document.getElementById('query'); if(!el) return;
+        el.value=q.trim();
+        // wait (max 5s) for the health check to connect — a cold container's
+        // very first fetch can fail; then search, with one delayed retry.
+        for(let i=0;i<20;i++){ const st=document.getElementById('status-text');
+          if(st&&/connected/i.test(st.textContent)) break;
+          await new Promise(r=>setTimeout(r,250)); }
+        doSearch();
+        setTimeout(()=>{ try{ if(!(state.results&&state.results.count)) doSearch(); }catch(e){} }, 8000); };
       if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
     }
   }catch(e){}
