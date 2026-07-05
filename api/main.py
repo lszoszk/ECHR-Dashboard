@@ -340,6 +340,40 @@ _BODY_CODE_LABELS = {
 }
 
 
+def _article_in_clause(arts: list[str]) -> tuple[str, list[str]]:
+    """Non-correlated IN subquery matching ANY of ``arts``.
+
+    case_articles legacy rows can store compound strings ("34, 8, 41"), so an
+    exact IN match against the user's clicked filter ("8") would miss those
+    cases — cover all four positional patterns: exact, head, mid, tail.  The
+    non-correlated IN makes SQLite materialise the subquery ONCE (a single
+    scan of case_articles) instead of re-scanning per candidate case.
+    """
+    sub_conds, sub_params = [], []
+    for art in arts:
+        sub_conds.append("(ca.article = ? OR ca.article LIKE ? OR ca.article LIKE ? OR ca.article LIKE ?)")
+        sub_params.extend([art, f"{art}, %", f"%, {art}, %", f"%, {art}"])
+    return ("c.case_id IN (SELECT ca.case_id FROM case_articles ca "
+            f"WHERE {' OR '.join(sub_conds)})", sub_params)
+
+
+def _article_filter_clauses(values: list[str]) -> list[tuple[str, list[str]]]:
+    """Plain values pool into one OR clause (rail semantics, HUDOC's filter
+    default); a "+"-joined value like ``article:3+14`` becomes one clause per
+    part, ANDed — HUDOC's filters support AND as well as OR (FAQ §13)."""
+    ors: list[str] = []
+    clauses: list[tuple[str, list[str]]] = []
+    for v in values:
+        parts = [p.strip() for p in str(v).split("+") if p.strip()]
+        if len(parts) > 1:
+            clauses.extend(_article_in_clause([p]) for p in parts)
+        else:
+            ors.append(str(v).strip())
+    if ors:
+        clauses.insert(0, _article_in_clause(ors))
+    return clauses
+
+
 def _body_filter_condition(value: str) -> tuple[str, list[str]]:
     """SQL condition matching an originating-body value by label OR code."""
     codes = [code for code, label in _BODY_CODE_LABELS.items()
@@ -938,25 +972,9 @@ def _build_case_filter_sql(
         params.extend(sec_list)
 
     if art_list:
-        # case_articles legacy rows can store compound strings ("34, 8, 41"),
-        # so an exact IN match against the user's clicked filter ("8") would
-        # miss those cases.  Cover all four positional patterns: exact, head,
-        # mid, tail.  Use EXISTS so multiple matching rows don't duplicate
-        # the parent case row.
-        sub_conds = []
-        sub_params: list[Any] = []
-        for art in art_list:
-            sub_conds.append("(ca.article = ? OR ca.article LIKE ? OR ca.article LIKE ? OR ca.article LIKE ?)")
-            sub_params.extend([art, f"{art}, %", f"%, {art}, %", f"%, {art}"])
-        # Non-correlated IN — SQLite materialises the subquery ONCE (a single
-        # scan of case_articles), instead of a correlated EXISTS whose LIKE
-        # patterns re-scan the 77k-row table for every candidate case (which
-        # made broad-query + article-filter searches hang for minutes).
-        where_clauses.append(
-            "c.case_id IN (SELECT ca.case_id FROM case_articles ca "
-            f"WHERE {' OR '.join(sub_conds)})"
-        )
-        params.extend(sub_params)
+        for _g_sql, _g_params in _article_filter_clauses(art_list):
+            where_clauses.append(_g_sql)
+            params.extend(_g_params)
 
     if state_list:
         state_conditions = []
@@ -1320,25 +1338,9 @@ def search(
         params.extend(sec_list)
 
     if art_list:
-        # case_articles legacy rows can store compound strings ("34, 8, 41"),
-        # so an exact IN match against the user's clicked filter ("8") would
-        # miss those cases.  Cover all four positional patterns: exact, head,
-        # mid, tail.  Use EXISTS so multiple matching rows don't duplicate
-        # the parent case row.
-        sub_conds = []
-        sub_params: list[Any] = []
-        for art in art_list:
-            sub_conds.append("(ca.article = ? OR ca.article LIKE ? OR ca.article LIKE ? OR ca.article LIKE ?)")
-            sub_params.extend([art, f"{art}, %", f"%, {art}, %", f"%, {art}"])
-        # Non-correlated IN — SQLite materialises the subquery ONCE (a single
-        # scan of case_articles), instead of a correlated EXISTS whose LIKE
-        # patterns re-scan the 77k-row table for every candidate case (which
-        # made broad-query + article-filter searches hang for minutes).
-        where_clauses.append(
-            "c.case_id IN (SELECT ca.case_id FROM case_articles ca "
-            f"WHERE {' OR '.join(sub_conds)})"
-        )
-        params.extend(sub_params)
+        for _g_sql, _g_params in _article_filter_clauses(art_list):
+            where_clauses.append(_g_sql)
+            params.extend(_g_params)
 
     if state_list:
         state_conditions = []
@@ -1395,16 +1397,25 @@ def search(
     # article tokens ('["14", "3"]').  LIKE doubles as case-insensitive
     # equality; the "-%" pattern pulls in sub-articles (violation:6 also
     # matches 6-1).  OR within one operator, AND across operators — same
-    # semantics as the filter rail.
+    # semantics as the filter rail; violation:3+14 requires BOTH (FAQ §13).
     for _pk, _col in (("violation", "c.violation"),
                       ("nonviolation", "c.non_violation")):
         if q_prefix[_pk]:
             conds = []
             for _v in q_prefix[_pk]:
+                parts = [p.strip() for p in _v.split("+") if p.strip()]
+                if len(parts) > 1:
+                    for _p in parts:  # AND: each part its own clause
+                        where_clauses.append(
+                            f"EXISTS (SELECT 1 FROM json_each({_col}) j "
+                            "WHERE j.value LIKE ? OR j.value LIKE ?)")
+                        params.extend([_p, f"{_p}-%"])
+                    continue
                 conds.append(f"EXISTS (SELECT 1 FROM json_each({_col}) j "
                              "WHERE j.value LIKE ? OR j.value LIKE ?)")
                 params.extend([_v, f"{_v}-%"])
-            where_clauses.append(f"({' OR '.join(conds)})")
+            if conds:
+                where_clauses.append(f"({' OR '.join(conds)})")
 
     # cites:hatton / cites:36022/97 — HUDOC's "Strasbourg Case-Law" search
     # (FAQ §10): return cases that cite the given judgment.  Resolve the
@@ -2142,25 +2153,9 @@ def browse(
     params: list[Any] = []
 
     if art_list:
-        # case_articles legacy rows can store compound strings ("34, 8, 41"),
-        # so an exact IN match against the user's clicked filter ("8") would
-        # miss those cases.  Cover all four positional patterns: exact, head,
-        # mid, tail.  Use EXISTS so multiple matching rows don't duplicate
-        # the parent case row.
-        sub_conds = []
-        sub_params: list[Any] = []
-        for art in art_list:
-            sub_conds.append("(ca.article = ? OR ca.article LIKE ? OR ca.article LIKE ? OR ca.article LIKE ?)")
-            sub_params.extend([art, f"{art}, %", f"%, {art}, %", f"%, {art}"])
-        # Non-correlated IN — SQLite materialises the subquery ONCE (a single
-        # scan of case_articles), instead of a correlated EXISTS whose LIKE
-        # patterns re-scan the 77k-row table for every candidate case (which
-        # made broad-query + article-filter searches hang for minutes).
-        where_clauses.append(
-            "c.case_id IN (SELECT ca.case_id FROM case_articles ca "
-            f"WHERE {' OR '.join(sub_conds)})"
-        )
-        params.extend(sub_params)
+        for _g_sql, _g_params in _article_filter_clauses(art_list):
+            where_clauses.append(_g_sql)
+            params.extend(_g_params)
 
     if state_list:
         state_conditions = []
