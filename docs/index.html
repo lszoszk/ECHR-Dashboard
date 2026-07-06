@@ -21,9 +21,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css?v=20260706-audit2">
-  <link rel="stylesheet" href="assets/search-app.css?v=20260518-filter-rail">
+  <link rel="stylesheet" href="assets/search-app.css?v=20260706-deadmodal">
   <link rel="stylesheet" href="assets/editorial-redesign.css?v=20260518-filter-rail">
-  <link rel="stylesheet" href="assets/judgment-hudoc.css?v=20260514-appendix-bucket">
+  <link rel="stylesheet" href="assets/judgment-hudoc.css?v=20260706-deadmodal">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
 </head>
@@ -382,39 +382,6 @@
     </div>
   </footer>
 
-  <div class="modal" id="caseModal" hidden>
-    <div class="modal-backdrop" data-close-modal="true"></div>
-    <div class="modal-panel">
-      <div class="modal-header">
-        <h2 id="modalTitle">Case</h2>
-        <button type="button" id="closeModal" class="modal-close" aria-label="Close">×</button>
-      </div>
-      <div class="modal-meta" id="modalMeta"></div>
-
-      <div class="modal-tools">
-        <input type="text" id="modalQuery" class="modal-input" placeholder="Search within this judgment">
-        <select id="modalSectionFilter" class="modal-select">
-          <option value="all">All sections</option>
-        </select>
-        <span id="modalCount" class="modal-count"></span>
-        <span class="modal-tools-sep"></span>
-        <button type="button" class="modal-action-btn" id="clearHighlightsBtn" title="Remove all highlights" hidden>Clear Highlights</button>
-        <button type="button" class="modal-action-btn" id="exportXlsxBtn" title="Export highlighted paragraphs as XLSX" hidden>Export XLSX</button>
-      </div>
-
-      <div id="highlightTooltip" class="highlight-tooltip" hidden>
-        <button type="button" class="hl-color" data-color="#fef08a" title="Yellow" style="background:#fef08a"></button>
-        <button type="button" class="hl-color" data-color="#bbf7d0" title="Green" style="background:#bbf7d0"></button>
-        <button type="button" class="hl-color" data-color="#bfdbfe" title="Blue" style="background:#bfdbfe"></button>
-        <button type="button" class="hl-color" data-color="#fecaca" title="Red" style="background:#fecaca"></button>
-        <button type="button" class="hl-color hl-remove" data-color="" title="Remove highlight">✕</button>
-        <button type="button" class="hl-close" id="hlCloseBtn" title="Close">×</button>
-      </div>
-
-      <div id="modalBody" class="modal-body"></div>
-    </div>
-  </div>
-
   <div class="classifier-pane" id="classifierPane">
     <div class="classifier-pane-header">
       <h2>Experimental Paragraph Tagging</h2>
@@ -551,6 +518,6 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
-  <script src="assets/search-app.js?v=20260706-hudocparity2"></script>
+  <script src="assets/search-app.js?v=20260706-deadmodal"></script>
 </body>
 </html>
