@@ -10,6 +10,8 @@ authors:
     email: "l.szoszkiewicz@amu.edu.pl"
     affiliation: "Adam Mickiewicz University, Poznań"
     orcid: "https://orcid.org/0000-0001-6671-2893"
+  - family-names: "Marcisz"
+    given-names: "Sebastian"
 abstract: >-
   HUDOC Researcher is a source-first research environment for European Court
   of Human Rights case law. It combines paragraph-level structural search,

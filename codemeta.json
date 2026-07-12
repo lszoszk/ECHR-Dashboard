@@ -21,16 +21,23 @@
     "citation analysis",
     "RAG"
   ],
-  "author": {
-    "type": "Person",
-    "givenName": "Łukasz",
-    "familyName": "Szoszkiewicz",
-    "email": "l.szoszkiewicz@amu.edu.pl",
-    "affiliation": {
-      "type": "Organization",
-      "name": "Adam Mickiewicz University, Poznań"
+  "author": [
+    {
+      "type": "Person",
+      "givenName": "Łukasz",
+      "familyName": "Szoszkiewicz",
+      "email": "l.szoszkiewicz@amu.edu.pl",
+      "affiliation": {
+        "type": "Organization",
+        "name": "Adam Mickiewicz University, Poznań"
+      },
+      "id": "https://orcid.org/0000-0001-6671-2893"
     },
-    "id": "https://orcid.org/0000-0001-6671-2893"
-  },
+    {
+      "type": "Person",
+      "givenName": "Sebastian",
+      "familyName": "Marcisz"
+    }
+  ],
   "isBasedOn": "https://hudoc.echr.coe.int/"
 }

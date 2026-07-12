@@ -8,6 +8,8 @@ retrieval (RAG) system anchored on the Court's official Case-Law Guides.
 
 **Live dashboard:** https://lszoszk.github.io/ECHR-Dashboard/
 
+Developed by **Łukasz Szoszkiewicz** and **Sebastian Marcisz**.
+
 ---
 
 ## Repository layout
@@ -56,8 +58,8 @@ HuggingFace). The corpus is a point-in-time snapshot of English ECtHR judgments.
 
 ## Citation
 
-> Szoszkiewicz, Ł. (2026). *HUDOC Researcher — ECtHR Case-Law Search & RAG*
-> (Version 1.0.0) [Computer software].
+> Szoszkiewicz, Ł., & Marcisz, S. (2026). *HUDOC Researcher — ECtHR Case-Law
+> Search & RAG* (Version 1.0.0) [Computer software].
 
 GitHub exposes machine-readable metadata from [`CITATION.cff`](CITATION.cff).
 When citing a legal proposition or judgment paragraph, cite the authoritative
