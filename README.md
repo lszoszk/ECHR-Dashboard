@@ -1,6 +1,7 @@
 # HUDOC Researcher — ECtHR Case-Law Search & RAG
 
 [![License: PolyForm Noncommercial](https://img.shields.io/badge/license-PolyForm%20Noncommercial-blue.svg)](LICENSE)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21319703.svg)](https://doi.org/10.5281/zenodo.21319703)
 
 Tools for searching and analysing European Court of Human Rights (ECtHR)
 case-law at the **paragraph level** — a public dashboard plus a semantic
@@ -59,7 +60,8 @@ HuggingFace). The corpus is a point-in-time snapshot of English ECtHR judgments.
 ## Citation
 
 > Szoszkiewicz, Ł., & Marcisz, S. (2026). *HUDOC Researcher — ECtHR Case-Law
-> Search & RAG* (Version 1.0.0) [Computer software].
+> Search & RAG* (Version 1.0.0) [Computer software]. Zenodo.
+> https://doi.org/10.5281/zenodo.21319703
 
 GitHub exposes machine-readable metadata from [`CITATION.cff`](CITATION.cff).
 When citing a legal proposition or judgment paragraph, cite the authoritative
