@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+title: "HUDOC Researcher — ECtHR Case-Law Search & RAG"
+message: >-
+  Cite this software using the metadata below. Legal propositions and quoted
+  paragraphs should additionally cite the authoritative HUDOC case record.
+type: software
+authors:
+  - family-names: "Szoszkiewicz"
+    given-names: "Łukasz"
+    email: "l.szoszkiewicz@amu.edu.pl"
+    affiliation: "Adam Mickiewicz University, Poznań"
+    orcid: "https://orcid.org/0000-0001-6671-2893"
+abstract: >-
+  HUDOC Researcher is a source-first research environment for European Court
+  of Human Rights case law. It combines paragraph-level structural search,
+  judgment reading, citation analytics, case statistics, and semantic retrieval
+  evaluated against the Court's official Case-Law Guides.
+keywords:
+  - "European Court of Human Rights"
+  - "ECtHR"
+  - "HUDOC"
+  - "case law"
+  - "human rights"
+  - "legal information retrieval"
+  - "semantic search"
+  - "citation analysis"
+  - "RAG"
+license: "PolyForm-Noncommercial-1.0.0"
+repository-code: "https://github.com/lszoszk/ECHR-Dashboard"
+url: "https://lszoszk.github.io/ECHR-Dashboard/"
+version: "1.0.0"
+date-released: "2026-07-12"

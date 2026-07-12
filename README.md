@@ -1,4 +1,6 @@
-# ECHR Dashboard & Case-Law RAG
+# HUDOC Researcher — ECtHR Case-Law Search & RAG
+
+[![License: PolyForm Noncommercial](https://img.shields.io/badge/license-PolyForm%20Noncommercial-blue.svg)](LICENSE)
 
 Tools for searching and analysing European Court of Human Rights (ECtHR)
 case-law at the **paragraph level** — a public dashboard plus a semantic
@@ -44,7 +46,19 @@ are **not in git** (git-ignored). They are rebuildable from `rag/pipeline/` and
 HuggingFace). The corpus is a point-in-time snapshot of English ECtHR judgments.
 
 ## Licensing / attribution
-- Code: see `LICENSE`.
+- Dashboard, API, pipeline, and RAG code: PolyForm Noncommercial 1.0.0;
+  research, education, non-profit, and personal use are permitted. See
+  [`LICENSE`](LICENSE).
 - ECtHR judgments & Case-Law Guides are © Council of Europe / ECtHR, reused under
-  HUDOC terms. This project is **not affiliated with or endorsed by** the Court.
+  HUDOC terms and are not re-licensed by this project. See [`NOTICE`](NOTICE).
+  This project is **not affiliated with or endorsed by** the Court.
 - The search tool is a **research aid, not legal advice.**
+
+## Citation
+
+> Szoszkiewicz, Ł. (2026). *HUDOC Researcher — ECtHR Case-Law Search & RAG*
+> (Version 1.0.0) [Computer software].
+
+GitHub exposes machine-readable metadata from [`CITATION.cff`](CITATION.cff).
+When citing a legal proposition or judgment paragraph, cite the authoritative
+HUDOC record and paragraph in addition to the software used to locate it.

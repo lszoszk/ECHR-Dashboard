@@ -1,0 +1,36 @@
+{
+  "@context": "https://w3id.org/codemeta/3.0",
+  "type": "SoftwareSourceCode",
+  "name": "HUDOC Researcher — ECtHR Case-Law Search & RAG",
+  "description": "Paragraph-level structural and semantic search, citation analytics, and source-first reading for European Court of Human Rights case law.",
+  "codeRepository": "https://github.com/lszoszk/ECHR-Dashboard",
+  "url": "https://lszoszk.github.io/ECHR-Dashboard/",
+  "version": "1.0.0",
+  "datePublished": "2026-07-12",
+  "license": "https://polyformproject.org/licenses/noncommercial/1.0.0/",
+  "applicationCategory": "Legal research software",
+  "programmingLanguage": ["Python", "JavaScript", "HTML", "CSS", "SQL"],
+  "keywords": [
+    "European Court of Human Rights",
+    "ECtHR",
+    "HUDOC",
+    "case law",
+    "human rights",
+    "legal information retrieval",
+    "semantic search",
+    "citation analysis",
+    "RAG"
+  ],
+  "author": {
+    "type": "Person",
+    "givenName": "Łukasz",
+    "familyName": "Szoszkiewicz",
+    "email": "l.szoszkiewicz@amu.edu.pl",
+    "affiliation": {
+      "type": "Organization",
+      "name": "Adam Mickiewicz University, Poznań"
+    },
+    "id": "https://orcid.org/0000-0001-6671-2893"
+  },
+  "isBasedOn": "https://hudoc.echr.coe.int/"
+}
