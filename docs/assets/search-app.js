@@ -7162,10 +7162,11 @@ function init() {
 init();
 
 /* ── Concept-query nudge ─────────────────────────────────────────────────
-   A bare 1–2-word query (no phrase/operator) is usually a CONCEPT lookup —
-   the worst case for literal FTS (e.g. "privacy": the Court's own term is
-   "private life", so BM25 surfaces quoted press codes instead of reasoning).
-   Offer a one-click handoff to Semantic Search, which retrieves by meaning. */
+   A long free-text query (4+ words, no phrase/operator syntax) usually
+   describes a CONCEPT in the researcher's own words — the case where
+   literal FTS is weakest and Semantic Search retrieves by meaning.
+   Short 1–3-word lookups and operator/phrase queries are deliberate
+   keyword searches, so no nudge there. */
 function hideSemanticHint() {
   const h = byId("semanticHint");
   if (h) h.hidden = true;
@@ -7173,8 +7174,8 @@ function hideSemanticHint() {
 function maybeShowSemanticHint(query, data) {
   const q = (query || "").trim();
   if (!q) return hideSemanticHint();
-  if (/["“”:]|\bOR\b/.test(q)) return hideSemanticHint();          // phrase / operator query
-  if (q.split(/\s+/).length > 2) return hideSemanticHint();         // long = specific enough
+  if (/["“”:]|\bOR\b|\bNEAR\b/.test(q)) return hideSemanticHint();  // phrase / operator query
+  if (q.split(/\s+/).length < 4) return hideSemanticHint();          // short = deliberate keyword lookup
   const hits = (data && (data.total_hits || (data.hits || []).length)) || 0;
   if (!hits) return hideSemanticHint();
   let h = byId("semanticHint");
