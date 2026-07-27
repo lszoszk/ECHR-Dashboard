@@ -2604,7 +2604,7 @@ function formatParaNumTitle(p) {
   return baseDesc;
 }
 
-function buildParagraphResult(para, terms) {
+function buildParagraphHit(para, terms) {
   return {
     key: para.key || "",
     section: para.section,
@@ -2634,7 +2634,7 @@ function buildBrowseResults(filters) {
       if (filters.sections.size && !filters.sections.has(para.section)) {
         continue;
       }
-      selectedParagraphs.push(buildParagraphResult(para, []));
+      selectedParagraphs.push(buildParagraphHit(para, []));
     }
 
     if (filters.sections.size && selectedParagraphs.length === 0) {
@@ -2769,7 +2769,7 @@ function buildQueryResults(query, filters) {
 
     const row = resultsById.get(c.case_id);
     row.paragraphs.push(
-      buildParagraphResult(
+      buildParagraphHit(
         {
           key: entry.key,
           section: entry.section,
@@ -6096,6 +6096,27 @@ const DOSSIER_LS_KEY = "echr.dossierWidth";
 
 async function loadDossierCase(caseId) {
   if (dossierCaseCache.has(caseId)) return dossierCaseCache.get(caseId);
+  // Local dataset mode: the full paragraph list is already in memory —
+  // no API to fetch from.
+  if (!serverSearch.available) {
+    const c = state.caseById.get(caseId);
+    if (!c || !Array.isArray(c.__paragraphs)) {
+      throw new Error(`Case ${caseId} not found in local dataset`);
+    }
+    const paras = c.__paragraphs.map((p) => ({
+      section: p.section,
+      sectionLabel: SECTION_LABELS[p.section] || p.section,
+      text: String(p.text || ""),
+      paraIdx: (p.paraIdx != null) ? p.paraIdx : null,
+      hudocParaNo: (p.hudocParaNo != null) ? p.hudocParaNo : null,
+      displayParaNo: (p.hudocParaNo != null) ? p.hudocParaNo : null,
+      logicalParaIdx: (p.paraIdx != null) ? p.paraIdx : null,
+      numberingBlock: p.numberingBlock || null,
+      rowRole: p.rowRole || null,
+    }));
+    dossierCaseCache.set(caseId, paras);
+    return paras;
+  }
   const data = await serverSearch.getCase(caseId);
   const paras = (data.paragraphs || []).map((p) => {
     const sec = normalizeSectionKey(p.section);
@@ -6364,6 +6385,7 @@ async function activateDataset(rawRows, sourceLabel, metaLine, invalidCount = 0)
   }
 
   preprocessDataset(normalized);
+  dossierCaseCache.clear();
   renderFilters();
   renderGlobalStats();
 
