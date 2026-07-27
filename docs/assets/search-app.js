@@ -4637,6 +4637,7 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
   };
   const row = caseId ? state.currentResultsById.get(caseId) : null;
   if (!row) {
+    document.body.classList.remove("casenote-open");
     renderToRails(`
       <div class="folio-label garnet">Case details</div>
       <h3>Awaiting results</h3>
@@ -4673,6 +4674,7 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
       <div class="cn-zoom" role="group" aria-label="Case Note text size">
         <button type="button" class="cn-zoom-btn" data-action="cn-zoom-out" title="Smaller text" aria-label="Decrease Case Note text size">A&minus;</button>
         <button type="button" class="cn-zoom-btn" data-action="cn-zoom-in" title="Larger text" aria-label="Increase Case Note text size">A+</button>
+        <button type="button" class="cn-zoom-btn cn-close-btn" data-action="close-casenote" title="Close case details (Esc)" aria-label="Close case details">&times;</button>
       </div>
     </div>
     <h3>${escapeHtml(title)}</h3>
@@ -4779,6 +4781,7 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
 function selectCase(caseId) {
   if (!caseId || !state.currentResultsById.has(caseId)) return;
   state.activeCaseId = caseId;
+  document.body.classList.add("casenote-open");
   // Fresh Case Note for a newly-selected case: ±1, anchored on the
   // case's best hit (paraIdx null → renderCaseContextRail picks it).
   if (!state.caseNote || state.caseNote.caseId !== caseId) {
@@ -4797,6 +4800,7 @@ function selectCase(caseId) {
 function selectCaseParagraph(caseId, paraIdx) {
   if (!caseId || !state.currentResultsById.has(caseId)) return;
   state.activeCaseId = caseId;
+  document.body.classList.add("casenote-open");
   state.caseNote = {
     caseId,
     before: 1,
@@ -6811,6 +6815,11 @@ function bindEvents() {
       setCaseNoteZoom(action === "cn-zoom-in" ? 1 : -1);
       return;
     }
+    if (action === "close-casenote") {
+      e.preventDefault();
+      document.body.classList.remove("casenote-open");
+      return;
+    }
     if (action === "copy-citation" && caseId) {
       e.preventDefault();
       const caseObj = state.caseById.get(caseId);
@@ -6913,6 +6922,11 @@ function bindEvents() {
 
       if (document.body.classList.contains("dossier-open")) {
         closeDossier();
+        return;
+      }
+
+      if (document.body.classList.contains("casenote-open")) {
+        document.body.classList.remove("casenote-open");
         return;
       }
     }

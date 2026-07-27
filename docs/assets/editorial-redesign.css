@@ -1311,7 +1311,7 @@ mark.hl {
 .editorial-search-band {
   background: var(--paper);
   border-bottom: 1px solid var(--rule);
-  padding: 18px 32px 16px;
+  padding: 12px 32px 12px;
 }
 
 .editorial-search-inner {
@@ -1323,9 +1323,9 @@ mark.hl {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 30px;
-  margin: 0 0 14px;
-  padding: 7px 0;
+  min-height: 24px;
+  margin: 0 0 10px;
+  padding: 4px 0;
   background: transparent;
   border: 0;
   border-bottom: 1px solid var(--rule-soft);
@@ -1428,14 +1428,31 @@ mark.hl {
   flex: 0 0 auto;
 }
 
+/* Corpus stats as a single thin line (UN-HRDB style) — the numbers are
+   reference information, not a hero band. */
 .editorial-corpus-strip .stats-bar-inner {
   max-width: 1480px;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  justify-content: flex-start;
+  gap: 8px 28px;
+  padding: 6px 32px;
+}
+
+.editorial-corpus-strip .stat-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  text-align: left;
 }
 
 .editorial-corpus-strip .stat-value {
-  font-size: 1.22rem;
+  display: inline;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.editorial-corpus-strip .stat-label {
+  font-size: 0.6rem;
 }
 
 .editorial-workspace {
@@ -1676,6 +1693,13 @@ mark.hl {
 
 .researcher-primary-text {
   margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.7;
+}
+
+.paragraph-result .para-text {
+  font-size: 1.02rem;
+  line-height: 1.7;
 }
 
 .case-only-note {

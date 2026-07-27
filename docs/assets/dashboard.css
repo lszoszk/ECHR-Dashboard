@@ -716,9 +716,18 @@ body {
    body-scoped selector so it beats the plain .editorial-workspace rule
    in editorial-redesign.css regardless of stylesheet order. */
 :root { --col-sidebar: 360px; }
+/* The Case Note column stays collapsed (0) until the user selects a
+   result — body.casenote-open — so the result list reads at full width,
+   as in the UN-HRDB reader.  body.dossier-open keeps its own override. */
 @media (min-width: 1181px) {
     body .editorial-workspace {
+        grid-template-columns: 280px minmax(0, 1fr) 0;
+    }
+    body.casenote-open .editorial-workspace {
         grid-template-columns: 280px minmax(0, 1fr) var(--col-sidebar, 360px);
+    }
+    body:not(.casenote-open):not(.dossier-open) .editorial-workspace .results-sidebar {
+        display: none;
     }
 }
 .sidebar-resizer {
