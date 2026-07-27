@@ -1809,15 +1809,29 @@ mark.hl {
   font-size: inherit;
 }
 
+/* The panel itself must NOT scroll — the drag handle is absolutely
+   positioned inside it, and a scrolling parent would carry the handle
+   out of view (resize then only worked at scrollTop 0).  Scrolling lives
+   in .sidebar-scroll instead, mirroring .dossier-panel / .dossier-body. */
 .editorial-workspace .results-sidebar {
   position: sticky;
   top: 74px;
   align-self: start;
+  display: flex;
+  flex-direction: column;
   width: auto;
+  height: calc(100vh - 74px);
   max-height: calc(100vh - 74px);
-  overflow: auto;
+  overflow: hidden;
   background: var(--paper-2);
   border: 0;
+  padding: 0;
+}
+
+.editorial-workspace .results-sidebar .sidebar-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   padding: 24px 24px 56px;
 }
 
@@ -1925,8 +1939,14 @@ mark.hl {
     grid-column: 1 / -1;
     position: relative;
     top: auto;
+    height: auto;
     max-height: none;
+    overflow: visible;
     border-top: 1px solid var(--rule);
+  }
+
+  .editorial-workspace .results-sidebar .sidebar-scroll {
+    overflow: visible;
   }
 }
 
