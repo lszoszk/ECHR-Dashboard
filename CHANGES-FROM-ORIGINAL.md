@@ -91,6 +91,29 @@ The 6 `Legal Context` paragraphs live in exactly two 2026 Polish judicial-overha
 
 **Deferred.** If the Court expands the `LEGAL CONTEXT OF THE CASE` heading into other case-law series (rule-of-law Russia cases, Turkey post-coup cases, Article 18 abuse-of-power series), Phase 2 — see `docs/TODO-facts-reclassify.md` — should split `Legal Context` back out as a dedicated "Case-series breadcrumb" bucket. Until there is enough volume to justify a checkbox, the merge is the right default.
 
+### 1.3 Phase 2 (P63): split the Facts family into `Procedure` / `Circumstances` / `Subject Matter`
+**Applied to the production DB:** 2026-07-31 (`scripts/p63_resegment_facts.py --apply`; backup table `section_backup_p63`, 718,737 rows)
+**Files:** `scripts/p62_facts_boundary_probe.py`, `scripts/p63_resegment_facts.py`, `docs/assets/search-app.js`, `docs/index.html`, `docs/TODO-facts-reclassify.md`
+
+**Rationale.** Completes the Phase 2 deferred in §1.1. By July 2026 the P21–P57 heal passes had reduced the two inverted legacy labels to residue (9,573 + 3,985 paragraphs), leaving the real problem: 718,093 paragraphs across 19,808 cases in one undifferentiated Facts family. Because HUDOC sections are contiguous blocks, the unit of work is the per-case boundary, not the paragraph: one heading marks where the administrative PROCEDURE block ends and the substantive narrative begins. `p62` measured that such a marker exists in **97.2% of cases (99.0% of paragraphs)** once `THE FACTS`, `AS TO THE FACTS` and the Commission-era headings are in the marker vocabulary.
+
+**What changed (database).** One UPDATE-only pass over `paragraphs.section`:
+
+| Old | New | Rows |
+|---|---|---:|
+| Facts | Circumstances | 596,773 |
+| Facts | Procedure | 89,007 |
+| Facts | Subject Matter | 11,755 |
+| Facts Background | Circumstances / Procedure / Subject Matter | 9,573 |
+| Facts Proceedings | Circumstances | 3,985 |
+| Introduction | Procedure (re-homed bare `PROCEDURE` headings) | 7,644 |
+
+564 residue cases (7,000 paragraphs, no structural heading) keep the plain `Facts` label pending rule-harvest — see `docs/TODO-facts-reclassify.md` step 3. Three invariants verified before the write (contiguity, coverage, row-count); the procedure-block length distribution (median 4, p90 8 paragraphs) matches the HUDOC convention's short administrative block. Boundary spot-checked across eras from Lawless v. Ireland (1960) to Fal v. Spain (2026). Rollback: `p63_resegment_facts.py --restore`.
+
+**What changed (frontend).** The six top-level filter pills are unchanged (deliberately — one pill, "Facts", still covers the family). Within it, three granular sections with their own labels, colors and filter checkboxes: **Procedure**, **Circumstances of the Case**, **Subject Matter of the Case**; the residue renders as **Facts (unsegmented)**. Client-fallback score weights: circumstances/subject_matter 1.0, procedure 0.9. Cache-buster `v=20260731-p63-sections`.
+
+**Known deviation from the April DoD.** The golden-query expectation "torture surfaces Selmouni/Ireland/Aksoy top-5" no longer holds — but not because of P63: the §2 ranking retunes changed the top-5 to Gäfgen/Naït-Liman/Khasanov/Othman/Saadi before this pass, and P63 touches no ranking input (the server boost references only `Merits` and `row_role`). Hirst remains top-1 for `Hirst`. Paragraph-level macro-F1 was replaced by per-case boundary validation as the accuracy instrument, since every paragraph label is derived from the boundary.
+
 ---
 
 ## 2. Ranking changes (relevance & sort)

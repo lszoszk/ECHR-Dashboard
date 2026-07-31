@@ -67,6 +67,13 @@ from collections import Counter, defaultdict
 DB = os.environ.get("ECHR_DB_PATH", "/data/echr_search.db")
 BACKUP = "section_backup_p63"
 
+# Rows per write transaction, and how long to wait for the write lock. The DB
+# is WAL with the live echr-api holding a write connection, so writes must be
+# short (release the lock between batches) and patient (outlast the API's own
+# write bursts instead of failing at Python's 5 s default).
+CHUNK = 20_000
+BUSY_TIMEOUT_S = 180
+
 # Legacy labels this pass consumes, plus the labels it produces (so a re-run
 # reads its own output back and stays idempotent).
 LEGACY = ("Facts", "Facts Background", "Facts Proceedings")
@@ -278,6 +285,18 @@ def report(changes, stats, invariant_failures, rowcount):
 
 
 def apply_changes(conn, changes):
+    """Write in short chunked transactions.
+
+    The database is WAL, so readers never block — but WAL still permits only one
+    writer, and the live echr-api holds a write connection. A single
+    718k-row transaction never wins that race ("database is locked"). Chunking
+    keeps each transaction short and releases the write lock between batches.
+
+    Each batch commits its backup rows and its UPDATEs together, so the backup
+    is consistent with the data at every commit point: an interrupted run is
+    still fully reversible with --restore. And because the plan is re-derived
+    from current state, simply re-running finishes the remainder.
+    """
     cur = conn.cursor()
     cur.execute(
         f"""CREATE TABLE IF NOT EXISTS {BACKUP} (
@@ -287,18 +306,26 @@ def apply_changes(conn, changes):
               bucket      TEXT
             )"""
     )
-    cur.executemany(
-        f"INSERT INTO {BACKUP} (rowid_ref, old_section, new_section, bucket) "
-        f"VALUES (?,?,?,?)",
-        changes,
-    )
-    cur.executemany(
-        "UPDATE paragraphs SET section = ? WHERE rowid = ?",
-        [(new, rowid) for rowid, _, new, _ in changes],
-    )
     conn.commit()
-    print(f"\nAPPLIED {len(changes):,} updates. Backup: {BACKUP} "
-          f"({len(changes):,} rows).")
+
+    done = 0
+    for i in range(0, len(changes), CHUNK):
+        batch = changes[i:i + CHUNK]
+        cur.execute("BEGIN IMMEDIATE")
+        cur.executemany(
+            f"INSERT INTO {BACKUP} (rowid_ref, old_section, new_section, bucket) "
+            f"VALUES (?,?,?,?)",
+            batch,
+        )
+        cur.executemany(
+            "UPDATE paragraphs SET section = ? WHERE rowid = ?",
+            [(new, rowid) for rowid, _, new, _ in batch],
+        )
+        conn.commit()
+        done += len(batch)
+        print(f"  ... {done:>7,} / {len(changes):,}", flush=True)
+
+    print(f"\nAPPLIED {done:,} updates. Backup: {BACKUP} ({done:,} rows).")
 
 
 def restore(conn):
@@ -324,11 +351,15 @@ def main():
     args = ap.parse_args()
 
     if args.restore:
-        restore(sqlite3.connect(DB))
+        conn = sqlite3.connect(DB, timeout=BUSY_TIMEOUT_S)
+        conn.execute(f"PRAGMA busy_timeout = {BUSY_TIMEOUT_S * 1000}")
+        restore(conn)
         return
 
     mode = "rw" if args.apply else "ro"
-    conn = sqlite3.connect(f"file:{DB}?mode={mode}", uri=True)
+    conn = sqlite3.connect(f"file:{DB}?mode={mode}", uri=True,
+                           timeout=BUSY_TIMEOUT_S)
+    conn.execute(f"PRAGMA busy_timeout = {BUSY_TIMEOUT_S * 1000}")
 
     changes, stats, rows, new_label, bucket_of = build_plan(conn)
     failures = check_invariants(conn, rows, new_label, bucket_of)

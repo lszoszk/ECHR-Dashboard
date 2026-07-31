@@ -2,6 +2,39 @@
 
 Chronological record of every transformation applied to the corpus, with commit hashes for replay/audit.
 
+> **Gap notice (2026-07-31):** entries for P21–P61 (May–July 2026) were never
+> recorded here — see `notes-internal/llm-judge-segmentation-audit.md` for the
+> P51–P57 cycle. Backfilling them is an open task.
+
+---
+
+## 2026-07-31 — P63 (Phase 2: Facts family → Procedure / Circumstances / Subject Matter)
+
+- **2026-07-31 P63 — deterministic boundary split of the Facts family (718,737 rows)**
+
+  Completes `docs/TODO-facts-reclassify.md` Phase 2. The Facts family
+  (`Facts` + legacy `Facts Background` / `Facts Proceedings`, 718,093
+  paragraphs / 19,808 cases) is split by per-case boundary: within a case's
+  Facts-family rows, everything before the facts-start heading (`THE FACTS`,
+  `AS TO THE FACTS`, `…CIRCUMSTANCES OF THE CASE…`) is `Procedure`, everything
+  from it on is `Circumstances`; committee cases with `SUBJECT MATTER OF THE
+  CASE` / `FACTS AND PROCEDURE` become `Subject Matter`. Bare `PROCEDURE`
+  headings parked in `Introduction` (7,644 rows) re-homed into `Procedure`.
+
+  - Probe: `scripts/p62_facts_boundary_probe.py` — marker coverage 97.2% of
+    cases / 99.0% of paragraphs; procedure-block length median 4 / p90 8
+    (matches the HUDOC short-admin-block convention). NB `judgment_date` is
+    DD/MM/YYYY — year is the LAST 4 chars.
+  - Apply: `scripts/p63_resegment_facts.py` — dry-run default, chunked writes
+    (20k rows/txn, 180 s busy timeout — the live API holds a write connection),
+    idempotent, three pre-write invariants (contiguity / coverage / row count).
+  - Result: Circumstances 610,325 · Procedure 96,654 · Subject Matter 11,758.
+    Residue: 564 cases / 7,000 paragraphs keep `Facts` pending rule harvest.
+  - Backup: `section_backup_p63` (718,737 rows; buckets A 11,776 / B 699,317 /
+    H 7,644). Rollback via `--restore`.
+  - Boundary spot-checks across eras (Lawless 1960 → Fal 2026) all correct;
+    live facets counts reconcile with the probe to the case.
+
 ---
 
 ## 2026-04-30 — P20 (Rec-5 mass-applicant tables → Appendix)
