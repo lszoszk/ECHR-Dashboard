@@ -414,7 +414,14 @@ const SECTION_DB_NAMES = {
   header: ["Header"],
   summary: ["Summary"],
   introduction: ["Introduction"],
-  facts: ["Facts Background", "Facts Proceedings", "Facts"],
+  // P63 splits the Facts family into Procedure / Circumstances / Subject Matter.
+  // All six names are listed so this bucket is correct both before and after
+  // that pass runs against the DB; the 564 residue cases keep the plain "Facts"
+  // label and stay searchable here.
+  facts: [
+    "Facts Background", "Facts Proceedings", "Facts",
+    "Procedure", "Circumstances", "Subject Matter",
+  ],
   legal_framework: ["Legal Framework", "Legal Context", "Relevant legal framework"],
   commission_proceedings: ["Commission Proceedings"],
   final_submissions: ["Final Submissions"],
@@ -1536,6 +1543,13 @@ function normalizeSectionKey(rawSection) {
     "facts proceedings": "facts",
     facts_proceedings: "facts",
     facts: "facts",
+    // P63 outputs. Aliased into "facts" so the split is invisible until the
+    // three buckets are promoted to their own filters; the 564 residue cases
+    // still arrive as plain "Facts" and land here too.
+    procedure: "facts",
+    circumstances: "facts",
+    "subject matter": "facts",
+    subject_matter: "facts",
     // "Legal Context" is an orphan (6 paragraphs in 2 Polish 2026 cases) —
     // collapse into legal_framework. See SECTION_ORDER note above.
     "legal framework": "legal_framework",

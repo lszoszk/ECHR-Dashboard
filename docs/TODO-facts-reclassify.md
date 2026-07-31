@@ -1,22 +1,39 @@
-# TODO — Phase 2: Rebuild a true PROCEDURE / CIRCUMSTANCES classifier
+# TODO — Phase 2: split the Facts family into PROCEDURE / CIRCUMSTANCES
 
-**Status:** deferred (expensive)
+**Status:** scoped and measured (2026-07-31). Step 1 complete — see §3.
+**Supersedes:** the April 2026 version of this document, whose premise is obsolete (§1).
 **Prerequisite commit:** the Phase 1 merge of `facts_background` + `facts_proceedings` into a single `facts` bucket (commit `20260410-factsmerge`).
+**Probe script:** `scripts/p62_facts_boundary_probe.py` (read-only).
 **Owner:** unassigned
 
 ---
 
-## Why this is on the backlog
+## 1. What changed since April — the original premise is gone
 
-Phase 1 resolved the immediate user-visible problem — two upstream labels ("Facts Background" ≈ 36k paragraphs and "Facts Proceedings" ≈ 438k paragraphs) were semantically inverted versus the HUDOC convention and produced a 92 : 8 imbalance that made the filter useless. The Phase 1 fix is to merge them into a single `facts` UI bucket and document the tradeoff.
+The April version of this document described the problem as two upstream labels
+("Facts Background" ≈ 36k paragraphs, "Facts Proceedings" ≈ 438k) that were
+semantically inverted and produced an unusable 92 : 8 imbalance. The P21–P57
+heal passes dissolved that problem. Measured against the production database on
+2026-07-31:
 
-Phase 2 is the "proper" fix: reclassify paragraphs against the *actual* HUDOC document structure so the dashboard can expose separate, accurate PROCEDURE and CIRCUMSTANCES filters again.
+| | April 2026 | Production today |
+|---|---|---|
+| `Facts Background` | ~36,000 paras | **9,573** |
+| `Facts Proceedings` | ~438,000 paras | **3,985** |
+| Corpus | 1,314,796 paras | **3,258,434 paras / 19,822 cases** |
+
+Both legacy labels are now residue. The real Phase 2 problem is different and
+simpler to state:
+
+> **718,093 paragraphs across 19,808 cases sit in one undifferentiated Facts
+> family** (`Facts` + `Facts Background` + `Facts Proceedings`) and need to be
+> split into `procedure`, `circumstances`, and `subject_matter`.
 
 ---
 
-## What the HUDOC convention actually is
+## 2. What the HUDOC convention actually is
 
-Based on direct inspection of live judgments on hudoc.echr.coe.int (Hirst v UK No. 2 [GC] 2005, T.M.V. v Romania 2024, Vokáč v Czech Republic 2022, Di Giuseppe v Italy 2023) and the Court's published *Note explaining the mode of citation*:
+*(unchanged from the April version — still accurate)*
 
 ### Classical Chamber / Grand Chamber template
 
@@ -30,12 +47,10 @@ THE FACTS
   I.  THE CIRCUMSTANCES OF THE CASE    ← the substantive narrative (the bulk)
       A.  Background
       B.  The applicant's arrest
-      C.  ...
   II. RELEVANT DOMESTIC LAW AND PRACTICE
   III. RELEVANT INTERNATIONAL MATERIALS
 
 THE LAW
-  I.  ALLEGED VIOLATION OF ARTICLE ...
 ```
 
 ### Committee summary template (since 1 September 2021)
@@ -47,128 +62,246 @@ SUBJECT MATTER OF THE CASE             ← merged facts + procedure
 THE COURT'S ASSESSMENT
 ```
 
-The current upstream segmenter's labels do NOT follow either convention — its "Facts Background" class contains matter that is actually the substantive narrative, and its "Facts Proceedings" class is a catch-all that sweeps up the substantive narrative plus parts of the legal assessment. The split is unreliable and cannot be rescued by simple relabeling.
+### Pre-Protocol-11 (Court A / Commission) template
+
+```
+PROCEDURE
+  PROCEEDINGS BEFORE THE COMMISSION
+AS TO THE FACTS
+  I.  THE PARTICULAR CIRCUMSTANCES OF THE CASE
+AS TO THE LAW
+```
 
 ---
 
-## Goals of Phase 2
+## 3. Step 1 (done) — the job is 99% deterministic
 
-1. Produce per-paragraph classifications that reflect real HUDOC structure:
-   - `procedure` — short admin section (lodging date, composition, interveners, hearing, admissibility ruling history, friendly-settlement negotiations)
-   - `circumstances` — substantive applicant narrative and facts as found by the Court
+**The unit of work is not the paragraph, it is the case boundary.** These
+sections are contiguous blocks, so the question is not "what is this paragraph"
+(718,093 decisions) but "where does the PROCEDURE block end" (19,808 decisions).
+And `row_role` already marks heading rows, so most of those boundaries are
+sitting in the data as literal strings.
+
+Any *one* facts-start marker suffices: within the Facts family, everything
+before it is `procedure`, everything from it onward is `circumstances`.
+
+`scripts/p62_facts_boundary_probe.py` measures the coverage of an expanded
+marker vocabulary against production:
+
+| Bucket | Cases | | Paragraphs | |
+|---|---:|---:|---:|---:|
+| A. committee `SUBJECT MATTER` marker | 982 | 5.0% | 11,776 | 1.6% |
+| B. facts-start marker present | 18,262 | 92.2% | 699,317 | 97.4% |
+| C. PROCEDURE marker only, no end boundary | 203 | 1.0% | 2,258 | 0.3% |
+| D. no structural heading | 361 | 1.8% | 4,742 | 0.7% |
+| **TOTAL** | **19,808** | | **718,093** | |
+
+> **Deterministic (A+B): 19,244 cases (97.2%) / 711,093 paragraphs (99.0%)**
+> **Needs a boundary decision (C+D): 564 cases (2.8%) / 7,000 paragraphs (1.0%)**
+
+The April sketch only looked for `PROCEDURE` and `I. THE CIRCUMSTANCES OF THE
+CASE` and left 26.8% of cases uncovered. Adding `THE FACTS` (17,368 heading
+rows), `AS TO THE FACTS` (859) and the Commission-era headings collapses the
+residue from 5,306 cases to 564.
+
+### Markers that fire
+
+| Rows | Class | Heading |
+|---:|---|---|
+| 17,368 | FACTS_START | `THE FACTS` |
+| 8,819 | PROC | `PROCEDURE` |
+| 977 | SUBJ | `SUBJECT MATTER OF THE CASE` |
+| 859 | FACTS_START | `AS TO THE FACTS` |
+| 224 | PROC | `PROCEEDINGS BEFORE THE COMMISSION` |
+| 51 | PROC | `PROCEDURE AND FACTS` |
+| 40 | FACTS_START | `THE CIRCUMSTANCES OF THE CASE` |
+
+Everything below 10 rows is noise (`SPECIFIC CIRCUMSTANCES OF THE CASE`, etc.).
+
+### Sanity check — the boundary assumption holds
+
+PROCEDURE-block length in bucket B, i.e. Facts-family rows before the
+facts-start marker:
+
+| p10 | median | p90 | p99 |
+|---:|---:|---:|---:|
+| 1 | **4** | 8 | 21 |
+
+This matches the HUDOC convention (~5–15 short administrative paragraphs) and
+is the evidence that the marker is cutting in the right place. If the split
+had produced 100-paragraph "procedure" blocks the whole approach would be
+wrong.
+
+198 of 18,262 cases yield a zero-length procedure block (the marker is the
+first Facts-family row). That is expected where the `PROCEDURE` heading was
+labelled `Introduction` — see §4.
+
+### Residue (C+D) by era
+
+| Bucket | Era | Paragraphs |
+|---|---|---:|
+| C | pre-1995 | 623 |
+| C | 1995–2010 | 1,162 |
+| C | 2011–2021 | 454 |
+| C | 2022+ | 19 |
+| D | 1995–2010 | 331 |
+| D | 2011–2021 | 1,131 |
+| D | 2022+ | 3,280 |
+
+Bucket D concentrates in 2022+ — modern committee judgments whose
+`SUBJECT MATTER` variant the matcher missed. That is a rule-harvest problem,
+not a classification problem.
+
+> ⚠️ `cases.judgment_date` is stored **`DD/MM/YYYY`**, not ISO. The year is the
+> *last* four characters. Slicing the first four buckets every case by
+> day-of-month and produces plausible-looking nonsense — the same lexical trap
+> fixed frontend-side in `13b487d`. An earlier version of this analysis fell
+> into it.
+
+---
+
+## 4. Where the PROCEDURE heading actually lives
+
+`Introduction` is effectively a heading-only section: 10,200 paragraphs across
+9,752 cases, of which **9,733 are `heading_h0`**. It holds bare `PROCEDURE`
+heading rows while the procedure *body* paragraphs sit in the Facts family.
+
+PROCEDURE-class heading rows by current section:
+
+| Section | Rows |
+|---|---:|
+| Facts | 9,430 |
+| Introduction | 7,871 |
+| Facts Proceedings | 229 |
+| other | 11 |
+
+16,746 distinct cases (84.5%) carry a PROCEDURE heading somewhere.
+
+**Consequence:** a `procedure` bucket built purely from the Facts family will
+render without its own heading in ~7,871 cases. Phase 2 should re-home those
+heading rows into `procedure` as part of the same pass. `Header` (294,636 paras,
+mostly `metadata`) is document preamble and is **out of scope** — do not touch it.
+
+---
+
+## 5. Goals
+
+1. Per-paragraph classification reflecting real HUDOC structure:
+   - `procedure` — lodging date, composition, interveners, hearing,
+     admissibility ruling history, friendly-settlement negotiations
+   - `circumstances` — substantive applicant narrative and facts as found
    - `subject_matter` — merged bucket for post-2021 Committee summaries
-   - Keep existing labels for `merits`, `admissibility`, `just_satisfaction`, `legal_framework`, `legal_context`, `article_46`, `operative_part`, `separate_opinion`, `appendix`, `introduction` unchanged.
-2. Rebuild the `paragraphs` table with the new `section` values. No changes required to `cases`.
-3. Re-expose three UI buckets in the dashboard: `procedure`, `facts` (for classical Chamber/GC cases) or `subject_matter` (for post-2021 Committee cases). Keep the Phase 1 `facts` bucket as a compatibility alias that selects all three.
-4. Keep the legacy column around during the rebuild so a rollback is possible.
+   - all other labels (`merits`, `admissibility`, `just_satisfaction`,
+     `legal_framework`, `legal_context`, `article_46`, `operative_part`,
+     `separate_opinion`, `appendix`) unchanged
+2. Re-home the 7,871 orphaned PROCEDURE heading rows out of `Introduction`.
+3. Re-expose three UI buckets; keep Phase 1 `facts` as a compatibility alias
+   that OR-selects all three.
+4. Full rollback via a `_p63_backup` table.
 
-## Non-goals
+### Non-goals
 
 - Changing paragraph IDs or ordering.
-- Revisiting the ranking pipeline (already tuned in Phase 1 — see `backend/ranking.py`).
+- Revisiting the ranking pipeline.
+- Touching `Header`.
 - Adding new dense-retrieval models.
 
 ---
 
-## Proposed approach
+## 6. Plan
 
-The key insight is that HUDOC judgments use **stable, verbatim heading strings** in uppercase that mark section boundaries. A rule-based heading detector will handle the vast majority of cases without an ML model.
+| Step | Work | Verify |
+|---|---|---|
+| 1 ✅ | Expand marker vocabulary, measure coverage (`p62`) | Residue < 5% of cases; procedure-block median in the 5–15 range — **both met** |
+| 2 | Deterministic segmenter over A+B (19,244 cases) | Every case yields contiguous, non-overlapping blocks; no paragraph loses a label; total row count unchanged |
+| 3 | Rule harvest on the 564-case residue | Coverage rises on a held-out slice; bucket D 2022+ cluster resolved by a committee-template rule |
+| 4 | Extend judge vocabulary + `v5_local_eval.py` | Re-running the v5 sweep reproduces its published numbers on the unchanged buckets (regression check on the tooling itself) |
+| 5 | Hand-label ~200 paragraphs from 50 cases as gold | Built **before** any agent runs; agents never see it |
+| 6 | Apply pass + frontend buckets | macro-F1 ≥ 0.85 on `procedure` and `circumstances` |
 
-### Step 1 — harvest the structural headings that already exist in the corpus
+### Where the LLM fan-out belongs
 
-Inside each judgment, most paragraphs begin with (or consist of) one of a small set of canonical headings:
+Two places only, both small — the deterministic passes do the heavy lifting:
 
-- `PROCEDURE`
-- `THE FACTS`
-- `I. THE CIRCUMSTANCES OF THE CASE` (and sub-headings `A.`, `B.`, …)
-- `II. RELEVANT DOMESTIC LAW AND PRACTICE` (and variants)
-- `III. RELEVANT INTERNATIONAL [LAW|MATERIALS|STANDARDS]`
-- `THE LAW`
-- `I. ALLEGED VIOLATION OF ARTICLE …`
-- `SUBJECT MATTER OF THE CASE`
-- `FACTS AND PROCEDURE` (post-2021 Committee)
-- `THE COURT'S ASSESSMENT`
-- `FOR THESE REASONS, THE COURT …`
+- **Rule harvest (step 3):** one agent per era-stratum reads ~30 residue cases
+  and proposes boundary rules. ~5 agents. Output is regexes applied
+  deterministically to all 564 cases, not per-case labels.
+- **Verification sweep (step 6):** reuse the v5 machinery — stratified 1,000
+  rows, 20 agents × 50, fresh context per agent, TSV verdicts, effective-error
+  rate with the heading-convention filter.
 
-Query the existing paragraphs table with a regex like `^[A-ZÉÀÈÙÂÊÎÔÛÇ0-9\s.()"'/:,\u201C\u201D\u2018\u2019\u2013\u2014-]+$` (the same pattern used by the modal's `HEADING_ONLY_RE` in `docs/assets/search-app.js` after the `20260410-regexfix` fix) to extract heading-only paragraphs, then tally the distinct strings. Expect a long tail but a heavy head: the top ~30 strings will cover >90% of cases.
+Estimated total: **under 100 agents.** Naive per-case fan-out would be ~19,800;
+per-paragraph is not worth costing.
 
-### Step 2 — build a deterministic segmenter
+### Blocker to clear first
 
-Walk each case's paragraphs in order. Maintain a state variable `current_section` that flips on heading matches:
-
-```python
-HEADING_PATTERNS = [
-    (re.compile(r"^\s*PROCEDURE\s*$", re.I),                    "procedure"),
-    (re.compile(r"^\s*THE FACTS\s*$", re.I),                    "facts_parent"),
-    (re.compile(r"^\s*I[.\s]+THE CIRCUMSTANCES", re.I),         "circumstances"),
-    (re.compile(r"^\s*II[.\s]+RELEVANT DOMESTIC", re.I),        "legal_framework"),
-    (re.compile(r"^\s*III[.\s]+RELEVANT INTERNATIONAL", re.I),  "legal_context"),
-    (re.compile(r"^\s*THE LAW\s*$", re.I),                      "merits"),
-    (re.compile(r"^\s*SUBJECT MATTER OF THE CASE", re.I),       "subject_matter"),
-    (re.compile(r"^\s*FACTS AND PROCEDURE", re.I),              "subject_matter"),
-    (re.compile(r"^\s*THE COURT[’']S ASSESSMENT", re.I),        "merits"),
-    (re.compile(r"^\s*FOR THESE REASONS", re.I),                "operative_part"),
-    # ... plus 20+ more harvested in Step 1
-]
-```
-
-A paragraph that matches any pattern becomes the new boundary; subsequent paragraphs inherit that `current_section` until the next match. Handle the `facts_parent` marker by resetting on the first sub-heading.
-
-### Step 3 — fallback for cases with non-canonical structure
-
-Cases that don't match any classical heading (decisions, inadmissibility rulings, press releases) should fall back to a small classifier or to `unknown` — better than mis-labelling them. For the ~5% edge cases, consider:
-
-- Rule: if a case has `document_type == "press release"` → `press_release` (already exists).
-- Rule: if a case contains `SUBJECT MATTER OF THE CASE` anywhere → apply the Committee template.
-- ML fallback: lightweight TF-IDF classifier trained on the successfully-segmented ~95% as gold labels.
-
-### Step 4 — rebuild the index
-
-- Add a new column `paragraphs.section_v2` instead of overwriting `section`. Backfill via a one-pass script.
-- Update `backend/build_db.py::_SCHEMA_SQL` and the INSERT tuple to carry both columns.
-- Update `backend/main.py::search()` and `/api/facets` to read from `section_v2` behind a feature flag (e.g. `USE_V2_SECTIONS=true` env var).
-- Ship the frontend change behind a query-string flag (`?sections=v2`) for A/B testing before making it default.
-
-### Step 5 — update the frontend
-
-In `docs/assets/search-app.js`:
-
-- Add `procedure`, `circumstances`, `subject_matter` to `SECTION_ORDER`, `SECTION_LABELS`, `SECTION_COLORS`.
-- Remove the Phase 1 `facts` merged bucket (or keep as a convenience checkbox that OR-selects all three).
-- Update `SECTION_DB_NAMES` so `procedure → ["procedure"]`, `circumstances → ["circumstances"]`, etc.
-- Bump the cache-buster.
-
-### Step 6 — evaluation
-
-Hand-label ~200 randomly sampled paragraphs from 50 cases spanning 2000–2024 and all originating bodies. Compute macro-F1 per class. Target: ≥0.85 macro-F1 on `procedure` and `circumstances` (the two classes that matter most for lawyers).
+The existing LLM-judge scheme **cannot validate Phase 2 as written**. Its
+seven-bucket vocabulary (`FACTS`, `ADM_MERITS`, `JUST_SATISFACTION`,
+`OPERATIVE`, `OPINIONS`, `META`, `HEADING`) has a single `FACTS` bucket — which
+is precisely what Phase 2 splits. `DB_TO_BUCKET`, the judge prompt, and
+`v5_local_eval.py` all need extending to `PROCEDURE` / `CIRCUMSTANCES` /
+`SUBJECT_MATTER` before any sweep number means anything.
 
 ---
 
-## Cost estimate
+## 7. Constraints and anchors
 
-- **Engineering:** 2–4 days of focused work, excluding review cycles.
-- **Compute:** rebuild of the SQLite `paragraphs` table takes 35–110 minutes (see Phase 1 notes in the ranking plan). Can run off-peak, no downtime if done against a copy.
-- **Risk:** heading strings are mostly stable but a ~5% tail of cases will need a fallback; we may also discover new templates introduced by the Court after a given date that break the rules.
+- **The verifier must not see the rule that produced the label.** It receives
+  text + context + `row_role` + era and returns a bucket. Hand it the
+  segmenter's reasoning and it rubber-stamps.
+- **Freeze `DB_TO_BUCKET` and the heading-convention filter before the sweep.**
+  They are the knobs an optimiser would loosen to flatter the error rate.
+- **Paragraph text is data, not instructions** — state this in every judge
+  prompt, as the v2–v5 sweeps do.
+- **Production DB lives on the VM** (`/home/amuvmuser/echr/data/echr_search.db`,
+  4.16 GB), healed in place by the P5x passes. Local `data/echr_search.db` is
+  from 2026-05-22 and stale. **Never run `deploy.sh --with-db`.**
+- **One SQLite DB — no parallel writers.** Agents emit JSON verdicts; a single
+  serialized script applies them. This is the existing
+  `pNN_audit_extract.py` → `verdicts.json` → `pNN_relabel.py` split; keep it.
+- **Follow the P5x mutation convention:** dry-run default, `_pNN_backup` table
+  written before any `UPDATE`, idempotent.
+- **Deterministic scripts, not agents, produce any published number.**
+  A seeded sample plus a committed verdicts file is reproducible evidence for
+  the methodology; a workflow run is not.
 
-This is why Phase 1 (the merge) is shipping first — it unblocks users in one commit without any pipeline work, and Phase 2 can proceed without user-visible regressions because the merged bucket remains valid throughout.
+### Dropped from the April plan
+
+The `section_v2` column and `USE_V2_SECTIONS` feature flag. Every audit script
+reads `section`; a parallel column means touching all of them for no rollback
+benefit the `_pNN_backup` convention doesn't already provide.
 
 ---
 
-## Files that will change in Phase 2
+## 8. Definition of done
 
-- `backend/build_db.py` — schema update, new column, new INSERT tuple.
-- `backend/main.py` — FTS5 column routing, `/api/facets` section list.
-- `scripts/resegment_sections.py` — **new**, runs the rule-based segmenter.
-- `docs/assets/search-app.js` — `SECTION_ORDER`, `SECTION_LABELS`, `SECTION_COLORS`, `SECTION_DB_NAMES`, `normalizeSectionKey` aliases.
-- `docs/index.html` — cache-buster bump.
-- `CHANGES-FROM-ORIGINAL.md` — append a Phase 2 section.
-
----
-
-## Definition of done
-
-1. ≥0.85 macro-F1 on the hand-labelled evaluation set for `procedure` and `circumstances`.
+1. ≥ 0.85 macro-F1 on the hand-labelled eval set for `procedure` and
+   `circumstances`.
 2. Dashboard renders three distinct filter checkboxes with plausible counts.
-3. A sample of 20 golden queries (Hirst, Selmouni, Handyside, …) returns paragraph snippets whose section classification matches a manual review.
-4. `CHANGES-FROM-ORIGINAL.md` updated.
-5. No regression on Phase 1 rank ordering (Hirst still top-1 for `Hirst`, torture still surfaces Selmouni/Ireland/Aksoy top-5).
+3. 20 golden queries (Hirst, Selmouni, Handyside, …) return snippets whose
+   section classification survives manual review.
+4. No regression on Phase 1 rank ordering (Hirst top-1 for `Hirst`; torture
+   surfaces Selmouni / Ireland / Aksoy top-5).
+5. `CHANGES-FROM-ORIGINAL.md` and `notes-internal/CHANGELOG.md` updated.
+
+---
+
+## 9. Files that will change
+
+- `scripts/p62_facts_boundary_probe.py` — **added** (read-only probe, step 1).
+- `scripts/p63_resegment_facts.py` — **new**, deterministic segmenter + apply.
+- `scripts/p63_audit_extract.py` / `p63_audit_verdicts.json` — verification sweep.
+- `rag/../v5_local_eval.py` + judge prompt — extended bucket vocabulary.
+- `docs/assets/search-app.js` — `SECTION_ORDER`, `SECTION_LABELS`,
+  `SECTION_COLORS`, `SECTION_DB_NAMES`, `normalizeSectionKey` aliases.
+- `docs/index.html` — cache-buster bump.
+- `CHANGES-FROM-ORIGINAL.md`, `notes-internal/CHANGELOG.md`.
+
+---
+
+## 10. Unrelated gap noticed while scoping
+
+`notes-internal/CHANGELOG.md` stops at **P20 (2026-04-30)**, but heal passes ran
+through **P57** and further scripts exist through **P61**. For a project with a
+DOI and published error rates, that documentation gap is worth closing
+separately from Phase 2.
