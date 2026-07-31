@@ -5131,7 +5131,7 @@ function renderResultsPage() {
 /* One result row in flat "by paragraph" mode: the matched paragraph,
  * its case title + section + date, ranked independently. Clicking it
  * opens that paragraph in the Case Note. */
-function buildParagraphResult(h, rank) {
+function buildParagraphCard(h, rank) {
   const c = h.case;
   const title = cleanCaseTitle(c.title);
   const date = formatCaseDateForDisplay(c);
@@ -5172,7 +5172,7 @@ function buildParagraphResult(h, rank) {
 
 function renderFlatResults() {
   const hits = state.flatHits || [];
-  el.casesList.innerHTML = hits.map((h, i) => buildParagraphResult(h, i + 1)).join("");
+  el.casesList.innerHTML = hits.map((h, i) => buildParagraphCard(h, i + 1)).join("");
   if (!hits.some((h) => h.caseId === state.activeCaseId)) {
     state.activeCaseId = hits[0] ? hits[0].caseId : "";
   }
