@@ -230,6 +230,18 @@ async function loadDashboard() {
   document.getElementById("metaSource").textContent = `Source: ${data.source_file || "-"} · Schema: ${data.schema_version || "-"}`;
   document.getElementById("metaGenerated").textContent = `Generated: ${formatDateForMeta(data.generated_at)} · Parser: ${data.parser_version || "-"}`;
 
+  // Some figures may have been refreshed from the live DB after the snapshot
+  // was built (P66 does this for the section counts and corpus totals, which
+  // the Phase 2 Procedure/Circumstances split invalidated). Say so, rather
+  // than letting the build date above imply the whole page is that old.
+  const pr = data.partial_refresh;
+  const prEl = document.getElementById("metaPartialRefresh");
+  if (pr && prEl) {
+    const fields = (pr.refreshed || []).length;
+    prEl.textContent = `${fields} figure${fields === 1 ? "" : "s"} refreshed from the live corpus since that build — section counts and corpus totals. Yearly series and citation analytics are from the snapshot.`;
+    prEl.hidden = false;
+  }
+
   const s = data.summary || {};
   const series = data.series || {};
   const rankings = data.rankings || {};

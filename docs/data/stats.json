@@ -4,22 +4,22 @@
   "schema_version": "echr-dashboard-v2",
   "parser_version": "2.0.0",
   "summary": {
-    "total_cases": 19720,
+    "total_cases": 19822,
     "total_press_releases": 4949,
     "input_record_count": 24669,
     "schema_version": "echr-dashboard-v2",
     "parser_version": "2.0.0",
-    "total_paragraphs": 1932917,
+    "total_paragraphs": 3258434,
     "dated_cases": 19720,
     "undated_cases": 0,
     "date_range_label": "14 Nov 1960 – 09 Apr 2026",
     "unique_countries": 84,
     "unique_articles": 1550,
-    "avg_paragraphs_per_case": 98.01810344827587,
-    "median_paragraphs_per_case": 82.0,
-    "p90_paragraphs_per_case": 166.0,
-    "min_paragraphs_per_case": 0,
-    "max_paragraphs_per_case": 3585,
+    "avg_paragraphs_per_case": 164.4,
+    "median_paragraphs_per_case": 118,
+    "p90_paragraphs_per_case": 284,
+    "min_paragraphs_per_case": 2,
+    "max_paragraphs_per_case": 51650,
     "violation_cases": 16637,
     "non_violation_cases": 3334,
     "grand_chamber_share": 2.789046653144016,
@@ -5406,59 +5406,63 @@
     "sections": [
       [
         "Merits",
-        552419
-      ],
-      [
-        "Facts (Proceedings)",
-        433699
-      ],
-      [
-        "Introduction",
-        261308
-      ],
-      [
-        "facts",
-        247480
-      ],
-      [
-        "Admissibility",
-        167019
-      ],
-      [
-        "Operative Part",
-        136896
-      ],
-      [
-        "Just Satisfaction",
-        37378
-      ],
-      [
-        "Separate Opinion",
-        25087
-      ],
-      [
-        "Legal Framework",
-        24882
-      ],
-      [
-        "Facts (Background)",
-        19099
-      ],
-      [
-        "relevant_legal_framework",
-        15968
+        741884
       ],
       [
         "Appendix",
-        8006
+        720553
       ],
       [
-        "Article 46 (Execution)",
-        3670
+        "Circumstances",
+        611473
       ],
       [
-        "Legal Context",
-        6
+        "Header",
+        294541
+      ],
+      [
+        "Legal Framework",
+        275564
+      ],
+      [
+        "Just Satisfaction",
+        197710
+      ],
+      [
+        "Operative part",
+        183451
+      ],
+      [
+        "Procedure",
+        99887
+      ],
+      [
+        "Separate Opinion",
+        59896
+      ],
+      [
+        "Admissibility",
+        53223
+      ],
+      [
+        "Subject Matter",
+        13448
+      ],
+      [
+        "Summary",
+        2364
+      ],
+      [
+        "Introduction",
+        2326
+      ],
+      [
+        "Facts",
+        1254
+      ],
+      [
+        "Article 46",
+        860
       ]
     ],
     "originating_bodies_top": [
@@ -17195,5 +17199,19 @@
         "cited_by": 2074
       }
     ]
+  },
+  "partial_refresh": {
+    "refreshed": [
+      "rankings.sections",
+      "summary.total_cases",
+      "summary.total_paragraphs",
+      "summary.avg_paragraphs_per_case",
+      "summary.median_paragraphs_per_case",
+      "summary.p90_paragraphs_per_case",
+      "summary.min_paragraphs_per_case",
+      "summary.max_paragraphs_per_case"
+    ],
+    "source": "live production DB (P66)",
+    "note": "Only the section figures and corpus totals were refreshed. Yearly series, cross-tabs, thesaurus and citation analytics remain from the generated_at snapshot and require a full build_pages_dashboard.py regeneration."
   }
 }

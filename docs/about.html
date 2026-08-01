@@ -269,9 +269,12 @@
         <h2>How the Data Is Built</h2>
         <p>
           Each judgment is fetched from HUDOC as a DOCX file, parsed into
-          numbered paragraphs, and segmented into sections (Facts /
+          numbered paragraphs, and segmented into sections following the
+          Court's own document structure — Procedure / Circumstances of the
+          Case (or Subject&nbsp;Matter, for post-2021 Committee judgments) /
+          Relevant&nbsp;legal&nbsp;framework /
           Admissibility&nbsp;+&nbsp;Merits / Just&nbsp;Satisfaction /
-          Operative / Separate Opinion / Appendix). Headings, quotes and
+          Operative / Separate Opinion / Appendix. Headings, quotes and
           operative-list items are tagged so search can filter them.
         </p>
         <p>
@@ -284,6 +287,23 @@
           <strong>1%</strong>. For canonical work always cross-check
           against HUDOC.
         </p>
+        <p>
+          The Procedure / Circumstances split is derived from the Court's
+          own section headings rather than from a trained classifier, so it
+          is checked differently — against whether the resulting blocks
+          contain what they claim. On a stratified sample of 127 cases the
+          boundary was placed correctly in <strong>98–100%</strong> of them.
+          Two conventions are worth knowing when reading results:
+        </p>
+        <ul>
+          <li>Since about 2019 the Court prints the applicant's identity and
+            legal representation <em>after</em> the "THE FACTS" heading, so
+            those paragraphs are labelled <strong>Circumstances</strong>
+            rather than Procedure. We follow the Court's placement (166
+            cases).</li>
+          <li>16 cases use a structure with no usable section heading and
+            keep an unsegmented <strong>Facts</strong> label.</li>
+        </ul>
       </section>
 
       <section class="about-section">
