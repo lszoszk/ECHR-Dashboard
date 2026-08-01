@@ -169,6 +169,17 @@ Paragraph *text* is deliberately not shipped: `build_pages_dashboard.py` touches
 
 `SECTION_LABELS` and `normalize_section_key` in `build_pages_dashboard.py` gained the three Phase 2 keys plus `summary`, which had been rendering as a raw lowercase label.
 
+**Metadata refresh (same day).** The first regeneration still leaned on the April HUDOC export for the thesaurus and citation fields, leaving 102 cases with neither. Both upstreams were then re-pulled:
+
+- `hudoc_rescrape.py` against a fresh cache (the script skips the network entirely when its cache file exists, so the April cache had to be set aside). 19,791 of 19,822 cases matched HUDOC (99.8%); `hudoc_kpthesaurus` now covers **19,573** cases, up from 19,471.
+- `merge_ecthr_pcr.py` re-merged the public `RashidHaddad/ECTHR-PCR` dataset (15,729 records, 16,102 of our cases matched).
+
+The PCR re-merge **overwrites**, and today's snapshot of that dataset is slightly thinner than the one merged in April: re-running it alone dropped 782 cases and 18,847 citation edges. Pipeline order was therefore corrected so the live sources run first and the April export is used only to fill what they leave empty (`p68 --fill-only`), which recovered exactly those 782 cases.
+
+Final citation graph: 19,131 nodes, **170,855 edges** — 3,813 fewer than the April-only figure. That is not a regression to fix: the lower number is the current state of the public dataset, with the archive as fallback, and is the reproducible one. Preferring the larger number would mean preferring the older snapshot because it flatters the graph.
+
+**Standing dependency.** `hudoc_kpthesaurus` and `pcr_*` live only in the JSONL exports, not in the database, so every future regeneration needs this two-source pull. Cases newer than the last pull have no thesaurus terms and no citations until it is re-run.
+
 ---
 
 ## 2. Ranking changes (relevance & sort)

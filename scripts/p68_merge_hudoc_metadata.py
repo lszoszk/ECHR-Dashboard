@@ -23,10 +23,29 @@ chart.
 Reads the DB export on stdin, writes the merged JSONL to stdout, coverage to
 stderr.
 
-Usage:
-  ssh amuvmuser@… 'docker exec -i echr-api python3 -' < scripts/p67_export_db_cases.py \
-      | python3 scripts/p68_merge_hudoc_metadata.py \
-          --meta docs/data/echr_cases_enriched_final.jsonl > /tmp/echr_cases_current.jsonl
+ORDER MATTERS. The archive must never overwrite a live pull. `merge_ecthr_pcr.py`
+overwrites `pcr_*`, and today's snapshot of the public ECTHR-PCR dataset is
+thinner than the one merged in April — running it after this script silently
+dropped 782 cases and 18,847 citation edges. So run the live sources first and
+use `--fill-only` here to patch what they leave empty:
+
+  # 1. corpus out of the DB
+  ssh amuvmuser@… 'docker exec -i echr-api python3 -' < scripts/p67_export_db_cases.py > a.jsonl
+  # 2. live HUDOC metadata (point --cache at a NEW file, or it never hits the network)
+  python3 scripts/hudoc_rescrape.py --input a.jsonl --output b.jsonl --cache fresh_cache.json
+  # 3. live citation graph
+  python3 scripts/merge_ecthr_pcr.py --input b.jsonl --output c.jsonl
+  # 4. backfill only what is still missing, from the archived export
+  python3 scripts/p68_merge_hudoc_metadata.py --meta docs/data/echr_cases_enriched_final.jsonl \\
+      --fill-only < c.jsonl > echr_cases_enriched_<date>.jsonl
+  # 5. rebuild
+  python3 scripts/build_pages_dashboard.py --input echr_cases_enriched_<date>.jsonl \\
+      --output docs/data/stats.json --export-data /tmp/x --sample-output /tmp/y
+  python3 scripts/build_citation_analytics.py --input echr_cases_enriched_<date>.jsonl \\
+      --stats docs/data/stats.json
+
+Without --fill-only this script overwrites, which is correct only when it is
+the *sole* source of these fields (as in the first pass, straight after p67).
 """
 from __future__ import annotations
 
@@ -82,6 +101,9 @@ def load_meta(path):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--meta", required=True, help="enriched HUDOC JSONL export")
+    ap.add_argument("--fill-only", action="store_true",
+                    help="only set fields that are missing/empty on the input; "
+                         "never overwrite a value already there")
     args = ap.parse_args()
 
     meta = load_meta(args.meta)
@@ -89,6 +111,7 @@ def main():
     matched = 0
     unmatched = 0
     filled = Counter()
+    kept = Counter()
     total = 0
     out = sys.stdout
 
@@ -101,12 +124,22 @@ def main():
         if m:
             matched += 1
             for k, v in m.items():
+                if args.fill_only and case.get(k) not in (None, "", [], {}, False):
+                    kept[k] += 1          # live source already supplied it
+                    continue
                 case[k] = v
                 if v not in (None, "", [], {}, False):
                     filled[k] += 1
         else:
             unmatched += 1
         out.write(json.dumps(case, ensure_ascii=False) + "\n")
+
+    if args.fill_only:
+        print("[p68] --fill-only: values kept from the live sources:",
+              file=sys.stderr)
+        for k in META_FIELDS:
+            if kept[k]:
+                print(f"[p68]     {k:26s} {kept[k]:>7,}", file=sys.stderr)
 
     print(f"[p68] {total:,} cases written", file=sys.stderr)
     print(f"[p68]   metadata matched  : {matched:,} "
