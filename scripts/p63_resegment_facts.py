@@ -62,6 +62,7 @@ import os
 import re
 import sqlite3
 import sys
+import time
 from collections import Counter, defaultdict
 
 DB = os.environ.get("ECHR_DB_PATH", "/data/echr_search.db")
@@ -284,6 +285,53 @@ def report(changes, stats, invariant_failures, rowcount):
 # -------------------------------------------------------------------- apply
 
 
+def warm_facets_cache():
+    """Recompute /api/facets so the first real user does not pay for it.
+
+    MANDATORY after a chunked apply, alongside checkpoint_wal(). api/main.py
+    keys _FACETS_CACHE on the DB file's (mtime, size), so ANY write — including
+    the WAL checkpoint, which rewrites the file — invalidates it. The next
+    request then does a whole-corpus aggregation that takes >45 s and simply
+    times out for whoever made it, while the server quietly finishes and caches
+    the result. Firing it here means that unlucky first request is us.
+    """
+    import urllib.request
+
+    url = "http://127.0.0.1:8000/api/facets"
+    t0 = time.time()
+    try:
+        with urllib.request.urlopen(url, timeout=600) as r:
+            n = len(r.read())
+        print(f"facets cache warmed: {n:,} bytes in {time.time() - t0:.1f}s")
+    except Exception as e:                                   # noqa: BLE001
+        print(f"  WARNING: could not warm the facets cache ({e}). The first "
+              f"dashboard load after this pass will hang — run "
+              f"`curl -s localhost:8000/api/facets >/dev/null` on the VM.")
+
+
+def checkpoint_wal(conn):
+    """Fold the WAL back into the main DB and truncate it.
+
+    MANDATORY after a chunked apply. Each committed chunk appends frames to the
+    WAL, and because the live echr-api holds a connection open SQLite never
+    gets a quiet moment to checkpoint on its own. P63 + P64 left a 1.16 GB WAL:
+    every reader then had to traverse it, which pushed /api/search from ~0.3 s
+    to 8.8 s and made /api/facets time out entirely, until this was run by hand.
+    PASSIVE first (never blocks readers), then TRUNCATE to shrink the file.
+    """
+    try:
+        busy, pages, done = conn.execute("PRAGMA wal_checkpoint(PASSIVE)").fetchone()
+        print(f"WAL checkpoint PASSIVE : busy={busy} pages={pages:,} written={done:,}")
+        busy, pages, done = conn.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchone()
+        print(f"WAL checkpoint TRUNCATE: busy={busy} pages={pages:,} written={done:,}")
+        if busy:
+            print("  WARNING: readers still active, WAL not fully truncated — "
+                  "re-run the checkpoint when the API is idle.")
+    except sqlite3.Error as e:
+        print(f"  WARNING: WAL checkpoint failed ({e}). Run it manually or "
+              f"reads will stay slow.")
+
+
 def apply_changes(conn, changes):
     """Write in short chunked transactions.
 
@@ -326,6 +374,8 @@ def apply_changes(conn, changes):
         print(f"  ... {done:>7,} / {len(changes):,}", flush=True)
 
     print(f"\nAPPLIED {done:,} updates. Backup: {BACKUP} ({done:,} rows).")
+    checkpoint_wal(conn)
+    warm_facets_cache()
 
 
 def restore(conn):

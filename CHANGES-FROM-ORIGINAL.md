@@ -114,6 +114,28 @@ The 6 `Legal Context` paragraphs live in exactly two 2026 Polish judicial-overha
 
 **Known deviation from the April DoD.** The golden-query expectation "torture surfaces Selmouni/Ireland/Aksoy top-5" no longer holds — but not because of P63: the §2 ranking retunes changed the top-5 to Gäfgen/Naït-Liman/Khasanov/Othman/Saadi before this pass, and P63 touches no ranking input (the server boost references only `Merits` and `row_role`). Hirst remains top-1 for `Hirst`. Paragraph-level macro-F1 was replaced by per-case boundary validation as the accuracy instrument, since every paragraph label is derived from the boundary.
 
+### 1.4 P64: clearing the Phase 2 residue
+**Applied to the production DB:** 2026-07-31 (`scripts/p64_resegment_residue.py --apply`; backup table `section_backup_p64`, 6,071 rows)
+**Files:** `scripts/p64_resegment_residue.py`, `scripts/p63_resegment_facts.py` (WAL checkpoint)
+
+**Rationale.** §1.3 left 564 cases (7,000 paragraphs) on the plain `Facts` label. The Phase 2 plan assumed these would need an LLM rule-harvest. Probing showed they were four self-explaining template families:
+
+1. **Hyphenated `SUBJECT-MATTER OF THE CASE`** — the P62 normaliser collapsed whitespace but not hyphens, and these headings often sit in the `Header` section, outside its Facts-family-only scan.
+2. **`PROCEDURE AND FACTS`** — P63 read it as a PROCEDURE marker; it is the Court's merged committee block, i.e. a Subject Matter start.
+3. **Just Satisfaction / Revision / Interpretation / struck-out judgments** — no circumstances section by design (PROCEDURE → THE LAW → operative), so their Facts rows are procedure content.
+4. **French-language judgments** — PROCÉDURE → EN FAIT → …CIRCONSTANCES DE L'ESPÈCE… → EN DROIT; committee variant OBJET DE L'AFFAIRE.
+
+**What changed.** 6,071 UPDATE-only rows (Facts→Procedure 3,007; Facts→Subject Matter 1,592; Facts→Circumstances 1,147; 325 headings re-homed from `Header`/`Introduction`). 556 of 564 cases resolved with **zero LLM calls**.
+
+**Final Phase 2 state:** Circumstances 611,473 · Procedure 99,887 · Subject Matter 13,448 paragraphs. Unsegmented residue **16 cases / 1,254 paragraphs** (0.17% of the Facts family), rendered as "Facts (unsegmented)". Rollback: `--restore`.
+
+**Operational notes.** Two independent problems surfaced when applying these passes against a live API; both are now handled automatically at the end of `--apply` in `p63`/`p64`.
+
+1. **WAL growth.** Chunked writes left a **1.16 GB** write-ahead log — the live API holds a connection open, so SQLite never got a quiet moment to checkpoint, and every read had to traverse it. `/api/search` degraded from ~0.3 s to 8.8 s. Fixed with `PRAGMA wal_checkpoint(TRUNCATE)`: WAL → 0 bytes, 1.16 GB disk reclaimed, `quick_check ok`, search back to ~1.6 s steady-state (the first query after a checkpoint still costs ~4 s while SQLite's 64 MB page cache refills).
+2. **Facets cache invalidation.** `api/main.py` keys `_FACETS_CACHE` on the DB file's `(mtime, size)`, so *any* write invalidates it — including the WAL checkpoint, which rewrites the file. The next `/api/facets` request then runs a whole-corpus aggregation taking **>45 s**, which times out for whoever made it while the server finishes and caches the result. This is why `/api/facets` appeared to "recover" after the checkpoint: that was a warm-cache hit from a previous timed-out request, not the checkpoint. The scripts now issue the warming request themselves.
+
+Separately noted, not addressed: `paragraphs.section` has no index, so section filters are applied after FTS — pre-existing, and the reason high-hit queries (`torture` → 16.5 k hits) take ~1.6 s rather than milliseconds.
+
 ---
 
 ## 2. Ranking changes (relevance & sort)

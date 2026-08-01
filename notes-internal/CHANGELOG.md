@@ -8,6 +8,55 @@ Chronological record of every transformation applied to the corpus, with commit 
 
 ---
 
+## 2026-07-31 — P64 (Phase 2 residue: the last 564 `Facts` cases)
+
+- **2026-07-31 P64 — residue segmentation, 6,071 rows, zero LLM calls**
+
+  Clears the 564 cases P63 left on the plain `Facts` label. The residue turned
+  out to be four template families, not a classification problem: hyphenated
+  `SUBJECT-MATTER OF THE CASE` (and headings filed under `Header`, outside
+  P62's Facts-family-only scan); `PROCEDURE AND FACTS` (a merged committee
+  block, not a PROCEDURE marker as P63 assumed); Just Satisfaction / Revision /
+  Interpretation / struck-out judgments, which have no circumstances section by
+  design; and French-language judgments (PROCÉDURE / EN FAIT / CIRCONSTANCES DE
+  L'ESPÈCE / OBJET DE L'AFFAIRE).
+
+  Rules are per-case boundary rules over heading rows in **any** section:
+  rule S (subj marker) 156 cases · rule F (facts-start) 19 · rule P
+  (PROCEDURE→LAW span is all procedure) 381 · 325 headings re-homed out of
+  `Header`/`Introduction`.
+
+  - Applied: Facts→Procedure 3,007 · Facts→Subject Matter 1,592 ·
+    Facts→Circumstances 1,147 · Introduction→Procedure 226 ·
+    Header→Subject Matter 94 · Introduction→Subject Matter 4 ·
+    Header→Circumstances 1.
+  - Final corpus: Circumstances 611,473 · Procedure 99,887 · Subject Matter
+    13,448 · residual `Facts` 1,254 (16 cases, 8 partial-coverage + 8 no-marker).
+  - Backup `section_backup_p64` (6,071 rows). Rollback via `--restore`.
+
+  **Incident (same day) — two separate causes, both now automated in the
+  scripts.**
+
+  1. *WAL growth.* Chunked writes left a **1.16 GB WAL**; the live API's open
+     connection prevents SQLite from checkpointing on its own, so every reader
+     traversed it. `/api/search` went from ~0.3 s to 8.8 s. Fixed with
+     `PRAGMA wal_checkpoint(TRUNCATE)` — WAL → 0 bytes, 1.16 GB reclaimed,
+     `quick_check ok`, search back to ~1.6 s steady state.
+  2. *Facets cache.* `_FACETS_CACHE` in `api/main.py` is keyed on the DB file's
+     `(mtime, size)`, so any write invalidates it — **including the WAL
+     checkpoint**, which rewrites the file. The next `/api/facets` call then
+     does a whole-corpus aggregation costing **>45 s** and times out for that
+     caller, while the server finishes and caches it. The apparent "facets
+     fixed by the checkpoint" reading was a warm-cache hit from the preceding
+     timed-out request, not the checkpoint.
+
+  `p63`/`p64` now call `checkpoint_wal()` then `warm_facets_cache()` at the end
+  of `--apply`. **Any future pass that writes to this DB must do both** — a
+  heal pass that skips them leaves the dashboard slow and its first visitor
+  hanging.
+
+---
+
 ## 2026-07-31 — P63 (Phase 2: Facts family → Procedure / Circumstances / Subject Matter)
 
 - **2026-07-31 P63 — deterministic boundary split of the Facts family (718,737 rows)**

@@ -1,6 +1,14 @@
 # TODO — Phase 2: split the Facts family into PROCEDURE / CIRCUMSTANCES
 
-**Status:** scoped and measured (2026-07-31). Step 1 complete — see §3.
+**Status:** ✅ **shipped 2026-07-31.** P63 segmented 97.2% of cases, P64 cleared
+the residue, the frontend exposes the three sections. What remains is
+validation, not segmentation — see §11.
+
+**Final state:** Circumstances 611,473 · Procedure 99,887 · Subject Matter
+13,448 paragraphs. Unsegmented residue: **16 cases / 1,254 paragraphs**
+(0.17% of the Facts family), down from 19,808 cases undifferentiated.
+
+**Status (historical):** scoped and measured (2026-07-31). Step 1 complete — see §3.
 **Supersedes:** the April 2026 version of this document, whose premise is obsolete (§1).
 **Prerequisite commit:** the Phase 1 merge of `facts_background` + `facts_proceedings` into a single `facts` bucket (commit `20260410-factsmerge`).
 **Probe script:** `scripts/p62_facts_boundary_probe.py` (read-only).
@@ -299,7 +307,60 @@ benefit the `_pNN_backup` convention doesn't already provide.
 
 ---
 
-## 10. Unrelated gap noticed while scoping
+## 10a. P64 — the residue was four template families, not a classifier problem
+
+Step 3 assumed the 564 residue cases would need an LLM rule-harvest. Probing
+them showed they were four self-explaining families, all handled by extending
+the marker vocabulary and searching heading rows in **any** section rather than
+only the Facts family:
+
+1. **Hyphenated `SUBJECT-MATTER OF THE CASE`** — P62's normaliser collapsed
+   whitespace but not hyphens, and these headings often sit in `Header`,
+   outside its Facts-family-only scan.
+2. **`PROCEDURE AND FACTS`** — P63 treated it as a PROCEDURE marker; it is
+   actually the Court's merged committee block, i.e. a Subject Matter start.
+3. **Just Satisfaction / Revision / Interpretation / struck-out judgments** —
+   these have *no* circumstances section by design (PROCEDURE → THE LAW →
+   operative), so their Facts rows are procedure content.
+4. **French-language judgments** — PROCÉDURE → EN FAIT → …CIRCONSTANCES DE
+   L'ESPÈCE… → EN DROIT; committee variant OBJET DE L'AFFAIRE.
+
+Result: 556 of 564 cases resolved, 6,071 row updates (backup
+`section_backup_p64`). **Zero LLM calls.** The 16 remaining cases
+(1,254 paragraphs) keep the plain `Facts` label and render as
+"Facts (unsegmented)".
+
+> **Operational lesson — two traps when writing to a DB with a live API.**
+>
+> 1. **WAL growth.** Chunked writes leave a large WAL and the API's open
+>    connection prevents SQLite from checkpointing. P63 + P64 left a **1.16 GB
+>    WAL**, pushing `/api/search` from ~0.3 s to 8.8 s.
+> 2. **Facets cache.** `_FACETS_CACHE` is keyed on the DB file's
+>    `(mtime, size)`, so any write invalidates it — *including the checkpoint
+>    itself*. The next `/api/facets` call costs **>45 s** and times out for
+>    that user while the server finishes and caches it.
+>
+> Both are now automated: `--apply` ends with `checkpoint_wal()` then
+> `warm_facets_cache()`. Any future pass writing to this DB must do both.
+
+## 11. What is actually left
+
+Segmentation is done. Remaining work is validation and hygiene:
+
+1. **Boundary validation sweep** (~150 stratified cases, "is the cut in the
+   right place?") — the instrument for a publishable accuracy number. Per-case
+   boundary accuracy, not paragraph macro-F1: every paragraph label is derived
+   from the boundary, so 718k paragraph judgements would measure 19,244
+   independent decisions with false precision.
+2. **Judge-vocabulary extension** — `DB_TO_BUCKET`, the judge prompt and
+   `v5_local_eval.py` still have a single `FACTS` bucket. Prerequisite for (1).
+3. **The 16 residual cases** — hand-review; too few to justify a rule.
+4. **Definitional question for the gold set:** in post-2021 judgments
+   representation details sit *after* `THE FACTS`, so they land in
+   Circumstances. Faithful to the Court's own structure, but a human labeller
+   would plausibly call it Procedure. Decide before it counts as an error.
+
+## 12. Unrelated gap noticed while scoping
 
 `notes-internal/CHANGELOG.md` stops at **P20 (2026-04-30)**, but heal passes ran
 through **P57** and further scripts exist through **P61**. For a project with a
