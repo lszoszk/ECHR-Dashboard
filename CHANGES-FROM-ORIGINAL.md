@@ -91,7 +91,7 @@ The 6 `Legal Context` paragraphs live in exactly two 2026 Polish judicial-overha
 
 **Deferred.** If the Court expands the `LEGAL CONTEXT OF THE CASE` heading into other case-law series (rule-of-law Russia cases, Turkey post-coup cases, Article 18 abuse-of-power series), Phase 2 — see `docs/TODO-facts-reclassify.md` — should split `Legal Context` back out as a dedicated "Case-series breadcrumb" bucket. Until there is enough volume to justify a checkbox, the merge is the right default.
 
-### 1.3 Phase 2 (P63): split the Facts family into `Procedure` / `Circumstances` / `Subject Matter`
+### 1.7 Phase 2 (P63): split the Facts family into `Procedure` / `Circumstances` / `Subject Matter`
 **Applied to the production DB:** 2026-07-31 (`scripts/p63_resegment_facts.py --apply`; backup table `section_backup_p63`, 718,737 rows)
 **Files:** `scripts/p62_facts_boundary_probe.py`, `scripts/p63_resegment_facts.py`, `docs/assets/search-app.js`, `docs/index.html`, `docs/TODO-facts-reclassify.md`
 
@@ -114,11 +114,11 @@ The 6 `Legal Context` paragraphs live in exactly two 2026 Polish judicial-overha
 
 **Known deviation from the April DoD.** The golden-query expectation "torture surfaces Selmouni/Ireland/Aksoy top-5" no longer holds — but not because of P63: the §2 ranking retunes changed the top-5 to Gäfgen/Naït-Liman/Khasanov/Othman/Saadi before this pass, and P63 touches no ranking input (the server boost references only `Merits` and `row_role`). Hirst remains top-1 for `Hirst`. Paragraph-level macro-F1 was replaced by per-case boundary validation as the accuracy instrument, since every paragraph label is derived from the boundary.
 
-### 1.4 P64: clearing the Phase 2 residue
+### 1.8 P64: clearing the Phase 2 residue
 **Applied to the production DB:** 2026-07-31 (`scripts/p64_resegment_residue.py --apply`; backup table `section_backup_p64`, 6,071 rows)
 **Files:** `scripts/p64_resegment_residue.py`, `scripts/p63_resegment_facts.py` (WAL checkpoint)
 
-**Rationale.** §1.3 left 564 cases (7,000 paragraphs) on the plain `Facts` label. The Phase 2 plan assumed these would need an LLM rule-harvest. Probing showed they were four self-explaining template families:
+**Rationale.** §1.7 left 564 cases (7,000 paragraphs) on the plain `Facts` label. The Phase 2 plan assumed these would need an LLM rule-harvest. Probing showed they were four self-explaining template families:
 
 1. **Hyphenated `SUBJECT-MATTER OF THE CASE`** — the P62 normaliser collapsed whitespace but not hyphens, and these headings often sit in the `Header` section, outside its Facts-family-only scan.
 2. **`PROCEDURE AND FACTS`** — P63 read it as a PROCEDURE marker; it is the Court's merged committee block, i.e. a Subject Matter start.
@@ -135,6 +135,18 @@ The 6 `Legal Context` paragraphs live in exactly two 2026 Polish judicial-overha
 2. **Facets cache invalidation.** `api/main.py` keys `_FACETS_CACHE` on the DB file's `(mtime, size)`, so *any* write invalidates it — including the WAL checkpoint, which rewrites the file. The next `/api/facets` request then runs a whole-corpus aggregation taking **>45 s**, which times out for whoever made it while the server finishes and caches the result. This is why `/api/facets` appeared to "recover" after the checkpoint: that was a warm-cache hit from a previous timed-out request, not the checkpoint. The scripts now issue the warming request themselves.
 
 Separately noted, not addressed: `paragraphs.section` has no index, so section filters are applied after FTS — pre-existing, and the reason high-hit queries (`torture` → 16.5 k hits) take ~1.6 s rather than milliseconds.
+
+### 1.9 P65: validating the Phase 2 boundary
+**Run:** 2026-07-31 (`scripts/p65_boundary_validation.py`, read-only, seed 2026, n=127)
+**Write-up:** `notes-internal/p65-boundary-audit.md`
+
+**Accuracy instrument.** Per-case boundary accuracy, not paragraph macro-F1: every paragraph label is derived from one per-case boundary, so scoring 725k paragraphs would present ~19.8k independent decisions as 725k and would flatter the result. Validation against the Court's headings would be circular (they are what the segmenter used), so the independent signal is whether the resulting blocks *contain* what they claim, measured against the Court's stereotyped procedural vocabulary.
+
+**Result.** 112/127 auto-OK (88.2%), 6 definitional, 9 flagged and hand-adjudicated → **0 confirmed boundary errors, 2 candidates** (pre-1995 Article 50 just-satisfaction judgments, the pre-Protocol-11 form of a family P64 already handles). Corpus-wide scan for procedure blocks absorbed into the narrative: **0 of 19,808**. Effective accuracy **98.4–100%**, against a Phase 2 DoD of ≥0.85.
+
+**Two cautions recorded for future work on this corpus.** (i) The first version of the vocabulary reported 78.7% — it encoded only the post-Protocol-11 formula, so pre-1998 procedure blocks ("*referred to the Court by the European Commission… the elected judge of Irish nationality*") scored zero. Corrected once from the Court's own templates, then every flag adjudicated by hand. (ii) A first absorption scan reported 135 defects; all 135 were the representation pattern below, caught by an over-broad `was represented by` regex. The true count is zero.
+
+**Open definitional question, now quantified.** Since ~2019 the Court places applicant identity and representation *after* the `THE FACTS` heading, so the segmenter labels them `Circumstances`; a human labeller would plausibly say `Procedure`. **166 cases** are affected. This is a labelling-convention choice, not a defect — current position is to follow the Court's own structure.
 
 ---
 

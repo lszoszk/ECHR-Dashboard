@@ -1,8 +1,9 @@
 # TODO — Phase 2: split the Facts family into PROCEDURE / CIRCUMSTANCES
 
-**Status:** ✅ **shipped 2026-07-31.** P63 segmented 97.2% of cases, P64 cleared
-the residue, the frontend exposes the three sections. What remains is
-validation, not segmentation — see §11.
+**Status:** ✅ **shipped and validated 2026-07-31.** P63 segmented 97.2% of
+cases, P64 cleared the residue, P65 validated the boundary at **98.4–100%**
+per-case accuracy (0 confirmed errors in a 127-case stratified sample, 0
+procedure-absorption corpus-wide). See §11.
 
 **Final state:** Circumstances 611,473 · Procedure 99,887 · Subject Matter
 13,448 paragraphs. Unsegmented residue: **16 cases / 1,254 paragraphs**
@@ -343,22 +344,51 @@ Result: 556 of 564 cases resolved, 6,071 row updates (backup
 > Both are now automated: `--apply` ends with `checkpoint_wal()` then
 > `warm_facets_cache()`. Any future pass writing to this DB must do both.
 
-## 11. What is actually left
+## 11. Validation — done (P65)
 
-Segmentation is done. Remaining work is validation and hygiene:
+`scripts/p65_boundary_validation.py`, seed 2026, n=127 stratified cases. Full
+write-up: `notes-internal/p65-boundary-audit.md`.
 
-1. **Boundary validation sweep** (~150 stratified cases, "is the cut in the
-   right place?") — the instrument for a publishable accuracy number. Per-case
-   boundary accuracy, not paragraph macro-F1: every paragraph label is derived
-   from the boundary, so 718k paragraph judgements would measure 19,244
-   independent decisions with false precision.
-2. **Judge-vocabulary extension** — `DB_TO_BUCKET`, the judge prompt and
-   `v5_local_eval.py` still have a single `FACTS` bucket. Prerequisite for (1).
-3. **The 16 residual cases** — hand-review; too few to justify a rule.
-4. **Definitional question for the gold set:** in post-2021 judgments
-   representation details sit *after* `THE FACTS`, so they land in
-   Circumstances. Faithful to the Court's own structure, but a human labeller
-   would plausibly call it Procedure. Decide before it counts as an error.
+| | |
+|---|---:|
+| Auto-OK | 112 (88.2%) |
+| Definitional (opener-only) | 6 (4.7%) |
+| Flagged → hand-adjudicated | 9 (7.1%) |
+| **Confirmed boundary errors** | **0** |
+| **Candidate errors** | **2** (pre-1995 Article 50 judgments) |
+| Genuine procedure-absorption, corpus-wide | **0 / 19,808** |
+
+**Effective boundary accuracy 98.4–100%**, against a DoD of ≥0.85.
+
+Two things worth carrying forward:
+
+- **The first instrument was wrong and said 78.7%.** Its vocabulary encoded only
+  the post-Protocol-11 formula, so pre-1998 procedure blocks ("*referred to the
+  Court by the European Commission… the elected judge of Irish nationality*")
+  scored 0.00. Corrected once from the Court's own templates → 88.2%, then every
+  flag adjudicated by hand. Beware any keyword metric over this corpus that has
+  not been checked against the pre-1998 templates.
+- **A first absorption scan reported 135 defects; the real number is 0.** All 135
+  were the §5 representation pattern caught by an over-broad `was represented
+  by` regex.
+
+## 11a. What is actually left
+
+1. **Pre-1995 Article 50 judgments** (Young, James and Webster; Le Compte) —
+   just-satisfaction judgments with no circumstances section, the
+   pre-Protocol-11 form of the family P64's rule P already handles. A narrow
+   follow-up pass clears them.
+2. **The definitional question — now quantified at 166 cases.** Since ~2019 the
+   Court places applicant identity and representation *after* `THE FACTS`, so
+   the segmenter labels them `Circumstances`. A human labeller would plausibly
+   say `Procedure`. This is a labelling-convention choice (like the `HEADING`
+   filter in the v2–v5 sweeps), not a defect. Current position: follow the
+   Court. Decide explicitly before any gold set counts it either way.
+3. **The 16 residual `Facts` cases** — hand-review; too few to justify a rule.
+4. **Judge-vocabulary extension** (`DB_TO_BUCKET`, judge prompt,
+   `v5_local_eval.py` still have a single `FACTS` bucket) — now optional rather
+   than blocking: with 0 confirmed errors, an LLM sweep would be confirming a
+   negative. Worth running only if (1) changes the picture.
 
 ## 12. Unrelated gap noticed while scoping
 
