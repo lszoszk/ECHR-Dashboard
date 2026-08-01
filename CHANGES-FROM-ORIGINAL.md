@@ -148,6 +148,27 @@ Separately noted, not addressed: `paragraphs.section` has no index, so section f
 
 **Open definitional question, now quantified.** Since ~2019 the Court places applicant identity and representation *after* the `THE FACTS` heading, so the segmenter labels them `Circumstances`; a human labeller would plausibly say `Procedure`. **166 cases** are affected. This is a labelling-convention choice, not a defect — current position is to follow the Court's own structure.
 
+### 1.10 P67–P68: full regeneration of the Statistics page
+**Run:** 2026-08-01 (`scripts/p67_export_db_cases.py` → `scripts/p68_merge_hudoc_metadata.py` → `build_pages_dashboard.py` → `build_citation_analytics.py`)
+
+**Problem.** `docs/data/stats.json` is a static build, last generated 2026-04-16 from a JSONL export. Every figure on the Statistics page was therefore four months and several cleaning passes out of date, and no existing export could be reused: the April file predates the Phase 2 section split, and the VM's May export predates the P5x heal passes (its `Operative part` is 834,521 rows against the database's 183,451).
+
+**Method.** The paragraphs must come from the database, which is the healed copy; but seven HUDOC metadata fields exist *only* in the enriched export and drive whole page sections — `hudoc_kpthesaurus` (the four Thesaurus charts), `pcr_citations` (the citation network), `chamber_composed_of` (judge counts), `separate_opinion`, `domestic_law`, `international_law`, `rules_of_court`. P67 streams the corpus out of the DB over SSH (nothing written to the VM, whose disk is at 90%); P68 joins the metadata back on by `case_id` and reports per-field coverage. Where the two disagree the DB wins, since P61 rewrote `article_no` and the April export still holds the comma-mashed compound strings.
+
+Paragraph *text* is deliberately not shipped: `build_pages_dashboard.py` touches it once, as a non-empty check, and never reads its content, so P67 emits a placeholder. This is exact for every statistic and turns a ~2 GB transfer into 250 MB. The export is consequently unsuitable for `--export-data` / `--sample-output`, which were pointed at scratch paths.
+
+**Result.** 19,822 cases, 3,258,434 paragraph rows, metadata matched for 19,720 (99.5%); the 102 unmatched are newer than the April HUDOC export and have empty thesaurus/citation fields. All 40 charts populated. Notable movements, all consequences of the cleaning passes rather than of this rebuild:
+
+| Figure | Was (April) | Now | Why |
+|---|---:|---:|---|
+| `total_paragraphs` | 1,932,917 | 3,258,434 | P34 re-ingest from source DOCX |
+| `unique_articles` | 1,550 | 112 | P61 removed contaminated compound article strings (the old top-10 still contained `35 § 3` alongside `35`) |
+| `max_paragraphs_per_case` | 3,585 | 51,650 | *Burmych and Others v. Ukraine* — 51,040 of its rows are the mass-applicant Appendix table (P20) |
+| `total_press_releases` | 4,949 | 0 | excluded from the corpus 2026-05-09 |
+| violation rate | 83.9% | 85.7% | healed outcome metadata |
+
+`SECTION_LABELS` and `normalize_section_key` in `build_pages_dashboard.py` gained the three Phase 2 keys plus `summary`, which had been rendering as a raw lowercase label.
+
 ---
 
 ## 2. Ranking changes (relevance & sort)

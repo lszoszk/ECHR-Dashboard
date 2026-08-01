@@ -72,7 +72,14 @@ COUNTRY_NAMES = {
 
 SECTION_LABELS = {
     "header": "Header",
+    "summary": "Summary",
     "introduction": "Introduction",
+    # P63/P64 split the Facts family. The two legacy labels below survive only
+    # in the handful of cases that still carry an unsegmented `Facts` label.
+    "procedure": "Procedure",
+    "circumstances": "Circumstances of the Case",
+    "subject_matter": "Subject Matter of the Case",
+    "facts": "Facts (unsegmented)",
     "facts_background": "Facts (Background)",
     "facts_proceedings": "Facts (Proceedings)",
     "legal_framework": "Legal Framework",
@@ -323,6 +330,11 @@ def normalize_section_key(raw_section: str) -> str:
     aliases = {
         "header": "header",
         "introduction": "introduction",
+        "procedure": "procedure",
+        "circumstances": "circumstances",
+        "subject matter": "subject_matter",
+        "subject_matter": "subject_matter",
+        "facts": "facts",
         "facts background": "facts_background",
         "facts_background": "facts_background",
         "facts proceedings": "facts_proceedings",

@@ -17,11 +17,15 @@ and (b) computable exactly from the database:
     summary.{avg,median,p90,min,max}_paragraphs_per_case
 
 Everything else in stats.json — yearly series, cross-tabs, thesaurus and
-citation analytics — is still the April snapshot and needs a full pipeline
-regeneration (`build_pages_dashboard.py`, which reads a JSONL export rather
-than the DB). This script deliberately does NOT touch those, and records what
-it refreshed in `stats.json` under `partial_refresh` so the staleness is
-visible rather than implied.
+citation analytics — is left alone, and what was refreshed is recorded under
+`partial_refresh` so the staleness is visible rather than implied.
+
+> **A full regeneration is now available** and is usually what you want:
+> `p67_export_db_cases.py` | `p68_merge_hudoc_metadata.py` → `build_pages_dashboard.py`
+> → `build_citation_analytics.py` rebuilds every figure in about a minute.
+> This script remains useful only for a quick section-count touch-up when the
+> 1 GB HUDOC metadata export is not to hand — a full run needs it for the
+> thesaurus and citation blocks.
 
 Two-step, because the DB lives on the VM and the JSON lives in the repo:
 
