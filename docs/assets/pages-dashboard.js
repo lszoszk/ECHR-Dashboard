@@ -227,6 +227,16 @@ async function loadDashboard() {
   if (!res.ok) throw new Error(`Failed to load dashboard data (${res.status})`);
   const data = await res.json();
 
+  // Provenance for the export filenames, the PNG footer and the Cite dialog.
+  // Read from the payload rather than scraped back out of #metaGenerated's
+  // formatted text, which would break the moment that formatting changes.
+  window.EchrStatsMeta = {
+    generated_at: data.generated_at,
+    source_file: data.source_file,
+    schema_version: data.schema_version,
+    parser_version: data.parser_version,
+  };
+
   document.getElementById("metaSource").textContent = `Source: ${data.source_file || "-"} · Schema: ${data.schema_version || "-"}`;
   document.getElementById("metaGenerated").textContent = `Generated: ${formatDateForMeta(data.generated_at)} · Parser: ${data.parser_version || "-"}`;
 
@@ -1199,6 +1209,11 @@ async function loadDashboard() {
             x: d.x,
             y: d.y,
             r: Math.max(3, Math.sqrt(d.v / maxVal) * 28),
+            // Carry the raw citation count. `r` is a bubble radius derived from
+            // it, so without this the CSV export would emit radii; recovering v
+            // by inverting the sqrt would be lossy. Chart.js's bubble parser
+            // reads x/y/r and leaves the rest of the object untouched.
+            v: d.v,
           })),
           backgroundColor: scatterData.map((d) => {
             const intensity = Math.min(d.v / maxVal, 1);
