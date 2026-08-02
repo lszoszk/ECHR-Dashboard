@@ -1345,42 +1345,128 @@ async function loadDashboard() {
   if (tocToggle) tocToggle.addEventListener("click", () => tocList?.classList.toggle("open"));
 }
 
-loadDashboard().catch((err) => {
-  console.error(err);
-  document.body.insertAdjacentHTML(
-    "beforeend",
-    `<div style="max-width:1220px;margin:16px auto;color:#b03e45;padding:0 20px;">Failed to load dashboard: ${err.message}</div>`
-  );
-});
+loadDashboard()
+  .then(scrollToHashIfAny)
+  .catch((err) => {
+    console.error(err);
+    document.body.insertAdjacentHTML(
+      "beforeend",
+      `<div style="max-width:1220px;margin:16px auto;color:#b03e45;padding:0 20px;">Failed to load dashboard: ${err.message}</div>`
+    );
+  });
+
+/**
+ * Re-scroll to an incoming #stats-… anchor once the charts exist.
+ *
+ * The browser performs its native hash jump at parse time, when every canvas
+ * still has zero height, so the landing position is wrong by however tall the
+ * charts above it turn out to be. `copySectionLink()` has been handing out
+ * these URLs from 17 sections, so they were already broken in the wild.
+ * behavior:"auto" — this is a correction, not a second animation.
+ */
+function scrollToHashIfAny() {
+  if (!location.hash) return;
+  const id = decodeURIComponent(location.hash.slice(1));
+  const target = document.getElementById(id);
+  if (!target) return;
+  target.scrollIntoView({ behavior: "auto", block: "start" });
+  // Move the highlight too. The markup ships `.active` on the first link, so
+  // without this an incoming deep link scrolls to the right place while the
+  // sidebar still points at "Key Statistics".
+  document
+    .querySelectorAll(".sidebar-link")
+    .forEach((l) => l.classList.toggle("active", l.dataset.target === id));
+}
 
 // ── Stats Sidebar Navigation (Phase 3) ──────────────────────────────────
 (function initSidebarNav() {
-  // Click to scroll to section
-  document.querySelectorAll(".sidebar-link").forEach((link) => {
+  const links = () => document.querySelectorAll(".sidebar-link");
+
+  /**
+   * Suppresses scroll-spy while a click-driven smooth scroll is in flight.
+   *
+   * The observer band is `-20% 0px -70% 0px` — a strip 10% of the viewport
+   * tall. A smooth scroll drags every intervening section through it, and each
+   * one steals `.active` from the link the user actually clicked. Worse, a
+   * short section at the very bottom (stats-coverage) can never enter the strip
+   * at all, so without this its highlight would never stick.
+   */
+  let navLock = false;
+  let navLockTimer = null;
+  let idleTimer = null;
+
+  function releaseNavLock() {
+    navLock = false;
+    clearTimeout(navLockTimer);
+    clearTimeout(idleTimer);
+    window.removeEventListener("scroll", onNavScroll);
+  }
+
+  function onNavScroll() {
+    // Idle detection: the lock lifts ~120 ms after scrolling actually stops.
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(releaseNavLock, 120);
+  }
+
+  function lockNav() {
+    navLock = true;
+    clearTimeout(navLockTimer);
+    clearTimeout(idleTimer);
+    window.addEventListener("scroll", onNavScroll, { passive: true });
+    // Hard ceiling. `scrollend` support is still uneven, and a lock that fails
+    // to release would freeze scroll-spy for the rest of the session — so the
+    // debounce above is the real mechanism and this is the backstop.
+    navLockTimer = setTimeout(releaseNavLock, 1000);
+  }
+
+  function setActive(id) {
+    links().forEach((l) => l.classList.toggle("active", l.dataset.target === id));
+  }
+
+  function goTo(id, { push }) {
+    const section = document.getElementById(id);
+    if (!section) return;
+    lockNav();
+    section.scrollIntoView({ behavior: "smooth", block: "start" });
+    setActive(id);
+    const hash = "#" + id;
+    // Repeated clicks on the same entry must not stack duplicate history
+    // entries, or Back becomes a no-op the user has to press several times.
+    if (location.hash !== hash) history.pushState({ statsSection: id }, "", hash);
+    else history.replaceState({ statsSection: id }, "", hash);
+  }
+
+  links().forEach((link) => {
     link.addEventListener("click", (e) => {
+      // Keep preventDefault: no `scroll-behavior: smooth` exists anywhere in
+      // the stylesheets, so handing this to the browser would downgrade the
+      // smooth scroll to an instant jump. The href is still a real anchor, so
+      // middle-click, "copy link address" and no-JS all work.
       e.preventDefault();
-      const targetId = link.dataset.target;
-      const section = document.getElementById(targetId);
-      if (section) {
-        section.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-      document.querySelectorAll(".sidebar-link").forEach((l) => l.classList.remove("active"));
-      link.classList.add("active");
+      goTo(link.dataset.target, { push: true });
     });
   });
 
-  // Scroll-spy: highlight sidebar item when its section enters the viewport
+  window.addEventListener("popstate", () => {
+    const id = (location.hash || "").slice(1);
+    if (!id) return;
+    const section = document.getElementById(decodeURIComponent(id));
+    if (!section) return;
+    setActive(decodeURIComponent(id));
+    section.scrollIntoView({ behavior: "auto", block: "start" });
+  });
+
+  // Scroll-spy: highlight sidebar item when its section enters the viewport.
+  // Presentational only — it never touches the URL. The address bar means
+  // "where you navigated", not "what happens to be under the cursor"; writing
+  // it here would fight Back and spray entries during ordinary scrolling.
   const chartSections = document.querySelectorAll(".chart-section");
   if (chartSections.length && "IntersectionObserver" in window) {
     const observer = new IntersectionObserver(
       (entries) => {
+        if (navLock) return;
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const id = entry.target.id;
-            document.querySelectorAll(".sidebar-link").forEach((l) => {
-              l.classList.toggle("active", l.dataset.target === id);
-            });
-          }
+          if (entry.isIntersecting) setActive(entry.target.id);
         });
       },
       { rootMargin: "-20% 0px -70% 0px", threshold: 0 }
