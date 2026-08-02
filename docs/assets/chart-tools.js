@@ -204,6 +204,16 @@
       ".chart-data-table .table-note{color:var(--text-muted,#6b7280);" +
       "font-size:.8rem;margin:.4rem 0 0}" +
       ".chart-data-wrap{max-height:22rem;overflow:auto}" +
+      ".echr-cite{border:1px solid var(--rule,#d8d2c6);border-radius:4px;" +
+      "background:var(--paper,#faf8f4);color:var(--ink,#1a1a1a);padding:1.1rem 1.2rem;" +
+      "max-width:min(46rem,92vw)}" +
+      ".echr-cite::backdrop{background:rgba(0,0,0,.35)}" +
+      ".echr-cite h3{margin:0 0 .6rem;font-size:1.05rem}" +
+      ".echr-cite-text{white-space:pre-wrap;word-break:break-word;font-size:.82rem;" +
+      "line-height:1.5;background:var(--bg-card,#f1f5f9);padding:.7rem .8rem;" +
+      "border-radius:3px;margin:0 0 .8rem;max-height:40vh;overflow:auto}" +
+      ".echr-cite-actions{display:flex;gap:.45rem;flex-wrap:wrap}" +
+      ".echr-cite-actions .export-btn{margin-left:0}" +
       "@media print{.chart-tools{display:none}.chart-data-table{display:none}}";
     const style = document.createElement("style");
     style.id = "echr-chart-tools-styles";
@@ -218,6 +228,7 @@
     b.textContent = label;
     b.title = title;
     b.disabled = true; // enabled once the chart actually exists
+    b.dataset.needsData = "1";
     return b;
   }
 
@@ -237,9 +248,13 @@
       csv.addEventListener("click", () => exportCsv(canvas.id));
       const png = makeButton("PNG", "Download this chart as a PNG image");
       png.addEventListener("click", () => exportPng(canvas.id));
+      const cite = makeButton("CITE", "Copy an academic citation for this chart");
+      cite.disabled = false; // citation does not depend on chart data
+      cite.addEventListener("click", () => openCiteDialog(canvas));
 
       bar.appendChild(csv);
       bar.appendChild(png);
+      bar.appendChild(cite);
       anchor.insertAdjacentElement("afterend", bar);
 
       describeCanvas(canvas);
@@ -411,6 +426,149 @@
     });
   }
 
+  // ------------------------------------------------------------- citation
+
+  /* Mirrors CITATION.cff at the repo root. That file is NOT published under
+   * docs/, so it cannot be fetched at runtime — this is a manual copy and will
+   * drift if CITATION.cff is updated without updating here. */
+  const CITATION = {
+    authors: "Szoszkiewicz, Ł., & Marcisz, S.",
+    year: "2026",
+    title: "HUDOC Researcher — ECtHR Case-Law Search & RAG",
+    version: "1.0.0",
+    doi: "10.5281/zenodo.21319703",
+    url: "https://lszoszk.github.io/ECHR-Dashboard/",
+  };
+
+  function sectionAnchorFor(canvas) {
+    const section = canvas.closest(".chart-section");
+    return section && section.id ? section.id : "";
+  }
+
+  function chartPermalink(canvas) {
+    const anchor = sectionAnchorFor(canvas);
+    const u = new URL(window.location.href);
+    u.search = "";
+    u.hash = anchor ? "#" + anchor : "";
+    return u.toString();
+  }
+
+  function citationText(canvas) {
+    const chartTitle = chartTitleFor(canvas);
+    const snapshot = snapshotDate();
+    return `${CITATION.authors} (${CITATION.year}). ${CITATION.title} ` +
+      `(Version ${CITATION.version}) [Software]. Zenodo. ` +
+      `https://doi.org/${CITATION.doi}. ` +
+      `Figure: “${chartTitle}”, data snapshot ${snapshot}. ` +
+      `Retrieved from ${chartPermalink(canvas)}`;
+  }
+
+  function bibtexText(canvas) {
+    const snapshot = snapshotDate();
+    return `@software{hudoc_researcher,\n` +
+      `  author  = {Szoszkiewicz, Łukasz and Marcisz, Sebastian},\n` +
+      `  title   = {${CITATION.title}},\n` +
+      `  year    = {${CITATION.year}},\n` +
+      `  version = {${CITATION.version}},\n` +
+      `  doi     = {${CITATION.doi}},\n` +
+      `  url     = {${CITATION.url}},\n` +
+      `  note    = {Figure: ${chartTitleFor(canvas)}; data snapshot ${snapshot}}\n` +
+      `}`;
+  }
+
+  function copyText(text, btn) {
+    const done = () => {
+      const old = btn.textContent;
+      btn.textContent = "Copied";
+      setTimeout(() => { btn.textContent = old; }, 1400);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text, done));
+    } else {
+      fallbackCopy(text, done);
+    }
+  }
+
+  function fallbackCopy(text, done) {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); done(); } catch (e) { /* ignore */ }
+    ta.remove();
+  }
+
+  function openCiteDialog(canvas) {
+    const existing = document.getElementById("echr-cite-dialog");
+    if (existing) existing.remove();
+
+    const supportsDialog = typeof window.HTMLDialogElement !== "undefined";
+    const box = document.createElement(supportsDialog ? "dialog" : "div");
+    box.id = "echr-cite-dialog";
+    box.className = "echr-cite";
+    if (!supportsDialog) box.setAttribute("role", "dialog");
+    box.setAttribute("aria-label", "Cite this chart");
+
+    const h = document.createElement("h3");
+    h.textContent = "Cite this chart";
+
+    const pre = document.createElement("pre");
+    pre.className = "echr-cite-text";
+    pre.textContent = citationText(canvas);
+
+    const actions = document.createElement("div");
+    actions.className = "echr-cite-actions";
+
+    const copyCit = document.createElement("button");
+    copyCit.type = "button";
+    copyCit.className = "export-btn";
+    copyCit.textContent = "Copy citation";
+    copyCit.addEventListener("click", () => copyText(pre.textContent, copyCit));
+
+    const copyLink = document.createElement("button");
+    copyLink.type = "button";
+    copyLink.className = "export-btn";
+    copyLink.textContent = "Copy link";
+    copyLink.addEventListener("click", () => copyText(chartPermalink(canvas), copyLink));
+
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "export-btn";
+    toggle.textContent = "BibTeX";
+    let showingBibtex = false;
+    toggle.addEventListener("click", () => {
+      showingBibtex = !showingBibtex;
+      pre.textContent = showingBibtex ? bibtexText(canvas) : citationText(canvas);
+      toggle.textContent = showingBibtex ? "Plain" : "BibTeX";
+    });
+
+    const close = document.createElement("button");
+    close.type = "button";
+    close.className = "export-btn";
+    close.textContent = "Close";
+    close.addEventListener("click", () => {
+      if (supportsDialog && box.close) box.close();
+      box.remove();
+    });
+
+    actions.appendChild(copyCit);
+    actions.appendChild(copyLink);
+    actions.appendChild(toggle);
+    actions.appendChild(close);
+    box.appendChild(h);
+    box.appendChild(pre);
+    box.appendChild(actions);
+    document.body.appendChild(box);
+
+    if (supportsDialog && box.showModal) {
+      box.addEventListener("close", () => box.remove());
+      box.showModal();
+    }
+    copyCit.focus();
+  }
+
   // ---------------------------------------------------------------- plugin
 
   /**
@@ -446,7 +604,9 @@
           if (!bar) return;
           const hasData = !!(chart.data && chart.data.datasets &&
                              chart.data.datasets.some((d) => (d.data || []).length));
-          bar.querySelectorAll("button").forEach((b) => { b.disabled = !hasData; });
+          // Only the data-dependent buttons; CITE works with or without data.
+          bar.querySelectorAll('button[data-needs-data="1"]')
+             .forEach((b) => { b.disabled = !hasData; });
           bar.dataset.stale = "1"; // consumed by the a11y data table
 
           // Refresh the accessible name now that the data exists, and again
