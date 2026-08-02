@@ -120,6 +120,25 @@ HUDOC itself analyses cases unevenly. Per the HUDOC FAQ (§ 12, "Which texts are
 
 Because this tool parses the **full judgment text** rather than relying on those curated fields, two things work here that HUDOC's own filters cannot do for level-3 cases: the *Separate opinion* filter (opinions are detected in the text) and the citation graph above (references are extracted from the text).
 
+## Analytics & privacy
+
+This site uses Google Analytics 4 only to see which views are used, and only
+after you accept the banner. Consent Mode v2 defaults to denied — nothing is
+sent to Google, not even a request for the analytics library, before you
+choose. A Do Not Track or Global Privacy Control setting skips analytics
+entirely and no banner is shown.
+
+We record **view names only** (Search, Statistics, Methodology, About, Semantic
+Search). We never send your search queries, the filters or countries you
+select, or the judgments you open. The page address is stripped to its path
+before being sent, so a query cannot leak through the URL or through the
+referrer on the next page. Ad personalisation and Google signals are disabled.
+
+Your choice lives in this browser's local storage
+(`echr-analytics-consent`) and can be changed at any time from the
+[Privacy & analytics](../methodology.html#privacy-analytics) box on the
+Methodology page.
+
 ## Honest limits
 
 - **Some misclassifications remain.** Approximately one paragraph in eight still sits in a slightly imperfect section. Most are boundary cases where a single PDF-extracted paragraph genuinely contains content from two adjacent sections.
