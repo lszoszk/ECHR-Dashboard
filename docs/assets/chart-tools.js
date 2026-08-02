@@ -194,7 +194,17 @@
       // shove the first button around inside a flex toolbar.
       ".chart-tools .export-btn{margin-left:0}" +
       ".chart-tools button[disabled]{opacity:.4;cursor:default}" +
-      "@media print{.chart-tools{display:none}}";
+      ".chart-data-table{margin:.2rem 0 1rem;font-size:.85rem}" +
+      ".chart-data-table summary{cursor:pointer;color:var(--text-muted,#6b7280);" +
+      "padding:.25rem 0}" +
+      ".chart-data-table table{width:100%;border-collapse:collapse;margin-top:.4rem}" +
+      ".chart-data-table th,.chart-data-table td{text-align:left;padding:.3rem .6rem;" +
+      "border-bottom:1px solid var(--border,#e2e8f0)}" +
+      ".chart-data-table th{font-weight:600}" +
+      ".chart-data-table .table-note{color:var(--text-muted,#6b7280);" +
+      "font-size:.8rem;margin:.4rem 0 0}" +
+      ".chart-data-wrap{max-height:22rem;overflow:auto}" +
+      "@media print{.chart-tools{display:none}.chart-data-table{display:none}}";
     const style = document.createElement("style");
     style.id = "echr-chart-tools-styles";
     style.textContent = css;
@@ -231,7 +241,140 @@
       bar.appendChild(csv);
       bar.appendChild(png);
       anchor.insertAdjacentElement("afterend", bar);
+
+      describeCanvas(canvas);
+      mountDataTable(canvas, bar);
     });
+  }
+
+  // --------------------------------------------------------- accessibility
+
+  /**
+   * Point the canvas at the section's existing prose.
+   *
+   * Every one of the 33 sections already carries a hand-written
+   * <p class="chart-section-desc">. Giving those an id and referencing them
+   * turns 33 good descriptions into screen-reader content for nothing — by far
+   * the best value-per-line item here. The canvas itself gets role="img" and a
+   * name; Chart.js sets neither.
+   */
+  let descSeq = 0;
+  function describeCanvas(canvas) {
+    canvas.setAttribute("role", "img");
+    const section = canvas.closest(".chart-section");
+    const desc = section && section.querySelector(".chart-section-desc");
+    if (desc) {
+      if (!desc.id) desc.id = "chart-desc-" + (++descSeq);
+      const existing = canvas.getAttribute("aria-describedby");
+      if (!existing) canvas.setAttribute("aria-describedby", desc.id);
+    }
+    // aria-label is refreshed in afterUpdate, once data exists.
+    if (!canvas.getAttribute("aria-label")) {
+      canvas.setAttribute("aria-label", chartTitleFor(canvas));
+    }
+  }
+
+  /** "Bar chart, 63 data points, values from 1 to 1,503." */
+  function summarise(chart) {
+    try {
+      const title = chartTitleFor(chart.canvas);
+      const type = (chart.config && (chart.config.type || (chart.config._config || {}).type)) || "chart";
+      const nums = [];
+      (chart.data.datasets || []).forEach((ds) => {
+        (ds.data || []).forEach((v) => {
+          const n = typeof v === "object" && v !== null ? (v.v !== undefined ? v.v : v.y) : v;
+          if (typeof n === "number" && isFinite(n)) nums.push(n);
+        });
+      });
+      if (!nums.length) return title;
+      const min = Math.min.apply(null, nums);
+      const max = Math.max.apply(null, nums);
+      const series = (chart.data.datasets || []).length;
+      return title + ". " + type + " chart, " +
+        (series > 1 ? series + " series, " : "") +
+        nums.length + " data points, values from " +
+        min.toLocaleString() + " to " + max.toLocaleString() + ".";
+    } catch (e) {
+      return chartTitleFor(chart.canvas);
+    }
+  }
+
+  const TABLE_ROW_CAP = 250;
+
+  /**
+   * A <details> data table, built lazily on first open from the SAME
+   * chartToRows() the CSV export uses — so the table and the download can
+   * never disagree.
+   *
+   * Visible <details> rather than an .sr-only table on purpose: no sr-only
+   * utility exists in any of this site's four stylesheets, and a disclosure
+   * serves keyboard and low-vision users too, while keeping the DOM light
+   * because nothing is built until it is opened.
+   */
+  function mountDataTable(canvas, bar) {
+    const details = document.createElement("details");
+    details.className = "chart-data-table";
+    details.dataset.canvas = canvas.id;
+    const summary = document.createElement("summary");
+    summary.textContent = "View data as a table";
+    details.appendChild(summary);
+    const host = document.createElement("div");
+    host.className = "chart-data-wrap";
+    details.appendChild(host);
+
+    details.addEventListener("toggle", () => {
+      if (!details.open) return;
+      if (host.dataset.built === "1" && bar.dataset.stale !== "1") return;
+      buildTable(canvas.id, host);
+      host.dataset.built = "1";
+      bar.dataset.stale = "";
+    });
+
+    bar.insertAdjacentElement("afterend", details);
+  }
+
+  function buildTable(canvasId, host) {
+    host.textContent = "";
+    const chart = getChart(canvasId);
+    const rows = chart ? chartToRows(chart) : [];
+    if (rows.length < 2) {
+      host.textContent = "No data available for this chart.";
+      return;
+    }
+    const table = document.createElement("table");
+    const thead = document.createElement("thead");
+    const htr = document.createElement("tr");
+    rows[0].forEach((h) => {
+      const th = document.createElement("th");
+      th.scope = "col";
+      th.textContent = h;
+      htr.appendChild(th);
+    });
+    thead.appendChild(htr);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+    const body = rows.slice(1);
+    body.slice(0, TABLE_ROW_CAP).forEach((r) => {
+      const tr = document.createElement("tr");
+      r.forEach((cell, i) => {
+        const td = document.createElement(i === 0 ? "th" : "td");
+        if (i === 0) td.scope = "row";
+        td.textContent = cell;
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    host.appendChild(table);
+
+    if (body.length > TABLE_ROW_CAP) {
+      const note = document.createElement("p");
+      note.className = "table-note";
+      note.textContent = "Showing the first " + TABLE_ROW_CAP + " of " +
+        body.length.toLocaleString() + " rows — use CSV for the full data.";
+      host.appendChild(note);
+    }
   }
 
   function toolbarFor(canvasId) {
@@ -284,6 +427,15 @@
    */
   function registerPlugin() {
     if (!window.Chart || !window.Chart.register) return;
+
+    // Chart.js animates by default. Honour the OS setting.
+    try {
+      if (window.matchMedia &&
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        window.Chart.defaults.animation = false;
+      }
+    } catch (e) { /* ignore */ }
+
     window.Chart.register({
       id: "echrChartTools",
       afterUpdate: function (chart) {
@@ -296,6 +448,20 @@
                              chart.data.datasets.some((d) => (d.data || []).length));
           bar.querySelectorAll("button").forEach((b) => { b.disabled = !hasData; });
           bar.dataset.stale = "1"; // consumed by the a11y data table
+
+          // Refresh the accessible name now that the data exists, and again
+          // whenever the chart is rebuilt from a dropdown change.
+          chart.canvas.setAttribute("aria-label", summarise(chart));
+
+          // If the table is open while the chart changes underneath it, rebuild
+          // in place rather than leaving stale numbers on screen.
+          const details = document.querySelector(
+            '.chart-data-table[data-canvas="' + CSS.escape(id) + '"]'
+          );
+          if (details && details.open) {
+            const host = details.querySelector(".chart-data-wrap");
+            if (host) { buildTable(id, host); bar.dataset.stale = ""; }
+          }
         } catch (e) {
           console.warn("[chart-tools] afterUpdate:", e);
         }
