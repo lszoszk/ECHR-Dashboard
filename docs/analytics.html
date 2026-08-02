@@ -17,7 +17,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css">
   <link rel="stylesheet" href="assets/search-app.css">
-  <link rel="stylesheet" href="assets/analytics-page.css">
+  <link rel="stylesheet" href="assets/analytics-page.css?v=20260802-caveats">
   <link rel="stylesheet" href="assets/editorial-redesign.css?v=20260507-hudoc-researcher-4">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1"></script>
@@ -170,6 +170,7 @@
           <section class="chart-section" id="stats-cases-year">
             <h2 class="chart-section-title">Cases by Year</h2>
             <p class="chart-section-desc">Number of ECHR judgments delivered per calendar year since the Court's inception, illustrating the steady growth of the Strasbourg docket over six decades.</p>
+            <p class="chart-caveat">The final bar is a <strong>partial year</strong> — the corpus stops at 13&nbsp;May&nbsp;2026, so 2026 shows ~300 judgments against 797–990 for full years. It is a cut-off, not a collapse in the Court’s output. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
             <div class="chart-canvas-wrap">
               <canvas id="casesYearChart"></canvas>
             </div>
@@ -179,6 +180,7 @@
           <section class="chart-section" id="stats-violation-rate-year">
             <h2 class="chart-section-title">Violation Rate by Year (%)</h2>
             <p class="chart-section-desc">Percentage of cases with at least one violation finding in each calendar year. Tracks structural shifts in the Court's adjudicative outcomes and reveals periods of systemic non-compliance by respondent states.</p>
+            <p class="chart-caveat">The final year is <strong>partial</strong> and rests on far fewer cases, so its rate is noisier than the rest of the series. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
             <div class="chart-canvas-wrap">
               <canvas id="violationRateYearChart" style="height:400px"></canvas>
             </div>
@@ -188,6 +190,7 @@
           <section class="chart-section" id="stats-outcomes-year">
             <h2 class="chart-section-title">Outcomes by Year</h2>
             <p class="chart-section-desc">Annual breakdown of case outcomes — violation only, non-violation only, mixed findings, and no finding — showing how the Court's caseload composition has evolved over time.</p>
+            <p class="chart-caveat">The final year is <strong>partial</strong> (corpus ends 13&nbsp;May&nbsp;2026); read the last column as an incomplete sample, not a trend. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
             <div class="chart-canvas-wrap">
               <canvas id="outcomesYearChart"></canvas>
             </div>
@@ -229,6 +232,7 @@
           <section class="chart-section" id="stats-country-cases">
             <h2 class="chart-section-title">Cases by Country</h2>
             <p class="chart-section-desc">Number of ECHR judgments by respondent state, identifying which countries face the highest litigation volumes before the Court and where systemic human rights issues are most prevalent.</p>
+            <p class="chart-caveat">Counts reflect <strong>English-language judgments only</strong>. States whose output is substantially French-only are under-represented here. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
             <div class="chart-canvas-wrap">
               <canvas id="countriesChart"></canvas>
             </div>
@@ -240,6 +244,7 @@
               <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-country-rates')">🔗</button>
             </h2>
             <p class="chart-section-desc">Proportion of cases resulting in at least one violation finding per respondent state (top 25 by caseload, minimum 10 cases). Normalises raw case counts to reveal which states have the highest per-case breach rates.</p>
+            <p class="chart-caveat">Rates are computed over <strong>English-language judgments only</strong>, so states with substantial French-only output are under-represented. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
             <div class="chart-canvas-wrap" style="height:620px;">
               <canvas id="countryRatesChart"></canvas>
             </div>
@@ -308,6 +313,7 @@
               <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-thesaurus-trends')">&#x1F517;</button>
             </h2>
             <p class="chart-section-desc">Annual frequency of the five most common thesaurus topics, tracking how the Court's docket composition has shifted across core Convention rights over the decades.</p>
+            <p class="chart-caveat">The final year is <strong>partial</strong> (corpus ends 13&nbsp;May&nbsp;2026). <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
             <div class="chart-canvas-wrap">
               <canvas id="thesaurusTrendsChart"></canvas>
             </div>
@@ -356,6 +362,7 @@
               <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-conclusion-trends')">&#x1F517;</button>
             </h2>
             <p class="chart-section-desc">Annual trends in key conclusion outcomes: violation findings, no-violation findings, financial awards granted, and inadmissibility declarations. Tracks how the Court's dispositive patterns have evolved over time.</p>
+            <p class="chart-caveat">The final year is <strong>partial</strong> (corpus ends 13&nbsp;May&nbsp;2026). <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
             <div class="chart-canvas-wrap">
               <canvas id="conclusionTrendsChart"></canvas>
             </div>
@@ -394,6 +401,7 @@
               <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-citation-landmarks')">&#x1F517;</button>
             </h2>
             <p class="chart-section-desc">The 30 most-cited cases in the ECHR citation network (by in-degree). These are the judgments most frequently relied upon by later decisions, representing the backbone of Strasbourg jurisprudence (Fowler et al. 2007).</p>
+            <p class="chart-caveat">A citation edge exists only where <strong>both judgments are in this corpus</strong> and the citation carries an application number. Coverage is structurally partial. <a href="methodology.html#citation-graph-cites-cited-by">How to read this</a></p>
             <div id="landmarkKpis" class="kpi-row"></div>
             <div class="chart-canvas-wrap" style="height:700px;">
               <canvas id="landmarkCasesChart"></canvas>
@@ -419,6 +427,7 @@
               <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-citation-age')">&#x1F517;</button>
             </h2>
             <p class="chart-section-desc">How old are the precedents the Court cites? Shows the time gap (in years) between citing and cited judgments. A short average age suggests the Court favours recent authority; longer tails reveal enduring foundational precedents (Lupu &amp; Voeten 2012).</p>
+            <p class="chart-caveat">Subject to <strong>right-censoring</strong>: recent judgments have had less time to accumulate citations, so the recent end is necessarily thin. <a href="methodology.html#citation-graph-cites-cited-by">How to read this</a></p>
             <div id="citAgeKpis" class="kpi-row"></div>
             <div class="chart-row">
               <article class="chart-container" style="flex:1.3;">
@@ -438,6 +447,7 @@
               <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-citation-heatmap')">&#x1F517;</button>
             </h2>
             <p class="chart-section-desc">How often cases involving one Convention article cite cases involving another article. Strong off-diagonal values reveal "polymorph principles" — legal concepts that bridge multiple rights (Olsen &amp; Esmark 2019). Matrix shows the top 12 articles by caseload.</p>
+            <p class="chart-caveat">Edges require <strong>both judgments in-corpus</strong> and a resolvable application number; the matrix is therefore a lower bound. <a href="methodology.html#citation-graph-cites-cited-by">How to read this</a></p>
             <div class="chart-canvas-wrap" style="height:600px;">
               <canvas id="citationHeatmapChart"></canvas>
             </div>
@@ -467,6 +477,7 @@
               <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-citation-pagerank')">&#x1F517;</button>
             </h2>
             <p class="chart-section-desc">PageRank measures a case's authority by weighing citations from other highly-cited cases (Google-style recursive prestige). Betweenness centrality identifies cases that serve as "bridges" between different clusters of jurisprudence — gatekeepers of legal reasoning (Fowler et al. 2007).</p>
+            <p class="chart-caveat">Network metrics are computed over the in-corpus citation graph only — they rank influence <strong>within this dataset</strong>, not within all ECtHR case-law. <a href="methodology.html#citation-graph-cites-cited-by">How to read this</a></p>
             <div class="chart-row">
               <article class="chart-container" style="flex:1;">
                 <h3 class="chart-title">Top 25 by PageRank</h3>
@@ -530,6 +541,7 @@
           <section class="chart-section" id="stats-inadmissibility">
             <h2 class="chart-section-title">Inadmissibility Grounds</h2>
             <p class="chart-section-desc">The most frequently cited grounds for declaring applications inadmissible, showing the procedural and substantive barriers applicants most often fail to satisfy before the Court.</p>
+            <p class="chart-caveat">Admissibility <em>Decisions</em> are outside this corpus entirely. This measures inadmissibility <strong>as discussed within judgments</strong>, not the Court’s actual filtering of applications. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
             <div class="chart-canvas-wrap">
               <canvas id="inadmissibilityGroundsChart" style="height:500px"></canvas>
             </div>
@@ -558,6 +570,7 @@
 
             <h3 class="chart-section-subtitle" style="margin-top:40px; margin-bottom:6px;">Top Keywords</h3>
             <p class="chart-section-desc">Most frequently occurring thematic keywords across the corpus, offering a high-level map of the legal issues at the heart of ECHR jurisprudence.</p>
+            <p class="chart-caveat">HUDOC supplies keywords for about <strong>two-thirds</strong> of the corpus, so this describes the cases that have them &mdash; and low-importance cases are systematically the ones that do not. <a href="methodology.html#why-low-importance-cases-look-metadata-poor-everywhere">How to read this</a></p>
             <div class="chart-canvas-wrap">
               <canvas id="keywordsChart"></canvas>
             </div>
@@ -567,6 +580,7 @@
           <section class="chart-section" id="stats-precedent-concentration">
             <h2 class="chart-section-title">Precedent Concentration</h2>
             <p class="chart-section-desc">Cumulative citation share of the most-cited precedents, illustrating the degree to which ECHR reasoning relies on a concentrated set of landmark rulings. A steep curve signals high concentration.</p>
+            <p class="chart-caveat">Computed over the in-corpus citation graph only. <a href="methodology.html#citation-graph-cites-cited-by">How to read this</a></p>
             <div class="chart-canvas-wrap">
               <canvas id="precedentConcentrationChart"></canvas>
             </div>
@@ -576,6 +590,7 @@
           <section class="chart-section" id="stats-paragraphs">
             <h2 class="chart-section-title">Paragraph Distribution</h2>
             <p class="chart-section-desc">Number of indexed paragraphs broken down by judgment section (Facts, Law, Operative provisions, etc.), reflecting how textual content is distributed across the structural parts of ECHR judgments.</p>
+            <p class="chart-caveat">Roughly <strong>one paragraph in eight</strong> carries a slightly imperfect section label, and Appendix is dominated by mass-applicant table rows rather than prose. <a href="methodology.html#honest-limits">How to read this</a></p>
             <div class="chart-canvas-wrap">
               <canvas id="sectionsChart"></canvas>
             </div>
