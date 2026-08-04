@@ -104,9 +104,13 @@ def main():
             flush()
             rate = n_new / (time.time() - t0)
             tot = n_done + n_new
-            print(f"  embedded {n_new:,} new (total {tot:,}/1,311,434, {rate:.0f} rows/s)", flush=True)
-            if a.limit and n_new >= a.limit:
-                break
+            print(f"  embedded {n_new:,} new (total {tot:,}, {rate:.0f} rows/s)", flush=True)
+        # --limit is checked HERE, outside the branch above, because most
+        # flushes happen on the earlier token-budget path a few lines up. With
+        # the check nested in that branch, --limit was silently ignored and a
+        # "smoke test" ran the entire corpus.
+        if a.limit and n_new >= a.limit:
+            break
     flush()
 
     meta = {"model": a.model, "dim": dim, "n": n_done + n_new,
