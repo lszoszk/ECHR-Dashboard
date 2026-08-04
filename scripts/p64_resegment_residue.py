@@ -331,16 +331,19 @@ def warm_facets_cache():
     """
     import urllib.request
 
-    url = "http://127.0.0.1:8000/api/facets"
-    t0 = time.time()
-    try:
-        with urllib.request.urlopen(url, timeout=600) as r:
-            n = len(r.read())
-        print(f"facets cache warmed: {n:,} bytes in {time.time() - t0:.1f}s")
-    except Exception as e:                                   # noqa: BLE001
-        print(f"  WARNING: could not warm the facets cache ({e}). The first "
-              f"dashboard load after this pass will hang — run "
-              f"`curl -s localhost:8000/api/facets >/dev/null` on the VM.")
+    # BOTH endpoints. /api/stats is called by the Search page itself
+    # (search-app.js:7038) and costs ~76 s cold, so warming only /api/facets
+    # leaves the site's own front door hanging for the first visitor.
+    for path in ("/api/facets", "/api/stats"):
+        t0 = time.time()
+        try:
+            with urllib.request.urlopen("http://127.0.0.1:8000" + path, timeout=900) as r:
+                n = len(r.read())
+            print(f"warmed {path:14s} {n:,} bytes in {time.time() - t0:.1f}s")
+        except Exception as e:                               # noqa: BLE001
+            print(f"  WARNING: could not warm {path} ({e}). The first load "
+                  f"after this pass will hang — run "
+                  f"`curl -s localhost:8000{path} >/dev/null` on the VM.")
 
 
 def checkpoint_wal(conn):

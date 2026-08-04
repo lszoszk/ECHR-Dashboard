@@ -14,6 +14,7 @@
 #   2. discover + fetch + build new cases locally  (scripts/p60_monthly_update.py)
 #   3. [--apply] apply the update SQL to the VM database
 #   4. [--apply] rebuild the citation graph        (scripts/p29_extract_citations.py)
+#   4b.[--apply] checkpoint the WAL + warm the facets cache (mandatory)
 #   5. [--apply] verify via the live API
 #
 # Recovery: p60 also emits <out>.rollback — apply it to the VM database
@@ -98,6 +99,40 @@ echo
 echo "[4/5] rebuilding the citation graph (P29) ..."
 ssh "$VM" "docker exec $CONTAINER python3 /tmp/p29_extract_citations.py \
            --db $DB --apply" | tail -3
+
+# ── Phase 4b — checkpoint the WAL and warm the facets cache ──────────
+# Both are mandatory after any write to this database and neither is
+# optional politeness. A ~20 MB insert leaves WAL frames that readers must
+# traverse, and the live API holds a connection open so SQLite never
+# checkpoints on its own — P63/P64 left a 1.16 GB WAL that pushed
+# /api/search from ~0.3 s to 8.8 s. Separately, api/main.py keys its facets
+# cache on the DB file's (mtime, size), so ANY write — the checkpoint
+# included — invalidates it, and the next visitor pays a >45 s whole-corpus
+# aggregation that simply times out for them.
+echo
+echo "[4b] checkpointing the WAL and warming the facets cache ..."
+ssh "$VM" "docker exec -i $CONTAINER python3 -" <<PY
+import sqlite3, time, urllib.request
+con = sqlite3.connect("$DB", timeout=180)
+con.execute("PRAGMA busy_timeout = 180000")
+for mode in ("PASSIVE", "TRUNCATE"):
+    busy, pages, done = con.execute("PRAGMA wal_checkpoint(%s)" % mode).fetchone()
+    print(f"      checkpoint {mode:8s} busy={busy} pages={pages:,} written={done:,}")
+    if mode == "TRUNCATE" and busy:
+        print("      WARNING: readers active, WAL not fully truncated")
+con.close()
+# BOTH endpoints, not just facets. /api/stats is called by the Search page
+# itself (search-app.js:7038), and cold it takes ~76 s — so leaving it unwarmed
+# hangs the site's own front door for whoever arrives first.
+for path in ("/api/facets", "/api/stats"):
+    t0 = time.time()
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:8000" + path, timeout=900) as r:
+            n = len(r.read())
+        print(f"      warmed {path:14s} {n:,} bytes in {time.time() - t0:.1f}s")
+    except Exception as e:
+        print(f"      WARNING: could not warm {path} ({e}) — first visitor will hang")
+PY
 
 # ── Phase 5 — verify via the live API ────────────────────────────────
 echo
