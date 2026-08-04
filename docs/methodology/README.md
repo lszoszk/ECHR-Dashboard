@@ -4,8 +4,17 @@
 
 ## What's in the dataset
 
-- **19,822 court rulings** from the European Court of Human Rights (1960 – 13 May 2026)
-- **3.26 million segmented text rows** — body paragraphs, headings, quoted passages and operative formulae — of which **1.24 million carry the Court's own paragraph numbering** (`¶ 1`, `¶ 2`…)
+- **20,010 court rulings** from the European Court of Human Rights (14 November 1960 – **23 July 2026**)
+- **3.30 million segmented text rows** — body paragraphs, headings, quoted passages and operative formulae — of which **1.25 million carry the Court's own paragraph numbering** (`¶ 1`, `¶ 2`…)
+
+> **Cut-off.** The corpus ends at the newest judgment listed above, not at
+> today's date. It is topped up by a monthly ingest, and the Court publishes
+> faster than HUDOC renders the source documents those passes read — so the
+> last few weeks before the cut-off are thinner than they will eventually be,
+> and anything decided after it is absent entirely. Charts with a time axis
+> therefore show a short final year; that is the harvest boundary, not a drop
+> in the Court's output. The live corpus size is shown in the Search header,
+> and the Statistics page prints the build date of its own snapshot.
 - **Source:** the official HUDOC portal (cases harvested by the Court itself)
 - **Coverage:** all 47 Council of Europe contracting parties plus their successor states
 

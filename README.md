@@ -9,6 +9,12 @@ retrieval (RAG) system anchored on the Court's official Case-Law Guides.
 
 **Live dashboard:** https://lszoszk.github.io/ECHR-Dashboard/
 
+**Corpus:** 20,010 judgments · 3.30 M segmented rows · **cut-off 23 July 2026**.
+That date is a harvest boundary, not today: new judgments arrive by a monthly
+ingest, HUDOC renders their source documents some weeks after delivery, and the
+semantic index is rebuilt separately. So the last weeks before the cut-off are
+thinner than they will become, and anything decided after it is absent.
+
 Developed by **Łukasz Szoszkiewicz** and **Sebastian Marcisz**.
 
 ---
@@ -27,7 +33,7 @@ Developed by **Łukasz Szoszkiewicz** and **Sebastian Marcisz**.
 | **`data/`** | Local & VM data (corpus DB, raw JSONL…). **Git-ignored** — rebuilt by the scripts, never committed. |
 
 ## The RAG system in one paragraph
-Query → **voyage-4-large** embedding → **FAISS** (compressed SQ8) over **1.31 M
+Query → **voyage-4-large** embedding → **FAISS** (compressed SQ8) over **1.32 M
 ECtHR paragraphs** → **rerank-2.5** on the top 100 → **authority boost** (HUDOC
 "importance") → results grouped into cases. Evaluated against the Court's 41
 official Case-Law Guides. Full method, accuracy and how-to-run in

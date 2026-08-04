@@ -1,14 +1,15 @@
 # RAG — ECtHR paragraph-level semantic retrieval
 
-Semantic search over **19,822 ECtHR judgments / 1.31 M paragraphs**, evaluated
+Semantic search over **20,010 ECtHR judgments / 1.32 M paragraphs**, evaluated
 against the Court's **41 official Case-Law Guides** used as a pinpoint-citation
-answer key.
+answer key. Corpus cut-off **23 July 2026**; the index is a snapshot of that
+corpus and does not update itself — see "Rebuilding after a corpus update".
 
 ## Pipeline (current, validated)
 ```
 query
   → voyage-4-large embedding (query side)
-  → FAISS SQ8 ANN over 1.31M paragraph vectors   (top ~300)
+  → FAISS SQ8 ANN over 1.32M paragraph vectors   (top ~300)
   → rerank-2.5 cross-encoder on the top 100       (relevance)
   → + 0.05 × HUDOC importance                     (authority of the case)
   → group paragraphs into cases
