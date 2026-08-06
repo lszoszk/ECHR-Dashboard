@@ -158,6 +158,10 @@ _FTS5_DANGEROUS_CHARS = re.compile(r"[\^*(){}:+\-~.,;!?/\\|<>=&']+")
 # type them as bare words would otherwise produce malformed MATCH expressions.
 _FTS5_RESERVED_OPERATORS = {"AND", "OR", "NOT", "NEAR"}
 
+# Kill-switch for the zero-result OR fallback (see the search handler).  Off
+# until the broadened token set is trimmed -- as written it is unusably slow.
+_FALLBACK_ON = os.environ.get("ECHR_FALLBACK", "0").lower() not in ("0", "false", "no")
+
 
 def _extract_phrases(raw: str) -> tuple[list[str], str]:
     """
@@ -1574,8 +1578,14 @@ def search(
             # the strict search returned nothing, so precision queries are
             # untouched; the response is tagged so the UI can say "no exact
             # match -- showing closest results".
+            #
+            # DISABLED by default since 6 Aug 2026: broadening ORs every bare
+            # token, stopwords included, so "the" alone unions ~1.3M postings.
+            # A descriptive query then matches the whole corpus and the
+            # count(DISTINCT) took 175 s in production.  Set ECHR_FALLBACK=1 to
+            # re-enable once the token set is trimmed (rarest-K, no stopwords).
             fallback = None
-            if total_cases == 0:
+            if total_cases == 0 and _FALLBACK_ON:
                 relaxed = _build_fts_query(fts_source, broaden=True)
                 if relaxed and relaxed != fts_expr:
                     params[0] = relaxed
