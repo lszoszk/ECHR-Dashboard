@@ -191,9 +191,15 @@ def _extract_phrases(raw: str) -> tuple[list[str], str]:
     return phrases, "".join(remainder_parts)
 
 
-def _build_fts_query(raw: str) -> str:
+def _build_fts_query(raw: str, broaden: bool = False) -> str:
     """
     Convert a user query string into an FTS5 MATCH expression.
+
+    ``broaden=True`` joins bare tokens with OR instead of the default AND
+    (quoted phrases stay mandatory).  Used as the zero-result fallback for
+    descriptive queries: P0 measurement (Aug 2026) showed AND semantics give
+    ~0 recall on natural-language questions (0.3--1.6 docHit@10 on the
+    de-anchoring benchmark) while OR-mode BM25 reaches ~60--88.
 
     Strategy:
         1. Extract balanced ``"phrases"`` verbatim so the user can force
@@ -265,7 +271,7 @@ def _build_fts_query(raw: str) -> str:
             near_pending = False
             continue
         parts.append(tok)
-        parts.append("AND")
+        parts.append("OR" if broaden else "AND")
 
     # Remove trailing operator.
     if parts and parts[-1] in ("AND", "OR"):
@@ -1561,6 +1567,27 @@ def search(
             total_cases = count_row["total_cases"]
             total_hits = count_row["total_hits"]
 
+            # ---- Zero-result fallback (P0, Aug 2026) --------------------
+            # AND semantics give ~0 recall on descriptive queries.  When the
+            # strict expression matches nothing, retry once with bare tokens
+            # OR-joined (quoted phrases stay mandatory).  Fires only where
+            # the strict search returned nothing, so precision queries are
+            # untouched; the response is tagged so the UI can say "no exact
+            # match -- showing closest results".
+            fallback = None
+            if total_cases == 0:
+                relaxed = _build_fts_query(fts_source, broaden=True)
+                if relaxed and relaxed != fts_expr:
+                    params[0] = relaxed
+                    cur.execute(count_sql, [*params, *role_params])
+                    count_row = cur.fetchone()
+                    if count_row["total_cases"] > 0:
+                        total_cases = count_row["total_cases"]
+                        total_hits = count_row["total_hits"]
+                        fallback = "any_terms"
+                    else:
+                        params[0] = fts_expr
+
             if total_cases == 0:
                 elapsed = (time.perf_counter() - t0) * 1000
                 return {
@@ -1570,6 +1597,7 @@ def search(
                     "page_size": page_size,
                     "search_time_ms": round(elapsed, 1),
                     "group": group,
+                    "fallback": None,
                     "cases": [],
                     "hits": [],
                 }
@@ -1689,6 +1717,7 @@ def search(
                     "page_size": page_size,
                     "search_time_ms": round(elapsed, 1),
                     "group": "paragraph",
+                    "fallback": fallback,
                     "hits": hits,
                 }
 
@@ -1984,6 +2013,7 @@ def search(
                 "page": page,
                 "page_size": page_size,
                 "search_time_ms": round(elapsed, 1),
+                "fallback": fallback,
                 "cases": cases_out,
             }
     except sqlite3.OperationalError as exc:
