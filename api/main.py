@@ -158,9 +158,25 @@ _FTS5_DANGEROUS_CHARS = re.compile(r"[\^*(){}:+\-~.,;!?/\\|<>=&']+")
 # type them as bare words would otherwise produce malformed MATCH expressions.
 _FTS5_RESERVED_OPERATORS = {"AND", "OR", "NOT", "NEAR"}
 
-# Kill-switch for the zero-result OR fallback (see the search handler).  Off
-# until the broadened token set is trimmed -- as written it is unusably slow.
+# Kill-switch for the zero-result OR fallback (see the search handler).
 _FALLBACK_ON = os.environ.get("ECHR_FALLBACK", "0").lower() not in ("0", "false", "no")
+
+# Terms dropped when broadening.  OR-ing a 40-word question is only affordable
+# if the ubiquitous terms go: `the` is in 63% of paragraph bodies, and ECtHR
+# prose adds its own function words -- the five stems below are every term at
+# DF >= 10% in the `text` column that is not already closed-class (measured with
+# fts5vocab on the July-2 index; see nllp2026-deanchoring/results/).  Matched by
+# prefix because the index is Porter-stemmed, so `applic` covers applicant /
+# application / applicable.  Nothing substantive is lost: `detention`,
+# `torture`, `property` and the like all sit far below the cut.
+_BROADEN_UBIQUITOUS = ("applic", "court", "articl", "case", "convent")
+_BROADEN_STOP = frozenset("""
+a an the and or but if of to in on at by for with from as is are was were be
+been being it its this that these those which who whom whose what when where
+why how any all such may might must shall will would should can could not no
+nor do does did done has have had there their them they he she his her we our
+you your i s t 1
+""".split())
 
 
 def _extract_phrases(raw: str) -> tuple[list[str], str]:
@@ -274,8 +290,20 @@ def _build_fts_query(raw: str, broaden: bool = False) -> str:
             parts.append("AND")
             near_pending = False
             continue
+        if broaden:
+            low = tok.lower()
+            if low in _BROADEN_STOP or low.startswith(_BROADEN_UBIQUITOUS):
+                continue
+            # Quote the term here, against the advice in step 4 above: that
+            # advice is about AND mode, where losing the stemmer loses recall
+            # we cannot spare.  In OR mode recall is not the binding
+            # constraint, ranking precision is, and unstemmed terms rank
+            # better -- +13 docHit@10 on the de-anchoring lay tier.
+            parts.append(f'"{low}"')
+            parts.append("OR")
+            continue
         parts.append(tok)
-        parts.append("OR" if broaden else "AND")
+        parts.append("AND")
 
     # Remove trailing operator.
     if parts and parts[-1] in ("AND", "OR"):
