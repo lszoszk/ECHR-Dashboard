@@ -24,6 +24,12 @@ BASE = Path("/data/rag")
 STATIC = Path(__file__).resolve().parent / "rag_static"
 VOYAGE_MODEL = "voyage-4-large"; RERANK_MODEL = "rerank-2.5"
 NPROBE = 128; FETCH = 300; RERANK_POOL = 100; IMP_BOOST = 0.05
+# Hybrid lexical arm (P0 measurement, Aug 2026): case-level OR-mode BM25 fused
+# with the dense ranking. Offline on the de-anchoring benchmark: expert-register
+# queries 87.7 -> 92.9 docHit@10, raw 94.8 -> 97.3, lay ~unchanged (at ceiling).
+# Contentless FTS5 (index only, no stored text): 181 MB. Optional — absent file
+# or ECHR_HYBRID=0 simply disables fusion.
+HYBRID_KEEP = 5   # max keyword-only cases appended per query
 SEP_PENALTY = 0.12  # demote separate/dissenting-opinion paragraphs so the Court's holding ranks first
 # Legal Framework sections quote instruments (constitutions, statutes,
 # Convention articles), not the Court's reasoning — a bare "privacy" surfaced
@@ -73,7 +79,12 @@ def _load():
         for x in str((m or {}).get("state", "")).split(","):
             x = x.strip()
             if x: resp.add(x)
-    _S.update(index=idx, case=[r["case_id"] for r in ids], sno=[r["section_no"] for r in ids],
+    docfts = None
+    dfp = BASE / "docs_fts.db"
+    if dfp.exists() and os.environ.get("ECHR_HYBRID", "1").lower() not in ("0", "false", "no"):
+        docfts = sqlite3.connect(f"file:{dfp}?mode=ro", uri=True, check_same_thread=False)
+    _S.update(docfts=docfts,
+              index=idx, case=[r["case_id"] for r in ids], sno=[r["section_no"] for r in ids],
               rid=[r["rowid"] for r in ids], meta=meta, rowsec=rowsec, artmap=art,
               fts=sqlite3.connect(f"file:{BASE/'corpus_fts.db'}?mode=ro", uri=True, check_same_thread=False),
               respondents=sorted(resp), sections=sorted({v for v in rowsec.values() if v}))
@@ -125,6 +136,53 @@ def run_paragraph_search(q, respondent=None, article=None, section=None):
             "judgment_date": m.get("date", "") or "", "respondent": m.get("state", "") or "", "articles": arts,
             "section": sec, "para_idx": s if s is not None else 0, "text": txt.get(rid[p], "")})
     out.sort(key=lambda x: -x["score"]); return out
+
+_HSTOP = frozenset(("the a an and or not of to in for on with at by from as is are was were be been this "
+                    "that these those it its his her their which who whom whose what when where why how any "
+                    "all such may must shall will would should can could has have had no nor").split())
+
+def _htoks(q, cap=40):
+    import re
+    out = []
+    for t in re.findall(r"[a-zA-Z0-9]{2,}", (q or "").lower()):
+        if t in _HSTOP: continue
+        out.append(t)
+        if len(out) >= cap: break
+    return out
+
+def keyword_cases(q, limit=20):
+    """OR-mode BM25 over one-row-per-case contentless FTS; [] on any failure."""
+    S = _load(); con = S.get("docfts")
+    if con is None: return []
+    tk = _htoks(q)
+    if len(tk) < 2: return []
+    m = " OR ".join(f'"{t}"' for t in tk)
+    try:
+        rows = con.execute("SELECT d.case_id FROM doc_fts f JOIN docmap d ON d.rid=f.rowid "
+                           "WHERE doc_fts MATCH ? ORDER BY bm25(doc_fts) LIMIT ?", (m, limit)).fetchall()
+    except sqlite3.OperationalError:
+        return []
+    return [r[0] for r in rows]
+
+def hybrid_fuse(cases, q, keep=HYBRID_KEEP, k_rrf=60):
+    """RRF reorder WITHIN match tiers (badges keep their meaning) + flagged tail."""
+    kw = keyword_cases(q)
+    if not kw: return cases, False
+    sc = {c["case_id"]: 1.0 / (k_rrf + i + 1) for i, c in enumerate(cases)}
+    for i, cid in enumerate(kw):
+        sc[cid] = sc.get(cid, 0.0) + 1.0 / (k_rrf + i + 1)
+    cases.sort(key=lambda c: (_tier(c.get("top_score", 0.0)), -sc.get(c["case_id"], 0.0)))
+    have = {c["case_id"] for c in cases}; meta = _load()["meta"]; extra = []
+    for cid in kw:
+        if cid in have or len(extra) >= keep: continue
+        m = meta.get(cid) or {}
+        extra.append({"case_id": cid, "case_no": m.get("case_no", "") or "", "title": m.get("title", "") or "",
+                      "hudoc_url": m.get("hudoc", "") or "", "judgment_date": m.get("date", "") or "",
+                      "respondent": m.get("state", "") or "",
+                      "articles": [str(x) for x in (m.get("violation") or [])],
+                      "top_score": 0.0, "hits": [], "hit_count": 0, "matched_via": "keyword"})
+        have.add(cid)
+    return cases + extra, True
 
 def _tier(t): return 0 if t >= 0.80 else 1 if t >= 0.72 else 2 if t >= 0.65 else 3
 def group_by_case(paras, k):
@@ -207,5 +265,6 @@ def sections(): return {"sections": _load()["sections"]}
 def similar(q: str = Query(...), k: int = Query(10, ge=1, le=50),
             respondent: str | None = Query(None), article: str | None = Query(None), section: str | None = Query(None)):
     t0 = time.time(); paras = run_paragraph_search(q, respondent, article, section); cases = group_by_case(paras, k)
-    return {"mode": "expert", "query": q, "count": len(cases), "results": cases,
+    cases, hyb = hybrid_fuse(cases, q)
+    return {"mode": "expert", "query": q, "count": len(cases), "hybrid": hyb, "results": cases,
             "stats": {"paragraphs_pooled": len(paras), "elapsed_ms": int((time.time() - t0) * 1000)}}
