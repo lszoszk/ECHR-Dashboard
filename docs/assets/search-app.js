@@ -5717,6 +5717,9 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
     state.limited = false;
     state.searchTimeMs = data.search_time_ms || (t1 - t0);
     state.serverMode = true;
+    // P0 (Aug 2026): server retried with any-of-these-terms matching because
+    // the exact all-terms query found nothing. Tell the user plainly.
+    renderFallbackNotice(data.fallback || null);
     // Default view: cap visible total at 100 cases / 5 pages even though
     // the server knows about the full 18k+ corpus.
     const rawTotalCases = data.total_cases || 0;
@@ -7216,4 +7219,21 @@ function maybeShowSemanticHint(query, data) {
     `<a href="semantic.html?q=${encodeURIComponent(q)}">Try <strong>Semantic Search</strong> for “${escapeHtml(q)}” →</a>` +
     `<span class="semantic-hint-why">matches by legal substance — the Court may phrase it differently (e.g. “private life”)</span>`;
   h.hidden = false;
+}
+
+function renderFallbackNotice(mode) {
+  let el = document.getElementById("fallbackNotice");
+  if (!mode) { if (el) el.remove(); return; }
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "fallbackNotice";
+    el.setAttribute("role", "status");
+    el.style.cssText = "margin:8px 0;padding:8px 12px;border-left:3px solid #b45309;" +
+      "background:rgba(180,83,9,.08);font-size:.85rem;line-height:1.4;border-radius:2px;";
+    const anchor = document.getElementById("resultsCases");
+    const host = anchor ? anchor.closest("section,div") : null;
+    (host || document.body).insertBefore(el, host ? host.firstChild : null);
+  }
+  el.textContent = "No case contains every word of your query \u2014 showing the closest " +
+    "matches (any of your terms, best first). Tip: quote a phrase to make it mandatory.";
 }

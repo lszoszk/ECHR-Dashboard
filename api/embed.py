@@ -65,17 +65,28 @@ def voyage_embed(texts, model="voyage-4-large", input_type="document", key=None,
     return out
 
 def voyage_rerank(query, documents, model="rerank-2.5", top_k=None, key=None):
-    """Return list of (orig_index, relevance_score) sorted best-first."""
+    """Return list of (orig_index, relevance_score) sorted best-first.
+
+    A single 429 (rate limit) is retried once after a short backoff: measured
+    Aug 2026, bursty traffic tripped 429s on ~5% of consecutive calls and each
+    silently degraded that query to plain cosine order.  Anything else, and a
+    second 429, still fail fast to the cosine fallback in rag_mod."""
     key = key or load_key("voyage")
     body = {"query": query[:4000], "documents": documents, "model": model}
     if top_k: body["top_k"] = top_k
-    req = urllib.request.Request(VOYAGE_RERANK_URL, data=json.dumps(body).encode(), method="POST",
-        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"})
-    try:
-        with urllib.request.urlopen(req, timeout=120, context=_SSL) as r:
-            data = json.loads(r.read())
-    except urllib.error.HTTPError as e:
-        raise SystemExit(f"Voyage rerank HTTP {e.code}: {e.read().decode('utf-8','ignore')[:300]}")
+    payload = json.dumps(body).encode()
+    for attempt in (0, 1):
+        req = urllib.request.Request(VOYAGE_RERANK_URL, data=payload, method="POST",
+            headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(req, timeout=120, context=_SSL) as r:
+                data = json.loads(r.read())
+            break
+        except urllib.error.HTTPError as e:
+            detail = e.read().decode("utf-8", "ignore")[:300]
+            if e.code == 429 and attempt == 0:
+                time.sleep(2.5); continue
+            raise SystemExit(f"Voyage rerank HTTP {e.code}: {detail}")
     res = [(d["index"], d["relevance_score"]) for d in data["data"]]
     res.sort(key=lambda x: -x[1])
     return res

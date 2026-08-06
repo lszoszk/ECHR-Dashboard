@@ -76,6 +76,7 @@ import embed  # local: voyage query embedding + rerank (gitignored keys)
 
 # --- Engine artifacts (voyage-4-large SQ8 ANN + BM25/text + metadata + tags) ---
 ANN_INDEX   = "data/ann_index.index"
+DOCS_FTS    = "data/docs_fts.db"   # case-level OR-mode lexical arm (hybrid, P0 Aug 2026)
 IDS_FILE    = "data/ids.jsonl"
 FTS_DB      = "data/corpus_fts.db"
 META_FILE   = "data/cases_meta.json"
@@ -491,6 +492,12 @@ async def lifespan(app):
         c,s,t=l.rstrip("\n").split("\t"); artmap[(c,int(s))]=t
     state["artmap"]=artmap
     state["fts"]=sqlite3.connect(f"file:{FTS_DB}?mode=ro",uri=True,check_same_thread=False)
+    state["docfts"]=None
+    if os.environ.get("ECHR_HYBRID","1").lower() not in ("0","false","no") and Path(DOCS_FTS).exists():
+        state["docfts"]=sqlite3.connect(f"file:{DOCS_FTS}?mode=ro",uri=True,check_same_thread=False)
+        print("[*] Hybrid lexical arm: ON (docs_fts.db)")
+    else:
+        print("[*] Hybrid lexical arm: off")
     state["collection"]=None
     # respondents + sections from metadata (for the UI facets)
     resp=set();
@@ -587,6 +594,61 @@ def run_paragraph_search(query_text, respondent=None, article=None, section=None
             "text": txt.get(rid[p], "")})
     paragraphs.sort(key=lambda x: -x["score"])
     return paragraphs
+
+# ---- Hybrid lexical arm (P0 measurement, Aug 2026) -------------------------
+# Offline-validated on the de-anchoring benchmark (RRF of this dense arm with
+# OR-mode case-level BM25): raw 94.8->97.3, expert-register 87.7->92.9,
+# lay 87.3->87.6, guides 87.3->87.0.  Fusion is applied WITHIN match tiers so
+# the UI's Strong/Good/Possible badges keep their meaning; cases surfaced only
+# by the keyword arm are appended, capped and explicitly flagged.
+_HYB_STOP = frozenset(("the a an and or not of to in for on with at by from as is are was were be "
+                       "been this that these those it its his her their which who whom whose what "
+                       "when where why how any all such may must shall will would should can could "
+                       "has have had no nor").split())
+
+def _hyb_toks(q, cap=40):
+    out=[]
+    import re as _re
+    for t in _re.findall(r"[a-zA-Z0-9]{2,}", (q or "").lower()):
+        if t in _HYB_STOP: continue
+        out.append(t)
+        if len(out)>=cap: break
+    return out
+
+def keyword_case_ranking(query_text, limit=20):
+    """OR-mode BM25 over one-row-per-case FTS; [] on any failure."""
+    con=state.get("docfts")
+    if con is None: return []
+    tk=_hyb_toks(query_text)
+    if len(tk)<2: return []
+    match=" OR ".join(f'"{t}"' for t in tk)
+    try:
+        rows=con.execute("SELECT d.case_id FROM doc_fts f JOIN doc d ON d.rid=f.rowid "
+                         "WHERE doc_fts MATCH ? ORDER BY bm25(doc_fts) LIMIT ?",(match,limit)).fetchall()
+    except sqlite3.OperationalError:
+        return []
+    return [r[0] for r in rows]
+
+def hybrid_fuse(cases, query_text, extra_cap=5, k_rrf=60):
+    """Within-tier RRF reorder + flagged keyword-only tail. Returns (cases, applied)."""
+    kw=keyword_case_ranking(query_text)
+    if not kw: return cases, False
+    score={}
+    for i,c in enumerate(cases): score[c["case_id"]]=1.0/(k_rrf+i+1)
+    for i,cid in enumerate(kw): score[cid]=score.get(cid,0.0)+1.0/(k_rrf+i+1)
+    cases.sort(key=lambda c:(_match_tier(c.get("top_score",0.0)), -score.get(c["case_id"],0.0)))
+    have={c["case_id"] for c in cases}
+    extra=[]
+    meta=state.get("meta") or {}
+    for cid in kw:
+        if cid in have or len(extra)>=extra_cap: continue
+        m=meta.get(cid) or {}
+        extra.append({"case_id":cid,"case_no":m.get("case_no","") or "","title":m.get("title","") or "",
+            "hudoc_url":m.get("hudoc","") or "","judgment_date":m.get("date","") or "",
+            "respondent":m.get("state","") or "","articles":[str(x) for x in (m.get("violation") or [])],
+            "top_score":0.0,"hits":[],"hit_count":0,"matched_via":"keyword"})
+        have.add(cid)
+    return cases+extra, True
 
 def _match_tier(top_s):
     """Match-quality tier used for primary sort: 0=Strong, 1=Good, 2=Possible, 3=Weak."""
@@ -910,7 +972,8 @@ def similar(q:str=Query(...),k:int=Query(10,ge=1,le=50),respondent:str|None=Quer
     t0 = time.time()
     paras=run_paragraph_search(q,respondent,article,section)
     cases=group_by_case(paras,k)
-    return {"mode":"expert","query":q,"count":len(cases),"results":cases,
+    cases,hyb=hybrid_fuse(cases,q)
+    return {"mode":"expert","query":q,"count":len(cases),"hybrid":hyb,"results":cases,
             "stats":{"paragraphs_pooled": len(paras),
                       "elapsed_ms": int((time.time()-t0)*1000)}}
 
@@ -960,6 +1023,9 @@ def smart_search(q:str=Query(...),k:int=Query(10,ge=1,le=50),respondent:str|None
     # ---- 3) Group with consensus-aware sort ----
     pooled_list = sorted(pooled.values(), key=lambda p: -p["score"])
     cases = group_by_case(pooled_list, k, case_appearances=case_appearances)
+    # Hybrid: fuse with the ORIGINAL user query (not the rewrites) -- the lexical
+    # arm exists precisely to catch the user's own anchors.
+    cases, _hyb = hybrid_fuse(cases, q)
     # Annotate appearance_total for the UI ("3/5 runs found this case")
     for c in cases:
         c["appearance_total"] = len(rewrites)
@@ -979,6 +1045,7 @@ def smart_search(q:str=Query(...),k:int=Query(10,ge=1,le=50),respondent:str|None
     else: ea = None
 
     data = {"mode": "natural", "style": style if style in STYLE_PRESETS else "creative",
+            "hybrid": _hyb,
             "original_query": q,
             "search_query": primary["search_query"],
             "rewritten_query": primary["rewritten_query"],

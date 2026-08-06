@@ -1903,8 +1903,12 @@ function renderViewA(data) {
   const list = $('case-list');
   if (!data.results || !data.results.length) { list.innerHTML = '<li class="state-msg">No matching paragraphs.</li>'; return; }
   list.innerHTML = data.results.map((c, idx) => {
-    const m = matchLabel(c.top_score);
-    const prev = (c.hits && c.hits.length) ? previewText(c.hits[0].text) : '';
+    const m = (c.matched_via === 'keyword')
+      ? {cls:'fair', text:'Keyword match'}
+      : matchLabel(c.top_score);
+    const prev = (c.hits && c.hits.length) ? previewText(c.hits[0].text)
+      : (c.matched_via === 'keyword' ? 'Surfaced by full-text keyword search \u2014 open in HUDOC to review.' : '');
+    const isKw = c.matched_via === 'keyword';
     const hc = c.hit_count || (c.hits ? c.hits.length : 0);
     const hl = hc === 1 ? '1 passage' : hc + ' passages';
     const ah = renderCaseArticles(c.articles || [], idx);
@@ -1915,7 +1919,7 @@ function renderViewA(data) {
           <a class="case-title" href="${escapeHtml(c.hudoc_url||'#')}" target="_blank" rel="noopener" aria-label="${escapeHtml(c.title||c.case_id)} — open in HUDOC, opens in a new tab">${escapeHtml(c.title||c.case_id)}<span class="ext" aria-hidden="true">HUDOC&#8599;</span></a>
           <div class="case-pills">
             <span class="match-pill ${m.cls}">${m.text}</span>
-            <span class="hits-pill">${hl}</span>
+            ${isKw ? '' : `<span class="hits-pill">${hl}</span>`}
           </div>
         </div>
         <div class="case-meta">
@@ -1925,7 +1929,7 @@ function renderViewA(data) {
           ${(c.hits&&c.hits[0]&&c.hits[0].section==='Legal Framework')?'<span class="meta-tag lf" title="The closest passage sits in the Legal Framework section \u2014 quoted Convention/domestic/international provisions, not the Court\u2019s own reasoning">\u00a7 legal framework</span>':''}
         </div>
         <p class="case-preview">${escapeHtml(prev)}</p>
-        <button type="button" class="case-toggle" aria-expanded="false" onclick="toggleCase(${idx}, this)"><span class="arrow" aria-hidden="true">▶</span> Read the ${hl}</button>
+        ${isKw ? '' : `<button type="button" class="case-toggle" aria-expanded="false" onclick="toggleCase(${idx}, this)"><span class="arrow" aria-hidden="true">▶</span> Read the ${hl}</button>`}
         <div class="case-hits">
           ${(c.hits||[]).map(h => `
             <div class="hit-item">
