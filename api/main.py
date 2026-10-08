@@ -16,6 +16,7 @@ import re
 import sqlite3
 import threading
 import time
+import unicodedata
 import zlib
 from contextlib import contextmanager
 from pathlib import Path
@@ -2128,6 +2129,156 @@ def search(
 
 
 # ---- /api/cases/{case_id} -------------------------------------------------
+
+# ---- /api/suggest ----------------------------------------------------------
+#
+# Case lookup by NAME or application number.  Full-text search cannot do this
+# for every case: paragraphs.title (the title column of the FTS index) is empty
+# for ~44% of the corpus, so e.g. "Kudla" finds the 92 judgments that cite
+# Kudla v. Poland but never the judgment itself.  cases.title is intact, so
+# match against that, in memory (about 20k short strings).
+
+_FOLD_MAP = str.maketrans({
+    "ı": "i", "ł": "l", "ø": "o", "đ": "d", "ð": "d", "ß": "ss",
+    "æ": "ae", "œ": "oe", "þ": "th",
+})
+# Words that say nothing about WHICH case is meant ("Kudla v. Poland" -> kudla, poland).
+_NAME_STOP = {
+    "v", "vs", "the", "of", "and", "no", "case", "affaire", "c", "contre",
+    "et", "de", "du", "des", "la", "le", "in", "re", "against",
+}
+_NAME_MAX_MATCHES = 12   # more than this and the query is a topic or a country, not a case name
+_IMPORTANCE_RANK = {"Key cases": 0, "1": 1, "2": 2, "3": 3}
+_NAME_IDX: dict[str, Any] = {"key": None}
+_NAME_LOCK = threading.Lock()
+
+
+def _fold(text: Any) -> str:
+    """Lower-case and strip diacritics: 'PERİNÇEK' -> 'perincek', 'Ilaşcu' -> 'ilascu'."""
+    t = str(text or "").translate(_FOLD_MAP).replace("Ł", "l").replace("Ø", "o").replace("Đ", "d")
+    t = unicodedata.normalize("NFKD", t.lower())   # Turkish dotted İ lowers to i + a combining dot
+    return "".join(ch for ch in t if not unicodedata.combining(ch))
+
+
+def _name_tokens(text: Any) -> list[str]:
+    return re.findall(r"[a-z0-9]+", _fold(text))
+
+
+def _significant(tokens: list[str]) -> list[str]:
+    return [t for t in tokens if t not in _NAME_STOP and (len(t) >= 3 or t.isdigit())]
+
+
+def _name_index() -> dict[str, Any]:
+    """Token index over cases.title, rebuilt when the database file changes."""
+    try:
+        st = Path(DB_PATH).stat()
+        key = (st.st_mtime_ns, st.st_size)
+    except OSError:
+        key = None
+    if _NAME_IDX["key"] is not None and _NAME_IDX["key"] == key:
+        return _NAME_IDX
+    with _NAME_LOCK:
+        if _NAME_IDX["key"] is not None and _NAME_IDX["key"] == key:
+            return _NAME_IDX
+        rows: list[dict[str, Any]] = []
+        tok: dict[str, list[int]] = {}
+        app: dict[str, list[int]] = {}
+        with get_cursor() as cur:
+            cur.execute(
+                "SELECT case_id, title, case_no, judgment_date, respondent_state, importance, "
+                "document_type, hudoc_url FROM cases"
+            )
+            for r in cur.fetchall():
+                title = r["title"] or ""
+                if re.search(r"\[[^\]]*translation", title, re.I):
+                    continue   # unofficial translations duplicate the judgment
+                if "press release" in str(r["document_type"] or "").lower():
+                    continue   # their titles carry a summary, so topic words would look like names
+                # "x - [Estonian Translation] ..." tails are already excluded; keep the name part only
+                tokens = set(_significant(_name_tokens(title)))
+                d = str(r["judgment_date"] or "")
+                m = re.fullmatch(r"(\d{2})/(\d{2})/(\d{4})", d)
+                row = {
+                    "case_id": r["case_id"], "title": title, "case_no": r["case_no"],
+                    "judgment_date": r["judgment_date"], "respondent_state": r["respondent_state"],
+                    "importance": r["importance"], "document_type": r["document_type"],
+                    "hudoc_url": r["hudoc_url"], "tokens": tokens,
+                    "date_key": (m.group(3) + m.group(2) + m.group(1)) if m else "",
+                    "french": _fold(title).startswith("affaire"),
+                }
+                i = len(rows)
+                rows.append(row)
+                for t in tokens:
+                    tok.setdefault(t, []).append(i)
+                for part in str(r["case_no"] or "").split(";"):
+                    mm = re.fullmatch(r"\s*(\d{1,6})/(\d{2})(?:\d{2})?\s*", part)
+                    if mm:
+                        app.setdefault(f"{int(mm.group(1))}/{mm.group(2)}", []).append(i)
+        _NAME_IDX.update(key=key, rows=rows, tok=tok, app=app)
+    return _NAME_IDX
+
+
+def _suggest_cases(q: str, limit: int) -> list[dict[str, Any]]:
+    idx = _name_index()
+    rows, tok, app = idx["rows"], idx["tok"], idx["app"]
+    text = (q or "").strip()
+    kind = "name"
+    hits: list[int] = []
+
+    mid = re.fullmatch(r"(001-\d{3,7})", text)
+    mno = re.fullmatch(r"(?:application\s+no\.?\s*)?(\d{1,6})\s*/\s*(\d{2}|\d{4})", text, re.I)
+    if mid:
+        kind = "HUDOC id"
+        hits = [i for i, r in enumerate(rows) if r["case_id"] == mid.group(1)]
+    elif mno:
+        kind = "application number"
+        hits = app.get(f"{int(mno.group(1))}/{mno.group(2)[-2:]}", [])
+    else:
+        sig = _significant(_name_tokens(text))
+        if not any(t.isalpha() for t in sig):
+            return []
+        pools = []
+        for n, t in enumerate(sig):
+            exact = tok.get(t)
+            if exact:
+                pools.append(set(exact))
+            elif n == len(sig) - 1 and len(t) >= 3:   # the word still being typed
+                pools.append({i for k, v in tok.items() if k.startswith(t) for i in v})
+            else:
+                return []
+        found = set.intersection(*pools)
+        if len(found) > _NAME_MAX_MATCHES:
+            return []
+        hits = list(found)
+
+    qset = set(_significant(_name_tokens(text)))
+
+    def order(i: int):
+        r = rows[i]
+        exact_name = 0 if r["tokens"] == qset else 1
+        return (exact_name, 1 if r["french"] else 0,
+                _IMPORTANCE_RANK.get(str(r["importance"]), 4), r["date_key"] and -int(r["date_key"]), len(r["tokens"]))
+
+    out = []
+    for i in sorted(hits, key=order)[:limit]:
+        r = rows[i]
+        out.append({k: r[k] for k in ("case_id", "title", "case_no", "judgment_date", "respondent_state",
+                                      "importance", "document_type", "hudoc_url")} | {"match": kind})
+    return out
+
+
+@app.get("/api/suggest")
+def suggest(
+    q: str = Query(..., min_length=1, max_length=200, description="Case name, application number or HUDOC id"),
+    limit: int = Query(5, ge=1, le=10),
+):
+    """Cases whose name (or application number / HUDOC id) matches the query."""
+    try:
+        return {"query": q, "matches": _suggest_cases(q, limit)}
+    except Exception:
+        logger.exception("Case suggestion failed")
+        raise HTTPException(status_code=500, detail="Case lookup failed")
+
 
 @app.get("/api/cases/{case_id}")
 def get_case(case_id: str):
