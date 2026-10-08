@@ -773,10 +773,7 @@ def stats():
             )
             unique_states: set[str] = set()
             for (raw,) in cur.fetchall():
-                for part in raw.split(","):
-                    name = part.strip()
-                    if name:
-                        unique_states.add(name)
+                unique_states.update(_split_states(raw))
             total_countries = len(unique_states)
 
             # judgment_date is stored as DD/MM/YYYY strings, so naive
