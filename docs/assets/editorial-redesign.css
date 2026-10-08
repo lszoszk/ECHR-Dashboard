@@ -2192,3 +2192,38 @@ a.case-context-ecli-link .ext-icon {
 .semantic-hint a { color: var(--garnet); text-decoration: none; border-bottom: 1px solid var(--garnet); }
 .semantic-hint a:hover { border-bottom-width: 2px; }
 .semantic-hint-why { display: block; font-size: 0.76rem; color: var(--ink-3); font-style: italic; margin-top: 2px; }
+
+/* ── Case-name matches (cases the full-text index cannot find by name) ───── */
+.name-matches {
+  margin: 10px 0 6px; padding: 10px 14px 8px;
+  background: var(--bg-card); border: 1px solid var(--rule);
+  border-left: 3px solid var(--garnet); border-radius: 2px;
+}
+.name-matches[hidden] { display: none; }
+.nm-list { list-style: none; margin: 4px 0 0; padding: 0; }
+.nm-item { padding: 8px 0; border-top: 1px solid var(--rule-soft); }
+.nm-item:first-child { border-top: 0; }
+.nm-title { font-family: var(--font-serif); font-size: 1.02rem; color: var(--ink); font-weight: 600; }
+.nm-key {
+  margin-left: 8px; padding: 1px 7px; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--garnet); background: var(--garnet-soft);
+  border: 1px solid var(--garnet-edge); border-radius: 2px; vertical-align: 2px;
+}
+.nm-meta { margin-top: 2px; font-size: 0.82rem; color: var(--ink-3); }
+.nm-actions { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.nm-btn {
+  font: inherit; font-size: 0.82rem; padding: 3px 12px; cursor: pointer;
+  color: var(--garnet); background: transparent; border: 1px solid var(--garnet-edge); border-radius: 2px;
+}
+.nm-btn:hover { background: var(--garnet-soft); }
+.nm-link { font-size: 0.82rem; color: var(--garnet); text-decoration: none; border-bottom: 1px solid var(--garnet-edge); }
+.nm-link:hover { border-bottom-color: var(--garnet); }
+.nm-note { margin: 6px 0 0; font-size: 0.74rem; color: var(--ink-3); font-style: italic; }
+
+/* ── Footer: independence / source notice ───────────────────────────────── */
+.footer-note {
+  max-width: 920px; margin: 0 auto; padding: 4px 20px 16px;
+  text-align: center; font-family: var(--font-serif);
+  font-size: 0.78rem; line-height: 1.55; color: var(--ink-3);
+}
+.footer-note a { color: var(--garnet); }

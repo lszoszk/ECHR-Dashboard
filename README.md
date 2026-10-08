@@ -9,7 +9,7 @@ retrieval (RAG) system anchored on the Court's official Case-Law Guides.
 
 **Live dashboard:** https://lszoszk.github.io/ECHR-Dashboard/
 
-**Corpus:** 20,010 judgments · 3.30 M segmented rows · **cut-off 23 July 2026**.
+**Corpus:** 20,098 judgments · 3.31 M segmented rows · **cut-off 8 October 2026**.
 That date is a harvest boundary, not today: new judgments arrive by a monthly
 ingest, HUDOC renders their source documents some weeks after delivery, and the
 semantic index is rebuilt separately. So the last weeks before the cut-off are

@@ -760,6 +760,7 @@ function cacheElements() {
   el.noResults = byId("noResults");
   el.backToSearch = byId("backToSearch");
   el.casesList = byId("casesList");
+  el.nameMatches = byId("nameMatches");
   el.pagination = byId("pagination");
 
   el.analyticsArticles = byId("analyticsArticles");
@@ -5563,9 +5564,59 @@ function applySearch(resetPage = true) {
   updateResultsHeader();
 }
 
+/* Case-name matches.  Full-text search cannot find a case by NAME when the
+ * title column of the index is empty for it (about 44% of the corpus), so a
+ * search for "Kudla" lists the judgments that cite Kudla v. Poland but not
+ * the judgment itself.  /suggest matches cases.title and application numbers. */
+function clearNameMatches() {
+  state.nameMatchSeq = (state.nameMatchSeq || 0) + 1;
+  state.nameMatchQuery = "";
+  if (el.nameMatches) { el.nameMatches.hidden = true; el.nameMatches.innerHTML = ""; }
+}
+
+async function renderNameMatches(query) {
+  if (!el.nameMatches) return;
+  const q = String(query || "").trim();
+  // After "Show this case" (case:<no>) the case itself is the result.
+  if (!q || /^case:/i.test(q)) { clearNameMatches(); return; }
+  if (q === state.nameMatchQuery) return;           // pagination, sort and group changes keep the panel
+  state.nameMatchQuery = q;
+  const seq = (state.nameMatchSeq = (state.nameMatchSeq || 0) + 1);
+  let matches = [];
+  try {
+    const r = await fetch(`${API_BASE_URL}/suggest?${new URLSearchParams({ q, limit: "3" })}`);
+    if (!r.ok) throw new Error(`API ${r.status}`);
+    matches = (await r.json()).matches || [];
+  } catch (err) {
+    console.warn("[Name match] lookup failed:", err);
+  }
+  if (seq !== state.nameMatchSeq) return;           // a newer search replaced this one
+  if (!matches.length) { el.nameMatches.hidden = true; el.nameMatches.innerHTML = ""; return; }
+  const items = matches.map((m) => {
+    const appNo = String(m.case_no || "").split(";")[0].trim();
+    const url = safeHudocUrl(m.hudoc_url);
+    const key = m.importance === "Key cases" ? ' <span class="nm-key">Key case</span>' : "";
+    const meta = [m.respondent_state, formatCaseDateForDisplay(m), appNo ? `no. ${appNo}` : ""].filter(Boolean).join(" · ");
+    return `<li class="nm-item">
+      <div class="nm-title">${escapeHtml(cleanCaseTitle(m.title))}${key}</div>
+      <div class="nm-meta">${escapeHtml(meta)}</div>
+      <div class="nm-actions">
+        ${appNo ? `<button type="button" class="nm-btn" data-nm-appno="${escapeHtml(appNo)}">Show this case</button>` : ""}
+        ${url ? `<a class="nm-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Open in HUDOC ↗</a>` : ""}
+      </div>
+    </li>`;
+  }).join("");
+  el.nameMatches.innerHTML =
+    `<div class="folio-label garnet">Case name match</div>` +
+    `<ul class="nm-list">${items}</ul>` +
+    `<p class="nm-note">The judgments below are the full-text hits; they may only cite the case.</p>`;
+  el.nameMatches.hidden = false;
+}
+
 /** Server-side search — calls API and adapts results to local format. */
 async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
   const defaultView = !!opts.defaultView;
+  renderNameMatches(defaultView ? "" : query);
   // Sort + grouping are driven by the result-bar controls (state).
   // Relevance only makes sense with a query; paragraph (flat) mode
   // likewise needs a query — browse always stays case-grouped, date-sorted.
@@ -6551,6 +6602,13 @@ function bindEvents() {
 
   el.searchForm.addEventListener("submit", (e) => {
     e.preventDefault();
+    applySearch(true);
+  });
+
+  el.nameMatches?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-nm-appno]");
+    if (!btn) return;
+    el.searchInput.value = `case:${btn.dataset.nmAppno}`;
     applySearch(true);
   });
 
