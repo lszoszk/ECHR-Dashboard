@@ -4,15 +4,12 @@ P29 — extract paragraph-level citations from text and build case_citations.
 
 Background
 ----------
-Phase 1 (P28) surfaced the JSONL `strasbourg_caselaw` field for the 7,807
-older judgments that carry it.  ~16,800 cases — most importantly the
-6,240 post-2021 committee judgments — never went through that ingest
-path and consequently show "0 cites / 0 cited by" in the dashboard,
-even when their text is full of HUDOC-style citations.
-
-This pass walks paragraphs of every case, extracts ECHR application
-numbers via regex, resolves each to a `case_id` through the existing
-`case_no → case_id` index, and writes a `case_citations` table:
+~16,800 cases — most importantly the 6,240 post-2021 committee judgments —
+never went through the JSONL ingest path that carried a `strasbourg_caselaw`
+field, so they showed "0 cites / 0 cited by" in the dashboard even when their
+text is full of HUDOC-style citations.  This pass walks the paragraphs of every
+case, resolves each citation to a `case_id`, and writes a `case_citations`
+table:
 
     case_citations(
       citing_case_id TEXT NOT NULL,
@@ -25,35 +22,55 @@ numbers via regex, resolves each to a `case_id` through the existing
 
 Detection strategy
 ------------------
-* PRIMARY: `(\\d{4,5}/\\d{2,4})` appno pattern.  ECHR application numbers
-  are formatted ``NNNN/YY`` or ``NNNNN/YYYY`` (e.g. 19376/23, 80982/12).
-  Conservative — only counts when the appno is found in the *cases*
-  index, which automatically eliminates false positives (year-codes
-  like ``2026/01`` won't resolve to a case).
+1. `appno_with_cue` / `appno_no_cue` — an application number (`19376/23`,
+   `80982/12`) found in the paragraph and present in the *cases* index.  A number
+   that is not in the index is ignored, which removes year-codes such as
+   ``2026/01``.  Judgments cite modern cases this way.
 
-* SECONDARY (`--include-name-matches`): proximity-based "X v. Y" name
-  resolution against a normalized title index.  Useful for "cited above"
-  references and pre-2000 cases without explicit appnos.  Off by default
-  because of higher false-positive risk.
+2. `name_date` — a reference carrying NO application number, as pre-1999
+   judgments are cited: ``Handyside v. the United Kingdom, 7 December 1976,
+   Series A no. 24``.  The pair is accepted only when exactly one judgment in the
+   corpus has that date, the applicant's name tokens are contained in its title,
+   and the respondent State named in the reference occurs in its respondent
+   part.  A date alone, or a name alone, is never enough.
 
-The script is idempotent: running it twice rebuilds the table from
-scratch (DROP + CREATE).  No backup table needed since the table is
-fully derived from `paragraphs` + `cases`.
+Rules shared by both passes
+---------------------------
+* One application number can belong to several documents of the same case
+  (merits, just satisfaction, revision, struck out, ...).  A date written next to
+  the reference picks the right one; otherwise the principal merits judgment
+  wins, then the earliest.
+* Unofficial translations (titles containing "[... translation]") are neither
+  cited nor citing: they would split or double every count.
+* A reference marked ``(dec.)`` resolves only to a Decision document.  If the
+  corpus does not hold that decision the reference is dropped rather than
+  credited to the later judgment that happens to share the number.
+* A judgment cannot cite a judgment delivered after it (`name_date` only).
+* Self-citations are dropped.
+
+The script is idempotent: running it twice rebuilds the table from scratch
+(DROP + CREATE).  The table is fully derived from `paragraphs` + `cases`.
 
 Usage
 -----
     python3 scripts/p29_extract_citations.py [--db PATH] [--apply] \\
-            [--include-name-matches] [--limit-cases N]
+            [--audit-out FILE.jsonl] [--limit-cases N] [--report-cues]
+
+`--audit-out` writes one JSON line per `name_date` row and per application
+number that needed disambiguation, for a blind precision check.
 """
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sqlite3
 import sys
 import time
+import unicodedata
 from collections import Counter, defaultdict
 from pathlib import Path
+from typing import NamedTuple, Optional
 
 # ECHR application-number pattern.  Two forms in the wild:
 #   - 4-5 digit application + 2-digit year:    19376/23
@@ -69,45 +86,141 @@ CITATION_CUE_RE = re.compile(
     re.IGNORECASE,
 )
 
+MONTHS = ["January", "February", "March", "April", "May", "June", "July",
+          "August", "September", "October", "November", "December"]
+MONTH_NO = {m: i + 1 for i, m in enumerate(MONTHS)}
+DATE_RE = re.compile(r"\b(\d{1,2})(?:st|nd|rd|th)? (" + "|".join(MONTHS) + r") (\d{4})\b")
 
-def normalise_appno(raw: str) -> str:
-    """Convert raw appno match to the canonical form used in cases.case_no."""
-    m = APPNO_RE.match(raw)
-    if not m:
-        return raw
-    num, yr = m.group(1), m.group(2)
-    # Treat 4-digit years as already canonical (post-2000 changeover).
-    return f"{num}/{yr}"
+# "Handyside v. the United Kingdom": group 1 = applicant(s), group 2 = first word
+# of the respondent State.
+NAME_RE = re.compile(
+    r"([A-ZÀ-Ž][\w'’\-\.À-ž]*(?:[ ,]+(?:and|and Others|[A-ZÀ-Ž][\w'’\-\.À-ž]*))*?)"
+    r"\s+v\.\s+(?:the\s+)?([A-ZÀ-Ž][\w'’\-À-ž]+)"
+)
+DEC_MARK_RE = re.compile(r"\(dec\.\)")
+# "Nadtoka v. Russia (no. 2) (request for revision of the judgment of 8 October 2019":
+# the date belongs to the judgment under revision, not to the document being cited.
+REVISION_RE = re.compile(r"\b(?:revision|interpretation)\b", re.IGNORECASE)
+TRANSLATION_RE = re.compile(r"\[[^\]]*translation[^\]]*\]", re.IGNORECASE)
+
+# Longest stretch allowed between the end of "X v. State" and the date that
+# belongs to it ("... Kingdom, judgment of 7 December 1976").
+NAME_DATE_MAX_GAP = 90
+# Where to look for a date next to an application number.
+APPNO_DATE_WINDOW = 80
+
+# Document types that are the principal judgment of a case.  Everything else
+# (just satisfaction, revision, interpretation, struck out, preliminary
+# objection, ...) ranks lower when one application number has several documents.
+PRINCIPAL_TYPES = {
+    "Judgment (Merits and Just Satisfaction)", "Judgment (Merits)",
+    "Judgment (Grand Chamber)", "Judgment (Chamber)", "Judgment (Committee)",
+    "Judgment (Lack of Jurisdiction)", "Judgment (Questions of Procedure)",
+}
+
+_CHAR_MAP = str.maketrans({"ł": "l", "ø": "o", "đ": "d", "ð": "d", "æ": "ae",
+                           "œ": "oe", "ß": "ss", "ı": "i"})
+# A reference in an older judgment may spell the State differently from the title.
+_STATE_ALIASES = {"turkey": {"turkey", "turkiye"}, "turkiye": {"turkey", "turkiye"}}
 
 
-def build_appno_index(cur: sqlite3.Cursor) -> dict[str, str]:
-    """{normalised_appno: case_id}.  case_no often holds multiple appnos
-    semicolon-separated for joined cases — split + index each."""
-    cur.execute("SELECT case_id, case_no FROM cases WHERE case_no IS NOT NULL")
-    out: dict[str, str] = {}
+_ODD_SPACES = re.compile(r"[\u00a0\u2000-\u200b\u202f\u205f\u3000]")
+
+
+def plain(text: str) -> str:
+    """Replace no-break and other Unicode spaces one-for-one so offsets stay valid."""
+    return _ODD_SPACES.sub(" ", text or "")
+
+
+def fold(s: str) -> str:
+    """Lower-case, strip accents and map letters NFKD leaves alone (ł, ø, ı, ...)."""
+    s = unicodedata.normalize("NFKD", s or "")
+    s = "".join(ch for ch in s if not unicodedata.combining(ch))
+    return s.lower().translate(_CHAR_MAP)
+
+
+def tokens(s: str) -> set[str]:
+    return set(re.findall(r"[a-z0-9]+", fold(s)))
+
+
+def parse_date(s: str) -> Optional[tuple[int, int, int]]:
+    m = re.fullmatch(r"\s*(\d{1,2})/(\d{1,2})/(\d{4})\s*", s or "")
+    return (int(m.group(3)), int(m.group(2)), int(m.group(1))) if m else None
+
+
+class Doc(NamedTuple):
+    case_id: str
+    date_str: str                       # DD/MM/YYYY as stored
+    date: Optional[tuple[int, int, int]]
+    is_decision: bool
+    rank: int                           # 0 = principal judgment, 1 = ancillary
+    appnos: frozenset                   # every application number of the document
+    is_gc: bool                         # Grand Chamber judgment or decision
+    applicant: frozenset                # name tokens before " v. " in the title
+    lead: frozenset                     # name tokens of the first applicant only
+    respondent: frozenset               # name tokens after " v. "
+
+
+class Indexes(NamedTuple):
+    by_appno: dict[str, list[Doc]]
+    by_date_judgment: dict[str, list[Doc]]
+    by_date_decision: dict[str, list[Doc]]
+    docs: dict[str, Doc]
+    excluded: set[str]                  # translations: neither cited nor citing
+
+
+def build_indexes(cur: sqlite3.Cursor) -> Indexes:
+    has_body = any(r[1] == "originating_body" for r in cur.execute("PRAGMA table_info(cases)"))
+    cur.execute("SELECT case_id, case_no, title, judgment_date, document_type, "
+                + ("originating_body" if has_body else "'' AS originating_body")
+                + " FROM cases")
+    by_appno: dict[str, list[Doc]] = defaultdict(list)
+    by_date_j: dict[str, list[Doc]] = defaultdict(list)
+    by_date_d: dict[str, list[Doc]] = defaultdict(list)
+    docs: dict[str, Doc] = {}
+    excluded: set[str] = set()
     for r in cur.fetchall():
-        case_no = (r["case_no"] or "").strip()
-        if not case_no:
+        title = r["title"] or ""
+        if TRANSLATION_RE.search(title):
+            excluded.add(r["case_id"])
             continue
-        # Split on ';' or whitespace+';' or comma — joined cases like
-        # "32310/08; 33191/08; 43100/08".
-        for part in re.split(r"[;,]\s*", case_no):
-            part = part.strip()
-            if APPNO_RE.fullmatch(part):
-                out[part] = r["case_id"]
-    return out
+        dtype = r["document_type"] or ""
+        is_dec = dtype.startswith("Decision")
+        left, _, right = fold(title.replace("CASE OF ", "")).partition(" v. ")
+        own = frozenset(p.strip() for p in re.split(r"[;,]\s*", (r["case_no"] or "").strip())
+                        if APPNO_RE.fullmatch(p.strip()))
+        doc = Doc(
+            case_id=r["case_id"],
+            date_str=(r["judgment_date"] or "").strip(),
+            date=parse_date(r["judgment_date"]),
+            is_decision=is_dec,
+            rank=0 if (is_dec or dtype in PRINCIPAL_TYPES) else 1,
+            appnos=own,
+            is_gc=("Grand Chamber" in (r["originating_body"] or "")
+                   or dtype == "Judgment (Grand Chamber)"),
+            applicant=frozenset(tokens(left)),
+            lead=frozenset(tokens(re.split(r",| and ", left)[0])),
+            respondent=frozenset(tokens(right)),
+        )
+        docs[doc.case_id] = doc
+        if doc.date_str:
+            (by_date_d if is_dec else by_date_j)[doc.date_str].append(doc)
+        # case_no often holds several appnos for joined cases ("32310/08; 33191/08").
+        for part in own:
+            by_appno[part].append(doc)
+    return Indexes(by_appno, by_date_j, by_date_d, docs, excluded)
 
 
-def extract_appnos(text: str) -> list[tuple[str, int]]:
-    """Return [(canonical_appno, char_offset), …] of distinct appnos in text."""
+def extract_appnos(text: str) -> list[tuple[str, int, int]]:
+    """Return [(canonical_appno, start, end), …] of distinct appnos in text."""
     seen: set[str] = set()
-    out: list[tuple[str, int]] = []
+    out: list[tuple[str, int, int]] = []
     for m in APPNO_RE.finditer(text):
         canon = f"{m.group(1)}/{m.group(2)}"
         if canon in seen:
             continue
         seen.add(canon)
-        out.append((canon, m.start()))
+        out.append((canon, m.start(), m.end()))
     return out
 
 
@@ -115,6 +228,173 @@ def has_citation_cue(text: str, offset: int, window: int = 60) -> bool:
     lo = max(0, offset - window)
     hi = min(len(text), offset + window)
     return bool(CITATION_CUE_RE.search(text[lo:hi]))
+
+
+_DEC_AFTER_RE = re.compile(r"\s{0,2},?\s{0,2}\(dec\.\)")
+
+
+def is_decision_reference(text: str, start: int, end: int) -> bool:
+    """True when the number at text[start:end] belongs to a "(dec.)" reference.
+
+    The marker normally precedes the number ("X v. Y (dec.), no. 1/01") but some
+    judgments write "(no. 1/01 (dec.), …)".
+    """
+    if _DEC_AFTER_RE.match(text, end):
+        return True
+    window = text[max(0, start - 70):start]
+    for sep in (";", " v. "):
+        window = window.rpartition(sep)[2]
+    return bool(DEC_MARK_RE.search(window))
+
+
+def dates_after(text: str, end: int) -> set[str]:
+    out = set()
+    for m in DATE_RE.finditer(text[end:end + APPNO_DATE_WINDOW]):
+        out.add(f"{int(m.group(1)):02d}/{MONTH_NO[m.group(2)]:02d}/{m.group(3)}")
+    return out
+
+
+_REPORT_YEAR_RE = re.compile(r"\b(?:ECHR|Reports(?: of Judgments and Decisions)?)\s+(\d{4})")
+_GC_MARK_RE = re.compile(r"\[GC\]")
+
+
+def pick_for_appno(cands: list[Doc], text: str, start: int, end: int,
+                   want_decision: bool) -> tuple[Optional[Doc], str]:
+    """Choose the document an application-number reference points at.
+
+    When one number has several documents (Chamber and Grand Chamber judgments,
+    merits and just satisfaction, ...) the evidence is used in this order: a date
+    written after the number, the "ECHR 2005" year, the "[GC]" marker (its absence
+    prefers the non-Grand-Chamber document), then the principal judgment, then the
+    earliest.
+    """
+    pool = [d for d in cands if d.is_decision == want_decision]
+    if not pool:
+        if want_decision:
+            return None, "dec_not_in_corpus"
+        pool = [d for d in cands if d.is_decision]      # only a decision holds this number
+        if not pool:
+            return None, "unresolved"
+    if len(pool) == 1:
+        return pool[0], "single"
+    near = dates_after(text, end)
+    by_date = [d for d in pool if d.date_str in near]
+    if len(by_date) == 1:
+        return by_date[0], "multi_by_date"
+    ranked = by_date or pool
+    year = _REPORT_YEAR_RE.search(text, end, end + 70)
+    if year:
+        same_year = [d for d in ranked if d.date and str(d.date[0]) == year.group(1)]
+        if same_year:
+            ranked = same_year
+    if len({d.is_gc for d in ranked}) > 1:
+        gc_marked = bool(_GC_MARK_RE.search(text[max(0, start - 45):end + 25]))
+        ranked = [d for d in ranked if d.is_gc == gc_marked]
+    best = min(d.rank for d in ranked)
+    top = sorted((d for d in ranked if d.rank == best),
+                 key=lambda d: (d.date or (9999, 0, 0), d.case_id))
+    return top[0], "multi_by_rank"
+
+
+def appno_citations(text: str, citing_id: str, idx: Indexes, stats: Counter):
+    """Yield (cited_id, excerpt, method, how) for every application number in `text`."""
+    if "/" not in text:
+        return
+    text = plain(text)
+    own = idx.docs[citing_id].appnos if citing_id in idx.docs else frozenset()
+    for appno, start, end in extract_appnos(text):
+        if appno in own:                     # the judgment's own "Application no. …" header
+            stats["self_cite"] += 1
+            continue
+        cands = idx.by_appno.get(appno)
+        if not cands:
+            stats["appno_not_in_index"] += 1
+            continue
+        doc, how = pick_for_appno(cands, text, start, end, is_decision_reference(text, start, end))
+        if doc is None:
+            stats[f"appno_{how}"] += 1
+            continue
+        if doc.case_id == citing_id:
+            stats["self_cite"] += 1
+            continue
+        cued = has_citation_cue(text, start)
+        method = "appno_with_cue" if cued else "appno_no_cue"
+        excerpt = text[max(0, start - 50):min(len(text), end + 50)].replace("\n", " ")
+        yield doc.case_id, excerpt, method, how
+
+
+def name_date_citations(text: str, citing: Optional[Doc], citing_id: str,
+                        idx: Indexes, stats: Counter):
+    """Yield (cited_id, excerpt, 'name_date', '') for references without an appno."""
+    text = plain(text)
+    if " v. " not in text:
+        return
+    for m in DATE_RE.finditer(text):
+        key = f"{int(m.group(1)):02d}/{MONTH_NO[m.group(2)]:02d}/{m.group(3)}"
+        in_j, in_d = key in idx.by_date_judgment, key in idx.by_date_decision
+        if not (in_j or in_d):
+            continue
+        look_from = max(0, m.start() - 160)
+        look = text[look_from:m.start()]
+        name = None
+        for name in NAME_RE.finditer(look):
+            pass
+        if name is None:
+            continue
+        gap = look[name.end():]
+        if len(gap) > NAME_DATE_MAX_GAP:
+            continue
+        want_decision = bool(DEC_MARK_RE.search(gap))
+        pool = (idx.by_date_decision if want_decision else idx.by_date_judgment).get(key, [])
+        if not pool:
+            continue
+        resp = fold(name.group(2))
+        resp_ok = _STATE_ALIASES.get(resp, {resp})
+        # "In Handyside v. …" captures "In Handyside": retry without leading words.
+        words = re.split(r",| and ", name.group(1))[0].split()
+        cands: list[Doc] = []
+        for drop in range(min(3, len(words))):
+            key_tokens = tokens(" ".join(words[drop:]))
+            if not key_tokens:
+                continue
+            # Initials alone ("H v. Austria") must equal the first applicant exactly,
+            # otherwise "H" would also match "R. H. v. Austria" decided the same day.
+            initials = not any(len(t) >= 3 for t in key_tokens)
+            cands = [d for d in pool
+                     if (key_tokens == d.lead if initials else key_tokens <= d.applicant)]
+            if cands:
+                break
+        if not cands:
+            stats["name_date_no_name_match"] += 1
+            continue
+        cands = [d for d in cands if d.respondent & resp_ok]
+        if not cands:
+            stats["name_date_state_mismatch"] += 1
+            continue
+        cands = [d for d in cands if d.case_id != citing_id]
+        if REVISION_RE.search(gap):
+            stats["name_date_revision_reference"] += 1
+            continue
+        # A number written in the reference must belong to the candidate: if it
+        # names another application, the same-day namesake is the wrong case.
+        written = {f"{a.group(1)}/{a.group(2)}" for a in APPNO_RE.finditer(gap)}
+        if written:
+            cands = [d for d in cands if written & d.appnos]
+            if not cands:
+                stats["name_date_appno_conflict"] += 1
+                continue
+        if citing is not None and citing.date is not None:
+            before = len(cands)
+            cands = [d for d in cands if d.date is None or d.date <= citing.date]
+            if before and not cands:
+                stats["name_date_cited_is_later"] += 1
+                continue
+        if len(cands) != 1:
+            if cands:
+                stats["name_date_ambiguous"] += 1
+            continue
+        excerpt = text[look_from + name.start():m.end()].replace("\n", " ")
+        yield cands[0].case_id, excerpt, "name_date", ""
 
 
 def main() -> int:
@@ -130,6 +410,9 @@ def main() -> int:
                     help="Audit-only: report on appnos found WITHOUT a "
                     "citation cue word in context (potential false "
                     "positives).  No DB writes.")
+    ap.add_argument("--audit-out", default="",
+                    help="Write a JSONL file with every name_date row and every "
+                    "disambiguated appno row (for a blind precision check).")
     args = ap.parse_args()
 
     db_path = Path(args.db).resolve()
@@ -141,84 +424,78 @@ def main() -> int:
     con.row_factory = sqlite3.Row
     cur = con.cursor()
 
-    print("building case_no → case_id index…")
-    appno_to_case = build_appno_index(cur)
-    print(f"  indexed {len(appno_to_case):,} unique application numbers")
+    print("building case indexes…")
+    idx = build_indexes(cur)
+    print(f"  {len(idx.docs):,} documents, {len(idx.by_appno):,} unique application numbers, "
+          f"{len(idx.excluded):,} translations excluded")
 
-    print("\nscanning paragraphs for appno citations…")
+    print("\nscanning paragraphs for citations…")
     cur.execute("SELECT DISTINCT case_id FROM paragraphs ORDER BY case_id")
-    case_ids = [r["case_id"] for r in cur.fetchall()]
+    case_ids = [r["case_id"] for r in cur.fetchall() if r["case_id"] not in idx.excluded]
     if args.limit_cases:
         case_ids = case_ids[: args.limit_cases]
 
     citations: list[tuple[str, str, int, str, str]] = []
     # (citing_case_id, cited_case_id, paragraph_rowid, raw_text_excerpt, method)
-
     seen_pair_para: set[tuple[str, str, int]] = set()
-    no_cue_count = 0
-    self_cite_count = 0
-    unresolved_count = Counter()
+    stats: Counter = Counter()
+    audit = open(args.audit_out, "w", encoding="utf-8") if args.audit_out else None
     t0 = time.perf_counter()
 
     for i, citing_id in enumerate(case_ids, 1):
-        cur.execute(
-            "SELECT rowid, text FROM paragraphs WHERE case_id = ?",
-            [citing_id],
-        )
+        citing = idx.docs.get(citing_id)
+        cur.execute("SELECT rowid, text FROM paragraphs WHERE case_id = ?", [citing_id])
         for prow in cur.fetchall():
             text = prow["text"] or ""
-            if "/" not in text:
-                continue
-            for appno, off in extract_appnos(text):
-                cited_id = appno_to_case.get(appno)
-                if cited_id is None:
-                    unresolved_count[appno[:5]] += 1
-                    continue
-                if cited_id == citing_id:
-                    self_cite_count += 1
-                    continue
+            found = list(appno_citations(text, citing_id, idx, stats))
+            found += [(c, e, m, h) for c, e, m, h in
+                      name_date_citations(text, citing, citing_id, idx, stats)]
+            for cited_id, excerpt, method, how in found:
                 key = (citing_id, cited_id, prow["rowid"])
                 if key in seen_pair_para:
                     continue
                 seen_pair_para.add(key)
-                cued = has_citation_cue(text, off)
-                if not cued:
-                    no_cue_count += 1
-                method = "appno_with_cue" if cued else "appno_no_cue"
-                # Capture ±50 char context for audit
-                lo = max(0, off - 50)
-                hi = min(len(text), off + len(appno) + 50)
-                excerpt = text[lo:hi].replace("\n", " ")
+                stats[method] += 1
+                if how.startswith("multi"):
+                    stats[f"appno_{how}"] += 1
                 citations.append((citing_id, cited_id, prow["rowid"], excerpt, method))
+                if audit and (method == "name_date" or how.startswith("multi")):
+                    audit.write(json.dumps({
+                        "citing": citing_id, "cited": cited_id, "method": method,
+                        "how": how, "paragraph_rowid": prow["rowid"], "excerpt": excerpt,
+                    }, ensure_ascii=False) + "\n")
         if i % 1000 == 0 or i == len(case_ids):
             elapsed = time.perf_counter() - t0
             rate = i / elapsed if elapsed > 0 else 0
             print(f"  scanned {i:,}/{len(case_ids):,} cases  "
-                  f"citations queued={len(citations):,}  "
-                  f"({rate:.0f} cases/s)")
+                  f"citations queued={len(citations):,}  ({rate:.0f} cases/s)")
+    if audit:
+        audit.close()
 
     print()
     print(f"total citations extracted:    {len(citations):,}")
-    print(f"  with citation cue:          {len(citations) - no_cue_count:,}")
-    print(f"  without cue (audit-only):   {no_cue_count:,}")
-    print(f"self-citations dropped:       {self_cite_count:,}")
-    print(f"unresolved appnos (top 5 prefixes):")
-    for prefix, n in unresolved_count.most_common(5):
-        print(f"    {prefix}xx/yy: {n:,}")
+    for k in ("appno_with_cue", "appno_no_cue", "name_date"):
+        print(f"  {k:<26}  {stats[k]:,}")
+    print("application numbers needing a choice between documents:")
+    for k in ("appno_multi_by_date", "appno_multi_by_rank"):
+        print(f"  {k:<26}  {stats[k]:,}")
+    print("dropped:")
+    for k in ("self_cite", "appno_dec_not_in_corpus", "appno_unresolved",
+              "name_date_no_name_match", "name_date_state_mismatch",
+              "name_date_appno_conflict", "name_date_revision_reference",
+              "name_date_cited_is_later", "name_date_ambiguous"):
+        print(f"  {k:<26}  {stats[k]:,}")
 
-    # Aggregate stats
     cited_by = Counter(c[1] for c in citations)
-    cites    = Counter(c[0] for c in citations)
+    cites = Counter(c[0] for c in citations)
     print(f"\ncases with at least one cite:    {len(cites):,}")
     print(f"cases that are cited by something: {len(cited_by):,}")
     if cited_by:
-        top = cited_by.most_common(5)
         print("most-cited cases (top 5):")
-        for cid, n in top:
+        for cid, n in cited_by.most_common(5):
             cur.execute("SELECT title FROM cases WHERE case_id = ?", [cid])
             tr = cur.fetchone()
-            title = tr["title"] if tr else "(unknown)"
-            print(f"    {cid}  {n:>4}× cited  {title}")
+            print(f"    {cid}  {n:>4}× cited  {tr['title'] if tr else '(unknown)'}")
 
     if args.report_cues:
         return 0

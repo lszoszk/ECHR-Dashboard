@@ -106,20 +106,27 @@ default. A full pre-change snapshot and a row-level undo table are retained.
 
 ## Citation graph (Cites / Cited by)
 
-Each result card carries two influence metrics — **Cites** (judgments this ruling refers to) and **Cited by** (later judgments that refer back to it). They are drawn from a citation graph of **199,607 paragraph-level references** linking **18,236 cases**.
+Each result card carries two influence metrics — **Cites** (judgments this ruling refers to) and **Cited by** (later judgments that refer back to it). They are drawn from a citation graph of about **240,000 paragraph-level references** (October 2026), rebuilt after every corpus update.
 
-The graph is built by scanning every paragraph for ECHR application numbers — the `NNNNN/YY` identifiers the Court uses when citing a precedent (e.g. *Kudła v. Poland*, no. 30210/96). Each number is resolved against the case index; a match becomes a citation edge. Extraction is deliberately conservative — a number is counted only when it resolves to a case actually in the corpus, which discards date-like false positives.
+References are found in the text of the judgments in two ways:
 
-> **Example.** *Kharchenko v. Ukraine* cites 34 earlier judgments and is itself cited by 292 later ones — shown as `Cites 34 · Cited by 292` on its card.
+1. **Application numbers.** The `NNNNN/YY` identifier the Court uses when citing a precedent (e.g. *Kudła v. Poland*, no. 30210/96) is looked up in the case index; a number that does not resolve to a case in the corpus is ignored, which discards date-like false positives. When one number belongs to several documents of the same case (a Chamber and a Grand Chamber judgment, merits and just satisfaction, a revision), a date or an `ECHR 2005` year written next to the number decides, then the `[GC]` marker, then the principal judgment. A reference marked `(dec.)` counts only if that admissibility decision is itself in the corpus; it is never credited to a later judgment that happens to share the number.
+2. **Name and date.** Judgments before about 1999 are cited without a number — *Handyside v. the United Kingdom, 7 December 1976, Series A no. 24*. Such a reference is accepted only if exactly one judgment in the corpus was delivered on that date, the applicant's name is contained in its title and the respondent State matches. A number written in the reference that belongs to a different application rejects the match, as does a reference to a request for revision (its date belongs to the judgment under revision). Unofficial translations are never cited or citing, and a judgment cannot cite a later one.
+
+> **Example.** *Handyside v. the United Kingdom* (1976) is cited by about 250 later judgments. Counting application numbers alone found two of them, because nothing before 1999 was cited that way.
+
+### How the name-and-date matching was checked
+
+A random sample of 300 name-and-date matches was judged blind by a second model, mixed with 60 pairs that were wrong on purpose. All 60 wrong pairs were rejected, and 297 of the 300 matches were correct; the three errors (a same-day namesake with initials only, and two references to revision requests) were closed by the rules above. This is a precision check on a sample, not a guarantee.
 
 ### Validated against HUDOC's curated list
 
-The Court's documentalists maintain a "Strasbourg Case-Law" field — a hand-picked shortlist of the key precedents in each judgment. Comparing our extractor against this curated ground truth on a 500-case sample:
+The Court's documentalists maintain a "Strasbourg Case-Law" field — a hand-picked shortlist of the key precedents in each judgment. Comparing the application-number method against this curated ground truth on a 500-case sample, before name-and-date matching was added:
 
 - **Recall: 98.7 %** — of the curated citations whose target is in the corpus, the extractor independently found 98.7 % (stable across the 2000s, 2010s and 2020s).
 - The extractor surfaces ~1.3× *more* citations than the curated list, because that list is a selective shortlist of leading precedents whereas the extractor captures every reference in the judgment text.
 
-The small recall gap is mostly judgments that cite a case by name only — with no application number in the text — and `[Extracts]` cases where HUDOC publishes excerpts only.
+Recall for older judgments has not been measured against that list. A reference that gives only a short name without a date (for example *Handyside, cited above* with no earlier full citation in the same judgment) is still not counted, so figures can be lower than the true number.
 
 Citation coverage is necessarily partial: a case whose precedents fall outside the corpus shows fewer links than reality. A `—` (rather than `0`) marks cases with no recorded citations, so an absence of data is not mistaken for genuine legal isolation.
 
