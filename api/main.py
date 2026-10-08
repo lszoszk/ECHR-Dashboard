@@ -193,6 +193,20 @@ QUERY_DEADLINE_S = float(os.environ.get("ECHR_QUERY_DEADLINE_S", "45"))
 # Matched paragraphs returned per case in a by-case search; hit_count stays exact.
 MAX_PARAS_PER_CASE = int(os.environ.get("ECHR_MAX_PARAS_PER_CASE", "25"))
 
+# Last-resort paragraph number for an unnumbered row (quote, bullet, continuation
+# line): the nearest numbered paragraph before it in the same section.  Only
+# valid inside the judgment body.  Separate opinions, operative clauses, the
+# appendix and the header are numbered on their own, so a number borrowed there
+# comes from an unrelated paragraph and would be cited as that paragraph.
+_NEAREST_BODY_NO_SQL = (
+    "(SELECT pp.hudoc_para_no FROM paragraphs pp "
+    " WHERE pp.case_id = p.case_id AND pp.section = p.section "
+    " AND pp.para_idx < p.para_idx AND pp.hudoc_para_no IS NOT NULL "
+    " AND p.section NOT IN ('Operative part', 'Appendix', 'Separate Opinion', 'Header') "
+    " AND COALESCE(p.numbering_block, 'main_judgment') = 'main_judgment' "
+    " ORDER BY pp.para_idx DESC LIMIT 1)"
+)
+
 # Terms dropped when broadening.  OR-ing a 40-word question is only affordable
 # if the ubiquitous terms go: `the` is in 63% of paragraph bodies, and ECtHR
 # prose adds its own function words -- the five stems below are every term at
@@ -1715,10 +1729,7 @@ def search(
                     # row (≤ page_size), so it is cheap.  Kills stranded "¶ —".
                     dp = (
                         "COALESCE(p.display_para_no, parent.hudoc_para_no, "
-                        "(SELECT pp.hudoc_para_no FROM paragraphs pp "
-                        " WHERE pp.case_id = p.case_id AND pp.section = p.section "
-                        " AND pp.para_idx < p.para_idx AND pp.hudoc_para_no IS NOT NULL "
-                        " ORDER BY pp.para_idx DESC LIMIT 1)) AS display_para_no"
+                        f"{_NEAREST_BODY_NO_SQL}) AS display_para_no"
                     )
                 else:
                     parent_text_col = "NULL AS parent_text"
@@ -2012,10 +2023,7 @@ def search(
                     # enclosing paragraph by document order). Correlated subquery
                     # runs only per RETURNED row (≤ page_size), so it is cheap.
                     "COALESCE(p.display_para_no, parent.hudoc_para_no, "
-                    "(SELECT pp.hudoc_para_no FROM paragraphs pp "
-                    " WHERE pp.case_id = p.case_id AND pp.section = p.section "
-                    " AND pp.para_idx < p.para_idx AND pp.hudoc_para_no IS NOT NULL "
-                    " ORDER BY pp.para_idx DESC LIMIT 1)) AS display_para_no, "
+                    f"{_NEAREST_BODY_NO_SQL}) AS display_para_no, "
                     "CASE WHEN p.logical_para_idx IS NOT NULL "
                     "AND p.logical_para_idx <> p.para_idx "
                     "THEN parent.text END AS parent_text"
