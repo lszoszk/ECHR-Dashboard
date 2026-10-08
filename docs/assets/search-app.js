@@ -1976,7 +1976,7 @@ function renderFiltersSkeleton() {
       makeCheckbox("Committee", "committee", "docTypes", null,
         { tooltip: "3-judge Committee judgments — repetitive cases following well-established case-law." }),
       makeCheckbox("Decisions", "decision", "docTypes", null,
-        { tooltip: "Admissibility decisions: all Grand Chamber decisions and the decisions that judgments in this corpus cite. Hidden unless ticked." }),
+        { tooltip: "Admissibility decisions (a small set, mostly Grand Chamber). Hidden unless ticked." }),
     ].join("");
   }
   if (el.outcomeFilters) {
@@ -2050,7 +2050,7 @@ function renderFilters() {
     makeCheckbox("Committee", "committee", "docTypes", fc.docTypes.committee,
       { tooltip: "3-judge Committee judgments — repetitive cases following well-established case-law. Often have applicant tables in Introduction." }),
     makeCheckbox("Decisions", "decision", "docTypes", fc.docTypes.decision,
-      { tooltip: "Admissibility decisions: all Grand Chamber decisions and the decisions that judgments in this corpus cite. Hidden unless ticked." }),
+      { tooltip: "Admissibility decisions (a small set, mostly Grand Chamber). Hidden unless ticked." }),
   ].join("");
 
   el.outcomeFilters.innerHTML = [
