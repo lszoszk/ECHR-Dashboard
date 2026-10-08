@@ -23,6 +23,8 @@ data/
 *.db
 *.db-shm
 *.db-wal
+# Row-level SQL dumps kept as rollback material before data changes (several MB each)
+backups/*.sql
 *.jsonl.gz
 # big source/derived JSONL kept out of git (rebuild via scripts; publish curated sets to HF)
 echr_cases*.jsonl
