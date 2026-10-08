@@ -202,3 +202,24 @@
 }
 .toc-list a:hover { background: var(--bg-page, #f7fafc); color: var(--primary-accent); }
 @media (max-width: 768px) { .toc-list { column-count: 1; } }
+
+/* Caveat notes on charts whose numbers mislead if read at face value
+   (partial final year, English-only corpus, in-corpus-only citation graph…).
+   Static HTML in analytics.html rather than generated in JS, so they are
+   visible in review diffs and survive a script failure. */
+.chart-caveat {
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--text-secondary, #4a5568);
+  background: var(--garnet-soft, #f7ecec);
+  border-left: 3px solid var(--garnet, #7c2128);
+  padding: 0.55rem 0.8rem;
+  margin: 0 0 0.9rem;
+  border-radius: 0 3px 3px 0;
+}
+.chart-caveat a {
+  color: var(--garnet, #7c2128);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}

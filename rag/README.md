@@ -1,14 +1,15 @@
 # RAG — ECtHR paragraph-level semantic retrieval
 
-Semantic search over **19,822 ECtHR judgments / 1.31 M paragraphs**, evaluated
+Semantic search over **20,010 ECtHR judgments / 1.32 M paragraphs**, evaluated
 against the Court's **41 official Case-Law Guides** used as a pinpoint-citation
-answer key.
+answer key. Corpus cut-off **23 July 2026**; the index is a snapshot of that
+corpus and does not update itself — see "Rebuilding after a corpus update".
 
 ## Pipeline (current, validated)
 ```
 query
   → voyage-4-large embedding (query side)
-  → FAISS SQ8 ANN over 1.31M paragraph vectors   (top ~300)
+  → FAISS SQ8 ANN over 1.32M paragraph vectors   (top ~300)
   → rerank-2.5 cross-encoder on the top 100       (relevance)
   → + 0.05 × HUDOC importance                     (authority of the case)
   → group paragraphs into cases
@@ -48,6 +49,40 @@ From the corpus DB on the VM, in order: `extract_corpus.py` →
 `embed_corpus.py` → `build_fts_local.py` → `ann_build_eval.py --build`.
 Outputs land in `data/` (the 1.3 GB SQ8 index, `corpus_fts.db`, `ids.jsonl`,
 `cases_meta.json`, tag files) — none committed to git.
+
+## Rebuilding after a corpus update
+
+New judgments are NOT searchable semantically until the index is rebuilt — the
+FAISS index is a snapshot, and the monthly corpus update does not touch it.
+
+Full rebuild (last run 2026-08-04, 1,318,250 paragraphs / 20,010 cases):
+
+```
+extract_corpus.py > data/corpus_textsC.jsonl.gz   # run against the live DB
+embed_corpus.py --model voyage-4-large            # resumable; skips done rows
+build_fts_local.py                                # BM25/FTS5, ~25 s
+ann_build_eval.py --build                         # FAISS index, ~10 min
+ann_build_eval.py --eval --nprobe 128             # gate: compare against below
+build_row_section.py  > row_section.tsv           # section facets
+build_cases_meta.py   > cases_meta.json           # titles + importance boost
+```
+
+Then upload `ann_index.index`, `ids.jsonl`, `corpus_fts.db`, `cases_meta.json`
+and `row_section.tsv` to the VM's `/data/rag/` and restart `echr-api`.
+
+**`ann_index.index` and `ids.jsonl` must be swapped together** — the n-th
+vector corresponds to the n-th line, and a mismatch produces no error, just
+results pointing at the wrong paragraphs.
+
+**Keep `data/emb/voyage-4-large/vecs.f32.dat`** (5.4 GB). It is the only thing
+that makes the next top-up cheap: with it, adding a month of judgments costs
+cents; without it, the whole corpus has to be re-embedded. It was missing
+before the August 2026 rebuild, which is why that rebuild was full rather than
+incremental.
+
+Known gap: `para_articles.tsv` has no generator in this repo, so paragraphs
+from cases added after it was last built carry no article tag and will not
+match the article filter.
 
 ## Accuracy (Court-Guides benchmark, 409-item sample)
 | config | docHit@10 | paraHit@10 |

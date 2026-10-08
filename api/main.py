@@ -158,6 +158,26 @@ _FTS5_DANGEROUS_CHARS = re.compile(r"[\^*(){}:+\-~.,;!?/\\|<>=&']+")
 # type them as bare words would otherwise produce malformed MATCH expressions.
 _FTS5_RESERVED_OPERATORS = {"AND", "OR", "NOT", "NEAR"}
 
+# Kill-switch for the zero-result OR fallback (see the search handler).
+_FALLBACK_ON = os.environ.get("ECHR_FALLBACK", "0").lower() not in ("0", "false", "no")
+
+# Terms dropped when broadening.  OR-ing a 40-word question is only affordable
+# if the ubiquitous terms go: `the` is in 63% of paragraph bodies, and ECtHR
+# prose adds its own function words -- the five stems below are every term at
+# DF >= 10% in the `text` column that is not already closed-class (measured with
+# fts5vocab on the July-2 index; see nllp2026-deanchoring/results/).  Matched by
+# prefix because the index is Porter-stemmed, so `applic` covers applicant /
+# application / applicable.  Nothing substantive is lost: `detention`,
+# `torture`, `property` and the like all sit far below the cut.
+_BROADEN_UBIQUITOUS = ("applic", "court", "articl", "case", "convent")
+_BROADEN_STOP = frozenset("""
+a an the and or but if of to in on at by for with from as is are was were be
+been being it its this that these those which who whom whose what when where
+why how any all such may might must shall will would should can could not no
+nor do does did done has have had there their them they he she his her we our
+you your i s t 1
+""".split())
+
 
 def _extract_phrases(raw: str) -> tuple[list[str], str]:
     """
@@ -191,9 +211,15 @@ def _extract_phrases(raw: str) -> tuple[list[str], str]:
     return phrases, "".join(remainder_parts)
 
 
-def _build_fts_query(raw: str) -> str:
+def _build_fts_query(raw: str, broaden: bool = False) -> str:
     """
     Convert a user query string into an FTS5 MATCH expression.
+
+    ``broaden=True`` joins bare tokens with OR instead of the default AND
+    (quoted phrases stay mandatory).  Used as the zero-result fallback for
+    descriptive queries: P0 measurement (Aug 2026) showed AND semantics give
+    ~0 recall on natural-language questions (0.3--1.6 docHit@10 on the
+    de-anchoring benchmark) while OR-mode BM25 reaches ~60--88.
 
     Strategy:
         1. Extract balanced ``"phrases"`` verbatim so the user can force
@@ -263,6 +289,18 @@ def _build_fts_query(raw: str) -> str:
                 parts.append(f"NEAR({prev} {tok}, 10)")
             parts.append("AND")
             near_pending = False
+            continue
+        if broaden:
+            low = tok.lower()
+            if low in _BROADEN_STOP or low.startswith(_BROADEN_UBIQUITOUS):
+                continue
+            # Quote the term here, against the advice in step 4 above: that
+            # advice is about AND mode, where losing the stemmer loses recall
+            # we cannot spare.  In OR mode recall is not the binding
+            # constraint, ranking precision is, and unstemmed terms rank
+            # better -- +13 docHit@10 on the de-anchoring lay tier.
+            parts.append(f'"{low}"')
+            parts.append("OR")
             continue
         parts.append(tok)
         parts.append("AND")
@@ -1561,6 +1599,33 @@ def search(
             total_cases = count_row["total_cases"]
             total_hits = count_row["total_hits"]
 
+            # ---- Zero-result fallback (P0, Aug 2026) --------------------
+            # AND semantics give ~0 recall on descriptive queries.  When the
+            # strict expression matches nothing, retry once with bare tokens
+            # OR-joined (quoted phrases stay mandatory).  Fires only where
+            # the strict search returned nothing, so precision queries are
+            # untouched; the response is tagged so the UI can say "no exact
+            # match -- showing closest results".
+            #
+            # DISABLED by default since 6 Aug 2026: broadening ORs every bare
+            # token, stopwords included, so "the" alone unions ~1.3M postings.
+            # A descriptive query then matches the whole corpus and the
+            # count(DISTINCT) took 175 s in production.  Set ECHR_FALLBACK=1 to
+            # re-enable once the token set is trimmed (rarest-K, no stopwords).
+            fallback = None
+            if total_cases == 0 and _FALLBACK_ON:
+                relaxed = _build_fts_query(fts_source, broaden=True)
+                if relaxed and relaxed != fts_expr:
+                    params[0] = relaxed
+                    cur.execute(count_sql, [*params, *role_params])
+                    count_row = cur.fetchone()
+                    if count_row["total_cases"] > 0:
+                        total_cases = count_row["total_cases"]
+                        total_hits = count_row["total_hits"]
+                        fallback = "any_terms"
+                    else:
+                        params[0] = fts_expr
+
             if total_cases == 0:
                 elapsed = (time.perf_counter() - t0) * 1000
                 return {
@@ -1570,6 +1635,7 @@ def search(
                     "page_size": page_size,
                     "search_time_ms": round(elapsed, 1),
                     "group": group,
+                    "fallback": None,
                     "cases": [],
                     "hits": [],
                 }
@@ -1689,6 +1755,7 @@ def search(
                     "page_size": page_size,
                     "search_time_ms": round(elapsed, 1),
                     "group": "paragraph",
+                    "fallback": fallback,
                     "hits": hits,
                 }
 
@@ -1984,6 +2051,7 @@ def search(
                 "page": page,
                 "page_size": page_size,
                 "search_time_ms": round(elapsed, 1),
+                "fallback": fallback,
                 "cases": cases_out,
             }
     except sqlite3.OperationalError as exc:

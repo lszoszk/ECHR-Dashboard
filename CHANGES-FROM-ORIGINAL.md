@@ -91,6 +91,95 @@ The 6 `Legal Context` paragraphs live in exactly two 2026 Polish judicial-overha
 
 **Deferred.** If the Court expands the `LEGAL CONTEXT OF THE CASE` heading into other case-law series (rule-of-law Russia cases, Turkey post-coup cases, Article 18 abuse-of-power series), Phase 2 — see `docs/TODO-facts-reclassify.md` — should split `Legal Context` back out as a dedicated "Case-series breadcrumb" bucket. Until there is enough volume to justify a checkbox, the merge is the right default.
 
+### 1.7 Phase 2 (P63): split the Facts family into `Procedure` / `Circumstances` / `Subject Matter`
+**Applied to the production DB:** 2026-07-31 (`scripts/p63_resegment_facts.py --apply`; backup table `section_backup_p63`, 718,737 rows)
+**Files:** `scripts/p62_facts_boundary_probe.py`, `scripts/p63_resegment_facts.py`, `docs/assets/search-app.js`, `docs/index.html`, `docs/TODO-facts-reclassify.md`
+
+**Rationale.** Completes the Phase 2 deferred in §1.1. By July 2026 the P21–P57 heal passes had reduced the two inverted legacy labels to residue (9,573 + 3,985 paragraphs), leaving the real problem: 718,093 paragraphs across 19,808 cases in one undifferentiated Facts family. Because HUDOC sections are contiguous blocks, the unit of work is the per-case boundary, not the paragraph: one heading marks where the administrative PROCEDURE block ends and the substantive narrative begins. `p62` measured that such a marker exists in **97.2% of cases (99.0% of paragraphs)** once `THE FACTS`, `AS TO THE FACTS` and the Commission-era headings are in the marker vocabulary.
+
+**What changed (database).** One UPDATE-only pass over `paragraphs.section`:
+
+| Old | New | Rows |
+|---|---|---:|
+| Facts | Circumstances | 596,773 |
+| Facts | Procedure | 89,007 |
+| Facts | Subject Matter | 11,755 |
+| Facts Background | Circumstances / Procedure / Subject Matter | 9,573 |
+| Facts Proceedings | Circumstances | 3,985 |
+| Introduction | Procedure (re-homed bare `PROCEDURE` headings) | 7,644 |
+
+564 residue cases (7,000 paragraphs, no structural heading) keep the plain `Facts` label pending rule-harvest — see `docs/TODO-facts-reclassify.md` step 3. Three invariants verified before the write (contiguity, coverage, row-count); the procedure-block length distribution (median 4, p90 8 paragraphs) matches the HUDOC convention's short administrative block. Boundary spot-checked across eras from Lawless v. Ireland (1960) to Fal v. Spain (2026). Rollback: `p63_resegment_facts.py --restore`.
+
+**What changed (frontend).** The six top-level filter pills are unchanged (deliberately — one pill, "Facts", still covers the family). Within it, three granular sections with their own labels, colors and filter checkboxes: **Procedure**, **Circumstances of the Case**, **Subject Matter of the Case**; the residue renders as **Facts (unsegmented)**. Client-fallback score weights: circumstances/subject_matter 1.0, procedure 0.9. Cache-buster `v=20260731-p63-sections`.
+
+**Known deviation from the April DoD.** The golden-query expectation "torture surfaces Selmouni/Ireland/Aksoy top-5" no longer holds — but not because of P63: the §2 ranking retunes changed the top-5 to Gäfgen/Naït-Liman/Khasanov/Othman/Saadi before this pass, and P63 touches no ranking input (the server boost references only `Merits` and `row_role`). Hirst remains top-1 for `Hirst`. Paragraph-level macro-F1 was replaced by per-case boundary validation as the accuracy instrument, since every paragraph label is derived from the boundary.
+
+### 1.8 P64: clearing the Phase 2 residue
+**Applied to the production DB:** 2026-07-31 (`scripts/p64_resegment_residue.py --apply`; backup table `section_backup_p64`, 6,071 rows)
+**Files:** `scripts/p64_resegment_residue.py`, `scripts/p63_resegment_facts.py` (WAL checkpoint)
+
+**Rationale.** §1.7 left 564 cases (7,000 paragraphs) on the plain `Facts` label. The Phase 2 plan assumed these would need an LLM rule-harvest. Probing showed they were four self-explaining template families:
+
+1. **Hyphenated `SUBJECT-MATTER OF THE CASE`** — the P62 normaliser collapsed whitespace but not hyphens, and these headings often sit in the `Header` section, outside its Facts-family-only scan.
+2. **`PROCEDURE AND FACTS`** — P63 read it as a PROCEDURE marker; it is the Court's merged committee block, i.e. a Subject Matter start.
+3. **Just Satisfaction / Revision / Interpretation / struck-out judgments** — no circumstances section by design (PROCEDURE → THE LAW → operative), so their Facts rows are procedure content.
+4. **French-language judgments** — PROCÉDURE → EN FAIT → …CIRCONSTANCES DE L'ESPÈCE… → EN DROIT; committee variant OBJET DE L'AFFAIRE.
+
+**What changed.** 6,071 UPDATE-only rows (Facts→Procedure 3,007; Facts→Subject Matter 1,592; Facts→Circumstances 1,147; 325 headings re-homed from `Header`/`Introduction`). 556 of 564 cases resolved with **zero LLM calls**.
+
+**Final Phase 2 state:** Circumstances 611,473 · Procedure 99,887 · Subject Matter 13,448 paragraphs. Unsegmented residue **16 cases / 1,254 paragraphs** (0.17% of the Facts family), rendered as "Facts (unsegmented)". Rollback: `--restore`.
+
+**Operational notes.** Two independent problems surfaced when applying these passes against a live API; both are now handled automatically at the end of `--apply` in `p63`/`p64`.
+
+1. **WAL growth.** Chunked writes left a **1.16 GB** write-ahead log — the live API holds a connection open, so SQLite never got a quiet moment to checkpoint, and every read had to traverse it. `/api/search` degraded from ~0.3 s to 8.8 s. Fixed with `PRAGMA wal_checkpoint(TRUNCATE)`: WAL → 0 bytes, 1.16 GB disk reclaimed, `quick_check ok`, search back to ~1.6 s steady-state (the first query after a checkpoint still costs ~4 s while SQLite's 64 MB page cache refills).
+2. **Facets cache invalidation.** `api/main.py` keys `_FACETS_CACHE` on the DB file's `(mtime, size)`, so *any* write invalidates it — including the WAL checkpoint, which rewrites the file. The next `/api/facets` request then runs a whole-corpus aggregation taking **>45 s**, which times out for whoever made it while the server finishes and caches the result. This is why `/api/facets` appeared to "recover" after the checkpoint: that was a warm-cache hit from a previous timed-out request, not the checkpoint. The scripts now issue the warming request themselves.
+
+Separately noted, not addressed: `paragraphs.section` has no index, so section filters are applied after FTS — pre-existing, and the reason high-hit queries (`torture` → 16.5 k hits) take ~1.6 s rather than milliseconds.
+
+### 1.9 P65: validating the Phase 2 boundary
+**Run:** 2026-07-31 (`scripts/p65_boundary_validation.py`, read-only, seed 2026, n=127)
+**Write-up:** `notes-internal/p65-boundary-audit.md`
+
+**Accuracy instrument.** Per-case boundary accuracy, not paragraph macro-F1: every paragraph label is derived from one per-case boundary, so scoring 725k paragraphs would present ~19.8k independent decisions as 725k and would flatter the result. Validation against the Court's headings would be circular (they are what the segmenter used), so the independent signal is whether the resulting blocks *contain* what they claim, measured against the Court's stereotyped procedural vocabulary.
+
+**Result.** 112/127 auto-OK (88.2%), 6 definitional, 9 flagged and hand-adjudicated → **0 confirmed boundary errors, 2 candidates** (pre-1995 Article 50 just-satisfaction judgments, the pre-Protocol-11 form of a family P64 already handles). Corpus-wide scan for procedure blocks absorbed into the narrative: **0 of 19,808**. Effective accuracy **98.4–100%**, against a Phase 2 DoD of ≥0.85.
+
+**Two cautions recorded for future work on this corpus.** (i) The first version of the vocabulary reported 78.7% — it encoded only the post-Protocol-11 formula, so pre-1998 procedure blocks ("*referred to the Court by the European Commission… the elected judge of Irish nationality*") scored zero. Corrected once from the Court's own templates, then every flag adjudicated by hand. (ii) A first absorption scan reported 135 defects; all 135 were the representation pattern below, caught by an over-broad `was represented by` regex. The true count is zero.
+
+**Open definitional question, now quantified.** Since ~2019 the Court places applicant identity and representation *after* the `THE FACTS` heading, so the segmenter labels them `Circumstances`; a human labeller would plausibly say `Procedure`. **166 cases** are affected. This is a labelling-convention choice, not a defect — current position is to follow the Court's own structure.
+
+### 1.10 P67–P68: full regeneration of the Statistics page
+**Run:** 2026-08-01 (`scripts/p67_export_db_cases.py` → `scripts/p68_merge_hudoc_metadata.py` → `build_pages_dashboard.py` → `build_citation_analytics.py`)
+
+**Problem.** `docs/data/stats.json` is a static build, last generated 2026-04-16 from a JSONL export. Every figure on the Statistics page was therefore four months and several cleaning passes out of date, and no existing export could be reused: the April file predates the Phase 2 section split, and the VM's May export predates the P5x heal passes (its `Operative part` is 834,521 rows against the database's 183,451).
+
+**Method.** The paragraphs must come from the database, which is the healed copy; but seven HUDOC metadata fields exist *only* in the enriched export and drive whole page sections — `hudoc_kpthesaurus` (the four Thesaurus charts), `pcr_citations` (the citation network), `chamber_composed_of` (judge counts), `separate_opinion`, `domestic_law`, `international_law`, `rules_of_court`. P67 streams the corpus out of the DB over SSH (nothing written to the VM, whose disk is at 90%); P68 joins the metadata back on by `case_id` and reports per-field coverage. Where the two disagree the DB wins, since P61 rewrote `article_no` and the April export still holds the comma-mashed compound strings.
+
+Paragraph *text* is deliberately not shipped: `build_pages_dashboard.py` touches it once, as a non-empty check, and never reads its content, so P67 emits a placeholder. This is exact for every statistic and turns a ~2 GB transfer into 250 MB. The export is consequently unsuitable for `--export-data` / `--sample-output`, which were pointed at scratch paths.
+
+**Result.** 19,822 cases, 3,258,434 paragraph rows, metadata matched for 19,720 (99.5%); the 102 unmatched are newer than the April HUDOC export and have empty thesaurus/citation fields. All 40 charts populated. Notable movements, all consequences of the cleaning passes rather than of this rebuild:
+
+| Figure | Was (April) | Now | Why |
+|---|---:|---:|---|
+| `total_paragraphs` | 1,932,917 | 3,258,434 | P34 re-ingest from source DOCX |
+| `unique_articles` | 1,550 | 112 | P61 removed contaminated compound article strings (the old top-10 still contained `35 § 3` alongside `35`) |
+| `max_paragraphs_per_case` | 3,585 | 51,650 | *Burmych and Others v. Ukraine* — 51,040 of its rows are the mass-applicant Appendix table (P20) |
+| `total_press_releases` | 4,949 | 0 | excluded from the corpus 2026-05-09 |
+| violation rate | 83.9% | 85.7% | healed outcome metadata |
+
+`SECTION_LABELS` and `normalize_section_key` in `build_pages_dashboard.py` gained the three Phase 2 keys plus `summary`, which had been rendering as a raw lowercase label.
+
+**Metadata refresh (same day).** The first regeneration still leaned on the April HUDOC export for the thesaurus and citation fields, leaving 102 cases with neither. Both upstreams were then re-pulled:
+
+- `hudoc_rescrape.py` against a fresh cache (the script skips the network entirely when its cache file exists, so the April cache had to be set aside). 19,791 of 19,822 cases matched HUDOC (99.8%); `hudoc_kpthesaurus` now covers **19,573** cases, up from 19,471.
+- `merge_ecthr_pcr.py` re-merged the public `RashidHaddad/ECTHR-PCR` dataset (15,729 records, 16,102 of our cases matched).
+
+The PCR re-merge **overwrites**, and today's snapshot of that dataset is slightly thinner than the one merged in April: re-running it alone dropped 782 cases and 18,847 citation edges. Pipeline order was therefore corrected so the live sources run first and the April export is used only to fill what they leave empty (`p68 --fill-only`), which recovered exactly those 782 cases.
+
+Final citation graph: 19,131 nodes, **170,855 edges** — 3,813 fewer than the April-only figure. That is not a regression to fix: the lower number is the current state of the public dataset, with the archive as fallback, and is the reproducible one. Preferring the larger number would mean preferring the older snapshot because it flatters the graph.
+
+**Standing dependency.** `hudoc_kpthesaurus` and `pcr_*` live only in the JSONL exports, not in the database, so every future regeneration needs this two-source pull. Cases newer than the last pull have no thesaurus terms and no citations until it is re-run.
+
 ---
 
 ## 2. Ranking changes (relevance & sort)

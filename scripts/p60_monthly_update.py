@@ -57,7 +57,25 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent          # scripts/
 REPO = ROOT.parent
 P34_PATH = ROOT / "p34_rebuild_from_hudoc.py"
-BUILD_DB_PATH = REPO / "backend" / "build_db.py"
+
+
+def _find_build_db() -> Path:
+    """Locate build_db.py.
+
+    The backend directory was renamed backend/ -> api/ in the 2026-04-28
+    reorganisation, which left this script pointing at a path that no longer
+    exists — it failed on the first run afterwards with FileNotFoundError.
+    Both names are checked so the script works either way.
+    """
+    for rel in ("api", "backend"):
+        candidate = REPO / rel / "build_db.py"
+        if candidate.exists():
+            return candidate
+    raise FileNotFoundError(
+        "build_db.py not found under %s/{api,backend}" % REPO)
+
+
+BUILD_DB_PATH = _find_build_db()
 KPTHESAURUS_PATH = ROOT / "kpthesaurus_labels.json"
 
 HUDOC_QUERY_URL = "https://hudoc.echr.coe.int/app/query/results"

@@ -292,12 +292,19 @@ const CLASSIFIER_METHODS = {
 // "Operative part" (lowercase 'p'). Without merging, the lowercase variant
 // (~62k paragraphs, dominant since 2020) would be invisible to the filter.
 // Empirically verified via scripts/harvest_headings.py — see docs/phase2/.
-// docs/TODO-facts-reclassify.md remains the plan for proper Phase 2
-// procedure/circumstances re-segmentation.
+// Phase 2 (P63, 2026-07-31) has now RUN against the DB: the Facts family is
+// split into "Procedure" / "Circumstances" / "Subject Matter" following the
+// Court's own headings (docs/TODO-facts-reclassify.md). The raw labels
+// "Facts" / "Facts Background" / "Facts Proceedings" survive only in the
+// 564 residue cases whose boundary is not yet segmented; they keep the
+// legacy "facts" key below.
 const SECTION_ORDER = [
   "header",
   "summary",
   "introduction",
+  "procedure",
+  "circumstances",
+  "subject_matter",
   "facts",
   "legal_framework",
   "commission_proceedings",
@@ -315,7 +322,10 @@ const SECTION_LABELS = {
   header: "Judgment Header",
   summary: "Summary",
   introduction: "Introduction",
-  facts: "Facts of the case",
+  procedure: "Procedure",
+  circumstances: "Circumstances of the Case",
+  subject_matter: "Subject Matter of the Case",
+  facts: "Facts (unsegmented)",
   legal_framework: "Relevant legal framework",
   commission_proceedings: "Commission Proceedings",
   final_submissions: "Final Submissions",
@@ -332,7 +342,10 @@ const SECTION_COLORS = {
   header: "#8C8C8C",
   summary: "#5B7B96",                  // muted navy — keyword block
   introduction: "#4C72B0",
-  facts: "#DD8452",
+  procedure: "#7B9EB8",              // muted steel blue — administrative block
+  circumstances: "#DD8452",          // inherits the Facts orange (bulk of the family)
+  subject_matter: "#C9946B",         // terracotta between circumstances and legal_framework
+  facts: "#DD8452",                  // residue keeps the family orange
   legal_framework: "#937860",
   commission_proceedings: "#7B8FA3",  // muted slate — pre-Protocol-11 procedural
   final_submissions: "#B5826D",       // muted terracotta — parties' final arguments
@@ -354,10 +367,10 @@ const SECTION_COLORS = {
 const SECTION_BUCKETS = {
   facts: {
     label: "Facts",
-    description: "Facts of the case, legal framework, procedure, summary",
+    description: "Procedure, circumstances of the case, legal framework, summary",
     sections: [
-      "introduction", "facts", "legal_framework",
-      "commission_proceedings", "summary",
+      "introduction", "procedure", "circumstances", "subject_matter",
+      "facts", "legal_framework", "commission_proceedings", "summary",
     ],
     color: "#DD8452",
     defaultOn: true,
@@ -414,6 +427,11 @@ const SECTION_DB_NAMES = {
   header: ["Header"],
   summary: ["Summary"],
   introduction: ["Introduction"],
+  // P63 (applied 2026-07-31) split the Facts family into the three keys below;
+  // the legacy names survive only in the 564 unsegmented residue cases.
+  procedure: ["Procedure"],
+  circumstances: ["Circumstances"],
+  subject_matter: ["Subject Matter"],
   facts: ["Facts Background", "Facts Proceedings", "Facts"],
   legal_framework: ["Legal Framework", "Legal Context", "Relevant legal framework"],
   commission_proceedings: ["Commission Proceedings"],
@@ -431,7 +449,10 @@ const SEARCH_SCORE_SECTION_WEIGHTS = {
   merits: 1.3,
   admissibility: 1.2,
   legal_framework: 1.1,
+  circumstances: 1.0,
+  subject_matter: 1.0,
   facts: 1.0,
+  procedure: 0.9,   // administrative boilerplate — rarely what a query is after
   appendix: 0.8,
 };
 
@@ -1536,6 +1557,12 @@ function normalizeSectionKey(rawSection) {
     "facts proceedings": "facts",
     facts_proceedings: "facts",
     facts: "facts",
+    // P63 outputs — each has its own key; only the unsegmented residue
+    // (plain "Facts" and the two legacy labels above) stays on "facts".
+    procedure: "procedure",
+    circumstances: "circumstances",
+    "subject matter": "subject_matter",
+    subject_matter: "subject_matter",
     // "Legal Context" is an orphan (6 paragraphs in 2 Polish 2026 cases) —
     // collapse into legal_framework. See SECTION_ORDER note above.
     "legal framework": "legal_framework",
@@ -5690,6 +5717,9 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
     state.limited = false;
     state.searchTimeMs = data.search_time_ms || (t1 - t0);
     state.serverMode = true;
+    // P0 (Aug 2026): server retried with any-of-these-terms matching because
+    // the exact all-terms query found nothing. Tell the user plainly.
+    renderFallbackNotice(data.fallback || null);
     // Default view: cap visible total at 100 cases / 5 pages even though
     // the server knows about the full 18k+ corpus.
     const rawTotalCases = data.total_cases || 0;
@@ -7189,4 +7219,21 @@ function maybeShowSemanticHint(query, data) {
     `<a href="semantic.html?q=${encodeURIComponent(q)}">Try <strong>Semantic Search</strong> for “${escapeHtml(q)}” →</a>` +
     `<span class="semantic-hint-why">matches by legal substance — the Court may phrase it differently (e.g. “private life”)</span>`;
   h.hidden = false;
+}
+
+function renderFallbackNotice(mode) {
+  let el = document.getElementById("fallbackNotice");
+  if (!mode) { if (el) el.remove(); return; }
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "fallbackNotice";
+    el.setAttribute("role", "status");
+    el.style.cssText = "margin:8px 0;padding:8px 12px;border-left:3px solid #b45309;" +
+      "background:rgba(180,83,9,.08);font-size:.85rem;line-height:1.4;border-radius:2px;";
+    const anchor = document.getElementById("resultsCases");
+    const host = anchor ? anchor.closest("section,div") : null;
+    (host || document.body).insertBefore(el, host ? host.firstChild : null);
+  }
+  el.textContent = "No case contains every word of your query \u2014 showing the closest " +
+    "matches (any of your terms, best first). Tip: quote a phrase to make it mandatory.";
 }
