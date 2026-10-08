@@ -1706,6 +1706,8 @@ const state = {
    ========================================================= */
 const $ = (id) => document.getElementById(id);
 const escapeHtml = (s) => (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// hudoc_url goes into href, where escapeHtml does not stop javascript: URLs.
+const safeHudocUrl = (u) => /^https:\/\/hudoc\.echr\.coe\.int\//.test(String(u||'').trim()) ? String(u).trim() : '#';
 const matchLabel = (s) => s>=.80?{cls:'strong',text:'Strong'}:s>=.72?{cls:'good',text:'Good'}:s>=.65?{cls:'fair',text:'Possible'}:{cls:'weak',text:'Weak'};
 // Robust year extraction — works for ISO ("2011-02-08"), DD/MM/YYYY ("08/02/2011"),
 // DD.MM.YYYY, "Feb 8, 2011", or bare "2011". Returns null when no plausible year is present.
@@ -1928,7 +1930,7 @@ function renderViewA(data) {
       <div class="case-rank">${String(idx+1).padStart(2,'0')}</div>
       <div class="case-body">
         <div class="case-title-row">
-          <a class="case-title" href="${escapeHtml(c.hudoc_url||'#')}" target="_blank" rel="noopener" aria-label="${escapeHtml(c.title||c.case_id)} — open in HUDOC, opens in a new tab">${escapeHtml(c.title||c.case_id)}<span class="ext" aria-hidden="true">HUDOC&#8599;</span></a>
+          <a class="case-title" href="${escapeHtml(safeHudocUrl(c.hudoc_url))}" target="_blank" rel="noopener" aria-label="${escapeHtml(c.title||c.case_id)} — open in HUDOC, opens in a new tab">${escapeHtml(c.title||c.case_id)}<span class="ext" aria-hidden="true">HUDOC&#8599;</span></a>
           <div class="case-pills">
             <span class="match-pill ${m.cls}">${m.text}</span>
             <span class="hits-pill">${hl}</span>
@@ -2469,7 +2471,7 @@ function renderDossier(data) {
         ${arts}
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <a class="btn btn-garnet" href="${escapeHtml(c.hudoc_url||'#')}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;">Open in HUDOC ↗</a>
+        <a class="btn btn-garnet" href="${escapeHtml(safeHudocUrl(c.hudoc_url))}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;">Open in HUDOC ↗</a>
         <button class="btn ${inCmp?'btn-garnet':''}" onclick="toggleCompare('${escapeHtml(c.case_id)}')" style="cursor:pointer;">${inCmp?'✓ In compare':'+ Compare'}</button>
       </div>
       ${citationBlock}
@@ -2764,7 +2766,7 @@ function renderReadingCol(w) {
     <hr class="rule-double" style="margin:18px 0">
     ${passages || '<p class="state-msg">No passage text.</p>'}
     <hr class="rule-thin" style="margin:24px 0">
-    <a class="btn btn-garnet" href="${escapeHtml(c.hudoc_url||'#')}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;">Read full judgment ↗</a>
+    <a class="btn btn-garnet" href="${escapeHtml(safeHudocUrl(c.hudoc_url))}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;">Read full judgment ↗</a>
   `;
 }
 

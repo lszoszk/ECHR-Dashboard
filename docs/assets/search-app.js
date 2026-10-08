@@ -5,13 +5,20 @@ const MAX_HITS = 5000;
 // ---------------------------------------------------------------------------
 // Server-side search API integration
 // ---------------------------------------------------------------------------
-// API base URL.  Three sources, in priority order:
-//   1. ?api=… query param         (one-shot override for testing)
-//   2. localStorage echrApiBase   (sticky local-dev pin)
-//   3. auto-detect localhost      (FastAPI on :8000 if served from 127.0.0.1)
-//   4. production VM              (default)
+// API base URL.  Served from localhost, in priority order:
+//   1. ?api=… query param         (persisted as a sticky local-dev pin)
+//   2. localStorage echrApiBase   (that pin)
+//   3. FastAPI on :8000           (same host)
+// Served from any other origin the production VM is always used: a ?api= link
+// or a stored pin would otherwise hand a visitor's queries, and every judgment
+// text and § number the page shows, cites and exports, to an arbitrary server.
 const API_BASE_URL = (() => {
+  const PRODUCTION = "https://150.254.115.204/echr-api/api";
   try {
+    if (location.hostname !== "127.0.0.1" && location.hostname !== "localhost") {
+      try { localStorage.removeItem("echrApiBase"); } catch (_) { /* private mode */ }
+      return PRODUCTION;
+    }
     const qp = new URLSearchParams(location.search).get("api");
     if (qp) {
       // Persist an explicit ?api= override so later visits to the bare
@@ -22,13 +29,18 @@ const API_BASE_URL = (() => {
     }
     const ls = localStorage.getItem("echrApiBase");
     if (ls) return ls.replace(/\/+$/, "");
-    if (location.hostname === "127.0.0.1" || location.hostname === "localhost") {
-      return `http://${location.hostname}:8000/api`;
-    }
+    return `http://${location.hostname}:8000/api`;
   } catch (_) { /* SSR / sandboxed contexts: fall through */ }
-  return "https://150.254.115.204/echr-api/api";
+  return PRODUCTION;
 })();
 const API_HEALTH_URL = API_BASE_URL.replace(/\/api$/, "/health");
+
+// hudoc_url is written into href attributes, where escapeHtml does not stop a
+// javascript: URL or an off-site link, so only real HUDOC addresses pass.
+function safeHudocUrl(raw) {
+  const u = String(raw || "").trim();
+  return /^https:\/\/hudoc\.echr\.coe\.int\//.test(u) ? u : "";
+}
 
 const serverSearch = {
   available: false,
@@ -153,7 +165,7 @@ const serverSearch = {
       case_no: apiCase.case_no,
       title: apiCase.title,
       judgment_date: apiCase.judgment_date,
-      hudoc_url: apiCase.hudoc_url,
+      hudoc_url: safeHudocUrl(apiCase.hudoc_url),
       ecli: apiCase.ecli || "",
       respondent_state: apiCase.respondent_state || "",
       article_no: apiCase.articles || [],
@@ -1694,7 +1706,7 @@ function normalizeCases(rawCases) {
     const strasbourgCaselaw = normalizeCitationList(caseObj.strasbourg_caselaw);
     const representedBy = String(caseObj.represented_by || "").trim();
     const ecli = String(caseObj.ecli || "").trim();
-    const hudocUrl = String(caseObj.hudoc_url || "").trim();
+    const hudocUrl = safeHudocUrl(caseObj.hudoc_url);
     const hudocId = extractHudocId(hudocUrl);
     const articleTokens = splitArticles(caseObj.article_no);
     const articleTokensNorm = articleTokens.map((token) => normalizeArticleToken(token));
