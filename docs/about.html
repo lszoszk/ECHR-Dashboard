@@ -234,12 +234,13 @@
             become and later judgments are absent. Note that
             HUDOC's default search covers Grand Chamber + Chamber only, so
             counts here can legitimately exceed a default HUDOC search.</li>
-          <li><strong>Judgments, plus a few dozen Grand Chamber decisions</strong>: the corpus holds judgments and
-            a small set of Grand Chamber admissibility decisions (e.g. <em>Bankovi&#263;</em>). HUDOC's other
-            collections &mdash; the many thousands of other admissibility <em>Decisions</em>, Communicated Cases,
-            Legal Summaries, Advisory Opinions, Commission decisions &mdash; are not included, so a decision that
-            is not a Grand Chamber one returns no results here. Press releases are excluded as duplicates of the
-            underlying judgments.</li>
+          <li><strong>Judgments, plus selected admissibility decisions</strong>: the corpus is made of judgments.
+            It also holds the admissibility decisions that those judgments cite (where HUDOC has an English text) and
+            the Grand Chamber decisions, e.g. <em>Bankovi&#263;</em>; they are listed only when the
+            <em>Decisions</em> filter is ticked. HUDOC's other collections &mdash; the many thousands of other
+            decisions, Communicated Cases, Legal Summaries, Advisory Opinions, Commission decisions &mdash; are not
+            included, so a decision outside that selection returns no results here. Press releases are excluded as
+            duplicates of the underlying judgments.</li>
           <li><strong>English texts only</strong>: a few recent judgments are
             present only as their French original (titles beginning &ldquo;AFFAIRE&rdquo;) until the English text
             can be loaded. On Semantic Search,
@@ -537,7 +538,8 @@
         .then(function (d) {
           var m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(d.date_to || ''));
           document.querySelectorAll('[data-live="cases"]').forEach(function (n) {
-            if (d.total_cases) n.textContent = Number(d.total_cases).toLocaleString('en-GB');
+            var judgments = d.total_judgments || d.total_cases;
+            if (judgments) n.textContent = Number(judgments).toLocaleString('en-GB');
           });
           document.querySelectorAll('[data-live="newest"]').forEach(function (n) {
             if (m) n.textContent = Number(m[1]) + '\u00a0' + MONTHS[Number(m[2]) - 1] + '\u00a0' + m[3];

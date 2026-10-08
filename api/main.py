@@ -407,6 +407,41 @@ def _validate_page_size(page_size: int, *, allow_large: bool = False) -> int:
     return max(1, min(page_size, upper))
 
 
+def _doc_type_clause(doc_type_list: list[str], explicit_lookup: bool = False) -> str:
+    """SQL condition for the document-type filter.
+
+    Admissibility decisions are separate documents from judgments: they appear
+    only when "decision" is asked for.  With no document-type filter the
+    results are judgments, as before decisions were added to the corpus —
+    except when the query names one document (case:/hudoc:/ecli:), which must
+    find it whatever its type.
+    """
+    not_decision = "c.document_type NOT LIKE 'Decision%'"
+    parts = []
+    for dt in doc_type_list:
+        if dt == "press_release":
+            parts.append("c.document_type LIKE '%Press Release%'")
+        elif dt == "judgment":
+            parts.append(f"(c.document_type NOT LIKE '%Press Release%' AND {not_decision})")
+        elif dt == "decision":
+            parts.append("c.document_type LIKE 'Decision%'")
+        elif dt == "committee":
+            parts.append("c.document_type LIKE '%Committee%'")
+        elif dt == "grand_chamber":
+            parts.append(f"(c.originating_body LIKE '%Grand Chamber%' AND {not_decision})")
+        elif dt == "chamber":
+            parts.append(
+                "(c.document_type NOT LIKE '%Press Release%' "
+                "AND c.document_type NOT LIKE '%Committee%' "
+                f"AND {not_decision} "
+                "AND (c.originating_body IS NULL "
+                "OR c.originating_body NOT LIKE '%Grand Chamber%'))"
+            )
+    if parts:
+        return f"({' OR '.join(parts)})"
+    return "1=1" if explicit_lookup else not_decision
+
+
 def _parse_comma_param(value: Optional[str]) -> list[str]:
     """Split a comma-separated query param into a trimmed list."""
     if not value:
@@ -756,8 +791,12 @@ def stats():
             cur.execute("SELECT count(*) FROM paragraphs")
             total_paragraphs = cur.fetchone()[0]
 
-            cur.execute("SELECT count(*) FROM cases WHERE document_type NOT LIKE '%Press Release%'")
+            cur.execute("SELECT count(*) FROM cases WHERE document_type NOT LIKE '%Press Release%' "
+                        "AND document_type NOT LIKE 'Decision%'")
             total_judgments = cur.fetchone()[0]
+
+            cur.execute("SELECT count(*) FROM cases WHERE document_type LIKE 'Decision%'")
+            total_decisions = cur.fetchone()[0]
 
             cur.execute("SELECT count(*) FROM cases WHERE document_type LIKE '%Press Release%'")
             total_press_releases = cur.fetchone()[0]
@@ -816,6 +855,7 @@ def stats():
         return {
             "total_cases": total_cases,
             "total_judgments": total_judgments,
+            "total_decisions": total_decisions,
             "total_press_releases": total_press_releases,
             "total_paragraphs": total_paragraphs,
             "citable_paragraphs": meaningful["citable_paragraphs"],
@@ -1113,26 +1153,7 @@ def _build_case_filter_sql(
         if oc_conditions:
             where_clauses.append(f"({' OR '.join(oc_conditions)})")
 
-    if doc_type_list:
-        dt_conditions = []
-        for dt in doc_type_list:
-            if dt == "press_release":
-                dt_conditions.append("c.document_type LIKE '%Press Release%'")
-            elif dt == "judgment":
-                dt_conditions.append("c.document_type NOT LIKE '%Press Release%'")
-            elif dt == "committee":
-                dt_conditions.append("c.document_type LIKE '%Committee%'")
-            elif dt == "grand_chamber":
-                dt_conditions.append("c.originating_body LIKE '%Grand Chamber%'")
-            elif dt == "chamber":
-                dt_conditions.append(
-                    "(c.document_type NOT LIKE '%Press Release%' "
-                    "AND c.document_type NOT LIKE '%Committee%' "
-                    "AND (c.originating_body IS NULL "
-                    "OR c.originating_body NOT LIKE '%Grand Chamber%'))"
-                )
-        if dt_conditions:
-            where_clauses.append(f"({' OR '.join(dt_conditions)})")
+    where_clauses.append(_doc_type_clause(doc_type_list))
 
     _df_key = _date_key(date_from)
     if _df_key:
@@ -1547,26 +1568,9 @@ def search(
         if oc_conditions:
             where_clauses.append(f"({' OR '.join(oc_conditions)})")
 
-    if doc_type_list:
-        dt_conditions = []
-        for dt in doc_type_list:
-            if dt == "press_release":
-                dt_conditions.append("c.document_type LIKE '%Press Release%'")
-            elif dt == "judgment":
-                dt_conditions.append("c.document_type NOT LIKE '%Press Release%'")
-            elif dt == "committee":
-                dt_conditions.append("c.document_type LIKE '%Committee%'")
-            elif dt == "grand_chamber":
-                dt_conditions.append("c.originating_body LIKE '%Grand Chamber%'")
-            elif dt == "chamber":
-                dt_conditions.append(
-                    "(c.document_type NOT LIKE '%Press Release%' "
-                    "AND c.document_type NOT LIKE '%Committee%' "
-                    "AND (c.originating_body IS NULL "
-                    "OR c.originating_body NOT LIKE '%Grand Chamber%'))"
-                )
-        if dt_conditions:
-            where_clauses.append(f"({' OR '.join(dt_conditions)})")
+    where_clauses.append(_doc_type_clause(
+        doc_type_list,
+        explicit_lookup=bool(q_prefix["case"] or q_prefix["hudoc"] or q_prefix["ecli"])))
 
     _df_key = _date_key(date_from)
     if _df_key:
@@ -2493,26 +2497,7 @@ def browse(
         if oc_conditions:
             where_clauses.append(f"({' OR '.join(oc_conditions)})")
 
-    if doc_type_list:
-        dt_conditions = []
-        for dt in doc_type_list:
-            if dt == "press_release":
-                dt_conditions.append("c.document_type LIKE '%Press Release%'")
-            elif dt == "judgment":
-                dt_conditions.append("c.document_type NOT LIKE '%Press Release%'")
-            elif dt == "committee":
-                dt_conditions.append("c.document_type LIKE '%Committee%'")
-            elif dt == "grand_chamber":
-                dt_conditions.append("c.originating_body LIKE '%Grand Chamber%'")
-            elif dt == "chamber":
-                dt_conditions.append(
-                    "(c.document_type NOT LIKE '%Press Release%' "
-                    "AND c.document_type NOT LIKE '%Committee%' "
-                    "AND (c.originating_body IS NULL "
-                    "OR c.originating_body NOT LIKE '%Grand Chamber%'))"
-                )
-        if dt_conditions:
-            where_clauses.append(f"({' OR '.join(dt_conditions)})")
+    where_clauses.append(_doc_type_clause(doc_type_list))
 
     _df_key = _date_key(date_from)
     if _df_key:

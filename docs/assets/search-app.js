@@ -183,7 +183,7 @@ const serverSearch = {
       __importance: apiCase.importance || "Unspecified",
       __originatingBody: origBody || "Unknown",
       __outcomePrimary: deriveOutcomeBucket(violation, nonViolation),
-      __chamberCategory: deriveChamberCategory([], origBody),
+      __chamberCategory: deriveChamberCategory([apiCase.document_type || ""], origBody),
       __hasSeparateOpinion: parseBoolLike(apiCase.separate_opinion),
       // P28: citation arrays are now exposed by /api.  The API returns
       // either a list (multi-cite case) or a single string for
@@ -215,6 +215,7 @@ const serverSearch = {
         .map((item) => normalizeSearchText(item)),
       __isPressRelease: (apiCase.document_type || "").toLowerCase().includes("press release"),
       __isCommittee: (apiCase.document_type || "").toLowerCase().includes("committee"),
+      __isDecision: (apiCase.document_type || "").toLowerCase().startsWith("decision"),
       __isGrandChamber: (apiCase.document_type || "").toLowerCase().includes("grand chamber") || (apiCase.originating_body || "").toLowerCase().includes("grand chamber"),
       document_type: apiCase.document_type || "",
       __judgmentDateTs: apiCase.judgment_date ? (() => { const p = apiCase.judgment_date.split("/"); return p.length === 3 ? new Date(`${p[2]}-${p[1]}-${p[0]}`).getTime() : new Date(apiCase.judgment_date).getTime(); })() : null,
@@ -1163,6 +1164,7 @@ function getOutcomeToneClass(outcomeKey) {
 function getChamberLabel(category) {
   if (category === "GRANDCHAMBER") return "Grand Chamber";
   if (category === "CHAMBER") return "Chamber";
+  if (category === "DECISION") return "Decision";
   return "Other";
 }
 
@@ -1632,6 +1634,7 @@ function deriveChamberCategory(documentTypes, originatingBody) {
   const docText = documentTypes.join(" ").toUpperCase();
   const bodyText = String(originatingBody || "").toUpperCase();
 
+  if (docText.includes("DECISION")) return "DECISION";
   if (docText.includes("GRANDCHAMBER") || docText.includes("GRAND CHAMBER") || bodyText.includes("GRAND CHAMBER")) {
     return "GRANDCHAMBER";
   }
@@ -1819,6 +1822,7 @@ function normalizeCases(rawCases) {
       __hudocIdNorm: normalizeSearchText(hudocId),
       __chamberCategory: chamberCategory,
       __isPressRelease: documentType.some(dt => dt.toLowerCase().includes("press release")),
+      __isDecision: documentType.some(dt => dt.toLowerCase().startsWith("decision")),
       __outcomePrimary: documentType.some(dt => dt.toLowerCase().includes("press release")) ? "press_release" : deriveOutcomeBucket(violation, nonViolation),
       __judgmentDateTs: ts,
       __sortTs: ts == null ? -Infinity : ts,
@@ -1971,6 +1975,8 @@ function renderFiltersSkeleton() {
         { tooltip: "17-judge Grand Chamber judgments — major principles and inter-state cases." }),
       makeCheckbox("Committee", "committee", "docTypes", null,
         { tooltip: "3-judge Committee judgments — repetitive cases following well-established case-law." }),
+      makeCheckbox("Decisions", "decision", "docTypes", null,
+        { tooltip: "Admissibility decisions: all Grand Chamber decisions and the decisions that judgments in this corpus cite. Hidden unless ticked." }),
     ].join("");
   }
   if (el.outcomeFilters) {
@@ -2043,6 +2049,8 @@ function renderFilters() {
       { tooltip: "17-judge Grand Chamber judgments — major principles and inter-state cases." }),
     makeCheckbox("Committee", "committee", "docTypes", fc.docTypes.committee,
       { tooltip: "3-judge Committee judgments — repetitive cases following well-established case-law. Often have applicant tables in Introduction." }),
+    makeCheckbox("Decisions", "decision", "docTypes", fc.docTypes.decision,
+      { tooltip: "Admissibility decisions: all Grand Chamber decisions and the decisions that judgments in this corpus cite. Hidden unless ticked." }),
   ].join("");
 
   el.outcomeFilters.innerHTML = [
@@ -2116,6 +2124,7 @@ function buildFacetCounts(facets) {
     for (const f of facets.doc_types) {
       const v = (f.value || "").toLowerCase();
       if (v.includes("press release")) dt.press_release = (dt.press_release || 0) + (f.count || 0);
+      else if (v.startsWith("decision")) dt.decision = (dt.decision || 0) + (f.count || 0);
       else if (v.includes("committee")) dt.committee = (dt.committee || 0) + (f.count || 0);
       else dt.chamber = (dt.chamber || 0) + (f.count || 0);
     }
@@ -2199,7 +2208,7 @@ async function refreshRailCounts(query, filters) {
     for (const k of (state.keywords || [])) if (fc.keywords[k] == null) fc.keywords[k] = 0;
     for (const b of (state.bodies || [])) if (fc.bodies[b] == null) fc.bodies[b] = 0;
     for (const i of (state.importanceLevels || [])) if (fc.importance[i] == null) fc.importance[i] = 0;
-    for (const d of ["chamber", "grand_chamber", "committee", "press_release"]) {
+    for (const d of ["chamber", "grand_chamber", "committee", "decision", "press_release"]) {
       if (fc.docTypes[d] == null) fc.docTypes[d] = 0;
     }
     state.facetCounts = fc;
@@ -2388,7 +2397,7 @@ function getCurrentFilters() {
   };
 }
 
-function passesCaseFilters(c, filters) {
+function passesCaseFilters(c, filters, serverChecked = false) {
   if (filters.articles.size) {
     let ok = false;
     for (const a of c.__articles) {
@@ -2431,8 +2440,14 @@ function passesCaseFilters(c, filters) {
     if (!primaryMatch && !inadmissibleMatch && !struckOutMatch) return false;
   }
 
+  // Admissibility decisions are shown only when "Decisions" is ticked. The server
+  // applies this itself (and lets case:/hudoc: lookups through), so its results
+  // are not hidden again here.
+  if (!serverChecked && c.__isDecision && !filters.docTypes.has("decision")) return false;
   if (filters.docTypes.size) {
-    const dtKeys = c.__isPressRelease
+    const dtKeys = c.__isDecision
+      ? ["decision"]
+      : c.__isPressRelease
       ? ["press_release"]
       : c.__isGrandChamber
         ? ["grand_chamber", "judgment"]
@@ -2885,7 +2900,7 @@ function renderActiveFilters(filters) {
     chips.push(`<span class="filter-chip">${escapeHtml(label)}</span>`);
   }
   for (const dt of filters.docTypes) {
-    const label = dt === "press_release" ? "Press Releases" : "Judgments";
+    const label = dt === "press_release" ? "Press Releases" : dt === "decision" ? "Decisions" : "Judgments";
     chips.push(`<span class="filter-chip">${escapeHtml(label)}</span>`);
   }
   for (const value of filters.separateOpinion) {
@@ -5595,13 +5610,16 @@ async function renderNameMatches(query) {
   const items = matches.map((m) => {
     const appNo = String(m.case_no || "").split(";")[0].trim();
     const url = safeHudocUrl(m.hudoc_url);
-    const key = m.importance === "Key cases" ? ' <span class="nm-key">Key case</span>' : "";
+    // A decision's own application number appears only in its header, so a case: lookup finds nothing.
+    const isDecision = /^decision/i.test(m.document_type || "");
+    const kind = isDecision ? ' <span class="nm-key">Decision</span>' : "";
+    const key = kind + (m.importance === "Key cases" ? ' <span class="nm-key">Key case</span>' : "");
     const meta = [m.respondent_state, formatCaseDateForDisplay(m), appNo ? `no. ${appNo}` : ""].filter(Boolean).join(" · ");
     return `<li class="nm-item">
       <div class="nm-title">${escapeHtml(cleanCaseTitle(m.title))}${key}</div>
       <div class="nm-meta">${escapeHtml(meta)}</div>
       <div class="nm-actions">
-        ${appNo ? `<button type="button" class="nm-btn" data-nm-appno="${escapeHtml(appNo)}">Show this case</button>` : ""}
+        ${appNo && !isDecision ? `<button type="button" class="nm-btn" data-nm-appno="${escapeHtml(appNo)}">Show this case</button>` : ""}
         ${url ? `<a class="nm-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Open in HUDOC ↗</a>` : ""}
       </div>
     </li>`;
@@ -5764,7 +5782,7 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
       if (query && !paragraphs.length) continue;
 
       // Client-side post-filter for filters the server doesn't support
-      if (!passesCaseFilters(c, filters)) continue;
+      if (!passesCaseFilters(c, filters, true)) continue;
 
       resultsById.set(c.case_id, {
         case: c,
