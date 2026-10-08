@@ -2219,3 +2219,11 @@ a.case-context-ecli-link .ext-icon {
 .nm-link { font-size: 0.82rem; color: var(--garnet); text-decoration: none; border-bottom: 1px solid var(--garnet-edge); }
 .nm-link:hover { border-bottom-color: var(--garnet); }
 .nm-note { margin: 6px 0 0; font-size: 0.74rem; color: var(--ink-3); font-style: italic; }
+
+/* ── Footer: independence / source notice ───────────────────────────────── */
+.footer-note {
+  max-width: 920px; margin: 0 auto; padding: 4px 20px 16px;
+  text-align: center; font-family: var(--font-serif);
+  font-size: 0.78rem; line-height: 1.55; color: var(--ink-3);
+}
+.footer-note a { color: var(--garnet); }
