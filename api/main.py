@@ -63,12 +63,38 @@ def _get_connection() -> sqlite3.Connection:
 
 @contextmanager
 def get_cursor():
-    """Yield a cursor from the thread-local connection."""
+    """Yield a cursor from the thread-local connection.
+
+    The connection aborts the running statement once QUERY_DEADLINE_S has
+    passed; that surfaces here as a 503 instead of a worker stuck for minutes.
+    """
     conn = _get_connection()
     cur = conn.cursor()
+    expired = False
+    if QUERY_DEADLINE_S > 0:
+        deadline = time.monotonic() + QUERY_DEADLINE_S
+
+        def _abort_when_late() -> int:
+            nonlocal expired
+            if time.monotonic() > deadline:
+                expired = True
+                return 1
+            return 0
+
+        conn.set_progress_handler(_abort_when_late, 100_000)
     try:
         yield cur
+    except sqlite3.OperationalError:
+        if expired:
+            raise HTTPException(
+                status_code=503,
+                detail="This query is too broad to answer in time. "
+                       "Add a more specific term or a filter and try again.",
+            )
+        raise
     finally:
+        if QUERY_DEADLINE_S > 0:
+            conn.set_progress_handler(None, 0)
         cur.close()
 
 
@@ -160,6 +186,12 @@ _FTS5_RESERVED_OPERATORS = {"AND", "OR", "NOT", "NEAR"}
 
 # Kill-switch for the zero-result OR fallback (see the search handler).
 _FALLBACK_ON = os.environ.get("ECHR_FALLBACK", "0").lower() not in ("0", "false", "no")
+# Wall-clock budget for one request's database work; 0 disables.  A broad term
+# ("court") can otherwise hold one of the few workers for 100 s.  Cold scoped
+# /facets and /analytics legitimately take 15-30 s, so keep this above that.
+QUERY_DEADLINE_S = float(os.environ.get("ECHR_QUERY_DEADLINE_S", "45"))
+# Matched paragraphs returned per case in a by-case search; hit_count stays exact.
+MAX_PARAS_PER_CASE = int(os.environ.get("ECHR_MAX_PARAS_PER_CASE", "25"))
 
 # Terms dropped when broadening.  OR-ing a 40-word question is only affordable
 # if the ubiquitous terms go: `the` is in 63% of paragraph bodies, and ECtHR
@@ -780,6 +812,8 @@ def stats():
             "db_size_mb": db_size_mb,
             "version": "1.1",
         }
+    except HTTPException:
+        raise
     except Exception as exc:
         logger.exception("Stats query failed")
         raise HTTPException(status_code=500, detail=str(exc)) from exc
@@ -966,6 +1000,8 @@ def facets(
             _FACETS_CACHE["key"] = _fc_key
             _FACETS_CACHE["val"] = result
         return result
+    except HTTPException:
+        raise
     except Exception as exc:
         logger.exception("Facets query failed")
         raise HTTPException(status_code=500, detail=str(exc)) from exc
@@ -1261,6 +1297,8 @@ def analytics(
         elapsed = (time.perf_counter() - t0) * 1000
         result["analytics_time_ms"] = round(elapsed, 1)
         return result
+    except HTTPException:
+        raise
     except sqlite3.OperationalError as exc:
         logger.exception("Analytics query failed")
         raise HTTPException(status_code=400, detail=f"Analytics error: {exc}") from exc
@@ -1993,6 +2031,36 @@ def search(
                     "NULL AS parent_text"
                 )
                 parent_join = ""
+            # Use json array to pass case_ids safely.  Param order must
+            # match the SQL: MATCH ?, then sec_where, then role_where,
+            # then the json_each case-id list.
+            snippet_params_final: list[Any] = [fts_expr]
+            if sec_list:
+                snippet_params_final.extend(sec_list)
+            snippet_params_final.extend(role_params)
+            snippet_params_final.append(json.dumps(case_ids))
+
+            # A broad term matches thousands of paragraphs in the page's 20
+            # cases, and snippet() is the expensive part.  Rank the matches
+            # cheaply first, keep the best MAX_PARAS_PER_CASE per case, and
+            # build snippets for those only.  hit_count stays the true total.
+            pick_sql = (
+                "SELECT p.rowid AS rid, p.case_id "
+                "FROM paragraphs_fts pf "
+                "JOIN paragraphs p ON p.rowid = pf.rowid "
+                f"WHERE pf.paragraphs_fts MATCH ? {sec_where}{role_where} "
+                "AND p.case_id IN (SELECT value FROM json_each(?) ) "
+                f"ORDER BY {adj_rank}"
+            )
+            cur.execute(pick_sql, snippet_params_final)
+            kept_per_case: dict[str, int] = {}
+            kept_rowids: list[int] = []
+            for r in cur.fetchall():
+                n = kept_per_case.get(r["case_id"], 0)
+                if n < MAX_PARAS_PER_CASE:
+                    kept_per_case[r["case_id"]] = n + 1
+                    kept_rowids.append(r["rid"])
+
             snippet_sql = (
                 "SELECT p.case_id, p.section, p.para_idx, p.hudoc_para_no, p.numbering_block, "
                 f"{row_role_expr}, {logical_cols}, "
@@ -2002,17 +2070,10 @@ def search(
                 "JOIN paragraphs p ON p.rowid = pf.rowid "
                 f"{parent_join} "
                 f"WHERE pf.paragraphs_fts MATCH ? {sec_where}{role_where} "
-                f"AND p.case_id IN (SELECT value FROM json_each(?) ) "
+                f"AND p.rowid IN (SELECT value FROM json_each(?) ) "
                 f"ORDER BY {adj_rank}"
             )
-            # Use json array to pass case_ids safely.  Param order must
-            # match the SQL: MATCH ?, then sec_where, then role_where,
-            # then the json_each case-id list.
-            snippet_params_final: list[Any] = [fts_expr]
-            if sec_list:
-                snippet_params_final.extend(sec_list)
-            snippet_params_final.extend(role_params)
-            snippet_params_final.append(json.dumps(case_ids))
+            snippet_params_final[-1] = json.dumps(kept_rowids)
 
             cur.execute(snippet_sql, snippet_params_final)
             case_paragraphs: dict[str, list[dict]] = {}
@@ -2054,6 +2115,8 @@ def search(
                 "fallback": fallback,
                 "cases": cases_out,
             }
+    except HTTPException:
+        raise
     except sqlite3.OperationalError as exc:
         logger.exception("Search query failed")
         raise HTTPException(status_code=400, detail=f"Search error: {exc}") from exc
@@ -2156,6 +2219,8 @@ def case_cited_by(case_id: str, limit: int = Query(50, ge=1, le=500)):
                 (case_id, limit),
             )
             return {"cited_by": [_row_to_dict(r) for r in cur.fetchall()]}
+    except HTTPException:
+        raise
     except sqlite3.OperationalError:
         return {"cited_by": [], "note": "case_citations table not yet built"}
     except Exception as exc:
@@ -2180,6 +2245,8 @@ def case_cites(case_id: str, limit: int = Query(100, ge=1, le=500)):
                 (case_id, limit),
             )
             return {"cites": [_row_to_dict(r) for r in cur.fetchall()]}
+    except HTTPException:
+        raise
     except sqlite3.OperationalError:
         return {"cites": [], "note": "case_citations table not yet built"}
     except Exception as exc:
@@ -2403,6 +2470,8 @@ def browse(
                 "search_time_ms": round(elapsed, 1),
                 "cases": cases_out,
             }
+    except HTTPException:
+        raise
     except Exception as exc:
         logger.exception("Browse query failed")
         raise HTTPException(status_code=500, detail=str(exc)) from exc

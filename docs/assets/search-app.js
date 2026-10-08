@@ -229,7 +229,12 @@ const serverSearch = {
     const params = this._buildParams(query, filters, page, sort, group);
     const endpoint = query ? "search" : "browse";
     const r = await fetch(`${API_BASE_URL}/${endpoint}?${params}`);
-    if (!r.ok) throw new Error(`API ${r.status}`);
+    if (!r.ok) {
+      const err = new Error(`API ${r.status}`);
+      err.status = r.status;
+      try { err.detail = (await r.json()).detail; } catch (_) { /* non-JSON error body */ }
+      throw err;
+    }
     return r.json();
   },
 
@@ -5780,7 +5785,9 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
     } else {
       el.casesList.innerHTML = '';
       el.noResults.hidden = false;
-      el.noResults.textContent = "Server search failed and no local data loaded.";
+      el.noResults.textContent = (err.status === 503 && typeof err.detail === "string")
+        ? err.detail
+        : "Server search failed and no local data loaded.";
     }
   }
 }
