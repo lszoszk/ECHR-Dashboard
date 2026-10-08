@@ -16,7 +16,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css?v=20260727-reading-space">
   <link rel="stylesheet" href="assets/search-app.css?v=20260727-reading-space">
-  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20260727-resizer-scroll">
+  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261009-namematch">
   <link rel="stylesheet" href="assets/judgment-hudoc.css?v=20260706-deadmodal">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
@@ -300,6 +300,7 @@
           <a href="#" class="back-link" id="backToSearch">← Back to search</a>
         </div>
 
+        <section class="name-matches" id="nameMatches" aria-live="polite" aria-label="Cases matching this name" hidden></section>
         <div class="cases-list" id="casesList"></div>
         <div class="pagination" id="pagination" hidden></div>
       </div>
@@ -514,6 +515,6 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
-  <script src="assets/search-app.js?v=20261008-hardening"></script>>
+  <script src="assets/search-app.js?v=20261009-namematch"></script>>
 </body>
 </html>
