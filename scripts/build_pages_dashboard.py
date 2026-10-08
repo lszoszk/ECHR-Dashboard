@@ -376,10 +376,24 @@ def is_press_release(case) -> bool:
     return "press release" in doc_type
 
 
+# Same canonical spellings as the API (_STATE_ALIASES in api/main.py), so a state
+# is counted once whether a case spells it "Türkiye" or "Turkey".
+STATE_ALIASES = {
+    "Republic of Moldova": "Moldova",
+    "Türkiye": "Turkey",
+}
+
+
 def normalize_states(case):
     respondent = str(case.get("respondent_state") or "").strip()
     if respondent:
-        return [respondent]
+        # One value can name several respondents ("Moldova; Russia").
+        states = []
+        for part in re.split(r"[;,]", respondent):
+            name = STATE_ALIASES.get(part.strip(), part.strip())
+            if name and name not in states:
+                states.append(name)
+        return states
 
     defendants = normalize_list(case.get("defendants"), split_text=True)
     if not defendants:

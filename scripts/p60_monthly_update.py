@@ -88,7 +88,7 @@ _SSL = ssl._create_unverified_context()
 META_SELECT = (
     "itemid,docname,appno,kpdate,judgementdate,ecli,respondent,importance,"
     "conclusion,article,violation,nonviolation,kpthesaurus,scl,rulesofcourt,"
-    "originatingbody,doctypebranch,documentcollectionid2"
+    "originatingbody,doctypebranch,documentcollectionid2,languageisocode"
 )
 
 # ISO-3 → display name.  Mirrors COUNTRY_NAMES in docs/assets/search-app.js
@@ -153,10 +153,17 @@ def discover(since: str, to: str) -> list[dict]:
 
     ``since`` / ``to`` are ``YYYY-MM-DD``.  Filtered to real judgments:
     ``001-`` itemids whose ``doctypebranch`` is Chamber/GC/Committee
-    (drops ``003-`` press releases and legal summaries).
+    (drops ``003-`` press releases and legal summaries), in English only.
+
+    HUDOC publishes one judgment as several documents: the English text, the
+    French text, and unofficial translations into other languages, each with
+    its own itemid and all in the JUDGMENTS collection.  Without a language
+    filter the corpus gets every one of them as a separate case (a window of
+    ~800 documents is about half English).  The corpus is English-text only.
     """
     query = (
         'contentsitename:ECHR AND documentcollectionid2:"JUDGMENTS" '
+        'AND languageisocode:"ENG" '
         f'AND (kpdate>="{since}T00:00:00.0Z" '
         f'AND kpdate<="{to}T23:59:59.0Z")'
     )
@@ -173,7 +180,10 @@ def discover(since: str, to: str) -> list[dict]:
             cols = res.get("columns", {})
             iid = cols.get("itemid", "")
             branch = (cols.get("doctypebranch") or "").upper()
-            if iid.startswith("001-") and branch in VALID_BRANCHES:
+            # The query already asks for ENG; re-check so a filter HUDOC stops
+            # honouring cannot silently let other languages back in.
+            english = (cols.get("languageisocode") or "").upper() == "ENG"
+            if iid.startswith("001-") and branch in VALID_BRANCHES and english:
                 rows.append(cols)
         total = data.get("resultcount", 0)
         start += page

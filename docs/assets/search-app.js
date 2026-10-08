@@ -5,13 +5,20 @@ const MAX_HITS = 5000;
 // ---------------------------------------------------------------------------
 // Server-side search API integration
 // ---------------------------------------------------------------------------
-// API base URL.  Three sources, in priority order:
-//   1. ?api=… query param         (one-shot override for testing)
-//   2. localStorage echrApiBase   (sticky local-dev pin)
-//   3. auto-detect localhost      (FastAPI on :8000 if served from 127.0.0.1)
-//   4. production VM              (default)
+// API base URL.  Served from localhost, in priority order:
+//   1. ?api=… query param         (persisted as a sticky local-dev pin)
+//   2. localStorage echrApiBase   (that pin)
+//   3. FastAPI on :8000           (same host)
+// Served from any other origin the production VM is always used: a ?api= link
+// or a stored pin would otherwise hand a visitor's queries, and every judgment
+// text and § number the page shows, cites and exports, to an arbitrary server.
 const API_BASE_URL = (() => {
+  const PRODUCTION = "https://150.254.115.204/echr-api/api";
   try {
+    if (location.hostname !== "127.0.0.1" && location.hostname !== "localhost") {
+      try { localStorage.removeItem("echrApiBase"); } catch (_) { /* private mode */ }
+      return PRODUCTION;
+    }
     const qp = new URLSearchParams(location.search).get("api");
     if (qp) {
       // Persist an explicit ?api= override so later visits to the bare
@@ -22,13 +29,18 @@ const API_BASE_URL = (() => {
     }
     const ls = localStorage.getItem("echrApiBase");
     if (ls) return ls.replace(/\/+$/, "");
-    if (location.hostname === "127.0.0.1" || location.hostname === "localhost") {
-      return `http://${location.hostname}:8000/api`;
-    }
+    return `http://${location.hostname}:8000/api`;
   } catch (_) { /* SSR / sandboxed contexts: fall through */ }
-  return "https://150.254.115.204/echr-api/api";
+  return PRODUCTION;
 })();
 const API_HEALTH_URL = API_BASE_URL.replace(/\/api$/, "/health");
+
+// hudoc_url is written into href attributes, where escapeHtml does not stop a
+// javascript: URL or an off-site link, so only real HUDOC addresses pass.
+function safeHudocUrl(raw) {
+  const u = String(raw || "").trim();
+  return /^https:\/\/hudoc\.echr\.coe\.int\//.test(u) ? u : "";
+}
 
 const serverSearch = {
   available: false,
@@ -153,7 +165,7 @@ const serverSearch = {
       case_no: apiCase.case_no,
       title: apiCase.title,
       judgment_date: apiCase.judgment_date,
-      hudoc_url: apiCase.hudoc_url,
+      hudoc_url: safeHudocUrl(apiCase.hudoc_url),
       ecli: apiCase.ecli || "",
       respondent_state: apiCase.respondent_state || "",
       article_no: apiCase.articles || [],
@@ -162,6 +174,7 @@ const serverSearch = {
       conclusion: apiCase.conclusion || [],
       violation,
       non_violation: nonViolation,
+      "non-violation": nonViolation,
       keywords,
       __paragraphs: [],
       // Normalized fields for rendering & filtering
@@ -217,7 +230,12 @@ const serverSearch = {
     const params = this._buildParams(query, filters, page, sort, group);
     const endpoint = query ? "search" : "browse";
     const r = await fetch(`${API_BASE_URL}/${endpoint}?${params}`);
-    if (!r.ok) throw new Error(`API ${r.status}`);
+    if (!r.ok) {
+      const err = new Error(`API ${r.status}`);
+      err.status = r.status;
+      try { err.detail = (await r.json()).detail; } catch (_) { /* non-JSON error body */ }
+      throw err;
+    }
     return r.json();
   },
 
@@ -1694,7 +1712,7 @@ function normalizeCases(rawCases) {
     const strasbourgCaselaw = normalizeCitationList(caseObj.strasbourg_caselaw);
     const representedBy = String(caseObj.represented_by || "").trim();
     const ecli = String(caseObj.ecli || "").trim();
-    const hudocUrl = String(caseObj.hudoc_url || "").trim();
+    const hudocUrl = safeHudocUrl(caseObj.hudoc_url);
     const hudocId = extractHudocId(hudocUrl);
     const articleTokens = splitArticles(caseObj.article_no);
     const articleTokensNorm = articleTokens.map((token) => normalizeArticleToken(token));
@@ -5158,7 +5176,7 @@ function renderResultsPage() {
 /* One result row in flat "by paragraph" mode: the matched paragraph,
  * its case title + section + date, ranked independently. Clicking it
  * opens that paragraph in the Case Note. */
-function buildParagraphResult(h, rank) {
+function buildParagraphCard(h, rank) {
   const c = h.case;
   const title = cleanCaseTitle(c.title);
   const date = formatCaseDateForDisplay(c);
@@ -5199,7 +5217,7 @@ function buildParagraphResult(h, rank) {
 
 function renderFlatResults() {
   const hits = state.flatHits || [];
-  el.casesList.innerHTML = hits.map((h, i) => buildParagraphResult(h, i + 1)).join("");
+  el.casesList.innerHTML = hits.map((h, i) => buildParagraphCard(h, i + 1)).join("");
   if (!hits.some((h) => h.caseId === state.activeCaseId)) {
     state.activeCaseId = hits[0] ? hits[0].caseId : "";
   }
@@ -5768,7 +5786,9 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
     } else {
       el.casesList.innerHTML = '';
       el.noResults.hidden = false;
-      el.noResults.textContent = "Server search failed and no local data loaded.";
+      el.noResults.textContent = (err.status === 503 && typeof err.detail === "string")
+        ? err.detail
+        : "Server search failed and no local data loaded.";
     }
   }
 }
@@ -5858,6 +5878,7 @@ async function exportResults() {
   // In server mode, fetch ALL results (not just current page)
   let allCaseIds = state.currentOrderedCaseIds;
   let allResultsById = state.currentResultsById;
+  let exportFellBackToPage = false;
 
   if (state.serverMode && state.serverTotalCases > state.currentOrderedCaseIds.length) {
     el.exportBtn.disabled = true;
@@ -5893,7 +5914,8 @@ async function exportResults() {
       }
     } catch (e) {
       console.error("[Export] Failed to fetch all results:", e);
-      // Fall back to current page data
+      // Falls back to the page already in memory; the user is told below.
+      exportFellBackToPage = true;
     } finally {
       el.exportBtn.disabled = false;
       el.exportBtn.innerHTML = "Export Excel";
@@ -5968,6 +5990,14 @@ async function exportResults() {
       .join("\n");
     const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" });
     _triggerDownload(blob, `${baseName}.csv`);
+  }
+
+  if (exportFellBackToPage) {
+    alert(
+      `Only the ${allCaseIds.length} cases on this page were exported, not all ` +
+      `${state.serverTotalCases.toLocaleString("en-US")} results: the server could not return the ` +
+      "full set in one request. Add a search term or narrow the filters and export again."
+    );
   }
 }
 
