@@ -174,6 +174,7 @@ const serverSearch = {
       conclusion: apiCase.conclusion || [],
       violation,
       non_violation: nonViolation,
+      "non-violation": nonViolation,
       keywords,
       __paragraphs: [],
       // Normalized fields for rendering & filtering
@@ -5877,6 +5878,7 @@ async function exportResults() {
   // In server mode, fetch ALL results (not just current page)
   let allCaseIds = state.currentOrderedCaseIds;
   let allResultsById = state.currentResultsById;
+  let exportFellBackToPage = false;
 
   if (state.serverMode && state.serverTotalCases > state.currentOrderedCaseIds.length) {
     el.exportBtn.disabled = true;
@@ -5912,7 +5914,8 @@ async function exportResults() {
       }
     } catch (e) {
       console.error("[Export] Failed to fetch all results:", e);
-      // Fall back to current page data
+      // Falls back to the page already in memory; the user is told below.
+      exportFellBackToPage = true;
     } finally {
       el.exportBtn.disabled = false;
       el.exportBtn.innerHTML = "Export Excel";
@@ -5987,6 +5990,14 @@ async function exportResults() {
       .join("\n");
     const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" });
     _triggerDownload(blob, `${baseName}.csv`);
+  }
+
+  if (exportFellBackToPage) {
+    alert(
+      `Only the ${allCaseIds.length} cases on this page were exported, not all ` +
+      `${state.serverTotalCases.toLocaleString("en-US")} results: the server could not return the ` +
+      "full set in one request. Add a search term or narrow the filters and export again."
+    );
   }
 }
 
