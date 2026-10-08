@@ -22,8 +22,11 @@ else
     echo "Database found at $DB_PATH"
 fi
 
-# 2 workers: the core dashboard's /api/facets is a slow (multi-second) aggregation; with a
-# single worker a slow facets call serialises the whole API (health check queues -> UI stuck
-# "connecting", filters never load). Two workers keep the API responsive in parallel.
-echo "Starting uvicorn on 0.0.0.0:8000 with 2 workers..."
-exec uvicorn main:app --host 0.0.0.0 --port 8000 --workers 2
+# One worker unless UVICORN_WORKERS says otherwise (docker-compose sets it to 1; this
+# script used to hard-code 2 and ignore it).  Every worker that serves a /rag request holds
+# its own ~1.2 GB copy of the RAG state, so two workers do not fit in the container's 2 GB
+# limit: the kernel OOM-kills one in the middle of a request and the browser shows
+# "Load failed" on the semantic search.  Use 2 only together with a larger mem_limit.
+WORKERS="${UVICORN_WORKERS:-1}"
+echo "Starting uvicorn on 0.0.0.0:8000 with ${WORKERS} worker(s)..."
+exec uvicorn main:app --host 0.0.0.0 --port 8000 --workers "${WORKERS}"
