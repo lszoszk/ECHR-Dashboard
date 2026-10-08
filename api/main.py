@@ -62,17 +62,18 @@ def _get_connection() -> sqlite3.Connection:
 
 
 @contextmanager
-def get_cursor():
+def get_cursor(deadline_s: float = 0):
     """Yield a cursor from the thread-local connection.
 
-    The connection aborts the running statement once QUERY_DEADLINE_S has
-    passed; that surfaces here as a 503 instead of a worker stuck for minutes.
+    With ``deadline_s`` > 0 the connection aborts the running statement once
+    that many seconds have passed; that surfaces here as a 503 instead of a
+    worker stuck for minutes.  Without it the cursor is unbounded.
     """
     conn = _get_connection()
     cur = conn.cursor()
     expired = False
-    if QUERY_DEADLINE_S > 0:
-        deadline = time.monotonic() + QUERY_DEADLINE_S
+    if deadline_s > 0:
+        deadline = time.monotonic() + deadline_s
 
         def _abort_when_late() -> int:
             nonlocal expired
@@ -93,7 +94,7 @@ def get_cursor():
             )
         raise
     finally:
-        if QUERY_DEADLINE_S > 0:
+        if deadline_s > 0:
             conn.set_progress_handler(None, 0)
         cur.close()
 
@@ -186,9 +187,11 @@ _FTS5_RESERVED_OPERATORS = {"AND", "OR", "NOT", "NEAR"}
 
 # Kill-switch for the zero-result OR fallback (see the search handler).
 _FALLBACK_ON = os.environ.get("ECHR_FALLBACK", "0").lower() not in ("0", "false", "no")
-# Wall-clock budget for one request's database work; 0 disables.  A broad term
-# ("court") can otherwise hold one of the few workers for 100 s.  Cold scoped
-# /facets and /analytics legitimately take 15-30 s, so keep this above that.
+# Wall-clock budget for one /api/search request; 0 disables.  A broad term
+# ("court") can otherwise hold one of the two workers for 100 s.  Only search
+# is bounded: /api/stats takes ~55 s on a cold cache and the unscoped and scoped
+# /facets and /analytics aggregates take 15-30 s warm, so a budget there turns
+# slow into broken.
 QUERY_DEADLINE_S = float(os.environ.get("ECHR_QUERY_DEADLINE_S", "45"))
 # Matched paragraphs returned per case in a by-case search; hit_count stays exact.
 MAX_PARAS_PER_CASE = int(os.environ.get("ECHR_MAX_PARAS_PER_CASE", "25"))
@@ -823,8 +826,6 @@ def stats():
             "db_size_mb": db_size_mb,
             "version": "1.1",
         }
-    except HTTPException:
-        raise
     except Exception as exc:
         logger.exception("Stats query failed")
         raise HTTPException(status_code=500, detail=str(exc)) from exc
@@ -1011,8 +1012,6 @@ def facets(
             _FACETS_CACHE["key"] = _fc_key
             _FACETS_CACHE["val"] = result
         return result
-    except HTTPException:
-        raise
     except Exception as exc:
         logger.exception("Facets query failed")
         raise HTTPException(status_code=500, detail=str(exc)) from exc
@@ -1308,8 +1307,6 @@ def analytics(
         elapsed = (time.perf_counter() - t0) * 1000
         result["analytics_time_ms"] = round(elapsed, 1)
         return result
-    except HTTPException:
-        raise
     except sqlite3.OperationalError as exc:
         logger.exception("Analytics query failed")
         raise HTTPException(status_code=400, detail=f"Analytics error: {exc}") from exc
@@ -1618,7 +1615,7 @@ def search(
     # Step 1: Count distinct cases + total hits.
     # ------------------------------------------------------------------
     try:
-        with get_cursor() as cur:
+        with get_cursor(QUERY_DEADLINE_S) as cur:
             # "+ Headings" toggle — when it is off the frontend sends
             # exclude_roles=heading,…  Build the exclusion clause ONCE here
             # so every query path (count, case-id aggregation, per-case
@@ -2224,8 +2221,6 @@ def case_cited_by(case_id: str, limit: int = Query(50, ge=1, le=500)):
                 (case_id, limit),
             )
             return {"cited_by": [_row_to_dict(r) for r in cur.fetchall()]}
-    except HTTPException:
-        raise
     except sqlite3.OperationalError:
         return {"cited_by": [], "note": "case_citations table not yet built"}
     except Exception as exc:
@@ -2250,8 +2245,6 @@ def case_cites(case_id: str, limit: int = Query(100, ge=1, le=500)):
                 (case_id, limit),
             )
             return {"cites": [_row_to_dict(r) for r in cur.fetchall()]}
-    except HTTPException:
-        raise
     except sqlite3.OperationalError:
         return {"cites": [], "note": "case_citations table not yet built"}
     except Exception as exc:
@@ -2475,8 +2468,6 @@ def browse(
                 "search_time_ms": round(elapsed, 1),
                 "cases": cases_out,
             }
-    except HTTPException:
-        raise
     except Exception as exc:
         logger.exception("Browse query failed")
         raise HTTPException(status_code=500, detail=str(exc)) from exc
