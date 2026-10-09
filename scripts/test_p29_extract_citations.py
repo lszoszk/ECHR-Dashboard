@@ -3,7 +3,9 @@
 
     python3 scripts/test_p29_extract_citations.py
 """
+import contextlib
 import importlib.util
+import io
 import sqlite3
 import sys
 import tempfile
@@ -185,6 +187,52 @@ class P29Tests(unittest.TestCase):
 
     def test_self_citation_dropped(self):
         self.assertNotIn(("handyside", "handyside"), self.allrows)
+
+
+class HudocAdditionTests(unittest.TestCase):
+    """Citations HUDOC records (Strasbourg case-law list, extracted numbers) that the text pass missed."""
+
+    def test_additions(self):
+        tmp = tempfile.mkdtemp()
+        db = Path(tmp) / "h.db"
+        con = sqlite3.connect(db)
+        con.execute("CREATE TABLE cases (case_id TEXT, case_no TEXT, title TEXT, judgment_date TEXT, document_type TEXT)")
+        con.executemany("INSERT INTO cases VALUES (?,?,?,?,?)", [
+            ("citing", "1111/10", "CASE OF CITING v. FRANCE", "01/01/2015", "Judgment (Chamber)"),
+            ("intext", "2222/05", "CASE OF INTEXT v. ITALY", "01/01/2006", "Judgment (Chamber)"),
+            ("foot", "4321/99", "CASE OF FOOT v. MALTA", "01/01/2000", "Judgment (Chamber)"),
+            ("note", "8765/05", "CASE OF NOTE v. SPAIN", "01/01/2008", "Judgment (Chamber)"),
+            ("dectarget", "5000/01", "CASE OF DECTARGET v. ITALY", "01/01/2004", "Judgment (Chamber)"),
+            ("later", "9999/20", "CASE OF LATER v. GREECE", "01/01/2021", "Judgment (Chamber)"),
+        ])
+        con.execute("CREATE TABLE paragraphs (case_id TEXT, text TEXT)")
+        con.executemany("INSERT INTO paragraphs VALUES (?,?)", [
+            ("citing", "See Intext v. Italy, no. 2222/05, 1 January 2006, and Other v. Italy (dec.), no. 5000/01."),
+        ])
+        con.execute("CREATE TABLE hudoc_metadata (case_id TEXT, scl TEXT, extractedappno TEXT)")
+        con.execute("INSERT INTO hudoc_metadata VALUES (?,?,?)", (
+            "citing",
+            "Intext v. Italy, no. 2222/05, 1 January 2006;Foot v. Malta, no. 4321/99, 1 January 2000",
+            "1111/10;2222/05;5000/01;4321/99;8765/05;9999/20"))
+        con.commit()
+        con.close()
+        old = sys.argv
+        sys.argv = ["p29", "--db", str(db), "--apply"]
+        try:
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(p29.main(), 0)
+        finally:
+            sys.argv = old
+        con = sqlite3.connect(db)
+        got = {(b, m) for b, m in con.execute(
+            "SELECT cited_case_id, extraction_method FROM case_citations WHERE citing_case_id='citing'")}
+        con.close()
+        self.assertIn(("intext", "appno_with_cue"), got)       # found in the text
+        self.assertIn(("foot", "hudoc_caselaw"), got)          # only in HUDOC's case-law list
+        self.assertIn(("note", "hudoc_extracted"), got)        # only in HUDOC's extracted numbers
+        self.assertNotIn("dectarget", {b for b, _ in got})     # "(dec.)" in our text: HUDOC's number ignored
+        self.assertNotIn("later", {b for b, _ in got})         # a judgment cannot cite a later one
+        self.assertEqual(len([1 for b, _ in got if b == "foot"]), 1)   # not added twice
 
 
 class GraphJsonTests(unittest.TestCase):
