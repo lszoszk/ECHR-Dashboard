@@ -40,6 +40,38 @@ primary key. The existing production `case_citations` table and API are **not**
 reused or overwritten: their old application-number matching needs a separate
 migration and audit before replacing Search's cites/cited-by results.
 
+## Application numbers extracted by HUDOC (second evidence type)
+
+HUDOC records, for almost every judgment, the application numbers it found in the full text
+(`extractedappno`; 29,272 of 29,343 judgment identities, French originals included). The catalog query
+does not select the field; `p69_sync_hudoc_metadata.py fetch` does, and `--hudoc-metadata` (statistics
+refresh) or `--extracted-appno` (citation builder) passes it in. The snapshot then carries a separate
+`with_extracted_appno` block; the top-level `ranking`, `citing_by_target`, `citing_judgments` and
+`coverage` are unchanged and remain the curated-list result. The dashboard lets the reader choose.
+
+A number resolves only when exactly one other judgment in the catalog has that application and is not
+later than the citing judgment. A number belonging to the citing judgment's own application is skipped,
+several judgments of one application (Chamber and Grand Chamber, merits and just satisfaction) stay
+ambiguous, and a number without a judgment in the catalog (for example a decision) is unresolved. The
+numbers carry no date, name or citation context, so this is weaker evidence than the curated lists.
+
+Measured on the 9 October 2026 catalog (452,837 extracted numbers):
+
+| | curated lists | + extracted numbers |
+|---|---|---|
+| Resolved pairs | 140,085 | 280,448 (232,920 from the numbers, 92,557 in both) |
+| Judgments citing at least one judgment | 12,194 | 27,706 of 29,343 |
+| Frydlender v. France, cited by | 1,215 | 3,584 |
+
+Of the extracted numbers: 256,384 resolved, 53,752 ambiguous, 73,441 the judgment's own application,
+67,911 without a judgment in the catalog, 1,349 only later judgments.
+
+Validation against the text of English judgments in the Search corpus (167,300 + 6,524 pairs where both
+ends are in the corpus): 96.2% of the resolved pairs are also found by the text extraction, 1.9% point to a
+different document of the same application in the corpus (typically a decision cited under that number),
+and 1.8% are not found in the text (footnotes, or no citation context). Treat the extended counts as
+approximate lower bounds.
+
 ## Rebuild
 
 Run from the repository root. Python stdlib only; no downloads or DB writes on

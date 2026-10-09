@@ -168,5 +168,18 @@ class StatisticsTests(unittest.TestCase):
         self.assertTrue(any("#20008" in pair for pair, _ in result["top_cooccurrences"]))
 
 
+class HudocValueTests(unittest.TestCase):
+    def test_french_source_record_fills_what_the_english_flag_record_lacks(self):
+        from refresh_statistics import hudoc_value
+        hudoc = {"001-1": {"separateopinion": "", "extractedappno": "", "representedby": "A"},
+                 "001-9": {"separateopinion": "TRUE", "extractedappno": "1/01;2/02", "representedby": "B"}}
+        jobs = {"001-1": {"source_case_id": "001-9"}}
+        self.assertEqual(hudoc_value(hudoc, "001-1", jobs, "extractedappno"), "1/01;2/02")
+        self.assertEqual(hudoc_value(hudoc, "001-1", jobs, "separateopinion"), "TRUE")
+        self.assertEqual(hudoc_value(hudoc, "001-1", jobs, "representedby"), "A")      # own record wins when it has the field
+        self.assertIsNone(hudoc_value(hudoc, "001-2", jobs, "extractedappno"))
+        self.assertIsNone(hudoc_value(None, "001-1", jobs, "extractedappno"))
+
+
 if __name__ == "__main__":
     unittest.main()

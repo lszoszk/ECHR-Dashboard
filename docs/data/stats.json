@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-09T14:58:31.385520+00:00",
+  "generated_at": "2026-10-09T16:28:12.597707+00:00",
   "source_file": "Verified HUDOC catalog + production text inventory + local ENG/FRE bundles",
   "schema_version": "echr-dashboard-v2",
   "parser_version": "2.0.0",
@@ -29,7 +29,7 @@
     "committee_cases": 7636,
     "other_cases": 0,
     "key_cases": 1107,
-    "separate_opinion_cases": 0,
+    "separate_opinion_cases": 3931,
     "cases_with_strasbourg_caselaw": 12065,
     "avg_strasbourg_citations_per_case": 5.894830112803735,
     "cases_with_domestic_law": 0,
@@ -5289,9 +5289,9 @@
     "separate_opinion_share_by_body": [
       [
         "Chamber",
-        0.0,
+        16.53,
         21182,
-        0
+        3501
       ],
       [
         "Committee",
@@ -5301,9 +5301,9 @@
       ],
       [
         "Grand Chamber",
-        0.0,
+        81.9,
         525,
-        0
+        430
       ]
     ],
     "outcomes_by_year": [
@@ -10241,7 +10241,7 @@
               1
             ],
             [
-              "5",
+              "5-4",
               1
             ]
           ],
@@ -11169,7 +11169,7 @@
               46
             ],
             [
-              "8",
+              "8-1",
               39
             ]
           ],
@@ -11965,11 +11965,11 @@
               5
             ],
             [
-              "10",
+              "10-1",
               2
             ],
             [
-              "10-1",
+              "10",
               2
             ],
             [
@@ -13141,7 +13141,7 @@
               6
             ],
             [
-              "6+6-3-d",
+              "6-3-d",
               4
             ]
           ],
@@ -13353,11 +13353,11 @@
               1
             ],
             [
-              "5",
+              "5-4",
               1
             ],
             [
-              "5-4",
+              "5",
               1
             ]
           ],
@@ -14053,7 +14053,7 @@
               2
             ],
             [
-              "14+8",
+              "14",
               1
             ]
           ],
@@ -14393,11 +14393,11 @@
               1
             ],
             [
-              "6+6-3-d",
+              "6-3-d",
               1
             ],
             [
-              "6-3-d",
+              "6+6-3-d",
               1
             ],
             [
@@ -14489,11 +14489,7 @@
               2
             ],
             [
-              "7",
-              1
-            ],
-            [
-              "13",
+              "7-1",
               1
             ],
             [
@@ -14501,15 +14497,19 @@
               1
             ],
             [
-              "7-1",
+              "13",
               1
             ],
             [
-              "14",
+              "7",
               1
             ],
             [
               "8",
+              1
+            ],
+            [
+              "14",
               1
             ],
             [
@@ -14625,7 +14625,7 @@
               2
             ],
             [
-              "6-3",
+              "6-3-c",
               1
             ],
             [
@@ -14816,10 +14816,10 @@
       "originating_body": 1.0,
       "importance": 1.0,
       "keywords": 0.0,
-      "separate_opinion": 0.0,
+      "separate_opinion": 0.9978189005895785,
       "ecli": 0.9999659203217122,
       "hudoc_url": 1.0,
-      "represented_by": 0.0,
+      "represented_by": 0.8564,
       "strasbourg_caselaw": 0.41117131854275296,
       "domestic_law": 0.0,
       "international_law": 0.0,
@@ -14830,7 +14830,9 @@
       "conclusion": 0.9910370446102988,
       "chamber_composed_of": 0.0,
       "article_no": 0.9853457383362301,
-      "hudoc_kpthesaurus": 0.984732304127049
+      "hudoc_kpthesaurus": 0.984732304127049,
+      "strasbourg_caselaw_any_language": 0.4272228470163242,
+      "extracted_application_numbers": 0.9975803428415636
     },
     "field_counts": {
       "respondent_state": 29343,
@@ -14841,7 +14843,10 @@
       "importance": 29343,
       "hudoc_kpthesaurus": 28895,
       "strasbourg_caselaw": 12065,
-      "rules_of_court": 874
+      "rules_of_court": 874,
+      "separate_opinion": 29279,
+      "strasbourg_caselaw_any_language": 12536,
+      "extracted_application_numbers": 29272
     }
   },
   "thesaurus_analytics": {

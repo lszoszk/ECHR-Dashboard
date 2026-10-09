@@ -76,31 +76,56 @@ async function renderJudgmentCitations(scope) {
         (scope.catalog_content_sha256 && snapshot.catalog_content_sha256 !== scope.catalog_content_sha256)) {
       throw new Error("Citation snapshot scope does not match statistics");
     }
-    const ranked = snapshot.ranking || [];
-    const c = snapshot.coverage;
-    const statuses = c.by_status || {};
-    coverageNote.textContent = `${fmtInt.format(c.judgments_with_metadata)} / ${fmtInt.format(c.judgments)} judgments have citation metadata; ${fmtInt.format(c.unique_edges)} unique resolved pairs. Snapshot: ${snapshot.cutoff}. Not a full-text ranking.`;
+    // Two kinds of evidence, never mixed silently: HUDOC's curated case-law lists, and (when the snapshot
+    // has it) the application numbers HUDOC extracted from each judgment's text.
+    const views = { curated: snapshot };
+    if (snapshot.with_extracted_appno) views.extracted = { ...snapshot, ...snapshot.with_extracted_appno };
+    let view = views.curated;
+    let ranked = view.ranking || [];
     const quality = document.getElementById("judgmentCitationQuality");
-    const qualityLines = [
-      `Reference observations across both languages: ${fmtInt.format(c.reference_observations)}. These are source entries, not unique citation pairs.`,
-      `Resolved: ${fmtInt.format(statuses.resolved || 0)}; ambiguous: ${fmtInt.format(statuses.ambiguous || 0)}; unresolved: ${fmtInt.format(statuses.unresolved || 0)}.`,
-      `Excluded document types: ${fmtInt.format(statuses.excluded_document_type || 0)}; chronology conflicts: ${fmtInt.format(statuses.chronology_conflict || 0)}; self-references: ${fmtInt.format(statuses.self_reference || 0)}.`,
-      `Identifier conflicts: ${fmtInt.format(statuses.identifier_conflict || 0)}; identity-review references: ${fmtInt.format(statuses.identity_review || 0)}. Neither contributes to the ranking.`,
-      `Metadata versions with citations: ENG ${fmtInt.format(c.metadata_versions_by_language.ENG || 0)}, FRE ${fmtInt.format(c.metadata_versions_by_language.FRE || 0)}; union: ${fmtInt.format(c.judgments_with_metadata)} unique judgment identities.`,
-    ];
-    const identityCounts = {};
-    for (const issue of c.identity_issues || []) identityCounts[issue.reason] = (identityCounts[issue.reason] || 0) + 1;
-    qualityLines.push(`Identity warnings: ${Object.entries(identityCounts).map(([key, value]) => `${key.replaceAll("_", " ")}: ${value}`).join("; ") || "none"}. Unpaired French identities are held for review, not counted again. Disagreeing application aliases are not used for secondary matches.`);
-    quality.replaceChildren(...qualityLines.map((line) => {
-      const p = document.createElement("p"); p.className = "citation-quality-line"; p.textContent = line; return p;
-    }));
+    const evidenceSelect = document.getElementById("citationEvidence");
+    function describe() {
+      const c = view.coverage;
+      const statuses = c.by_status || {};
+      const lines = [];
+      if (view === views.curated) {
+        coverageNote.textContent = `${fmtInt.format(c.judgments_with_metadata)} / ${fmtInt.format(c.judgments)} judgments have citation metadata; ${fmtInt.format(c.unique_edges)} unique resolved pairs. Snapshot: ${snapshot.cutoff}. Not a full-text ranking.`;
+        lines.push(
+          `Reference observations across both languages: ${fmtInt.format(c.reference_observations)}. These are source entries, not unique citation pairs.`,
+          `Resolved: ${fmtInt.format(statuses.resolved || 0)}; ambiguous: ${fmtInt.format(statuses.ambiguous || 0)}; unresolved: ${fmtInt.format(statuses.unresolved || 0)}.`,
+          `Excluded document types: ${fmtInt.format(statuses.excluded_document_type || 0)}; chronology conflicts: ${fmtInt.format(statuses.chronology_conflict || 0)}; self-references: ${fmtInt.format(statuses.self_reference || 0)}.`,
+          `Identifier conflicts: ${fmtInt.format(statuses.identifier_conflict || 0)}; identity-review references: ${fmtInt.format(statuses.identity_review || 0)}. Neither contributes to the ranking.`,
+          `Metadata versions with citations: ENG ${fmtInt.format(c.metadata_versions_by_language.ENG || 0)}, FRE ${fmtInt.format(c.metadata_versions_by_language.FRE || 0)}; union: ${fmtInt.format(c.judgments_with_metadata)} unique judgment identities.`);
+        const identityCounts = {};
+        for (const issue of c.identity_issues || []) identityCounts[issue.reason] = (identityCounts[issue.reason] || 0) + 1;
+        lines.push(`Identity warnings: ${Object.entries(identityCounts).map(([key, value]) => `${key.replaceAll("_", " ")}: ${value}`).join("; ") || "none"}. Unpaired French identities are held for review, not counted again. Disagreeing application aliases are not used for secondary matches.`);
+      } else {
+        coverageNote.textContent = `${fmtInt.format(c.judgments_with_metadata)} / ${fmtInt.format(c.judgments)} judgments have citation metadata; ${fmtInt.format(c.unique_edges)} unique resolved pairs, ${fmtInt.format(c.edges_from_curated_list)} from the curated lists and ${fmtInt.format(c.edges_from_extracted_application)} from extracted application numbers (${fmtInt.format(c.edges_in_both)} in both). Snapshot: ${snapshot.cutoff}. HUDOC extracted the numbers from the full text; they carry no citation context.`;
+        lines.push(
+          `Application numbers HUDOC extracted from the full text: ${fmtInt.format(c.reference_observations)} across ${fmtInt.format(c.judgments_with_extracted_application_numbers)} judgments.`,
+          `Resolved to one earlier judgment: ${fmtInt.format(statuses.resolved || 0)}; ambiguous (several judgments of the application): ${fmtInt.format(statuses.ambiguous || 0)}; no judgment in the catalog (for example decisions): ${fmtInt.format(statuses.unresolved || 0)}.`,
+          `The judgment's own application numbers: ${fmtInt.format(statuses.self_reference || 0)}; only later judgments: ${fmtInt.format(statuses.chronology_conflict || 0)}. Neither contributes to the ranking.`,
+          `Judgments with at least one resolved citation: ${fmtInt.format(c.judgments_with_resolved_citations)}. An extracted number can also come from a decision cited under the same application, so counts are approximate; against the text of English judgments about 96% of these pairs agree.`);
+      }
+      quality.replaceChildren(...lines.map((line) => {
+        const p = document.createElement("p"); p.className = "citation-quality-line"; p.textContent = line; return p;
+      }));
+    }
+    describe();
+    if (evidenceSelect) evidenceSelect.hidden = !views.extracted;
+    const evidenceLabel = document.querySelector('label[for="citationEvidence"]');
+    if (evidenceLabel) evidenceLabel.hidden = !views.extracted;
     if (!ranked.length) return;
     const select = document.getElementById("citedJudgmentSelect");
-    for (const row of ranked) {
-      const option = document.createElement("option"); option.value = row.case_id;
-      option.textContent = `${row.title} (${row.date}) - ${fmtInt.format(row.cited_by_count)}`;
-      select.appendChild(option);
+    function fillSelect() {
+      select.replaceChildren();
+      for (const row of ranked) {
+        const option = document.createElement("option"); option.value = row.case_id;
+        option.textContent = `${row.title} (${row.date}) - ${fmtInt.format(row.cited_by_count)}`;
+        select.appendChild(option);
+      }
     }
+    fillSelect();
     select.disabled = false;
     function hudocLink(row) {
       const a = document.createElement("a"); a.href = `https://hudoc.echr.coe.int/eng?i=${encodeURIComponent(row.case_id)}`;
@@ -111,13 +136,20 @@ async function renderJudgmentCitations(scope) {
     }
     const rankingExport = document.getElementById("citationRankingExport");
     rankingExport.disabled = !window.EchrExport;
-    rankingExport.addEventListener("click", () => csv([
-      ["HUDOC ID", "ECLI", "Judgment", "Date", "Unique citing judgments", "Source", "Cutoff"],
-      ...ranked.map((row) => [row.case_id, row.ecli || "", row.title, row.date, row.cited_by_count, "Resolved bilingual HUDOC metadata", snapshot.cutoff]),
-    ], `echr-most-cited-judgments-${snapshot.cutoff}.csv`));
+    rankingExport.addEventListener("click", () => {
+      const extended = view === views.extracted;
+      csv([
+        ["HUDOC ID", "ECLI", "Judgment", "Date", "Unique citing judgments",
+          ...(extended ? ["Citing via curated lists", "Citing via extracted application numbers"] : []), "Source", "Cutoff"],
+        ...ranked.map((row) => [row.case_id, row.ecli || "", row.title, row.date, row.cited_by_count,
+          ...(extended ? [row.cited_by_curated_list, row.cited_by_extracted_application] : []),
+          extended ? "Resolved bilingual HUDOC metadata plus application numbers extracted by HUDOC" : "Resolved bilingual HUDOC metadata",
+          snapshot.cutoff]),
+      ], `echr-most-cited-judgments${extended ? "-with-extracted-application-numbers" : ""}-${snapshot.cutoff}.csv`);
+    });
     let visible = 25;
     function citingRows() {
-      return (snapshot.citing_by_target[select.value] || []).map((id) => ({case_id: id, ...snapshot.citing_judgments[id]}));
+      return (view.citing_by_target[select.value] || []).map((id) => ({case_id: id, ...view.citing_judgments[id]}));
     }
     function renderList() {
       const rows = citingRows();
@@ -134,7 +166,9 @@ async function renderJudgmentCitations(scope) {
       visible = 25;
       const row = ranked.find((r) => r.case_id === select.value);
       const identity = document.getElementById("citedJudgmentIdentity");
-      identity.replaceChildren(hudocLink(row), document.createTextNode(` · ${row.date} · ${row.ecli || row.case_id} · ${fmtInt.format(row.cited_by_count)} unique citing judgments`));
+      const split = view === views.extracted
+        ? ` (${fmtInt.format(row.cited_by_curated_list)} via curated lists, ${fmtInt.format(row.cited_by_extracted_application)} via extracted application numbers)` : "";
+      identity.replaceChildren(hudocLink(row), document.createTextNode(` · ${row.date} · ${row.ecli || row.case_id} · ${fmtInt.format(row.cited_by_count)} unique citing judgments${split}`));
       renderList();
     }
     select.addEventListener("change", selectJudgment);
@@ -144,10 +178,11 @@ async function renderJudgmentCitations(scope) {
       const target = ranked.find((row) => row.case_id === select.value);
       csv([["Cited HUDOC ID", "Cited ECLI", "Citing HUDOC ID", "Citing ECLI", "Citing judgment", "Citing date"],
         ...citingRows().map((row) => [target.case_id, target.ecli || "", row.case_id, row.ecli || "", row.title, row.date])],
-        `echr-citing-${select.value}-${snapshot.cutoff}.csv`);
+        `echr-citing-${select.value}${view === views.extracted ? "-with-extracted-application-numbers" : ""}-${snapshot.cutoff}.csv`);
     });
+    const chartLabels = () => ranked.map((row) => `${row.title} | ${row.date} | ${row.case_id}`);
     const chart = createBarChart(document.getElementById("judgmentCitationsChart"),
-      ranked.map((row) => `${row.title} | ${row.date} | ${row.case_id}`), ranked.map((row) => row.cited_by_count),
+      chartLabels(), ranked.map((row) => row.cited_by_count),
       { horizontal: true, colors: ["#4f83ad"] });
     if (chart) {
       chart.data.datasets[0].label = "Unique citing judgments";
@@ -163,6 +198,17 @@ async function renderJudgmentCitations(scope) {
       };
       chart.update("none");
     }
+    if (evidenceSelect) evidenceSelect.addEventListener("change", () => {
+      view = views[evidenceSelect.value] || views.curated;
+      ranked = view.ranking || [];
+      describe(); fillSelect();
+      if (chart) {
+        chart.data.labels = chartLabels();
+        chart.data.datasets[0].data = ranked.map((row) => row.cited_by_count);
+        chart.update("none");
+      }
+      selectJudgment();
+    });
     selectJudgment();
   } catch (error) {
     section.dataset.keepEmptyView = "true";
@@ -509,8 +555,12 @@ function renderCoverage(data) {
   const fields = data.quality?.field_completeness || {};
   const labels = {respondent_state: "Respondent state", ecli: "ECLI identity", article_no: "Convention articles",
     conclusion: "Conclusion", originating_body: "Judicial collection", importance: "Importance classification",
-    hudoc_kpthesaurus: "Thesaurus topics", strasbourg_caselaw: "HUDOC citation metadata", rules_of_court: "Rules of Court"};
-  const rows = Object.entries(labels).map(([key, label]) => [label, Number(fields[key] || 0),
+    hudoc_kpthesaurus: "Thesaurus topics", strasbourg_caselaw: "HUDOC citation metadata",
+    strasbourg_caselaw_any_language: "HUDOC citation metadata, English or French version",
+    extracted_application_numbers: "Application numbers HUDOC extracted from the text",
+    separate_opinion: "Separate-opinion flag", rules_of_court: "Rules of Court"};
+  // Rows for fields a snapshot does not carry (older snapshots) are left out, not shown as 0%.
+  const rows = Object.entries(labels).filter(([key]) => key in fields || data.quality?.field_counts?.[key] != null).map(([key, label]) => [label, Number(fields[key] || 0),
     data.quality?.field_counts?.[key] ?? Math.round(Number(fields[key] || 0) * data.summary.total_cases)]);
   const table = document.createElement("table");
   table.className = "coverage-table";
