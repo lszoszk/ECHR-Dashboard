@@ -2227,3 +2227,25 @@ a.case-context-ecli-link .ext-icon {
   font-size: 0.78rem; line-height: 1.55; color: var(--ink-3);
 }
 .footer-note a { color: var(--garnet); }
+
+/* ── Registry summaries (Grand Chamber) ─────────────────────── */
+.registry-subject {
+  margin: 6px 0 4px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+.rs-label {
+  display: inline-block;
+  margin-right: 6px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--garnet);
+}
+.registry-detail { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--rule-soft); }
+.registry-detail p { margin: 4px 0; font-size: 0.9rem; line-height: 1.45; color: var(--ink-2); }
+.rs-conclusions { margin: 6px 0 0; padding-left: 1.1em; font-size: 0.85rem; color: var(--ink-2); }
+.rs-conclusions li { margin: 2px 0; }
+.rs-source { font-size: 0.75rem !important; color: var(--ink-3) !important; }
