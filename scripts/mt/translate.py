@@ -50,12 +50,12 @@ def submit(args) -> None:
         job = json.loads(jf.read_text())
         requests.append({
             "custom_id": f"{jf.parent.name}__{jf.stem[6:]}",
-            "params": {"model": args.model, "max_tokens": MAX_TOKENS,
+            "params": {"model": args.model, "max_tokens": MAX_TOKENS, "thinking": {"type": args.thinking},
                        "system": INSTRUCTIONS,
                        "messages": [{"role": "user", "content": user_message(job)}]},
         })
     batch = anthropic.Anthropic().messages.batches.create(requests=requests)
-    record = {"batch_id": batch.id, "model": args.model, "requests": len(requests)}
+    record = {"batch_id": batch.id, "model": args.model, "thinking": args.thinking, "requests": len(requests)}
     Path(args.jobs, f"batch_{args.tag}.json").write_text(json.dumps(record, indent=1))
     print(f"submitted {len(requests)} requests as {batch.id} ({args.model}); run collect --tag {args.tag}")
 
@@ -79,15 +79,15 @@ def collect(args) -> None:
         usage["input_tokens"] += msg.usage.input_tokens
         usage["output_tokens"] += msg.usage.output_tokens
         try:
-            answer = parse_answer(msg.content[0].text)
-        except (ValueError, IndexError) as e:
+            answer = parse_answer("".join(b.text for b in msg.content if b.type == "text"))
+        except ValueError as e:
             failed.append((entry.custom_id, f"unparsable answer ({e}; stop_reason {msg.stop_reason})"))
             continue
         Path(args.jobs, case, f"chunk_{chunk}.{args.tag}.json").write_text(json.dumps(answer, ensure_ascii=False))
         ok += 1
     record.update({"collected": ok, "failed": failed, "usage": usage})
     Path(args.jobs, f"batch_{args.tag}.json").write_text(json.dumps(record, indent=1))
-    print(json.dumps({k: record[k] for k in ("model", "requests", "collected", "usage")}))
+    print(json.dumps({k: record.get(k) for k in ("model", "thinking", "requests", "collected", "usage")}))
     for f in failed:
         print("  failed", *f)
 
@@ -99,6 +99,8 @@ def main() -> int:
     s.add_argument("--jobs", required=True)
     s.add_argument("--model", required=True)
     s.add_argument("--tag", required=True)
+    s.add_argument("--thinking", choices=["disabled", "adaptive"], default="disabled",
+                   help="reasoning before the answer: billed as output tokens; off by default")
     s.add_argument("--offset", type=int, default=0, help="skip the first N chunks (to send a large set in parts)")
     s.add_argument("--limit", type=int, help="only N chunks (a dry run, or one part)")
     c = sub.add_parser("collect")
