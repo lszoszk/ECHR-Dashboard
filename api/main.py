@@ -418,7 +418,7 @@ def _doc_type_clause(doc_type_list: list[str], explicit_lookup: bool = False) ->
     """
     not_decision = "c.document_type NOT LIKE 'Decision%'"
     parts = []
-    for dt in doc_type_list:
+    for dt in (doc_type_list or []):
         if dt == "press_release":
             parts.append("c.document_type LIKE '%Press Release%'")
         elif dt == "judgment":
