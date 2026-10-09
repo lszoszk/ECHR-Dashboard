@@ -50,7 +50,7 @@ def submit(args) -> None:
         job = json.loads(jf.read_text())
         requests.append({
             "custom_id": f"{jf.parent.name}__{jf.stem[6:]}",
-            "params": {"model": args.model, "max_tokens": MAX_TOKENS, "temperature": 0,
+            "params": {"model": args.model, "max_tokens": MAX_TOKENS,
                        "system": INSTRUCTIONS,
                        "messages": [{"role": "user", "content": user_message(job)}]},
         })
@@ -72,7 +72,8 @@ def collect(args) -> None:
     for entry in client.messages.batches.results(record["batch_id"]):
         case, chunk = entry.custom_id.split("__")
         if entry.result.type != "succeeded":
-            failed.append((entry.custom_id, entry.result.type))
+            detail = getattr(getattr(entry.result, "error", None), "error", None)
+            failed.append((entry.custom_id, entry.result.type, str(detail or "")))
             continue
         msg = entry.result.message
         usage["input_tokens"] += msg.usage.input_tokens
