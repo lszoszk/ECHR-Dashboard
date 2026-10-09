@@ -76,3 +76,10 @@ echr_judge_runs/
 
 # local HUDOC reference HTML snapshots (side-by-side compare; not shipped)
 docs/*_hudoc.html
+
+# Curated public citation snapshot (raw corpus stays ignored)
+!docs/data/
+docs/data/*
+!docs/data/stats.json
+!docs/data/echr_cases_sample50.jsonl
+!docs/data/judgment-citations.json

@@ -17,12 +17,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css">
   <link rel="stylesheet" href="assets/search-app.css">
-  <link rel="stylesheet" href="assets/analytics-page.css?v=20260802-caveats">
   <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261009-footer">
+  <link rel="stylesheet" href="assets/analytics-page.css?v=20261009-citations-v1">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1"></script>
 </head>
-<body>
+<body class="statistics-editorial">
   <nav class="navbar">
     <div class="nav-container">
       <a href="./" class="nav-brand">
@@ -52,19 +52,20 @@
   <main class="main-content">
     <section class="hero">
       <div class="hero-inner">
-        <h1 class="hero-title">ECHR Analytics Dashboard</h1>
-        <p class="hero-subtitle">Statistical notes from the public Strasbourg corpus.</p>
+        <h1 class="hero-title">Judgments, in perspective</h1>
+        <p class="hero-subtitle">The Strasbourg judgment record. Trends, outcomes and the texts behind them.</p>
         <div class="analytics-meta">
           <span id="metaSource">Source: -</span>
           <span id="metaGenerated">Generated: -</span>
         </div>
-        <p class="hero-subtitle" style="font-size:.82rem;opacity:.75;margin-top:.5rem">
-          Static snapshot &mdash; counts here reflect the build date above and
-          can lag the live corpus shown in the
-          <a href="./" style="color:inherit;text-decoration:underline">Search</a> header.
-        </p>
-        <p class="hero-subtitle" id="metaPartialRefresh" hidden
-           style="font-size:.82rem;opacity:.75;margin-top:.35rem"></p>
+        <div class="statistics-scope" aria-label="Scope of statistics">
+          <p><strong>Judgments only.</strong> Grand Chamber, Chamber and Committee. Decisions, Commission reports and press releases are excluded.</p>
+          <p>Counts are judgment records, not applications. English metadata; English and French texts counted once.</p>
+          <p id="scopeCutoff" class="scope-date">Loading audited snapshot...</p>
+          <details><summary>Catalog identity and language limits</summary><p id="scopeCaveat"></p></details>
+        </div>
+        <p class="snapshot-warning">Snapshot, not live Search. French source bundles await deployment.</p>
+        <p class="hero-subtitle" id="metaPartialRefresh" hidden></p>
       </div>
     </section>
 
@@ -77,26 +78,28 @@
 
             <div class="sidebar-category">
               <span class="sidebar-category-label">Overview</span>
-              <a class="sidebar-link active" data-target="stats-kpi" href="#stats-kpi">Key Statistics</a>
+              <a class="sidebar-link active" data-target="stats-kpi" href="#stats-kpi">At a glance</a>
             </div>
 
             <div class="sidebar-category">
               <span class="sidebar-category-label">Temporal Trends</span>
-              <a class="sidebar-link" data-target="stats-cases-year" href="#stats-cases-year">Cases by Year</a>
+              <a class="sidebar-link" data-target="stats-cases-year" href="#stats-cases-year">Judgments by Year</a>
+              <a class="sidebar-link" data-target="stats-chamber-trend" href="#stats-chamber-trend">Judicial Collections</a>
               <a class="sidebar-link" data-target="stats-violation-rate-year" href="#stats-violation-rate-year">Violation Rate %</a>
               <a class="sidebar-link" data-target="stats-outcomes-year" href="#stats-outcomes-year">Outcomes by Year</a>
             </div>
 
             <div class="sidebar-category">
               <span class="sidebar-category-label">Convention Articles</span>
-              <a class="sidebar-link" data-target="stats-article-rates" href="#stats-article-rates">Article Violation Rates</a>
+              <a class="sidebar-link" data-target="stats-article-rates" href="#stats-article-rates">Outcomes by Article</a>
               <a class="sidebar-link" data-target="stats-article-counts" href="#stats-article-counts">Article Outcome Counts</a>
-              <a class="sidebar-link" data-target="stats-precedents" href="#stats-precedents">Most Cited Precedents</a>
+              <a class="sidebar-link" data-target="stats-cited-judgments" href="#stats-cited-judgments">Most Cited Judgments</a>
+              <a class="sidebar-link" data-target="stats-precedents" href="#stats-precedents">Reference Entries</a>
             </div>
 
             <div class="sidebar-category">
               <span class="sidebar-category-label">Respondent States</span>
-              <a class="sidebar-link" data-target="stats-country-cases" href="#stats-country-cases">Cases by Country</a>
+              <a class="sidebar-link" data-target="stats-country-cases" href="#stats-country-cases">Judgments by State</a>
               <a class="sidebar-link" data-target="stats-country-rates" href="#stats-country-rates">Violation Rate by Country</a>
               <a class="sidebar-link" data-target="stats-state-outcomes" href="#stats-state-outcomes">State Outcome Table</a>
               <a class="sidebar-link" data-target="stats-country-compare" href="#stats-country-compare">Country Comparison</a>
@@ -119,18 +122,7 @@
             </div>
 
             <div class="sidebar-category">
-              <span class="sidebar-category-label">Citation Network</span>
-              <a class="sidebar-link" data-target="stats-citation-landmarks" href="#stats-citation-landmarks">Landmark Cases</a>
-              <a class="sidebar-link" data-target="stats-citation-distribution" href="#stats-citation-distribution">Citation Distribution</a>
-              <a class="sidebar-link" data-target="stats-citation-age" href="#stats-citation-age">Citation Age</a>
-              <a class="sidebar-link" data-target="stats-citation-heatmap" href="#stats-citation-heatmap">Cross-Article Citations</a>
-              <a class="sidebar-link" data-target="stats-citation-cross-state" href="#stats-citation-cross-state">Cross-State Influence</a>
-              <a class="sidebar-link" data-target="stats-citation-pagerank" href="#stats-citation-pagerank">Network Importance</a>
-            </div>
-
-            <div class="sidebar-category">
               <span class="sidebar-category-label">Case Characteristics</span>
-              <a class="sidebar-link coming-soon" data-target="stats-duration" href="#stats-duration">Case Duration</a>
               <a class="sidebar-link" data-target="stats-judgment-types" href="#stats-judgment-types">Judgment Types</a>
             </div>
 
@@ -142,14 +134,14 @@
 
             <div class="sidebar-category">
               <span class="sidebar-category-label">Legal Culture</span>
-              <a class="sidebar-link" data-target="stats-citations-country" href="#stats-citations-country">Citations by Country</a>
+              <a class="sidebar-link" data-target="stats-citations-country" href="#stats-citations-country">Articles by Respondent State</a>
               <a class="sidebar-link" data-target="stats-precedent-concentration" href="#stats-precedent-concentration">Precedent Concentration</a>
             </div>
 
             <div class="sidebar-category">
               <span class="sidebar-category-label">Corpus Quality</span>
               <a class="sidebar-link" data-target="stats-paragraphs" href="#stats-paragraphs">Paragraph Distribution</a>
-              <a class="sidebar-link coming-soon" data-target="stats-coverage" href="#stats-coverage">Coverage Notes</a>
+              <a class="sidebar-link" data-target="stats-coverage" href="#stats-coverage">Coverage &amp; Languages</a>
             </div>
 
           </div>
@@ -157,29 +149,37 @@
         <!-- ── End Sidebar ───────────────────────────────────────────── -->
 
         <!-- ── Main Content ──────────────────────────────────────────── -->
-        <div class="stats-main" id="statsMain">
+        <div class="stats-main" id="statsMain" aria-busy="true">
 
           <!-- ① Key Statistics (KPIs) -->
           <section class="chart-section" id="stats-kpi">
-            <h2 class="chart-section-title">Key Statistics</h2>
-            <p class="chart-section-desc">Summary metrics across the full ECHR case corpus — case counts, violation rates, coverage of metadata fields, and corpus composition at a glance.</p>
-            <div id="kpiGrid" class="kpi-row"></div>
+            <h2 class="chart-section-title">At a glance</h2>
+            <p class="chart-section-desc">The essentials from the verified judgment catalog. Text totals combine the current production inventory with newly downloaded local sources.</p>
+            <div id="kpiGrid" class="kpi-row compact-metrics"></div>
+            <p id="textCoverageSummary" class="text-coverage-summary"></p>
           </section>
 
-          <!-- ② Cases by Year -->
+          <!-- ② Judgments by Year -->
           <section class="chart-section" id="stats-cases-year">
-            <h2 class="chart-section-title">Cases by Year</h2>
+            <h2 class="chart-section-title">Judgments by Year</h2>
             <p class="chart-section-desc">Number of ECHR judgments delivered per calendar year since the Court's inception, illustrating the steady growth of the Strasbourg docket over six decades.</p>
-            <p class="chart-caveat">The final bar is a <strong>partial year</strong> — the corpus ends part-way through it (see the build date above), so the last column counts only the months harvested so far. It is a cut-off, not a collapse in the Court’s output. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
+            <p class="chart-caveat">The final bar is a <strong>partial year</strong> — the corpus ends part-way through it (see the catalog cut-off above), so the last column counts only the months harvested so far. It is a cut-off, not a collapse in the Court’s output. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
             <div class="chart-canvas-wrap">
               <canvas id="casesYearChart"></canvas>
             </div>
           </section>
 
+          <section class="chart-section" id="stats-chamber-trend">
+            <h2 class="chart-section-title">Judicial Collections Over Time</h2>
+            <p class="chart-section-desc">Annual output from the Grand Chamber, Chambers and three-judge Committees. Counts come from the official judicial collection, not inference from case titles.</p>
+            <p class="chart-caveat">The final year is partial through the catalog cut-off shown above.</p>
+            <div class="chart-canvas-wrap"><canvas id="chamberTrendChart"></canvas></div>
+          </section>
+
           <!-- ③ Violation Rate by Year -->
           <section class="chart-section" id="stats-violation-rate-year">
             <h2 class="chart-section-title">Violation Rate by Year (%)</h2>
-            <p class="chart-section-desc">Percentage of cases with at least one violation finding in each calendar year. Tracks structural shifts in the Court's adjudicative outcomes and reveals periods of systemic non-compliance by respondent states.</p>
+            <p class="chart-section-desc">Share of judgment records with at least one tagged violation, by calendar year. Includes judgments without a tagged merits finding in the denominator; it is not an application success rate or a measure of state compliance.</p>
             <p class="chart-caveat">The final year is <strong>partial</strong> and rests on far fewer cases, so its rate is noisier than the rest of the series. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
             <div class="chart-canvas-wrap">
               <canvas id="violationRateYearChart" style="height:400px"></canvas>
@@ -190,49 +190,101 @@
           <section class="chart-section" id="stats-outcomes-year">
             <h2 class="chart-section-title">Outcomes by Year</h2>
             <p class="chart-section-desc">Annual breakdown of case outcomes — violation only, non-violation only, mixed findings, and no finding — showing how the Court's caseload composition has evolved over time.</p>
-            <p class="chart-caveat">The final year is <strong>partial</strong> (the corpus ends part-way through it — see the build date above); read the last column as an incomplete sample, not a trend. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
+            <p class="chart-caveat">The final year is <strong>partial</strong> (the corpus ends part-way through it — see the catalog cut-off above); read the last column as an incomplete sample, not a trend. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
             <div class="chart-canvas-wrap">
               <canvas id="outcomesYearChart"></canvas>
             </div>
           </section>
 
-          <!-- ⑤ Article Violation Rates -->
+          <!-- ⑤ Primary-article outcomes -->
           <section class="chart-section" id="stats-article-rates">
-            <h2 class="chart-section-title">Article Violation Rates</h2>
-            <p class="chart-section-desc">Proportion of cases resulting in a violation finding per Convention article (among cases where the article was invoked), highlighting which rights are most frequently found to have been breached.</p>
-            <div class="chart-canvas-wrap">
+            <h2 class="chart-section-title">Outcomes by Article</h2>
+            <p class="chart-section-desc">Compare main Convention and Protocol articles, not combinations or subparagraphs. The violation share counts judgments with at least one violation tag, out of judgments with a violation or non-violation tag for that article.</p>
+            <div class="chart-controls article-controls">
+              <label for="articleRateSort">Order</label>
+              <select id="articleRateSort" class="chart-select">
+                <option value="volume">Most judgments</option>
+                <option value="highest">Highest violation share</option>
+                <option value="lowest">Lowest violation share</option>
+                <option value="article">Article order</option>
+              </select>
+              <label for="articleRateMinimum">Minimum sample</label>
+              <select id="articleRateMinimum" class="chart-select">
+                <option value="100" selected>100 judgments</option>
+                <option value="500">500 judgments</option>
+                <option value="50">50 judgments</option>
+                <option value="1">All with outcome tags</option>
+              </select>
+            </div>
+            <p id="articleRateSummary" class="chart-caveat" aria-live="polite"></p>
+            <div id="articleRateHighlights" class="article-highlights"></div>
+            <div class="chart-canvas-wrap article-rate-wrap">
               <canvas id="articleViolationRateChart"></canvas>
             </div>
-            <h3 class="chart-section-subtitle" style="margin-top:32px; margin-bottom:6px;">Most Cited Convention Articles</h3>
-            <p class="chart-section-desc">Raw frequency of article invocations across the corpus, showing which Convention provisions are most often pleaded before the Court — regardless of outcome.</p>
-            <div class="chart-canvas-wrap">
-              <canvas id="articlesChart"></canvas>
-            </div>
+            <details class="article-method">
+              <summary>Exact counts for this view</summary>
+              <div class="article-table-scroll"><table class="article-outcome-table">
+                <caption>Each judgment counts once per article. Mixed means both outcome tags for different complaints or aspects.</caption>
+                <thead><tr><th scope="col">Article</th><th scope="col">Violation share</th><th scope="col">With outcome</th><th scope="col">Violation only</th><th scope="col">Mixed</th><th scope="col">Non-violation only</th><th scope="col">No outcome tag</th></tr></thead>
+                <tbody id="articleOutcomeRows"></tbody>
+              </table></div>
+            </details>
+            <p class="chart-caveat">Example: 6-1 and 6-3-d count once under Article 6; P1-1 remains Protocol 1, Article 1. Linked tags such as 14+8 contribute to both article families, not necessarily two standalone findings. Mixed judgments appear in the violation share, but are shown separately. No outcome tag does not mean no violation. English/French text versions are not counted twice.</p>
+            <p class="chart-caveat">This is a descriptive metadata comparison, not the probability of winning a claim. <a href="https://www.echr.coe.int/documents/d/echr/hudoc_manual_eng" target="_blank" rel="noopener">HUDOC tag conventions</a>.</p>
           </section>
 
           <!-- ⑥ Article Outcome Counts -->
           <section class="chart-section" id="stats-article-counts">
             <h2 class="chart-section-title">Article Outcome Counts</h2>
-            <p class="chart-section-desc">Side-by-side violation and non-violation counts for each Convention article, providing an absolute measure of the Court's jurisprudential output per protected right.</p>
+            <p class="chart-section-desc">Judgments with outcome tags, grouped by main article. The 15 largest samples are shown, split into mutually exclusive violation-only, mixed and non-violation-only buckets. Uses the same article families as the comparison above; linked findings are included.</p>
             <div class="chart-canvas-wrap">
               <canvas id="articleOutcomesCountChart" style="height:450px"></canvas>
             </div>
           </section>
 
-          <!-- ⑦ Most Cited Precedents -->
+          <section class="chart-section" id="stats-cited-judgments">
+            <h2 class="chart-section-title">Most Cited Judgments</h2>
+            <p class="chart-section-desc">Top 20 by unique citing judgments, using resolved HUDOC citation metadata. English/French versions and repeated citations count once; different judgments in the same application remain separate.</p>
+            <p id="judgmentCitationCoverage" class="chart-caveat" aria-live="polite">Loading the citation snapshot...</p>
+            <div class="chart-canvas-wrap judgment-citation-canvas"><canvas id="judgmentCitationsChart"></canvas></div>
+            <div class="chart-controls article-controls">
+              <label for="citedJudgmentSelect">Cited judgment</label>
+              <select id="citedJudgmentSelect" class="chart-select" disabled></select>
+              <button id="citationRankingExport" class="export-btn" type="button" disabled>Ranking CSV with IDs</button>
+            </div>
+            <p id="citedJudgmentIdentity"></p>
+            <details id="citingJudgmentsDetails" class="article-method">
+              <summary id="citingJudgmentsSummary">View citing judgments</summary>
+              <div class="citation-list-tools"><button id="citingJudgmentsExport" class="export-btn" type="button" disabled>Citing judgments CSV</button></div>
+              <div class="article-table-scroll"><table class="article-outcome-table"><thead><tr><th scope="col">Citing judgment</th><th scope="col">Date</th></tr></thead><tbody id="citingJudgmentRows"></tbody></table></div>
+              <button id="moreCitingJudgments" class="export-btn" type="button" hidden>Show more</button>
+            </details>
+            <details class="article-method">
+              <summary>Coverage, unresolved matches and methodology</summary>
+              <div id="judgmentCitationQuality"></div>
+              <p class="chart-section-desc">This is a metadata-based ranking, not a full-text citation count. Counts are lower bounds from resolved references; missing or ambiguous references can affect ordering. Application number alone is insufficient when several judgments are possible. Unresolved references are not guessed. Citing and cited documents must both be in the judgment catalog; cited decisions are excluded.</p>
+            </details>
+          </section>
+
+          <!-- ⑦ Citation Metadata -->
           <section class="chart-section" id="stats-precedents">
-            <h2 class="chart-section-title">Most Cited Strasbourg Precedents</h2>
-            <p class="chart-section-desc">The judgments most frequently cited across the corpus, reflecting the landmark cases that have most profoundly shaped ECHR jurisprudence and the reasoning patterns of the Court.</p>
+            <h2 class="chart-section-title">Most Frequent References</h2>
+            <p class="chart-section-desc">Top 15 citation entries, shown by case name. Hover for the full reference.</p>
             <div class="chart-canvas-wrap">
               <canvas id="citationsChart"></canvas>
             </div>
+            <details class="article-method">
+              <summary>Coverage and counting</summary>
+              <p id="citationCoverageNote" class="chart-caveat"></p>
+              <p class="chart-section-desc">Short labels are for display only. Different reference entries can refer to the same judgment; they are not merged by case name. Full references remain in the data table and CSV.</p>
+            </details>
           </section>
 
-          <!-- ⑧ Cases by Country -->
+          <!-- ⑧ Judgments by State -->
           <section class="chart-section" id="stats-country-cases">
-            <h2 class="chart-section-title">Cases by Country</h2>
-            <p class="chart-section-desc">Number of ECHR judgments by respondent state, identifying which countries face the highest litigation volumes before the Court and where systemic human rights issues are most prevalent.</p>
-            <p class="chart-caveat">Counts reflect <strong>English-language judgments only</strong>. States whose output is substantially French-only are under-represented here. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
+            <h2 class="chart-section-title">Judgments by State</h2>
+            <p class="chart-section-desc">Judgment records by respondent state. Counts describe the selected judgment catalog, not all applications, admissibility decisions or population-adjusted litigation rates.</p>
+            <p class="chart-caveat">Counts use the complete verified judgment catalog, including records whose available source text is French. A multi-state judgment contributes once to each respondent state, so state totals can exceed the judgment count.</p>
             <div class="chart-canvas-wrap">
               <canvas id="countriesChart"></canvas>
             </div>
@@ -244,7 +296,7 @@
               <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-country-rates')">🔗</button>
             </h2>
             <p class="chart-section-desc">Proportion of cases resulting in at least one violation finding per respondent state (top 25 by caseload, minimum 10 cases). Normalises raw case counts to reveal which states have the highest per-case breach rates.</p>
-            <p class="chart-caveat">Rates are computed over <strong>English-language judgments only</strong>, so states with substantial French-only output are under-represented. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
+            <p class="chart-caveat">Rates use the verified English-flagged HUDOC metadata catalog, including judgments whose inventoried source text is French. Language versions are not counted twice; see the catalog scope and language limits at the top.</p>
             <div class="chart-canvas-wrap" style="height:620px;">
               <canvas id="countryRatesChart"></canvas>
             </div>
@@ -255,7 +307,7 @@
             <h2 class="chart-section-title">State Outcome Table
               <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-state-outcomes')">🔗</button>
             </h2>
-            <p class="chart-section-desc">Breakdown of outcomes (Violation only, Non-violation only, Mixed, No finding) and violation rate for each respondent state with at least 5 cases. Top 20 shown — sorted by total caseload.</p>
+            <p class="chart-section-desc">Breakdown of outcomes (Violation only, Non-violation only, Mixed, No tagged finding) and violation rate for each respondent state with at least 5 cases. Top 20 shown — sorted by total caseload.</p>
             <div id="stateOutcomeTable" class="state-outcome-wrap"></div>
           </section>
 
@@ -264,7 +316,7 @@
             <h2 class="chart-section-title">Country Comparison
               <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-country-compare')">🔗</button>
             </h2>
-            <p class="chart-section-desc">Compare caseload trends and most frequently violated articles across up to four respondent states. Pre-populated with the four highest-volume states — change any dropdown to update the charts.</p>
+            <p class="chart-section-desc">Compare caseload trends and most frequently violated articles across up to three respondent states. Pre-populated with the three highest-volume states — change any dropdown to update the charts.</p>
             <div class="chart-controls">
               <label for="compareState1">State 1</label>
               <select id="compareState1" class="chart-select"></select>
@@ -274,15 +326,11 @@
               <select id="compareState3" class="chart-select">
                 <option value="">(none)</option>
               </select>
-              <label for="compareState4">State 4</label>
-              <select id="compareState4" class="chart-select">
-                <option value="">(none)</option>
-              </select>
             </div>
             <div id="compareSummaryTable" class="compare-summary-wrap"></div>
             <div class="compare-charts-grid">
               <div class="compare-chart-wrap">
-                <h4 class="chart-subtitle">Cases by Year</h4>
+                <h4 class="chart-subtitle">Judgments by Year</h4>
                 <div class="chart-canvas-wrap" style="height:360px">
                   <canvas id="compareTrendChart"></canvas>
                 </div>
@@ -301,7 +349,7 @@
             <h2 class="chart-section-title">HUDOC Thesaurus Topics
               <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-thesaurus-top')">&#x1F517;</button>
             </h2>
-            <p class="chart-section-desc">Distribution of HUDOC thesaurus keywords across all judgments. These controlled-vocabulary tags are assigned by the Court's registry and capture the legal themes, Convention articles, and procedural aspects of each case (98.2% coverage).</p>
+            <p class="chart-section-desc">Distribution of HUDOC thesaurus keywords across all judgments. These controlled-vocabulary tags are assigned by the Court's registry and capture the legal themes, Convention articles, and procedural aspects of each case (see measured field coverage below).</p>
             <div class="chart-canvas-wrap" style="height:680px;">
               <canvas id="thesaurusTopChart"></canvas>
             </div>
@@ -396,115 +444,30 @@
           </section>
 
           <!-- Citation Network: Landmark Cases -->
-          <section class="chart-section" id="stats-citation-landmarks">
-            <h2 class="chart-section-title">Landmark Cases by Citation Count
-              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-citation-landmarks')">&#x1F517;</button>
-            </h2>
-            <p class="chart-section-desc">The 30 most-cited cases in the ECHR citation network (by in-degree). These are the judgments most frequently relied upon by later decisions, representing the backbone of Strasbourg jurisprudence (Fowler et al. 2007).</p>
-            <p class="chart-caveat">A citation edge exists only where <strong>both judgments are in this corpus</strong> and the citation carries an application number. Coverage is structurally partial. <a href="methodology.html#citation-graph-cites-cited-by">How to read this</a></p>
-            <div id="landmarkKpis" class="kpi-row"></div>
-            <div class="chart-canvas-wrap" style="height:700px;">
-              <canvas id="landmarkCasesChart"></canvas>
-            </div>
-            <div id="landmarkTable" class="state-outcome-wrap" style="margin-top:20px;"></div>
-          </section>
+
 
           <!-- Citation Network: Citation Distribution -->
-          <section class="chart-section" id="stats-citation-distribution">
-            <h2 class="chart-section-title">Citation Distribution
-              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-citation-distribution')">&#x1F517;</button>
-            </h2>
-            <p class="chart-section-desc">Distribution of incoming citation counts across all cases. A high Gini coefficient indicates extreme citation concentration — a small fraction of landmark cases attract a disproportionate share of all citations (Leitão et al. 2019).</p>
-            <div id="citDistKpis" class="kpi-row"></div>
-            <div class="chart-canvas-wrap">
-              <canvas id="citationDistChart"></canvas>
-            </div>
-          </section>
+
 
           <!-- Citation Network: Citation Age -->
-          <section class="chart-section" id="stats-citation-age">
-            <h2 class="chart-section-title">Citation Age Distribution
-              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-citation-age')">&#x1F517;</button>
-            </h2>
-            <p class="chart-section-desc">How old are the precedents the Court cites? Shows the time gap (in years) between citing and cited judgments. A short average age suggests the Court favours recent authority; longer tails reveal enduring foundational precedents (Lupu &amp; Voeten 2012).</p>
-            <p class="chart-caveat">Subject to <strong>right-censoring</strong>: recent judgments have had less time to accumulate citations, so the recent end is necessarily thin. <a href="methodology.html#citation-graph-cites-cited-by">How to read this</a></p>
-            <div id="citAgeKpis" class="kpi-row"></div>
-            <div class="chart-row">
-              <article class="chart-container" style="flex:1.3;">
-                <h3 class="chart-title">Citation Age (years between judgments)</h3>
-                <canvas id="citationAgeChart"></canvas>
-              </article>
-              <article class="chart-container" style="flex:1;">
-                <h3 class="chart-title">Citations by Decade of Cited Case</h3>
-                <canvas id="citationDecadeChart"></canvas>
-              </article>
-            </div>
-          </section>
+
 
           <!-- Citation Network: Cross-Article Heatmap -->
-          <section class="chart-section" id="stats-citation-heatmap">
-            <h2 class="chart-section-title">Cross-Article Citation Heatmap
-              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-citation-heatmap')">&#x1F517;</button>
-            </h2>
-            <p class="chart-section-desc">How often cases involving one Convention article cite cases involving another article. Strong off-diagonal values reveal "polymorph principles" — legal concepts that bridge multiple rights (Olsen &amp; Esmark 2019). Matrix shows the top 12 articles by caseload.</p>
-            <p class="chart-caveat">Edges require <strong>both judgments in-corpus</strong> and a resolvable application number; the matrix is therefore a lower bound. <a href="methodology.html#citation-graph-cites-cited-by">How to read this</a></p>
-            <div class="chart-canvas-wrap" style="height:600px;">
-              <canvas id="citationHeatmapChart"></canvas>
-            </div>
-          </section>
+
 
           <!-- Citation Network: Cross-State Influence -->
-          <section class="chart-section" id="stats-citation-cross-state">
-            <h2 class="chart-section-title">Cross-State Influence &amp; Self-Citation
-              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-citation-cross-state')">&#x1F517;</button>
-            </h2>
-            <p class="chart-section-desc">Which respondent states produce the most-cited case law? Self-citation rate measures how often the Court cites its own prior decisions against the same state — high rates suggest recurring systemic issues (Derlen &amp; Lindholm 2017).</p>
-            <div class="chart-row">
-              <article class="chart-container" style="flex:1;">
-                <h3 class="chart-title">Most-Cited States (total incoming citations)</h3>
-                <canvas id="crossStateCitedChart"></canvas>
-              </article>
-              <article class="chart-container" style="flex:1;">
-                <h3 class="chart-title">Self-Citation Rates by State</h3>
-                <canvas id="selfCitationChart"></canvas>
-              </article>
-            </div>
-          </section>
+
 
           <!-- Citation Network: PageRank & Betweenness -->
-          <section class="chart-section" id="stats-citation-pagerank">
-            <h2 class="chart-section-title">Network Importance (PageRank &amp; Betweenness)
-              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-citation-pagerank')">&#x1F517;</button>
-            </h2>
-            <p class="chart-section-desc">PageRank measures a case's authority by weighing citations from other highly-cited cases (Google-style recursive prestige). Betweenness centrality identifies cases that serve as "bridges" between different clusters of jurisprudence — gatekeepers of legal reasoning (Fowler et al. 2007).</p>
-            <p class="chart-caveat">Network metrics are computed over the in-corpus citation graph only — they rank influence <strong>within this dataset</strong>, not within all ECtHR case-law. <a href="methodology.html#citation-graph-cites-cited-by">How to read this</a></p>
-            <div class="chart-row">
-              <article class="chart-container" style="flex:1;">
-                <h3 class="chart-title">Top 25 by PageRank</h3>
-                <canvas id="pagerankChart"></canvas>
-              </article>
-              <article class="chart-container" style="flex:1;">
-                <h3 class="chart-title">Top 15 by Betweenness Centrality</h3>
-                <canvas id="betweennessChart"></canvas>
-              </article>
-            </div>
-            <div id="pagerankTable" class="state-outcome-wrap" style="margin-top:20px;"></div>
-          </section>
+
 
           <!-- ⑪ Case Duration (placeholder) -->
-          <section class="chart-section" id="stats-duration">
-            <h2 class="chart-section-title">Case Duration</h2>
-            <p class="chart-section-desc">Distribution of time from application lodging to final judgment, reflecting the Court's processing efficiency and the impact of backlog-reduction reforms over time.</p>
-            <div class="coming-soon-placeholder">
-              <span class="coming-soon-badge">Coming soon</span>
-              <p style="margin-top:12px;">Case duration distribution chart is under development.</p>
-            </div>
-          </section>
+
 
           <!-- ⑫ Judgment Types -->
           <section class="chart-section" id="stats-judgment-types">
             <h2 class="chart-section-title">Judgment Types</h2>
-            <p class="chart-section-desc">Structural breakdown of the corpus by chamber composition, ECHR importance classification, outcome category, procedural versus substantive aspects, and originating body.</p>
+            <p class="chart-section-desc">Structural breakdown of the corpus by chamber composition, ECHR importance classification, outcome category, procedural versus substantive wording in conclusions, and judicial collection.</p>
             <div class="chart-row">
               <article class="chart-container">
                 <h3 class="chart-title">Chamber Split</h3>
@@ -521,15 +484,11 @@
                 <canvas id="outcomesChart"></canvas>
               </article>
               <article class="chart-container">
-                <h3 class="chart-title">Procedural vs Substantive Aspects</h3>
+                <h3 class="chart-title">Procedural / Substantive Wording</h3>
                 <canvas id="proceduralSubstantiveChart"></canvas>
               </article>
             </div>
             <div class="chart-row" style="margin-top: var(--gap);">
-              <article class="chart-container">
-                <h3 class="chart-title">Originating Bodies</h3>
-                <canvas id="bodiesChart"></canvas>
-              </article>
               <article class="chart-container">
                 <h3 class="chart-title">Separate Opinion Share by Body</h3>
                 <canvas id="separateByBodyChart"></canvas>
@@ -550,15 +509,15 @@
           <!-- ⑭ Inadmissibility & Struck Out -->
           <section class="chart-section" id="stats-admissibility-overview">
             <h2 class="chart-section-title">Inadmissibility &amp; Struck Out</h2>
-            <p class="chart-section-desc">Total counts of inadmissible cases and cases struck out of the list, providing an overview of the non-merits portion of the Court's caseload and the scope of early-stage filtering.</p>
+            <p class="chart-section-desc">Judgments whose conclusion mentions inadmissibility or striking out. Standalone admissibility decisions are excluded; this does not measure the Court's filtering of applications.</p>
             <div class="chart-canvas-wrap">
               <canvas id="inadmissibilityChart"></canvas>
             </div>
           </section>
 
-          <!-- ⑮ Citations by Country (interactive article × state) + Keywords -->
+          <!-- ⑮ Articles by Respondent State (interactive article × state) + Keywords -->
           <section class="chart-section" id="stats-citations-country">
-            <h2 class="chart-section-title">Citations by Country</h2>
+            <h2 class="chart-section-title">Articles by Respondent State</h2>
             <p class="chart-section-desc">Top respondent states in cases involving a given Convention article — select an article to see which countries are most litigated under that provision, with total case counts and violation counts side by side.</p>
             <div class="chart-controls">
               <label for="articleStateSelect">Convention Article:</label>
@@ -567,20 +526,13 @@
             <div class="chart-canvas-wrap">
               <canvas id="articleByStateChart"></canvas>
             </div>
-
-            <h3 class="chart-section-subtitle" style="margin-top:40px; margin-bottom:6px;">Top Keywords</h3>
-            <p class="chart-section-desc">Most frequently occurring thematic keywords across the corpus, offering a high-level map of the legal issues at the heart of ECHR jurisprudence.</p>
-            <p class="chart-caveat">HUDOC supplies keywords for about <strong>two-thirds</strong> of the corpus, so this describes the cases that have them &mdash; and low-importance cases are systematically the ones that do not. <a href="methodology.html#why-low-importance-cases-look-metadata-poor-everywhere">How to read this</a></p>
-            <div class="chart-canvas-wrap">
-              <canvas id="keywordsChart"></canvas>
-            </div>
           </section>
 
           <!-- ⑯ Precedent Concentration -->
           <section class="chart-section" id="stats-precedent-concentration">
             <h2 class="chart-section-title">Precedent Concentration</h2>
-            <p class="chart-section-desc">Cumulative citation share of the most-cited precedents, illustrating the degree to which ECHR reasoning relies on a concentrated set of landmark rulings. A steep curve signals high concentration.</p>
-            <p class="chart-caveat">Computed over the in-corpus citation graph only. <a href="methodology.html#citation-graph-cites-cited-by">How to read this</a></p>
+            <p class="chart-section-desc">Cumulative share of the ten most frequent reference strings in populated HUDOC citation metadata. This is string concentration, not resolved precedent influence.</p>
+            <p class="chart-caveat">Denominator: all reference strings in populated HUDOC citation metadata, not all judgments or citations in their texts. <a href="methodology.html#citation-graph-cites-cited-by">How to read this</a></p>
             <div class="chart-canvas-wrap">
               <canvas id="precedentConcentrationChart"></canvas>
             </div>
@@ -589,8 +541,8 @@
           <!-- ⑰ Paragraph Distribution -->
           <section class="chart-section" id="stats-paragraphs">
             <h2 class="chart-section-title">Paragraph Distribution</h2>
-            <p class="chart-section-desc">Number of indexed paragraphs broken down by judgment section (Facts, Law, Operative provisions, etc.), reflecting how textual content is distributed across the structural parts of ECHR judgments.</p>
-            <p class="chart-caveat">Roughly <strong>one paragraph in eight</strong> carries a slightly imperfect section label, and Appendix is dominated by mass-applicant table rows rather than prose. <a href="methodology.html#honest-limits">How to read this</a></p>
+            <p class="chart-section-desc">Nonempty text rows by parser/index section, combining inventoried production text and local English/French source bundles. Header and applicant-table rows are included; this is not a count of numbered judicial paragraphs.</p>
+            <p class="chart-caveat">French text is included. Section assignment in newly parsed bundles has not yet undergone source-exact QA. Applicant tables can dominate Appendix counts; compare structural rows cautiously.</p>
             <div class="chart-canvas-wrap">
               <canvas id="sectionsChart"></canvas>
             </div>
@@ -598,12 +550,12 @@
 
           <!-- ⑱ Coverage Notes (placeholder) -->
           <section class="chart-section" id="stats-coverage">
-            <h2 class="chart-section-title">Coverage Notes</h2>
-            <p class="chart-section-desc">Metadata completeness rates by field — respondent state, Convention articles, keywords, originating body — and notes on known gaps or limitations of the current corpus build.</p>
-            <div class="coming-soon-placeholder">
-              <span class="coming-soon-badge">Coming soon</span>
-              <p style="margin-top:12px;">Detailed coverage and metadata completeness report is under development.</p>
-            </div>
+            <h2 class="chart-section-title">Coverage &amp; Source Languages</h2>
+            <p class="chart-section-desc">Measured availability, not an accuracy score. A blank optional field does not mean a judgment contains no discussion of that subject.</p>
+            <div id="coverageTable" class="coverage-table-wrap"></div>
+            <h3 class="chart-section-subtitle">Language of inventoried judgment texts</h3>
+            <p class="chart-caveat">An English metadata flag does not prove an English source text exists. Older production texts have no confirmed source-language field, so they remain unknown rather than being guessed as English. French bundles are original texts, not translations generated by this tool.</p>
+            <div class="chart-canvas-wrap"><canvas id="textLanguageChart"></canvas></div>
           </section>
 
         </div>
@@ -828,6 +780,6 @@
        Chart.js plugin before pages-dashboard.js constructs any chart. -->
   <script src="assets/echr-export-core.js?v=20260802-export"></script>
   <script src="assets/chart-tools.js?v=20260802-cite"></script>
-  <script src="assets/pages-dashboard.js?v=20260802-export"></script>
+  <script src="assets/pages-dashboard.js?v=20261009-citations-v1"></script>
 </body>
 </html>
