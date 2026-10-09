@@ -54,6 +54,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--jobs", required=True)
     ap.add_argument("--report", required=True)
+    ap.add_argument("--suffix", default="en", help="translation files chunk_NNN.<suffix>.json (translate.py --tag)")
     args = ap.parse_args()
     summary = {"judgments": 0, "complete": 0, "rows": 0, "flags": Counter(), "chrf": [], "terms": [0, 0]}
     per_case = []
@@ -66,7 +67,7 @@ def main() -> int:
         for jf in jobs:
             job = json.loads(jf.read_text())
             glossary.update(job.get("glossary", {}))
-            tf = jf.with_name(jf.stem + ".en.json")
+            tf = jf.with_name(f"{jf.stem}.{args.suffix}.json")
             tr = json.loads(tf.read_text()) if tf.exists() else {}
             complete &= tf.exists()
             for r in job["rows"]:
@@ -103,7 +104,7 @@ def main() -> int:
                     if fr.lower() in r["fr"].lower() and en.lower() in ref[r["id"]].lower():
                         summary["terms"][1] += 1
                         summary["terms"][0] += en.lower() in r["en"].lower()
-        (case_dir / "translation.json").write_text(json.dumps(rows, ensure_ascii=False, indent=1))
+        (case_dir / ("translation.json" if args.suffix == "en" else f"translation.{args.suffix}.json")).write_text(json.dumps(rows, ensure_ascii=False, indent=1))
         per_case.append(info)
     report = {
         "judgments": summary["judgments"], "complete": summary["complete"], "rows": summary["rows"],
