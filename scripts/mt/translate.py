@@ -23,6 +23,12 @@ from pathlib import Path
 import anthropic
 
 HERE = Path(__file__).resolve().parent
+
+# The key: ANTHROPIC_API_KEY, or else ~/anthropic_key.txt or ~/.anthropic_key (one line, chmod 600; never in
+# a repository).
+for _key_file in (Path.home() / "anthropic_key.txt", Path.home() / ".anthropic_key"):
+    if not __import__("os").environ.get("ANTHROPIC_API_KEY") and _key_file.exists() and _key_file.read_text().strip():
+        __import__("os").environ["ANTHROPIC_API_KEY"] = _key_file.read_text().strip()
 INSTRUCTIONS = (HERE / "TRANSLATOR.md").read_text()
 MAX_TOKENS = 8192
 
@@ -38,6 +44,17 @@ def parse_answer(text: str) -> dict:
     text = text.strip()
     text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text)
     return json.loads(text[text.find("{"): text.rfind("}") + 1])
+
+
+# Models that turn thinking off with "between_tools" (no thinking before the answer) and reject "disabled";
+# the API says so in its error message. Haiku 5.5 takes "disabled".
+OFF_IS_BETWEEN_TOOLS = ("claude-sonnet-5-5", "claude-opus-5-5")
+
+
+def thinking_type(args) -> str:
+    if args.thinking != "off":
+        return args.thinking
+    return "between_tools" if args.model.startswith(OFF_IS_BETWEEN_TOOLS) else "disabled"
 
 
 def submit(args) -> None:
@@ -66,12 +83,12 @@ def submit(args) -> None:
             job["examples"] = []
         requests.append({
             "custom_id": f"{jf.parent.name}__{jf.stem[6:]}",
-            "params": {"model": args.model, "max_tokens": MAX_TOKENS, "thinking": {"type": args.thinking},
+            "params": {"model": args.model, "max_tokens": MAX_TOKENS, "thinking": {"type": thinking_type(args)},
                        "system": INSTRUCTIONS,
                        "messages": [{"role": "user", "content": user_message(job)}]},
         })
     batch = anthropic.Anthropic().messages.batches.create(requests=requests)
-    record = {"batch_id": batch.id, "model": args.model, "thinking": args.thinking, "requests": len(requests)}
+    record = {"batch_id": batch.id, "model": args.model, "thinking": thinking_type(args), "requests": len(requests)}
     Path(args.jobs, f"batch_{args.tag}.json").write_text(json.dumps(record, indent=1))
     print(f"submitted {len(requests)} requests as {batch.id} ({args.model}); run collect --tag {args.tag}")
 
@@ -121,8 +138,9 @@ def main() -> int:
     s.add_argument("--jobs", required=True)
     s.add_argument("--model", required=True)
     s.add_argument("--tag", required=True)
-    s.add_argument("--thinking", choices=["disabled", "adaptive"], default="disabled",
-                   help="reasoning before the answer: billed as output tokens; off by default")
+    s.add_argument("--thinking", choices=["off", "disabled", "between_tools", "adaptive"], default="off",
+                   help="reasoning before the answer, billed as output tokens. 'off' (default) sends what the model "
+                        "accepts for no thinking: 'disabled' for Haiku 5.5, 'between_tools' for Sonnet/Opus 5.5")
     s.add_argument("--rows", help="file of 'case__chunk row_id' lines (judge.py --fix-list): translate only these "
                    "paragraphs; collect writes files holding just those rows, which assemble.py merges row by row")
     s.add_argument("--no-examples", action="store_true", help="leave out the translation-memory examples (fewer tokens)")
