@@ -2464,3 +2464,15 @@ body { padding-bottom: var(--bar-h); }
 @media (max-width: 860px) {
   .editorial-workspace .results-sidebar { display: none; }
 }
+
+/* ── Workspace: the count on the nav link, the ☆ on result paragraphs ───── */
+.ws-count {
+  display: inline-block; min-width: 1.3em; margin-left: 3px; padding: 0 4px; box-sizing: border-box; text-align: center;
+  font-family: var(--font-mono); font-size: 0.6rem; line-height: 1.5; color: var(--paper); background: var(--garnet); border-radius: 8px;
+  vertical-align: 2px;
+}
+.ws-count[hidden] { display: none; }
+.ws-star {
+  padding: 0 4px; cursor: pointer; font-size: 0.95rem; line-height: 1; color: var(--ink-3); background: none; border: 0;
+}
+.ws-star:hover, .ws-star.on { color: var(--garnet); }

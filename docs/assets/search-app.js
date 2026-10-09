@@ -1377,6 +1377,93 @@ function buildStandardCitation(caseObj) {
   return parts.join("");
 }
 
+// ── Workspace (assets/workspace.js): saved paragraphs and saved searches ────────
+const wsKey = (caseId, paraIdx) => `${caseId}#${paraIdx}`;
+
+function wsStarHtml(caseId, paraIdx, paraKey) {
+  if (!window.ECHRWorkspace || paraIdx == null || paraIdx === "") return "";
+  const on = window.ECHRWorkspace.has(wsKey(caseId, paraIdx));
+  return `<button type="button" class="ws-star${on ? " on" : ""}" data-action="bookmark-para" data-case-id="${escapeHtml(caseId)}"
+    data-para-idx="${escapeHtml(String(paraIdx))}" data-para-key="${escapeHtml(paraKey || "")}" aria-pressed="${on}"
+    title="${on ? "Remove from your Workspace" : "Save this paragraph to your Workspace"}">${on ? "★" : "☆"}</button>`;
+}
+
+/** A paragraph shown in the results, by its key or index: from the current results (server
+ *  search), the case's own paragraphs (local dataset) or the by-paragraph hits. */
+function findShownParagraph(caseId, paraKey, paraIdx) {
+  const same = (x) => (paraKey && x.key === paraKey) || (paraIdx != null && paraIdx !== "" && String(x.paraIdx) === String(paraIdx));
+  const shown = state.currentResultsById && state.currentResultsById.get(caseId);
+  const p = (shown && (shown.paragraphs || []).find(same))
+    || ((state.caseById.get(caseId) || {}).__paragraphs || []).find(same)
+    || (state.flatHits || []).find((x) => x.caseId === caseId && same(x));
+  return p ? { ...p, text: p.text ?? p.rawText } : null;
+}
+
+/** What the Workspace keeps of a paragraph: enough to show and cite it without the server. */
+function wsParagraphItem(caseId, paraIdx, paraKey) {
+  const c = state.caseById.get(caseId);
+  if (!c) return null;
+  const p = findShownParagraph(caseId, paraKey, paraIdx);
+  if (!p) return null;
+  return {
+    key: wsKey(caseId, p.paraIdx), caseId, paraIdx: p.paraIdx,
+    paraNo: p.hudocParaNo != null ? p.hudocParaNo : (p.displayParaNo != null ? p.displayParaNo : null),
+    title: (c.title || "").replace(/^CASE OF\s+/i, ""), appnos: c.case_no || "", date: formatCaseDateForDisplay(c),
+    section: SECTION_LABELS[p.section] || p.section || "", text: p.text || "",
+    citation: buildParagraphCitation(c, p), url: paragraphHudocUrl(c, p) || c.hudoc_url || "",
+    machineTranslation: !!c.__isMt,
+  };
+}
+
+/** The filters of the current search, as a saved search keeps them. */
+function wsFilterSnapshot() {
+  const f = getCurrentFilters();
+  const arr = (x) => [...(x || [])];
+  return {
+    countries: arr(f.countries), articles: arr(f.articles), keywords: arr(f.keywords), importance: arr(f.importance),
+    outcomes: arr(f.outcomes), docTypes: arr(f.docTypes), buckets: arr(f.buckets), includeMt: !!f.includeMt,
+    includeExtra: !!f.includeMeta, includeAppendix: !!f.includeAppendix,
+    dateFrom: el.dateFrom.value || "", dateTo: el.dateTo.value || "",
+  };
+}
+
+function wsFilterSummary(s) {
+  const parts = [];
+  if (s.countries.length) parts.push(s.countries.map((c) => COUNTRY_NAMES[c] || c).join(", "));
+  if (s.articles.length) parts.push(s.articles.map((a) => `Art. ${a}`).join(", "));
+  if (s.keywords.length) parts.push(`${s.keywords.length} keyword${s.keywords.length > 1 ? "s" : ""}`);
+  if (s.outcomes.length) parts.push(s.outcomes.map((o) => OUTCOME_LABELS[o] || o).join(", "));
+  if (s.importance.length) parts.push(`importance ${s.importance.join(", ")}`);
+  if (s.docTypes.length) parts.push(s.docTypes.join(", "));
+  if (s.dateFrom || s.dateTo) parts.push(`${s.dateFrom.slice(0, 4) || "…"}–${s.dateTo.slice(0, 4) || "…"}`);
+  const allBuckets = document.querySelectorAll('#bucketScope input[data-name="buckets"]').length;
+  if (s.buckets.length && s.buckets.length < allBuckets) parts.push(`in ${s.buckets.map((b) => SECTION_BUCKETS[b]?.label || b).join(", ")}`);
+  if (s.includeMt) parts.push("+ machine translations");
+  return parts.join(" · ");
+}
+
+/** Put a saved search's filters back on the page (the rail must be rendered). */
+function wsApplySnapshot(s) {
+  const setGroup = (name, values) => document.querySelectorAll(`input[data-name="${name}"]`)
+    .forEach((i) => { i.checked = (values || []).includes(i.value); });
+  for (const name of ["countries", "articles", "keywords", "importance", "outcomes", "docTypes"]) setGroup(name, s[name]);
+  const buckets = s.buckets && s.buckets.length ? s.buckets : null;
+  document.querySelectorAll('#bucketScope input[data-name="buckets"]').forEach((i) => { i.checked = buckets ? buckets.includes(i.value) : true; });
+  const mt = document.getElementById("includeMachineTranslations");
+  if (mt) mt.checked = !!s.includeMt && !document.getElementById("mtPill")?.hidden;
+  const mtNotice = document.getElementById("mtNotice");
+  if (mtNotice) mtNotice.hidden = !(mt && mt.checked);
+  const extra = document.getElementById("scopeIncludeExtra");
+  if (extra) extra.checked = !!s.includeExtra;
+  const appendix = document.getElementById("scopeIncludeAppendix");
+  if (appendix) appendix.checked = !!s.includeAppendix;
+  el.dateFrom.value = s.dateFrom || "";
+  el.dateTo.value = s.dateTo || "";
+  markYearRange();
+  attachFilterGroupClearButtons();
+  updateActiveFilterCount();
+}
+
 function buildEcliCitation(caseObj) {
   return caseObj.ecli || buildStandardCitation(caseObj);
 }
@@ -5193,6 +5280,7 @@ function buildCaseCard(caseId, row, rank = 1) {
           ${isGrouped ? "" : buildMatchSourceBadgesHtml(p.matchedRoles)}
           ${buildParagraphLabelBadgesHtml(p.key)}
           <span class="para-actions">
+            ${wsStarHtml(caseId, p.paraIdx, p.key)}
             ${hudocLink}
             <button class="cite-para-btn" data-action="copy-paragraph-citation" data-case-id="${escapeHtml(caseId)}" data-para-key="${escapeHtml(p.key || "")}" title="Copy paragraph citation">Cite ¶</button>
             <button class="copy-btn" data-action="copy-paragraph" data-text="${escapeHtml(p.rawText)}" title="Copy paragraph text">Copy</button>
@@ -5446,6 +5534,7 @@ function buildParagraphCard(h, rank) {
         </div>
         <p class="para-text">${ctxLead}${prBody}</p>
         <div class="case-actions-inline compact-actions">
+          ${wsStarHtml(c.case_id, h.paraIdx, h.key)}
           ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="cn-action" data-action="open-hudoc" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>` : ""}
           <button type="button" class="cn-action" data-action="copy-paragraph" data-text="${escapeHtml(h.rawText)}">Copy</button>
         </div>
@@ -6910,6 +6999,17 @@ function bindEvents() {
     document.querySelectorAll("details.cite-menu[open]").forEach((m) => { if (!m.contains(e.target)) m.open = false; });
   });
 
+  // "Save search" keeps the query and its filters in the Workspace.
+  document.getElementById("saveSearchBtn")?.addEventListener("click", () => {
+    if (!window.ECHRWorkspace) return;
+    const q = el.searchInput.value.trim();
+    const filters = wsFilterSnapshot();
+    const summary = wsFilterSummary(filters);
+    const name = window.prompt("Name this search", [q || "All judgments", summary].filter(Boolean).join(" — ").slice(0, 120));
+    if (name === null) return;
+    window.ECHRWorkspace.saveSearch({ name: name.trim() || q || "Search", q, filters, summary });
+  });
+
   // "Try" examples under the search box run their query.
   document.getElementById("searchTry")?.addEventListener("click", (e) => {
     const btn = e.target.closest(".try-q[data-q]");
@@ -7093,6 +7193,19 @@ function bindEvents() {
     const action = clickable.getAttribute("data-action");
     const caseId = clickable.getAttribute("data-case-id");
 
+    if (action === "bookmark-para" && caseId) {
+      e.preventDefault();
+      const item = wsParagraphItem(caseId, clickable.dataset.paraIdx, clickable.dataset.paraKey);
+      if (item && window.ECHRWorkspace) {
+        const on = window.ECHRWorkspace.toggleParagraph(item);
+        clickable.classList.toggle("on", on);
+        clickable.textContent = on ? "★" : "☆";
+        clickable.setAttribute("aria-pressed", String(on));
+        clickable.title = on ? "Remove from your Workspace" : "Save this paragraph to your Workspace";
+      }
+      return;
+    }
+
     if (action === "select-case" && caseId) {
       selectCase(caseId);
       return;
@@ -7147,13 +7260,9 @@ function bindEvents() {
       const caseObj = state.caseById.get(caseId);
       const paraKey = clickable.getAttribute("data-para-key") || "";
       if (caseObj) {
-        // Look up the paragraph object so the citation can include
-        // the proper § N anchor.  We search the case's __paragraphs
-        // list by the same key the result row was built from.
-        let para = null;
-        for (const p of (caseObj.__paragraphs || [])) {
-          if ((p.key || "") === paraKey) { para = p; break; }
-        }
+        // Look up the paragraph object so the citation can include the proper § N anchor
+        // (server results keep it in currentResultsById, not in the case's __paragraphs).
+        const para = findShownParagraph(caseId, paraKey, null);
         copyToClipboardWithFeedback(
           buildParagraphCitation(caseObj, para),
           clickable,
@@ -7551,6 +7660,9 @@ function init() {
       if (deepQ && deepQ.trim() && !el.searchInput.value.trim()) {
         el.searchInput.value = deepQ.trim();
       }
+      const runId = new URLSearchParams(location.search).get("run");
+      const saved = runId && window.ECHRWorkspace ? window.ECHRWorkspace.search(runId) : null;
+      if (saved) wsApplySnapshot(saved.filters || {});
       try {
         applySearch(true);
       } catch (e) {

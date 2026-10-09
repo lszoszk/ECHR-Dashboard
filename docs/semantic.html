@@ -26,6 +26,8 @@
 .nav-meta .status-pill { display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',ui-monospace,monospace; font-size:10.5px; color:var(--ink-3); background:var(--paper-2); border:1px solid var(--rule); border-radius:999px; padding:4px 10px; white-space:nowrap; }
 .nav-meta select { background:var(--paper-2); color:var(--ink); border:1px solid var(--rule); border-radius:6px; padding:5px 8px; font-size:12px; font-family:'Source Serif 4',Georgia,serif; cursor:pointer; }
 .nav-meta select:focus-visible { outline:2px solid var(--garnet); outline-offset:1px; }
+.ws-count { display:inline-block; min-width:1.3em; margin-left:3px; padding:0 4px; box-sizing:border-box; text-align:center; font-family:'JetBrains Mono',ui-monospace,monospace; font-size:.6rem; line-height:1.5; color:var(--paper); background:var(--garnet); border-radius:8px; vertical-align:2px; }
+.ws-count[hidden] { display:none; }
 .beta-badge { align-self:center; padding:1px 6px; border:1px solid var(--garnet); color:var(--garnet); background:var(--garnet-soft); font-family:'JetBrains Mono',ui-monospace,monospace; font-size:0.58rem; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; line-height:1.5; }
 .exp-icon { width:0.9em; height:0.9em; margin-left:1px; vertical-align:-0.08em; opacity:0.75; }
 .visually-hidden { position:absolute !important; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
@@ -1335,7 +1337,8 @@ footer {
   .standfirst h1 { font-size: 38px; }
 }
 </style>
-<script src="assets/tour.js?v=20261010-tour" defer></script>
+<script src="assets/tour.js?v=20261010-ws" defer></script>
+<script src="assets/workspace.js?v=20261010-ws"></script>
 </head>
 <body>
 
@@ -1354,6 +1357,7 @@ footer {
       <a href="analytics.html">Statistics</a>
       <a href="#" data-section="methodology">Methodology</a>
       <a href="about.html">About</a>
+      <a href="workspace.html">Workspace <span class="ws-count" data-ws-count hidden></span></a>
     </div>
   </div>
 </nav>
