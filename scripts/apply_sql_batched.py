@@ -9,6 +9,10 @@ gigabytes (a 20,000-paragraph load left a 754 MB WAL). On a shared VM with a few
 GB free that can fill the disk. Here a transaction covers `--batch-cases` documents,
 a PASSIVE checkpoint runs every few batches, and the log is truncated at the end.
 
+A case that is already in the database is skipped together with its paragraphs, so loading
+the same file twice changes nothing (the `INSERT OR IGNORE INTO cases` alone would not stop
+the paragraph inserts that follow it from doubling).
+
 The file is read statement by statement (sqlite3.complete_statement), so text values
 containing newlines or semicolons are handled. The file's own BEGIN/COMMIT lines are
 ignored. A load interrupted half way leaves complete documents only; the matching
@@ -21,6 +25,7 @@ Usage
 from __future__ import annotations
 
 import argparse
+import re
 import shutil
 import sqlite3
 import sys
@@ -28,6 +33,7 @@ import time
 from pathlib import Path
 
 CASE_START = "INSERT OR IGNORE INTO cases"
+CASE_ID = re.compile(r"VALUES \('([^']+)'")
 
 
 def main() -> int:
@@ -53,6 +59,7 @@ def main() -> int:
     wal = Path(str(db) + "-wal")
     t0 = time.time()
     buf, cases, batches, in_tx, peak_wal = "", 0, 0, False, 0
+    skipping, skipped = False, 0
     optimize = None
 
     def commit_and_maybe_checkpoint():
@@ -76,6 +83,12 @@ def main() -> int:
                 continue
             stmt, buf = buf, ""
             if stmt.startswith(CASE_START):
+                m = CASE_ID.search(stmt)
+                skipping = bool(m) and con.execute(
+                    "SELECT 1 FROM cases WHERE case_id = ?", (m.group(1),)).fetchone() is not None
+                if skipping:
+                    skipped += 1
+                    continue
                 if cases % args.batch_cases == 0:
                     commit_and_maybe_checkpoint()
                     con.execute("BEGIN")
@@ -84,6 +97,8 @@ def main() -> int:
             elif "paragraphs_fts" in stmt[:40]:
                 optimize = stmt                     # run once, after the last commit
                 continue
+            elif skipping:
+                continue                            # the rest of a case that is already loaded
             con.execute(stmt)
             if wal.exists():
                 peak_wal = max(peak_wal, wal.stat().st_size)
@@ -94,6 +109,8 @@ def main() -> int:
     print("final checkpoint:", con.execute("PRAGMA wal_checkpoint(TRUNCATE)").fetchone())
     after = (con.execute("SELECT count(*) FROM cases").fetchone()[0],
              con.execute("SELECT count(*) FROM paragraphs").fetchone()[0])
+    if skipped:
+        print(f"skipped {skipped:,} documents that were already in the database")
     print(f"cases {before[0]:,} -> {after[0]:,}   paragraphs {before[1]:,} -> {after[1]:,}   "
           f"peak WAL {peak_wal / 1e6:.0f} MB   {time.time() - t0:.0f} s")
     return 0

@@ -82,6 +82,8 @@ def main() -> int:
     ap.add_argument("--tranches", default="imp1-2,imp3,imp4")
     ap.add_argument("--first-year", type=int, default=1958)
     ap.add_argument("--last-year", type=int, default=2026)
+    ap.add_argument("--ids-file", help="JSON list of HUDOC item ids to process as one tranche 'ids' "
+                    "(skips the year-by-year listing; metadata is fetched by id)")
     ap.add_argument("--discover-only", action="store_true")
     ap.add_argument("--limit", type=int, default=0, help="debug: cap documents per tranche")
     ap.add_argument("--workers", type=int, default=3)
@@ -90,14 +92,29 @@ def main() -> int:
 
     existing = {line.split("\t")[0].strip() for line in Path(args.existing).read_text().splitlines() if line.strip()}
     print(f"corpus documents: {len(existing):,}")
-    listed = list_hudoc_judgments(args.first_year, args.last_year)
-    missing = [c for iid, c in listed.items()
-               if iid not in existing and not SKIP_TITLE.search(c.get("docname") or "")
-               and not (c.get("docname") or "").startswith("AFFAIRE")]
-    print(f"HUDOC English judgments: {len(listed):,}; missing from the corpus: {len(missing):,}")
     by_tranche: dict[str, list[dict]] = {t: [] for t in TRANCHES}
-    for c in missing:
-        by_tranche[tranche_of(c)].append(c)
+    if args.ids_file:
+        wanted = [i for i in json.loads(Path(args.ids_file).read_text()) if i not in existing]
+        rows: dict[str, dict] = {}
+        for k in range(0, len(wanted), 25):
+            chunk = wanted[k:k + 25]
+            q = ('contentsitename:ECHR AND languageisocode:"ENG" AND documentcollectionid2:"JUDGMENTS" AND ('
+                 + " OR ".join(f'itemid:"{i}"' for i in chunk) + ")")
+            for cols in p60.hudoc_get({"query": q, "select": p60.META_SELECT, "sort": "itemid Ascending",
+                                       "start": "0", "length": "100"}).get("results", []):
+                rows[cols["columns"]["itemid"]] = cols["columns"]
+            p60.time.sleep(0.3)
+        by_tranche = {"ids": [rows[i] for i in wanted if i in rows]}
+        print(f"requested {len(wanted):,} ids; metadata found for {len(by_tranche['ids']):,}")
+        args.tranches = "ids"
+    else:
+        listed = list_hudoc_judgments(args.first_year, args.last_year)
+        missing = [c for iid, c in listed.items()
+                   if iid not in existing and not SKIP_TITLE.search(c.get("docname") or "")
+                   and not (c.get("docname") or "").startswith("AFFAIRE")]
+        print(f"HUDOC English judgments: {len(listed):,}; missing from the corpus: {len(missing):,}")
+        for c in missing:
+            by_tranche[tranche_of(c)].append(c)
     for t, rows in by_tranche.items():
         print(f"  {t:7s} {len(rows):6,}")
     Path(f"{args.out_prefix}_missing.json").write_text(
