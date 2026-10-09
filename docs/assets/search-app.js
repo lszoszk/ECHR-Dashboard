@@ -4758,7 +4758,8 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
         <span class="cnm-outcome-badge ${escapeHtml(outcomeToneClass)}">${escapeHtml(outcomeLabel)}</span>
         ${c.document_type ? `<span class="cnm-doctype">${escapeHtml(c.document_type)}</span>` : ""}
       </div>
-    </div>`;
+    </div>
+    ${registryDetailHtml(c.case_id)}`;
 
   // Action bar: HUDOC ↗ · Cite · Copy.  `activePara` is the matched
   // paragraph once context loads; Copy is omitted while it is absent.
@@ -4874,6 +4875,56 @@ function selectCaseParagraph(caseId, paraIdx) {
   const selected = byId(`case-${caseId}`);
   if (selected) selected.classList.add("active");
   renderCaseContextRail(caseId, { center: true });
+}
+
+/* ── Registry summaries (Grand Chamber) ─────────────────────────
+ * The Registry's "Table of all Grand Chamber judgments and decisions" gives the Court's own
+ * one-line subject and article-by-article conclusions. It ships as a static file keyed by HUDOC
+ * item id (docs/data/gc_registry.json, built by scripts/build_gc_registry_json.py) and is
+ * joined here, so no API change is needed. */
+async function loadGcRegistry() {
+  try {
+    const r = await fetch("data/gc_registry.json");
+    if (!r.ok) return;
+    const d = await r.json();
+    state.gcRegistry = d.cases || {};
+    state.gcRegistrySource = d.source || "";
+    patchRegistrySummaries();
+  } catch (_) { /* optional enrichment: the dashboard works without it */ }
+}
+
+function registrySubjectParagraph(entry) {
+  const p = document.createElement("p");
+  p.className = "registry-subject";
+  p.title = state.gcRegistrySource || "Registry of the European Court of Human Rights";
+  const label = document.createElement("span");
+  label.className = "rs-label";
+  label.textContent = "Registry summary";
+  p.append(label, " ", entry.subject);
+  return p;
+}
+
+function patchRegistrySummaries() {
+  if (!state.gcRegistry || !el.casesList) return;
+  for (const card of el.casesList.querySelectorAll("article.researcher-result[data-case-id]")) {
+    if (card.querySelector(".registry-subject")) continue;
+    const entry = state.gcRegistry[card.dataset.caseId];
+    const anchor = card.querySelector(".researcher-title-line");
+    if (entry && entry.subject && anchor) anchor.after(registrySubjectParagraph(entry));
+  }
+}
+
+function registryDetailHtml(caseId) {
+  const entry = state.gcRegistry && state.gcRegistry[caseId];
+  if (!entry || !entry.subject) return "";
+  const conclusions = (entry.conclusions || []).map((t) => `<li>${escapeHtml(t)}</li>`).join("");
+  return `
+    <div class="registry-detail">
+      <div class="rs-label">Registry summary</div>
+      <p>${escapeHtml(entry.subject)}</p>
+      ${conclusions ? `<ul class="rs-conclusions">${conclusions}</ul>` : ""}
+      <p class="rs-source">Source: ${escapeHtml(state.gcRegistrySource)}.</p>
+    </div>`;
 }
 
 function buildCaseCard(caseId, row, rank = 1) {
@@ -7109,6 +7160,8 @@ function bindEvents() {
 
 function init() {
   cacheElements();
+  loadGcRegistry();
+  if (el.casesList) new MutationObserver(patchRegistrySummaries).observe(el.casesList, { childList: true });
   loadCardModePreference();
   updateCardModeButton();
   initTheme();
