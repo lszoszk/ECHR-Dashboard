@@ -12,6 +12,11 @@ For each missing number g, among the unnumbered rows between a and b:
   1. a row whose text (after removing the marker) starts "g." gets the number;
   2. otherwise the text of paragraph g on HUDOC's page (local cache of the HTML view) is matched to a row,
      and the row gets the number, with "g." put in front of its text as HUDOC shows it.
+A second kind: "half-numbered" rows (7,118 in 675 judgments) carry hudoc_para_no but no numbering_block and
+no "n." in their text, so the case view shows them unnumbered among numbered neighbours. Where HUDOC's
+page confirms that paragraph n is this text, the row gets numbering_block "main_judgment" (or
+"separate_opinion" inside an opinion) and "n." in front of its text.
+
 The row becomes a numbered paragraph of the main judgment (hudoc_para_no, display_para_no, numbering_block
 "main_judgment", row_role "paragraph"); the marker is removed from the text and text_hash recomputed.
 The SQL changes a row by (case_id, para_idx) only while it is still unnumbered with the old text; the
@@ -92,6 +97,24 @@ def plan_case(rows: list[dict], page: dict[int, str] | None) -> list[tuple[dict,
     return out
 
 
+def half_numbered(rows: list[dict], page: dict[int, str] | None) -> list[tuple[dict, int, str, str]]:
+    """[(row, number, method, new text)] for rows with a number but no block and no "n." in the text."""
+    out = []
+    if not page:
+        return out
+    for r in rows:
+        n = r["hudoc_para_no"]
+        if n is None or r["numbering_block"] is not None or n not in page:
+            continue
+        if re.match(rf"^\s*{n}\s*\.", MARKER.sub("", r["text"] or "")):
+            continue
+        want = squash(page[n])[:40]
+        if len(want) < 20 or not squash(strip_number(r["text"])).startswith(want):
+            continue
+        out.append((r, n, "half-numbered", f"{n}.{NBSP2}{strip_number(r['text']).lstrip()}"))
+    return out
+
+
 def quote(s) -> str:
     return "NULL" if s is None else "'" + str(s).replace("'", "''") + "'"
 
@@ -111,13 +134,27 @@ def main() -> int:
     for r in con.execute("SELECT case_id, para_idx, section, row_role, hudoc_para_no, numbering_block, text "
                          "FROM paragraphs ORDER BY case_id, para_idx"):
         by_case[r["case_id"]].append(dict(r))
+    # Repeat until nothing changes: a row numbered in one pass can open a gap window for the next.
+    first: dict[tuple[str, int], dict] = {}
+    final: dict[tuple[str, int], tuple] = {}
+    for _ in range(5):
+        found = 0
+        for cid, rows in by_case.items():
+            page_path = Path(args.html_dir) / f"{cid}.html"
+            page = html_paragraphs(page_path) if page_path.exists() else None
+            for row, g, method, new_text in plan_case(rows, page) + half_numbered(rows, page):
+                key = (cid, row["para_idx"])
+                first.setdefault(key, dict(row))
+                final[key] = (g, method if key not in final else final[key][1], new_text)
+                row["hudoc_para_no"], row["text"] = g, new_text
+                row["numbering_block"] = "separate_opinion" if row["section"] == "Separate Opinion" else "main_judgment"
+                found += 1
+        if not found:
+            break
     changes, methods = [], Counter()
-    for cid, rows in by_case.items():
-        page_path = Path(args.html_dir) / f"{cid}.html"
-        page = html_paragraphs(page_path) if page_path.exists() else None
-        for row, g, method, new_text in plan_case(rows, page):
-            changes.append((cid, row, g, method, new_text))
-            methods[method] += 1
+    for (cid, idx), (g, method, new_text) in final.items():
+        changes.append((cid, first[(cid, idx)], g, method, new_text))
+        methods[method] += 1
     print(f"{len(by_case):,} documents; {len(changes):,} rows get their paragraph number in "
           f"{len({c[0] for c in changes}):,} documents: {dict(methods)}")
     for cid, row, g, method, new in changes[:: max(1, len(changes) // max(1, args.examples))][: args.examples]:
@@ -125,6 +162,16 @@ def main() -> int:
     forward, backward = [], []
     for cid, row, g, method, new in changes:
         old = row["text"]
+        if method == "half-numbered":
+            block = "separate_opinion" if row["section"] == "Separate Opinion" else "main_judgment"
+            forward.append(
+                f"UPDATE paragraphs SET numbering_block = '{block}', text = {quote(new)}, text_hash = {quote(p38.hash_text(new))} "
+                f"WHERE case_id = {quote(cid)} AND para_idx = {row['para_idx']} AND hudoc_para_no = {g} "
+                f"AND numbering_block IS NULL AND text = {quote(old)};")
+            backward.append(
+                f"UPDATE paragraphs SET numbering_block = NULL, text = {quote(old)}, text_hash = {quote(p38.hash_text(old))} "
+                f"WHERE case_id = {quote(cid)} AND para_idx = {row['para_idx']} AND hudoc_para_no = {g} AND text = {quote(new)};")
+            continue
         forward.append(
             f"UPDATE paragraphs SET hudoc_para_no = {g}, display_para_no = {g}, numbering_block = 'main_judgment', "
             f"row_role = 'paragraph', text = {quote(new)}, text_hash = {quote(p38.hash_text(new))} "

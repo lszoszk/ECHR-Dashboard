@@ -40,6 +40,17 @@ class NumberTests(unittest.TestCase):
         rows = [row(0, 10, "10.  A"), row(1, None, "11.  B"), row(2, 40, "40.  C")]
         self.assertEqual(p73.plan_case(rows, None), [])
 
+    def test_half_numbered_row_gets_its_block_and_number_when_hudoc_agrees(self):
+        rows = [row(0, 5, "5.  The applicant complained about the cage."),
+                {"para_idx": 1, "hudoc_para_no": 6, "numbering_block": None, "row_role": "paragraph", "section": "Merits",
+                 "text": "The Court notes that the applicant was kept in a metal cage in the courtroom."},
+                {"para_idx": 2, "hudoc_para_no": 7, "numbering_block": None, "row_role": "paragraph", "section": "Merits",
+                 "text": "Something HUDOC numbers differently, so it is left alone here."}]
+        page = {6: "The Court notes that the applicant was kept in a metal cage in the courtroom.",
+                7: "Having examined all the material submitted to it, the Court has not found any fact."}
+        out = p73.half_numbered(rows, page)
+        self.assertEqual([(r["para_idx"], n, new[:4]) for r, n, _, new in out], [(1, 6, "6.\u00a0\u00a0")])
+
 
 if __name__ == "__main__":
     unittest.main()
