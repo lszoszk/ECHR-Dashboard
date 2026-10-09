@@ -4,6 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HUDOC Researcher — Semantic Search</title>
+  <meta name="description" content="Describe a situation in plain language and find the European Court of Human Rights judgments and paragraphs closest to it (experimental).">
+  <link rel="canonical" href="https://lszoszk.github.io/ECHR-Dashboard/semantic.html">
+  <meta property="og:site_name" content="HUDOC Researcher">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Semantic Search — HUDOC Researcher">
+  <meta property="og:description" content="Describe a situation in plain language and find the European Court of Human Rights judgments and paragraphs closest to it (experimental).">
+  <meta property="og:url" content="https://lszoszk.github.io/ECHR-Dashboard/semantic.html">
+  <meta property="og:image" content="https://lszoszk.github.io/ECHR-Dashboard/assets/social-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="HUDOC Researcher — the judgments of the European Court of Human Rights, paragraph by paragraph">
+  <meta name="twitter:card" content="summary_large_image">
+<!-- Analytics: cookie-free GoatCounter; GA4 only after consent. See assets/analytics-consent.js -->
+<script src="assets/analytics-consent.js?v=20261010-gc" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1174,7 +1188,7 @@ body.mode-natural .expert-only { display: none; }
 }
 
 /* =========================================================
-   VIEW C — DOCTRINE READER
+   VIEW C — TIMELINE
    ========================================================= */
 .reader {
   border: 1px solid var(--rule);
@@ -1295,17 +1309,39 @@ body.mode-natural .expert-only { display: none; }
   color: var(--ink-3); margin-bottom: 18px;
 }
 .para-block {
-  display: grid; grid-template-columns: 44px 1fr; gap: 16px; align-items: baseline;
+  display: grid; grid-template-columns: 60px 1fr; gap: 16px; align-items: baseline;
   margin-bottom: 24px;
 }
 .para-num {
   font-family: var(--mono); font-size: 11px; color: var(--ink-4);
   text-align: right; padding-top: 4px; font-weight: 500;
 }
+.para-num small { display: block; margin-top: 4px; font-size: 10px; }
 .para-prose {
   font-family: var(--body); font-style: normal; font-size: 15px; line-height: 1.75;
   margin: 0; color: var(--ink);
 }
+/* Year strip (one button per year) and the "whole year" reading list */
+.year-strip {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  padding: 12px 24px; background: var(--paper-2); border-bottom: 1px solid var(--rule);
+}
+.year-strip .folio { margin-right: 6px; }
+.year-strip .chip { cursor: pointer; }
+.year-strip .chip:hover { border-color: var(--garnet); color: var(--garnet); }
+.year-strip .chip.solid-garnet:hover { color: var(--paper); }
+.year-strip .chip:focus-visible { outline: 2px solid var(--garnet); outline-offset: 2px; }
+.year-strip .chip .n { opacity: .6; }
+.year-toc { font-family: var(--body); font-size: 13.5px; line-height: 1.7; color: var(--ink-3); margin: -8px 0 4px; }
+.year-toc button {
+  font: inherit; color: var(--garnet); background: none; border: 0; padding: 0; cursor: pointer;
+  text-decoration: underline; text-decoration-color: var(--garnet-edge); text-underline-offset: 3px;
+}
+.year-case { margin-top: 30px; }
+.year-case h3 { font-family: var(--display); font-size: 20px; font-weight: 500; line-height: 1.2; margin: 0 0 4px; letter-spacing: -0.01em; }
+.year-case h3 a { color: var(--ink); text-decoration: none; }
+.year-case h3 a:hover, .year-case h3 a:focus-visible { color: var(--garnet); }
+.year-case .meta { margin-bottom: 14px; }
 
 footer {
   font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase;
@@ -1530,7 +1566,7 @@ footer {
         <div class="view-toggle" role="tablist">
           <button class="view-btn active" data-view="A" role="tab" aria-selected="true" aria-controls="view-A"><span class="num" aria-hidden="true">A</span><span>Reporter</span></button>
           <button class="view-btn" data-view="B" role="tab" aria-selected="false" aria-controls="view-B"><span class="num" aria-hidden="true">B</span><span>Discovery Workspace</span></button>
-          <button class="view-btn" data-view="C" role="tab" aria-selected="false" aria-controls="view-C"><span class="num" aria-hidden="true">C</span><span>Doctrine Reader</span></button>
+          <button class="view-btn" data-view="C" role="tab" aria-selected="false" aria-controls="view-C"><span class="num" aria-hidden="true">C</span><span>Timeline</span></button>
         </div>
         <span class="view-desc" id="view-desc">A ranked list of judgments — broadsheet layout.</span>
       </div>
@@ -1580,8 +1616,8 @@ footer {
       </section>
 
 
-      <!-- VIEW C — Doctrine reader -->
-      <section id="view-C" class="view-pane" role="tabpanel" aria-label="Doctrine Reader — timeline" tabindex="0" hidden>
+      <!-- VIEW C — Timeline (matching judgments by year of judgment) -->
+      <section id="view-C" class="view-pane" role="tabpanel" aria-label="Timeline — matching judgments by year of judgment" tabindex="0" hidden>
         <div class="reader">
           <div class="reader-strip" style="display:none">
             <span class="label">Reading</span>
@@ -1589,27 +1625,28 @@ footer {
             <span class="nudge">Drag the cursor along the timeline.</span>
           </div>
           <div class="reader-body">
-            <section class="river" id="river" aria-label="Doctrine timeline">
+            <section class="river" id="river" aria-label="Timeline of the matching judgments">
               <div class="river-title">
                 <div class="kicker" id="river-kicker">Timeline</div>
                 <h2 id="river-doctrine">Your results over time</h2>
-                <p id="river-blurb">The judgments that answered your query, placed by year of judgment. Drag the cursor along the timeline.</p>
-                <p class="river-legend"><strong>Each dot is one case, placed by year of judgment.</strong> Bigger dot = more matching passages · labelled dots are the closest matches to your query · the highlighted dot is the one you're reading. Click any dot to open it.</p>
+                <p id="river-blurb">The judgments that answered your query, placed by year of judgment.</p>
+                <p class="river-legend"><strong>Each dot is one case, placed by year of judgment.</strong> Bigger dot = more matching passages · labelled dots are the closest matches to your query · highlighted = what you're reading. Click a dot to read that judgment; click elsewhere in a year's column, or a year in the strip below, to read every matching paragraph from that year.</p>
               </div>
               <div class="river-year">
                 <div class="kicker">Year</div>
                 <div class="num" id="river-year">—</div>
-                <div class="nudge">drag the cursor →</div>
+                <div class="nudge">click or drag along the timeline</div>
               </div>
               <svg id="river-svg" viewBox="0 0 1500 1040" preserveAspectRatio="xMidYMid meet"></svg>
               <div class="river-narration">
                 <div style="min-width:90px;">
                   <div class="label">Narration</div>
-                  <div class="folio" id="river-waypoints" style="margin-top:4px;">— waypoints</div>
+                  <div class="folio" id="river-waypoints" style="margin-top:4px;">— judgments</div>
                 </div>
                 <p id="river-narration"></p>
               </div>
             </section>
+            <div class="year-strip" id="year-strip" role="group" aria-label="Read every matching paragraph from one year" hidden></div>
             <aside class="reading-col" id="reading-col">
               <div class="ws-empty"><div class="inner"><div class="glyph">⸙</div><h3>No timeline yet</h3><p>Run a search to place the matching judgments on a timeline by year.</p></div></div>
             </aside>
@@ -2539,7 +2576,7 @@ function renderDossier(data) {
 }
 
 /* =========================================================
-   RENDER VIEW C — Doctrine reader
+   RENDER VIEW C — Timeline
    ========================================================= */
 function renderDoctrineTabs() {
   $('doctrine-tabs').innerHTML = DOCTRINES.map(d => `
@@ -2557,7 +2594,8 @@ window.setDoctrine = setDoctrine;
 function renderViewC(data) {
   if (!data || !data.results || !data.results.length) {
     $('river-svg').innerHTML = '';
-    $('reading-col').innerHTML = '<div class="ws-empty"><div class="inner"><div class="glyph">⸙</div><h3>No passages yet</h3><p>Run a search to populate the river with waypoints from your results.</p></div></div>';
+    $('reading-col').innerHTML = '<div class="ws-empty"><div class="inner"><div class="glyph">⸙</div><h3>No passages yet</h3><p>Run a search to place the matching judgments on a timeline by year.</p></div></div>';
+    $('year-strip').hidden = true;
     state.riverWaypoints = [];
     return;
   }
@@ -2565,7 +2603,7 @@ function renderViewC(data) {
   const q = (data.query || '').trim();
   $('river-kicker').textContent = 'Timeline';
   $('river-doctrine').textContent = q ? (q.length > 70 ? q.slice(0, 70).trim() + '\u2026' : q) : 'Your results over time';
-  $('river-blurb').textContent = `${data.results.length} judgments answered your query, placed by year of judgment. Drag the cursor along the timeline to read each one.`;
+  $('river-blurb').textContent = `${data.results.length} judgments answered your query, placed by year of judgment. Click a dot to read one judgment, or a year to read all of that year's matching paragraphs.`;
 
   // Build waypoints from result cases — one per case, sorted by year then score
   const waypoints = data.results
@@ -2584,7 +2622,8 @@ function renderViewC(data) {
 
   if (!waypoints.length) {
     $('river-svg').innerHTML = '';
-    $('reading-col').innerHTML = '<div class="ws-empty"><div class="inner"><div class="glyph">⸙</div><h3>No dated waypoints</h3><p>This result set has no judgment dates we can place on the timeline.</p></div></div>';
+    $('reading-col').innerHTML = '<div class="ws-empty"><div class="inner"><div class="glyph">⸙</div><h3>No dated judgments</h3><p>This result set has no judgment dates we can place on the timeline.</p></div></div>';
+    $('year-strip').hidden = true;
     state.riverWaypoints = [];
     return;
   }
@@ -2595,9 +2634,13 @@ function renderViewC(data) {
   const minYr = Math.min(...waypoints.map(w => w.year)) - 1;
   const maxYr = Math.max(...waypoints.map(w => w.year)) + 1;
 
+  // A new result set (renderResults clears state.year) opens on the year of the strongest match.
+  if (state.year == null) state.year = waypoints.reduce((a, b) => (b.score||0) > (a.score||0) ? b : a).year;
+
   // Resolve the active waypoint. An explicit click (riverActiveId) always wins —
   // this is what lets you pick a *specific* case when several share a year.
-  // Otherwise fall back to whichever waypoint sits nearest the cursor year.
+  // Otherwise fall back to whichever waypoint sits nearest the cursor year,
+  // and read the whole of that year (year mode).
   let activeI = state.riverActiveId
     ? waypoints.findIndex(w => w.caseId === state.riverActiveId)
     : -1;
@@ -2612,17 +2655,42 @@ function renderViewC(data) {
   }
   const active = waypoints[activeI];
   state.year = active.year;                 // keep the cursor on the selected case
+  const yearMode = !state.riverActiveId;
+  const yearWps = waypoints.filter(w => w.year === state.year);
 
   $('river-year').textContent = state.year;
-  $('river-waypoints').textContent = waypoints.length + ' waypoints';
+  $('river-waypoints').textContent = waypoints.length + ' judgments';
 
-  drawRiver(waypoints, minYr, maxYr, activeI);
+  drawRiver(waypoints, minYr, maxYr, activeI, yearMode);
+  renderYearStrip(waypoints);
 
-  renderReadingCol(active);
-  $('river-narration').textContent = composeNarration(state.doctrine, state.year, waypoints, active);
+  if (yearMode) renderReadingYear(state.year, yearWps);
+  else renderReadingCol(active, yearWps.length);
+  $('reading-col').scrollTop = 0;
+  $('river-narration').textContent = composeNarration(state.doctrine, state.year, waypoints, active, yearMode ? yearWps : null);
 }
 
-function drawRiver(waypoints, minYr, maxYr, activeI) {
+// One button per year that has results: keyboard- and touch-friendly way to read a whole year.
+function renderYearStrip(waypoints) {
+  const el = $('year-strip');
+  const counts = {};
+  waypoints.forEach(w => { counts[w.year] = (counts[w.year] || 0) + 1; });
+  const years = Object.keys(counts).map(Number).sort((a, b) => a - b);
+  const hadFocus = el.contains(document.activeElement);
+  const yearMode = !state.riverActiveId;
+  el.hidden = !years.length;
+  el.innerHTML = `<span class="folio">Read a whole year</span>` + years.map(y => {
+    const on = yearMode && y === state.year;
+    const cls = on ? ' solid-garnet' : (y === state.year ? ' garnet' : '');
+    const n = counts[y], label = `${y}: all matching paragraphs from ${n} judgment${n===1?'':'s'}`;
+    return `<button type="button" class="chip${cls}" data-year="${y}" aria-pressed="${on}" aria-label="${label}" title="${label}" onclick="setRiverYear(${y})">${y}${n > 1 ? ` <span class="n">· ${n}</span>` : ''}</button>`;
+  }).join('');
+  if (hadFocus) { const b = el.querySelector(`[data-year="${state.year}"]`); if (b) b.focus(); }
+}
+
+let riverDragging = false;   // module-level: drawRiver re-runs on every move, so a local flag would reset
+
+function drawRiver(waypoints, minYr, maxYr, activeI, yearMode) {
   const W = 1500, H = 1040, padX = 100, padY = 90;
   const yearToX = (y) => padX + ((y - minYr) / Math.max(1, maxYr - minYr)) * (W - 2*padX);
   const yAtX = (x) => {
@@ -2709,12 +2777,19 @@ function drawRiver(waypoints, minYr, maxYr, activeI) {
     placed.push({ x, side, slot });
   });
 
+  // ---- Year mode: a soft band marks the whole year's column as what you're reading ----
+  if (yearMode && activeI >= 0) {
+    const ys = byYear[waypoints[activeI].year].map(i => pos[i].y);
+    const top = Math.min(...ys) - 22, h = Math.max(...ys) - Math.min(...ys) + 44;
+    html += `<rect x="${pos[activeI].x - 20}" y="${top}" width="40" height="${h}" rx="20" fill="var(--garnet-soft)" stroke="var(--garnet-edge)"/>`;
+  }
+
   // ---- Draw waypoints ----
   // Each waypoint carries data-wp="<index>" so the SVG handler can open that
-  // exact case — selection is per-case now, not per-year.
+  // exact case; a click anywhere else selects the whole year under the pointer.
   waypoints.forEach((w, i) => {
     const { x, y, riverY } = pos[i];
-    const isActive = i === activeI;
+    const isActive = i === activeI || (yearMode && w.year === waypoints[activeI].year);
     const isLabelled = labelledSet.has(i);
     const fill = isActive ? 'var(--garnet)' : 'var(--ink)';
 
@@ -2758,8 +2833,8 @@ function drawRiver(waypoints, minYr, maxYr, activeI) {
   // Waypoint tally — written into the narration box (never overlaps the chart),
   // not as in-SVG text where labels were colliding with it.
   const tally = waypoints.length > LABEL_BUDGET
-    ? `${waypoints.length} waypoints · ${labelledSet.size} labelled (top similarity + active) · click any dot`
-    : `${waypoints.length} waypoint${waypoints.length===1?'':'s'} · click any dot`;
+    ? `${waypoints.length} judgments · ${labelledSet.size} labelled (closest matches + selected) · click a dot or a year`
+    : `${waypoints.length} judgment${waypoints.length===1?'':'s'} · click a dot or a year`;
   $('river-waypoints').textContent = tally;
 
   const svg = $('river-svg');
@@ -2767,8 +2842,7 @@ function drawRiver(waypoints, minYr, maxYr, activeI) {
 
   // Interaction:
   //  • click a waypoint  → open that exact case (works even for stacked same-year dots)
-  //  • drag empty river  → scrub the cursor by year (clears the explicit selection)
-  let dragging = false;
+  //  • click/drag elsewhere → select the year under the pointer and read all of it
   const yearFromX = (clientX) => {
     const r = svg.getBoundingClientRect();
     const x = ((clientX - r.left) / r.width) * W;
@@ -2780,19 +2854,21 @@ function drawRiver(waypoints, minYr, maxYr, activeI) {
       selectRiverWaypoint(+hit.dataset.wp);
       return;
     }
-    dragging = true;
+    riverDragging = true;
     state.riverActiveId = null;
     state.year = yearFromX(e.clientX);
     renderViewC(state.results);
   };
   svg.onmousemove = (e) => {
-    if (!dragging) return;
+    if (!riverDragging) return;
+    const y = yearFromX(e.clientX);
+    if (y === state.year && !state.riverActiveId) return;   // same year: nothing to redraw
     state.riverActiveId = null;
-    state.year = yearFromX(e.clientX);
+    state.year = y;
     renderViewC(state.results);
   };
-  svg.onmouseup   = () => dragging = false;
-  svg.onmouseleave = () => dragging = false;
+  svg.onmouseup   = () => riverDragging = false;
+  svg.onmouseleave = () => riverDragging = false;
 }
 
 // Select one specific waypoint (case) by its index in the last-rendered list.
@@ -2808,27 +2884,82 @@ window.selectRiverWaypoint = selectRiverWaypoint;
 function setRiverYear(y) { state.riverActiveId = null; state.year = y; renderViewC(state.results); }
 window.setRiverYear = setRiverYear;
 
-function renderReadingCol(w) {
-  const c = w.raw;
-  const passages = (c.hits||[]).map((h, i) => `
+// One matching paragraph: ¶ number, similarity, the Reporter's cite action, section flag, text.
+function riverParaHtml(c, h, dropcap) {
+  const p = escapeHtml(String(h.para_idx||''));
+  const ci = ((state.results && state.results.results) || []).indexOf(c);
+  const sec = h.section==='Separate Opinion' ? ' sep' : h.section==='Legal Framework' ? ' lf' : '';
+  const secText = h.section==='Separate Opinion' ? '⚑ separate opinion · not the Court’s holding'
+    : h.section==='Legal Framework' ? '§ legal framework · quoted provisions, not the Court’s reasoning' : (h.section||'');
+  return `
     <div class="para-block">
-      <div class="para-num">¶ ${escapeHtml(String(h.para_idx||''))}</div>
-      <p class="para-prose ${i===0?'dropcap':''}">${escapeHtml(h.text)}</p>
-    </div>`).join('');
+      <div class="para-num">¶ ${p}${h.score!=null?`<small>${(h.score*100).toFixed(0)}%</small>`:''}${ci>=0?`<button type="button" class="cite-btn" aria-label="Copy pinpoint citation for paragraph ${p}" onclick="copyCite(event, ${ci}, '${p}')">&#8862; cite</button>`:''}</div>
+      <div>
+        ${secText ? `<div class="hit-section${sec}">${escapeHtml(secText)}</div>` : ''}
+        <p class="para-prose ${dropcap?'dropcap':''}">${escapeHtml(h.text)}</p>
+      </div>
+    </div>`;
+}
+// Hybrid search can return a judgment through its keyword arm alone, with no paragraph attached.
+const riverNoHits = (c) => `<p class="state-msg">${c.matched_via === 'keyword' ? 'Matched by keyword only — the search returned no paragraph text for this judgment. Read it in HUDOC.' : 'No passage text.'}</p>`;
+
+function renderReadingCol(w, sameYear) {
+  const c = w.raw;
+  const passages = (c.hits||[]).map((h, i) => riverParaHtml(c, h, i===0)).join('');
   $('reading-col').innerHTML = `
-    <div class="kicker">Waypoint · ${escapeHtml(String(w.year||''))}</div>
+    <div class="kicker">Judgment · ${escapeHtml(String(w.year||''))}</div>
     <h2>${escapeHtml(c.title||c.case_id)}</h2>
     <div class="meta">${escapeHtml(c.judgment_date||'')} · ${escapeHtml(c.respondent||'')} · ${(c.hit_count||(c.hits?c.hits.length:0))} passage(s) matched</div>
+    ${sameYear > 1 ? `<div class="year-toc"><button type="button" onclick="setRiverYear(${w.year})">Read all ${sameYear} judgments from ${w.year}</button></div>` : ''}
     <hr class="rule-double" style="margin:18px 0">
-    ${passages || '<p class="state-msg">No passage text.</p>'}
+    ${passages || riverNoHits(c)}
     <hr class="rule-thin" style="margin:24px 0">
     <a class="btn btn-garnet" href="${escapeHtml(safeHudocUrl(c.hudoc_url))}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;">Read full judgment ↗</a>
   `;
 }
 
-function composeNarration(docId, year, waypoints, active) {
-  if (!active) return `Drag the cursor along the timeline to read each judgment from your results.`;
-  return `In ${active.year}, ${active.caseTitle} (${active.label}). ${(active.raw.hit_count||1)} paragraph${(active.raw.hit_count||1)===1?'':'s'} match your query — the strongest at ${(active.score*100).toFixed(0)}% similarity.`;
+// Year mode: every matching paragraph from one year, grouped by judgment, strongest judgment first.
+function renderReadingYear(year, ws) {
+  const cases = ws.map(w => w.raw).sort((a, b) => (b.top_score||0) - (a.top_score||0));
+  const nParas = cases.reduce((s, c) => s + (c.hits||[]).length, 0);
+  const short = (c) => (c.title||c.case_id).replace(/^CASE OF /i, '').replace(/ v\..+$/, '');
+  const toc = cases.length > 1
+    ? `<div class="year-toc">Jump to: ${cases.map((c, k) => `<button type="button" onclick="jumpToYearCase(${k})">${escapeHtml(short(c))}</button> (${(c.hits||[]).length ? (c.hits||[]).length + '&nbsp;¶' : 'no text'})`).join(' · ')}</div>`
+    : '';
+  const groups = cases.map((c, k) => `
+    <section class="year-case" id="yc-${k}">
+      <h3><a href="${escapeHtml(safeHudocUrl(c.hudoc_url))}" target="_blank" rel="noopener" aria-label="${escapeHtml(c.title||c.case_id)} — open in HUDOC, opens in a new tab">${escapeHtml(c.title||c.case_id)} <span aria-hidden="true">↗</span></a></h3>
+      <div class="meta">${escapeHtml(c.judgment_date||'')} · ${escapeHtml(c.respondent||'')} · ${(c.hit_count||(c.hits?c.hits.length:0))} passage(s) matched</div>
+      ${(c.hits||[]).map(h => riverParaHtml(c, h, false)).join('') || riverNoHits(c)}
+    </section>`).join('<hr class="rule-thin" style="margin:6px 0 0">');
+  $('reading-col').innerHTML = `
+    <div class="kicker">Whole year · ${year}</div>
+    <h2>${year}: ${cases.length} judgment${cases.length===1?'':'s'}, ${nParas} matching paragraph${nParas===1?'':'s'}</h2>
+    <div class="meta">Strongest judgment first. Click a dot on the timeline to read one judgment on its own.</div>
+    ${toc}
+    <hr class="rule-double" style="margin:18px 0 0">
+    ${groups}`;
+}
+
+function jumpToYearCase(k) {
+  const rc = $('reading-col'), el = $('yc-' + k);
+  if (!el) return;
+  rc.scrollTop += el.getBoundingClientRect().top - rc.getBoundingClientRect().top - 12;
+  const a = el.querySelector('h3 a'); if (a) a.focus({ preventScroll: true });
+}
+window.jumpToYearCase = jumpToYearCase;
+
+function composeNarration(docId, year, waypoints, active, yearWps) {
+  if (!active) return `Click a dot or a year on the timeline to read the judgments from your results.`;
+  if (yearWps) {
+    const n = yearWps.length, paras = yearWps.reduce((s, w) => s + (w.raw.hits||[]).length, 0);
+    const best = Math.max(...yearWps.map(w => w.score||0));
+    const names = yearWps.slice(0, 3).map(w => `${w.caseTitle} (${w.label})`).join('; ') + (n > 3 ? `; and ${n-3} more` : '');
+    return `In ${year}, ${n} judgment${n===1?'':'s'}: ${names}. ${paras ? `${paras} matching paragraph${paras===1?'':'s'}${best ? ` — the strongest at ${(best*100).toFixed(0)}% similarity` : ''}.` : `No matching paragraph text was returned${yearWps.every(w => w.raw.matched_via === 'keyword') ? ' (keyword match only)' : ''}.`}`;
+  }
+  const n = active.raw.hit_count || (active.raw.hits||[]).length;
+  if (!n) return `In ${active.year}, ${active.caseTitle} (${active.label}). ${active.raw.matched_via === 'keyword' ? 'Matched by keyword only — no paragraph text was returned.' : 'No paragraph text was returned.'}`;
+  return `In ${active.year}, ${active.caseTitle} (${active.label}). ${n} paragraph${n===1?' matches':'s match'} your query — the strongest at ${(active.score*100).toFixed(0)}% similarity.`;
 }
 
 /* =========================================================
@@ -2840,7 +2971,7 @@ function setView(v) {
   ['A','B','C'].forEach(k => $(`view-${k}`).hidden = (k !== v));
   $('view-desc').textContent = v === 'A' ? 'A ranked list of judgments — broadsheet layout.'
     : v === 'B' ? 'Three panes: paragraph stream, citation constellation, dossier.'
-    : 'Your results on a timeline — drag the year to read each judgment.';
+    : 'Matching judgments by year — click a dot for one judgment, a year for all its paragraphs.';
   if (state.results) {
     if (v === 'B') renderViewB(state.results);
     if (v === 'C') renderViewC(state.results);
@@ -2857,6 +2988,7 @@ function renderResults(data) {
   state.selectedCaseIdx = 0;
   state.selectedParaIdx = 0;
   state.riverActiveId = null;       // drop any stale river selection
+  state.year = null;                // timeline opens on the year of the strongest match
   state.citations = null;          // reset old graph
   $('results-wrap').hidden = false;
   renderRewrite(data);
