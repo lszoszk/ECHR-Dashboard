@@ -244,10 +244,15 @@
 
           <section class="chart-section" id="stats-cited-judgments">
             <h2 class="chart-section-title">Most Cited Judgments</h2>
-            <p class="chart-section-desc">Top 20 by unique citing judgments, using resolved HUDOC citation metadata. English/French versions and repeated citations count once; different judgments in the same application remain separate.</p>
+            <p class="chart-section-desc">Top 20 by unique citing judgments, using resolved HUDOC citation metadata: the curated case-law lists, or those plus the application numbers HUDOC extracted from each judgment's text. English/French versions and repeated citations count once; different judgments in the same application remain separate.</p>
             <p id="judgmentCitationCoverage" class="chart-caveat" aria-live="polite">Loading the citation snapshot...</p>
             <div class="chart-canvas-wrap judgment-citation-canvas"><canvas id="judgmentCitationsChart"></canvas></div>
             <div class="chart-controls article-controls">
+              <label for="citationEvidence" hidden>Evidence</label>
+              <select id="citationEvidence" class="chart-select" hidden>
+                <option value="curated">HUDOC case-law lists</option>
+                <option value="extracted">Lists + application numbers extracted by HUDOC</option>
+              </select>
               <label for="citedJudgmentSelect">Cited judgment</label>
               <select id="citedJudgmentSelect" class="chart-select" disabled></select>
               <button id="citationRankingExport" class="export-btn" type="button" disabled>Ranking CSV with IDs</button>
@@ -262,7 +267,7 @@
             <details class="article-method">
               <summary>Coverage, unresolved matches and methodology</summary>
               <div id="judgmentCitationQuality"></div>
-              <p class="chart-section-desc">This is a metadata-based ranking, not a full-text citation count. Counts are lower bounds from resolved references; missing or ambiguous references can affect ordering. Application number alone is insufficient when several judgments are possible. Unresolved references are not guessed. Citing and cited documents must both be in the judgment catalog; cited decisions are excluded.</p>
+              <p class="chart-section-desc">This is a metadata-based ranking, not our own full-text citation count (the extracted application numbers are HUDOC's, without citation context). Counts are lower bounds from resolved references; missing or ambiguous references can affect ordering. Application number alone is insufficient when several judgments are possible. Unresolved references are not guessed. Citing and cited documents must both be in the judgment catalog; cited decisions are excluded.</p>
             </details>
           </section>
 
@@ -780,6 +785,6 @@
        Chart.js plugin before pages-dashboard.js constructs any chart. -->
   <script src="assets/echr-export-core.js?v=20260802-export"></script>
   <script src="assets/chart-tools.js?v=20260802-cite"></script>
-  <script src="assets/pages-dashboard.js?v=20261009-citations-v1"></script>
+  <script src="assets/pages-dashboard.js?v=20261009-citations-v2"></script>
 </body>
 </html>

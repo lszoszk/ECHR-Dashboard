@@ -57,6 +57,22 @@ node --check docs/assets/pages-dashboard.js
 python3 -m http.server 8766 --bind 127.0.0.1 --directory docs
 ```
 
+To include the HUDOC fields that the catalog query does not select (separate-opinion flag, representation,
+application numbers HUDOC extracted from the text), fetch the records once and add `--hudoc-metadata`:
+
+```bash
+python3 scripts/p69_sync_hudoc_metadata.py fetch --db echr_search.db --out metadata.json \
+  --ids french_source_ids.txt            # the French source records of the French-only judgments
+python3 scripts/refresh_statistics.py ... --hudoc-metadata metadata.json
+```
+
+Where a judgment's own record lacks a field, its French source record supplies it. This populates the
+separate-opinion statistics (Grand Chamber 81.9%, Chamber 16.5%, Committee 0%; 29,279 of 29,343 records
+carry the flag) and adds three coverage rows: citation metadata in either language (12,536), application
+numbers extracted by HUDOC (29,272) and the separate-opinion flag. Without the option the output is what the
+catalog alone supports. Equal counts in `top_violated_articles` are ordered by set iteration, so a rebuild can
+reorder ties without any data change.
+
 Preview `http://127.0.0.1:8766/analytics.html`. The build validates the catalog
 coverage/checksum, scope, bundle identities/provenance and French fallback
 identity, then writes the JSON atomically. A refresh of the inventory alone

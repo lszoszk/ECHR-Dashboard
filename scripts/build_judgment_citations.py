@@ -97,6 +97,7 @@ class JudgmentIndex:
         self.aliases = {}
         self.eclis = defaultdict(set)
         self.appnos = defaultdict(set)
+        self.agreed = {}
         self.names = defaultdict(set)
         self.issues = []
         self.outside_ids = {r["itemid"] for r in rows if not eligible(r)}
@@ -133,6 +134,7 @@ class JudgmentIndex:
             # Disagreeing metadata is retained for audit, but extra application
             # numbers from only one translation must not resolve a citation.
             agreed_appnos = set.intersection(*(applications(r.get("appno")) for r in members))
+            self.agreed[key] = agreed_appnos
             for appno in agreed_appnos:
                 self.appnos[appno].add(key)
             for row in members:
@@ -191,11 +193,70 @@ class JudgmentIndex:
         return {"status": "resolved", "method": method, "candidates": [target], "target_id": target}
 
 
+    def resolve_extracted(self, appno, citing_id):
+        """An application number HUDOC extracted from the text of a judgment.
+
+        The number carries no date, name or document stage, so it only resolves when exactly one other
+        judgment in the catalog has that application and is not later than the citing judgment. Several
+        judgments of one application (Chamber and Grand Chamber, merits and just satisfaction) stay
+        ambiguous, and the citing judgment's own application numbers are not citations.
+        """
+        method = "extracted_application"
+        if appno in self.agreed.get(citing_id, set()):
+            return {"status": "self_reference", "method": method, "candidates": []}
+        candidates = set(self.appnos.get(appno, set())) - {citing_id}
+        if not candidates:
+            return {"status": "unresolved", "method": method, "candidates": []}
+        when = self.nodes[citing_id]["date"]
+        earlier = {k for k in candidates if self.nodes[k]["date"] <= when}
+        if not earlier:
+            return {"status": "chronology_conflict", "method": method, "candidates": sorted(candidates)}
+        if len(earlier) > 1:
+            return {"status": "ambiguous", "method": method, "candidates": sorted(earlier)}
+        target = next(iter(earlier))
+        return {"status": "resolved", "method": method, "candidates": [target], "target_id": target}
+
+
 def public_node(node):
     return {k: v for k, v in node.items() if k != "versions"}
 
 
-def build_graph(catalog):
+def rank(index, edges):
+    """Top 20 judgments by distinct citing judgments, with the citing lists the page shows."""
+    cited_by = defaultdict(set)
+    for citing, cited in edges:
+        cited_by[cited].add(citing)
+    top = sorted(cited_by, key=lambda k: (-len(cited_by[k]), index.nodes[k]["date"], k))[:20]
+    ranking = [{**public_node(index.nodes[k]), "cited_by_count": len(cited_by[k])} for k in top]
+    citing_lists = {index.nodes[k]["case_id"]: [index.nodes[c]["case_id"] for c in sorted(cited_by[k],
+                    key=lambda c: (index.nodes[c]["date"], c), reverse=True)] for k in top}
+    listed_sources = set().union(*(cited_by[k] for k in top)) if top else set()
+    citing_nodes = {index.nodes[k]["case_id"]: {field: index.nodes[k][field] for field in ("title", "date", "ecli")}
+                   for k in sorted(listed_sources)}
+    return ranking, citing_lists, citing_nodes, cited_by, top
+
+
+def edge_hash(edges):
+    return hashlib.sha256("\n".join(a + "\t" + b for a, b in sorted(edges)).encode()).hexdigest()
+
+
+def extracted_appnos(index, extracted):
+    """identity -> {application number -> (HUDOC id, language) of a record that carries it}."""
+    found = {}
+    for key, node in index.nodes.items():
+        numbers = {}
+        for row in node["versions"]:
+            raw = extracted.get(row["itemid"], row.get("extractedappno")) if extracted is not None else row.get("extractedappno")
+            for appno in sorted(applications(raw)):
+                numbers.setdefault(appno, (row["itemid"], row["languageisocode"]))
+        if numbers:
+            found[key] = numbers
+    return found
+
+
+def build_graph(catalog, extracted=None):
+    """`extracted` maps HUDOC item id -> the record's extractedappno (application numbers HUDOC found in the
+    full text). Without it, or when no catalog row has the field, the snapshot is the curated-list one."""
     validate_catalog(catalog, ("ENG", "FRE"), complete_history=True)
     index = JudgmentIndex(catalog["documents"])
     observations, edges = [], set()
@@ -215,21 +276,11 @@ def build_graph(catalog):
                     "language": row["languageisocode"], "origin": "hudoc_scl", "raw_reference": raw, **result})
                 if result["status"] == "resolved":
                     edges.add((key, result["target_id"]))
-    cited_by = defaultdict(set)
-    for citing, cited in edges:
-        cited_by[cited].add(citing)
-    top = sorted(cited_by, key=lambda k: (-len(cited_by[k]), index.nodes[k]["date"], k))[:20]
-    ranking = [{**public_node(index.nodes[k]), "cited_by_count": len(cited_by[k])} for k in top]
-    citing_lists = {index.nodes[k]["case_id"]: [index.nodes[c]["case_id"] for c in sorted(cited_by[k],
-                    key=lambda c: (index.nodes[c]["date"], c), reverse=True)] for k in top}
-    listed_sources = set().union(*(cited_by[k] for k in top)) if top else set()
-    citing_nodes = {index.nodes[k]["case_id"]: {field: index.nodes[k][field] for field in ("title", "date", "ecli")}
-                   for k in sorted(listed_sources)}
-    edge_hash = hashlib.sha256("\n".join(a + "\t" + b for a, b in sorted(edges)).encode()).hexdigest()
+    ranking, citing_lists, citing_nodes, _, _ = rank(index, edges)
     snapshot = {
         "schema_version": VERSION, "generated_at": datetime.now(timezone.utc).isoformat(),
         "cutoff": catalog["manifest"]["to"], "catalog_sha256": catalog["manifest"]["sha256"],
-        "catalog_content_sha256": catalog["manifest"].get("content_sha256"), "edges_sha256": edge_hash,
+        "catalog_content_sha256": catalog["manifest"].get("content_sha256"), "edges_sha256": edge_hash(edges),
         "statistics_scope_sha256": fingerprint(r["itemid"] for r in catalog["documents"] if eligible(r) and r["languageisocode"] == "ENG"),
         "scope": "Judgments only, English-flagged catalog identities with verified French ECLI aliases. "
                  "Counts use bilingual HUDOC citation metadata, not full-text extraction.",
@@ -242,6 +293,48 @@ def build_graph(catalog):
         },
         "ranking": ranking, "citing_by_target": citing_lists, "citing_judgments": citing_nodes,
     }
+    found = extracted_appnos(index, extracted)
+    if found:
+        extracted_edges, statuses = set(), Counter()
+        for key, numbers in sorted(found.items()):
+            for appno, (source_id, language) in sorted(numbers.items()):
+                result = index.resolve_extracted(appno, key)
+                statuses[result["status"]] += 1
+                observations.append({"citing_id": key, "source_hudoc_id": source_id, "language": language,
+                    "origin": "hudoc_extractedappno", "raw_reference": appno, **result})
+                if result["status"] == "resolved":
+                    extracted_edges.add((key, result["target_id"]))
+        combined = edges | extracted_edges
+        c_rank, c_lists, c_nodes, c_cited_by, c_top = rank(index, combined)
+        curated_by, extracted_by = defaultdict(set), defaultdict(set)
+        for a, b in edges:
+            curated_by[b].add(a)
+        for a, b in extracted_edges:
+            extracted_by[b].add(a)
+        for row, key in zip(c_rank, c_top):
+            row["cited_by_curated_list"] = len(curated_by[key])
+            row["cited_by_extracted_application"] = len(extracted_by[key])
+        snapshot["with_extracted_appno"] = {
+            "scope": "As above, plus application numbers HUDOC extracted from the full text of each judgment. "
+                     "A number resolves only when one earlier judgment in the catalog has that application; "
+                     "the citing judgment's own numbers are skipped and several judgments of one application "
+                     "stay ambiguous. Counts are lower bounds and the numbers carry no citation context.",
+            "edges_sha256": edge_hash(combined),
+            "coverage": {
+                "judgments": len(index.nodes),
+                "judgments_with_metadata": len(metadata_sources | set(found)),
+                "judgments_with_extracted_application_numbers": len(found),
+                "reference_observations": sum(statuses.values()),
+                "by_status": dict(sorted(statuses.items())),
+                "unique_edges": len(combined), "edges_from_curated_list": len(edges),
+                "edges_from_extracted_application": len(extracted_edges),
+                "edges_in_both": len(edges & extracted_edges),
+                "judgments_with_resolved_citations": len({a for a, _ in combined}),
+                "full_text_analyzed": False,
+            },
+            "ranking": c_rank, "citing_by_target": c_lists, "citing_judgments": c_nodes,
+        }
+        edges = combined
     return snapshot, index, observations, edges
 
 
@@ -276,9 +369,14 @@ def main():
     parser.add_argument("--catalog", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--audit", type=Path, required=True)
+    parser.add_argument("--extracted-appno", type=Path,
+                        help="JSON of HUDOC records ({item id: {extractedappno: ...}}, e.g. p69_sync_hudoc_metadata.py fetch)")
     args = parser.parse_args()
     catalog = json.loads(args.catalog.read_text())
-    snapshot, index, observations, edges = build_graph(catalog)
+    extracted = None
+    if args.extracted_appno:
+        extracted = {k: v.get("extractedappno") for k, v in json.loads(args.extracted_appno.read_text()).items()}
+    snapshot, index, observations, edges = build_graph(catalog, extracted)
     write_audit(args.audit, index, observations, edges)
     write_json(args.output, snapshot)
     print(json.dumps({"coverage": snapshot["coverage"], "top": snapshot["ranking"][:5]}, ensure_ascii=False, indent=2))

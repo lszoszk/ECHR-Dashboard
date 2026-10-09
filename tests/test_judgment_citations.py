@@ -161,5 +161,54 @@ class CitationTests(unittest.TestCase):
         self.assertEqual(index.resolve("Sample v. Poland (revision), no. 12345/58", "ECLI:001-3")["status"], "unresolved")
 
 
+class ExtractedApplicationTests(unittest.TestCase):
+    """Application numbers HUDOC extracted from the text: separate evidence, resolved only when unambiguous."""
+
+    def rows(self):
+        target = judgment("001-1", appno="111/58")                                    # 1959-01-01
+        stage = judgment("001-2", appno="222/58", kpdate="1959-02-01T00:00:00")       # two judgments, one application
+        stage2 = judgment("001-3", appno="222/58", kpdate="1959-03-01T00:00:00")
+        later = judgment("001-4", appno="333/58", kpdate="1959-12-01T00:00:00")
+        source = judgment("001-5", appno="444/58", kpdate="1959-06-01T00:00:00")
+        return [target, stage, stage2, later, source]
+
+    def graph(self, extracted):
+        return build_graph(fixture(self.rows(), ("ENG", "FRE")), extracted)
+
+    def test_without_extracted_numbers_the_snapshot_has_no_extra_block(self):
+        result, *_ = self.graph(None)
+        self.assertNotIn("with_extracted_appno", result)
+
+    def test_unique_earlier_application_resolves_and_is_kept_apart_from_the_curated_edges(self):
+        result, index, observations, edges = self.graph({"001-5": "111/58"})
+        block = result["with_extracted_appno"]
+        self.assertEqual(result["coverage"]["unique_edges"], 0)                      # the curated numbers are unchanged
+        self.assertEqual(block["coverage"]["edges_from_extracted_application"], 1)
+        self.assertEqual(block["ranking"][0]["case_id"], "001-1")
+        self.assertEqual((block["ranking"][0]["cited_by_curated_list"], block["ranking"][0]["cited_by_extracted_application"]), (0, 1))
+        self.assertEqual(block["citing_by_target"]["001-1"], ["001-5"])
+        self.assertEqual({o["origin"] for o in observations}, {"hudoc_extractedappno"})
+        self.assertEqual(len(edges), 1)
+
+    def test_several_judgments_of_one_application_stay_ambiguous(self):
+        block = self.graph({"001-5": "222/58"})[0]["with_extracted_appno"]
+        self.assertEqual(block["coverage"]["by_status"], {"ambiguous": 1})
+        self.assertEqual(block["coverage"]["unique_edges"], 0)
+
+    def test_later_judgments_own_numbers_and_unknown_numbers_are_not_edges(self):
+        block = self.graph({"001-5": "333/58;444/58;999/58"})[0]["with_extracted_appno"]
+        self.assertEqual(block["coverage"]["by_status"], {"chronology_conflict": 1, "self_reference": 1, "unresolved": 1})
+        self.assertEqual(block["coverage"]["unique_edges"], 0)
+
+    def test_curated_and_extracted_evidence_for_one_pair_count_once(self):
+        rows = self.rows()
+        rows[4]["scl"] = "Sample v. Poland, no. 111/58"
+        result, *_ = build_graph(fixture(rows, ("ENG", "FRE")), {"001-5": "111/58"})
+        block = result["with_extracted_appno"]
+        self.assertEqual(result["coverage"]["unique_edges"], 1)
+        self.assertEqual((block["coverage"]["unique_edges"], block["coverage"]["edges_in_both"]), (1, 1))
+        self.assertEqual(block["ranking"][0]["cited_by_count"], 1)
+
+
 if __name__ == "__main__":
     unittest.main()

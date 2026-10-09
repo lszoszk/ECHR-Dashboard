@@ -84,7 +84,26 @@ def attach_bundle(case, job, directory):
     case.update(paragraph_section_counts=dict(sections), paragraph_role_counts=dict(roles))
 
 
-def build_statistics(catalog, inventory, directory):
+def hudoc_value(hudoc, cid, jobs, field):
+    """A field from the fetched HUDOC records of a catalog row: its own record first, then the French source
+    record of a French-only judgment (the English-flag record of such a judgment lacks some fields)."""
+    if not hudoc:
+        return None
+    ids = [cid]
+    if cid in jobs and jobs[cid].get("source_case_id"):
+        ids.append(jobs[cid]["source_case_id"])
+    for item in ids:
+        value = (hudoc.get(item) or {}).get(field)
+        if value:
+            return value
+    return None
+
+
+def build_statistics(catalog, inventory, directory, hudoc=None):
+    """`hudoc` maps HUDOC item id -> a record fetched by p69_sync_hudoc_metadata.py (separateopinion,
+    representedby, extractedappno, ...). The catalog query does not select these fields; where a record
+    is given they populate the separate-opinion statistics and the coverage table. Without it the output
+    is exactly what the catalog alone supports."""
     from build_pages_dashboard import build_payload, parse_date, percentile
     from hudoc_catalog import eligible, fingerprint, validate_catalog
     validate_catalog(catalog, ("ENG", "FRE"), complete_history=True)
@@ -100,6 +119,10 @@ def build_statistics(catalog, inventory, directory):
     for row in rows:
         case = catalog_case(row)
         cid, language, origin = row["itemid"], "Unknown", "Unavailable"
+        if hudoc:
+            case["separate_opinion"] = hudoc_value(hudoc, cid, jobs, "separateopinion")
+            case["represented_by"] = hudoc_value(hudoc, cid, jobs, "representedby")
+            case["extracted_application_numbers"] = hudoc_value(hudoc, cid, jobs, "extractedappno")
         stored = inventory["cases"].get(cid)
         # Use the curated deployed text when present; never sum two versions.
         if stored and sum(stored["paragraph_section_counts"].values()):
@@ -156,6 +179,13 @@ def build_statistics(catalog, inventory, directory):
         hudoc_kpthesaurus=sum(bool(c["hudoc_kpthesaurus"]) for c in cases) / len(cases))
     fields = ["respondent_state", "ecli", "article_no", "conclusion", "originating_body",
               "importance", "hudoc_kpthesaurus", "strasbourg_caselaw", "rules_of_court"]
+    if hudoc:
+        # HUDOC's curated case-law list exists per language version; count a judgment once when either has it.
+        french_lists = {r["ecli"].upper() for r in catalog["documents"]
+                        if eligible(r) and r["languageisocode"] == "FRE" and r.get("scl") and r.get("ecli")}
+        for case, row in zip(cases, rows):
+            case["strasbourg_caselaw_any_language"] = bool(case["strasbourg_caselaw"]) or (row.get("ecli") or "").upper() in french_lists
+        fields += ["separate_opinion", "strasbourg_caselaw_any_language", "extracted_application_numbers"]
     payload["quality"]["field_counts"] = {key: sum(bool(c.get(key)) for c in cases) for key in fields}
     payload["quality"]["field_completeness"].update(
         {key: count / len(cases) for key, count in payload["quality"]["field_counts"].items()})
@@ -173,6 +203,10 @@ def main():
     ap.add_argument("--output", type=Path)
     ap.add_argument("--citations-output", type=Path)
     ap.add_argument("--citations-audit", type=Path)
+    ap.add_argument("--hudoc-metadata", type=Path,
+                    help="HUDOC records fetched by p69_sync_hudoc_metadata.py fetch (separateopinion, representedby, "
+                         "extractedappno); populates the separate-opinion statistics and coverage rows, and adds the "
+                         "separate with_extracted_appno block to the citation snapshot")
     args = ap.parse_args()
     if args.export_inventory:
         json.dump(export_inventory(args.export_inventory), sys.stdout, ensure_ascii=True)
@@ -182,11 +216,13 @@ def main():
     if bool(args.citations_output) != bool(args.citations_audit):
         ap.error("--citations-output and --citations-audit must be supplied together")
     catalog = json.loads(args.catalog.read_text())
-    payload = build_statistics(catalog, json.loads(args.inventory.read_text()), args.downloads)
+    hudoc = json.loads(args.hudoc_metadata.read_text()) if args.hudoc_metadata else None
+    payload = build_statistics(catalog, json.loads(args.inventory.read_text()), args.downloads, hudoc)
     if args.citations_output:
         from build_judgment_citations import build_graph, write_audit
         from hudoc_catalog import write_json
-        snapshot, index, observations, edges = build_graph(catalog)
+        extracted = {k: v.get("extractedappno") for k, v in hudoc.items()} if hudoc else None
+        snapshot, index, observations, edges = build_graph(catalog, extracted)
         write_audit(args.citations_audit, index, observations, edges)
         write_json(args.citations_output, snapshot)
     args.output.parent.mkdir(parents=True, exist_ok=True)
