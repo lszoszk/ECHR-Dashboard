@@ -101,7 +101,7 @@
        <h2 class="tour-h">From a phrase to the paragraph.</h2>
        <div class="tour-lead">Type a phrase, or use HUDOC's operators — <code>article:8</code>, <code>violation:3</code>,
          <code>state:Poland</code>, <code>cites:hatton</code>, <code>NEAR</code>. Every result opens at the paragraph, with its
-         number and the judgment's other matches; the Cite menu copies the citation. Try one:</div>
+         number and the judgment's other matches; Cite copies an OSCOLA citation and ☆ Bookmark saves it to your Workspace. Try one:</div>
        <div class="tour-chips">${EXAMPLES.map((q) => `<button type="button" data-tour-q="${q.replace(/"/g, "&quot;")}">${q.replace(/</g, "&lt;")}</button>`).join("")}</div>`,
       `<div class="tour-kicker">Built for research</div>
        <h2 class="tour-h">Honest about what it holds.</h2>
@@ -119,6 +119,7 @@
          <a href="./" data-tour-go="search">→ Search a phrase</a>
          <a href="check.html">→ Check the citations in a text</a>
          <a href="analytics.html">→ See the corpus in charts</a>
+         <a href="about.html#mcp">→ Use it from your AI assistant (MCP)</a>
        </div>
        <div class="tour-cap" style="margin-top:18px">Reopen this tour any time: bottom bar → ✦ tour.</div>`,
     ];

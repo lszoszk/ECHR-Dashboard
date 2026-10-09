@@ -1,0 +1,71 @@
+HUDOC Researcher curated dataset — Licence
+==========================================
+
+Copyright (c) 2026 Łukasz Szoszkiewicz and Sebastian Marcisz.
+
+The CURATED DATASET of this project — comprising the corpus
+selection, the segmentation of each judgment into rows, the
+Court's paragraph numbers attached to each row, the section
+labels and row roles, the normalised case metadata and the
+citation links between judgments (the "Curation") — is licensed
+under
+
+    Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+    International (CC BY-NC-SA 4.0)
+
+You are free to:
+
+    Share — copy and redistribute the material in any medium or
+            format
+    Adapt — remix, transform, and build upon the material
+
+Under the following terms:
+
+    Attribution    — You must give appropriate credit, provide a
+                     link to the licence, and indicate if changes
+                     were made.
+    NonCommercial  — You may not use the material for commercial
+                     purposes.
+    ShareAlike     — If you remix, transform, or build upon the
+                     material, you must distribute your contri-
+                     butions under the same licence as the original.
+
+Full legal text:
+    https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
+
+Plain-language deed:
+    https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+The dataset is published at
+    https://huggingface.co/datasets/lszoszk/ecthr-judgments
+
+Required attribution
+--------------------
+When citing or redistributing the curated dataset, use:
+
+    Szoszkiewicz, Ł. & Marcisz, S. (2026). HUDOC Researcher —
+    ECtHR case-law search and RAG. Zenodo.
+    https://doi.org/10.5281/zenodo.21319703
+    Licensed under CC BY-NC-SA 4.0.
+
+When citing a passage in academic work, cite the judgment itself
+(its name, application number, date and paragraph number), not
+this dataset.
+
+Source materials — Court terms
+------------------------------
+The texts of the judgments and decisions, HUDOC's metadata and
+the Court's Case-Law Guides are © Council of Europe / European
+Court of Human Rights. They are reproduced from HUDOC
+(https://hudoc.echr.coe.int) for research, and their reuse is
+governed by the Court's terms for HUDOC content
+(https://www.echr.coe.int/disclaimer). The CC BY-NC-SA 4.0
+licence applies to the Curation only; it does not license the
+Court's materials.
+
+Software licence (separate)
+---------------------------
+The software in this repository (the website under docs/, the
+API under api/, and the scripts and retrieval code) is licensed
+separately under the PolyForm Noncommercial License 1.0.0 — see
+LICENSE in the repository root.

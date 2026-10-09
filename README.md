@@ -60,6 +60,9 @@ from `rag/pipeline/` and `scripts/`.
 - Dashboard, API, pipeline, and RAG code: PolyForm Noncommercial 1.0.0;
   research, education, non-profit, and personal use are permitted. See
   [`LICENSE`](LICENSE).
+- Curated dataset (segmentation, paragraph numbers, section labels, metadata,
+  citation links; on [Hugging Face](https://huggingface.co/datasets/lszoszk/ecthr-judgments)):
+  CC BY-NC-SA 4.0. See [`LICENSE-DATA`](LICENSE-DATA).
 - ECtHR judgments & Case-Law Guides are © Council of Europe / ECtHR, reused under
   HUDOC terms and are not re-licensed by this project. See [`NOTICE`](NOTICE).
   This project is **not affiliated with or endorsed by** the Court.

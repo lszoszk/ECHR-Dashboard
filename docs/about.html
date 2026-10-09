@@ -39,6 +39,10 @@
     .about-section {
       margin-bottom: 2.5rem;
     }
+    .about-section code { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.85em; }
+    .about-section ol.mcp-steps { padding-left: 1.5rem; margin-bottom: 1rem; }
+    .mcp-code { margin: 8px 0 12px; padding: 10px 12px; overflow-x: auto; white-space: pre; font-size: 0.82rem; line-height: 1.5; color: var(--ink, #242328); background: var(--paper-2, #f4f1ea); border: 1px solid var(--rule, #d8d0c3); }
+    .mcp-code code { font-size: inherit; }
     .about-section h2 {
       font-family: 'Source Serif 4', Georgia, serif;
       font-size: 1.5rem;
@@ -127,7 +131,7 @@
     .badge-primary { background: var(--paper-2); color: var(--blue-ink); }
     .badge-enrichment { background: var(--paper-2); color: var(--green-ink); }
   </style>
-  <script src="assets/tour.js?v=20261010-nav" defer></script>
+  <script src="assets/tour.js?v=20261010-mcp" defer></script>
   <script src="assets/workspace.js?v=20261010-ws"></script>
   <script src="assets/cite.js?v=20261010-cite" defer></script>
   <script type="application/ld+json">
@@ -237,6 +241,8 @@
           <li><a href="workspace.html"><strong>Workspace</strong></a> &mdash; paragraphs and searches you save, with
             your notes, kept in your browser.</li>
           <li><a href="analytics.html"><strong>Statistics</strong></a> &mdash; the corpus in charts.</li>
+          <li><a href="#mcp"><strong>AI assistant (MCP)</strong></a> &mdash; the same search from Claude or another
+            assistant, quoting paragraphs verbatim.</li>
         </ul>
         <p>How the data was built and checked is set out in the <a href="methodology.html">Methodology</a>.</p>
       </section>
@@ -272,24 +278,68 @@
         </p>
       </section>
 
-      <section class="about-section">
+      <section class="about-section" id="licence">
         <h2>Data, licences and code</h2>
         <ul>
           <li><strong>Source</strong>: the judgments and their metadata come from
             <a href="https://hudoc.echr.coe.int" target="_blank" rel="noopener">HUDOC</a>, the Court&rsquo;s database;
             the one-line summaries of Grand Chamber cases from the Registry&rsquo;s <em>Table of all Grand Chamber
             judgments and decisions</em>, which the Registry states does not bind the Court.</li>
-          <li><strong>Texts</strong>: the judgments are &copy; Council of Europe / European Court of Human Rights and are
-            reproduced for research under the Court&rsquo;s terms for HUDOC content; this project does not re-license them.</li>
-          <li><strong>Dataset</strong>: the paragraph-level corpus (cases, paragraphs with numbers and section labels,
-            citation links) is published on
-            <a href="https://huggingface.co/datasets/lszoszk/ecthr-judgments" target="_blank" rel="noopener">Hugging Face</a>;
-            the curation layer is licensed CC BY-NC-SA 4.0.</li>
-          <li><strong>Code</strong>: <a href="https://github.com/lszoszk/ECHR-Dashboard" target="_blank" rel="noopener">github.com/lszoszk/ECHR-Dashboard</a>,
-            under the PolyForm Noncommercial licence 1.0.0 (research, education, non-profit and personal use); every
-            release is archived on <a href="https://doi.org/10.5281/zenodo.21319703" target="_blank" rel="noopener">Zenodo</a>.
-            Bug reports and suggestions are welcome.</li>
+          <li><strong>Software</strong> is released under the
+            <a href="https://github.com/lszoszk/ECHR-Dashboard/blob/main/LICENSE" target="_blank" rel="noopener">PolyForm Noncommercial License 1.0.0</a>
+            &mdash; research, education, non-profit and personal use are permitted; commercial use needs a separate
+            licence. Source: <a href="https://github.com/lszoszk/ECHR-Dashboard" target="_blank" rel="noopener">github.com/lszoszk/ECHR-Dashboard</a>;
+            every release is archived on <a href="https://doi.org/10.5281/zenodo.21319703" target="_blank" rel="noopener">Zenodo</a>.</li>
+          <li>The <strong>curated dataset</strong> (the segmentation into paragraphs, paragraph numbers, section labels,
+            normalised metadata and citation links) is licensed under
+            <a href="https://github.com/lszoszk/ECHR-Dashboard/blob/main/LICENSE-DATA" target="_blank" rel="noopener">CC&nbsp;BY-NC-SA&nbsp;4.0</a>
+            &mdash; academic and non-commercial reuse is welcome with attribution; commercial use requires permission.
+            It is published on
+            <a href="https://huggingface.co/datasets/lszoszk/ecthr-judgments" target="_blank" rel="noopener">Hugging Face</a>.</li>
+          <li>The <strong>judgments</strong> themselves are &copy; Council of Europe / European Court of Human Rights and
+            remain under the Court&rsquo;s <a href="https://www.echr.coe.int/disclaimer" target="_blank" rel="noopener">terms
+            for HUDOC content</a>; this project does not re-license them.</li>
         </ul>
+        <p>Bug reports and suggestions are welcome. For commercial licensing, write to
+          <a href="mailto:l.szoszkiewicz@amu.edu.pl">l.szoszkiewicz@amu.edu.pl</a>.</p>
+      </section>
+
+      <section class="about-section" id="mcp">
+        <h2>Use it from your AI assistant (MCP)</h2>
+        <p>
+          The corpus is also available as a
+          <a href="https://modelcontextprotocol.io/" target="_blank" rel="noopener">Model Context Protocol</a> server, so
+          an AI assistant (Claude, or any client that supports MCP) can search the judgments and quote paragraphs
+          <strong>verbatim</strong>, each with its case name, application number, date and paragraph number, instead
+          of paraphrasing from memory. It offers seven tools: <code>echr_search</code> (paragraph search with the same
+          filters as Search), <code>echr_get_case</code>, <code>echr_get_paragraphs</code>, <code>echr_cited_by</code>
+          and <code>echr_cites</code> (the citation links), <code>echr_facets</code> and <code>echr_stats</code>.
+        </p>
+        <p>It runs on your computer and queries this site&rsquo;s API; you need
+          <a href="https://nodejs.org" target="_blank" rel="noopener">Node.js</a> 18 or newer.</p>
+        <ol class="mcp-steps">
+          <li>Download it and install its dependencies:
+            <pre class="mcp-code"><code>git clone https://github.com/lszoszk/mcp-echr.git
+cd mcp-echr
+npm install</code></pre></li>
+          <li><strong>Claude Desktop</strong>: add this to <code>claude_desktop_config.json</code> (Settings &rarr;
+            Developer &rarr; Edit Config), with the folder you cloned into, then restart Claude:
+            <pre class="mcp-code"><code>{
+  "mcpServers": {
+    "echr": {
+      "command": "node",
+      "args": ["/ABSOLUTE/PATH/TO/mcp-echr/src/index.js"]
+    }
+  }
+}</code></pre>
+            <strong>Claude Code</strong>: one command instead:
+            <pre class="mcp-code"><code>claude mcp add echr -s user -- node /ABSOLUTE/PATH/TO/mcp-echr/src/index.js</code></pre></li>
+          <li>Ask, for example: <em>&ldquo;Find Grand Chamber paragraphs on the margin of appreciation under
+            Article&nbsp;10 and cite them with paragraph numbers.&rdquo;</em></li>
+        </ol>
+        <p>Source and full instructions:
+          <a href="https://github.com/lszoszk/mcp-echr" target="_blank" rel="noopener">github.com/lszoszk/mcp-echr</a>.
+          As with the website, check any passage you rely on in HUDOC.</p>
       </section>
 
       <section class="about-section" id="scope">
