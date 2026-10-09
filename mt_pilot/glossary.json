@@ -1,0 +1,453 @@
+{
+ "terms": {
+  "requérant": "applicant",
+  "requérante": "applicant",
+  "requérants": "applicants",
+  "état défendeur": "respondent State",
+  "ingérence": "interference",
+  "marge d'appréciation": "margin of appreciation",
+  "dommage moral": "non-pecuniary damage",
+  "préjudice moral": "non-pecuniary damage",
+  "dommage matériel": "pecuniary damage",
+  "frais et dépens": "costs and expenses",
+  "satisfaction équitable": "just satisfaction",
+  "voies de recours internes": "domestic remedies",
+  "manifestement mal fondé": "manifestly ill-founded",
+  "nécessaire dans une société démocratique": "necessary in a democratic society",
+  "besoin social impérieux": "pressing social need",
+  "but légitime": "legitimate aim",
+  "proportionnalité": "proportionality",
+  "égalité des armes": "equality of arms",
+  "présomption d'innocence": "presumption of innocence",
+  "obligation positive": "positive obligation",
+  "liberté d'expression": "freedom of expression",
+  "liberté d'association": "freedom of association",
+  "Cour de cassation": "Court of Cassation",
+  "juge d'instruction": "investigating judge",
+  "irrecevable": "inadmissible",
+  "recevable": "admissible",
+  "la grande chambre": "the Grand Chamber"
+ },
+ "validation": {
+  "requérant": {
+   "en": "applicant",
+   "n": 10368,
+   "consistent": 10182,
+   "share": 0.982,
+   "keep": true
+  },
+  "requérante": {
+   "en": "applicant",
+   "n": 3519,
+   "consistent": 3439,
+   "share": 0.977,
+   "keep": true
+  },
+  "requérants": {
+   "en": "applicants",
+   "n": 4653,
+   "consistent": 4499,
+   "share": 0.967,
+   "keep": true
+  },
+  "requérantes": {
+   "en": "applicants",
+   "n": 763,
+   "consistent": 662,
+   "share": 0.868,
+   "keep": false
+  },
+  "le gouvernement": {
+   "en": "the Government",
+   "n": 7476,
+   "consistent": 5824,
+   "share": 0.779,
+   "keep": false
+  },
+  "gouvernement défendeur": {
+   "en": "respondent Government",
+   "n": 595,
+   "consistent": 488,
+   "share": 0.82,
+   "keep": false
+  },
+  "état défendeur": {
+   "en": "respondent State",
+   "n": 433,
+   "consistent": 398,
+   "share": 0.919,
+   "keep": true
+  },
+  "grief": {
+   "en": "complaint",
+   "n": 1302,
+   "consistent": 1141,
+   "share": 0.876,
+   "keep": false
+  },
+  "griefs": {
+   "en": "complaints",
+   "n": 1015,
+   "consistent": 888,
+   "share": 0.875,
+   "keep": false
+  },
+  "ingérence": {
+   "en": "interference",
+   "n": 1188,
+   "consistent": 1148,
+   "share": 0.966,
+   "keep": true
+  },
+  "marge d'appréciation": {
+   "en": "margin of appreciation",
+   "n": 731,
+   "consistent": 680,
+   "share": 0.93,
+   "keep": true
+  },
+  "dommage moral": {
+   "en": "non-pecuniary damage",
+   "n": 439,
+   "consistent": 414,
+   "share": 0.943,
+   "keep": true
+  },
+  "préjudice moral": {
+   "en": "non-pecuniary damage",
+   "n": 289,
+   "consistent": 269,
+   "share": 0.931,
+   "keep": true
+  },
+  "dommage matériel": {
+   "en": "pecuniary damage",
+   "n": 255,
+   "consistent": 243,
+   "share": 0.953,
+   "keep": true
+  },
+  "préjudice matériel": {
+   "en": "pecuniary damage",
+   "n": 133,
+   "consistent": 115,
+   "share": 0.865,
+   "keep": false
+  },
+  "frais et dépens": {
+   "en": "costs and expenses",
+   "n": 577,
+   "consistent": 525,
+   "share": 0.91,
+   "keep": true
+  },
+  "satisfaction équitable": {
+   "en": "just satisfaction",
+   "n": 695,
+   "consistent": 669,
+   "share": 0.963,
+   "keep": true
+  },
+  "voies de recours internes": {
+   "en": "domestic remedies",
+   "n": 372,
+   "consistent": 350,
+   "share": 0.941,
+   "keep": true
+  },
+  "épuisement des voies de recours internes": {
+   "en": "exhaustion of domestic remedies",
+   "n": 236,
+   "consistent": 137,
+   "share": 0.581,
+   "keep": false
+  },
+  "manifestement mal fondé": {
+   "en": "manifestly ill-founded",
+   "n": 79,
+   "consistent": 72,
+   "share": 0.911,
+   "keep": true
+  },
+  "délai raisonnable": {
+   "en": "reasonable time",
+   "n": 268,
+   "consistent": 208,
+   "share": 0.776,
+   "keep": false
+  },
+  "prévue par la loi": {
+   "en": "prescribed by law",
+   "n": 302,
+   "consistent": 184,
+   "share": 0.609,
+   "keep": false
+  },
+  "prévues par la loi": {
+   "en": "prescribed by law",
+   "n": 100,
+   "consistent": 28,
+   "share": 0.28,
+   "keep": false
+  },
+  "nécessaire dans une société démocratique": {
+   "en": "necessary in a democratic society",
+   "n": 182,
+   "consistent": 180,
+   "share": 0.989,
+   "keep": true
+  },
+  "besoin social impérieux": {
+   "en": "pressing social need",
+   "n": 79,
+   "consistent": 79,
+   "share": 1.0,
+   "keep": true
+  },
+  "but légitime": {
+   "en": "legitimate aim",
+   "n": 393,
+   "consistent": 377,
+   "share": 0.959,
+   "keep": true
+  },
+  "proportionnalité": {
+   "en": "proportionality",
+   "n": 389,
+   "consistent": 375,
+   "share": 0.964,
+   "keep": true
+  },
+  "qualité de victime": {
+   "en": "victim status",
+   "n": 149,
+   "consistent": 127,
+   "share": 0.852,
+   "keep": false
+  },
+  "recours effectif": {
+   "en": "effective remedy",
+   "n": 292,
+   "consistent": 253,
+   "share": 0.866,
+   "keep": false
+  },
+  "procès équitable": {
+   "en": "fair trial",
+   "n": 375,
+   "consistent": 275,
+   "share": 0.733,
+   "keep": false
+  },
+  "tribunal indépendant et impartial": {
+   "en": "independent and impartial tribunal",
+   "n": 48,
+   "consistent": 42,
+   "share": 0.875,
+   "keep": false
+  },
+  "égalité des armes": {
+   "en": "equality of arms",
+   "n": 81,
+   "consistent": 76,
+   "share": 0.938,
+   "keep": true
+  },
+  "présomption d'innocence": {
+   "en": "presumption of innocence",
+   "n": 99,
+   "consistent": 92,
+   "share": 0.929,
+   "keep": true
+  },
+  "obligations positives": {
+   "en": "positive obligations",
+   "n": 181,
+   "consistent": 157,
+   "share": 0.867,
+   "keep": false
+  },
+  "obligation positive": {
+   "en": "positive obligation",
+   "n": 237,
+   "consistent": 215,
+   "share": 0.907,
+   "keep": true
+  },
+  "traitements inhumains ou dégradants": {
+   "en": "inhuman or degrading treatment",
+   "n": 75,
+   "consistent": 67,
+   "share": 0.893,
+   "keep": false
+  },
+  "détention provisoire": {
+   "en": "pre-trial detention",
+   "n": 664,
+   "consistent": 423,
+   "share": 0.637,
+   "keep": false
+  },
+  "garde à vue": {
+   "en": "police custody",
+   "n": 239,
+   "consistent": 143,
+   "share": 0.598,
+   "keep": false
+  },
+  "vie privée et familiale": {
+   "en": "private and family life",
+   "n": 142,
+   "consistent": 112,
+   "share": 0.789,
+   "keep": false
+  },
+  "liberté d'expression": {
+   "en": "freedom of expression",
+   "n": 722,
+   "consistent": 686,
+   "share": 0.95,
+   "keep": true
+  },
+  "liberté de réunion": {
+   "en": "freedom of assembly",
+   "n": 84,
+   "consistent": 43,
+   "share": 0.512,
+   "keep": false
+  },
+  "liberté d'association": {
+   "en": "freedom of association",
+   "n": 104,
+   "consistent": 97,
+   "share": 0.933,
+   "keep": true
+  },
+  "respect de ses biens": {
+   "en": "peaceful enjoyment of his possessions",
+   "n": 50,
+   "consistent": 13,
+   "share": 0.26,
+   "keep": false
+  },
+  "Cour de cassation": {
+   "en": "Court of Cassation",
+   "n": 700,
+   "consistent": 687,
+   "share": 0.981,
+   "keep": true
+  },
+  "Conseil d'État": {
+   "en": "Conseil d'État",
+   "n": 38,
+   "consistent": 0,
+   "share": 0.0,
+   "keep": false
+  },
+  "cour d'appel": {
+   "en": "Court of Appeal",
+   "n": 1248,
+   "consistent": 1112,
+   "share": 0.891,
+   "keep": false
+  },
+  "tribunal de grande instance": {
+   "en": "tribunal de grande instance",
+   "n": 29,
+   "consistent": 14,
+   "share": 0.483,
+   "keep": false
+  },
+  "parquet": {
+   "en": "public prosecutor's office",
+   "n": 556,
+   "consistent": 40,
+   "share": 0.072,
+   "keep": false
+  },
+  "procureur": {
+   "en": "prosecutor",
+   "n": 796,
+   "consistent": 685,
+   "share": 0.861,
+   "keep": false
+  },
+  "juge d'instruction": {
+   "en": "investigating judge",
+   "n": 197,
+   "consistent": 194,
+   "share": 0.985,
+   "keep": true
+  },
+  "partie civile": {
+   "en": "civil party",
+   "n": 128,
+   "consistent": 69,
+   "share": 0.539,
+   "keep": false
+  },
+  "irrecevable": {
+   "en": "inadmissible",
+   "n": 263,
+   "consistent": 251,
+   "share": 0.954,
+   "keep": true
+  },
+  "recevable": {
+   "en": "admissible",
+   "n": 297,
+   "consistent": 289,
+   "share": 0.973,
+   "keep": true
+  },
+  "la chambre": {
+   "en": "the Chamber",
+   "n": 2822,
+   "consistent": 2312,
+   "share": 0.819,
+   "keep": false
+  },
+  "la grande chambre": {
+   "en": "the Grand Chamber",
+   "n": 1697,
+   "consistent": 1654,
+   "share": 0.975,
+   "keep": true
+  },
+  "le comité": {
+   "en": "the Committee",
+   "n": 599,
+   "consistent": 367,
+   "share": 0.613,
+   "keep": false
+  },
+  "arrêt": {
+   "en": "judgment",
+   "n": 5666,
+   "consistent": 4448,
+   "share": 0.785,
+   "keep": false
+  },
+  "décision": {
+   "en": "decision",
+   "n": 4052,
+   "consistent": 3123,
+   "share": 0.771,
+   "keep": false
+  },
+  "requête": {
+   "en": "application",
+   "n": 1612,
+   "consistent": 1447,
+   "share": 0.898,
+   "keep": false
+  },
+  "requêtes": {
+   "en": "applications",
+   "n": 381,
+   "consistent": 299,
+   "share": 0.785,
+   "keep": false
+  }
+ }
+}

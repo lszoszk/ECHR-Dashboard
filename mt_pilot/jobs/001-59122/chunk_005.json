@@ -1,0 +1,89 @@
+{
+ "case": {
+  "id": "001-59122",
+  "en_id": "001-59122",
+  "source_id": "001-63689",
+  "title": "CASE OF LUNARI v. ITALY"
+ },
+ "chunk": 5,
+ "context_before": "25.  La Cour a déjà dit que la législation litigieuse poursuivait un but légitime conforme à l’intérêt général, comme le veut le second alinéa de l’article 1 (voir l’arrêt Immobiliare Saffi précité, § 48).",
+ "rows": [
+  {
+   "id": "r0050",
+   "section": "Merits",
+   "role": "heading",
+   "para_no": null,
+   "fr": "2.  Proportionnalité de l’ingérence"
+  },
+  {
+   "id": "r0051",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": 26,
+   "fr": "26.  La Cour rappelle qu’une mesure d’ingérence doit ménager un « juste équilibre » entre les impératifs de l’intérêt général et ceux de la sauvegarde des droits fondamentaux de l’individu. La recherche de pareil équilibre se reflète dans la structure de l’article 1 tout entier, donc aussi dans le second alinéa : il doit exister un rapport raisonnable de proportionnalité entre les moyens employés et le but visé. En contrôlant le respect de cette exigence, la Cour reconnaît à l’Etat une grande marge d’appréciation tant pour choisir les modalités de mise en œuvre que pour juger si leurs conséquences se trouvent légitimées, dans l’intérêt général, par le souci d’atteindre l’objectif de la loi en cause. S’agissant de domaines tels que celui du logement, qui occupe une place centrale dans les politiques sociales et économiques des sociétés modernes, la Cour respecte l’appréciation portée à cet égard par le législateur national, sauf si elle est manifestement dépourvue de base raisonnable (voir l’arrêt Immobiliare Saffi, précité, § 49)."
+  },
+  {
+   "id": "r0052",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": 27,
+   "fr": "27.  Le requérant conteste la légitimité du but des lois en cause. En substance, l'absence d'une politique efficace de l'Etat en manière de logement l'aurait privé de son droit de disposer de son appartement en privilégiant exclusivement l'intérêt du locataire. En particulier, le système prévoyant des exceptions à la suspension de l'exécution forcée des expulsions serait totalement inefficace. S'il est vrai qu'il existe en théorie la possibilité de demander au juge de l'exécution que la suspension de l'exécution forcée ne s'applique pas à une situation où le locataire est en retard dans le paiement des loyers, ce qui rendrait l'expulsion prioritaire, la nécessité en pratique d'entamer une procédure à cet effet, qui, dans son cas, a duré environ deux ans rendrait le système inopérant. De plus, le système législatif ne lui fournit aucun moyen de réagir en protégeant ses intérêts."
+  },
+  {
+   "id": "r0053",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": 28,
+   "fr": "28.  Le Gouvernement fait valoir que les mesures législatives en cause poursuivaient une finalité d'intérêt général dans la protection des locataires, compte tenu de la situation de crise de logements touchant les centres urbains les plus importants et de la difficulté de reloger de manière adéquate les locataires aux ressources modestes tombant sous le coup d'une mesure d'expulsion ; dans le cas d'espèce, la locataire percevait un revenu très modeste (577 000 ITL, soit moins de deux mille francs par mois) et avait un enfant à sa charge."
+  },
+  {
+   "id": "r0054",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": 29,
+   "fr": "29.  Le Gouvernement fait ensuite observer que de nombreux contrats de bail venaient à échéance dans les années 1982-1983 ; l'exécution forcée simultanée de tous ces baux aurait provoqué de fortes tensions sociales. Les mesures en cause tendaient donc à protéger l'ordre public. Le Gouvernement observe ensuite que l'échelonnement de l'octroi de l'assistance de la force publique s'est avéré nécessaire vu l'impossibilité de garantir en même temps et à chacun une telle assistance."
+  },
+  {
+   "id": "r0055",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": 30,
+   "fr": "30.  Le Gouvernement fait enfin observer que les dispositions d'urgence visant la suspension ou l'échelonnement des exécutions forcées prévoyaient des exceptions en vertu desquelles, notamment, les propriétaires pouvaient obtenir l'exécution des expulsions avec l'assistance de la force publique lorsque, comme dans le cas d'espèce, leur locataire était en retard dans le paiement des loyers ou des charges de copropriété pour un montant global équivalant à deux loyers. Le Gouvernement souligne que dans le cas d'espèce le Préfet avait accordé l'assistance de la force publique immédiatement après avoir été informé de ce que l'expulsion était prioritaire."
+  },
+  {
+   "id": "r0056",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": 31,
+   "fr": "31.  La Cour considère qu'en adoptant des mesures d'urgence visant la suspension des expulsions et en prévoyant certaines exceptions à leur application, le législateur italien pouvait raisonnablement estimer que les moyens choisis convenaient pour atteindre le but légitime (voir, mutatis mutandis, l’arrêt Scollo c. Italie du 28 septembre 1995, Série A n° 315-C, § 40)."
+  },
+  {
+   "id": "r0057",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": 32,
+   "fr": "32.  Il échet cependant de rechercher si, en l'espèce, un juste équilibre a été ménagé entre les intérêts de la communauté et le droit des propriétaires et du requérant en particulier."
+  }
+ ],
+ "glossary": {
+  "requérant": "applicant",
+  "ingérence": "interference",
+  "marge d'appréciation": "margin of appreciation",
+  "but légitime": "legitimate aim",
+  "proportionnalité": "proportionality"
+ },
+ "examples": [
+  {
+   "fr": "47.  Le Gouvernement soutient que les dispositions législatives en cause poursuivaient un but légitime, à savoir éviter les tensions sociales et les troubles à l’ordre public qui se seraient produits si les nombreuses ordonnances d’expulsion délivrées après l’expiration de la dernière prorogation légale des baux en 1982 et 1983 avaient été exécutées en même temps. Il souligne que les même lois prévoyaient certains engagements financiers pour subventionner des logements sociaux et accorder des aides au logement.",
+   "en": "47.  The Government argued that the legislative provisions concerned pursued a legitimate aim, namely to avoid the social tensions and troubles to public order that would have occurred had the considerable number of orders for possession issued after the expiry of the last statutory extension of leases in 1982 and 1983 been enforced at the same time. They added that the State had through those same provisions made certain financial commitments to provide subsidised housing and housing benefits."
+  },
+  {
+   "fr": "16.  En mars 1989, lors de l’entrée en vigueur de la loi n° 61 du 21 février 1989 prévoyant l’échelonnement de l’exécution des ordonnances d’expulsion, 1 186 demandes d’assistance de la force publique avaient été déposées auprès du préfet de Livourne, dont 354 pour retards dans le \npaiement des loyers, 56 parce que les propriétaires avaient besoin de leurs immeubles, 55 pour d’autres raisons et 722, parmi lesquelles celle de la société requérante, pour expiration du bail.",
+   "en": "16.  By March 1989, when Law no. 61 of 21 February 1989 came into force providing for the staggering of the enforcement of orders for possession, requests for police assistance had been made to the Prefect of Livorno in 1,186 cases: 354 for arrears of rent, 56 because the owner required the premises for his own use, 55 for other reasons, and 722 (the applicant company’s case included) because the lease had expired. The Prefect decreed on 16 May 1989 and 19 February 1990 that decisions on the provision of police assistance would be taken by reference to the criteria laid down in Law no. 61/89, namely the order of priority established by the legislature, the date of the request for assistance, any special features of the individual case and the requirement that 30% of the total number of orders for possession outstanding should be enforced each month."
+  },
+  {
+   "fr": "57.  A l’issue d’un processus de réformes législatives, la loi no 301 du 28 juin 2004 relative au nouveau code pénal roumain punit exclusivement d’une peine d’amende les auteurs de l’infraction de calomnie (article 225 du nouveau code pénal). L’insulte n’y est plus réprimée comme infraction. Ces modifications législatives entreront en vigueur le 29 juin 2005.",
+   "en": "57.  Following a process of legislative reform, the New Romanian Criminal Code Act (Law no. 301 of 28 June 2004) provides that the offence of defamation is punishable solely by a fine (Article 225 of the New Criminal Code) and no longer classifies insult as a criminal offence. These legislative amendments will come into force on 29 June 2005."
+  }
+ ]
+}

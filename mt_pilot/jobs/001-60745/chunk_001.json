@@ -1,0 +1,99 @@
+{
+ "case": {
+  "id": "001-60745",
+  "en_id": "001-60745",
+  "source_id": "001-65300",
+  "title": "CASE OF ÖZEL v. TURKEY"
+ },
+ "chunk": 1,
+ "context_before": "En l’affaire Özel c. Turquie,",
+ "rows": [
+  {
+   "id": "r0010",
+   "section": "Header",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "La Cour européenne des Droits de l’Homme (troisième section), siégeant en une chambre composée de :"
+  },
+  {
+   "id": "r0011",
+   "section": "Header",
+   "role": "metadata",
+   "para_no": null,
+   "fr": "MM.\tG. Ress, président,\n\t\tL. Caflisch,\n\t\tP. Kūris,\n\t\tR. Türmen,\n\t\tJ. Hedigan,\n\tMmes\tM. Tsatsa-Nikolovska,\n\t\tH.S. Greve, juges,\net de M. V. Berger, greffier de section,"
+  },
+  {
+   "id": "r0012",
+   "section": "Header",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "Après en avoir délibéré en chambre du conseil le 17 octobre 2002,"
+  },
+  {
+   "id": "r0013",
+   "section": "Header",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "Rend l’arrêt que voici, adopté à cette dernière date :"
+  },
+  {
+   "id": "r0014",
+   "section": "Facts",
+   "role": "heading",
+   "para_no": null,
+   "fr": "PROCÉDURE"
+  },
+  {
+   "id": "r0015",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 1,
+   "fr": "1.  A l’origine de l’affaire se trouve une requête (no 42739/98) dirigée contre la République de Turquie et dont un ressortissant de cet Etat, Yaşar Özel (« le requérant »), avait saisi la Commission européenne des Droits de l’Homme (« la Commission ») le 1 juillet 1998 en vertu de l’ancien article 25 de la Convention de sauvegarde des Droits de l’Homme et des Libertés fondamentales (« la Convention »)."
+  },
+  {
+   "id": "r0016",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 2,
+   "fr": "2.  Le requérant, qui a été admis au bénéfice de l’assistance judiciaire, est représenté devant la Cour par M. Kırdök, avocat à Istanbul. Le gouvernement turc (« le Gouvernement ») est représenté par son agent."
+  },
+  {
+   "id": "r0017",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 3,
+   "fr": "3.  Le requérant alléguait, notamment, avoir été victime d’une violation de l’article 6 § 1 du fait du manque d’indépendance et d’impartialité de la cour de sûreté de l’Etat qui l’avait jugé et condamné ainsi que de l’iniquité de la procédure devant cette même juridiction."
+  },
+  {
+   "id": "r0018",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 4,
+   "fr": "4.  La requête a été transmise à la Cour le 1er novembre 1998, date d’entrée en vigueur du Protocole no 11 à la Convention (article 5 § 2 du Protocole no 11)."
+  },
+  {
+   "id": "r0019",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 5,
+   "fr": "5.  La requête a été attribuée à la première section de la Cour (article 52 § 1 du règlement)."
+  }
+ ],
+ "glossary": {
+  "requérant": "applicant"
+ },
+ "examples": [
+  {
+   "fr": "1.  A l’origine de l’affaire se trouve une requête (no 16574/08) dirigée contre la République française et dont un ressortissant de cet Etat, M. Henry Fabris («le requérant»), a saisi la Cour le 1er avril 2008 en vertu de l’article 34 de la Convention de sauvegarde des droits de l’homme et des libertés fondamentales (« la Convention »). Le requérant est représenté par Me A. Ottan, avocat à Lunel. Le gouvernement français (« le Gouvernement ») est représenté par son agent, Mme E. Belliard, directrice des affaires juridiques au ministère des Affaires étrangères.",
+   "en": "1.  The case originated in an application (no. 16574/08) against the French Republic lodged with the Court under Article 34 of the Convention for the Protection of Human Rights and Fundamental Freedoms (“the Convention”) by a French national, Mr Henry Fabris (“the applicant”), on 1 April 2008. The applicant was represented by Mr A. Ottan, a lawyer practising in Lunel. The French Government (“the Government”) were represented by their Agent, Mrs E. Belliard, Director of Legal Affairs at the Ministry of Foreign Affairs."
+  },
+  {
+   "fr": "1.  A l’origine de l’affaire se trouve une requête (no 64705/01) dirigée contre la République italienne et dont un ressortissant de cet Etat, M. Giuseppe Mostacciuolo (« le requérant »), avait saisi la Commission européenne des Droits de l’Homme (« la Commission ») le 4 mars 1998 en vertu de l’ancien article 25 de la Convention de sauvegarde des Droits de l’Homme et des Libertés fondamentales (« la Convention »).",
+   "en": "1.  The case originated in an application (no. 64705/01) against the Italian Republic lodged with the European Commission of Human Rights (“the Commission”) under former Article 25 of the Convention for the Protection of Human Rights and Fundamental Freedoms (“the Convention”) by an Italian national, Mr Giuseppe Mostacciuolo (“the applicant”), on 4 March 1998."
+  },
+  {
+   "fr": "1.  A l’origine de l’affaire se trouve une requête (no 64886/01) dirigée contre la République italienne et dont un ressortissant de cet Etat, M. Giovanni Cocchiarella (« le requérant »), avait saisi la Commission européenne des droits de l’homme (« la Commission ») le 22 décembre 1997 en vertu de l’ancien article 25 de la Convention de sauvegarde des droits de l’homme et des libertés fondamentales (« la Convention »).",
+   "en": "1.  The case originated in an application (no. 64886/01) against the Italian Republic lodged with the European Commission of Human Rights (“the Commission”) under former Article 25 of the Convention for the Protection of Human Rights and Fundamental Freedoms (“the Convention”) by an Italian national, Mr Giovanni Cocchiarella (“the applicant”), on 22 December 1997."
+  }
+ ]
+}

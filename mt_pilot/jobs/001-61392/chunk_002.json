@@ -1,0 +1,100 @@
+{
+ "case": {
+  "id": "001-61392",
+  "en_id": "001-61392",
+  "source_id": "001-65950",
+  "title": "CASE OF GENCEL v. TURKEY"
+ },
+ "chunk": 2,
+ "context_before": "EN FAIT",
+ "rows": [
+  {
+   "id": "r0020",
+   "section": "Facts",
+   "role": "heading",
+   "para_no": null,
+   "fr": "I.  LES CIRCONSTANCES DE L'ESPÈCE"
+  },
+  {
+   "id": "r0021",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 5,
+   "fr": "5.  Le requérant est né en 1969. Lors de l'introduction de la requête, il était détenu à la maison d'arrêt de Nazilli à Aydın."
+  },
+  {
+   "id": "r0022",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 6,
+   "fr": "6.  Le 17 janvier 1997, il fut arrêté par la police pour appartenance à une organisation illégale, à savoir le PKK."
+  },
+  {
+   "id": "r0023",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 7,
+   "fr": "7.  Le 31 janvier 1997, il fut déféré devant le juge assesseur près la cour de sûreté de l'Etat d'Izmir, qui ordonna sa détention provisoire."
+  },
+  {
+   "id": "r0024",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 8,
+   "fr": "8.  Le 20 mars 1997, le procureur près la cour de sûreté de l'Etat requit l'application de l'article 168 du code pénal pour appartenance au PKK."
+  },
+  {
+   "id": "r0025",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 9,
+   "fr": "9.  Le 29 décembre 1997, la cour de sûreté de l'Etat, composée de deux juges civils et d'un juge militaire, déclara le requérant coupable des faits qui lui étaient reprochés et le condamna à une peine de dix-huit ans et neuf mois d'emprisonnement. Dans son arrêt, celle-ci releva que, lors de l'instruction ainsi que devant le procureur et le juge assesseur qui avaient établi ses dépositions, le requérant avait reconnu les délits incriminés, et que les déclarations des coaccusés et d'autres preuves supplémentaires confirmaient la version des faits tels qu'exposés dans l'acte d'accusation."
+  },
+  {
+   "id": "r0026",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 10,
+   "fr": "10.  Par un arrêt du 4 mars 1999, prononcé le 17 mars 1999, la Cour de cassation confirma l'arrêt attaqué."
+  },
+  {
+   "id": "r0027",
+   "section": "Facts",
+   "role": "heading",
+   "para_no": null,
+   "fr": "II.  LE DROIT ET LA PRATIQUE INTERNES PERTINENTS"
+  },
+  {
+   "id": "r0028",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 11,
+   "fr": "11.  Le droit et la pratique internes pertinents sont décrits dans les arrêts Özel c. Turquie (no 42739/98, §§ 20-21, 7 novembre 2002) et Özdemir c. Turquie (no 59659/00, §§ 21-22, 6 février 2003)."
+  },
+  {
+   "id": "r0029",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 12,
+   "fr": "12.  L'article 327 du code de procédure pénale énumère les cas où « une affaire qui a abouti à un jugement passé en force de chose jugée peut faire l'objet d'un nouveau procès en faveur du condamné »."
+  }
+ ],
+ "glossary": {
+  "requérant": "applicant",
+  "Cour de cassation": "Court of Cassation"
+ },
+ "examples": [
+  {
+   "fr": "116.  Les auteurs du rapport concluaient que, considérés dans leur ensemble, les éléments susmentionnés laissaient penser que, sous les dehors d’une application destinée au grand public, ByLock avait été utilisée comme système de messagerie à l’usage exclusif des membres de la FETÖ/PDY, ce que corroboraient selon eux des déclarations faites par plusieurs personnes soupçonnées d’appartenance à l’organisation dans le cadre d’enquêtes menées après la tentative de coup d’État.",
+   "en": "116.  The report concluded that when taken as a whole, the above factors suggested that ByLock had served as a messaging system for the exclusive use of FETÖ/PDY members, under the guise of a global application, which was also corroborated by statements obtained from a number of suspected members of the organisation in investigations conducted after the coup attempt."
+  },
+  {
+   "fr": "140.  Le 14 juin 2021, David Keynes, accusé d’appartenance à une organisation terroriste armée, fut placé en détention provisoire. Selon un article de presse produit par le requérant, et que le Gouvernement n’a pas réfuté, il fut mis fin à la détention provisoire de David Keynes le 3 novembre 2021, eu égard aux éléments de preuve recueillis, à l’absence de risque de fuite et à la possibilité de faire application du régime de repentance active dans cette affaire. Les parties n’ont fourni à la Cour aucune information sur l’issue de la procédure pénale dirigée contre cette personne.",
+   "en": "140.  On 14 June 2021 David Keynes was placed in pre-trial detention on suspicion of membership of an armed terrorist organisation. According to a news report submitted by the applicant, which was not refuted by the Government, David Keynes was released from pre-trial detention on 3 November 2021, in view of the evidence collected, the absence of a risk of absconding, and the prospect of the application of the active repentance provision in his case. The parties did not provide the Court with further information on the outcome of the criminal proceedings against this person."
+  },
+  {
+   "fr": "247.  Le cadre juridique dont relève l’infraction d’appartenance à une organisation terroriste armée est complété par la jurisprudence de la Cour de cassation, qui apporte des précisions supplémentaires tant sur les éléments constitutifs de l’organisation terroriste armée que sur ceux de l’infraction d’appartenance à une telle organisation (paragraphe 161 ci-dessus). La Cour de cassation a précisé qu’aux fins de l’infraction réprimée par l’article 314 § 2 du code pénal, le terme « organisation » ne désigne pas un regroupement abstrait mais une structure hiérarchisée. Pour déterminer l’existence d’une organisation, il faut vérifier si elle a, ou avait, suffisamment de membres, d’outils et de matériel pour pouvoir commettre l’infraction envisagée, conformément à l’article 220 du code pénal. En particulier, il faut déterminer si elle détient, ou détenait, suffisamment d’armes pour réaliser ses objectifs, ou si elle avait le moyen d’y accéder.",
+   "en": "247.  The legal framework governing the offence of membership of an armed terrorist organisation is complemented by the Court of Cassation’s case-law, which provides further clarity on the elements of an armed terrorist organisation, and on the offence of membership of such an organisation (see paragraph 161 above). The Court of Cassation has specified that for the purposes of the offence set out in Article 314 of the Criminal Code, the definition of an “organisation” is not based on an abstract gathering but rather on a hierarchical structure. For such an “organisation” to exist, it has to be assessed whether it has, or had, sufficient members, tools and equipment to enable it to commit the intended offence, as required under Article 220 of the Criminal Code. In particular, it must be verified whether the “organisation” possesses, or possessed, a sufficient amount of arms to carry out its aims, or the means to access such arms."
+  }
+ ]
+}

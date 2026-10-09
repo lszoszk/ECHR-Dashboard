@@ -1,0 +1,101 @@
+{
+ "case": {
+  "id": "001-59122",
+  "en_id": "001-59122",
+  "source_id": "001-63689",
+  "title": "CASE OF LUNARI v. ITALY"
+ },
+ "chunk": 8,
+ "context_before": "46.  Dans ces conditions, la Cour estime qu’il y a eu violation du droit à un tribunal garanti à l’article 6 § 1 de la Convention. Le grief tiré de la durée de la procédure doit être considéré comme absorbé par le précédent.",
+ "rows": [
+  {
+   "id": "r0078",
+   "section": "Just Satisfaction",
+   "role": "heading",
+   "para_no": null,
+   "fr": "III.  SUR L’APPLICATION DE L’ARTICLE 41 DE LA CONVENTION"
+  },
+  {
+   "id": "r0079",
+   "section": "Just Satisfaction",
+   "role": "paragraph",
+   "para_no": 47,
+   "fr": "47.  Aux termes de l’article 41 de la Convention,"
+  },
+  {
+   "id": "r0080",
+   "section": "Just Satisfaction",
+   "role": "quote",
+   "para_no": null,
+   "fr": "« Si la Cour déclare qu’il y a eu violation de la Convention ou de ses Protocoles, et si le droit interne de la Haute Partie contractante ne permet d’effacer qu’imparfaitement les conséquences de cette violation, la Cour accorde à la partie lésée, s’il y a lieu, une satisfaction équitable. »"
+  },
+  {
+   "id": "r0081",
+   "section": "Just Satisfaction",
+   "role": "heading",
+   "para_no": null,
+   "fr": "A.  Dommage matériel"
+  },
+  {
+   "id": "r0082",
+   "section": "Just Satisfaction",
+   "role": "paragraph",
+   "para_no": 48,
+   "fr": "48.  Le requérant réclame en premier lieu la réparation du préjudice matériel subi au titre de frais d’huissier, mais laisse à la Cour le soin de l'évaluer sur la base des documents fournis au cours de la procédure. Il réclame ensuite 1 332 700 ITL correspondant aux charges de la copropriété dues par la locataire, ainsi que les loyers non payés par la locataire et la différence entre le loyer qu’il percevait et celui qu’il aurait pu percevoir aux prix du marché. Il réclame en outre 399 999 ITL pour les frais de la procédure concernant l’injonction de paiement des charges de la copropriété."
+  },
+  {
+   "id": "r0083",
+   "section": "Just Satisfaction",
+   "role": "paragraph",
+   "para_no": 49,
+   "fr": "49.  Le Gouvernement considère qu’il manque tout lien de causalité entre le préjudice réclamé et les violations de la Convention alléguées."
+  },
+  {
+   "id": "r0084",
+   "section": "Just Satisfaction",
+   "role": "paragraph",
+   "para_no": 50,
+   "fr": "50.  La Cour estime qu’il a lieu de rembourser les frais de la procédure d’expulsion (voir l’arrêt Immobiliare Saffi précité, § 79) : elle accorde, sur la base des documents en sa possession, la somme de 330 000 ITL à ce titre."
+  },
+  {
+   "id": "r0085",
+   "section": "Just Satisfaction",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "S’agissant des charges de la copropriété et des loyers non payés, qui n’ont même pas été chiffrés par le requérant, la Cour estime, étant donné que celui-ci peut les récupérer auprès de la locataire, qu’il n’y a pas lieu d’allouer une somme au requérant à ce titre."
+  },
+  {
+   "id": "r0086",
+   "section": "Just Satisfaction",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "S’agissant du manque à gagner en termes de loyers, la Cour rappelle qu’aux termes de l’article 60 de son règlement, le requérant doit chiffrer et ventiler ses prétentions auxquelles il doit joindre les justificatifs nécessaires, « faute de quoi la chambre peut rejeter la demande en tout ou en partie ». Le requérant ayant omis de le faire, la Cour décide de ne rien accorder sous ce chef."
+  },
+  {
+   "id": "r0087",
+   "section": "Just Satisfaction",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "Quant aux frais de la procédure concernant l’injonction de paiement, la Cour considère, comme le Gouvernement, qu’ils n’ont pas de lien de causalité direct avec les violations constatées."
+  }
+ ],
+ "glossary": {
+  "requérant": "applicant",
+  "dommage matériel": "pecuniary damage",
+  "satisfaction équitable": "just satisfaction"
+ },
+ "examples": [
+  {
+   "fr": "77.  La requérante réclame 18 594 USD. Cette somme comprend notamment 14 400 USD d’honoraires d’avocat, correspondant à 283 heures de travail sur la procédure de Strasbourg et la procédure interne, 630 USD de frais de traduction et 2 722 USD de frais de déplacement et d’hébergement afférents à la participation de l’avocat de la requérante et du conseiller de celui-ci à l’audience de la Cour. L’intéressée a fourni les justificatifs nécessaires à l’appui de ses prétentions.",
+   "en": "77.  The applicant claimed USD 18,594. This amount included, inter alia, USD 14,400 in lawyer’s fees for 283 hours of work on the Strasbourg and the domestic proceedings, USD 630 in translation costs and USD 2,722 for travel and subsistence expenses in connection with the appearance of the applicant’s lawyer and his adviser at the hearing before the Court. The applicant submitted relevant documents in support of her claims."
+  },
+  {
+   "fr": "49.  La chambre a considéré que les prétentions des requérants à ce titre n'étaient ni détaillées ni accompagnées des justificatifs nécessaires. Elle a donc écarté leur demande sur ce point.",
+   "en": "49.  The Chamber held that the applicants' claims under this head were neither detailed nor supported by the necessary documents. It therefore dismissed their claim for this item."
+  },
+  {
+   "fr": "157.  La Cour rappelle qu’aux termes de l’article 60 § 2 du règlement, toute prétention présentée au titre de l’article 41 de la Convention doit être chiffrée, ventilée par rubrique et accompagnée des justificatifs nécessaires, faute de quoi elle peut être rejetée, en tout ou en partie. En l’espèce, les requérantes n’ont pas chiffré leurs prétentions au titre du dommage subi ni fourni les justificatifs nécessaires étayant celles-ci. En conséquence, la Cour ne peut accueillir leur demande d’indemnisation.",
+   "en": "157.  The Court reiterates that under Rule 60 § 2 of the Rules of Court itemised particulars of any claim made under Article 41 of the Convention must be submitted, together with the relevant supporting documents or vouchers, failing which the claim may be rejected in whole or in part. In the present case, the applicants have not submitted particulars of their claims in respect of the damage sustained, nor provided the necessary supporting documents. It follows that the Court cannot allow their claim for compensation."
+  }
+ ]
+}

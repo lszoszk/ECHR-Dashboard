@@ -1,0 +1,55 @@
+{
+ "case": {
+  "id": "001-144276",
+  "en_id": "001-144276",
+  "source_id": "001-144609",
+  "title": "CASE OF MARGUŠ v. CROATIA"
+ },
+ "chunk": 13,
+ "context_before": "127.  L’obligation qu’ont les États de poursuivre les auteurs d’actes de torture ou d’assassinats est donc bien établie dans la jurisprudence de la Cour. Il ressort de celle-ci que l’octroi du bénéfice de l’amnistie aux auteurs de meurtres ou de mauvais traitements de civils serait contraire aux obligations découlant pour les États des articles 2 et 3 de la Convention, dès lors que cette mesure empêcherait les investigations sur de tels actes et conduirait nécessairement à accorder l’impunité à leurs auteurs. Pareil résultat compromettrait le but même de la protection assurée par les articles 2 et 3 de la Convention et rendrait illusoires les garanties attachées au droit à la vie et à celui de ne pas être maltraité. Or l’objet et le but de la Convention, instrument de protection des êtres humains, appellent à comprendre et appliquer ses dispositions d’une manière qui en rende les exigences concrètes et effectives (McCann et autres, précité, § 146).",
+ "rows": [
+  {
+   "id": "p128",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "128.  Certes, la présente affaire concerne des allégations de violation de l’article 4 du Protocole no 7, et non des articles 2 et 3 de la Convention. La Cour rappelle cependant que les dispositions de la Convention et de ses Protocoles doivent se lire comme un tout et s’interpréter de manière à promouvoir la cohérence interne et l’harmonie entre ses diverses dispositions (Stec et autres c. Royaume-Uni (déc.) [GC], nos 65731/01 et 65900/01, § 48, CEDH 2005X, et Austin et autres c. Royaume-Uni [GC], nos 39692/09, 40713/09 et 41008/09, § 54, CEDH 2012). Par conséquent, les garanties consacrées par l’article 4 du Protocole no 7 et les obligations incombant aux États en vertu des articles 2 et 3 de la Convention doivent être considérées comme des parties d’un tout."
+  },
+  {
+   "id": "p129",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "129.  La Cour ne saurait ignorer l’évolution du droit international en la matière. La Convention et ses Protocoles doivent être interprétés non pas isolément mais de manière à se concilier avec les principes généraux du droit international, dont ils font partie intégrante. En vertu de l’article 31 § 3 c) de la Convention de Vienne sur le droit des traités de 1969, l’interprétation d’un traité doit se faire en tenant compte de « toute règle pertinente de droit international applicable dans les relations entre les parties », en particulier de celles relatives à la protection internationale des droits de l’homme (Al-Adsani c. Royaume-Uni [GC], no 35763/97, § 55, CEDH 2001XI, Demir et Baykara c. Turquie [GC], no 34503/97, § 67, CEDH 2008, Saadi c. Royaume-Uni [GC], no 13229/03, § 62, CEDH 2008, Rantsev c. Chypre et Russie, no 25965/04, §§ 273-274, CEDH 2010, et Nada c. Suisse [GC], no 10593/08, § 169, CEDH 2012)."
+  },
+  {
+   "id": "p130",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "130.  La Cour prend note des observations de la chambre selon lesquelles « [i]l est de plus en plus admis que l’octroi d’une amnistie relativement à des « crimes internationaux » – qui comprennent les crimes contre l’humanité, les crimes de guerre et les génocides – est interdit par le droit international » et « [c]ette conception ressort des règles coutumières du droit international humanitaire, des traités en matière de droits de l’homme ainsi que des décisions de tribunaux internationaux et régionaux et de la pratique émergente des États, sachant que l’on observe une tendance croissante des juridictions internationales, régionales et nationales à annuler les amnisties générales édictées par les gouvernements »."
+  },
+  {
+   "id": "p131",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "131.  Il convient d’observer qu’à l’heure actuelle aucun traité international n’interdit expressément le recours à l’amnistie relativement aux violations graves des droits fondamentaux de l’homme. Certes, l’article 6 § 5 du Protocole additionnel II aux Conventions de Genève relatif à la protection des victimes des conflits armés non internationaux dispose qu’« [à] la cessation des hostilités, les autorités au pouvoir s’efforceront d’accorder la plus large amnistie possible aux personnes qui auront pris part au conflit armé ou qui auront été privées de liberté pour des motifs en relation avec le conflit armé (...) » ; cependant, l’interprétation que donne la Cour interaméricaine des droits de l’homme de cet article exclut de son champ d’application les auteurs de crimes de guerre ou de crimes contre l’humanité (voir, au paragraphe 66 ci-dessus, l’arrêt Massacres d’El Mozote et lieux voisins c. Salvador, § 286). Selon la Cour interaméricaine, pareille conclusion découle des obligations que le droit international impose aux États de mener des investigations et d’ouvrir des poursuites relativement aux crimes de guerre. Ainsi, la Cour interaméricaine a jugé que « les personnes soupçonnées ou accusées de crimes de guerre ne peuvent bénéficier d’une amnistie ». La même obligation d’enquête et de poursuite vaut également pour les violations graves des droits fondamentaux de l’homme et les amnisties prévues par l’article 6 § 5 du Protocole additionnel II aux Conventions de Genève ne sont donc pas davantage applicables à de tels actes."
+  }
+ ],
+ "glossary": {},
+ "examples": [
+  {
+   "fr": "87.  Les observations d’Amnesty International fournissent un aperçu des clauses de non-discrimination figurant dans les traités régionaux et internationaux de protection des droits de l’homme ainsi que de la jurisprudence pertinente de la Cour européenne et de la Cour interaméricaine des droits de l’homme. Elles s’inspirent aussi de l’interprétation que les organes de suivi de l’Organisation des Nations unies – notamment le Comité des droits de l’homme et le Comité des droits de l’enfant – donnent des clauses en question.",
+   "en": "87.  Amnesty International provided an overview of non-discrimination clauses in international and regional human rights treaties and of the relevant case-law of the Court and the Inter-American Court of Human Rights. They also drew on the interpretation of the relevant clauses by the various United Nations treaty monitoring bodies, in particular the Human Rights Committee and the Committee on the Rights of the Child."
+  },
+  {
+   "fr": "72.  La Cour rappelle en outre qu’il ne lui incombe pas normalement de se substituer aux juridictions internes. C’est au premier chef aux autorités nationales, notamment aux cours et tribunaux, qu’il appartient d’interpréter la législation interne. Il en va de même lorsque le droit interne renvoie à des dispositions du droit international général ou d’accords internationaux. Le rôle de la Cour se limite à vérifier la compatibilité avec la Convention des effets de pareille interprétation (Waite et Kennedy c. Allemagne [GC], no 26083/94, § 54, CEDH 1999-I).",
+   "en": "72.  Furthermore, the Court would reiterate that, in principle, it is not its task to substitute itself for the domestic jurisdictions. It is primarily for the national authorities, notably the courts, to resolve problems of interpretation of domestic legislation. This also applies where domestic law refers to rules of general international law or international agreements. The Court’s role is confined to ascertaining whether the effects of such an interpretation are compatible with the Convention (see Waite and Kennedy v. Germany [GC], no. 26083/94, § 54, ECHR 1999I)."
+  },
+  {
+   "fr": "44.  La Cour rappelle qu’elle n’a pas pour tâche de se substituer aux juridictions internes. C’est au premier chef aux autorités nationales, notamment aux cours et tribunaux, qu’il incombe d’interpréter la législation interne (voir, entre autres, l’arrêt Pérez de Rada Cavanilles c. Espagne du 28 octobre 1998, Recueil 1998-VIII, p. 3225, § 43). Il en va de même lorsque le droit interne renvoie à des dispositions du droit international général ou d’accords internationaux. Le rôle de la Cour se limite à vérifier la compatibilité avec la Convention des effets de pareille interprétation.",
+   "en": "44.  The Court would recall that it is not its task to substitute itself for the domestic jurisdictions. It is primarily for the national authorities, notably the courts, to resolve problems of interpretation of domestic legislation (see, inter alia the Pérez de Rada Cavanilles v. Spain judgment of 28 October 1998, Reports 1998-VIII, p. 3255, § 43). This also applies where domestic law refers to rules of general international law or international agreements. The Court’s role is confined to ascertaining whether the effects of such an interpretation are compatible with the Convention."
+  }
+ ]
+}

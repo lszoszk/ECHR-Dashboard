@@ -1,0 +1,102 @@
+{
+ "case": {
+  "id": "001-59122",
+  "en_id": "001-59122",
+  "source_id": "001-63689",
+  "title": "CASE OF LUNARI v. ITALY"
+ },
+ "chunk": 9,
+ "context_before": "Quant aux frais de la procédure concernant l’injonction de paiement, la Cour considère, comme le Gouvernement, qu’ils n’ont pas de lien de causalité direct avec les violations constatées.",
+ "rows": [
+  {
+   "id": "r0088",
+   "section": "Just Satisfaction",
+   "role": "heading",
+   "para_no": null,
+   "fr": "B.  Dommage moral"
+  },
+  {
+   "id": "r0089",
+   "section": "Just Satisfaction",
+   "role": "paragraph",
+   "para_no": 51,
+   "fr": "51.  Le requérant demande la somme de 30 000 000 ITL pour dommage moral."
+  },
+  {
+   "id": "r0090",
+   "section": "Just Satisfaction",
+   "role": "paragraph",
+   "para_no": 52,
+   "fr": "52.  Le Gouvernement considère que le constat de violation constituerait en soi, le cas échéant, une satisfaction équitable suffisante."
+  },
+  {
+   "id": "r0091",
+   "section": "Just Satisfaction",
+   "role": "paragraph",
+   "para_no": 53,
+   "fr": "53.  La Cour estime que le requérant a subi un tort moral certain ; elle décide par conséquent de lui accorder la somme de 15 000 000 ITL à ce titre."
+  },
+  {
+   "id": "r0092",
+   "section": "Just Satisfaction",
+   "role": "heading",
+   "para_no": null,
+   "fr": "C.  Frais et dépens"
+  },
+  {
+   "id": "r0093",
+   "section": "Just Satisfaction",
+   "role": "paragraph",
+   "para_no": 54,
+   "fr": "54.  Le requérant demande enfin le remboursement des frais et honoraires exposés devant la Commission et la Cour, qu’il chiffre à 5 800 000 ITL."
+  },
+  {
+   "id": "r0094",
+   "section": "Just Satisfaction",
+   "role": "paragraph",
+   "para_no": 55,
+   "fr": "55.  Le Gouvernement se remet à la sagesse de la Cour."
+  },
+  {
+   "id": "r0095",
+   "section": "Just Satisfaction",
+   "role": "paragraph",
+   "para_no": 56,
+   "fr": "56.  La Cour estime, en tenant compte notamment de la durée et de la complexité de la procédure devant les organes de Strasbourg, qu’il y a lieu d’accorder le montant réclamé en entier."
+  },
+  {
+   "id": "r0096",
+   "section": "Just Satisfaction",
+   "role": "heading",
+   "para_no": null,
+   "fr": "D.  Intérêts moratoires"
+  },
+  {
+   "id": "r0097",
+   "section": "Just Satisfaction",
+   "role": "paragraph",
+   "para_no": 57,
+   "fr": "57.  Selon les informations dont dispose la Cour, le taux d’intérêt légal applicable en Italie à la date d’adoption du présent arrêt était de 2,5 % l’an."
+  }
+ ],
+ "glossary": {
+  "requérant": "applicant",
+  "dommage moral": "non-pecuniary damage",
+  "frais et dépens": "costs and expenses",
+  "satisfaction équitable": "just satisfaction"
+ },
+ "examples": [
+  {
+   "fr": "141.  Le Gouvernement considère que le constat de violation constituerait en soi, le cas échéant, une satisfaction équitable suffisante.",
+   "en": "141.  The Government submitted that the finding of a violation would in itself constitute sufficient just satisfaction."
+  },
+  {
+   "fr": "142.  Le Gouvernement conteste ces prétentions et considère que le constat de violation constituerait en soi, le cas échéant, une satisfaction équitable suffisante.",
+   "en": "142.  The Government disputed those claims and submitted that the finding of a violation would in itself constitute sufficient just satisfaction."
+  },
+  {
+   "fr": "146.  Le Gouvernement conteste ces prétentions. Il considère que le constat de violation constituerait en soi, le cas échéant, une satisfaction équitable suffisante.",
+   "en": "146.  The Government disputed those claims. They submitted that the finding of a violation would in itself constitute sufficient just satisfaction."
+  }
+ ]
+}

@@ -1,0 +1,100 @@
+{
+ "case": {
+  "id": "001-59122",
+  "en_id": "001-59122",
+  "source_id": "001-63689",
+  "title": "CASE OF LUNARI v. ITALY"
+ },
+ "chunk": 3,
+ "context_before": "13.  Par une ordonnance du 9 octobre 1987, qui devint exécutoire le 10 octobre 1987, ce dernier confirma formellement le congé du bail et décida que les lieux devaient être libérés au plus tard le 9 octobre 1988.",
+ "rows": [
+  {
+   "id": "r0030",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 14,
+   "fr": "14.  Le 3 août 1989, le requérant signifia à la locataire le commandement de libérer l’appartement."
+  },
+  {
+   "id": "r0031",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 15,
+   "fr": "15.  Le 14 septembre 1989, il lui signifia l’avis que l’expulsion serait exécutée le 11 octobre 1989 par voie d’huissier de justice."
+  },
+  {
+   "id": "r0032",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 16,
+   "fr": "16.  A cette date, puis le 7 mai 1991, l’huissier de justice ne put expulser la locataire faute d’octroi de l’assistance de la force publique."
+  },
+  {
+   "id": "r0033",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 17,
+   "fr": "17.  Le 14 décembre 1991, le requérant s'adressa au juge d'instance de Pescara, aux termes de l'article 2 du décret-loi n° 551/88 converti en la loi 61/89, afin que celui-ci constate le non-paiement de la part de la locataire des loyers ainsi que de sa quote-part des charges de la copropriété et déclare la suspension de l'exécution forcée de l'expulsion non applicable au cas d'espèce. Le 20 décembre 1991, la locataire se constitua dans la procédure et contesta les allégations du requérant. Une audience eut lieu devant le juge d'instance de Pescara le 2 mars 1993. Par une décision du 17 avril 1993, le juge fit droit à la demande du requérant et déclara que la suspension de l'exécution n'était pas applicable à son cas."
+  },
+  {
+   "id": "r0034",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 18,
+   "fr": "18.  Entre-temps, entre le 11 mai 1991 et le 21 avril 1993, l’huissier de justice avait procédé à dix-neuf tentatives d’expulsion. Ces tentatives se soldèrent toutes par un échec, les requérants n’ayant pas obtenu le concours de la force publique dans l’exécution de l’expulsion, malgré les demandes qu’il avait adressées au préfet de police les 12 octobre et 12 décembre 1992."
+  },
+  {
+   "id": "r0035",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 19,
+   "fr": "19.  Le 2 juillet 1993, lorsque l’huissier de justice se rendit sur les lieux, assisté de la force publique, la locataire libéra l’appartement."
+  },
+  {
+   "id": "r0036",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 20,
+   "fr": "20.  Entre-temps, le 6 novembre 1992, le juge d'instance de Pescara avait fait droit à la demande du syndic de la copropriété dont faisait partie l'appartement du requérant, d'enjoindre au requérant d'acquitter sa quote-part des charges de la copropriété, ainsi que celle due par la locataire (pour un total de 1 406 500 ITL soit environ 4 600 FF)."
+  },
+  {
+   "id": "r0037",
+   "section": "Legal Framework",
+   "role": "heading",
+   "para_no": null,
+   "fr": "II.  LE DROIT INTERNE PERTINENT"
+  },
+  {
+   "id": "r0038",
+   "section": "Legal Framework",
+   "role": "paragraph",
+   "para_no": 21,
+   "fr": "21.  Le décret-loi n° 551 du 30 décembre 1988, converti en la loi n° 61 du 21 février 1989 (« la loi n° 61/89 »), suspendit jusqu’au 30 avril 1989 l’exécution forcée des expulsions. L’article 2 dudit décret-loi prévoyait que l’exécution n’était pas suspendue dans le cas notamment où le locataire était en retard dans le paiement des loyers ou des charges de la copropriété correspondant au moins à deux loyers mensuels."
+  },
+  {
+   "id": "r0039",
+   "section": "Legal Framework",
+   "role": "paragraph",
+   "para_no": 22,
+   "fr": "22.  Le restant du droit interne pertinent est décrit dans l’arrêt Immobiliare Saffi c. Italie [GC], n° 22774/93, §§ 18-35, CEDU 1999-V."
+  }
+ ],
+ "glossary": {
+  "requérant": "applicant",
+  "requérants": "applicants"
+ },
+ "examples": [
+  {
+   "fr": "15.  Entre le 15 décembre 1988 et le 9 janvier 1996, l’huissier de justice procéda à onze tentatives d’expulsion les 15 décembre 1988, 9 juin et 30 octobre 1989, 30 octobre 1990, 17 février et 17 mai 1991, 18 mai 1992, 15 mai 1993, 8 février 1994, 13 janvier 1995, et 9 janvier 1996. Ces tentatives se soldèrent toutes par un échec, les lois sur la suspension ou l’échelonnement de l’exécution des décisions d’expulsion ne permettant pas à la société requérante de bénéficier du concours de la force publique.",
+   "en": "15.  Between 15 December 1988 and 9 January 1996 the bailiff made eleven attempts to recover possession (on 15 December 1988, 9 June and 30 October 1989, 30 October 1990, 17 February and 17 May 1991, 18 May 1992, 15 May 1993, 8 February 1994, 13 January 1995 and 9 January 1996). Each attempt proved unsuccessful, as, under the statutory provisions providing for the suspension or staggering of evictions, the applicant company was not entitled to police assistance."
+  },
+  {
+   "fr": "64.  La société requérante se plaint que la procédure d’expulsion a duré environ treize ans. De plus, elle dénonce le fait qu’à la suite de l’action du préfet de Livourne et de la commission préfectorale, qui examinent les expulsions au cas par cas afin de déterminer celles qui vont être exécutées, il y a eu méconnaissance de la décision du juge d’instance de Livourne, qui avait statué sur la date d’exécution de l’expulsion lors de la procédure au fond. Immobiliare Saffi n’aurait donc pas eu accès à un tribunal afin d’obtenir satisfaction de son droit à récupérer son appartement et à obtenir l’exécution de l’ordonnance d’expulsion à partir du 30 septembre 1984.",
+   "en": "64.  The applicant company complained that the enforcement proceedings lasted approximately thirteen years. Furthermore, it said that as a result of the action of the Livorno Prefect and the prefectoral committee, who examined orders for possession on a case-by-case basis in order to determine which would be enforced, there had been a breach of the order of the Livorno magistrate, who had set the date by which the premises had to be vacated in the proceedings on the merits. Immobiliare Saffi had from 30 September 1984 onwards thus been denied access to a court to exercise its right to recover its apartment and to have the order for possession enforced."
+  },
+  {
+   "fr": "13.  Le 30 mai 1985, la société I.B. signifia au locataire le commandement (precetto) de libérer l’appartement. Le 26 septembre 1985, elle lui signifia l’avis (significazione di sfratto) que l’expulsion serait exécutée le 19 novembre 1985 par voie d’huissier de justice. L’huissier fit en vain plusieurs tentatives, les 19 novembre 1985, 28 mars, 30 septembre et 17 décembre 1986, 4 avril et 21 décembre 1987.",
+   "en": "13.  \tOn 30 May 1985 I.B. served notice (precetto) on the tenant requiring him to vacate the premises. On 26 September 1985 it served notice on the tenant informing him that the order for possession would be enforced by a bailiff (significazione di sfratto) on 19 November 1985. The bailiff made several unsuccessful attempts to enforce the order (on 19 November 1985, 28 March, 30 September and 17 December 1986, 4 April and 21 December 1987)."
+  }
+ ]
+}

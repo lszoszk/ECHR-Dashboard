@@ -1,0 +1,51 @@
+{
+ "case": {
+  "id": "001-61392",
+  "en_id": "001-61392",
+  "source_id": "001-65950",
+  "title": "CASE OF GENCEL v. TURKEY"
+ },
+ "chunk": 7,
+ "context_before": "3.  Dit qu'il n'y a pas lieu d'examiner les autres griefs tirés de l'article 6 de la Convention ;",
+ "rows": [
+  {
+   "id": "r0070",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "4.  Dit que le présent arrêt constitue par lui-même une satisfaction équitable suffisante pour le préjudice moral allégué."
+  },
+  {
+   "id": "r0071",
+   "section": "Appendix",
+   "role": "footer",
+   "para_no": null,
+   "fr": "Fait en français, puis communiqué par écrit le 23 octobre 2003 en application de l'article 77 §§ 2 et 3 du règlement."
+  },
+  {
+   "id": "r0072",
+   "section": "Appendix",
+   "role": "signature",
+   "para_no": null,
+   "fr": "Vincent Berger\tGeorg Ress\n\tGreffier\tPrésident"
+  }
+ ],
+ "glossary": {
+  "préjudice moral": "non-pecuniary damage",
+  "satisfaction équitable": "just satisfaction"
+ },
+ "examples": [
+  {
+   "fr": "28.  La Cour estime que, dans les circonstances de l’espèce, le constat de violation constitue en soi une satisfaction équitable suffisante pour tout préjudice moral subi par les intéressés.",
+   "en": "28.  The Court considers that in the circumstances of the case the finding of a violation in itself constitutes sufficient just satisfaction for any non-pecuniary damage suffered by the applicants."
+  },
+  {
+   "fr": "87.  Dès lors, la Cour estime que le présent arrêt constitue en soi une satisfaction équitable suffisante pour le préjudice moral éventuel découlant de la violation des articles 5 et 6 de la Convention.",
+   "en": "87.  Accordingly, the Court finds that the present judgment in itself constitutes sufficient just satisfaction for any non-pecuniary damage arising from the violations of Articles 5 and 6 of the Convention."
+  },
+  {
+   "fr": "235.  Au vu des circonstances de l’espèce, la Cour considère que le constat de violation de la Convention constitue une satisfaction équitable suffisante pour tout préjudice moral pouvant avoir été subi par les requérants.",
+   "en": "235.  Having regard to the circumstances of the case, the Court considers that the finding of a violation constitutes in itself sufficient just satisfaction for any non-pecuniary damage that may have been sustained by the applicants."
+  }
+ ]
+}

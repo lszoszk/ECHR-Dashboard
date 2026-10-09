@@ -1,0 +1,100 @@
+{
+ "case": {
+  "id": "001-61392",
+  "en_id": "001-61392",
+  "source_id": "001-65950",
+  "title": "CASE OF GENCEL v. TURKEY"
+ },
+ "chunk": 4,
+ "context_before": "(...)",
+ "rows": [
+  {
+   "id": "r0040",
+   "section": "Merits",
+   "role": "quote",
+   "para_no": null,
+   "fr": "3.  Tout accusé a droit notamment à :"
+  },
+  {
+   "id": "r0041",
+   "section": "Merits",
+   "role": "quote",
+   "para_no": null,
+   "fr": "(...)"
+  },
+  {
+   "id": "r0042",
+   "section": "Merits",
+   "role": "quote",
+   "para_no": null,
+   "fr": "b)  disposer du temps et des facilités nécessaires à la préparation de sa défense ;"
+  },
+  {
+   "id": "r0043",
+   "section": "Merits",
+   "role": "quote",
+   "para_no": null,
+   "fr": "c)  se défendre lui-même ou avoir l'assistance d'un défenseur de son choix et, s'il n'a pas les moyens de rémunérer un défenseur, pouvoir être assisté gratuitement par un avocat d'office, lorsque les intérêts de la justice l'exigent ;"
+  },
+  {
+   "id": "r0044",
+   "section": "Merits",
+   "role": "quote",
+   "para_no": null,
+   "fr": "(...) »"
+  },
+  {
+   "id": "r0045",
+   "section": "Merits",
+   "role": "heading",
+   "para_no": null,
+   "fr": "A.  Sur la recevabilité"
+  },
+  {
+   "id": "r0046",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": 14,
+   "fr": "14.  Le Gouvernement invite la Cour à rejeter le grief concernant la composition de la cour de sûreté de l'Etat pour non-respect du délai de six mois prévu à l'article 35 de la Convention. Il soutient que la décision interne définitive concernant le grief relatif au manque d'indépendance et d'impartialité de la cour de sûreté de l'Etat est celle rendue par cette même juridiction. A cet égard, il fait valoir que ni la cour de sûreté de l'Etat ni la Cour de cassation n'étaient habilitées à se prononcer sur ce grief dans la mesure où la composition des cours de sûreté de l'Etat découlait, à l'époque des faits, de la législation interne. Il en conclut que le requérant aurait dû introduire sa requête dans les six mois suivant le moment où il s'était rendu compte de l'inefficacité des recours internes, soit à compter du 29 décembre 1997, date de l'arrêt de la cour de sûreté de l'Etat. Or, il souligne que la requête a été introduite le 17 septembre 1999."
+  },
+  {
+   "id": "r0047",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": 15,
+   "fr": "15.  La Cour rappelle qu'elle a rejeté une exception semblable dans l'affaire Özdemir c. Turquie (arrêt précité, § 26). Elle n'aperçoit aucun motif de déroger à sa précédente conclusion et rejette donc l'exception du Gouvernement."
+  },
+  {
+   "id": "r0048",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": 16,
+   "fr": "16.  La Cour estime, à la lumière des critères qui se dégagent de sa jurisprudence (voir, notamment, Çiraklar c. Turquie, arrêt du 28 octobre 1998, Recueil des arrêts et décisions 1998VII) et compte tenu de l'ensemble des éléments en sa possession, que ces griefs doivent faire l'objet d'un examen au fond. Elle constate en outre que ceux-ci ne se heurtent à aucun autre motif d'irrecevabilité."
+  },
+  {
+   "id": "r0049",
+   "section": "Merits",
+   "role": "heading",
+   "para_no": null,
+   "fr": "B.  Sur le fond"
+  }
+ ],
+ "glossary": {
+  "requérant": "applicant",
+  "Cour de cassation": "Court of Cassation"
+ },
+ "examples": [
+  {
+   "fr": "170.  Le Gouvernement soutient que le processus décisionnel interne a été équitable et propre à préserver les droits des requérants découlant de l’article 8 de la Convention. Il ajoute que l’affaire a été examinée en toute indépendance et impartialité par plusieurs degrés de juridiction.",
+   "en": "170.  The Government argued that the domestic decision-making process had been fair and capable of safeguarding the applicants’ rights under Article 8 of the Convention. The case had been reviewed independently and impartially by several levels of court."
+  },
+  {
+   "fr": "73.  Pour déterminer tout d’abord si une juridiction de deuxième instance jouissait de la « plénitude de juridiction » ou si elle a procédé à un « contrôle suffisant » pour remédier à un défaut d’indépendance et d’impartialité en première instance, la Cour, dans sa jurisprudence, estime qu’il faut tenir compte d’éléments tels que l’objet de la décision attaquée, la méthode suivie pour parvenir à cette décision et la teneur du litige, y compris les moyens d’appel, tant souhaités que réels (Bryan c. RoyaumeUni, 22 novembre 1995, §§ 44-47, série A no 335A, et Tsfayo, précité, § 43).",
+   "en": "73.  In order to determine firstly whether a second-level tribunal had “full jurisdiction”, or provided “sufficiency of review” to remedy a lack of independence and impartiality at first instance, the Court has considered that it is necessary to have regard to such factors as the subject matter of the decision appealed against, the manner in which that decision was arrived at and the content of the dispute, including the desired and actual grounds of appeal (see Bryan v. the United Kingdom, 22 November 1995, §§ 44-47, Series A no. 335-A, and Tsfayo, cited above, § 43)."
+  },
+  {
+   "fr": "114.  Quant à la question de savoir si le remplacement du juge militaire par un magistrat civil au cours de la procédure, avant le prononcé du jugement de condamnation, a remédié à la situation, la Cour considère en premier lieu que l’apparence d’indépendance de la juridiction concernée ne tient pas uniquement à celle de sa composition lorsqu’elle se prononce sur la condamnation de l’accusé. Pour se conformer aux exigences de l’article 6 en matière d’indépendance, la juridiction contestée doit paraître indépendante des pouvoirs exécutif ou législatif dans chacune des trois phases de la procédure, à savoir l’instruction, le procès et le verdict (selon les indications du Gouvernement pour la procédure pénale en Turquie).",
+   "en": "114.  As to whether the military judge's replacement by a civilian judge in the course of the proceedings before the verdict was delivered remedied the situation, the Court considers, firstly, that the question whether a court is seen to be independent does not depend solely on its composition when it delivers its verdict. In order to comply with the requirements of Article 6 regarding independence, the court concerned must be seen to be independent of the executive and the legislature at each of the three stages of the proceedings, namely the investigation, the trial and the verdict (those being the three stages in Turkish criminal proceedings according to the Government)."
+  }
+ ]
+}

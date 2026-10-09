@@ -1,0 +1,104 @@
+{
+ "case": {
+  "id": "001-61392",
+  "en_id": "001-61392",
+  "source_id": "001-65950",
+  "title": "CASE OF GENCEL v. TURKEY"
+ },
+ "chunk": 6,
+ "context_before": "« Si la Cour déclare qu'il y a eu violation de la Convention ou de ses Protocoles, et si le droit interne de la Haute Partie contractante ne permet d'effacer qu'imparfaitement les conséquences de cette violation, la Cour accorde à la partie lésée, s'il y a lieu, une satisfaction équitable. »",
+ "rows": [
+  {
+   "id": "r0060",
+   "section": "Just Satisfaction",
+   "role": "paragraph",
+   "para_no": 23,
+   "fr": "23.  Le requérant allègue avoir subi un préjudice matériel et moral qu'il n'évalue pas."
+  },
+  {
+   "id": "r0061",
+   "section": "Just Satisfaction",
+   "role": "paragraph",
+   "para_no": 24,
+   "fr": "24.  Le Gouvernement ne se prononce pas."
+  },
+  {
+   "id": "r0062",
+   "section": "Just Satisfaction",
+   "role": "paragraph",
+   "para_no": 25,
+   "fr": "25.  En ce qui concerne le dommage matériel allégué, la Cour ne saurait spéculer sur le résultat auquel la procédure devant la cour de sûreté de l'Etat aurait abouti si l'infraction à la Convention n'avait pas eu lieu. Il n'y a donc pas lieu d'accorder au requérant une indemnité à ce titre (voir Findlay c. Royaume-Uni, arrêt du 25 février 1997, Recueil 1997-I, p. 284, § 85)."
+  },
+  {
+   "id": "r0063",
+   "section": "Just Satisfaction",
+   "role": "paragraph",
+   "para_no": 26,
+   "fr": "26.  Quant au préjudice moral, la Cour estime que, dans les circonstances de l'espèce, le constat de violation constitue en soi une satisfaction équitable suffisante (Çiraklar, précité, p. 3074, § 49)."
+  },
+  {
+   "id": "r0064",
+   "section": "Just Satisfaction",
+   "role": "paragraph",
+   "para_no": 27,
+   "fr": "27.  Lorsque la Cour conclut que la condamnation d'un requérant a été prononcée par un tribunal qui n'était pas indépendant et impartial au sens de l'article 6 § 1, elle estime qu'en principe le redressement le plus approprié serait de faire rejuger le requérant en temps utile par un tribunal indépendant et impartial."
+  },
+  {
+   "id": "r0065",
+   "section": "Just Satisfaction",
+   "role": "paragraph",
+   "para_no": 28,
+   "fr": "28.  Le requérant ne sollicite pas le remboursement de frais et dépens supportés devant les organes de la Convention et/ou les juridictions internes, et pareille question n'appelle pas un examen d'office (voir Colacioppo c. Italie, arrêt du 19 février 1991, série A no 197-D, p. 52, § 16)."
+  },
+  {
+   "id": "r0066",
+   "section": "Operative part",
+   "role": "heading",
+   "para_no": null,
+   "fr": "PAR CES MOTIFS, LA COUR, À L'UNANIMITÉ,"
+  },
+  {
+   "id": "r0067",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "1.  Déclare la requête recevable ;"
+  },
+  {
+   "id": "r0068",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "2.  Dit qu'il y a eu violation de l'article 6 § 1 de la Convention en raison du manque d'indépendance et d'impartialité de la cour de sûreté de l'Etat d'Izmir ;"
+  },
+  {
+   "id": "r0069",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "3.  Dit qu'il n'y a pas lieu d'examiner les autres griefs tirés de l'article 6 de la Convention ;"
+  }
+ ],
+ "glossary": {
+  "requérant": "applicant",
+  "préjudice moral": "non-pecuniary damage",
+  "dommage matériel": "pecuniary damage",
+  "frais et dépens": "costs and expenses",
+  "satisfaction équitable": "just satisfaction",
+  "recevable": "admissible"
+ },
+ "examples": [
+  {
+   "fr": "3.  Le requérant se plaignait de n'avoir pas bénéficié d'un procès équitable devant un tribunal indépendant et impartial établi par la loi, au mépris de l'article 6 § 1 de la Convention. Il alléguait en particulier que la composition de la cour martiale qui l'avait jugé était telle qu'elle emportait violation des exigences d'indépendance et d'impartialité, et donc d'équité, posées par cet article. Il dénonçait également un manque d'équité à raison des circonstances particulières de la cause.",
+   "en": "3.  The applicant complained that he did not have a fair trial by an independent and impartial tribunal established by law, in violation of Article 6 § 1 of the Convention. In particular, he complained that the structure of the court-martial that had tried him was such that it violated the independence and impartiality requirements, and consequently the fairness requirement, of that Article. He also complained of unfairness based on the particular facts of his case."
+  },
+  {
+   "fr": "3.  Le requérant se plaignait de n'avoir pas bénéficié d'un procès équitable devant un tribunal indépendant et impartial établi par la loi, au mépris de l'article 6 § 1 de la Convention. Il alléguait en particulier que la composition de la cour martiale qui l'avait jugé était telle qu'elle emportait violation des exigences d'indépendance et d'impartialité, et donc d'équité, posées par cet article. Il dénonçait également un manque d'équité à raison des circonstances particulières de la cause.",
+   "en": "3.  The applicant complained that he did not receive a fair trial by an independent and impartial tribunal established by law in violation of Article 6 § 1 of the Convention. In particular, he complained that the structure of his court-martial was such that it violated the independence and impartiality requirements, and consequently the fairness requirement, of that Article. He also complained about unfairness based on the particular facts of his case."
+  },
+  {
+   "fr": "191.  Enfin, le Gouvernement soutient que le requérant a été jugé par un tribunal indépendant et impartial établi par la loi, composé de juridictions de droit commun préexistantes aux faits, dont les juges bénéficiaient des garanties constitutionnelles. Il conteste la thèse selon laquelle l’enquête disciplinaire ouverte contre certains magistrats a eu une quelconque incidence sur l’indépendance ou l’impartialité du tribunal, cette procédure étant selon lui distincte de l’examen juridictionnel de l’affaire. Il argue que les décisions ont été rendues à la majorité, que l’existence d’opinions dissidentes atteste de la liberté de jugement des magistrats, et que la demande de récusation, formulée tardivement, n’était étayée par aucun élément propre à renverser la présomption d’impartialité. Il estime par conséquent qu’aucune violation de l’article 6 § 1 de la Convention ne saurait être retenue.",
+   "en": "191.  Lastly, the Government submitted that the applicant had been tried by an independent and impartial tribunal established by law, composed of pre-existing ordinary courts, whose judges enjoyed constitutional safeguards. They disputed that the disciplinary investigation opened against certain judges had had any impact on the independence or impartiality of the court, as that procedure was separate from the judicial examination of the case. They pointed out that the decisions had been delivered by majority verdicts, that the existence of dissenting opinions was evidence of the judges’ freedom of judgment, and that the application for withdrawal, which had been made out of time, had not been supported by any evidence capable of rebutting the presumption of impartiality. Accordingly, they concluded that no violation of Article 6 § 1 of the Convention could be found."
+  }
+ ]
+}
