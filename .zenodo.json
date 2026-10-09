@@ -38,6 +38,12 @@
       "relation": "isDerivedFrom",
       "scheme": "url",
       "resource_type": "dataset"
+    },
+    {
+      "identifier": "https://huggingface.co/datasets/lszoszk/ecthr-judgments",
+      "relation": "isSupplementedBy",
+      "scheme": "url",
+      "resource_type": "dataset"
     }
   ]
 }

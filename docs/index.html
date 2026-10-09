@@ -16,12 +16,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css?v=20260727-reading-space">
   <link rel="stylesheet" href="assets/search-app.css?v=20260727-reading-space">
-  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261010-nav">
+  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261010-cite">
   <link rel="stylesheet" href="assets/judgment-hudoc.css?v=20260706-deadmodal">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
   <script src="assets/tour.js?v=20261010-nav" defer></script>
   <script src="assets/workspace.js?v=20261010-ws"></script>
+  <script src="assets/cite.js?v=20261010-cite" defer></script>
 </head>
 <body>
   <nav class="navbar">
@@ -382,7 +383,7 @@
   <footer class="footer site-footer site-bar">
     <div class="sf-left">
       <span class="sf-name">HUDOC Researcher</span>
-      <span>by <b>&#321;. Szoszkiewicz</b> &amp; <b>S. Marcisz</b></span>
+      <span>by <a href="https://lszoszk.github.io/" target="_blank" rel="noopener"><b>&#321;. Szoszkiewicz</b></a> &amp; <b>S. Marcisz</b></span>
       <span class="sf-label">Supported by</span><span class="sf-sup" title="Adam Mickiewicz University, Pozna&#324; &mdash; research host">Adam Mickiewicz University</span>
       <span class="sf-sep">&middot;</span>
       <span>Data: <a href="https://hudoc.echr.coe.int" target="_blank" rel="noopener">HUDOC</a></span>
@@ -394,6 +395,7 @@
       <button class="sf-btn" id="themeToggle" type="button" title="Switch between light and dark" aria-label="Toggle dark mode"><span class="theme-icon-light">Theme: light</span><span class="theme-icon-dark">Theme: dark</span></button>
       <button class="sf-btn" id="accessibilityBtn" type="button" title="Text size, spacing, contrast (Alt+A)" aria-label="Accessibility settings">Aa</button>
       <a class="sf-btn" href="methodology.html">Methodology</a>
+      <button class="sf-btn" id="citeSiteBtn" type="button" title="Copy a citation for HUDOC Researcher (APA); BibTeX on the About page">Cite</button>
       <button class="sf-btn sf-tour" id="tourBtn" type="button" title="A one-minute tour of the site">&#10022; tour</button>
     </div>
   </footer>
