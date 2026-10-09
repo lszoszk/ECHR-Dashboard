@@ -5,6 +5,9 @@
 #
 #   ./deploy/deploy_api_main.sh
 #
+# Also ships the modules main.py imports that are not in the image yet (MODULES below), into
+# the same host directory and /app.
+#
 # This is the procedure used on 2026-10-08, as a script. It does NOT use
 # deploy/deploy.sh, which is out of date and would overwrite the live compose file.
 #
@@ -26,15 +29,28 @@ REMOTE_DIR="${REMOTE_DIR:-/home/amuvmuser/echr/backend}"
 STAMP="$(date -u +%Y%m%d-%H%M)"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SRC="${ROOT}/api/main.py"
+MODULES=(citation_check.py)   # imported by main.py; copied next to it
 SSH=(ssh -o BatchMode=yes "${HOST}")
 
 python3 -m py_compile "${SRC}"
+for m in "${MODULES[@]}"; do python3 -m py_compile "${ROOT}/api/${m}"; done
 echo "== local compile OK: ${SRC}"
 
 echo "== uploading and compile-checking inside ${CONTAINER}"
 scp -q -o BatchMode=yes "${SRC}" "${HOST}:/tmp/main.py.new"
+for m in "${MODULES[@]}"; do scp -q -o BatchMode=yes "${ROOT}/api/${m}" "${HOST}:/tmp/${m}.new"; done
 "${SSH[@]}" "docker cp /tmp/main.py.new ${CONTAINER}:/tmp/main.py.new && \
   docker exec ${CONTAINER} python3 -c \"import py_compile; py_compile.compile('/tmp/main.py.new', cfile='/tmp/main.pyc.check', doraise=True); print('container compile OK')\""
+
+echo "== installing the modules (new files; main.py still the old one until the next step)"
+for m in "${MODULES[@]}"; do
+  "${SSH[@]}" "if [ -f ${REMOTE_DIR}/${m} ]; then cp ${REMOTE_DIR}/${m} ${REMOTE_DIR}/${m}.bak-${STAMP}; fi && \
+    cp /tmp/${m}.new ${REMOTE_DIR}/${m} && docker cp ${REMOTE_DIR}/${m} ${CONTAINER}:/app/${m} && \
+    docker exec ${CONTAINER} python3 -c \"import py_compile; py_compile.compile('/app/${m}', cfile='/tmp/${m}c', doraise=True)\" && echo '  ${m} OK'"
+  # the image copies files one by one: a later rebuild must copy the module too
+  "${SSH[@]}" "grep -q '^COPY ${m} ' ${REMOTE_DIR}/Dockerfile || (cp ${REMOTE_DIR}/Dockerfile ${REMOTE_DIR}/Dockerfile.bak-${STAMP} && \
+    sed -i '/^COPY ranking.py \./a COPY ${m} .' ${REMOTE_DIR}/Dockerfile && echo '  Dockerfile: COPY ${m} added')"
+done
 
 echo "== backing up the live file and installing the new one"
 "${SSH[@]}" "cp ${REMOTE_DIR}/main.py ${REMOTE_DIR}/main.py.bak-${STAMP} && \
@@ -66,5 +82,8 @@ wait_for "/api/stats (cold)" "/api/stats" 300 || rollback
 wait_for "/api/facets" "/api/facets" 120 || rollback
 curl -s --max-time 60 -G "${API}/api/search" --data-urlencode 'q="pressing social need"' --data-urlencode "page_size=3" \
   | python3 -c 'import sys,json; d=json.load(sys.stdin); print("  search OK:", d.get("total_cases"), "cases")' || rollback
+curl -s --max-time 60 -X POST "${API}/api/check/resolve" -H 'Content-Type: application/json' \
+  -d '{"items":[{"key":"k","appnos":["30210/96"],"name":"Kudla v. Poland","gc":true}]}' \
+  | python3 -c 'import sys,json; d=json.load(sys.stdin)["items"][0]; assert d["status"] == "found", d; print("  check/resolve OK:", d["match"]["title"])' || rollback
 
 echo "Done. Old file kept as ${REMOTE_DIR}/main.py.bak-${STAMP}. Run deploy/demo_prewarm.sh next."
