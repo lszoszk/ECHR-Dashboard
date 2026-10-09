@@ -124,5 +124,20 @@ class DedupeTests(unittest.TestCase):
             self.assertEqual(count(db), 5)
 
 
+class RepairUpdateTests(unittest.TestCase):
+    def test_updates_are_applied_in_batches_and_guarded_by_the_old_text(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            db, sql = make_db(tmp)
+            self.assertEqual(run(loader, ["--db", str(db), "--sql", str(sql), "--min-free-gb", "0"]), 0)
+            fix = Path(tmp) / "fix.sql"
+            fix.write_text("\n".join(
+                [f"UPDATE paragraphs SET text = 'fixed {i}' WHERE case_id = '001-1' AND para_idx = 2 AND text = '{t}';"
+                 for i, t in enumerate(["second", "fixed 0", "no longer there"])]) + "\n", encoding="utf-8")
+            self.assertEqual(run(loader, ["--db", str(db), "--sql", str(fix), "--min-free-gb", "0", "--batch-updates", "2"]), 0)
+            con = sqlite3.connect(db)
+            self.assertEqual(con.execute("SELECT text FROM paragraphs WHERE case_id='001-1' AND para_idx=2").fetchone()[0], "fixed 1")
+            self.assertEqual(con.execute("SELECT count(*) FROM paragraphs").fetchone()[0], 3)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
