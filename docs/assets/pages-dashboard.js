@@ -475,48 +475,41 @@ function createMultiLineChart(ctx, labels, datasets) {
   });
 }
 
+/** Outcomes by respondent State: every State, sticky header, sorted by clicking a column. */
 function renderStateOutcomeTable(container, rows) {
   if (!container) return;
   if (!rows.length) {
-    container.innerHTML = '<p class="state-outcome-empty">No state-level rows satisfy n ≥ 5.</p>';
+    container.innerHTML = '<p class="state-outcome-empty">No state-level rows.</p>';
     return;
   }
-
-  const bodyRows = rows
-    .slice(0, 20)
-    .map(
-      (row) => `
-        <tr>
-          <td>${row[0]}</td>
-          <td>${fmtInt.format(row[1] || 0)}</td>
-          <td>${fmtInt.format(row[2] || 0)}</td>
-          <td>${fmtInt.format(row[3] || 0)}</td>
-          <td>${fmtInt.format(row[4] || 0)}</td>
-          <td>${fmtInt.format(row[5] || 0)}</td>
-          <td>${Number(row[6] || 0).toFixed(1)}%</td>
-        </tr>
-      `
-    )
-    .join("");
-
-  container.innerHTML = `
-    <div class="state-outcome-scroll">
-      <table class="state-outcome-table">
-        <thead>
-          <tr>
-            <th>State</th>
-            <th>Cases</th>
-            <th>Violation only</th>
-            <th>Non-violation only</th>
-            <th>Mixed</th>
-            <th>No finding</th>
-            <th>Violation rate</th>
-          </tr>
-        </thead>
-        <tbody>${bodyRows}</tbody>
-      </table>
-    </div>
-  `;
+  const cols = ["State", "Cases", "Violation only", "Non-violation only", "Mixed", "No finding", "Violation rate"];
+  let sortCol = 1, desc = true;
+  const cell = (row, i) => (i === 0 ? row[0] : i === 6 ? `${Number(row[6] || 0).toFixed(1)}%` : fmtInt.format(row[i] || 0));
+  const draw = () => {
+    const sorted = rows.slice().sort((a, b) => {
+      const c = sortCol === 0 ? String(a[0]).localeCompare(String(b[0])) : (a[sortCol] || 0) - (b[sortCol] || 0);
+      return desc ? -c : c;
+    });
+    container.innerHTML = `
+      <div class="state-outcome-scroll">
+        <table class="state-outcome-table">
+          <thead><tr>${cols.map((label, i) => `
+            <th scope="col" aria-sort="${i === sortCol ? (desc ? "descending" : "ascending") : "none"}">
+              <button type="button" class="sort-btn" data-col="${i}">${label}<span aria-hidden="true">${i === sortCol ? (desc ? " ▾" : " ▴") : ""}</span></button>
+            </th>`).join("")}</tr></thead>
+          <tbody>${sorted.map((row) => `<tr${row[1] < 5 ? ' class="few"' : ""}>${cols.map((_, i) => `<td>${cell(row, i)}</td>`).join("")}</tr>`).join("")}</tbody>
+        </table>
+      </div>`;
+  };
+  container.addEventListener("click", (e) => {
+    const btn = e.target.closest(".sort-btn");
+    if (!btn) return;
+    const col = Number(btn.dataset.col);
+    if (col === sortCol) desc = !desc;
+    else { sortCol = col; desc = col !== 0; }
+    draw();
+  });
+  draw();
 }
 
 function rowsOrEmpty(value) {
@@ -670,10 +663,6 @@ async function loadDashboard() {
   caveat.textContent = (scope.note || "") + " " + (scope.translation_title_warnings?.length || 0) + " translation-title records remain in the literal catalog count.";
   renderCoverage(data);
   renderChamberTrend(series.chambers_by_year || []);
-  const citationNote = document.getElementById("citationCoverageNote");
-  citationNote.textContent = "HUDOC citation metadata is populated for " +
-    fmtInt.format(s.cases_with_strasbourg_caselaw || 0) + " / " + fmtInt.format(total) +
-    " judgments. Counts refer to distinct citation strings, not resolved judgment identities or a citation network.";
 
   const casesByYear = rowsOrEmpty(series.cases_by_year);
   const chamberBreakdown = rowsOrEmpty(series.chamber_breakdown);
@@ -685,11 +674,9 @@ async function loadDashboard() {
   const bodiesTop = rowsOrEmpty(rankings.originating_bodies_top);
   const separateShareByBody = rowsOrEmpty(series.separate_opinion_share_by_body);
   const keywordsTop = rowsOrEmpty(rankings.keywords_top);
-  const citationsTop = rowsOrEmpty(rankings.strasbourg_caselaw_top);
   const stateOutcomesTop = rowsOrEmpty(rankings.state_outcomes_top);
+  const stateOutcomesAll = rowsOrEmpty(rankings.state_outcomes_all || rankings.state_outcomes_top);
   const inadmissibilityGroundsTop = rowsOrEmpty(rankings.inadmissibility_grounds_top);
-  const precedentConcentrationTop = rowsOrEmpty(rankings.precedent_concentration_top);
-  const precedentToCitingCasesTop = rowsOrEmpty(rankings.precedent_to_citing_cases_top);
   const outcomesByYear = rowsOrEmpty(series.outcomes_by_year);
   const proceduralVsSubstantiveByYear = rowsOrEmpty(series.procedural_vs_substantive_by_year);
 
@@ -915,50 +902,6 @@ async function loadDashboard() {
   renderArticleAnalytics(data.article_analytics);
   await renderJudgmentCitations(scope);
 
-  if (precedentConcentrationTop.length) {
-    const concentrationChart = createLineChart(
-      document.getElementById("precedentConcentrationChart"),
-      precedentConcentrationTop.map((d) => d[0]),
-      precedentConcentrationTop.map((d) => d[3]),
-      "#8d4f78"
-    );
-    if (concentrationChart) {
-      concentrationChart.options.scales.x.ticks = {
-        callback(value) { return citationDisplayLabel(this.getLabelForValue(value)); },
-      };
-      concentrationChart.options.plugins.tooltip = { callbacks: { title: citationTooltipTitle } };
-      concentrationChart.update("none");
-    }
-  } else {
-    createBarChart(
-      document.getElementById("precedentConcentrationChart"),
-      ["Top 10 cumulative share"],
-      [0],
-      { colors: ["#8d4f78"] }
-    );
-  }
-
-  const citationSourceRows = precedentToCitingCasesTop.length ? precedentToCitingCasesTop : citationsTop;
-  const citationsChart = createBarChart(
-    document.getElementById("citationsChart"),
-    citationSourceRows.slice(0, 15).map((d) => d[0]),
-    citationSourceRows.slice(0, 15).map((d) => d[1]),
-    { horizontal: true, colors: ["#8d4f78"] }
-  );
-  if (citationsChart) {
-    citationsChart.canvas.parentElement.classList.add("citation-canvas-wrap");
-    citationsChart.data.datasets[0].label = "Citing judgment records";
-    citationsChart.options.scales.y.ticks = {
-      font: { size: 11 },
-      callback(value) {
-        const label = citationDisplayLabel(this.getLabelForValue(value));
-        return this.chart.width < 500 ? wrapCitationText(label, 22) : label;
-      },
-    };
-    citationsChart.options.plugins.tooltip = { callbacks: { title: citationTooltipTitle } };
-    citationsChart.update("none");
-  }
-
   // Violation Rate by Year (%)
   if (outcomesByYear.length) {
     const vrYears = [];
@@ -1178,7 +1121,7 @@ async function loadDashboard() {
     });
   }
 
-  renderStateOutcomeTable(document.getElementById("stateOutcomeTable"), stateOutcomesTop);
+  renderStateOutcomeTable(document.getElementById("stateOutcomeTable"), stateOutcomesAll);
 
   // ── Thesaurus Topic Analytics ────────────────────────────────────────
   const thesaurusAnalytics = data.thesaurus_analytics || {};
@@ -1195,25 +1138,71 @@ async function loadDashboard() {
     );
   }
 
-  // Topic Trends multi-line chart
+  // Topic Trends: the top 5 by default, the top 10, or up to 10 topics of your choice
+  const TREND_COLORS = ["#245ea8", "#b03e45", "#3c8d5a", "#d97a2b", "#6c5db5", "#1f8a8a", "#a3612a", "#8d4f78", "#55708f", "#7a8b2f"];
+  const termTrends = thesaurusAnalytics.term_trends || null;
+  const trendLabels = thesaurusAnalytics.terms_by_year_labels || [];
   const termsByYear = rowsOrEmpty(thesaurusAnalytics.terms_by_year);
-  const termsByYearLabels = thesaurusAnalytics.terms_by_year_labels || [];
-  const TREND_COLORS = ["#245ea8", "#b03e45", "#3c8d5a", "#d97a2b", "#6c5db5"];
-  if (termsByYear.length && termsByYearLabels.length) {
-    createMultiLineChart(
-      document.getElementById("thesaurusTrendsChart"),
-      termsByYear.map((d) => d[0]),
-      termsByYearLabels.map((label, i) => ({
-        label: truncateLabel(label, 40),
-        data: termsByYear.map((d) => d[i + 1] || 0),
-        borderColor: TREND_COLORS[i % TREND_COLORS.length],
-        backgroundColor: `${TREND_COLORS[i % TREND_COLORS.length]}33`,
-        fill: false,
-        tension: 0.2,
-        pointRadius: 2.5,
-        pointHoverRadius: 4,
-      }))
-    );
+  const trendYears = termTrends ? termTrends.years : termsByYear.map((d) => d[0]);
+  const trendSeries = termTrends ? termTrends.series
+    : Object.fromEntries(trendLabels.map((t, i) => [t, termsByYear.map((d) => d[i + 1] || 0)]));
+  const trendsCanvas = document.getElementById("thesaurusTrendsChart");
+  let trendsChart = null;
+  let customTopics = [];
+  const drawTrends = (topics) => {
+    if (trendsChart) trendsChart.destroy();
+    trendsChart = createMultiLineChart(trendsCanvas, trendYears, topics.filter((t) => trendSeries[t]).map((t, i) => ({
+      label: truncateLabel(t, 40),
+      data: trendSeries[t],
+      borderColor: TREND_COLORS[i % TREND_COLORS.length],
+      backgroundColor: `${TREND_COLORS[i % TREND_COLORS.length]}33`,
+      fill: false, tension: 0.2, pointRadius: 2, pointHoverRadius: 4,
+    })));
+  };
+  const topicControls = document.getElementById("topicControls");
+  const topicPicker = document.getElementById("topicPicker");
+  const topicInput = document.getElementById("topicInput");
+  const topicChips = document.getElementById("topicChips");
+  const topicOptions = document.getElementById("topicOptions");
+  const paintChips = () => {
+    topicChips.innerHTML = customTopics.map((t, i) => `<span class="topic-chip" style="border-color:${TREND_COLORS[i]}">${t
+      .replace(/</g, "&lt;")}<button type="button" data-remove="${i}" aria-label="Remove ${t.replace(/"/g, "&quot;")}">×</button></span>`).join("");
+    topicInput.disabled = customTopics.length >= 10;
+    topicInput.placeholder = customTopics.length >= 10 ? "Ten topics chosen" : "Type a topic, e.g. Article 8 or detention…";
+  };
+  const showMode = (mode) => {
+    topicControls.querySelectorAll("[data-topics]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.topics === mode)));
+    topicPicker.hidden = mode !== "custom";
+    if (mode === "custom") {
+      if (!customTopics.length) customTopics = trendLabels.slice(0, 3);
+      paintChips();
+      drawTrends(customTopics);
+      topicInput.focus();
+    } else {
+      drawTrends(trendLabels.slice(0, Number(mode)));
+    }
+  };
+  if (trendYears.length && trendLabels.length) {
+    if (topicControls && topicOptions) {
+      topicOptions.innerHTML = Object.keys(trendSeries).map((t) => `<option value="${t.replace(/"/g, "&quot;")}"></option>`).join("");
+      topicControls.addEventListener("click", (e) => {
+        const mode = e.target.closest("[data-topics]");
+        if (mode) return showMode(mode.dataset.topics);
+        const rm = e.target.closest("[data-remove]");
+        if (rm) { customTopics.splice(Number(rm.dataset.remove), 1); paintChips(); drawTrends(customTopics); }
+      });
+      const addTopic = () => {
+        const t = topicInput.value.trim();
+        if (!trendSeries[t] || customTopics.includes(t) || customTopics.length >= 10) return;
+        customTopics.push(t);
+        topicInput.value = "";
+        paintChips();
+        drawTrends(customTopics);
+      };
+      topicInput.addEventListener("input", addTopic);   // picking a suggestion fills the exact name
+      topicInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); addTopic(); } });
+    }
+    showMode("5");
   }
 
   // Topics by Country interactive
@@ -1251,166 +1240,6 @@ async function loadDashboard() {
     thesCountrySelect.addEventListener("change", () => {
       renderThesaurusCountry(thesCountrySelect.value);
     });
-  }
-
-  // Co-occurrence chart
-  const topCooccurrences = rowsOrEmpty(thesaurusAnalytics.top_cooccurrences);
-  if (topCooccurrences.length) {
-    const coData = topCooccurrences.slice(0, 12);
-    createBarChart(
-      document.getElementById("thesaurusCooccurrenceChart"),
-      coData.map((d) => {
-        const pair = d[0] || [];
-        return truncateLabel(`${pair[0] || "?"} + ${pair[1] || "?"}`, 70);
-      }),
-      coData.map((d) => d[1]),
-      { horizontal: true, colors: ["#8d4f78"] }
-    );
-  }
-
-  // ── Conclusion / Outcome Analytics ──────────────────────────────────
-  const conclusionAnalytics = data.conclusion_analytics || {};
-
-  // Clause breakdown chart
-  const clauseBreakdown = rowsOrEmpty(conclusionAnalytics.clause_breakdown);
-  if (clauseBreakdown.length) {
-    const cbData = clauseBreakdown.slice(0, 18);
-    createBarChart(
-      document.getElementById("conclusionClausesChart"),
-      cbData.map((d) => d[0]),
-      cbData.map((d) => d[1]),
-      { horizontal: true, colors: ["#245ea8"] }
-    );
-  }
-
-  // Conclusion outcome trends by year
-  const conclusionTrends = rowsOrEmpty(conclusionAnalytics.conclusion_outcomes_by_year);
-  if (conclusionTrends.length) {
-    createMultiLineChart(
-      document.getElementById("conclusionTrendsChart"),
-      conclusionTrends.map((d) => d[0]),
-      [
-        {
-          label: "Violation finding",
-          data: conclusionTrends.map((d) => d[1]),
-          borderColor: "#b03e45",
-          backgroundColor: "#b03e4533",
-          fill: false,
-          tension: 0.2,
-          pointRadius: 2.5,
-          pointHoverRadius: 4,
-        },
-        {
-          label: "No violation finding",
-          data: conclusionTrends.map((d) => d[2]),
-          borderColor: "#245ea8",
-          backgroundColor: "#245ea833",
-          fill: false,
-          tension: 0.2,
-          pointRadius: 2.5,
-          pointHoverRadius: 4,
-        },
-        {
-          label: "Award granted",
-          data: conclusionTrends.map((d) => d[3]),
-          borderColor: "#3c8d5a",
-          backgroundColor: "#3c8d5a33",
-          fill: false,
-          tension: 0.2,
-          pointRadius: 2.5,
-          pointHoverRadius: 4,
-        },
-        {
-          label: "Inadmissible",
-          data: conclusionTrends.map((d) => d[4]),
-          borderColor: "#8c8c8c",
-          backgroundColor: "#8c8c8c33",
-          fill: false,
-          tension: 0.2,
-          pointRadius: 2.5,
-          pointHoverRadius: 4,
-        },
-      ]
-    );
-  }
-
-  // Preliminary objections doughnut
-  const prelimObj = conclusionAnalytics.preliminary_objections || {};
-  const prelimTotal = (prelimObj.rejected || 0) + (prelimObj.accepted || 0) + (prelimObj.joined_to_merits || 0);
-  if (prelimTotal > 0) {
-    createDoughnutChart(
-      document.getElementById("prelimObjChart"),
-      ["Rejected", "Accepted", "Joined to merits"],
-      [prelimObj.rejected || 0, prelimObj.accepted || 0, prelimObj.joined_to_merits || 0],
-      ["#3c8d5a", "#b03e45", "#d97a2b"]
-    );
-  }
-
-  // Damages & costs disposition
-  const damagesCtx = document.getElementById("damagesDispositionChart");
-  if (damagesCtx && clauseBreakdown.length) {
-    const damageLabels = [];
-    const damageValues = [];
-    const damageColors = [];
-    const colorMap = {
-      "Pecuniary damage awarded": "#3c8d5a",
-      "Pecuniary damage dismissed": "#b03e45",
-      "Pecuniary damage other": "#8c8c8c",
-      "Non-pecuniary damage awarded": "#245ea8",
-      "Non-pecuniary: violation sufficient": "#6c5db5",
-      "Non-pecuniary damage dismissed": "#d97a2b",
-      "Costs & expenses awarded": "#4f7ca6",
-      "Costs & expenses dismissed": "#b28a2f",
-    };
-    for (const [label, count] of clauseBreakdown) {
-      if (label in colorMap) {
-        damageLabels.push(label);
-        damageValues.push(count);
-        damageColors.push(colorMap[label]);
-      }
-    }
-    if (damageLabels.length) {
-      createBarChart(
-        damagesCtx,
-        damageLabels,
-        damageValues,
-        { horizontal: true, colors: damageColors }
-      );
-    }
-  }
-
-  // Just Satisfaction KPIs
-  const justSat = conclusionAnalytics.just_satisfaction || {};
-  const jsKpiGrid = document.getElementById("justSatisfactionKpis");
-  if (jsKpiGrid) {
-    const pStats = justSat.pecuniary_stats || {};
-    const npStats = justSat.non_pecuniary_stats || {};
-    const cStats = justSat.costs_stats || {};
-
-    // Compute totals from clause breakdown
-    const getClauseCount = (name) => {
-      const found = clauseBreakdown.find((d) => d[0] === name);
-      return found ? found[1] : 0;
-    };
-
-    const pecAwarded = getClauseCount("Pecuniary damage awarded");
-    const pecDismissed = getClauseCount("Pecuniary damage dismissed");
-    const npAwarded = getClauseCount("Non-pecuniary damage awarded");
-    const npSufficient = getClauseCount("Non-pecuniary: violation sufficient");
-    const npDismissed = getClauseCount("Non-pecuniary damage dismissed");
-    const costsAwarded = getClauseCount("Costs & expenses awarded");
-    const costsDismissed = getClauseCount("Costs & expenses dismissed");
-    const justSatReserved = getClauseCount("Just satisfaction reserved");
-
-    jsKpiGrid.innerHTML = [
-      makeKpi("Pecuniary Damage Awarded", fmtInt.format(pecAwarded), `${fmtInt.format(pecDismissed)} dismissed`),
-      makeKpi("Non-pecuniary Awarded", fmtInt.format(npAwarded), `${fmtInt.format(npSufficient)} violation sufficient`),
-      makeKpi("Non-pecuniary Dismissed", fmtInt.format(npDismissed)),
-      makeKpi("Costs & Expenses Awarded", fmtInt.format(costsAwarded), `${fmtInt.format(costsDismissed)} dismissed`),
-      makeKpi("Just Satisfaction Reserved", fmtInt.format(justSatReserved), "For separate proceedings"),
-      makeKpi("Prelim. Objections", fmtInt.format(prelimTotal),
-        `${((prelimObj.rejected || 0) / Math.max(prelimTotal, 1) * 100).toFixed(0)}% rejected`),
-    ].join("");
   }
 
   // ── Citation Network Analytics ──────────────────────────────────────────

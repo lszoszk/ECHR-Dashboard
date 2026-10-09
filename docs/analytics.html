@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="assets/dashboard.css">
   <link rel="stylesheet" href="assets/search-app.css">
   <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261010-cite">
-  <link rel="stylesheet" href="assets/analytics-page.css?v=20261009-citations-v1">
+  <link rel="stylesheet" href="assets/analytics-page.css?v=20261010-stats2">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1"></script>
   <script src="assets/tour.js?v=20261010-nav" defer></script>
@@ -92,7 +92,6 @@
               <a class="sidebar-link" data-target="stats-article-rates" href="#stats-article-rates">Outcomes by Article</a>
               <a class="sidebar-link" data-target="stats-article-counts" href="#stats-article-counts">Article Outcome Counts</a>
               <a class="sidebar-link" data-target="stats-cited-judgments" href="#stats-cited-judgments">Most Cited Judgments</a>
-              <a class="sidebar-link" data-target="stats-precedents" href="#stats-precedents">Reference Entries</a>
             </div>
 
             <div class="sidebar-category">
@@ -101,6 +100,7 @@
               <a class="sidebar-link" data-target="stats-country-rates" href="#stats-country-rates">Violation Rate by Country</a>
               <a class="sidebar-link" data-target="stats-state-outcomes" href="#stats-state-outcomes">State Outcome Table</a>
               <a class="sidebar-link" data-target="stats-country-compare" href="#stats-country-compare">Country Comparison</a>
+              <a class="sidebar-link" data-target="stats-citations-country" href="#stats-citations-country">Articles by State</a>
             </div>
 
             <div class="sidebar-category">
@@ -108,16 +108,8 @@
               <a class="sidebar-link" data-target="stats-thesaurus-top" href="#stats-thesaurus-top">Top Topics</a>
               <a class="sidebar-link" data-target="stats-thesaurus-trends" href="#stats-thesaurus-trends">Topic Trends</a>
               <a class="sidebar-link" data-target="stats-thesaurus-country" href="#stats-thesaurus-country">Topics by Country</a>
-              <a class="sidebar-link" data-target="stats-thesaurus-cooccurrence" href="#stats-thesaurus-cooccurrence">Topic Co-occurrence</a>
             </div>
 
-            <div class="sidebar-category">
-              <span class="sidebar-category-label">Conclusion &amp; Outcomes</span>
-              <a class="sidebar-link" data-target="stats-conclusion-clauses" href="#stats-conclusion-clauses">Conclusion Clauses</a>
-              <a class="sidebar-link" data-target="stats-conclusion-trends" href="#stats-conclusion-trends">Outcome Trends</a>
-              <a class="sidebar-link" data-target="stats-preliminary-obj" href="#stats-preliminary-obj">Preliminary Objections</a>
-              <a class="sidebar-link" data-target="stats-just-satisfaction" href="#stats-just-satisfaction">Just Satisfaction</a>
-            </div>
 
             <div class="sidebar-category">
               <span class="sidebar-category-label">Case Characteristics</span>
@@ -130,11 +122,6 @@
               <a class="sidebar-link" data-target="stats-admissibility-overview" href="#stats-admissibility-overview">Inadmissibility &amp; Struck Out</a>
             </div>
 
-            <div class="sidebar-category">
-              <span class="sidebar-category-label">Legal Culture</span>
-              <a class="sidebar-link" data-target="stats-citations-country" href="#stats-citations-country">Articles by Respondent State</a>
-              <a class="sidebar-link" data-target="stats-precedent-concentration" href="#stats-precedent-concentration">Precedent Concentration</a>
-            </div>
 
             <div class="sidebar-category">
               <span class="sidebar-category-label">Corpus Quality</span>
@@ -269,19 +256,6 @@
             </details>
           </section>
 
-          <!-- ⑦ Citation Metadata -->
-          <section class="chart-section" id="stats-precedents">
-            <h2 class="chart-section-title">Most Frequent References</h2>
-            <p class="chart-section-desc">Top 15 citation entries, shown by case name. Hover for the full reference.</p>
-            <div class="chart-canvas-wrap">
-              <canvas id="citationsChart"></canvas>
-            </div>
-            <details class="article-method">
-              <summary>Coverage and counting</summary>
-              <p id="citationCoverageNote" class="chart-caveat"></p>
-              <p class="chart-section-desc">Short labels are for display only. Different reference entries can refer to the same judgment; they are not merged by case name. Full references remain in the data table and CSV.</p>
-            </details>
-          </section>
 
           <!-- ⑧ Judgments by State -->
           <section class="chart-section" id="stats-country-cases">
@@ -310,7 +284,7 @@
             <h2 class="chart-section-title">State Outcome Table
               <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-state-outcomes')">🔗</button>
             </h2>
-            <p class="chart-section-desc">Breakdown of outcomes (Violation only, Non-violation only, Mixed, No tagged finding) and violation rate for each respondent state with at least 5 cases. Top 20 shown — sorted by total caseload.</p>
+            <p class="chart-section-desc">Outcomes (violation only, non-violation only, mixed, no tagged finding) and the violation rate for every respondent State. Click a column heading to sort; States with fewer than 5 judgments are greyed, as their rates rest on very few cases.</p>
             <div id="stateOutcomeTable" class="state-outcome-wrap"></div>
           </section>
 
@@ -347,6 +321,19 @@
             </div>
           </section>
 
+          <!-- Articles by Respondent State (article × state) -->
+          <section class="chart-section" id="stats-citations-country">
+            <h2 class="chart-section-title">Articles by Respondent State</h2>
+            <p class="chart-section-desc">Top respondent states in cases involving a given Convention article — select an article to see which countries are most litigated under that provision, with total case counts and violation counts side by side.</p>
+            <div class="chart-controls">
+              <label for="articleStateSelect">Convention Article:</label>
+              <select id="articleStateSelect" class="chart-select"></select>
+            </div>
+            <div class="chart-canvas-wrap">
+              <canvas id="articleByStateChart"></canvas>
+            </div>
+          </section>
+
           <!-- Thesaurus: Top Topics -->
           <section class="chart-section" id="stats-thesaurus-top">
             <h2 class="chart-section-title">HUDOC Thesaurus Topics
@@ -363,7 +350,20 @@
             <h2 class="chart-section-title">Topic Trends Over Time
               <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-thesaurus-trends')">&#x1F517;</button>
             </h2>
-            <p class="chart-section-desc">Annual frequency of the five most common thesaurus topics, tracking how the Court's docket composition has shifted across core Convention rights over the decades.</p>
+            <p class="chart-section-desc">Judgments per year tagged with a HUDOC thesaurus topic: the five most common by default, the top ten, or up to ten topics of your choice (start typing to see the topics available).</p>
+            <div class="chart-controls topic-controls" id="topicControls">
+              <div class="topic-seg" role="group" aria-label="Topics shown">
+                <button type="button" data-topics="5" aria-pressed="true">Top 5</button>
+                <button type="button" data-topics="10" aria-pressed="false">Top 10</button>
+                <button type="button" data-topics="custom" aria-pressed="false">Your choice</button>
+              </div>
+              <div class="topic-picker" id="topicPicker" hidden>
+                <label class="visually-hidden" for="topicInput">Add a topic</label>
+                <input type="text" id="topicInput" class="topic-input" list="topicOptions" autocomplete="off">
+                <datalist id="topicOptions"></datalist>
+                <div class="topic-chips" id="topicChips"></div>
+              </div>
+            </div>
             <p class="chart-caveat">The final year is <strong>partial</strong> — the corpus ends part-way through it. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
             <div class="chart-canvas-wrap">
               <canvas id="thesaurusTrendsChart"></canvas>
@@ -385,66 +385,10 @@
             </div>
           </section>
 
-          <!-- Thesaurus: Co-occurrence -->
-          <section class="chart-section" id="stats-thesaurus-cooccurrence">
-            <h2 class="chart-section-title">Topic Co-occurrence
-              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-thesaurus-cooccurrence')">&#x1F517;</button>
-            </h2>
-            <p class="chart-section-desc">Most frequently co-occurring thesaurus topic pairs, showing which legal themes tend to appear together in the same case. Reveals structural relationships between Convention rights in the Court's jurisprudence.</p>
-            <div class="chart-canvas-wrap" style="height:480px;">
-              <canvas id="thesaurusCooccurrenceChart"></canvas>
-            </div>
-          </section>
 
-          <!-- Conclusion Clause Breakdown -->
-          <section class="chart-section" id="stats-conclusion-clauses">
-            <h2 class="chart-section-title">Conclusion Clause Breakdown
-              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-conclusion-clauses')">&#x1F517;</button>
-            </h2>
-            <p class="chart-section-desc">Distribution of structured conclusion clauses across all judgments. Each case conclusion is split into individual clauses (violation finding, damages, preliminary objections, etc.), showing how the Court's dispositive decisions break down in aggregate.</p>
-            <div class="chart-canvas-wrap" style="height:560px;">
-              <canvas id="conclusionClausesChart"></canvas>
-            </div>
-          </section>
 
-          <!-- Conclusion Outcome Trends by Year -->
-          <section class="chart-section" id="stats-conclusion-trends">
-            <h2 class="chart-section-title">Conclusion Outcome Trends
-              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-conclusion-trends')">&#x1F517;</button>
-            </h2>
-            <p class="chart-section-desc">Annual trends in key conclusion outcomes: violation findings, no-violation findings, financial awards granted, and inadmissibility declarations. Tracks how the Court's dispositive patterns have evolved over time.</p>
-            <p class="chart-caveat">The final year is <strong>partial</strong> — the corpus ends part-way through it. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
-            <div class="chart-canvas-wrap">
-              <canvas id="conclusionTrendsChart"></canvas>
-            </div>
-          </section>
 
-          <!-- Preliminary Objections -->
-          <section class="chart-section" id="stats-preliminary-obj">
-            <h2 class="chart-section-title">Preliminary Objections
-              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-preliminary-obj')">&#x1F517;</button>
-            </h2>
-            <p class="chart-section-desc">Outcome of preliminary objections raised by respondent states. Shows the proportion rejected, accepted, and joined to the merits — reflecting how often procedural barriers succeed in preventing substantive examination.</p>
-            <div class="chart-row">
-              <article class="chart-container">
-                <h3 class="chart-title">Preliminary Objection Outcomes</h3>
-                <canvas id="prelimObjChart"></canvas>
-              </article>
-              <article class="chart-container">
-                <h3 class="chart-title">Damages &amp; Costs Disposition</h3>
-                <canvas id="damagesDispositionChart"></canvas>
-              </article>
-            </div>
-          </section>
 
-          <!-- Just Satisfaction -->
-          <section class="chart-section" id="stats-just-satisfaction">
-            <h2 class="chart-section-title">Just Satisfaction Overview
-              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-just-satisfaction')">&#x1F517;</button>
-            </h2>
-            <p class="chart-section-desc">Overview of how the Court handles just satisfaction (Article 41) claims. Shows the disposition of pecuniary damages, non-pecuniary damages, and costs and expenses claims across the entire corpus.</p>
-            <div id="justSatisfactionKpis" class="kpi-row"></div>
-          </section>
 
           <!-- Citation Network: Landmark Cases -->
 
@@ -518,28 +462,7 @@
             </div>
           </section>
 
-          <!-- ⑮ Articles by Respondent State (interactive article × state) + Keywords -->
-          <section class="chart-section" id="stats-citations-country">
-            <h2 class="chart-section-title">Articles by Respondent State</h2>
-            <p class="chart-section-desc">Top respondent states in cases involving a given Convention article — select an article to see which countries are most litigated under that provision, with total case counts and violation counts side by side.</p>
-            <div class="chart-controls">
-              <label for="articleStateSelect">Convention Article:</label>
-              <select id="articleStateSelect" class="chart-select"></select>
-            </div>
-            <div class="chart-canvas-wrap">
-              <canvas id="articleByStateChart"></canvas>
-            </div>
-          </section>
 
-          <!-- ⑯ Precedent Concentration -->
-          <section class="chart-section" id="stats-precedent-concentration">
-            <h2 class="chart-section-title">Precedent Concentration</h2>
-            <p class="chart-section-desc">Cumulative share of the ten most frequent reference strings in populated HUDOC citation metadata. This is string concentration, not resolved precedent influence.</p>
-            <p class="chart-caveat">Denominator: all reference strings in populated HUDOC citation metadata, not all judgments or citations in their texts. <a href="methodology.html#citation-graph-cites-cited-by">How to read this</a></p>
-            <div class="chart-canvas-wrap">
-              <canvas id="precedentConcentrationChart"></canvas>
-            </div>
-          </section>
 
           <!-- ⑰ Paragraph Distribution -->
           <section class="chart-section" id="stats-paragraphs">
@@ -791,6 +714,6 @@
        Chart.js plugin before pages-dashboard.js constructs any chart. -->
   <script src="assets/echr-export-core.js?v=20260802-export"></script>
   <script src="assets/chart-tools.js?v=20260802-cite"></script>
-  <script src="assets/pages-dashboard.js?v=20261009-citations-v2"></script>
+  <script src="assets/pages-dashboard.js?v=20261010-stats"></script>
 </body>
 </html>

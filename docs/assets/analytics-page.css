@@ -60,6 +60,17 @@
   letter-spacing: 0.2px;
 }
 
+/* header row stays visible while the table scrolls; every column sorts */
+.state-outcome-table thead th { position: sticky; top: 0; z-index: 1; background: var(--paper-2, var(--bg-card, #f4f1ea)); padding: 0; }
+.state-outcome-table .sort-btn {
+  display: block; width: 100%; padding: 7px 8px; border: 0; background: none; cursor: pointer; text-align: left;
+  font: inherit; color: inherit; text-transform: inherit; letter-spacing: inherit;
+}
+.state-outcome-table .sort-btn:hover { color: var(--text-primary, var(--ink, #242328)); }
+.state-outcome-table th[aria-sort="ascending"] .sort-btn, .state-outcome-table th[aria-sort="descending"] .sort-btn { color: var(--garnet, #8d2f2f); }
+.state-outcome-table td:not(:first-child), .state-outcome-table th:not(:first-child) .sort-btn { text-align: right; }
+.state-outcome-table tr.few td { color: var(--text-muted, #706d72); }
+
 .state-outcome-empty {
   color: var(--text-muted);
   font-size: 0.82rem;
@@ -94,6 +105,8 @@
   grid-template-columns: 1fr 1fr;
   gap: 20px;
   margin-top: 16px;
+  /* each chart keeps its own height: opening the data table under one must not stretch the other */
+  align-items: start;
 }
 
 .compare-chart-wrap {
@@ -104,7 +117,8 @@
 /* Fixed-height canvas wrappers inside comparison grid */
 .compare-chart-wrap .chart-canvas-wrap {
   position: relative;
-  flex: 1;
+  flex: 0 0 auto;
+  height: 320px;
   min-height: 0;
 }
 
@@ -369,3 +383,18 @@
   .statistics-editorial #stats-kpi { animation: statistics-reveal 350ms ease-out both; }
   @keyframes statistics-reveal { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 }
+
+/* Topic Trends: top 5 / top 10 / your choice */
+.topic-controls { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px 16px; }
+.topic-seg { display: inline-flex; border: 1px solid var(--rule, var(--border)); }
+.topic-seg button { padding: 5px 12px; border: 0; border-right: 1px solid var(--rule, var(--border)); background: var(--paper, transparent);
+  cursor: pointer; font-family: var(--font-mono, monospace); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2, inherit); }
+.topic-seg button:last-child { border-right: 0; }
+.topic-seg button[aria-pressed="true"] { background: var(--ink, #242328); color: var(--paper, #fff); }
+.topic-picker { flex: 1 1 320px; display: flex; flex-direction: column; gap: 8px; }
+.topic-picker[hidden] { display: none; }
+.topic-input { width: 100%; max-width: 460px; padding: 6px 10px; font: inherit; font-size: 0.9rem; border: 1px solid var(--rule, var(--border)); background: var(--paper, #fff); color: var(--ink, inherit); }
+.topic-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.topic-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 4px 2px 8px; font-size: 0.8rem; border: 1px solid; border-left-width: 4px; background: var(--paper, #fff); }
+.topic-chip button { border: 0; background: none; cursor: pointer; font-size: 0.95rem; line-height: 1; color: var(--ink-3, #706d72); }
+.topic-chip button:hover { color: var(--garnet, #8d2f2f); }

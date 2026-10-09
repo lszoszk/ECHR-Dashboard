@@ -917,8 +917,6 @@ def build_payload(cases, source_file: str):
 
     state_outcomes = []
     for state, total in state_case_counts.items():
-        if total < 5:
-            continue
         counters = state_outcome_counts[state]
         v_only = counters.get("violation_only", 0)
         nv_only = counters.get("non_violation_only", 0)
@@ -1015,7 +1013,10 @@ def build_payload(cases, source_file: str):
         [OUTCOME_LABELS.get(key, key), outcome_counts.get(key, 0)]
         for key in OUTCOME_KEYS
     ]
-    top_year_terms = [label for label, _ in kpt_term_counts.most_common(5)]
+    top_year_terms = [label for label, _ in kpt_term_counts.most_common(10)]
+    trend_years = sorted(kpt_by_year.keys())
+    # every topic with enough judgments to draw a line, for the Statistics page's topic picker
+    trend_terms = [label for label, n in kpt_term_counts.most_common() if n >= 20]
 
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -1108,6 +1109,7 @@ def build_payload(cases, source_file: str):
             "article_outcomes_top": article_outcomes[:20],
             "article_violation_rates_top": article_violation_rates[:20],
             "state_outcomes_top": state_outcomes[:30],
+            "state_outcomes_all": state_outcomes,
             "inadmissibility_grounds_top": inadmissibility_ground_counts.most_common(20),
             "precedent_concentration_top": precedent_concentration,
             "precedent_to_citing_cases_top": precedent_to_citing_cases[:20],
@@ -1141,6 +1143,10 @@ def build_payload(cases, source_file: str):
                 for yr in sorted(kpt_by_year.keys())
             ],
             "terms_by_year_labels": top_year_terms,
+            "term_trends": {
+                "years": trend_years,
+                "series": {t: [kpt_by_year[yr].get(t, 0) for yr in trend_years] for t in trend_terms},
+            },
         },
         "conclusion_analytics": {
             "clause_breakdown": conclusion_clause_counts.most_common(20),
