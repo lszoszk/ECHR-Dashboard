@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css">
   <link rel="stylesheet" href="assets/search-app.css">
-  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261010-ws">
+  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261010-nav">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <style>
     .meth-content { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
@@ -51,7 +51,7 @@
     .meth-md [id] { scroll-margin-top: 96px; }
     .meth-md a[id]:empty { display: block; }
   </style>
-  <script src="assets/tour.js?v=20261010-ws" defer></script>
+  <script src="assets/tour.js?v=20261010-nav" defer></script>
   <script src="assets/workspace.js?v=20261010-ws"></script>
 </head>
 <body>
@@ -67,12 +67,11 @@
       </button>
       <div class="nav-links">
         <a href="./" class="nav-link">Search</a>
-        <a href="check.html" class="nav-link">Check</a>
         <a href="semantic.html" class="nav-link" title="Experimental">Semantic Search <svg class="exp-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 1.5h4M6.7 1.5v4.2L2.6 13a1.2 1.2 0 0 0 1 1.8h8.8a1.2 1.2 0 0 0 1-1.8L9.3 5.7V1.5M4.4 10h7.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="visually-hidden"> (experimental)</span></a>
-        <a href="analytics.html" class="nav-link">Statistics</a>
-        <a href="methodology.html" class="nav-link active">Methodology</a>
-        <a href="about.html" class="nav-link">About</a>
+        <a href="check.html" class="nav-link">Check</a>
         <a href="workspace.html" class="nav-link">Workspace <span class="ws-count" data-ws-count hidden></span></a>
+        <a href="analytics.html" class="nav-link">Statistics</a>
+        <a href="about.html" class="nav-link">About</a>
       </div>
     </div>
   </nav>
@@ -123,7 +122,7 @@
     </div>
     <div class="sf-right">
       <button class="sf-btn" id="themeToggle" type="button" title="Switch between light and dark" aria-label="Toggle dark mode"><span class="theme-icon-light">Theme: light</span><span class="theme-icon-dark">Theme: dark</span></button>
-      <a class="sf-btn" href="methodology.html">Methodology</a>
+      <a class="sf-btn" href="methodology.html" aria-current="page">Methodology</a>
       <button class="sf-btn sf-tour" id="tourBtn" type="button" title="A one-minute tour of the site">&#10022; tour</button>
     </div>
   </footer>

@@ -2428,6 +2428,7 @@ body { padding-bottom: var(--bar-h); }
 }
 .site-footer a.sf-btn { border-bottom: 1px solid var(--rule); }
 .site-footer .sf-btn:hover { color: var(--ink); border-color: var(--ink); }
+.site-footer .sf-btn[aria-current="page"] { color: var(--garnet); border-color: var(--garnet); }
 .site-footer .api-status { cursor: default; }
 .site-footer .sf-tour { color: var(--paper); background: var(--ink); border-color: var(--ink); }
 .site-footer .sf-tour:hover { color: var(--paper); background: var(--garnet); border-color: var(--garnet); }

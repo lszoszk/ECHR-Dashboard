@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css">
   <link rel="stylesheet" href="assets/search-app.css">
-  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261010-ws">
+  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261010-nav">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <style>
     /* Alias this page's legacy token names onto the editorial palette so
@@ -122,7 +122,7 @@
     .badge-primary { background: var(--paper-2); color: var(--blue-ink); }
     .badge-enrichment { background: var(--paper-2); color: var(--green-ink); }
   </style>
-  <script src="assets/tour.js?v=20261010-ws" defer></script>
+  <script src="assets/tour.js?v=20261010-nav" defer></script>
   <script src="assets/workspace.js?v=20261010-ws"></script>
 </head>
 <body>
@@ -138,12 +138,11 @@
       </button>
       <div class="nav-links">
         <a href="./" class="nav-link">Search</a>
-        <a href="check.html" class="nav-link">Check</a>
         <a href="semantic.html" class="nav-link" title="Experimental">Semantic Search <svg class="exp-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 1.5h4M6.7 1.5v4.2L2.6 13a1.2 1.2 0 0 0 1 1.8h8.8a1.2 1.2 0 0 0 1-1.8L9.3 5.7V1.5M4.4 10h7.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="visually-hidden"> (experimental)</span></a>
-        <a href="analytics.html" class="nav-link">Statistics</a>
-        <a href="methodology.html" class="nav-link">Methodology</a>
-        <a href="about.html" class="nav-link active">About</a>
+        <a href="check.html" class="nav-link">Check</a>
         <a href="workspace.html" class="nav-link">Workspace <span class="ws-count" data-ws-count hidden></span></a>
+        <a href="analytics.html" class="nav-link">Statistics</a>
+        <a href="about.html" class="nav-link active">About</a>
       </div>
     </div>
   </nav>
@@ -426,6 +425,10 @@
 
       <section class="about-section">
         <h2>Methodology</h2>
+        <p>
+          The full methodology — how the texts were split and labelled, the citation graph, and how each
+          step was checked — is on the <a href="methodology.html">Methodology</a> page.
+        </p>
         <p>
           Judgments are sourced from HUDOC and parsed into paragraph-level records
           with section tags (Facts, Legal Framework, Merits, etc.). Violation and

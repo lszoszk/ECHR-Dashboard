@@ -84,19 +84,19 @@
          <div><b>${from}–${to}</b><span>years covered</span></div>
        </div>${spark}`,
       `<div class="tour-kicker">The views</div>
-       <h2 class="tour-h">Six ways in.</h2>
+       <h2 class="tour-h">Five ways in.</h2>
        <ul class="tour-list">
          <li><span class="n">01</span><div><b>Search</b> <span>— full text at paragraph level, with HUDOC's operators, the parts of
            the judgment to search in, filters, and each judgment's Cites / Cited by.</span></div></li>
-         <li><span class="n">02</span><div><b>Check</b> <span>— paste a text: every citation, paragraph number and quotation is checked
-           against the judgments.</span></div></li>
-         <li><span class="n">03</span><div><b>Semantic Search</b> <span class="x">experimental</span> <span>— describe a case in plain language;
+         <li><span class="n">02</span><div><b>Semantic Search</b> <span class="x">experimental</span> <span>— describe a case in plain language;
            it runs on its own index of English judgments.</span></div></li>
-         <li><span class="n">04</span><div><b>Statistics</b> <span>— the corpus in charts: judgments and outcomes by year, article and State, the most cited judgments, HUDOC topics.</span></div></li>
-         <li><span class="n">05</span><div><b>Methodology</b> <span>— how the texts were split, labelled and checked, and what the data cannot tell you.</span></div></li>
-         <li><span class="n">06</span><div><b>Workspace</b> <span>— the paragraphs you save (☆), with your notes, and your saved searches;
+         <li><span class="n">03</span><div><b>Check</b> <span>— paste a text: every citation, paragraph number and quotation is checked
+           against the judgments.</span></div></li>
+         <li><span class="n">04</span><div><b>Workspace</b> <span>— the paragraphs you save (☆), with your notes, and your saved searches;
            kept in your browser only, exportable.</span></div></li>
-       </ul>`,
+         <li><span class="n">05</span><div><b>Statistics</b> <span>— the corpus in charts: judgments and outcomes by year, article and State, the most cited judgments, HUDOC topics.</span></div></li>
+       </ul>
+       <div class="tour-cap" style="margin-top:12px">How the texts were split, labelled and checked: Methodology, in the bottom bar.</div>`,
       `<div class="tour-kicker">Search</div>
        <h2 class="tour-h">From a phrase to the paragraph.</h2>
        <div class="tour-lead">Type a phrase, or use HUDOC's operators — <code>article:8</code>, <code>violation:3</code>,
