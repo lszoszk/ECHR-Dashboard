@@ -758,25 +758,13 @@ body {
 .results-sidebar .sidebar-title,
 .results-sidebar .sidebar-section { display: none; }
 
-/* Case Note — compact grouped fact header (articles · facts · outcome).
-   Replaces the old loose 6-cell grid + scattered chip row. */
-.case-note-meta {
-    margin: 10px 0 6px;
-    padding: 11px 0;
-    border-top: 1px solid var(--rule, var(--border));
-    border-bottom: 1px solid var(--rule, var(--border));
-}
+/* Case Note — labels and the facts grid ("More about this case"). */
 .cnm-label {
     font-size: 0.6rem;
     letter-spacing: 0.09em;
     text-transform: uppercase;
     color: var(--ink-4, var(--text-secondary));
 }
-.cnm-articles { margin-bottom: 9px; }
-.cnm-articles .cnm-label { display: block; margin-bottom: 4px; }
-/* Chips are typographic tokens (no boxes); without a flex gap the article
-   list renders as one run-on word: "Art 14Art 3". */
-.cnm-article-chips { display: inline-flex; flex-wrap: wrap; gap: 4px 10px; }
 .cnm-facts {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -796,25 +784,6 @@ body {
     line-height: 1.3;
     color: var(--ink, var(--text-primary));
     font-family: var(--font-serif);
-}
-.cnm-outcome {
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 6px 10px;
-    margin-top: 10px;
-}
-.cnm-outcome-badge {
-    font-size: 0.72rem;
-    font-weight: 600;
-    padding: 2px 8px;
-    border-radius: 3px;
-    background: var(--garnet-soft, var(--highlight));
-    color: var(--garnet, var(--text-primary));
-}
-.cnm-doctype {
-    font-size: 0.68rem;
-    color: var(--ink-4, var(--text-secondary));
 }
 
 /* ─── Result-display controls (Sort / Group segmented bars) ─────────── */
@@ -1015,7 +984,7 @@ body.is-resizing-dossier { cursor: col-resize; user-select: none; }
     font-family: var(--font-serif);
     font-size: 0.84rem;
     line-height: 1.55;
-    color: var(--ink-4, var(--text-secondary));
+    color: var(--ink-2, var(--text-primary));
     padding: 0 0 0 13px;
     border-left: 2px solid var(--rule, var(--border));
     margin: 0 0 11px;
@@ -1051,7 +1020,7 @@ body.is-resizing-dossier { cursor: col-resize; user-select: none; }
     margin-left: 14px;
     padding-left: 11px;
     border-left: 1px solid var(--rule, var(--border));
-    color: var(--ink-3, var(--text-secondary));
+    color: var(--ink-2, var(--text-primary));
 }
 
 /* Case Note action bar — one consistent boxed button style for

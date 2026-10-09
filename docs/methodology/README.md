@@ -117,9 +117,19 @@ An audit against fresh copies of the HUDOC documents found the text itself essen
 
 Measured number by number with full text against HUDOC's pages on 300 judgments, **98.6 %** of paragraph numbers match after the repairs (98.4 % before). Verify a pinpoint on HUDOC before citing it.
 
+<a id="influence"></a>
+
 ## Citation graph (Cites / Cited by)
 
-Each result card carries two influence metrics — **Cites** (judgments this ruling refers to) and **Cited by** (later judgments that refer back to it). They come from a citation graph rebuilt after every corpus update, from three sources.
+Each result card has an **Influence** panel with three numbers for that judgment:
+
+- **Hits** — how many of its paragraphs match your search. It describes your search, not the judgment.
+- **Cites** — how many other judgments it refers to.
+- **Cited by** — how many later judgments refer to it, including judgments that HUDOC publishes only in French and that are not in this corpus yet.
+
+The bars compare the three numbers of the same judgment: the largest fills the bar. Compare judgments by the numbers, not the bar lengths. A dash (—) means the citation graph has no data for that judgment, not that it has never been cited.
+
+**Cites** and **Cited by** come from a citation graph rebuilt after every corpus update, from three sources.
 
 | Source | What it finds | Share of links (October 2026) |
 | --- | --- | ---: |
@@ -203,14 +213,22 @@ On a judgment the Court published in both languages and that was kept out of the
 
 ## Analytics & privacy
 
-This site uses Google Analytics 4 only to see which views are used, and only
-after you accept the banner. Consent Mode v2 defaults to denied — nothing is
-sent to Google, not even a request for the analytics library, before you
-choose. A Do Not Track or Global Privacy Control setting skips analytics
-entirely and no banner is shown.
+Two counters, both limited to which pages are used:
 
-We record **view names only** (Search, Statistics, Methodology, About, Semantic
-Search). We never send your search queries, the filters or countries you
+- **GoatCounter**, an open-source counter that sets no cookies and stores
+  nothing in your browser, counts each page opened: the page path and view name,
+  the referring page cut to its address without query, your screen width and the
+  browser named in your User-Agent. It runs without the banner because it keeps
+  nothing on your device.
+- **Google Analytics 4**, only after you accept the banner. Consent Mode v2
+  defaults to denied — nothing is sent to Google, not even a request for the
+  analytics library, before you choose.
+
+A Do Not Track or Global Privacy Control setting turns both off and no banner is
+shown.
+
+We record **view names only** (Search, Semantic Search, Check, Workspace,
+Statistics, Methodology, About). We never send your search queries, the filters or countries you
 select, or the judgments you open. The page address is stripped to its path
 before being sent, so a query cannot leak through the URL or through the
 referrer on the next page. Ad personalisation and Google signals are disabled.

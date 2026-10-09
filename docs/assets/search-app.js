@@ -514,6 +514,33 @@ function formatBodyLabel(value) {
   const s = String(value);
   return BODY_CODE_LABELS[s] || s;
 }
+/* "Court (Grand Chamber)" -> "Grand Chamber" */
+function shortBodyLabel(value) {
+  return formatBodyLabel(value).replace(/^Court \((.*)\)$/, "$1");
+}
+/* The bench in one word for the result card: Grand Chamber, Chamber, Committee, Plenary… */
+function formationLabel(c) {
+  const b = shortBodyLabel(c.__originatingBody);
+  if (/committee/i.test(b)) return "Committee";
+  if (/grand chamber/i.test(b)) return "Grand Chamber";
+  if (/section|chamber/i.test(b)) return "Chamber";
+  return b || getChamberLabel(c.__chamberCategory);
+}
+
+/* Outcome on the result card: a symbol and one or two words; the full label is the tooltip. */
+const OUTCOME_SHORT = {
+  violation_only: ["●", "Violation"],
+  non_violation_only: ["○", "No violation"],
+  both: ["◐", "Mixed"],
+  neither: ["–", "No finding"],
+};
+function outcomeChipHtml(c) {
+  const key = c.__outcomePrimary;
+  const full = OUTCOME_LABELS[key] || key || "-";
+  const [icon, short] = OUTCOME_SHORT[key] || ["", full];
+  return `<span class="chip outcome ${escapeHtml(getOutcomeToneClass(key))}" title="${escapeHtml(full)}">`
+    + (icon ? `<span class="oc-icon" aria-hidden="true">${icon}</span>` : "") + `${escapeHtml(short)}</span>`;
+}
 
 /**
  * Render-friendly importance helpers.  HUDOC's `importance` field arrives
@@ -701,8 +728,8 @@ const state = {
   flatHits: [],              // ordered paragraph hits when resultGroup="paragraph"
   // Case Note drawer text-size zoom (A− / A+), persisted per browser.
   cnZoom: (() => {
-    try { const v = parseFloat(localStorage.getItem("cnZoom")); return v > 0 ? v : 1; }
-    catch (e) { return 1; }
+    try { const v = parseFloat(localStorage.getItem("cnZoom")); return v > 0 ? v : 1.15; }
+    catch (e) { return 1.15; }
   })(),
   classifierOpen: false,
   classifier: null,
@@ -1436,11 +1463,14 @@ function buildOscolaCitation(caseObj, para) {
   return out;
 }
 
-/** Cite / Copy / Bookmark for one paragraph of a judgment's text, shown on hover (Case details, drawer). */
+/** HUDOC / Cite / Copy / Bookmark for one paragraph of a judgment's text, shown on hover (Case details, drawer). */
 function paraHoverActions(caseId, p) {
   const saved = window.ECHRWorkspace && window.ECHRWorkspace.has(wsKey(caseId, p.paraIdx));
   const data = `data-case-id="${escapeHtml(caseId)}" data-para-idx="${escapeHtml(String(p.paraIdx))}"`;
+  const caseObj = state.caseById.get(caseId);
+  const hudocUrl = caseObj ? paragraphHudocUrl(caseObj, p) : "";
   return `<span class="dossier-para-actions">
+    ${hudocUrl ? `<a href="${escapeHtml(hudocUrl)}" target="_blank" rel="noopener noreferrer" title="Open this paragraph's judgment on HUDOC">HUDOC ↗</a>` : ""}
     <button type="button" data-action="para-cite" ${data} title="Copy an OSCOLA citation of this paragraph">Cite</button>
     <button type="button" data-action="para-copy" ${data} title="Copy the text of this paragraph">Copy</button>
     ${window.ECHRWorkspace ? `<button type="button" data-action="para-bookmark" ${data} aria-pressed="${!!saved}"
@@ -1481,7 +1511,7 @@ function wsBookmarkButtonHtml(caseId, para) {
   if (!window.ECHRWorkspace) return "";
   const idx = para && para.paraIdx != null ? para.paraIdx : "";
   const on = window.ECHRWorkspace.has(wsKey(caseId, idx === "" ? "case" : idx));
-  return `<button type="button" class="case-open-secondary ws-bookmark-btn${on ? " on" : ""}" data-action="bookmark-para"
+  return `<button type="button" class="card-act ws-bookmark-btn${on ? " on" : ""}" data-action="bookmark-para"
     data-case-id="${escapeHtml(caseId)}" data-para-idx="${escapeHtml(String(idx))}" data-para-key="${escapeHtml((para && para.key) || "")}"
     aria-pressed="${on}" title="${on ? "Remove from your Workspace" : "Save to your Workspace"}">${on ? "★ Bookmarked" : "☆ Bookmark"}</button>`;
 }
@@ -2523,11 +2553,40 @@ function attachFilterGroupClearButtons() {
 }
 
 /** A folded filter group shows, in its heading, how many of its boxes are ticked. */
+/* The Advanced switch counts the boxes ticked in the advanced groups, so a selection hidden in
+ * Basic is never invisible. */
 function updateActiveFilterCount() {
-  document.querySelectorAll("#filtersPanel details.filter-fold").forEach((group) => {
-    const n = group.querySelectorAll('input[type="checkbox"]:checked').length;
-    const badge = group.querySelector(".fold-count");
-    if (badge) { badge.textContent = n ? String(n) : ""; badge.hidden = !n; }
+  const badge = document.getElementById("advancedCount");
+  if (!badge) return;
+  const n = document.querySelectorAll('#filtersPanel .filter-advanced input[type="checkbox"]:checked').length;
+  badge.textContent = n ? String(n) : "";
+  badge.hidden = !n;
+}
+
+/* Basic shows the five most used filters; Advanced adds the rest, marked for a moment so it is
+ * clear what appeared. The choice is remembered in this browser. */
+function setFilterMode(mode, announce = false) {
+  const panel = document.getElementById("filtersPanel");
+  if (!panel) return;
+  const advanced = mode === "advanced";
+  panel.classList.toggle("show-advanced", advanced);
+  document.querySelectorAll("[data-filter-mode]").forEach((b) => {
+    b.setAttribute("aria-pressed", String(b.dataset.filterMode === mode));
+  });
+  try { localStorage.setItem("filterMode", mode); } catch (e) {}
+  if (advanced && announce) {
+    const groups = panel.querySelectorAll(".filter-advanced, .filter-advanced-head");
+    groups.forEach((g) => { g.classList.remove("just-shown"); void g.offsetWidth; g.classList.add("just-shown"); });
+    panel.querySelector(".filter-advanced-head")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+}
+
+function initFilterMode() {
+  let mode = "basic";
+  try { if (localStorage.getItem("filterMode") === "advanced") mode = "advanced"; } catch (e) {}
+  setFilterMode(mode);
+  document.querySelectorAll("[data-filter-mode]").forEach((b) => {
+    b.addEventListener("click", () => setFilterMode(b.dataset.filterMode, true));
   });
 }
 
@@ -4781,6 +4840,39 @@ function buildResearcherBars(c, row) {
   return `${bar("hits", hits, true)}${bar("cites", cites, false, true)}${bar("cited by", cited, false, true, citedByTitle(c))}`;
 }
 
+/* The (i) next to "Influence" on a result card: what the three bars mean. One pop-up at a time;
+ * a click elsewhere or Escape closes it. */
+function toggleInfluenceHelp(btn) {
+  const open = document.getElementById("influenceHelp");
+  const same = open && open.parentElement === btn.closest(".researcher-influence");
+  if (open) open.remove();
+  if (same) { btn.setAttribute("aria-expanded", "false"); return; }
+  const pop = document.createElement("div");
+  pop.id = "influenceHelp";
+  pop.className = "influence-help";
+  pop.setAttribute("role", "note");
+  pop.innerHTML = `
+    <p><b>Hits</b> — paragraphs of this judgment that match your search.</p>
+    <p><b>Cites</b> — other judgments this one refers to.</p>
+    <p><b>Cited by</b> — later judgments that refer to this one, including those HUDOC has only in French.</p>
+    <p class="ih-note">The bars compare the three numbers of this judgment. A dash means no citation data.
+      <a href="methodology.html#influence">How citations are found</a></p>`;
+  pop.addEventListener("click", (ev) => ev.stopPropagation()); // reading it does not select the card
+  btn.closest(".researcher-influence").appendChild(pop);
+  btn.setAttribute("aria-expanded", "true");
+  const close = (ev) => {
+    if (ev.type === "keydown" ? ev.key !== "Escape" : (pop.contains(ev.target) || ev.target === btn)) return;
+    pop.remove();
+    btn.setAttribute("aria-expanded", "false");
+    document.removeEventListener("click", close, true);
+    document.removeEventListener("keydown", close, true);
+  };
+  setTimeout(() => {
+    document.addEventListener("click", close, true);
+    document.addEventListener("keydown", close, true);
+  }, 0);
+}
+
 const CASENOTE_STEP = 5; // paragraphs revealed per ↑/↓ expansion click
 
 /* A ±before/±after window of LOGICAL paragraphs around the matched
@@ -4895,8 +4987,8 @@ const CN_ZOOM_STEPS = [0.8, 0.9, 1, 1.15, 1.3, 1.5];
  * `zoom` on .cn-zoom-wrap (width pre-divided so the box still fills the
  * rail exactly); the chosen level is persisted to localStorage. */
 function setCaseNoteZoom(direction) {
-  let idx = CN_ZOOM_STEPS.indexOf(state.cnZoom || 1);
-  if (idx === -1) idx = 2;
+  let idx = CN_ZOOM_STEPS.indexOf(state.cnZoom || 1.15);
+  if (idx === -1) idx = 3;
   idx = Math.max(0, Math.min(CN_ZOOM_STEPS.length - 1, idx + direction));
   state.cnZoom = CN_ZOOM_STEPS[idx];
   try { localStorage.setItem("cnZoom", String(state.cnZoom)); } catch (e) {}
@@ -4942,14 +5034,16 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
     ? c.__citesCountServer
     : (c.__citationRefs || []).length;
 
-  // Compact, grouped fact header — one block (articles · facts grid ·
-  // outcome) instead of the old loose 6-cell grid + scattered chip row.
-  const caseRef = c.ecli || splitAppNos(c.case_no).join(", ") || "";
-  const caseRefHtml = !caseRef
-    ? ""
-    : (c.hudoc_url
-      ? `<a class="case-context-ecli case-context-ecli-link" href="${escapeHtml(c.hudoc_url)}" target="_blank" rel="noopener noreferrer" title="Open this judgment on HUDOC">${escapeHtml(caseRef)}<span class="ext-icon" aria-hidden="true">↗</span></a>`
-      : `<div class="case-context-ecli">${escapeHtml(caseRef)}</div>`);
+  // Header kept to what is read first: the title, one line of facts (formation, date, application
+  // number, key case, HUDOC, Cite) and the findings; everything else is folded under "More".
+  const appNos = splitAppNos(c.case_no);
+  const isKey = String(c.__importance || "").toLowerCase() === "key cases";
+  const subline = [
+    escapeHtml(shortBodyLabel(c.__originatingBody) || chamberLabel || ""),
+    escapeHtml(formatCaseDateForDisplay(c)),
+    appNos.length ? escapeHtml(`no. ${appNos[0]}${appNos.length > 1 ? ` +${appNos.length - 1}` : ""}`) : "",
+    isKey ? '<span class="cn-key">Key case</span>' : "",
+  ].filter(Boolean).join('<span class="cn-dot">·</span>');
   const headHtml = `
     <div class="cn-head-row">
       <div class="folio-label garnet">Case details</div>
@@ -4960,63 +5054,41 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
       </div>
     </div>
     <h3>${escapeHtml(title)}</h3>
-    ${caseRefHtml}
-
-    <div class="case-note-meta">
-      <div class="cnm-articles">
-        <span class="cnm-label">Articles</span>
-        <span class="cnm-article-chips">${buildResearcherArticleChips(c.__articles, 8)}</span>
-      </div>
+    <p class="cn-subline">${subline}
+      <span class="cn-subline-actions">
+        ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="cn-action" target="_blank" rel="noopener noreferrer" title="Open this judgment on HUDOC">HUDOC ↗</a>` : ""}
+        <button type="button" class="cn-action" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}" title="Copy an OSCOLA citation of the judgment">Cite</button>
+      </span>
+    </p>
+    ${caseFindingsHtml(c)}
+    <details class="cn-more">
+      <summary>More about this case</summary>
+      ${registryDetailHtml(c.case_id)}
       <dl class="cnm-facts">
-        <div><dt>Application</dt><dd>${escapeHtml(splitAppNos(c.case_no).join(", ") || "—")}</dd></div>
-        <div><dt>Decided</dt><dd>${escapeHtml(formatCaseDateForDisplay(c))}</dd></div>
-        <div><dt>Court</dt><dd>${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "—")}</dd></div>
-        <div><dt>State</dt><dd>${escapeHtml(states)}</dd></div>
+        <div><dt>Respondent State</dt><dd>${escapeHtml(states)}</dd></div>
+        ${appNos.length > 1 ? `<div><dt>Applications</dt><dd>${escapeHtml(appNos.join(", "))}</dd></div>` : ""}
+        <div><dt>Formation</dt><dd>${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "—")}</dd></div>
+        <div><dt>Outcome</dt><dd class="${escapeHtml(outcomeToneClass)}">${escapeHtml(outcomeLabel)}</dd></div>
+        ${c.document_type ? `<div><dt>Document</dt><dd>${escapeHtml(c.document_type)}</dd></div>` : ""}
         <div><dt>Importance</dt><dd${importanceShortLabel(c.__importance) ? ` title="${escapeHtml(importanceTooltip(c.__importance))}"` : ""}>${escapeHtml(IMPORTANCE_LABELS[c.__importance] || importanceShortLabel(c.__importance) || "—")}</dd></div>
-        <div><dt>Citations</dt><dd${citations > 0 ? "" : ` title="${c.__importance === "3" ? "No citations recorded. HUDOC does not analyse cited case-law for importance-3 judgments (HUDOC FAQ §12); our text-extracted graph also found none here" : "Citation-graph coverage is partial — no citation data recorded for this case"}"`}>${citations > 0 ? fmtInt.format(citations) : "—"}</dd></div>
+        <div><dt>Cites</dt><dd${citations > 0 ? "" : ` title="${c.__importance === "3" ? "No citations recorded. HUDOC does not analyse cited case-law for importance-3 judgments (HUDOC FAQ §12); our text-extracted graph also found none here" : "Citation-graph coverage is partial — no citation data recorded for this case"}"`}>${citations > 0 ? `${fmtInt.format(citations)} judgments` : "—"}</dd></div>
+        ${c.ecli ? `<div><dt>ECLI</dt><dd>${escapeHtml(c.ecli)}</dd></div>` : ""}
       </dl>
-      <div class="cnm-outcome">
-        <span class="cnm-outcome-badge ${escapeHtml(outcomeToneClass)}">${escapeHtml(outcomeLabel)}</span>
-        ${c.document_type ? `<span class="cnm-doctype">${escapeHtml(c.document_type)}</span>` : ""}
-      </div>
-    </div>
-    <div class="cn-meta">${caseMetadataHtml(c)}</div>
-    ${registryDetailHtml(c.case_id)}`;
-
-  // Action bar: HUDOC ↗ · Cite · Copy.  `activePara` is the matched
-  // paragraph once context loads; Copy is omitted while it is absent.
-  // `activeGroup` is the active logical-paragraph group (or null while
-  // loading): HUDOC link anchors on the numbered body row, Copy copies
-  // the whole logical ¶ (body + quote rows).
-  const actionsHtml = (activeGroup) => {
-    const head = activeGroup
-      ? (activeGroup.rows.find((r) => !((r.rowRole || "").startsWith("quote")))
-         || activeGroup.rows[0])
-      : null;
-    const hudocUrl = head ? paragraphHudocUrl(c, head) : (c.hudoc_url || "");
-    const copyText = activeGroup
-      ? activeGroup.rows.map((r) => r.text || "").join("\n") : "";
-    return `
-      <div class="case-context-actions">
-        ${hudocUrl ? `<a href="${escapeHtml(hudocUrl)}" class="cn-action" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>` : ""}
-        <button type="button" class="cn-action" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}">Cite</button>
-        ${activeGroup ? `<button type="button" class="cn-action" data-action="copy-paragraph" data-text="${escapeHtml(copyText)}">Copy</button>` : ""}
-      </div>`;
-  };
+      <div class="cn-meta">${caseMetadataHtml(c)}</div>
+    </details>`;
 
   if (!primaryPara) {
     const note = state.currentMode === "browse"
       ? "This browse result is a case record. Run a full-text query to see matched paragraphs in this note."
       : "No paragraph preview is available for this result.";
-    renderToRails(headHtml + `<p class="case-context-empty">${escapeHtml(note)}</p>` + actionsHtml(null));
+    renderToRails(headHtml + `<p class="case-context-empty">${escapeHtml(note)}</p>`);
     return;
   }
 
   // Initial paint with a placeholder; the context window needs the full
   // judgment so we fetch it and re-render when it arrives.
   renderToRails(headHtml
-    + `<div class="case-note-context"><p class="case-context-empty">Loading paragraph context…</p></div>`
-    + actionsHtml(null));
+    + `<div class="case-note-context"><p class="case-context-empty">Loading paragraph context…</p></div>`);
 
   (async () => {
     try {
@@ -5035,9 +5107,7 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
       if (activeIdx < 0) activeIdx = paras.findIndex((p) => p.hudocParaNo != null);
       if (activeIdx < 0) activeIdx = 0;
       const ctx = getCaseNoteContext(paras, activeIdx, cn.before, cn.after);
-      renderToRails(headHtml
-        + caseNoteContextHtml(ctx, paras, activeIdx)
-        + actionsHtml(ctx.active));
+      renderToRails(headHtml + caseNoteContextHtml(ctx, paras, activeIdx));
       if (opts.center) {
         // Centre the active paragraph WITHIN the sidebar scroll only —
         // scrollIntoView would also nudge the main column / window.
@@ -5054,9 +5124,7 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
     } catch (err) {
       console.error("[Case Note] context load failed:", err);
       if (state.activeCaseId === caseId) {
-        renderToRails(headHtml
-          + `<p class="case-context-empty">Paragraph context unavailable.</p>`
-          + actionsHtml(null));
+        renderToRails(headHtml + `<p class="case-context-empty">Paragraph context unavailable.</p>`);
       }
     }
   })();
@@ -5129,16 +5197,27 @@ function caselawItemHtml(text) {
     + escapeHtml(text.slice(m.index + m[0].length));
 }
 
+/* HUDOC's metadata fields sometimes carry markup copied from its editing system
+ * (<div class="ExternalClass…">…</div>): keep the text only. */
+function metaText(value) {
+  return String(value)
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"')
+    .replace(/\s+/g, " ").trim();
+}
+
 function metaSectionHtml(label, items, renderItem = escapeHtml, open = false) {
-  if (!items || !items.length) return "";
+  const texts = (items || []).map(metaText).filter(Boolean);
+  if (!texts.length) return "";
   return `
     <details class="cn-meta-sec"${open ? " open" : ""}>
-      <summary>${escapeHtml(label)} <span class="cn-meta-count">${fmtInt.format(items.length)}</span></summary>
-      <ul>${items.map((t) => `<li>${renderItem(String(t))}</li>`).join("")}</ul>
+      <summary>${escapeHtml(label)} <span class="cn-meta-count">${fmtInt.format(texts.length)}</span></summary>
+      <ul>${texts.map((t) => `<li>${renderItem(t)}</li>`).join("")}</ul>
     </details>`;
 }
 
-function caseMetadataHtml(c) {
+/* The findings by Article, or the Articles when HUDOC lists no finding; plus the MT notice. */
+function caseFindingsHtml(c) {
   const v = mostSpecificTokens(c.violation);
   const nv = mostSpecificTokens(c.non_violation || c["non-violation"]);
   const chips = (list, cls) => list.map((t) => `<span class="cn-art ${cls}" title="${escapeHtml(t)}">${escapeHtml(formatArticleToken(t))}</span>`).join("");
@@ -5146,13 +5225,8 @@ function caseMetadataHtml(c) {
     <div class="cn-findings">
       ${v.length ? `<div><span class="cnm-label">Violation</span> ${chips(v, "is-violation")}</div>` : ""}
       ${nv.length ? `<div><span class="cnm-label">No violation</span> ${chips(nv, "is-no-violation")}</div>` : ""}
-    </div>` : "";
-  const so = String(c.separate_opinion || "").toLowerCase();
-  const opinion = so === "true" ? `<p class="cn-meta-line"><span class="cnm-label">Separate opinions</span> yes</p>`
-    : so === "false" ? `<p class="cn-meta-line"><span class="cnm-label">Separate opinions</span> none</p>` : "";
-  const conclusion = (Array.isArray(c.conclusion) ? c.conclusion.join(";") : String(c.conclusion || ""))
-    .split(";").map((s) => s.trim()).filter(Boolean);
-  const keywords = (c.keywords || []).map(String).filter(Boolean);
+    </div>`
+    : `<div class="cn-findings"><div><span class="cnm-label">Articles</span> ${buildResearcherArticleChips(c.__articles, 8)}</div></div>`;
   const isMt = c.__isMt || c.text_origin === "machine_translation";
   const sourceId = c.__sourceCaseId || c.source_case_id;
   const mtNotice = isMt ? `
@@ -5162,7 +5236,17 @@ function caseMetadataHtml(c) {
       translation by the Court and may contain errors.
       ${sourceId ? `<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(sourceId)}" target="_blank" rel="noopener noreferrer">Read the French original on HUDOC ↗</a>` : ""}
     </div>` : "";
-  return mtNotice + findings + opinion
+  return mtNotice + findings;
+}
+
+function caseMetadataHtml(c) {
+  const so = String(c.separate_opinion || "").toLowerCase();
+  const opinion = so === "true" ? `<p class="cn-meta-line"><span class="cnm-label">Separate opinions</span> yes</p>`
+    : so === "false" ? `<p class="cn-meta-line"><span class="cnm-label">Separate opinions</span> none</p>` : "";
+  const conclusion = (Array.isArray(c.conclusion) ? c.conclusion.join(";") : String(c.conclusion || ""))
+    .split(";").map((s) => s.trim()).filter(Boolean);
+  const keywords = (c.keywords || []).map(String).filter(Boolean);
+  return opinion
     + metaSectionHtml("Strasbourg case-law cited", c.strasbourg_caselaw, caselawItemHtml)
     + metaSectionHtml("HUDOC conclusion", conclusion)
     + metaSectionHtml("Keywords", keywords)
@@ -5183,29 +5267,7 @@ async function loadGcRegistry() {
     const d = await r.json();
     state.gcRegistry = d.cases || {};
     state.gcRegistrySource = d.source || "";
-    patchRegistrySummaries();
   } catch (_) { /* optional enrichment: the dashboard works without it */ }
-}
-
-function registrySubjectParagraph(entry) {
-  const p = document.createElement("p");
-  p.className = "registry-subject";
-  p.title = state.gcRegistrySource || "Registry of the European Court of Human Rights";
-  const label = document.createElement("span");
-  label.className = "rs-label";
-  label.textContent = "Registry summary";
-  p.append(label, " ", entry.subject);
-  return p;
-}
-
-function patchRegistrySummaries() {
-  if (!state.gcRegistry || !el.casesList) return;
-  for (const card of el.casesList.querySelectorAll("article.researcher-result[data-case-id]")) {
-    if (card.querySelector(".registry-subject")) continue;
-    const entry = state.gcRegistry[card.dataset.caseId];
-    const anchor = card.querySelector(".researcher-title-line");
-    if (entry && entry.subject && anchor) anchor.after(registrySubjectParagraph(entry));
-  }
 }
 
 function registryDetailHtml(caseId) {
@@ -5223,12 +5285,6 @@ function registryDetailHtml(caseId) {
 
 function buildCaseCard(caseId, row, rank = 1) {
   const c = row.case;
-  const stateNames = (c.__states || []).map((d) => COUNTRY_NAMES[d] || d).filter(Boolean);
-  const respondentSummary = stateNames.length > 1
-    ? `${stateNames[0]} +${stateNames.length - 1}`
-    : (stateNames[0] || "-");
-  const outcomeLabel = OUTCOME_LABELS[c.__outcomePrimary] || c.__outcomePrimary || "-";
-  const outcomeToneClass = getOutcomeToneClass(c.__outcomePrimary);
   const chamberLabel = getChamberLabel(c.__chamberCategory);
   const keyCaseChip = String(c.__importance || "").toLowerCase() === "key cases"
     ? '<span class="legal-chip keycase">Key case</span>'
@@ -5386,24 +5442,23 @@ function buildCaseCard(caseId, row, rank = 1) {
         <p class="para-text researcher-primary-text">${primaryText}</p>
 
         <div class="researcher-chip-row">
-          ${buildResearcherArticleChips(c.__articles)}
-          <span class="chip">${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "-")}</span>
-          <span class="chip outcome ${escapeHtml(outcomeToneClass)}">${escapeHtml(outcomeLabel)}</span>
-          <span class="chip">${escapeHtml(respondentSummary)}</span>
+          ${buildResearcherArticleChips(c.__articles, 3)}
+          <span class="chip" title="${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "")}">${escapeHtml(formationLabel(c) || "-")}</span>
+          ${outcomeChipHtml(c)}
           ${c.__isMt ? `<span class="chip mt-chip" title="HUDOC publishes this judgment only in French. This English text is a machine translation made for this tool, not a translation by the Court.">Only in French on HUDOC · machine translation, unofficial</span>` : ""}
         </div>
 
         <div class="case-actions-inline compact-actions">
           ${c.__isMt && c.__sourceCaseId
-            ? `<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(c.__sourceCaseId)}" class="case-open-link primary" target="_blank" rel="noopener noreferrer" title="The authentic French text on HUDOC">French original ↗</a>`
-            : (c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="case-open-link primary" target="_blank" rel="noopener noreferrer">Open in HUDOC ↗</a>` : "")}
-          <button type="button" class="case-open-secondary cite-btn" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}"
+            ? `<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(c.__sourceCaseId)}" class="card-act" target="_blank" rel="noopener noreferrer" title="The authentic French text on HUDOC">French original ↗</a>`
+            : (c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="card-act" target="_blank" rel="noopener noreferrer" title="Open this judgment on HUDOC">HUDOC ↗</a>` : "")}
+          <button type="button" class="card-act" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}"
             data-para-idx="${escapeHtml(String(primaryPara && primaryPara.paraIdx != null ? primaryPara.paraIdx : ""))}"
             title="Copy an OSCOLA citation${primaryPara ? " with the paragraph shown" : ""}">Cite</button>
           ${wsBookmarkButtonHtml(caseId, primaryPara)}
           <button
             type="button"
-            class="case-open-secondary expand-paras-btn"
+            class="card-act expand-paras-btn"
             data-action="toggle-case"
             data-case-id="${escapeHtml(caseId)}"
             aria-expanded="false"
@@ -5416,7 +5471,7 @@ function buildCaseCard(caseId, row, rank = 1) {
       </div>
 
       <aside class="researcher-influence">
-        <div class="folio-label">Influence</div>
+        <div class="folio-label">Influence <button type="button" class="info-dot" data-action="influence-help" aria-label="What Influence shows" title="What Influence shows">i</button></div>
         ${buildResearcherBars(c, row)}
         <div class="researcher-ecli">${escapeHtml(c.ecli || splitAppNos(c.case_no).join(", ") || "")}</div>
       </aside>
@@ -6750,8 +6805,8 @@ function paintDossier() {
       ${expander}
     </div>
     <div class="dossier-footer">
-      ${hudocUrl ? `<a class="case-open-link primary" href="${escapeHtml(hudocUrl)}" target="_blank" rel="noopener noreferrer">Open in HUDOC ↗</a>` : ""}
-      <button type="button" class="case-open-secondary" data-action="dossier-cite">Cite ¶</button>
+      ${hudocUrl ? `<a class="card-act" href="${escapeHtml(hudocUrl)}" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>` : ""}
+      <button type="button" class="card-act" data-action="dossier-cite">Cite ¶</button>
     </div>`;
 }
 
@@ -7216,6 +7271,12 @@ function bindEvents() {
       return;
     }
 
+    if (action === "influence-help") {
+      e.preventDefault();
+      toggleInfluenceHelp(clickable);
+      return;
+    }
+
     if (action === "select-case" && caseId) {
       selectCase(caseId);
       return;
@@ -7499,7 +7560,7 @@ function bindEvents() {
 function init() {
   cacheElements();
   loadGcRegistry();
-  if (el.casesList) new MutationObserver(patchRegistrySummaries).observe(el.casesList, { childList: true });
+  initFilterMode();
   loadCardModePreference();
   updateCardModeButton();
   initTheme();

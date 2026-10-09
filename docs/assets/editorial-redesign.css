@@ -1851,15 +1851,6 @@ mark.hl {
   line-height: 1.15;
 }
 
-.case-context-ecli {
-  margin-top: 5px;
-  color: var(--ink-4);
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  line-height: 1.45;
-  overflow-wrap: anywhere;
-}
-
 .case-context-empty {
   color: var(--ink-3);
   font-family: var(--font-serif);
@@ -1917,13 +1908,6 @@ mark.hl {
   font-size: 0.92rem;
   font-style: italic;
   line-height: 1.58;
-}
-
-.case-context-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 18px;
 }
 
 .mobile-case-context {
@@ -2107,25 +2091,6 @@ mark.hl {
   color: var(--garnet);
 }
 
-/* ── Case Note drawer — case number / ECLI as a HUDOC link. ───────── */
-a.case-context-ecli-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--garnet);
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  width: max-content;
-  max-width: 100%;
-}
-a.case-context-ecli-link:hover {
-  border-bottom-color: var(--garnet-edge, var(--garnet));
-}
-a.case-context-ecli-link .ext-icon {
-  font-size: 0.82em;
-  flex-shrink: 0;
-}
-
 /* ── Hits toggle — render like the Cite / Info secondary actions
    (plain italic garnet) instead of an uppercase-mono hit-count. ───── */
 .researcher-result .expand-paras-btn {
@@ -2229,12 +2194,6 @@ a.case-context-ecli-link .ext-icon {
 .footer-note a { color: var(--garnet); }
 
 /* ── Registry summaries (Grand Chamber) ─────────────────────── */
-.registry-subject {
-  margin: 6px 0 4px;
-  font-size: 0.9rem;
-  line-height: 1.45;
-  color: var(--ink-2);
-}
 .rs-label {
   display: inline-block;
   margin-right: 6px;
@@ -2473,23 +2432,105 @@ body { padding-bottom: var(--bar-h); }
   background: var(--paper); border: 1px solid var(--rule); box-shadow: 0 2px 0 rgba(36, 35, 40, 0.12);
 }
 .dossier-ctx-para:hover .dossier-para-actions, .dossier-ctx-para:focus-within .dossier-para-actions { display: inline-flex; }
-.dossier-para-actions button {
-  padding: 2px 8px; cursor: pointer; font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.06em;
-  text-transform: uppercase; color: var(--ink-2); background: var(--paper); border: 1px solid var(--rule);
-}
-.dossier-para-actions button:hover { color: var(--garnet); border-color: var(--garnet-edge, var(--garnet)); }
 .dossier-para-actions button[aria-pressed="true"] { color: var(--garnet); }
 @media (hover: none) { .dossier-ctx-active .dossier-para-actions { display: inline-flex; position: static; margin-bottom: 6px; } }
 
-/* ── Folded filter groups (Keywords, Court Formation, Also search in) ── */
-.filter-fold > summary { list-style: none; cursor: pointer; }
-.filter-fold > summary::-webkit-details-marker { display: none; }
-.filter-fold > summary .filter-title::before { content: "▸ "; color: var(--garnet); }
-.filter-fold[open] > summary .filter-title::before { content: "▾ "; }
-.filter-fold > summary .filter-title { margin-bottom: 0; }
-.filter-fold[open] > summary .filter-title { margin-bottom: 8px; }
+/* ── Filters: Basic / Advanced switch; the advanced groups show only in Advanced ── */
+.filter-mode { display: inline-flex; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; }
+.filter-mode button {
+  display: inline-flex; align-items: center; gap: 3px; padding: 3px 9px; cursor: pointer;
+  font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ink-3); background: var(--paper); border: 0;
+}
+.filter-mode button + button { border-left: 1px solid var(--rule); }
+.filter-mode button:hover { color: var(--garnet); }
+.filter-mode button[aria-pressed="true"] { color: var(--paper); background: var(--garnet); }
+.filter-mode button[aria-pressed="true"] .fold-count { color: var(--garnet); background: var(--paper); }
+.filters-panel:not(.show-advanced) .filter-advanced,
+.filters-panel:not(.show-advanced) .filter-advanced-head { display: none; }
+.filter-advanced-head {
+  margin: 4px 0 -4px; padding-top: 12px; border-top: 2px solid var(--garnet-edge, var(--garnet));
+  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--garnet);
+}
+@keyframes filter-appear { from { background: var(--garnet-soft); } to { background: transparent; } }
+.filter-advanced.just-shown, .filter-advanced-head.just-shown { animation: filter-appear 1.6s ease-out; }
+@media (prefers-reduced-motion: reduce) { .filter-advanced.just-shown, .filter-advanced-head.just-shown { animation: none; } }
 .fold-count {
   display: inline-block; min-width: 1.3em; margin-left: 4px; padding: 0 4px; box-sizing: border-box; text-align: center;
   font-size: 0.6rem; line-height: 1.5; color: var(--paper); background: var(--garnet); border-radius: 8px;
 }
 .fold-count[hidden] { display: none; }
+
+/* ── One button style for HUDOC ↗ · Cite · Bookmark · hits (result cards, dossier, drawer),
+   the same as the toolbar's Save search / Export Excel. ── */
+.card-act,
+.researcher-result .card-act.expand-paras-btn,
+.cn-action,
+.dossier-para-actions a,
+.dossier-para-actions button {
+  display: inline-flex; align-items: center; gap: 4px; margin: 0; padding: 3px 10px; min-height: 24px;
+  font-family: var(--font-mono); font-size: 0.64rem; font-style: normal; font-weight: 400; line-height: 1.2;
+  letter-spacing: 0.05em; text-transform: uppercase; text-decoration: none;
+  color: var(--ink-2); background: var(--paper); border: 1px solid var(--rule); border-radius: 3px; cursor: pointer;
+}
+.card-act:hover, .cn-action:hover, .dossier-para-actions a:hover, .dossier-para-actions button:hover {
+  color: var(--garnet); border-color: var(--garnet-edge, var(--garnet)); background: var(--paper-2); text-decoration: none;
+}
+.card-act.on, .card-act[aria-expanded="true"] { color: var(--garnet); border-color: var(--garnet-edge, var(--garnet)); }
+.researcher-result .case-actions-inline { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.dossier-para-actions a, .dossier-para-actions button { min-height: 20px; padding: 2px 8px; font-size: 0.6rem; }
+
+/* Outcome on the card: a symbol and a word (● violation, ○ no violation, ◐ mixed) */
+.chip.outcome .oc-icon { margin-right: 4px; font-size: 0.9em; }
+
+/* ── Influence: the (i) and its pop-up ── */
+.researcher-influence { position: relative; }
+.info-dot {
+  display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px;
+  margin-left: 4px; padding: 0; vertical-align: 1px; cursor: pointer;
+  font: italic 600 0.62rem/1 var(--font-serif); letter-spacing: 0; text-transform: none;
+  color: var(--ink-3); background: var(--paper); border: 1px solid var(--rule); border-radius: 50%;
+}
+.info-dot:hover, .info-dot[aria-expanded="true"] { color: var(--garnet); border-color: var(--garnet-edge, var(--garnet)); }
+.influence-help {
+  position: absolute; z-index: 30; right: 0; top: 20px; width: 260px; padding: 10px 12px;
+  font-family: var(--font-serif); font-size: 0.8rem; line-height: 1.45; color: var(--ink-2);
+  background: var(--paper); border: 1px solid var(--rule); box-shadow: 0 4px 14px rgba(36, 35, 40, 0.14);
+}
+.influence-help p { margin: 0 0 6px; }
+.influence-help .ih-note { margin: 0; font-size: 0.76rem; color: var(--ink-3); }
+.influence-help a { color: var(--garnet); }
+
+/* ── Case details drawer: title, one line of facts, findings; the rest under "More" ── */
+.cn-subline {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 0; margin: 6px 0 10px;
+  font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-3);
+}
+.cn-dot { margin: 0 7px; color: var(--ink-4); }
+.cn-key { color: var(--garnet); }
+.cn-subline-actions { display: inline-flex; gap: 6px; margin-left: auto; padding-left: 10px; }
+.cn-more { margin: 4px 0 12px; padding-top: 8px; border-top: 1px solid var(--rule); }
+.cn-more > summary {
+  cursor: pointer; font-family: var(--font-mono); font-size: 0.64rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3);
+}
+.cn-more > summary:hover, .cn-more[open] > summary { color: var(--garnet); }
+.cn-more[open] > summary { margin-bottom: 10px; }
+.cn-more .cnm-facts { margin-bottom: 8px; }
+.cn-more .cnm-facts dd.violation { color: var(--garnet); }
+.cn-more .cnm-facts dd.non-violation { color: var(--blue-ink); }
+.cn-more .registry-detail { margin: 0 0 10px; padding: 0 0 10px; border-top: 0; border-bottom: 1px solid var(--rule-soft); }
+
+/* ── Results toolbar: Save search and Export together, at the right ── */
+.results-display-controls .rdc-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.results-display-controls .rdc-actions .export-btn { margin-left: 0; }
+.results-display-controls #saveSearchBtn::before { content: none; }
+/* the matched-paragraph rows under "N hits": same buttons, a size smaller */
+.paragraph-item .para-actions { flex-wrap: wrap; justify-content: flex-end; }
+.paragraph-item .para-actions a.hudoc-para-link,
+.paragraph-item .para-actions button:not(.ws-star) {
+  min-height: 20px; padding: 2px 8px; border-radius: 3px;
+  font-family: var(--font-mono); font-size: 0.6rem; font-weight: 400; letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--ink-2); background: var(--paper); border: 1px solid var(--rule);
+}
+.paragraph-item .para-actions a.hudoc-para-link:hover,
+.paragraph-item .para-actions button:not(.ws-star):hover { color: var(--garnet); border-color: var(--garnet-edge, var(--garnet)); background: var(--paper-2); }
