@@ -31,6 +31,7 @@ Rules
    claim for just satisfaction", "Fait en français, puis communiqué par écrit le …" → "Done in
    French, and notified in writing on …".
 7. Quotations of Convention articles: use the official English text of the Convention.
-8. Domestic law and domestic courts: translate, and keep the original name in italics in brackets
-   the first time it appears in the row (e.g. "the Court of Cassation (*Cour de cassation*)").
+8. Domestic law and domestic courts: translate the name. Add a name in brackets only when the French
+   text itself gives one (e.g. "la Cour de cassation (*Yargıtay*)" → "the Court of Cassation
+   (*Yargıtay*)"); never add an original-language name that is not in the source.
 9. Do not add explanations, notes or translator comments. If a passage is already in English, copy it.
