@@ -756,7 +756,6 @@ function cacheElements() {
   el.searchBtn = byId("searchBtn");
   el.queryMatchCount = byId("queryMatchCount");
   el.queryMatchLabel = byId("queryMatchLabel");
-  el.filterToggleBtn = byId("filterToggleBtn");
   el.filtersPanel = byId("filtersPanel");
 
   el.sectionsFilters = byId("sectionsFilters");
@@ -1377,8 +1376,115 @@ function buildStandardCitation(caseObj) {
   return parts.join("");
 }
 
+// ── OSCOLA citations ───────────────────────────────────────────────────────────
+// OSCOLA (4th edn) for an ECtHR judgment: "Animal Defenders International v the United Kingdom [GC]
+// App no 48876/08 (ECtHR, 22 April 2013), para 104". [GC] after the name as the Court writes it;
+// the pinpoint is the Court's paragraph number. HUDOC titles are in capitals: put them in title case.
+const OSCOLA_SMALL = new Set(["and", "of", "the", "v", "de", "du", "des", "la", "le", "les", "di", "da", "del", "della",
+  "dos", "das", "van", "von", "der", "den", "zu", "et", "for", "in", "on"]);
+const OSCOLA_KEEP = /^(?:(?:\p{Lu}\.){1,5}|OOO|ZAO|OAO|PAO|AO|AS|AB|SA|SRL|SPA|NV|BV|GMBH|AG|PLC|LTD|UK|USSR)$/u;
+const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September",
+  "October", "November", "December"];
+
+function oscolaTitle(raw) {
+  let t = String(raw || "").replace(/^CASE OF\s+/i, "")
+    .replace(/\s*\((?:merits|just satisfaction|merits and just satisfaction|preliminary objections?|article 50)\)/gi, "").trim();
+  const core = t.replace(/\sv\.?\s/g, " ").replace(/\(No\.?\s*\d+\)/gi, "");  // "v." and "(No. 2)" aside
+  const capitals = core === core.toUpperCase();
+  t = t.replace(/\s+v\.\s+/g, " v ").replace(/\(No\.\s*(\d+)\)/gi, "(No $1)");
+  if (!capitals) return t;
+  let first = true;
+  return t.split(/(\s+)/).map((w) => {
+    if (!w.trim()) return w;
+    const lower = w.toLowerCase();
+    let out;
+    if (!first && OSCOLA_SMALL.has(lower)) out = lower;
+    else if (OSCOLA_KEEP.test(w.replace(/[(),]/g, ""))) out = w;
+    else out = lower.replace(/(^|[-'’(])(\p{L})/gu, (m, before, c) => before + c.toUpperCase())
+      .replace(/^Mc(\p{L})/u, (m, c) => "Mc" + c.toUpperCase());
+    first = false;
+    return out;
+  }).join("");
+}
+
+function oscolaDate(value) {
+  const s = String(value || "");
+  let m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(s);
+  if (m) return `${Number(m[1])} ${MONTH_NAMES[Number(m[2]) - 1]} ${m[3]}`;
+  m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
+  return m ? `${Number(m[3])} ${MONTH_NAMES[Number(m[2]) - 1]} ${m[1]}` : "";
+}
+
+function buildOscolaCitation(caseObj, para) {
+  const c = caseObj || {};
+  const gc = /grand chamber/i.test(String(c.__originatingBody || c.originating_body || ""));
+  const dec = /^decision/i.test(String(c.document_type || ""));
+  const apps = String(c.case_no || "").match(/\d+\/\d+/g) || [];
+  const appPart = !apps.length ? ""
+    : apps.length === 1 ? `App no ${apps[0]}`
+    : apps.length <= 3 ? `App nos ${apps.slice(0, -1).join(", ")} and ${apps[apps.length - 1]}`
+    : `App no ${apps[0]} and ${apps.length - 1} others`;
+  const date = oscolaDate(c.judgment_date);
+  let out = `${oscolaTitle(c.title || c.case_id)}${dec ? " (dec)" : ""}${gc ? " [GC]" : ""}${appPart ? " " + appPart : ""}` +
+    ` (ECtHR${date ? ", " + date : ""})`;
+  const n = para ? (para.hudocParaNo != null ? para.hudocParaNo : para.displayParaNo) : null;
+  if (n != null) {
+    const block = String(para.numberingBlock || "");
+    out += block === "operative_dispositif" ? `, operative provisions, point ${n}`
+      : block.startsWith("separate_opinion") ? `, separate opinion, para ${n}` : `, para ${n}`;
+  }
+  return out;
+}
+
+/** Cite / Copy / Bookmark for one paragraph of a judgment's text, shown on hover (Case details, drawer). */
+function paraHoverActions(caseId, p) {
+  const saved = window.ECHRWorkspace && window.ECHRWorkspace.has(wsKey(caseId, p.paraIdx));
+  const data = `data-case-id="${escapeHtml(caseId)}" data-para-idx="${escapeHtml(String(p.paraIdx))}"`;
+  return `<span class="dossier-para-actions">
+    <button type="button" data-action="para-cite" ${data} title="Copy an OSCOLA citation of this paragraph">Cite</button>
+    <button type="button" data-action="para-copy" ${data} title="Copy the text of this paragraph">Copy</button>
+    ${window.ECHRWorkspace ? `<button type="button" data-action="para-bookmark" ${data} aria-pressed="${!!saved}"
+      title="${saved ? "Remove from your Workspace" : "Save to your Workspace"}">${saved ? "★ Saved" : "☆ Bookmark"}</button>` : ""}
+  </span>`;
+}
+
+/** The click on one of those actions; true when it was one. */
+function handleParaAction(action, btn) {
+  if (!["para-cite", "para-copy", "para-bookmark"].includes(action)) return false;
+  const caseId = btn.dataset.caseId;
+  const caseObj = state.caseById.get(caseId);
+  const paras = dossierCaseCache.get(caseId) || [];
+  const at = paras.findIndex((r) => String(r.paraIdx) === btn.dataset.paraIdx);
+  if (!caseObj || at < 0) return true;
+  const para = paras[at];
+  if (action === "para-cite") copyToClipboardWithFeedback(buildOscolaCitation(caseObj, para), btn);
+  else if (action === "para-copy") {
+    // the paragraph with the quotations and list items that belong to it
+    const no = para.hudocParaNo != null ? para.hudocParaNo : para.displayParaNo;
+    const rows = [para];
+    for (let k = at + 1; k < paras.length && no != null && paras[k].hudocParaNo == null && paras[k].displayParaNo === no; k++) rows.push(paras[k]);
+    copyToClipboardWithFeedback(rows.map((r) => r.text).join("\n"), btn);
+  } else if (window.ECHRWorkspace) {
+    const on = window.ECHRWorkspace.toggleParagraph(wsItemFor(caseObj, para));
+    btn.textContent = on ? "★ Saved" : "☆ Bookmark";
+    btn.setAttribute("aria-pressed", String(on));
+    btn.title = on ? "Remove from your Workspace" : "Save to your Workspace";
+  }
+  return true;
+}
+
 // ── Workspace (assets/workspace.js): saved paragraphs and saved searches ────────
 const wsKey = (caseId, paraIdx) => `${caseId}#${paraIdx}`;
+
+/** The result card's Bookmark button: the paragraph it shows, or the judgment when it shows none. */
+function wsBookmarkButtonHtml(caseId, para) {
+  if (!window.ECHRWorkspace) return "";
+  const idx = para && para.paraIdx != null ? para.paraIdx : "";
+  const on = window.ECHRWorkspace.has(wsKey(caseId, idx === "" ? "case" : idx));
+  return `<button type="button" class="case-open-secondary ws-bookmark-btn${on ? " on" : ""}" data-action="bookmark-para"
+    data-case-id="${escapeHtml(caseId)}" data-para-idx="${escapeHtml(String(idx))}" data-para-key="${escapeHtml((para && para.key) || "")}"
+    aria-pressed="${on}" title="${on ? "Remove from your Workspace" : "Save to your Workspace"}">${on ? "★ Bookmarked" : "☆ Bookmark"}</button>`;
+}
 
 function wsStarHtml(caseId, paraIdx, paraKey) {
   if (!window.ECHRWorkspace || paraIdx == null || paraIdx === "") return "";
@@ -1403,15 +1509,26 @@ function findShownParagraph(caseId, paraKey, paraIdx) {
 function wsParagraphItem(caseId, paraIdx, paraKey) {
   const c = state.caseById.get(caseId);
   if (!c) return null;
-  const p = findShownParagraph(caseId, paraKey, paraIdx);
-  if (!p) return null;
-  return {
-    key: wsKey(caseId, p.paraIdx), caseId, paraIdx: p.paraIdx,
-    paraNo: p.hudocParaNo != null ? p.hudocParaNo : (p.displayParaNo != null ? p.displayParaNo : null),
-    title: (c.title || "").replace(/^CASE OF\s+/i, ""), appnos: c.case_no || "", date: formatCaseDateForDisplay(c),
-    section: SECTION_LABELS[p.section] || p.section || "", text: p.text || "",
-    citation: buildParagraphCitation(c, p), url: paragraphHudocUrl(c, p) || c.hudoc_url || "",
+  const p = (paraIdx == null || paraIdx === "") && !paraKey ? null : findShownParagraph(caseId, paraKey, paraIdx);
+  return wsItemFor(c, p);
+}
+
+/** A Workspace item from a judgment and one of its paragraphs (or the judgment alone). */
+function wsItemFor(c, p) {
+  const caseId = c.case_id;
+  const base = {
+    caseId, title: (c.title || "").replace(/^CASE OF\s+/i, ""), appnos: c.case_no || "", date: formatCaseDateForDisplay(c),
     machineTranslation: !!c.__isMt,
+  };
+  if (!p) {  // a judgment without a matched paragraph (browsing): keep the judgment itself
+    return { ...base, key: wsKey(caseId, "case"), paraIdx: null, paraNo: null, section: "", text: "",
+      citation: buildOscolaCitation(c, null), url: c.hudoc_url || "" };
+  }
+  return {
+    ...base, key: wsKey(caseId, p.paraIdx), paraIdx: p.paraIdx,
+    paraNo: p.hudocParaNo != null ? p.hudocParaNo : (p.displayParaNo != null ? p.displayParaNo : null),
+    section: SECTION_LABELS[p.section] || p.section || "", text: p.text || "",
+    citation: buildOscolaCitation(c, p), url: paragraphHudocUrl(c, p) || c.hudoc_url || "",
   };
 }
 
@@ -1468,40 +1585,6 @@ function buildEcliCitation(caseObj) {
   return caseObj.ecli || buildStandardCitation(caseObj);
 }
 
-/* v1 paragraph-level citation:
- *   Smith v. Croatia, no. 12345/05, § 47, ECtHR 2024
- *   https://hudoc.echr.coe.int/?i=001-XXXXX
- *
- * Used by the per-paragraph "Cite ¶" button in result rows.  Falls
- * back gracefully when the paragraph has no hudoc_para_no
- * (continuation row, operative item, heading) by emitting the case
- * citation without a paragraph anchor. */
-function buildParagraphCitation(caseObj, para) {
-  const head = buildStandardCitation(caseObj);
-  const url = caseObj.hudoc_url || "";
-  // P58: a fragment hit (bullet/quote) has no own hudoc_para_no — cite it
-  // under its parent body ¶ via displayParaNo rather than anchorless.
-  const hp = para && (para.hudocParaNo != null ? para.hudocParaNo : para.displayParaNo);
-  const block = para && para.numberingBlock;
-  let anchor = "";
-  if (hp != null) {
-    if (block === "operative_dispositif" || block === "separate_opinion") {
-      anchor = `, Op. § ${hp}`;
-    } else {
-      anchor = `, § ${hp}`;
-    }
-  }
-  // Insert the anchor BEFORE the trailing year-parenthesis if present
-  // ("Smith v. Croatia, App. no. … (ECtHR YYYY)"), otherwise append.
-  const withAnchor = anchor
-    ? head.replace(/\s\(ECtHR\b/, `${anchor} (ECtHR`).replace(
-        /^(.+)$/,
-        head.includes("(ECtHR") ? "$1" : `$1${anchor}`,
-      )
-    : head;
-  return url ? `${withAnchor}\n${url}` : withAnchor;
-}
-
 /* Build a per-paragraph HUDOC URL.  HUDOC's modern viewer doesn't
  * natively honour `#paragraph_N`, so we keep the case-level URL but
  * append a fragment that the user can paste / Ctrl-F against in the
@@ -1514,34 +1597,6 @@ function paragraphHudocUrl(caseObj, para) {
   const hp = para && (para.hudocParaNo != null ? para.hudocParaNo : para.displayParaNo);
   if (hp == null) return base;
   return `${base}#${"{"}\"paragraphno\":\"${hp}\"${"}"}`;
-}
-
-function buildKeyInfoBlock(caseObj) {
-  const lines = [];
-  const title = (caseObj.title || "Untitled").replace(/^CASE OF\s+/i, "");
-  const states = (caseObj.__states || []).map(d => COUNTRY_NAMES[d] || d).join(", ");
-  lines.push(`Case: ${title}`);
-  lines.push(`Application no.: ${caseObj.case_no || "-"}`);
-  lines.push(`Respondent State: ${states || "-"}`);
-  lines.push(`Judgment date: ${caseObj.judgment_date || "-"}`);
-  lines.push(`Originating body: ${formatBodyLabel(caseObj.__originatingBody) || "-"}`);
-  const chamberLabel = getChamberLabel(caseObj.__chamberCategory);
-  lines.push(`Chamber: ${chamberLabel}`);
-  if (caseObj.chamber_composed_of && caseObj.chamber_composed_of.length) {
-    lines.push(`Composition: ${caseObj.chamber_composed_of.join(", ")}`);
-  }
-  lines.push(`Articles: ${caseObj.article_no || "-"}`);
-  if (caseObj.violation && caseObj.violation.length) {
-    lines.push(`Violations found: ${caseObj.violation.join("; ")}`);
-  }
-  if (caseObj["non-violation"] && caseObj["non-violation"].length) {
-    lines.push(`No violation: ${caseObj["non-violation"].join("; ")}`);
-  }
-  lines.push(`Importance: ${caseObj.__importance || "-"}`);
-  if (caseObj.__hasSeparateOpinion) lines.push(`Separate opinion: Yes`);
-  if (caseObj.ecli) lines.push(`ECLI: ${caseObj.ecli}`);
-  if (caseObj.hudoc_url) lines.push(`HUDOC: ${caseObj.hudoc_url}`);
-  return lines.join("\n");
 }
 
 function copyToClipboardWithFeedback(text, buttonEl) {
@@ -1625,7 +1680,6 @@ function setSearchEnabled(enabled) {
   el.searchBtn.disabled = !enabled;
   if (el.inlineSearchInput) el.inlineSearchInput.disabled = !enabled;
   if (el.inlineSearchBtn) el.inlineSearchBtn.disabled = !enabled;
-  el.filterToggleBtn.disabled = !enabled;
   el.dateFrom.disabled = !enabled;
   el.dateTo.disabled = !enabled;
   if (el.exportIncludeClassifier) el.exportIncludeClassifier.disabled = !enabled;
@@ -2468,23 +2522,13 @@ function attachFilterGroupClearButtons() {
   });
 }
 
-/** Show "Advanced Filters (N active)" on the toggle button so users always
- *  know how many filters are currently constraining results. */
+/** A folded filter group shows, in its heading, how many of its boxes are ticked. */
 function updateActiveFilterCount() {
-  if (!el.filterToggleBtn) return;
-  // Count only ADVANCED filters — the badge surfaces selections hidden
-  // inside the collapsed advanced section.  Common filters (countries,
-  // articles, date, importance, outcome) are always visible, so they
-  // need no badge.
-  const active = document.querySelectorAll('#filtersAdvanced input[type="checkbox"]:checked').length;
-  // Caret reflects the collapse state: ▶ collapsed, ▼ expanded.
-  const expanded = el.filterToggleBtn.getAttribute("aria-expanded") === "true";
-  const iconHTML = `<span class="filter-toggle-icon">${expanded ? "▼" : "▶"}</span>`;
-  if (active > 0) {
-    el.filterToggleBtn.innerHTML = `${iconHTML} Advanced Filters <span class="active-filter-badge">${active}</span>`;
-  } else {
-    el.filterToggleBtn.innerHTML = `${iconHTML} Advanced Filters`;
-  }
+  document.querySelectorAll("#filtersPanel details.filter-fold").forEach((group) => {
+    const n = group.querySelectorAll('input[type="checkbox"]:checked').length;
+    const badge = group.querySelector(".fold-count");
+    if (badge) { badge.textContent = n ? String(n) : ""; badge.hidden = !n; }
+  });
 }
 
 function renderGlobalStats() {
@@ -4823,8 +4867,8 @@ function caseNoteContextHtml(ctx, paras, activeIdx) {
       ? `<span class="match-source-badge match-source-quote" title="The query matched inside quoted material — a Convention article, domestic law or other source — not the Court's own reasoning">in quote</span>`
       : "";
     return `
-      <div class="dossier-ctx-para${isActive ? " dossier-ctx-active" : ""}">
-        <span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(head))}</span>${quoteBadge}${inner}
+      <div class="dossier-ctx-para${isActive ? " dossier-ctx-active" : ""}" tabindex="0">
+        ${head.paraIdx != null ? paraHoverActions(state.activeCaseId, head) : ""}<span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(head))}</span>${quoteBadge}${inner}
       </div>`;
   };
   const moreBtn = (dir, count) => {
@@ -5353,13 +5397,10 @@ function buildCaseCard(caseId, row, rank = 1) {
           ${c.__isMt && c.__sourceCaseId
             ? `<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(c.__sourceCaseId)}" class="case-open-link primary" target="_blank" rel="noopener noreferrer" title="The authentic French text on HUDOC">French original ↗</a>`
             : (c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="case-open-link primary" target="_blank" rel="noopener noreferrer">Open in HUDOC ↗</a>` : "")}
-          <details class="cite-menu">
-            <summary class="case-open-secondary cite-btn" data-action="cite-menu" title="Copy the citation or the key information of this judgment">Cite ▾</summary>
-            <div class="cite-menu-pop" role="menu">
-              <button type="button" role="menuitem" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}">Copy citation</button>
-              <button type="button" role="menuitem" data-action="copy-info-card" data-case-id="${escapeHtml(caseId)}">Copy key information</button>
-            </div>
-          </details>
+          <button type="button" class="case-open-secondary cite-btn" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}"
+            data-para-idx="${escapeHtml(String(primaryPara && primaryPara.paraIdx != null ? primaryPara.paraIdx : ""))}"
+            title="Copy an OSCOLA citation${primaryPara ? " with the paragraph shown" : ""}">Cite</button>
+          ${wsBookmarkButtonHtml(caseId, primaryPara)}
           <button
             type="button"
             class="case-open-secondary expand-paras-btn"
@@ -6677,12 +6718,12 @@ function paintDossier() {
   const breadcrumb = bc.join('<span class="dossier-bc-sep">›</span>');
 
   const renderCtx = (p) => `
-    <div class="dossier-ctx-para">
-      <span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(p))}</span>${escapeHtml(p.text)}
+    <div class="dossier-ctx-para" tabindex="0">
+      ${paraHoverActions(d.caseId, p)}<span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(p))}</span>${escapeHtml(p.text)}
     </div>`;
   const activeHtml = `
-    <div class="dossier-ctx-para dossier-ctx-active">
-      <span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(ctx.active))}</span>${dossierHighlight(ctx.active.text, terms)}
+    <div class="dossier-ctx-para dossier-ctx-active" tabindex="0">
+      ${paraHoverActions(d.caseId, ctx.active)}<span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(ctx.active))}</span>${dossierHighlight(ctx.active.text, terms)}
     </div>`;
 
   let expander = "";
@@ -6905,32 +6946,6 @@ async function loadUploadedFile(file) {
 function bindEvents() {
   el.themeToggle.addEventListener("click", toggleTheme);
 
-  el.filterToggleBtn.addEventListener("click", () => {
-    if (el.filterToggleBtn.disabled) return;
-    const open = el.filtersPanel.classList.toggle("open");
-    el.filterToggleBtn.setAttribute("aria-expanded", open ? "true" : "false");
-    // Rebuild the button (caret ▶/▼ + active-filter badge) for the new state.
-    updateActiveFilterCount();
-    // The advanced panel sits BELOW two long always-on groups — without this
-    // scroll it opens ~1000px under the fold and the click looks like a no-op.
-    if (open) {
-      // Bring the advanced panel into view — it sits ~1000px down the rail,
-      // past two long always-on groups, so the click otherwise looks dead.
-      // NB: smooth scrollIntoView dies in this nested-scroller layout
-      // (moves ~8px and stops), so scroll the rail container explicitly.
-      setTimeout(() => {
-        const adv = byId("filtersAdvanced");
-        if (!adv) return;
-        const rail = adv.closest(".editorial-filter-rail");
-        if (rail && rail.scrollHeight > rail.clientHeight) {
-          rail.scrollTop += adv.getBoundingClientRect().top - rail.getBoundingClientRect().top - 8;
-        } else {
-          adv.scrollIntoView({ block: "nearest" });
-        }
-      }, 180);
-    }
-  });
-
   el.searchForm.addEventListener("submit", (e) => {
     e.preventDefault();
     applySearch(true);
@@ -6993,11 +7008,6 @@ function bindEvents() {
     document.addEventListener("click", (e) => { if (!mtInfo.contains(e.target)) setOpen(false); });
     mtInfo.addEventListener("keydown", (e) => { if (e.key === "Escape") { setOpen(false); btn.focus(); } });
   }
-
-  // A result's Cite menu closes when the click lands anywhere else.
-  document.addEventListener("click", (e) => {
-    document.querySelectorAll("details.cite-menu[open]").forEach((m) => { if (!m.contains(e.target)) m.open = false; });
-  });
 
   // "Save search" keeps the query and its filters in the Workspace.
   document.getElementById("saveSearchBtn")?.addEventListener("click", () => {
@@ -7199,7 +7209,7 @@ function bindEvents() {
       if (item && window.ECHRWorkspace) {
         const on = window.ECHRWorkspace.toggleParagraph(item);
         clickable.classList.toggle("on", on);
-        clickable.textContent = on ? "★" : "☆";
+        clickable.textContent = clickable.classList.contains("ws-bookmark-btn") ? (on ? "★ Bookmarked" : "☆ Bookmark") : (on ? "★" : "☆");
         clickable.setAttribute("aria-pressed", String(on));
         clickable.title = on ? "Remove from your Workspace" : "Save this paragraph to your Workspace";
       }
@@ -7251,7 +7261,9 @@ function bindEvents() {
     if (action === "copy-citation" && caseId) {
       e.preventDefault();
       const caseObj = state.caseById.get(caseId);
-      if (caseObj) copyToClipboardWithFeedback(buildStandardCitation(caseObj), clickable);
+      const idx = clickable.dataset.paraIdx;
+      const para = idx != null && idx !== "" ? findShownParagraph(caseId, null, idx) : null;
+      if (caseObj) copyToClipboardWithFeedback(buildOscolaCitation(caseObj, para), clickable);
       return;
     }
 
@@ -7263,20 +7275,11 @@ function bindEvents() {
         // Look up the paragraph object so the citation can include the proper § N anchor
         // (server results keep it in currentResultsById, not in the case's __paragraphs).
         const para = findShownParagraph(caseId, paraKey, null);
-        copyToClipboardWithFeedback(
-          buildParagraphCitation(caseObj, para),
-          clickable,
-        );
+        copyToClipboardWithFeedback(buildOscolaCitation(caseObj, para), clickable);
       }
       return;
     }
 
-    if (action === "copy-info-card" && caseId) {
-      e.preventDefault();
-      const caseObj = state.caseById.get(caseId);
-      if (caseObj) copyToClipboardWithFeedback(buildKeyInfoBlock(caseObj), clickable);
-      return;
-    }
   });
 
   el.casesList.addEventListener("keydown", (e) => {
@@ -7302,6 +7305,7 @@ function bindEvents() {
       if (state.dossier) { state.dossier.expanded = false; paintDossier(); }
       return;
     }
+    if (handleParaAction(action, btn)) return;
     if (action === "dossier-cite") {
       const d = state.dossier;
       if (!d) return;
@@ -7309,7 +7313,7 @@ function bindEvents() {
       const active = (dossierCaseCache.get(d.caseId) || [])
         .find((p) => p.paraIdx === d.paraIdx);
       if (caseObj && active) {
-        copyToClipboardWithFeedback(buildParagraphCitation(caseObj, active), btn);
+        copyToClipboardWithFeedback(buildOscolaCitation(caseObj, active), btn);
       }
       return;
     }
@@ -7341,7 +7345,9 @@ function bindEvents() {
     if (action === "copy-citation" && caseId) {
       e.preventDefault();
       const caseObj = state.caseById.get(caseId);
-      if (caseObj) copyToClipboardWithFeedback(buildStandardCitation(caseObj), clickable);
+      const idx = clickable.dataset.paraIdx;
+      const para = idx != null && idx !== "" ? findShownParagraph(caseId, null, idx) : null;
+      if (caseObj) copyToClipboardWithFeedback(buildOscolaCitation(caseObj, para), clickable);
       return;
     }
     if (action === "copy-paragraph") {
@@ -7349,6 +7355,7 @@ function bindEvents() {
       copyToClipboardWithFeedback(clickable.getAttribute("data-text") || "", clickable);
       return;
     }
+    if (handleParaAction(action, clickable)) { e.preventDefault(); return; }
     if (action === "casenote-more-before" || action === "casenote-more-after") {
       e.preventDefault();
       if (state.caseNote) {

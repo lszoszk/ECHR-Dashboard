@@ -2445,21 +2445,6 @@ body { padding-bottom: var(--bar-h); }
   .editorial-filter-rail { height: auto; }
 }
 
-/* ── Result card: one Cite menu (citation / key information) ───────────── */
-.cite-menu { position: relative; display: inline-block; }
-.cite-menu > summary { list-style: none; cursor: pointer; user-select: none; }
-.cite-menu > summary::-webkit-details-marker { display: none; }
-.cite-menu-pop {
-  position: absolute; z-index: 40; top: calc(100% + 4px); left: 0; min-width: 190px;
-  display: flex; flex-direction: column; padding: 4px 0;
-  background: var(--paper); border: 1px solid var(--ink); box-shadow: 0 2px 0 rgba(36, 35, 40, 0.16);
-}
-.cite-menu-pop button {
-  padding: 6px 12px; border: 0; background: none; text-align: left; cursor: pointer;
-  font-family: var(--font-serif); font-size: 0.84rem; color: var(--ink-2);
-}
-.cite-menu-pop button:hover, .cite-menu-pop button:focus-visible { background: var(--garnet-soft); color: var(--garnet); }
-
 /* Phones: the right column holds only the case details (shown inside the results here instead)
    and the analytics hidden by dashboard.css, so it was an empty band above the filters. */
 @media (max-width: 860px) {
@@ -2477,3 +2462,34 @@ body { padding-bottom: var(--bar-h); }
   padding: 0 4px; cursor: pointer; font-size: 0.95rem; line-height: 1; color: var(--ink-3); background: none; border: 0;
 }
 .ws-star:hover, .ws-star.on { color: var(--garnet); }
+
+/* ── Result card: Cite (OSCOLA) and Bookmark; drawer paragraphs: actions on hover ── */
+.ws-bookmark-btn.on { color: var(--garnet); border-color: var(--garnet-edge, var(--garnet)); }
+.dossier-ctx-para { position: relative; }
+.dossier-ctx-para:focus { outline: none; }
+.dossier-ctx-para:focus-visible { outline: 2px solid var(--garnet-edge, var(--garnet)); outline-offset: 2px; }
+.dossier-para-actions {
+  position: absolute; top: -12px; right: 4px; z-index: 2; display: none; gap: 4px; padding: 3px;
+  background: var(--paper); border: 1px solid var(--rule); box-shadow: 0 2px 0 rgba(36, 35, 40, 0.12);
+}
+.dossier-ctx-para:hover .dossier-para-actions, .dossier-ctx-para:focus-within .dossier-para-actions { display: inline-flex; }
+.dossier-para-actions button {
+  padding: 2px 8px; cursor: pointer; font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--ink-2); background: var(--paper); border: 1px solid var(--rule);
+}
+.dossier-para-actions button:hover { color: var(--garnet); border-color: var(--garnet-edge, var(--garnet)); }
+.dossier-para-actions button[aria-pressed="true"] { color: var(--garnet); }
+@media (hover: none) { .dossier-ctx-active .dossier-para-actions { display: inline-flex; position: static; margin-bottom: 6px; } }
+
+/* ── Folded filter groups (Keywords, Court Formation, Also search in) ── */
+.filter-fold > summary { list-style: none; cursor: pointer; }
+.filter-fold > summary::-webkit-details-marker { display: none; }
+.filter-fold > summary .filter-title::before { content: "▸ "; color: var(--garnet); }
+.filter-fold[open] > summary .filter-title::before { content: "▾ "; }
+.filter-fold > summary .filter-title { margin-bottom: 0; }
+.filter-fold[open] > summary .filter-title { margin-bottom: 8px; }
+.fold-count {
+  display: inline-block; min-width: 1.3em; margin-left: 4px; padding: 0 4px; box-sizing: border-box; text-align: center;
+  font-size: 0.6rem; line-height: 1.5; color: var(--paper); background: var(--garnet); border-radius: 8px;
+}
+.fold-count[hidden] { display: none; }
