@@ -2274,19 +2274,83 @@ a.case-context-ecli-link .ext-icon {
 .cn-appno:hover { background: var(--garnet-soft, transparent); }
 
 
-/* Machine translations (unofficial): opt-in pill, notice above the results, chip and case notice */
-.bucket-pill.mt-pill { border-style: dashed; }
-.bucket-pill.mt-pill .mt-unofficial {
-  font-style: normal; font-size: 0.72em; letter-spacing: 0.06em; text-transform: uppercase;
-  padding: 0 0.35em; margin-left: 0.25em; border-radius: 3px;
-  background: var(--mt-flag-bg, #f6e7c8); color: var(--mt-flag-fg, #7a4b00);
+/* ── "Try" examples under the search box ─────────────────────────────────── */
+.search-try { flex-wrap: wrap; align-items: center; }
+.try-q {
+  padding: 0; border: 0; background: none; cursor: pointer; font: inherit; text-align: left;
+}
+@media (max-width: 540px) {
+  .try-q:nth-of-type(n+4) { display: none; } /* three examples on a phone */
+}
+.try-q code {
+  display: inline-block; padding: 2px 7px; font-size: 0.74rem; color: var(--ink-2);
+  background: var(--paper-3); border: 1px solid var(--rule); font-family: var(--font-mono);
+}
+.try-q:hover code, .try-q:focus-visible code { color: var(--garnet); border-color: var(--garnet-edge); background: var(--garnet-soft); }
+
+/* ── Left rail: what is searched (Collection, Search in) ─────────────────── */
+.rail-scope {
+  display: flex; flex-direction: column; gap: 20px;
+  padding: 20px 24px 22px; border-bottom: 1px solid var(--rule);
+}
+.rail-scope .filter-title { margin-bottom: 8px; }
+.rail-scope .cb-label { align-items: flex-start; line-height: 1.35; }
+.rail-scope .cb-label input { margin-top: 2px; flex: 0 0 auto; }
+.rail-scope .scope-fixed { cursor: default; color: var(--ink); }
+.rail-scope .scope-fixed input { opacity: 0.8; }
+
+/* Machine translations (unofficial): opt-in box in the rail, notice above the results, chip and case notice */
+.mt-scope {
+  margin-top: 12px; padding: 9px 10px 10px;
+  border: 1px dashed var(--mt-flag-fg, #b26b00); background: var(--mt-flag-bg, #fbf3e2);
+}
+.mt-scope[hidden] { display: none; }
+.mt-scope-head {
+  margin-bottom: 6px; font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--mt-flag-fg, #7a4b00);
+}
+.mt-scope .mt-option { color: var(--ink); font-weight: 500; }
+.mt-scope-note { margin: 6px 0 0 20px; font-size: 0.76rem; line-height: 1.4; color: var(--ink-2); }
+.mt-unofficial {
+  display: inline-block; margin-right: 0.3em; padding: 0 0.4em; border-radius: 2px;
+  font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--mt-flag-fg, #7a4b00); border: 1px solid var(--mt-flag-fg, #b26b00);
 }
 .mt-notice, .mt-case-notice {
   margin: 0.6rem 0 0; padding: 0.55rem 0.8rem; border-left: 3px solid var(--mt-flag-fg, #b26b00);
   background: var(--mt-flag-bg, #fbf3e2); color: inherit; font-size: 0.9rem; line-height: 1.45;
 }
+.results-main > .mt-notice { margin: 0 0 16px; }
 .mt-case-notice { margin: 0 0 0.8rem; }
 .mt-case-notice a, .mt-notice a { margin-left: 0.25rem; }
 .chip.mt-chip { background: var(--mt-flag-bg, #fbf3e2); color: var(--mt-flag-fg, #7a4b00); border-color: var(--mt-flag-fg, #b26b00); }
-[data-theme="dark"] .bucket-pill.mt-pill .mt-unofficial, [data-theme="dark"] .mt-notice,
-[data-theme="dark"] .mt-case-notice, [data-theme="dark"] .chip.mt-chip { --mt-flag-bg: #3a2c12; --mt-flag-fg: #e6b34f; }
+
+/* Scope chips above the results: removable */
+.scope-chip { cursor: pointer; gap: 6px; }
+.scope-chip:hover { border-color: var(--garnet); }
+.filter-chip.mt-scope-chip { color: var(--mt-flag-fg, #7a4b00); background: var(--mt-flag-bg, #fbf3e2); border: 1px dashed var(--mt-flag-fg, #b26b00); }
+
+[data-theme="dark"] .mt-scope, [data-theme="dark"] .mt-unofficial, [data-theme="dark"] .mt-notice,
+[data-theme="dark"] .mt-case-notice, [data-theme="dark"] .chip.mt-chip,
+[data-theme="dark"] .filter-chip.mt-scope-chip { --mt-flag-bg: #3a2c12; --mt-flag-fg: #e6b34f; }
+
+/* ── Judgments per year (Judgment Date filter) ──────────────────────────── */
+.year-histogram {
+  display: flex; align-items: flex-end; gap: 1px; height: 54px; margin: 2px 0 4px;
+}
+.year-histogram[hidden] { display: none; }
+.year-bar {
+  flex: 1 1 0; min-width: 0; height: 100%; padding: 0; border: 0; cursor: pointer;
+  display: flex; align-items: flex-end; background: none;
+}
+.year-bar > span { display: block; width: 100%; background: var(--ink-3); opacity: 0.45; min-height: 1px; }
+.year-bar:hover > span { opacity: 0.9; }
+.year-bar.in-range > span { background: var(--garnet); opacity: 0.9; }
+.year-axis {
+  display: flex; justify-content: space-between; margin-bottom: 8px;
+  font-family: var(--font-mono); font-size: 0.6rem; color: var(--ink-3);
+}
+.year-axis[hidden] { display: none; }
+/* the two date fields share the rail's width instead of running past its edge */
+.editorial-filter-rail .date-input { min-width: 0; padding: 5px 3px; font-size: 0.74rem; }
+.editorial-filter-rail .date-range { gap: 4px; }

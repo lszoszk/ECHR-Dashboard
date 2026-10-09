@@ -1083,6 +1083,24 @@ def facets(
                 cur.execute(kw_sql, [ids_json] if scoped else [])
                 result["keywords"] = [_row_to_dict(r) for r in cur.fetchall()]
 
+            # Judgments per year, for the rail's histogram: scoped to the text query only, never
+            # to the date range, so the chart keeps every year while a range is selected; counts
+            # the judgments a default search covers (no decisions, no machine translations).
+            year_ids = None
+            if fts_expr:
+                if _date_key(date_from) or _date_key(date_to):
+                    join_sql, where_sql, params = _build_case_filter_sql(fts_expr=fts_expr)
+                    cur.execute(f"SELECT DISTINCT c.case_id FROM cases c {join_sql} WHERE {where_sql}", params)
+                    year_ids = json.dumps([r["case_id"] for r in cur.fetchall()])
+                else:
+                    year_ids = ids_json
+            cur.execute(
+                "SELECT substr(c.judgment_date,7,4) AS year, count(*) AS count FROM cases c "
+                f"WHERE c.judgment_date LIKE '__/__/____' AND {_doc_type_clause([])}"
+                + (" AND c.case_id IN (SELECT value FROM json_each(?))" if year_ids is not None else "")
+                + " GROUP BY year ORDER BY year", [year_ids] if year_ids is not None else [])
+            result["years"] = [_row_to_dict(r) for r in cur.fetchall()]
+
             # Date range — judgment_date is DD/MM/YYYY, so naive MIN/MAX
             # is lexicographic-by-DD, not chronological.  Sort by an
             # ISO-style YYYYMMDD key and pick the first / last rows.

@@ -2200,12 +2200,14 @@ async function refreshRailCounts(query, filters) {
       state.facetCounts = state.globalFacetCounts;
       applyRailCounts();
     }
+    renderYearHistogram(state.globalYears);
     return;
   }
   const seq = ++_railCountSeq;
   try {
     const facets = await serverSearch.getFacets({ q, date_from: dFrom, date_to: dTo });
     if (seq !== _railCountSeq) return; // a newer search superseded this one
+    renderYearHistogram(facets.years || state.globalYears);
     const fc = buildFacetCounts(facets);
     // Zero-fill against the stable option lists so every checkbox shows a
     // number (0 = value exists in the corpus, no hits in this search).
@@ -2223,6 +2225,64 @@ async function refreshRailCounts(query, filters) {
   } catch (e) {
     console.warn("[Rail Counts] scoped facets fetch failed:", e);
   }
+}
+
+/** Judgments per year above the date inputs (from /api/facets "years"; hidden when the API
+ *  does not send them).  A bar selects its year; shift-click extends the selected range. */
+function renderYearHistogram(years) {
+  const box = byId("yearHistogram");
+  if (!box) return;
+  const counts = new Map((years || []).map((y) => [Number(y.year), y.count]).filter(([y]) => y > 1900));
+  if (!counts.size) { box.hidden = true; byId("yearAxis")?.setAttribute("hidden", ""); return; }
+  const first = Math.min(...counts.keys());
+  const last = Math.max(...counts.keys());
+  const max = Math.max(...counts.values());
+  const bars = [];
+  for (let y = first; y <= last; y++) {
+    const n = counts.get(y) || 0;
+    bars.push(`<button type="button" class="year-bar" data-year="${y}" title="${y}: ${fmtInt.format(n)} judgment${n === 1 ? "" : "s"}"
+      aria-label="${y}, ${fmtInt.format(n)} judgments"><span style="height:${n ? Math.max(2, Math.round((n / max) * 100)) : 0}%"></span></button>`);
+  }
+  box.innerHTML = bars.join("");
+  box.hidden = false;
+  let axis = byId("yearAxis");
+  if (!axis) {
+    axis = document.createElement("div");
+    axis.id = "yearAxis";
+    axis.className = "year-axis";
+    box.after(axis);
+  }
+  axis.innerHTML = `<span>${first}</span><span>${last}</span>`;
+  axis.removeAttribute("hidden");
+  markYearRange();
+}
+
+function markYearRange() {
+  const from = el.dateFrom.value ? Number(el.dateFrom.value.slice(0, 4)) : null;
+  const to = el.dateTo.value ? Number(el.dateTo.value.slice(0, 4)) : null;
+  document.querySelectorAll("#yearHistogram .year-bar").forEach((b) => {
+    const y = Number(b.dataset.year);
+    b.classList.toggle("in-range", (from != null || to != null) && (from == null || y >= from) && (to == null || y <= to));
+  });
+}
+
+function onYearBarClick(e) {
+  const bar = e.target.closest(".year-bar");
+  if (!bar || el.dateFrom.disabled) return;
+  const y = Number(bar.dataset.year);
+  const from = el.dateFrom.value ? Number(el.dateFrom.value.slice(0, 4)) : null;
+  const to = el.dateTo.value ? Number(el.dateTo.value.slice(0, 4)) : null;
+  let a = y, b = y;
+  if (e.shiftKey && (from != null || to != null)) {
+    a = Math.min(y, from ?? y);
+    b = Math.max(y, to ?? y);
+  } else if (from === y && to === y) {
+    a = b = null; // clicking the only selected year clears the range
+  }
+  el.dateFrom.value = a == null ? "" : `${a}-01-01`;
+  el.dateTo.value = b == null ? "" : `${b}-12-31`;
+  markYearRange();
+  el.dateTo.dispatchEvent(new Event("change", { bubbles: true }));
 }
 
 /** Attach a search input above any scrollable filter list, hiding non-matching
@@ -2883,6 +2943,18 @@ function buildQueryResults(query, filters) {
 
 function renderActiveFilters(filters) {
   const chips = [];
+
+  // Scope first (left-rail Collection and Search in), each removable from here.
+  if (filters.includeMt) {
+    chips.push(`<button type="button" class="filter-chip scope-chip mt-scope-chip" data-clear-scope="mt"
+      title="Remove the machine translations from the search">+ English machine translations of French-only judgments (unofficial) <span aria-hidden="true">✕</span></button>`);
+  }
+  const bucketKeys = [...document.querySelectorAll('#bucketScope input[data-name="buckets"]')].map((i) => i.value);
+  if (!filters.sections.size && filters.buckets.size && filters.buckets.size < bucketKeys.length) {
+    const parts = bucketKeys.filter((k) => filters.buckets.has(k)).map((k) => SECTION_BUCKETS[k]?.label || k);
+    chips.push(`<button type="button" class="filter-chip scope-chip" data-clear-scope="buckets"
+      title="Search all parts of the judgments again">Search in: ${escapeHtml(parts.join(", "))} <span aria-hidden="true">✕</span></button>`);
+  }
 
   for (const s of filters.sections) {
     chips.push(`<span class="filter-chip">${escapeHtml(SECTION_LABELS[s] || s)}</span>`);
@@ -5188,7 +5260,7 @@ function buildCaseCard(caseId, row, rank = 1) {
           <span class="chip">${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "-")}</span>
           <span class="chip outcome ${escapeHtml(outcomeToneClass)}">${escapeHtml(outcomeLabel)}</span>
           <span class="chip">${escapeHtml(respondentSummary)}</span>
-          ${c.__isMt ? `<span class="chip mt-chip" title="HUDOC publishes this judgment only in French. This English text is a machine translation made for this tool, not a translation by the Court.">Machine translation · unofficial</span>` : ""}
+          ${c.__isMt ? `<span class="chip mt-chip" title="HUDOC publishes this judgment only in French. This English text is a machine translation made for this tool, not a translation by the Court.">Only in French on HUDOC · machine translation, unofficial</span>` : ""}
         </div>
 
         <div class="case-actions-inline compact-actions">
@@ -6805,9 +6877,34 @@ function bindEvents() {
     applySearch(true);
   });
 
+  // Scope chips above the results switch a left-rail scope back to its default.
+  el.activeFilters?.addEventListener("click", (e) => {
+    const chip = e.target.closest("[data-clear-scope]");
+    if (!chip) return;
+    const scope = document.getElementById("bucketScope");
+    if (chip.dataset.clearScope === "mt") {
+      const mt = document.getElementById("includeMachineTranslations");
+      if (mt) mt.checked = false;
+    } else {
+      scope?.querySelectorAll('input[data-name="buckets"]').forEach((i) => { i.checked = true; });
+    }
+    scope?.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+
+  // "Try" examples under the search box run their query.
+  document.getElementById("searchTry")?.addEventListener("click", (e) => {
+    const btn = e.target.closest(".try-q[data-q]");
+    if (!btn || el.searchInput.disabled) return;
+    el.searchInput.value = btn.dataset.q;
+    applySearch(true);
+  });
+
   // Date inputs affect the active-filter count badge.
   el.dateFrom?.addEventListener("change", updateActiveFilterCount);
   el.dateTo?.addEventListener("change", updateActiveFilterCount);
+  el.dateFrom?.addEventListener("change", markYearRange);
+  el.dateTo?.addEventListener("change", markYearRange);
+  byId("yearHistogram")?.addEventListener("click", onYearBarClick);
 
   // Result-display controls: Sort (relevance/newest/oldest) + Group
   // (by case / by paragraph). Restore persisted choice, then wire.
@@ -7312,8 +7409,12 @@ function init() {
         const mtN = statsData.total_machine_translations || 0;
         const mtPill = document.getElementById("mtPill");
         if (mtPill) mtPill.hidden = !mtN;
-        const mtCount = document.getElementById("mtCount");
-        if (mtCount) mtCount.textContent = fmt.format(mtN);
+        for (const id of ["mtCount", "mtCountRail"]) {
+          const node = document.getElementById(id);
+          if (node) node.textContent = fmt.format(mtN);
+        }
+        const officialCount = document.getElementById("officialCount");
+        if (officialCount && statsData.total_judgments) officialCount.textContent = fmt.format(statsData.total_judgments);
         // Parse DD/MM/YYYY dates into readable range
         const parseDMY = (s) => { if (!s) return null; const p = s.split("/"); return p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : s; };
         const df = parseDMY(statsData.date_from);
@@ -7354,6 +7455,8 @@ function init() {
         // (see refreshRailCounts); facetCounts is the currently-shown set.
         state.globalFacetCounts = buildFacetCounts(facets);
         state.facetCounts = state.globalFacetCounts;
+        state.globalYears = facets.years || null;
+        renderYearHistogram(state.globalYears);
 
         // Build the stable filter option lists — the universe of values.
         // These never change; only the counts beside them do (per search).
