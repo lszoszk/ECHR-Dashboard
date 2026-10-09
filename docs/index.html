@@ -16,7 +16,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css?v=20260727-reading-space">
   <link rel="stylesheet" href="assets/search-app.css?v=20260727-reading-space">
-  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261010-chrome">
+  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261010-options">
   <link rel="stylesheet" href="assets/judgment-hudoc.css?v=20260706-deadmodal">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
@@ -211,15 +211,6 @@
                 <div class="checkbox-grid scrollable" id="articlesFilters"></div>
               </div>
 
-              <!-- Keywords — HUDOC thesaurus.  The structured legal-issue
-                   labels the Court applies to every case: "(Art. 3)
-                   Prohibition of torture", "(Art. 6-1) Reasonable time",
-                   etc.  Multiple ticks combine with OR (HUDOC convention). -->
-              <div class="filter-group">
-                <h3 class="filter-title">Keywords</h3>
-                <div class="checkbox-grid scrollable" id="keywordsFilters"></div>
-              </div>
-
               <!-- Importance — HUDOC's four-tier classification.
                    HUDOC restricts its analytical fields (Strasbourg case-law,
                    Domestic Law, etc.) to levels 1 and 2; we re-extract them
@@ -240,6 +231,14 @@
               <!-- ── Advanced filters — revealed by the "Advanced Filters"
                    toggle in the rail head; collapsed by default ──────────── -->
               <div class="filters-advanced" id="filtersAdvanced">
+
+                <!-- Keywords — HUDOC thesaurus, several hundred labels the Court applies to every case
+                     ("(Art. 3) Prohibition of torture", "(Art. 6-1) Reasonable time"); ticks combine with OR
+                     (HUDOC convention).  Also available as the keyword: operator. -->
+                <div class="filter-group">
+                  <h3 class="filter-title">Keywords</h3>
+                  <div class="checkbox-grid scrollable" id="keywordsFilters"></div>
+                </div>
 
                 <!-- Court Formation — the bench that decided the case
                      (Chamber / Grand Chamber / Committee).  Replaces the raw
@@ -268,12 +267,6 @@
                     </label>
                   </div>
                   <input type="checkbox" id="scopeIncludeOpinions" hidden>
-                </div>
-
-                <!-- Separate Opinion -->
-                <div class="filter-group">
-                  <h3 class="filter-title">Separate Opinion</h3>
-                  <div class="checkbox-grid compact" id="separateOpinionFilters"></div>
                 </div>
 
               </div>
@@ -553,6 +546,6 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
-  <script src="assets/search-app.js?v=20261010-chrome"></script>
+  <script src="assets/search-app.js?v=20261010-options"></script>
 </body>
 </html>

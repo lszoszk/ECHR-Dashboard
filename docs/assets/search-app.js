@@ -124,7 +124,7 @@ const serverSearch = {
     if (filters.importance.size) p.set("importance", [...filters.importance].join(","));
     if (filters.bodies.size) p.set("bodies", [...filters.bodies].join(","));
     if (filters.keywords && filters.keywords.size) p.set("keywords", [...filters.keywords].join(","));
-    const serverOutcomes = [...filters.outcomes].filter(v => PRIMARY_OUTCOMES.has(v));
+    const serverOutcomes = serverOutcomeValues(filters.outcomes);
     if (serverOutcomes.length) p.set("outcomes", serverOutcomes.join(","));
     if (filters.docTypes.size) p.set("doc_types", [...filters.docTypes].join(","));
     if (filters.includeMt) p.set("include_mt", "true");
@@ -490,8 +490,10 @@ const OUTCOME_LABELS = {
   both: "Mixed (violation + non-violation)",
   neither: "No finding",
   press_release: "Press Release",
-  has_inadmissibility: "Inadmissibility",
+  has_inadmissibility: "Inadmissible (in whole or in part)",
   is_struck_out: "Struck out",
+  violation: "Violation found",
+  no_violation: "No violation",
 };
 
 // HUDOC's "originating_body" field arrives in two flavours: full strings for
@@ -573,8 +575,32 @@ const SECTION_HINTS = {
 };
 
 /** Outcome values that map to __outcomePrimary (sent to server API).
- *  Flag-based values (has_inadmissibility, is_struck_out) are client-side only. */
+ *  Flag-based values (has_inadmissibility, is_struck_out) match the HUDOC conclusion text. */
 const PRIMARY_OUTCOMES = new Set(["violation_only", "non_violation_only", "both", "neither", "press_release"]);
+const SERVER_OUTCOMES = new Set([...PRIMARY_OUTCOMES, "has_inadmissibility", "is_struck_out"]);
+
+/** The four outcome options of the filter rail; `primary` lists the __outcomePrimary values an option covers. */
+const OUTCOME_OPTIONS = {
+  violation: { label: "Violation found", primary: ["violation_only", "both"],
+    tooltip: "The Court found at least one violation (possibly alongside no-violation findings on other complaints)." },
+  no_violation: { label: "No violation", primary: ["non_violation_only"],
+    tooltip: "The Court found no violation on any complaint it examined." },
+  has_inadmissibility: { label: "Inadmissible (in whole or in part)",
+    tooltip: "Application declared inadmissible in whole or in part." },
+  is_struck_out: { label: "Struck out",
+    tooltip: "Case struck out of the list (friendly settlement, withdrawal, etc.)." },
+};
+
+/** Outcome values as the API takes them: each rail option expanded to the values it covers. */
+function serverOutcomeValues(outcomes) {
+  return [...outcomes].flatMap((v) => OUTCOME_OPTIONS[v]?.primary || [v]).filter((v) => SERVER_OUTCOMES.has(v));
+}
+
+function outcomeCheckboxes() {
+  return Object.entries(OUTCOME_OPTIONS)
+    .map(([value, o]) => makeCheckbox(o.label, value, "outcomes", null, { tooltip: o.tooltip }))
+    .join("");
+}
 
 const COUNTRY_NAMES = {
   ALB: "Albania",
@@ -740,7 +766,6 @@ function cacheElements() {
   el.importanceFilters = byId("importanceFilters");
   el.docTypeFilters = byId("docTypeFilters");
   el.outcomeFilters = byId("outcomeFilters");
-  el.separateOpinionFilters = byId("separateOpinionFilters");
   el.dateFrom = byId("dateFrom");
   el.dateTo = byId("dateTo");
 
@@ -1517,7 +1542,7 @@ function setSearchEnabled(enabled) {
   if (el.exportIncludeClassifier) el.exportIncludeClassifier.disabled = !enabled;
 
   const dynamicInputs = document.querySelectorAll(
-    "#sectionsFilters input, #countriesFilters input, #articlesFilters input, #keywordsFilters input, #importanceFilters input, #outcomeFilters input, #separateOpinionFilters input"
+    "#sectionsFilters input, #countriesFilters input, #articlesFilters input, #keywordsFilters input, #importanceFilters input, #outcomeFilters input"
   );
   for (const input of dynamicInputs) {
     input.disabled = !enabled;
@@ -2000,20 +2025,7 @@ function renderFiltersSkeleton() {
     ].join("");
   }
   if (el.outcomeFilters) {
-    el.outcomeFilters.innerHTML = [
-      makeCheckbox("Violation only", "violation_only", "outcomes"),
-      makeCheckbox("Non-violation only", "non_violation_only", "outcomes"),
-      makeCheckbox("Mixed (violation + non-violation)", "both", "outcomes"),
-      makeCheckbox("No finding", "neither", "outcomes"),
-      makeCheckbox("Inadmissibility", "has_inadmissibility", "outcomes"),
-      makeCheckbox("Struck out", "is_struck_out", "outcomes"),
-    ].join("");
-  }
-  if (el.separateOpinionFilters) {
-    el.separateOpinionFilters.innerHTML = [
-      makeCheckbox("Yes", "yes", "separateOpinion"),
-      makeCheckbox("No", "no", "separateOpinion"),
-    ].join("");
+    el.outcomeFilters.innerHTML = outcomeCheckboxes();
   }
 }
 
@@ -2073,27 +2085,7 @@ function renderFilters() {
       { tooltip: "Admissibility decisions (a small set, mostly Grand Chamber). Hidden unless ticked." }),
   ].join("");
 
-  el.outcomeFilters.innerHTML = [
-    makeCheckbox("Violation only", "violation_only", "outcomes", null,
-      { tooltip: "Court found at least one violation; no non-violation findings." }),
-    makeCheckbox("Non-violation only", "non_violation_only", "outcomes", null,
-      { tooltip: "Court found no violation on any complaint examined." }),
-    makeCheckbox("Mixed (violation + non-violation)", "both", "outcomes", null,
-      { tooltip: "Court found violation on some Articles, no violation on others." }),
-    makeCheckbox("No finding", "neither", "outcomes", null,
-      { tooltip: "Procedural disposition without substantive Article finding (e.g., struck out, settled)." }),
-    makeCheckbox("Inadmissibility", "has_inadmissibility", "outcomes", null,
-      { tooltip: "Application declared inadmissible in whole or in part." }),
-    makeCheckbox("Struck out", "is_struck_out", "outcomes", null,
-      { tooltip: "Case struck out of the list (settled, withdrawn, applicant deceased, etc.)." }),
-  ].join("");
-
-  el.separateOpinionFilters.innerHTML = [
-    makeCheckbox("Yes", "yes", "separateOpinion", null,
-      { tooltip: "Case has at least one dissenting / concurring / partly dissenting opinion." }),
-    makeCheckbox("No", "no", "separateOpinion", null,
-      { tooltip: "Unanimous decision — no separate opinions." }),
-  ].join("");
+  el.outcomeFilters.innerHTML = outcomeCheckboxes();
 
   // Wire up search filter inputs (boxes for long lists)
   attachFilterSearchBoxes();
@@ -2172,7 +2164,7 @@ function applyRailCounts() {
   };
   el.filtersPanel.querySelectorAll('input[type="checkbox"][data-name]').forEach((input) => {
     const map = groupMap[input.getAttribute("data-name")];
-    if (!map) return; // outcomes / separateOpinion — no facet data
+    if (!map) return; // outcomes — no facet data
     const count = map[input.value];
     const labelSpan = input.parentElement.querySelector("span");
     if (!labelSpan) return;
@@ -2457,7 +2449,6 @@ function getCurrentFilters() {
     outcomes: collectChecked("outcomes"),
     docTypes: collectChecked("docTypes"),
     includeMt: !!document.getElementById("includeMachineTranslations")?.checked,
-    separateOpinion: collectChecked("separateOpinion"),
     presence: collectChecked("presence"),
     dateFrom: parseDateInput(el.dateFrom.value),
     dateTo: parseDateInput(el.dateTo.value),
@@ -2514,7 +2505,7 @@ function passesCaseFilters(c, filters, serverChecked = false) {
     // Primary outcomes (violation_only etc.) match __outcomePrimary;
     // flag-based options (has_inadmissibility, is_struck_out) match boolean fields.
     const primaryMatch = [...filters.outcomes].some(
-      v => PRIMARY_OUTCOMES.has(v) && v === c.__outcomePrimary
+      v => (OUTCOME_OPTIONS[v]?.primary || (PRIMARY_OUTCOMES.has(v) ? [v] : [])).includes(c.__outcomePrimary)
     );
     const inadmissibleMatch = filters.outcomes.has("has_inadmissibility") && c.__hasInadmissibility;
     const struckOutMatch = filters.outcomes.has("is_struck_out") && c.__isStruckOut;
@@ -2537,11 +2528,6 @@ function passesCaseFilters(c, filters, serverChecked = false) {
           ? ["committee", "judgment"]
           : ["chamber", "judgment"];
     if (!dtKeys.some(k => filters.docTypes.has(k))) return false;
-  }
-
-  if (filters.separateOpinion.size) {
-    const key = c.__hasSeparateOpinion ? "yes" : "no";
-    if (!filters.separateOpinion.has(key)) return false;
   }
 
   if (filters.presence.has("has_strasbourg_caselaw") && !c.__hasStrasbourgCaselaw) {
@@ -2996,9 +2982,6 @@ function renderActiveFilters(filters) {
   for (const dt of filters.docTypes) {
     const label = dt === "press_release" ? "Press Releases" : dt === "decision" ? "Decisions" : "Judgments";
     chips.push(`<span class="filter-chip">${escapeHtml(label)}</span>`);
-  }
-  for (const value of filters.separateOpinion) {
-    chips.push(`<span class="filter-chip">Separate opinion: ${value === "yes" ? "Yes" : "No"}</span>`);
   }
   for (const key of filters.presence) {
     const label = {
@@ -5280,8 +5263,13 @@ function buildCaseCard(caseId, row, rank = 1) {
           ${c.__isMt && c.__sourceCaseId
             ? `<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(c.__sourceCaseId)}" class="case-open-link primary" target="_blank" rel="noopener noreferrer" title="The authentic French text on HUDOC">French original ↗</a>`
             : (c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="case-open-link primary" target="_blank" rel="noopener noreferrer">Open in HUDOC ↗</a>` : "")}
-          <button type="button" class="case-open-secondary cite-btn" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}" title="Copy citation to clipboard">Cite</button>
-          <button type="button" class="case-open-secondary info-btn" data-action="copy-info-card" data-case-id="${escapeHtml(caseId)}" title="Copy key info block to clipboard">Copy info</button>
+          <details class="cite-menu">
+            <summary class="case-open-secondary cite-btn" data-action="cite-menu" title="Copy the citation or the key information of this judgment">Cite ▾</summary>
+            <div class="cite-menu-pop" role="menu">
+              <button type="button" role="menuitem" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}">Copy citation</button>
+              <button type="button" role="menuitem" data-action="copy-info-card" data-case-id="${escapeHtml(caseId)}">Copy key information</button>
+            </div>
+          </details>
           <button
             type="button"
             class="case-open-secondary expand-paras-btn"
@@ -5664,7 +5652,7 @@ async function fetchAndRenderServerAnalytics(query, filters) {
     if (filters.importance.size) p.set("importance", [...filters.importance].join(","));
     if (filters.bodies.size) p.set("bodies", [...filters.bodies].join(","));
     if (filters.keywords && filters.keywords.size) p.set("keywords", [...filters.keywords].join(","));
-    const serverOutcomes = [...filters.outcomes].filter(v => PRIMARY_OUTCOMES.has(v));
+    const serverOutcomes = serverOutcomeValues(filters.outcomes);
     if (serverOutcomes.length) p.set("outcomes", serverOutcomes.join(","));
     if (filters.docTypes.size) p.set("doc_types", [...filters.docTypes].join(","));
     if (filters.includeMt) p.set("include_mt", "true");
@@ -6914,6 +6902,11 @@ function bindEvents() {
     document.addEventListener("click", (e) => { if (!mtInfo.contains(e.target)) setOpen(false); });
     mtInfo.addEventListener("keydown", (e) => { if (e.key === "Escape") { setOpen(false); btn.focus(); } });
   }
+
+  // A result's Cite menu closes when the click lands anywhere else.
+  document.addEventListener("click", (e) => {
+    document.querySelectorAll("details.cite-menu[open]").forEach((m) => { if (!m.contains(e.target)) m.open = false; });
+  });
 
   // "Try" examples under the search box run their query.
   document.getElementById("searchTry")?.addEventListener("click", (e) => {

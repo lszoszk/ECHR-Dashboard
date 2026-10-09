@@ -1136,6 +1136,24 @@ def facets(
 
 # ---- /api/analytics --------------------------------------------------------
 
+_OUTCOME_SQL = {
+    "violation_only": "(c.violation != '[]' AND c.violation != '' AND (c.non_violation = '[]' OR c.non_violation = '') AND c.document_type NOT LIKE '%Press Release%')",
+    "non_violation_only": "((c.violation = '[]' OR c.violation = '') AND c.non_violation != '[]' AND c.non_violation != '' AND c.document_type NOT LIKE '%Press Release%')",
+    "both": "(c.violation != '[]' AND c.violation != '' AND c.non_violation != '[]' AND c.non_violation != '' AND c.document_type NOT LIKE '%Press Release%')",
+    "neither": "((c.violation = '[]' OR c.violation = '' OR c.violation IS NULL) AND (c.non_violation = '[]' OR c.non_violation = '' OR c.non_violation IS NULL) AND c.document_type NOT LIKE '%Press Release%')",
+    "press_release": "(c.document_type LIKE '%Press Release%')",
+    # HUDOC's conclusion text, as the page reads it ("Inadmissible", "Struck out of the list")
+    "has_inadmissibility": "(c.conclusion LIKE '%inadmissibl%')",
+    "is_struck_out": "(c.conclusion LIKE '%struck out%')",
+}
+
+
+def _outcome_clause(outcome_list: list[str] | None) -> str | None:
+    """OR of the known outcome values (unknown ones are ignored), or None."""
+    conds = [_OUTCOME_SQL[oc] for oc in (outcome_list or []) if oc in _OUTCOME_SQL]
+    return f"({' OR '.join(conds)})" if conds else None
+
+
 def _build_case_filter_sql(
     *,
     fts_expr: str = "",
@@ -1214,21 +1232,9 @@ def _build_case_filter_sql(
             params.extend(cond_params)
         where_clauses.append(f"({' OR '.join(body_conditions)})")
 
-    if outcome_list:
-        oc_conditions = []
-        for oc in outcome_list:
-            if oc == "violation_only":
-                oc_conditions.append("(c.violation != '[]' AND c.violation != '' AND (c.non_violation = '[]' OR c.non_violation = '') AND c.document_type NOT LIKE '%Press Release%')")
-            elif oc == "non_violation_only":
-                oc_conditions.append("((c.violation = '[]' OR c.violation = '') AND c.non_violation != '[]' AND c.non_violation != '' AND c.document_type NOT LIKE '%Press Release%')")
-            elif oc == "both":
-                oc_conditions.append("(c.violation != '[]' AND c.violation != '' AND c.non_violation != '[]' AND c.non_violation != '' AND c.document_type NOT LIKE '%Press Release%')")
-            elif oc == "neither":
-                oc_conditions.append("((c.violation = '[]' OR c.violation = '' OR c.violation IS NULL) AND (c.non_violation = '[]' OR c.non_violation = '' OR c.non_violation IS NULL) AND c.document_type NOT LIKE '%Press Release%')")
-            elif oc == "press_release":
-                oc_conditions.append("(c.document_type LIKE '%Press Release%')")
-        if oc_conditions:
-            where_clauses.append(f"({' OR '.join(oc_conditions)})")
+    _oc = _outcome_clause(outcome_list)
+    if _oc:
+        where_clauses.append(_oc)
 
     where_clauses.append(_doc_type_clause(doc_type_list, include_mt=include_mt))
 
@@ -1430,7 +1436,7 @@ def search(
     importance: Optional[str] = Query(None, description="Comma-separated importance filter"),
     bodies: Optional[str] = Query(None, description="Comma-separated originating_body filter"),
     keywords: Optional[str] = Query(None, description="Comma-separated HUDOC thesaurus keyword filter (OR within)"),
-    outcomes: Optional[str] = Query(None, description="Comma-separated outcome filter (violation_only,non_violation_only,both,neither)"),
+    outcomes: Optional[str] = Query(None, description="Comma-separated outcome filter (violation_only,non_violation_only,both,neither,has_inadmissibility,is_struck_out)"),
     doc_types: Optional[str] = Query(None, description="Comma-separated document type filter (judgment,press_release,committee,chamber,grand_chamber)"),
     include_mt: bool = Query(False, description="Include judgments HUDOC publishes only in French, machine-translated "
                              "into English for this tool (unofficial translations)"),
@@ -1634,21 +1640,9 @@ def search(
         else:
             where_clauses.append("1 = 0")
 
-    if outcome_list:
-        oc_conditions = []
-        for oc in outcome_list:
-            if oc == "violation_only":
-                oc_conditions.append("(c.violation != '[]' AND c.violation != '' AND (c.non_violation = '[]' OR c.non_violation = '') AND c.document_type NOT LIKE '%Press Release%')")
-            elif oc == "non_violation_only":
-                oc_conditions.append("((c.violation = '[]' OR c.violation = '') AND c.non_violation != '[]' AND c.non_violation != '' AND c.document_type NOT LIKE '%Press Release%')")
-            elif oc == "both":
-                oc_conditions.append("(c.violation != '[]' AND c.violation != '' AND c.non_violation != '[]' AND c.non_violation != '' AND c.document_type NOT LIKE '%Press Release%')")
-            elif oc == "neither":
-                oc_conditions.append("((c.violation = '[]' OR c.violation = '' OR c.violation IS NULL) AND (c.non_violation = '[]' OR c.non_violation = '' OR c.non_violation IS NULL) AND c.document_type NOT LIKE '%Press Release%')")
-            elif oc == "press_release":
-                oc_conditions.append("(c.document_type LIKE '%Press Release%')")
-        if oc_conditions:
-            where_clauses.append(f"({' OR '.join(oc_conditions)})")
+    _oc = _outcome_clause(outcome_list)
+    if _oc:
+        where_clauses.append(_oc)
 
     where_clauses.append(_doc_type_clause(
         doc_type_list,
@@ -2600,21 +2594,9 @@ def browse(
             params.extend(cond_params)
         where_clauses.append(f"({' OR '.join(body_conditions)})")
 
-    if outcome_list:
-        oc_conditions = []
-        for oc in outcome_list:
-            if oc == "violation_only":
-                oc_conditions.append("(c.violation != '[]' AND c.violation != '' AND (c.non_violation = '[]' OR c.non_violation = '') AND c.document_type NOT LIKE '%Press Release%')")
-            elif oc == "non_violation_only":
-                oc_conditions.append("((c.violation = '[]' OR c.violation = '') AND c.non_violation != '[]' AND c.non_violation != '' AND c.document_type NOT LIKE '%Press Release%')")
-            elif oc == "both":
-                oc_conditions.append("(c.violation != '[]' AND c.violation != '' AND c.non_violation != '[]' AND c.non_violation != '' AND c.document_type NOT LIKE '%Press Release%')")
-            elif oc == "neither":
-                oc_conditions.append("((c.violation = '[]' OR c.violation = '' OR c.violation IS NULL) AND (c.non_violation = '[]' OR c.non_violation = '' OR c.non_violation IS NULL) AND c.document_type NOT LIKE '%Press Release%')")
-            elif oc == "press_release":
-                oc_conditions.append("(c.document_type LIKE '%Press Release%')")
-        if oc_conditions:
-            where_clauses.append(f"({' OR '.join(oc_conditions)})")
+    _oc = _outcome_clause(outcome_list)
+    if _oc:
+        where_clauses.append(_oc)
 
     where_clauses.append(_doc_type_clause(doc_type_list, include_mt=include_mt))
 

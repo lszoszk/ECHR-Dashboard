@@ -2413,3 +2413,24 @@ a.case-context-ecli-link .ext-icon {
 .site-footer .sf-sup {
   padding: 1px 6px; border: 1px solid var(--rule); font-size: 0.56rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-2);
 }
+
+/* ── Result card: one Cite menu (citation / key information) ───────────── */
+.cite-menu { position: relative; display: inline-block; }
+.cite-menu > summary { list-style: none; cursor: pointer; user-select: none; }
+.cite-menu > summary::-webkit-details-marker { display: none; }
+.cite-menu-pop {
+  position: absolute; z-index: 40; top: calc(100% + 4px); left: 0; min-width: 190px;
+  display: flex; flex-direction: column; padding: 4px 0;
+  background: var(--paper); border: 1px solid var(--ink); box-shadow: 0 2px 0 rgba(36, 35, 40, 0.16);
+}
+.cite-menu-pop button {
+  padding: 6px 12px; border: 0; background: none; text-align: left; cursor: pointer;
+  font-family: var(--font-serif); font-size: 0.84rem; color: var(--ink-2);
+}
+.cite-menu-pop button:hover, .cite-menu-pop button:focus-visible { background: var(--garnet-soft); color: var(--garnet); }
+
+/* Phones: the right column holds only the case details (shown inside the results here instead)
+   and the analytics hidden by dashboard.css, so it was an empty band above the filters. */
+@media (max-width: 860px) {
+  .editorial-workspace .results-sidebar { display: none; }
+}
