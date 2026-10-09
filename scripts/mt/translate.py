@@ -95,6 +95,12 @@ def collect(args) -> None:
         print("  failed", *f)
 
 
+def cancel(args) -> None:
+    record = json.loads(Path(args.jobs, f"batch_{args.tag}.json").read_text())
+    batch = anthropic.Anthropic().messages.batches.cancel(record["batch_id"])
+    print(f"{batch.processing_status}: {batch.request_counts} (finished requests stay collectable)")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -110,8 +116,11 @@ def main() -> int:
     c = sub.add_parser("collect")
     c.add_argument("--jobs", required=True)
     c.add_argument("--tag", required=True)
+    k = sub.add_parser("cancel", help="cancel a batch that has not finished; unprocessed requests are not billed")
+    k.add_argument("--jobs", required=True)
+    k.add_argument("--tag", required=True)
     args = ap.parse_args()
-    submit(args) if args.cmd == "submit" else collect(args)
+    {"submit": submit, "collect": collect, "cancel": cancel}[args.cmd](args)
     return 0
 
 
