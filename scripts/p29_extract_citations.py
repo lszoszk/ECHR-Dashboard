@@ -397,6 +397,71 @@ def name_date_citations(text: str, citing: Optional[Doc], citing_id: str,
         yield cands[0].case_id, excerpt, "name_date", ""
 
 
+def hudoc_additions(cur, idx: Indexes, citations: list, text_appnos: dict, stats: Counter) -> list:
+    """Citations that HUDOC records for a judgment and our text pass did not find.
+
+    Two HUDOC fields, read from the hudoc_metadata table (scripts/p69_sync_hudoc_metadata.py):
+      * scl — the "Strasbourg case-law" list the Court's documentalists compile. Each item is a
+        citation string, resolved with the same rules as the text (so a "(dec.)" item still needs the
+        decision to be in the corpus);
+      * extractedappno — application numbers HUDOC extracted from the full document. Only numbers
+        that do not occur in our text are used: those are mostly in footnotes, which our text lacks.
+        Where the number is in our text, the text pass has already decided (for instance it dropped
+        a "(dec.)" reference whose decision is not in the corpus).
+    A case already cited by the judgment (any document sharing an application number) is not added
+    again, and a judgment never cites a later one. Rows have no paragraph (citing_paragraph_rowid NULL).
+    """
+    try:
+        rows = cur.execute("SELECT case_id, scl, extractedappno FROM hudoc_metadata").fetchall()
+    except sqlite3.OperationalError:
+        print("  (no hudoc_metadata table: HUDOC additions skipped)")
+        return []
+    covered: dict[str, set] = defaultdict(set)              # citing -> application numbers cited
+    for citing_id, cited_id, *_ in citations:
+        d = idx.docs.get(cited_id)
+        if d:
+            covered[citing_id] |= d.appnos
+    added = []
+    for r in rows:
+        citing_id = r["case_id"]
+        citing = idx.docs.get(citing_id)
+        if citing is None or citing_id in idx.excluded:
+            continue
+        have = covered[citing_id]
+
+        def take(doc, raw, method):
+            if doc is None or doc.case_id == citing_id or doc.appnos & citing.appnos:
+                return
+            if doc.appnos & have:
+                stats[f"{method}_already_cited"] += 1
+                return
+            if citing.date and doc.date and doc.date > citing.date:
+                stats[f"{method}_later_case"] += 1
+                return
+            have.update(doc.appnos)
+            added.append((citing_id, doc.case_id, None, raw[:300], method))
+            stats[method] += 1
+
+        for item in (x.strip() for x in (r["scl"] or "").split(";")):
+            if not item:
+                continue
+            found = [c for c, *_ in appno_citations(item, citing_id, idx, Counter())]
+            found += [c for c, *_ in name_date_citations(item, citing, citing_id, idx, Counter())]
+            if not found:
+                stats["hudoc_caselaw_not_in_corpus"] += 1
+            for c in found:
+                take(idx.docs.get(c), item, "hudoc_caselaw")
+        for appno in (x.strip() for x in (r["extractedappno"] or "").split(";")):
+            if not appno or appno in text_appnos.get(citing_id, ()) or appno in citing.appnos:
+                continue
+            cands = idx.by_appno.get(appno)
+            if not cands:
+                continue
+            doc, _ = pick_for_appno(cands, "", 0, 0, False)
+            take(doc, f"HUDOC extracted application no. {appno}", "hudoc_extracted")
+    return added
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(
         description=__doc__,
@@ -410,6 +475,8 @@ def main() -> int:
                     help="Audit-only: report on appnos found WITHOUT a "
                     "citation cue word in context (potential false "
                     "positives).  No DB writes.")
+    ap.add_argument("--no-hudoc", action="store_true",
+                    help="text only: do not add citations from HUDOC's metadata (hudoc_metadata table)")
     ap.add_argument("--audit-out", default="",
                     help="Write a JSONL file with every name_date row and every "
                     "disambiguated appno row (for a blind precision check).")
@@ -438,6 +505,7 @@ def main() -> int:
     citations: list[tuple[str, str, int, str, str]] = []
     # (citing_case_id, cited_case_id, paragraph_rowid, raw_text_excerpt, method)
     seen_pair_para: set[tuple[str, str, int]] = set()
+    text_appnos: dict[str, set] = defaultdict(set)          # numbers that occur in our text, per case
     stats: Counter = Counter()
     audit = open(args.audit_out, "w", encoding="utf-8") if args.audit_out else None
     t0 = time.perf_counter()
@@ -447,6 +515,8 @@ def main() -> int:
         cur.execute("SELECT rowid, text FROM paragraphs WHERE case_id = ?", [citing_id])
         for prow in cur.fetchall():
             text = prow["text"] or ""
+            if "/" in text:
+                text_appnos[citing_id].update(a for a, _, _ in extract_appnos(plain(text)))
             found = list(appno_citations(text, citing_id, idx, stats))
             found += [(c, e, m, h) for c, e, m, h in
                       name_date_citations(text, citing, citing_id, idx, stats)]
@@ -472,10 +542,19 @@ def main() -> int:
     if audit:
         audit.close()
 
+    if not args.no_hudoc and not args.limit_cases:
+        print("\nadding citations recorded by HUDOC and missing from the text pass…")
+        citations += hudoc_additions(cur, idx, citations, text_appnos, stats)
+
     print()
     print(f"total citations extracted:    {len(citations):,}")
-    for k in ("appno_with_cue", "appno_no_cue", "name_date"):
+    for k in ("appno_with_cue", "appno_no_cue", "name_date", "hudoc_caselaw", "hudoc_extracted"):
         print(f"  {k:<26}  {stats[k]:,}")
+    if stats["hudoc_caselaw"] or stats["hudoc_extracted"] or stats["hudoc_caselaw_already_cited"]:
+        print("HUDOC items already found in the text (not added):")
+        for k in ("hudoc_caselaw_already_cited", "hudoc_extracted_already_cited",
+                  "hudoc_caselaw_not_in_corpus", "hudoc_caselaw_later_case", "hudoc_extracted_later_case"):
+            print(f"  {k:<30}  {stats[k]:,}")
     print("application numbers needing a choice between documents:")
     for k in ("appno_multi_by_date", "appno_multi_by_rank"):
         print(f"  {k:<26}  {stats[k]:,}")

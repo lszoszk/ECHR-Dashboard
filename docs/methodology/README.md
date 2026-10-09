@@ -106,27 +106,35 @@ default. A full pre-change snapshot and a row-level undo table are retained.
 
 ## Citation graph (Cites / Cited by)
 
-Each result card carries two influence metrics — **Cites** (judgments this ruling refers to) and **Cited by** (later judgments that refer back to it). They are drawn from a citation graph of about **240,000 paragraph-level references** (October 2026), rebuilt after every corpus update.
+Each result card carries two influence metrics — **Cites** (judgments this ruling refers to) and **Cited by** (later judgments that refer back to it). They come from a citation graph rebuilt after every corpus update, from three sources.
 
-References are found in the text of the judgments in two ways:
+| Source | What it finds | Share of links (October 2026) |
+| --- | --- | ---: |
+| Our text: application numbers | `no. 30210/96` resolved to the judgment that carries it | 80.3 % |
+| Our text: name and date | references without a number, as pre-1999 judgments are cited | 17.9 % |
+| HUDOC: Strasbourg case-law list | items of the list the Court's documentalists compile for each judgment that our text pass did not find | 0.9 % |
+| HUDOC: extracted application numbers | numbers HUDOC extracted from the full document that do not occur in our text — mostly in footnotes, which our paragraph text does not include | 0.9 % |
+
+The figures count distinct links between a judgment and a cited case (about 227,000). The last two sources are taken from HUDOC's own "Case details" metadata and are marked as such in the data (`extraction_method` `hudoc_caselaw` / `hudoc_extracted`); they have no paragraph attached.
 
 1. **Application numbers.** The `NNNNN/YY` identifier the Court uses when citing a precedent (e.g. *Kudła v. Poland*, no. 30210/96) is looked up in the case index; a number that does not resolve to a case in the corpus is ignored, which discards date-like false positives. When one number belongs to several documents of the same case (a Chamber and a Grand Chamber judgment, merits and just satisfaction, a revision), a date or an `ECHR 2005` year written next to the number decides, then the `[GC]` marker, then the principal judgment. A reference marked `(dec.)` counts only if that admissibility decision is itself in the corpus; it is never credited to a later judgment that happens to share the number.
 2. **Name and date.** Judgments before about 1999 are cited without a number — *Handyside v. the United Kingdom, 7 December 1976, Series A no. 24*. Such a reference is accepted only if exactly one judgment in the corpus was delivered on that date, the applicant's name is contained in its title and the respondent State matches. A number written in the reference that belongs to a different application rejects the match, as does a reference to a request for revision (its date belongs to the judgment under revision). Unofficial translations are never cited or citing, and a judgment cannot cite a later one.
+3. **HUDOC metadata.** Each item of the Strasbourg case-law list is resolved with the same rules as the text. An extracted number is used only when it does not occur in our text: where it does, the text pass has already decided (for example, it dropped a `(dec.)` reference whose decision is not in the corpus). A case the judgment already cites is never added twice, and a judgment cannot cite a later one.
 
 > **Example.** *Handyside v. the United Kingdom* (1976) is cited by about 250 later judgments. Counting application numbers alone found two of them, because nothing before 1999 was cited that way.
+
+### Agreement with HUDOC
+
+Measured on the October 2026 corpus at the level of cases (all documents sharing an application number count as one case):
+
+- **The Court's curated list.** Of the 101,890 Strasbourg case-law items that resolve to a judgment in this corpus, our text pass finds **97.9 %** on its own (95 % for judgments before 2000, 99 % since 2020). The remaining items are added from the list itself (source 3).
+- **HUDOC's automatic extraction.** HUDOC and our text pass agree on about 178,000 links. About 40,400 are found only by our text pass: almost all are name-and-date references to older judgments, which an extraction based on application numbers cannot see. About 5,700 are found only by HUDOC: after source 3 is added, 208 of them remain unlinked, 185 of which are `(dec.)` references to admissibility decisions that are not in the corpus and are left out on purpose.
 
 ### How the name-and-date matching was checked
 
 A random sample of 300 name-and-date matches was judged blind by a second model, mixed with 60 pairs that were wrong on purpose. All 60 wrong pairs were rejected, and 297 of the 300 matches were correct; the three errors (a same-day namesake with initials only, and two references to revision requests) were closed by the rules above. This is a precision check on a sample, not a guarantee.
 
-### Validated against HUDOC's curated list
-
-The Court's documentalists maintain a "Strasbourg Case-Law" field — a hand-picked shortlist of the key precedents in each judgment. Comparing the application-number method against this curated ground truth on a 500-case sample, before name-and-date matching was added:
-
-- **Recall: 98.7 %** — of the curated citations whose target is in the corpus, the extractor independently found 98.7 % (stable across the 2000s, 2010s and 2020s).
-- The extractor surfaces ~1.3× *more* citations than the curated list, because that list is a selective shortlist of leading precedents whereas the extractor captures every reference in the judgment text.
-
-Recall for older judgments has not been measured against that list. A reference that gives only a short name without a date (for example *Handyside, cited above* with no earlier full citation in the same judgment) is still not counted, so figures can be lower than the true number.
+A reference that gives only a short name without a date (for example *Handyside, cited above* with no earlier full citation in the same judgment) is not counted from the text, so a figure can still be lower than the true number. Footnotes are not part of the searchable text; their references reach the graph only through HUDOC's extracted numbers.
 
 Citation coverage is necessarily partial: a case whose precedents fall outside the corpus shows fewer links than reality. A `—` (rather than `0`) marks cases with no recorded citations, so an absence of data is not mistaken for genuine legal isolation.
 
