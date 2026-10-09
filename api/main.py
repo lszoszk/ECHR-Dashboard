@@ -26,6 +26,7 @@ from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+import citation_check
 import ranking
 
 # ---------------------------------------------------------------------------
@@ -2346,6 +2347,43 @@ def _suggest_cases(q: str, limit: int) -> list[dict[str, Any]]:
         out.append({k: r[k] for k in ("case_id", "title", "case_no", "judgment_date", "respondent_state",
                                       "importance", "document_type", "hudoc_url")} | {"match": kind})
     return out
+
+
+# ---- /api/check/resolve (Check page) ----------------------------------------
+
+_CHECK_INDEX: dict[str, Any] = {}
+
+
+def _citation_index() -> "citation_check.CitationIndex":
+    """The judgments and French-only judgments by application number and name; rebuilt when the DB file changes."""
+    try:
+        st = Path(DB_PATH).stat()
+        key = (st.st_mtime_ns, st.st_size)
+    except OSError:
+        key = None
+    if "index" not in _CHECK_INDEX or _CHECK_INDEX.get("key") != key:
+        with get_cursor() as cur:
+            _CHECK_INDEX["index"] = citation_check.CitationIndex.from_db(cur.connection)
+        _CHECK_INDEX["key"] = key
+    return _CHECK_INDEX["index"]
+
+
+@app.post("/api/check/resolve")
+async def check_resolve(request: Request):
+    """Resolve the citations the Check page found in a text.
+
+    Body: {"items": [{"key", "appnos": [...], "name": "X v. State", "date": "YYYY-MM-DD", "gc": bool, "dec": bool}]}.
+    Only these identifiers are sent; the text being checked stays in the browser.
+    """
+    try:
+        payload = await request.json()
+    except ValueError:
+        raise HTTPException(status_code=400, detail="JSON body expected")
+    raw = payload.get("items") if isinstance(payload, dict) else None
+    if not isinstance(raw, list):
+        raise HTTPException(status_code=400, detail='{"items": [...]} expected')
+    items = [citation_check.clean_item(it) for it in raw[:citation_check.MAX_ITEMS] if isinstance(it, dict)]
+    return {"items": citation_check.resolve_items(_citation_index(), items)}
 
 
 @app.get("/api/suggest")

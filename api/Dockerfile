@@ -7,6 +7,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY main.py .
 COPY build_db.py .
 COPY ranking.py .
+COPY citation_check.py .
 COPY entrypoint.sh .
 COPY rag_mod.py .
 COPY embed.py .
