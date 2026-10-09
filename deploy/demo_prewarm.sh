@@ -17,6 +17,8 @@
 # Exit codes: 0 = every step answered under the threshold, 1 = at least one step
 # was slow or failed, 2 = the API did not answer at all.
 set -u
+# curl prints seconds with a decimal point; a locale with a decimal comma (pl_PL) breaks printf and awk.
+export LC_ALL=C
 
 API="${1:-https://150.254.115.204/echr-api}"
 SLOW_S="${SLOW_S:-5}"
