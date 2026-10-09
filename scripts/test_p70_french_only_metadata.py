@@ -31,6 +31,22 @@ class MergeTests(unittest.TestCase):
         self.assertEqual((doc.date, doc.date_str), ((2001, 1, 11), "11/01/2001"))
         self.assertEqual(doc.appnos, frozenset({"21463/93", "21464/93"}))
 
+    def test_display_row_names_states_and_links_the_french_text(self):
+        row = p70.display_row("001-1", "001-2", {"docname": "CASE OF A v. B", "appno": "1/01;2/02",
+                                               "judgementdate": "11/01/2001 00:00:00", "respondent": "GRC;ITA"})
+        self.assertEqual(row, ("001-1", "001-2", "CASE OF A v. B", "1/01; 2/02", "11/01/2001", "Greece, Italy",
+                               "https://hudoc.echr.coe.int/fre?i=001-2"))
+
+    def test_tables_sql_loads_into_sqlite_and_escapes_quotes(self):
+        import sqlite3
+        sql = p70.tables_sql([("001-1", "001-2", "CASE OF O'BRIEN v. IRELAND", "1/01", "11/01/2001", "Ireland", "u")],
+                             [("001-1", "001-9", "hudoc_caselaw"), ("001-1", "001-9", "hudoc_caselaw")])
+        con = sqlite3.connect(":memory:")
+        con.executescript(sql)
+        con.executescript(sql)                       # loading twice replaces, never doubles
+        self.assertEqual(con.execute("SELECT title FROM french_only_cases").fetchall(), [("CASE OF O'BRIEN v. IRELAND",)])
+        self.assertEqual(con.execute("SELECT count(*) FROM french_only_citations").fetchone(), (1,))
+
 
 if __name__ == "__main__":
     unittest.main()

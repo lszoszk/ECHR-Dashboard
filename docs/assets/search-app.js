@@ -208,6 +208,8 @@ const serverSearch = {
       // length of the JSONL-sourced strasbourg_caselaw when the server
       // doesn't ship the count (e.g. /api/browse list responses).
       __citedByCount: Number(apiCase.cited_by_count || 0),
+      // Of those, judgments HUDOC publishes only in French (not in this corpus yet).
+      __citedByFrenchOnly: Number(apiCase.cited_by_french_only || 0),
       __citesCountServer: apiCase.cites_count != null
         ? Number(apiCase.cites_count)
         : null,
@@ -4529,6 +4531,16 @@ function buildResearcherArticleChips(articles, maxVisible = 4) {
   return chips.join("");
 }
 
+/* "Cited by 3,658 judgments, 1,036 of them available only in French" */
+function citedByTitle(c) {
+  const n = Number(c.__citedByCount || 0);
+  const fr = Number(c.__citedByFrenchOnly || 0);
+  const base = `Cited by ${fmtInt.format(n)} other judgment(s)`;
+  return fr > 0
+    ? `${base}, ${fmtInt.format(fr)} of them published by HUDOC only in French (not yet in this dataset)`
+    : `${base} in this dataset`;
+}
+
 function buildResearcherBars(c, row) {
   const cited = Number(c.__citedByCount || 0);
   // Prefer the P29 server-computed count (covers every case, incl.
@@ -4545,11 +4557,12 @@ function buildResearcherBars(c, row) {
   // `dimZero`: the citation graph (P29) has partial coverage, so a 0 is
   // ambiguous — "truly uncited" vs "not in our data". For landmark cases
   // a bare "0" is misleading and corrodes trust, so render it as "—".
-  const bar = (label, value, accent = false, dimZero = false) => {
+  const bar = (label, value, accent = false, dimZero = false, title = "") => {
     const na = dimZero && !value;
     const width = Math.max(4, Math.round((value / max) * 100));
+    const tip = na ? "Citation-graph coverage is partial — no citation data recorded for this case" : title;
     return `
-      <div class="researcher-bar${na ? " researcher-bar-na" : ""}"${na ? ' title="Citation-graph coverage is partial — no citation data recorded for this case"' : ""}>
+      <div class="researcher-bar${na ? " researcher-bar-na" : ""}"${tip ? ` title="${escapeHtml(tip)}"` : ""}>
         <div class="researcher-bar-head">
           <span>${escapeHtml(label)}</span>
           <strong>${na ? "—" : fmtInt.format(value)}</strong>
@@ -4558,7 +4571,7 @@ function buildResearcherBars(c, row) {
       </div>
     `;
   };
-  return `${bar("hits", hits, true)}${bar("cites", cites, false, true)}${bar("cited by", cited, false, true)}`;
+  return `${bar("hits", hits, true)}${bar("cites", cites, false, true)}${bar("cited by", cited, false, true, citedByTitle(c))}`;
 }
 
 const CASENOTE_STEP = 5; // paragraphs revealed per ↑/↓ expansion click
@@ -6253,7 +6266,8 @@ function buildCaseMeta(caseObj) {
       : (caseObj.__citationRefs || []).length;
     parts.push(`Cites: ${fmtInt.format(cites)}`);
     if (caseObj.__citedByCount > 0) {
-      parts.push(`Cited by: ${fmtInt.format(caseObj.__citedByCount)}`);
+      parts.push(`Cited by: ${fmtInt.format(caseObj.__citedByCount)}`
+        + (caseObj.__citedByFrenchOnly > 0 ? ` (${fmtInt.format(caseObj.__citedByFrenchOnly)} French-only)` : ""));
     }
   }
   if (caseObj.represented_by) {
@@ -6276,7 +6290,7 @@ function buildCaseMeta(caseObj) {
   }
 
   if (caseObj.__citedByCount > 0) {
-    parts.push(`<span class="legal-chip cited-by" title="Cited by ${caseObj.__citedByCount} other case(s) in this dataset">Cited ${caseObj.__citedByCount}×</span>`);
+    parts.push(`<span class="legal-chip cited-by" title="${escapeHtml(citedByTitle(caseObj))}">Cited ${caseObj.__citedByCount}×</span>`);
   }
 
   if (caseObj.hudoc_url) {

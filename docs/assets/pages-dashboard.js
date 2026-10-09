@@ -33,7 +33,192 @@ function truncateLabel(text, limit = 60) {
   return `${value.slice(0, limit - 1)}...`;
 }
 
+function citationDisplayLabel(raw) {
+  const title = String(raw || "")
+    .split(/\s*\[GC\]|,\s*(?:nos?\.|\u00a7|ECHR\b|Series A\b|Reports\b|(?:judgment|decision) of\b|\d{1,2}\s+[A-Z])|\s+(?:judgment|decision) of\b/i)[0]
+    .trim();
+  // Preserve document-stage qualifiers: a merits judgment and just
+  // satisfaction judgment can share a case name without being the same item.
+  const shorten = (text, limit) => text.length > limit ? text.slice(0, limit - 3) + "..." : text;
+  const versus = title.lastIndexOf(" v. ");
+  if (title.length > 48 && versus > 0) {
+    const respondent = title.slice(versus);
+    if (respondent.length < 36) return shorten(title.slice(0, versus), 48 - respondent.length) + respondent;
+  }
+  return shorten(title || String(raw || ""), 48);
+}
+
+function wrapCitationText(text, limit) {
+  const words = String(text || "").split(/\s+/);
+  const lines = [""];
+  for (const word of words) {
+    const last = lines.length - 1;
+    if (lines[last] && lines[last].length + word.length + 1 > limit) lines.push(word);
+    else lines[last] += (lines[last] ? " " : "") + word;
+  }
+  return lines;
+}
+
+function citationTooltipTitle(items) {
+  return wrapCitationText(items[0]?.label, items[0]?.chart.width < 500 ? 38 : 75);
+}
+
+async function renderJudgmentCitations(scope) {
+  const section = document.getElementById("stats-cited-judgments");
+  if (!section) return;
+  const coverageNote = document.getElementById("judgmentCitationCoverage");
+  try {
+    const response = await fetch("data/judgment-citations.json", { cache: "no-store" });
+    if (!response.ok) throw new Error("Citation snapshot unavailable");
+    const snapshot = await response.json();
+    if (snapshot.schema_version !== "judgment-citations-v1" || snapshot.cutoff !== scope.cutoff ||
+        snapshot.statistics_scope_sha256 !== scope.catalog_sha256 ||
+        (scope.catalog_content_sha256 && snapshot.catalog_content_sha256 !== scope.catalog_content_sha256)) {
+      throw new Error("Citation snapshot scope does not match statistics");
+    }
+    // Two kinds of evidence, never mixed silently: HUDOC's curated case-law lists, and (when the snapshot
+    // has it) the application numbers HUDOC extracted from each judgment's text.
+    const views = { curated: snapshot };
+    if (snapshot.with_extracted_appno) views.extracted = { ...snapshot, ...snapshot.with_extracted_appno };
+    let view = views.curated;
+    let ranked = view.ranking || [];
+    const quality = document.getElementById("judgmentCitationQuality");
+    const evidenceSelect = document.getElementById("citationEvidence");
+    function describe() {
+      const c = view.coverage;
+      const statuses = c.by_status || {};
+      const lines = [];
+      if (view === views.curated) {
+        coverageNote.textContent = `${fmtInt.format(c.judgments_with_metadata)} / ${fmtInt.format(c.judgments)} judgments have citation metadata; ${fmtInt.format(c.unique_edges)} unique resolved pairs. Snapshot: ${snapshot.cutoff}. Not a full-text ranking.`;
+        lines.push(
+          `Reference observations across both languages: ${fmtInt.format(c.reference_observations)}. These are source entries, not unique citation pairs.`,
+          `Resolved: ${fmtInt.format(statuses.resolved || 0)}; ambiguous: ${fmtInt.format(statuses.ambiguous || 0)}; unresolved: ${fmtInt.format(statuses.unresolved || 0)}.`,
+          `Excluded document types: ${fmtInt.format(statuses.excluded_document_type || 0)}; chronology conflicts: ${fmtInt.format(statuses.chronology_conflict || 0)}; self-references: ${fmtInt.format(statuses.self_reference || 0)}.`,
+          `Identifier conflicts: ${fmtInt.format(statuses.identifier_conflict || 0)}; identity-review references: ${fmtInt.format(statuses.identity_review || 0)}. Neither contributes to the ranking.`,
+          `Metadata versions with citations: ENG ${fmtInt.format(c.metadata_versions_by_language.ENG || 0)}, FRE ${fmtInt.format(c.metadata_versions_by_language.FRE || 0)}; union: ${fmtInt.format(c.judgments_with_metadata)} unique judgment identities.`);
+        const identityCounts = {};
+        for (const issue of c.identity_issues || []) identityCounts[issue.reason] = (identityCounts[issue.reason] || 0) + 1;
+        lines.push(`Identity warnings: ${Object.entries(identityCounts).map(([key, value]) => `${key.replaceAll("_", " ")}: ${value}`).join("; ") || "none"}. Unpaired French identities are held for review, not counted again. Disagreeing application aliases are not used for secondary matches.`);
+      } else {
+        coverageNote.textContent = `${fmtInt.format(c.judgments_with_metadata)} / ${fmtInt.format(c.judgments)} judgments have citation metadata; ${fmtInt.format(c.unique_edges)} unique resolved pairs, ${fmtInt.format(c.edges_from_curated_list)} from the curated lists and ${fmtInt.format(c.edges_from_extracted_application)} from extracted application numbers (${fmtInt.format(c.edges_in_both)} in both). Snapshot: ${snapshot.cutoff}. HUDOC extracted the numbers from the full text; they carry no citation context.`;
+        lines.push(
+          `Application numbers HUDOC extracted from the full text: ${fmtInt.format(c.reference_observations)} across ${fmtInt.format(c.judgments_with_extracted_application_numbers)} judgments.`,
+          `Resolved to one earlier judgment: ${fmtInt.format(statuses.resolved || 0)}; ambiguous (several judgments of the application): ${fmtInt.format(statuses.ambiguous || 0)}; no judgment in the catalog (for example decisions): ${fmtInt.format(statuses.unresolved || 0)}.`,
+          `The judgment's own application numbers: ${fmtInt.format(statuses.self_reference || 0)}; only later judgments: ${fmtInt.format(statuses.chronology_conflict || 0)}. Neither contributes to the ranking.`,
+          `Judgments with at least one resolved citation: ${fmtInt.format(c.judgments_with_resolved_citations)}. An extracted number can also come from a decision cited under the same application, so counts are approximate; against the text of English judgments about 96% of these pairs agree.`);
+      }
+      quality.replaceChildren(...lines.map((line) => {
+        const p = document.createElement("p"); p.className = "citation-quality-line"; p.textContent = line; return p;
+      }));
+    }
+    describe();
+    if (evidenceSelect) evidenceSelect.hidden = !views.extracted;
+    const evidenceLabel = document.querySelector('label[for="citationEvidence"]');
+    if (evidenceLabel) evidenceLabel.hidden = !views.extracted;
+    if (!ranked.length) return;
+    const select = document.getElementById("citedJudgmentSelect");
+    function fillSelect() {
+      select.replaceChildren();
+      for (const row of ranked) {
+        const option = document.createElement("option"); option.value = row.case_id;
+        option.textContent = `${row.title} (${row.date}) - ${fmtInt.format(row.cited_by_count)}`;
+        select.appendChild(option);
+      }
+    }
+    fillSelect();
+    select.disabled = false;
+    function hudocLink(row) {
+      const a = document.createElement("a"); a.href = `https://hudoc.echr.coe.int/eng?i=${encodeURIComponent(row.case_id)}`;
+      a.target = "_blank"; a.rel = "noopener"; a.textContent = row.title; return a;
+    }
+    function csv(rows, filename) {
+      if (window.EchrExport) window.EchrExport.triggerDownload(window.EchrExport.rowsToCsvBlob(rows), filename);
+    }
+    const rankingExport = document.getElementById("citationRankingExport");
+    rankingExport.disabled = !window.EchrExport;
+    rankingExport.addEventListener("click", () => {
+      const extended = view === views.extracted;
+      csv([
+        ["HUDOC ID", "ECLI", "Judgment", "Date", "Unique citing judgments",
+          ...(extended ? ["Citing via curated lists", "Citing via extracted application numbers"] : []), "Source", "Cutoff"],
+        ...ranked.map((row) => [row.case_id, row.ecli || "", row.title, row.date, row.cited_by_count,
+          ...(extended ? [row.cited_by_curated_list, row.cited_by_extracted_application] : []),
+          extended ? "Resolved bilingual HUDOC metadata plus application numbers extracted by HUDOC" : "Resolved bilingual HUDOC metadata",
+          snapshot.cutoff]),
+      ], `echr-most-cited-judgments${extended ? "-with-extracted-application-numbers" : ""}-${snapshot.cutoff}.csv`);
+    });
+    let visible = 25;
+    function citingRows() {
+      return (view.citing_by_target[select.value] || []).map((id) => ({case_id: id, ...view.citing_judgments[id]}));
+    }
+    function renderList() {
+      const rows = citingRows();
+      const body = document.getElementById("citingJudgmentRows"); body.replaceChildren();
+      for (const row of rows.slice(0, visible)) {
+        const tr = document.createElement("tr"); const name = document.createElement("th"); name.scope = "row";
+        name.appendChild(hudocLink(row)); const date = document.createElement("td"); date.textContent = row.date;
+        tr.append(name, date); body.appendChild(tr);
+      }
+      document.getElementById("citingJudgmentsSummary").textContent = `View ${fmtInt.format(rows.length)} unique citing judgments (${Math.min(visible, rows.length)} shown)`;
+      document.getElementById("moreCitingJudgments").hidden = visible >= rows.length;
+    }
+    function selectJudgment() {
+      visible = 25;
+      const row = ranked.find((r) => r.case_id === select.value);
+      const identity = document.getElementById("citedJudgmentIdentity");
+      const split = view === views.extracted
+        ? ` (${fmtInt.format(row.cited_by_curated_list)} via curated lists, ${fmtInt.format(row.cited_by_extracted_application)} via extracted application numbers)` : "";
+      identity.replaceChildren(hudocLink(row), document.createTextNode(` · ${row.date} · ${row.ecli || row.case_id} · ${fmtInt.format(row.cited_by_count)} unique citing judgments${split}`));
+      renderList();
+    }
+    select.addEventListener("change", selectJudgment);
+    document.getElementById("moreCitingJudgments").addEventListener("click", () => { visible += 100; renderList(); });
+    const citingExport = document.getElementById("citingJudgmentsExport"); citingExport.disabled = !window.EchrExport;
+    citingExport.addEventListener("click", () => {
+      const target = ranked.find((row) => row.case_id === select.value);
+      csv([["Cited HUDOC ID", "Cited ECLI", "Citing HUDOC ID", "Citing ECLI", "Citing judgment", "Citing date"],
+        ...citingRows().map((row) => [target.case_id, target.ecli || "", row.case_id, row.ecli || "", row.title, row.date])],
+        `echr-citing-${select.value}${view === views.extracted ? "-with-extracted-application-numbers" : ""}-${snapshot.cutoff}.csv`);
+    });
+    const chartLabels = () => ranked.map((row) => `${row.title} | ${row.date} | ${row.case_id}`);
+    const chart = createBarChart(document.getElementById("judgmentCitationsChart"),
+      chartLabels(), ranked.map((row) => row.cited_by_count),
+      { horizontal: true, colors: ["#4f83ad"] });
+    if (chart) {
+      chart.data.datasets[0].label = "Unique citing judgments";
+      chart.options.scales.y.ticks = { font: { size: 11 }, callback(value) {
+        const row = ranked[value]; const name = citationDisplayLabel(row.title);
+        return [...(this.chart.width < 500 ? wrapCitationText(name, 22) : [name]), row.date];
+      }};
+      chart.options.plugins.tooltip = {callbacks: { title: citationTooltipTitle }};
+      chart.options.onClick = (_, elements) => {
+        if (!elements.length) return;
+        select.value = ranked[elements[0].index].case_id; selectJudgment();
+        document.getElementById("citingJudgmentsDetails").open = true;
+      };
+      chart.update("none");
+    }
+    if (evidenceSelect) evidenceSelect.addEventListener("change", () => {
+      view = views[evidenceSelect.value] || views.curated;
+      ranked = view.ranking || [];
+      describe(); fillSelect();
+      if (chart) {
+        chart.data.labels = chartLabels();
+        chart.data.datasets[0].data = ranked.map((row) => row.cited_by_count);
+        chart.update("none");
+      }
+      selectJudgment();
+    });
+    selectJudgment();
+  } catch (error) {
+    section.dataset.keepEmptyView = "true";
+    coverageNote.textContent = `${error.message}. No judgment-level citation ranking is shown; reference-entry analytics below remain available.`;
+    section.querySelectorAll(".chart-controls, details, #citedJudgmentIdentity").forEach((el) => el.remove());
+  }
+}
+
 function makeKpi(label, value, note = "") {
+  if (value === "0") return "";
   return `
     <article class="kpi-card">
       <div class="kpi-label">${label}</div>
@@ -44,6 +229,7 @@ function makeKpi(label, value, note = "") {
 }
 
 function createBarChart(ctx, labels, values, options = {}) {
+  if (!ctx || !values.some((value) => Number(value) > 0)) return null;
   return new Chart(ctx, {
     type: "bar",
     data: {
@@ -81,7 +267,119 @@ function createBarChart(ctx, labels, values, options = {}) {
   });
 }
 
+function articleLabel(article) {
+  if (!article.startsWith("P")) return `Art. ${article}`;
+  const [protocol, number] = article.split("-");
+  return `${protocol}, Art. ${number}`;
+}
+
+function selectArticleRows(rows, minimum, order) {
+  const selected = rows.filter((row) => row.with_outcome >= minimum && row.with_outcome > 0);
+  return selected.sort((a, b) => {
+    if (order === "article") return 0; // Payload is in Convention / Protocol article order.
+    const rate = (b.violation_share - a.violation_share) * (order === "lowest" ? -1 : 1);
+    if (order !== "volume" && rate !== 0) return rate;
+    return b.with_outcome - a.with_outcome || a.article.localeCompare(b.article, "en", { numeric: true });
+  });
+}
+
+function createArticleOutcomeChart(canvas, rows, percentages) {
+  if (!canvas || !rows.length) return null;
+  const buckets = [
+    ["Violation only", "violation_only", "#a53643"],
+    ["Mixed: both outcomes", "mixed", "#b78025"],
+    ["Non-violation only", "non_violation_only", "#3b7497"],
+  ];
+  return new Chart(canvas, {
+    type: "bar",
+    data: {
+      labels: rows.map((row) => articleLabel(row.article) + (percentages ? ` (n=${fmtInt.format(row.with_outcome)})` : "")),
+      datasets: buckets.map(([label, key, color]) => ({
+        label: label + (percentages ? " (%)" : ""),
+        data: rows.map((row) => percentages ? row[key] / row.with_outcome * 100 : row[key]),
+        backgroundColor: color, borderWidth: 0, maxBarThickness: 24,
+      })),
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: "y",
+      plugins: {
+        legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } },
+        tooltip: { callbacks: {
+          label(context) {
+            const row = rows[context.dataIndex];
+            const key = buckets[context.datasetIndex][1];
+            return `${buckets[context.datasetIndex][0]}: ${fmtInt.format(row[key])} judgments (${(row[key] / row.with_outcome * 100).toFixed(1)}%)`;
+          },
+          footer(items) {
+            const row = rows[items[0].dataIndex];
+            return `Any violation: ${(row.violation_share * 100).toFixed(1)}% (${fmtInt.format(row.with_violation)}/${fmtInt.format(row.with_outcome)})`;
+          },
+        } },
+      },
+      scales: {
+        x: { stacked: true, beginAtZero: true, ...(percentages ? { max: 100, ticks: { callback: (value) => `${value}%` } } : {}) },
+        y: { stacked: true, grid: { display: false }, ticks: { autoSkip: false, font: { size: 11 } } },
+      },
+    },
+  });
+}
+
+function renderArticleAnalytics(analytics) {
+  const rows = analytics?.rows || [];
+  const canvas = document.getElementById("articleViolationRateChart");
+  const sort = document.getElementById("articleRateSort");
+  const minimum = document.getElementById("articleRateMinimum");
+  if (!canvas || !sort || !minimum || !rows.length) return;
+  canvas.dataset.keepEmptyView = "true";
+  let chart;
+  function render() {
+    const selected = selectArticleRows(rows, Number(minimum.value), sort.value);
+    if (chart) chart.destroy();
+    canvas.parentElement.style.height = `${Math.max(360, selected.length * 36 + 90)}px`;
+    canvas.parentElement.hidden = !selected.length;
+    chart = createArticleOutcomeChart(canvas, selected, true);
+    document.getElementById("articleRateSummary").textContent = selected.length
+      ? `${selected.length} of ${rows.filter((row) => row.with_outcome > 0).length} article families with outcome tags shown. Minimum ${fmtInt.format(Number(minimum.value))} judgments per article. Bar segments sum to 100%; violation share includes the mixed segment.`
+      : "No articles meet this minimum sample. Choose a lower threshold.";
+    const highlights = document.getElementById("articleRateHighlights");
+    highlights.replaceChildren();
+    if (selected.length) {
+      const ranked = selectArticleRows(rows, Number(minimum.value), "highest");
+      for (const [label, row] of [["Highest share", ranked[0]], ["Lowest share", ranked[ranked.length - 1]]]) {
+        const item = document.createElement("p");
+        const value = document.createElement("strong");
+        value.textContent = `${articleLabel(row.article)} · ${(row.violation_share * 100).toFixed(1)}%`;
+        item.append(`${label}: `, value, ` · ${fmtInt.format(row.with_violation)} / ${fmtInt.format(row.with_outcome)} judgments`);
+        highlights.appendChild(item);
+      }
+    }
+    const table = document.getElementById("articleOutcomeRows");
+    table.replaceChildren();
+    for (const row of selected) {
+      const tr = document.createElement("tr");
+      const values = [articleLabel(row.article), `${(row.violation_share * 100).toFixed(1)}%`,
+        ...["with_outcome", "violation_only", "mixed", "non_violation_only", "without_outcome"].map((key) => fmtInt.format(row[key]))];
+      values.forEach((value, index) => {
+        const cell = document.createElement(index === 0 ? "th" : "td");
+        if (index === 0) cell.scope = "row";
+        cell.textContent = value;
+        tr.appendChild(cell);
+      });
+      table.appendChild(tr);
+    }
+    syncChartTheme();
+  }
+  sort.addEventListener("change", render);
+  minimum.addEventListener("change", render);
+  render();
+  const largest = selectArticleRows(rows, 1, "volume").slice(0, 15);
+  const countsCanvas = document.getElementById("articleOutcomesCountChart");
+  if (countsCanvas) countsCanvas.parentElement.style.height = `${Math.max(360, largest.length * 32 + 90)}px`;
+  createArticleOutcomeChart(countsCanvas, largest, false);
+}
+
 function createLineChart(ctx, labels, values, color) {
+  if (!ctx || !values.some((value) => Number(value) > 0)) return null;
   return new Chart(ctx, {
     type: "line",
     data: {
@@ -113,6 +411,7 @@ function createLineChart(ctx, labels, values, color) {
 }
 
 function createDoughnutChart(ctx, labels, values, colors = []) {
+  if (!ctx || !values.some((value) => Number(value) > 0)) return null;
   return new Chart(ctx, {
     type: "doughnut",
     data: {
@@ -139,6 +438,7 @@ function createDoughnutChart(ctx, labels, values, colors = []) {
 }
 
 function createGroupedBarChart(ctx, labels, datasets, options = {}) {
+  if (!ctx || !datasets.some((dataset) => dataset.data.some((value) => Number(value) > 0))) return null;
   return new Chart(ctx, {
     type: "bar",
     data: { labels, datasets },
@@ -157,6 +457,7 @@ function createGroupedBarChart(ctx, labels, datasets, options = {}) {
 }
 
 function createMultiLineChart(ctx, labels, datasets) {
+  if (!ctx || !datasets.some((dataset) => dataset.data.some((value) => Number(value) > 0))) return null;
   return new Chart(ctx, {
     type: "line",
     data: { labels, datasets },
@@ -222,10 +523,96 @@ function rowsOrEmpty(value) {
   return Array.isArray(value) ? value : [];
 }
 
+function syncChartTheme() {
+  const style = getComputedStyle(document.documentElement);
+  const ink = style.getPropertyValue("--ink-3").trim() || "#706d72";
+  const rule = style.getPropertyValue("--rule-soft").trim() || "#e8e0d4";
+  Chart.defaults.color = ink;
+  Object.values(Chart.instances).forEach((chart) => {
+    chart.options.color = ink;
+    for (const axis of Object.values(chart.options.scales || {})) {
+      if (axis.ticks) axis.ticks.color = ink;
+      if (axis.grid) axis.grid.color = rule;
+    }
+    if (chart.options.plugins?.legend?.labels) chart.options.plugins.legend.labels.color = ink;
+    chart.update("none");
+  });
+}
+
+function renderChamberTrend(rows) {
+  const labels = ["Grand Chamber", "Chamber", "Committee"];
+  const chart = createGroupedBarChart(document.getElementById("chamberTrendChart"), rows.map((r) => r[0]),
+    labels.map((label, i) => ({label, data: rows.map((r) => r[i + 1]),
+      backgroundColor: ["#395d7f", "#43705a", "#8d2f2f"][i], borderRadius: 2})));
+  if (chart) {
+    chart.options.scales.x.stacked = true;
+    chart.options.scales.y.stacked = true;
+    chart.update("none");
+  }
+}
+
+function renderCoverage(data) {
+  const fields = data.quality?.field_completeness || {};
+  const labels = {respondent_state: "Respondent state", ecli: "ECLI identity", article_no: "Convention articles",
+    conclusion: "Conclusion", originating_body: "Judicial collection", importance: "Importance classification",
+    hudoc_kpthesaurus: "Thesaurus topics", strasbourg_caselaw: "HUDOC citation metadata",
+    strasbourg_caselaw_any_language: "HUDOC citation metadata, English or French version",
+    extracted_application_numbers: "Application numbers HUDOC extracted from the text",
+    separate_opinion: "Separate-opinion flag", rules_of_court: "Rules of Court"};
+  // Rows for fields a snapshot does not carry (older snapshots) are left out, not shown as 0%.
+  const rows = Object.entries(labels).filter(([key]) => key in fields || data.quality?.field_counts?.[key] != null).map(([key, label]) => [label, Number(fields[key] || 0),
+    data.quality?.field_counts?.[key] ?? Math.round(Number(fields[key] || 0) * data.summary.total_cases)]);
+  const table = document.createElement("table");
+  table.className = "coverage-table";
+  const head = table.createTHead().insertRow();
+  ["Metadata field", "Populated records", "Coverage"].forEach((label) => {
+    const th = document.createElement("th"); th.scope = "col"; th.textContent = label; head.appendChild(th);
+  });
+  const body = table.createTBody();
+  rows.forEach(([label, fraction, count]) => {
+    const row = body.insertRow();
+    [label, fmtInt.format(count), (fraction * 100).toFixed(2) + "%"]
+      .forEach((value) => { row.insertCell().textContent = value; });
+  });
+  document.getElementById("coverageTable").replaceChildren(table);
+  const languages = data.text_coverage?.by_language || {};
+  const languageRows = [["Confirmed English", languages.ENG || 0], ["Confirmed French", languages.FRE || 0],
+    ["Production language not recorded", languages.Unknown || 0]].filter((row) => row[1] > 0);
+  createBarChart(document.getElementById("textLanguageChart"),
+    languageRows.map((row) => row[0]), languageRows.map((row) => row[1]),
+    {horizontal: true, colors: ["#395d7f", "#43705a", "#969197"]});
+}
+
+function pruneEmptyCharts() {
+  document.querySelectorAll(".stats-main canvas").forEach((canvas) => {
+    if (Chart.getChart(canvas) || canvas.dataset.keepEmptyView === "true") return;
+    const wrapper = canvas.closest(".chart-container, .chart-canvas-wrap");
+    const heading = wrapper?.previousElementSibling;
+    if (heading?.classList.contains("chart-section-subtitle")) heading.remove();
+    wrapper?.remove();
+  });
+  document.querySelectorAll(".stats-main .chart-row").forEach((row) => {
+    if (!row.querySelector("canvas")) row.remove();
+  });
+  document.querySelectorAll(".stats-main .chart-section").forEach((section) => {
+    if (section.querySelector("canvas, table, .kpi-card") || section.dataset.keepEmptyView === "true") return;
+    section.remove();
+  });
+  document.querySelectorAll(".sidebar-link").forEach((link) => {
+    if (!document.getElementById(link.dataset.target)) link.remove();
+  });
+  document.querySelectorAll(".sidebar-category").forEach((group) => {
+    if (!group.querySelector(".sidebar-link")) group.remove();
+  });
+  document.getElementById("statsMain").setAttribute("aria-busy", "false");
+}
+
 async function loadDashboard() {
   const res = await fetch("data/stats.json", { cache: "no-store" });
   if (!res.ok) throw new Error(`Failed to load dashboard data (${res.status})`);
   const data = await res.json();
+  Chart.defaults.font.family = getComputedStyle(document.documentElement).getPropertyValue("--font-mono").trim() || "Georgia";
+  Chart.defaults.color = getComputedStyle(document.documentElement).getPropertyValue("--ink-3").trim() || "#706d72";
 
   // Provenance for the export filenames, the PNG footer and the Cite dialog.
   // Read from the payload rather than scraped back out of #metaGenerated's
@@ -257,69 +644,40 @@ async function loadDashboard() {
   const rankings = data.rankings || {};
   const fieldCompleteness = (data.quality && data.quality.field_completeness) || {};
 
-  const metadataCoverage = [
-    fieldCompleteness.keywords || 0,
-    fieldCompleteness.originating_body || 0,
-    fieldCompleteness.strasbourg_caselaw || 0,
-    fieldCompleteness.respondent_state || 0,
-  ];
-  const coveragePct = metadataCoverage.length
-    ? (metadataCoverage.reduce((acc, val) => acc + val, 0) / metadataCoverage.length) * 100
-    : 0;
-
-  const kpiGrid = document.getElementById("kpiGrid");
-  kpiGrid.innerHTML = [
-    makeKpi("Total Cases", fmtInt.format(s.total_cases || 0)),
-    makeKpi("Violation Rate", ((s.outcome_violation_only + s.outcome_both) / s.total_cases * 100).toFixed(1) + "%", (s.outcome_violation_only + s.outcome_both) + " of " + s.total_cases + " cases"),
-    makeKpi("Total Paragraphs", fmtInt.format(s.total_paragraphs || 0)),
-    makeKpi(
-      "Date Range",
-      (s.date_range_label || "-").replace(/(\d{1,2}) (\w{3}) (\d{4})/g, "$3"),
-      `${fmtInt.format(s.dated_cases || 0)} dated · ${fmtInt.format(s.undated_cases || 0)} undated`
-    ),
-    makeKpi("Respondent States", fmtInt.format(s.unique_countries || 0)),
-    makeKpi("Distinct Articles", fmtInt.format(s.unique_articles || 0)),
-    makeKpi("Avg Paragraphs / Case", Number(s.avg_paragraphs_per_case || 0).toFixed(1)),
-    makeKpi("Median Paragraphs / Case", Math.round(s.median_paragraphs_per_case || 0).toString()),
-    makeKpi("P90 Paragraphs / Case", Math.round(s.p90_paragraphs_per_case || 0).toString()),
-    makeKpi(
-      "Grand Chamber Share",
-      `${Number(s.grand_chamber_share || 0).toFixed(1)}%`,
-      `${fmtInt.format(s.grand_chamber_cases || 0)} of ${fmtInt.format(s.total_cases || 0)} cases`
-    ),
-    makeKpi("Key Cases", fmtInt.format(s.key_cases || 0), `${Number((s.total_cases ? (s.key_cases / s.total_cases) * 100 : 0)).toFixed(1)}% of corpus`),
-    makeKpi("Separate Opinions", fmtInt.format(s.separate_opinion_cases || 0)),
-    makeKpi("With Strasbourg Citations", fmtInt.format(s.cases_with_strasbourg_caselaw || 0)),
-    makeKpi("Avg Strasbourg Citations / Case", Number(s.avg_strasbourg_citations_per_case || 0).toFixed(1)),
-    makeKpi("With Domestic Law", fmtInt.format(s.cases_with_domestic_law || 0)),
-    makeKpi("With International Law", fmtInt.format(s.cases_with_international_law || 0)),
-    makeKpi("With Rules of Court", fmtInt.format(s.cases_with_rules_of_court || 0)),
-    makeKpi(
-      "Inadmissible Cases",
-      fmtInt.format(s.inadmissible_cases || 0),
-      `${Number((s.total_cases ? ((s.inadmissible_cases || 0) / s.total_cases) * 100 : 0)).toFixed(1)}% of corpus`
-    ),
-    makeKpi(
-      "Struck Out Cases",
-      fmtInt.format(s.struck_out_cases || 0),
-      `${Number((s.total_cases ? ((s.struck_out_cases || 0) / s.total_cases) * 100 : 0)).toFixed(1)}% of corpus`
-    ),
-    makeKpi(
-      "Procedural / Substantive",
-      `${fmtInt.format(s.procedural_aspect_cases || 0)} / ${fmtInt.format(s.substantive_aspect_cases || 0)}`
-    ),
-    makeKpi("Metadata Completeness", `${coveragePct.toFixed(1)}%`),
-    makeKpi(
-      "Outcome Mix",
-      `${fmtInt.format(s.outcome_violation_only || 0)} / ${fmtInt.format(s.outcome_non_violation_only || 0)} / ${fmtInt.format(s.outcome_both || 0)} / ${fmtInt.format(s.outcome_neither || 0)}`,
-      "Violation only · Non-violation only · Both · Neither"
-    ),
+  const scope = data.scope || {};
+  const texts = data.text_coverage || {};
+  const total = Number(s.total_cases || 0);
+  const withText = Number(s.cases_with_text || 0);
+  const violationCount = Number(s.outcome_violation_only || 0) + Number(s.outcome_both || 0);
+  document.getElementById("kpiGrid").innerHTML = [
+    makeKpi("Judgment records", fmtInt.format(total), "No decisions or press releases"),
+    makeKpi("Respondent states", fmtInt.format(s.unique_countries || 0), "Multi-state judgments count for each state"),
+    makeKpi("At least one violation", total ? (violationCount / total * 100).toFixed(1) + "%" : "Unavailable", fmtInt.format(violationCount) + " of " + fmtInt.format(total) + " judgments"),
+    makeKpi("Text rows", fmtInt.format(s.total_paragraphs || 0), fmtInt.format(withText) + " judgments with text; includes table/header rows"),
   ].join("");
+  document.getElementById("metaSource").textContent = "Verified HUDOC catalog + read-only text inventories";
+  document.getElementById("metaGenerated").textContent = "Built " + formatDateForMeta(data.generated_at);
+  document.getElementById("scopeCutoff").textContent = "Catalog cut-off: " + (scope.cutoff || "Unavailable") + " · " + (s.date_range_label || "");
+  const sourceLanguages = texts.by_language || {};
+  const sourceOrigins = texts.by_origin || {};
+  const knownLanguages = [["English", sourceLanguages.ENG], ["French", sourceLanguages.FRE]]
+    .filter((row) => row[1] > 0).map(([label, count]) => fmtInt.format(count) + " " + label).join(", ") || "none recorded";
+  document.getElementById("textCoverageSummary").textContent =
+    fmtInt.format(withText) + " / " + fmtInt.format(total) + " judgment records have inventoried text. " +
+    "Confirmed source language: " + knownLanguages + "; " + fmtInt.format(sourceLanguages.Unknown || 0) +
+    " not recorded. " + fmtInt.format(sourceOrigins["Local source bundle"] || 0) + " local bundles are staged, not yet in live Search.";
+  const caveat = document.getElementById("scopeCaveat");
+  caveat.textContent = (scope.note || "") + " " + (scope.translation_title_warnings?.length || 0) + " translation-title records remain in the literal catalog count.";
+  renderCoverage(data);
+  renderChamberTrend(series.chambers_by_year || []);
+  const citationNote = document.getElementById("citationCoverageNote");
+  citationNote.textContent = "HUDOC citation metadata is populated for " +
+    fmtInt.format(s.cases_with_strasbourg_caselaw || 0) + " / " + fmtInt.format(total) +
+    " judgments. Counts refer to distinct citation strings, not resolved judgment identities or a citation network.";
 
   const casesByYear = rowsOrEmpty(series.cases_by_year);
   const chamberBreakdown = rowsOrEmpty(series.chamber_breakdown);
   const countriesTop = rowsOrEmpty(rankings.countries_top);
-  const articlesTop = rowsOrEmpty(rankings.articles_top);
   const sections = rowsOrEmpty(rankings.sections);
   const importanceDistribution = rowsOrEmpty(rankings.importance_distribution);
   const outcomeRows = rowsOrEmpty(series.outcome_breakdown);
@@ -328,7 +686,6 @@ async function loadDashboard() {
   const separateShareByBody = rowsOrEmpty(series.separate_opinion_share_by_body);
   const keywordsTop = rowsOrEmpty(rankings.keywords_top);
   const citationsTop = rowsOrEmpty(rankings.strasbourg_caselaw_top);
-  const articleViolationRates = rowsOrEmpty(rankings.article_violation_rates_top);
   const stateOutcomesTop = rowsOrEmpty(rankings.state_outcomes_top);
   const inadmissibilityGroundsTop = rowsOrEmpty(rankings.inadmissibility_grounds_top);
   const precedentConcentrationTop = rowsOrEmpty(rankings.precedent_concentration_top);
@@ -419,13 +776,6 @@ async function loadDashboard() {
   }
 
   createBarChart(
-    document.getElementById("articlesChart"),
-    articlesTop.map((d) => `Art. ${d[0]}`),
-    articlesTop.map((d) => d[1]),
-    { horizontal: true, colors: ["#3c8d5a"] }
-  );
-
-  createBarChart(
     document.getElementById("sectionsChart"),
     sections.map((d) => d[0]),
     sections.map((d) => d[1]),
@@ -436,7 +786,7 @@ async function loadDashboard() {
     document.getElementById("chamberChart"),
     chamberBreakdown.map((d) => d[0]),
     chamberBreakdown.map((d) => d[1]),
-    ["#245ea8", "#3c8d5a", "#8c8c8c"]
+    ["#395d7f", "#43705a", "#8d2f2f", "#969197"]
   );
 
   createBarChart(
@@ -562,20 +912,23 @@ async function loadDashboard() {
     { horizontal: true, colors: ["#b28a2f"] }
   );
 
-  createBarChart(
-    document.getElementById("articleViolationRateChart"),
-    articleViolationRates.slice(0, 15).map((d) => `Art. ${d[0]} (${d[2]}/${d[3]})`),
-    articleViolationRates.slice(0, 15).map((d) => Number(d[1]) * 100),
-    { horizontal: true, colors: ["#3c8d5a"] }
-  );
+  renderArticleAnalytics(data.article_analytics);
+  await renderJudgmentCitations(scope);
 
   if (precedentConcentrationTop.length) {
-    createLineChart(
+    const concentrationChart = createLineChart(
       document.getElementById("precedentConcentrationChart"),
-      precedentConcentrationTop.map((d) => truncateLabel(d[0], 42)),
+      precedentConcentrationTop.map((d) => d[0]),
       precedentConcentrationTop.map((d) => d[3]),
       "#8d4f78"
     );
+    if (concentrationChart) {
+      concentrationChart.options.scales.x.ticks = {
+        callback(value) { return citationDisplayLabel(this.getLabelForValue(value)); },
+      };
+      concentrationChart.options.plugins.tooltip = { callbacks: { title: citationTooltipTitle } };
+      concentrationChart.update("none");
+    }
   } else {
     createBarChart(
       document.getElementById("precedentConcentrationChart"),
@@ -586,12 +939,25 @@ async function loadDashboard() {
   }
 
   const citationSourceRows = precedentToCitingCasesTop.length ? precedentToCitingCasesTop : citationsTop;
-  createBarChart(
+  const citationsChart = createBarChart(
     document.getElementById("citationsChart"),
-    citationSourceRows.slice(0, 15).map((d) => truncateLabel(d[0], 80)),
+    citationSourceRows.slice(0, 15).map((d) => d[0]),
     citationSourceRows.slice(0, 15).map((d) => d[1]),
     { horizontal: true, colors: ["#8d4f78"] }
   );
+  if (citationsChart) {
+    citationsChart.canvas.parentElement.classList.add("citation-canvas-wrap");
+    citationsChart.data.datasets[0].label = "Citing judgment records";
+    citationsChart.options.scales.y.ticks = {
+      font: { size: 11 },
+      callback(value) {
+        const label = citationDisplayLabel(this.getLabelForValue(value));
+        return this.chart.width < 500 ? wrapCitationText(label, 22) : label;
+      },
+    };
+    citationsChart.options.plugins.tooltip = { callbacks: { title: citationTooltipTitle } };
+    citationsChart.update("none");
+  }
 
   // Violation Rate by Year (%)
   if (outcomesByYear.length) {
@@ -639,34 +1005,6 @@ async function loadDashboard() {
       igData.map((d) => truncateLabel(d[0], 45)),
       igData.map((d) => d[1]),
       { horizontal: true, colors: ["#6478b4"] }
-    );
-  }
-
-  // Article Outcomes — Violation vs Non-violation Counts
-  const articleOutcomesTop = rowsOrEmpty(rankings.article_outcomes_top);
-  if (articleOutcomesTop.length) {
-    const aocData = articleOutcomesTop.slice(0, 15);
-    createGroupedBarChart(
-      document.getElementById("articleOutcomesCountChart"),
-      aocData.map((d) => `Art. ${d[0]}`),
-      [
-        {
-          label: "Violation",
-          data: aocData.map((d) => d[1]),
-          backgroundColor: "rgba(220, 80, 60, 0.8)",
-          borderColor: "rgba(220, 80, 60, 1)",
-          borderWidth: 1,
-          borderRadius: 5,
-        },
-        {
-          label: "Non-violation",
-          data: aocData.map((d) => d[2]),
-          backgroundColor: "rgba(100, 120, 180, 0.8)",
-          borderColor: "rgba(100, 120, 180, 1)",
-          borderWidth: 1,
-          borderRadius: 5,
-        },
-      ]
     );
   }
 
@@ -737,14 +1075,14 @@ async function loadDashboard() {
     return (stateProfiles[b].total || 0) - (stateProfiles[a].total || 0);
   });
 
-  const compareSelects = [1, 2, 3, 4].map((n) => document.getElementById(`compareState${n}`));
+  const compareSelects = [1, 2, 3].map((n) => document.getElementById(`compareState${n}`));
   const compareSummaryEl = document.getElementById("compareSummaryTable");
   const compareTrendCtx = document.getElementById("compareTrendChart");
   const compareArticlesCtx = document.getElementById("compareArticlesChart");
   let compareTrendChart = null;
   let compareArticlesChart = null;
 
-  const COMPARE_COLORS = ["#245ea8", "#b03e45", "#3c8d5a", "#d97a2b"];
+  const COMPARE_COLORS = ["#245ea8", "#b03e45", "#3c8d5a"];
 
   if (compareSelects[0] && compareTrendCtx && compareStateNames.length >= 2) {
     compareStateNames.forEach((state) => {
@@ -758,8 +1096,8 @@ async function loadDashboard() {
     });
 
     // Pre-select top states for comparison
-    const topStates = countriesTop.slice(0, 4).map(d => d[0]);
-    ["compareState1","compareState2","compareState3","compareState4"].forEach((id, i) => {
+    const topStates = countriesTop.slice(0, 3).map(d => d[0]);
+    ["compareState1","compareState2","compareState3"].forEach((id, i) => {
       const sel = document.getElementById(id);
       if (sel && topStates[i]) sel.value = topStates[i];
     });
@@ -1345,6 +1683,11 @@ async function loadDashboard() {
     prTableEl.innerHTML = `<details><summary style="cursor:pointer;font-weight:600;margin-bottom:8px;">PageRank vs Citation Rank — Full Table (click to expand)</summary><table class="compare-summary-table"><thead>${hdr}</thead><tbody>${rows}</tbody></table></details>`;
   }
 
+  pruneEmptyCharts();
+  syncChartTheme();
+  new MutationObserver(syncChartTheme).observe(document.documentElement,
+    {attributes: true, attributeFilter: ["data-theme"]});
+
   // Build TOC
   const tocList = document.getElementById("tocList");
   const tocToggle = document.getElementById("tocToggle");
@@ -1364,10 +1707,12 @@ loadDashboard()
   .then(scrollToHashIfAny)
   .catch((err) => {
     console.error(err);
-    document.body.insertAdjacentHTML(
-      "beforeend",
-      `<div style="max-width:1220px;margin:16px auto;color:#b03e45;padding:0 20px;">Failed to load dashboard: ${err.message}</div>`
-    );
+    const main = document.getElementById("statsMain");
+    main.setAttribute("aria-busy", "false");
+    const error = document.createElement("p");
+    error.className = "chart-caveat"; error.setAttribute("role", "alert");
+    error.textContent = "Statistics could not be loaded. Reload this page to retry. " + err.message;
+    main.prepend(error);
   });
 
 /**
@@ -1442,7 +1787,7 @@ function scrollToHashIfAny() {
     const section = document.getElementById(id);
     if (!section) return;
     lockNav();
-    section.scrollIntoView({ behavior: "smooth", block: "start" });
+    section.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     setActive(id);
     const hash = "#" + id;
     // Repeated clicks on the same entry must not stack duplicate history
