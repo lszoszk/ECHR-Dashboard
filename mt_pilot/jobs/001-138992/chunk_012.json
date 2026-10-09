@@ -1,0 +1,72 @@
+{
+ "case": {
+  "id": "001-138992",
+  "en_id": "001-138992",
+  "source_id": "001-138939",
+  "title": "CASE OF X v. LATVIA"
+ },
+ "chunk": 12,
+ "context_before": "99.  Ainsi que la Cour l’a rappelé dans son arrêt Neulinger et Shuruk (précité, § 140), les obligations incombant aux États à cet égard ont été définies dans l’affaire Maumousseau et Washington (précité, § 83).",
+ "rows": [
+  {
+   "id": "p100",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "100.  L’intérêt supérieur de l’enfant ne se confond pas avec celui de son père ou de sa mère, outre qu’il renvoie nécessairement à des éléments d’appréciation divers liés au profil individuel et à la situation spécifique de l’enfant. Néanmoins, il ne saurait être appréhendé d’une manière identique selon que le juge est saisi d’une demande de retour en application de la Convention de La Haye ou d’une demande de statuer au fond sur la garde ou l’autorité parentale, cette dernière relevant d’une procédure en principe étrangère à l’objet de la Convention de La Haye (articles 16, 17 et 19 – paragraphe 35 ci-dessus)."
+  },
+  {
+   "id": "p101",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "101.  Partant, dans le cadre d’une demande de retour faite en application de la Convention de La Haye, qui est donc distincte d’une procédure sur le droit de garde, la notion d’intérêt supérieur de l’enfant doit s’apprécier à la lumière des exceptions prévues par la Convention de La Haye, lesquelles concernent l’écoulement du temps (article 12), les conditions d’application de la Convention (article 13 a)) et l’existence d’un « risque grave » (article 13 b)), ainsi que le respect des principes fondamentaux de l’État requis sur la sauvegarde des droits de l’homme et des libertés fondamentales (article 20). Cette tâche revient en premier lieu aux autorités nationales requises, qui ont notamment le bénéfice de contacts directs avec les intéressés. Pour ce faire au regard de l’article 8 de la Convention, les juridictions internes jouissent d’une marge d’appréciation, laquelle s’accompagne toutefois d’un contrôle européen en vertu duquel la Cour examine, sous l’angle de la Convention, les décisions qu’elles ont rendues dans l’exercice de ce pouvoir (voir, mutatis mutandis, Hokkanen c. Finlande, 23 septembre 1994, § 55, série A no 299-A, ainsi que Maumousseau et Washington, précité, § 62, et Neulinger et Shuruk, précité, § 141)."
+  },
+  {
+   "id": "p102",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "102.  Précisément, dans le cadre de cet examen, la Cour rappelle qu’elle n’entend pas substituer son appréciation à celle des juridictions internes (voir, par exemple, Hokkanen, précité, et K. et T. c. Finlande [GC], no 25702/94, § 154, CEDH 2001-VII). Elle doit cependant s’assurer que le processus décisionnel ayant conduit les juridictions nationales à prendre la mesure litigieuse a été équitable et qu’il a permis aux intéressés de faire valoir pleinement leurs droits, et ce dans le respect de l’intérêt supérieur de l’enfant (Eskinazi et Chelouche c. Turquie (déc.), no 14600/05, CEDH 2005XIII, Maumousseau et Washington, précité, et Neulinger et Shuruk, précité, § 139)."
+  },
+  {
+   "id": "p103",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "103.  À ce titre, le Gouvernement estime notamment que la prise en compte de l’ensemble de la situation familiale doit différer selon les circonstances propres à chaque affaire (paragraphe 75 ci-dessus). Quant aux tiers intervenants, soit ils estiment que l’exigence d’un « examen approfondi de l’ensemble de la situation familiale » (Neulinger et Shuruk, précité) est en contradiction avec la Convention de La Haye (paragraphes 84 et 88 cidessus), soit ils demandent à la Cour de clarifier cette question (paragraphe 91 ci-dessus) et de fixer des limites à l’examen de la situation familiale par le juge saisi d’une demande de retour (paragraphe 89 cidessus)."
+  },
+  {
+   "id": "p104",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "104.  Sur ce point, la Cour observe que l’arrêt rendu par la Grande Chambre dans l’affaire Neulinger et Shuruk (précité, § 139), auquel se réfèrent certains arrêts ultérieurs (voir, parmi d’autres, Raban c. Roumanie, no 25437/08, § 28, 26 octobre 2010, Šneersone et Kampanella, précité, § 85, et, plus récemment, M.R. et L.R. c. Estonie, décision précitée, § 37) pouvait et a effectivement été lu comme suggérant que les juridictions nationales devaient se livrer à un examen approfondi de l’ensemble de la situation familiale et de toute une série d’éléments. Une telle formule avait déjà été utilisée par une chambre dans l’affaire Maumousseau et Washington (précitée, § 74), un tel examen approfondi ayant, en fait, été effectué par les juridictions internes."
+  },
+  {
+   "id": "p105",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "105.  Dans ce contexte, la Cour estime opportun de clarifier le fait que son constat au paragraphe 139 de l’arrêt Neulinger et Shuruk ne pose donc en soi aucun principe pour l’application de la Convention de La Haye par les juges nationaux."
+  }
+ ],
+ "glossary": {
+  "marge d'appréciation": "margin of appreciation",
+  "la grande chambre": "the Grand Chamber"
+ },
+ "examples": [
+  {
+   "fr": "190.  À l’instar de certains tiers intervenants (paragraphes 101104, 116 cidessus, in fine), la Cour constate que la prise de position du requérant s’inscrivait manifestement dans le cadre d’un débat sur des questions d’intérêt général, concernant les réformes législatives du système judiciaire (voir, mutatis mutandis, Żurek, précité, § 224, Kozan, précité, § 64, Miroslava Todorova, précité, § 175, Kövesi, précité, § 207, et Baka, précité, § 171), questions qui avaient également donné lieu à des débats devant la Commission de Venise (paragraphe 62 ci-dessus) et la Commission européenne (paragraphes 7172 cidessus). Ce contexte n’a pas été pris en compte par les juridictions nationales dans leur appréciation du second message du requérant, qui n’a donc pas fait l’objet de l’examen rigoureux qu’imposaient les circonstances en l’espèce.",
+   "en": "190.  Like some of the third-party interveners (see paragraphs 101-104 and 116 in fine above), the Court notes that the applicant’s remarks clearly fell within the context of a debate on matters of public interest, concerning legislative reforms of the justice system (see, mutatis mutandis, Żurek, cited above, § 224; Kozan, cited above, § 64; Miroslava Todorova, cited above, § 175; Kövesi, cited above, § 207; and Baka, cited above, § 171). Those matters had also attracted the attention of the Venice Commission (see paragraph 62 above) and the European Commission (see paragraphs 71-72 above). The domestic judicial authorities did not take the context into account in their assessment of the applicant’s second message. That message was not, therefore, given the careful consideration required by the circumstances of the case."
+  },
+  {
+   "fr": "74.  L'article 12 de la Charte des droits fondamentaux de l'Union européenne, proclamée à Nice le 7 décembre 2000 (2000/C 364/01) (paragraphe 37 ci-dessus), est consacré à la liberté de réunion et d'association. Les dispositions susmentionnées de la Charte communautaire des droits sociaux fondamentaux des travailleurs sont évidemment importantes dans l'appréciation de la portée de l'article 12. L'on rappellera à cet égard que selon l'article 53 de la Charte de Nice aucune disposition de celle-ci ne doit être interprétée comme limitant ou portant atteinte aux droits de l'homme et libertés fondamentales reconnus, dans leur champ d'application respectif, par le droit de l'Union, le droit international et les conventions internationales auxquelles sont parties l'Union, la Communauté ou tous les Etats membres, et notamment la Convention de sauvegarde des droits de l'homme et des libertés fondamentales, ainsi que par les constitutions des Etats membres.",
+   "en": "74.  Article 12 of the Charter of Fundamental Rights of the European Union, proclaimed in Nice on 7 December 2000 (2000/C 364/01) (see paragraph 37 above), is devoted to freedom of assembly and association. The above-mentioned provisions of the Community Charter of the Fundamental Social Rights of Workers are of obvious relevance for the interpretation of the scope of Article 12. It should be noted in this connection that Article 53 of the Nice Charter states that nothing therein shall be interpreted as restricting or adversely affecting human rights and fundamental freedoms as recognised, in their respective fields of application, by European Union law and international law and by international agreements to which the European Union, the Community, or all the member States are party, including the Convention for the Protection of Human Rights and Fundamental Freedoms, and by the member States' constitutions."
+  },
+  {
+   "fr": "80.  Par ailleurs, le Gouvernement estime que le projet de système multijuridique, qui n’a jamais été abandonné par le Refah, est en nette contradiction avec le principe de non-discrimination, lequel est garanti par la Convention et fait partie des principes fondamentaux de la démocratie.",
+   "en": "80.  Moreover, the plan to introduce a plurality of legal systems, which had never been abandoned by Refah, was clearly incompatible with the principle of non-discrimination, which was enshrined in the Convention and was one of the fundamental principles of democracy."
+  }
+ ]
+}

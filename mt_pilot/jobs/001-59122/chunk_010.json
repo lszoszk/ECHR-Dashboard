@@ -1,0 +1,102 @@
+{
+ "case": {
+  "id": "001-59122",
+  "en_id": "001-59122",
+  "source_id": "001-63689",
+  "title": "CASE OF LUNARI v. ITALY"
+ },
+ "chunk": 10,
+ "context_before": "57.  Selon les informations dont dispose la Cour, le taux d’intérêt légal applicable en Italie à la date d’adoption du présent arrêt était de 2,5 % l’an.",
+ "rows": [
+  {
+   "id": "r0098",
+   "section": "Operative part",
+   "role": "heading",
+   "para_no": null,
+   "fr": "PAR CES MOTIFS, LA COUR, À L’UNANIMITÉ,"
+  },
+  {
+   "id": "r0099",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "1.  Dit qu’il y a eu violation de l’article 1 du Protocole n° 1 à la Convention ;"
+  },
+  {
+   "id": "r0100",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "2.  Dit qu’il y a eu violation de l’article 6 § 1 de la Convention ;"
+  },
+  {
+   "id": "r0101",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "3.  Dit"
+  },
+  {
+   "id": "r0102",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "a)  que l’Etat défendeur doit verser au requérant, dans les trois mois à compter du jour où l’arrêt sera devenu définitif conformément à l’article 44 § 2 de la Convention :"
+  },
+  {
+   "id": "r0103",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "-  330 000 (trois cent trente mille) lires italiennes pour préjudice matériel ;"
+  },
+  {
+   "id": "r0104",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "-  15 000 000 (quinze millions) lires italiennes pour dommage moral,"
+  },
+  {
+   "id": "r0105",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "-  5 800 000 (cinq millions huit cent mille) lires italiennes pour frais et dépens ;"
+  },
+  {
+   "id": "r0106",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "b)  que ces montants seront à majorer d’un intérêt simple de 2,5 % l’an à compter de l’expiration dudit délai et jusqu’au versement ;"
+  },
+  {
+   "id": "r0107",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "4.  Rejette la demande de satisfaction équitable pour le surplus."
+  }
+ ],
+ "glossary": {
+  "requérant": "applicant",
+  "dommage moral": "non-pecuniary damage",
+  "frais et dépens": "costs and expenses",
+  "satisfaction équitable": "just satisfaction"
+ },
+ "examples": [
+  {
+   "fr": "10.  Dit, à l'unanimité, que ces montants seront à majorer d'un intérêt simple de 13,85 % l'an à compter de l'expiration dudit délai et jusqu'au versement ;",
+   "en": "9.  Holds unanimously that the respondent State is to pay within three months to both applicants, for costs and expenses, the global sum of BGN 10,000 (ten thousand levs) plus any value-added tax that may be chargeable, less FRF 18,655.87 (eighteen thousand six hundred and fifty-five French francs eighty-seven centimes) received by them by way of legal aid, to be converted into levs at the rate applicable on the date of settlement;"
+  },
+  {
+   "fr": "4.  Dit, à l’unanimité, que les constats de violation fournissent en soi une satisfaction équitable suffisante pour tout dommage moral subi par les requérants ;",
+   "en": "3.  Holds, by sixteen votes to one, that there has been a violation of Article 14 of the Convention taken in conjunction with Article 9;"
+  },
+  {
+   "fr": "3.  Dit, à l'unanimité, que le constat d'une violation fournit en soi une satisfaction équitable suffisante pour le dommage moral subi par les requérants ;",
+   "en": "FOR THESE REASONS, THE COURT"
+  }
+ ]
+}

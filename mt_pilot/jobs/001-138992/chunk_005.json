@@ -1,0 +1,102 @@
+{
+ "case": {
+  "id": "001-138992",
+  "en_id": "001-138992",
+  "source_id": "001-138939",
+  "title": "CASE OF X v. LATVIA"
+ },
+ "chunk": 5,
+ "context_before": "47.  S’il estime que l’enfant a été illicitement déplacé ou détenu en Lettonie et si l’une des conditions ci-dessous est satisfaite, le juge peut rendre une décision refusant d’autoriser le retour de l’enfant dans son pays de résidence :",
+ "rows": [
+  {
+   "id": "p48",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "48.  Les paragraphes ci-dessus s’appliquent pour autant qu’ils respectent la Convention de La Haye et le Règlement (CE) no 2201/2003 du Conseil de l’Union européenne."
+  },
+  {
+   "id": "p49",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "49.  L’article 61B de cette loi définit la responsabilité parentale par « l’ensemble des devoirs, pouvoirs et responsabilités et toute l’autorité que, en vertu de la loi, les parents ont à l’égard de leurs enfants »."
+  },
+  {
+   "id": "p50",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "50.  L’article 61C prévoit que chacun des parents d’un enfant mineur a la responsabilité parentale de ce dernier, sous réserve des décisions de justice."
+  },
+  {
+   "id": "p51",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "51.  L’article 111B(4) prévoit ce qui suit :"
+  },
+  {
+   "id": "p52",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "52.  Devant la Grande Chambre, la requérante dit avoir été victime, en raison de la décision des juridictions lettones d’ordonner le retour de sa fille en Australie, d’une atteinte à son droit au respect de sa vie familiale au sens de l’article 8 de la Convention, dont les dispositions se lisent comme suit :"
+  },
+  {
+   "id": "p53",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "53.  La Grande Chambre note que, devant elle, le Gouvernement a expressément indiqué ne pas contester que les décisions des juridictions lettones ordonnant à la requérante de renvoyer E. en Australie s’analysent en une ingérence dans son droit au respect de sa vie familiale protégé par l’article 8 de la Convention."
+  },
+  {
+   "id": "p54",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "54.  L’ingérence dans le droit au respect de la vie privée et familiale de la requérante constatée ci-dessus enfreint l’article 8 sauf si elle satisfait aux exigences du paragraphe 2 de cette disposition. Il reste donc à déterminer si elle était « prévue par la loi », inspirée par un ou plusieurs des buts légitimes énoncés dans ce paragraphe et « nécessaire, dans une société démocratique », pour les atteindre."
+  },
+  {
+   "id": "p55",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "55.  La chambre a jugé que les règles découlant du droit interne et de la Convention de La Haye indiquaient suffisamment clairement que, pour déterminer si le déplacement était illicite ou non au sens de l’article 3 de la Convention de La Haye, les tribunaux lettons devaient rechercher si ce déplacement s’était déroulé en violation du droit de garde tel qu’attribué en application du droit australien, l’Australie étant l’État dans lequel l’enfant avait sa résidence habituelle immédiatement avant son déplacement. Tout en relevant que les autorités australiennes avaient statué sur la responsabilité parentale de T. postérieurement au déplacement de l’enfant, elle nota qu’il avait été seulement confirmé, et non établi, que la requérante et T. avaient la responsabilité parentale conjointe de l’enfant depuis sa naissance par l’effet de la loi australienne sur le droit de la famille. La chambre a en outre constaté que la requérante n’avait pas été empêchée de participer, en Australie, à la procédure à l’issue de laquelle cette décision avait été adoptée ni d’interjeter appel et, de plus, qu’elle n’avait pas contesté devant les tribunaux nationaux les éléments avancés pour prouver que T. est le père de l’enfant. La chambre a présumé que la décision rendue le 19 novembre 2008 par le tribunal letton ordonnant le retour de l’enfant en Australie, devenue exécutoire le 26 janvier 2009, était prévue par la loi au sens de l’article 8 de la Convention."
+  },
+  {
+   "id": "p56",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "56.  Devant la chambre, la requérante a soutenu que le juge national n’était pas fondé à appliquer les dispositions de la Convention de La Haye, dès lors qu’elle élevait seule sa fille au moment de son départ pour la Lettonie. Elle ne s’est pas exprimée sur ce point devant la Grande Chambre."
+  },
+  {
+   "id": "p57",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "57.  Le Gouvernement estime que l’ingérence était incontestablement « prévue par la loi », dès lors qu’elle se fondait sur la Convention de La Haye sur les aspects civils de l’enlèvement international d’enfants."
+  }
+ ],
+ "glossary": {
+  "requérant": "applicant",
+  "requérante": "applicant",
+  "ingérence": "interference",
+  "la grande chambre": "the Grand Chamber"
+ },
+ "examples": [
+  {
+   "fr": "72.  Les juridictions australiennes ont toujours eu une position stricte en ce qui concerne la non-admissibilité des déclarations faites hors prétoire (voir, par exemple, Bannon v. The Queen [(1995) 185 CLR 1]).",
+   "en": "72.  A strict approach to the exclusion of out-of-court statements has always been taken by the Australian courts (see, for example, Bannon v. The Queen (1995) 185 CLR 1)."
+  },
+  {
+   "fr": "51.  A la lumière de ces principes relatifs à l'étendue du contrôle de la Cour, il n'appartient pas à cette dernière de se prononcer sur la responsabilité pénale individuelle des requérants, cette appréciation incombant en premier lieu aux juridictions internes, mais d'examiner sous l'angle de l'article 7 § 1 de la Convention si, au moment où elles ont été commises, les actions des requérants constituaient des infractions définies avec suffisamment d'accessibilité et de prévisibilité par le droit de la RDA ou le droit international.",
+   "en": "51.  In the light of the above principles concerning the scope of its supervision, the Court observes that it is not its task to rule on the applicants’ individual criminal responsibility, that being primarily a matter for the assessment of the domestic courts, but to consider, from the standpoint of Article 7 § 1 of the Convention, whether the applicants’ acts, at the time when they were committed, constituted offences defined with sufficient accessibility and foreseeability by the law of the GDR or international law."
+  },
+  {
+   "fr": "46.  A la lumière de ces principes relatifs à l’étendue du contrôle de la Cour, il n’appartient pas à la Cour de se prononcer sur la responsabilité pénale individuelle du requérant, cette appréciation incombant en premier lieu aux juridictions internes, mais d’examiner sous l’angle de l’article 7 § 1 de la Convention si, au moment où elle a été commise, l’action du requérant constituait une infraction définie avec suffisamment d’accessibilité et de prévisibilité par le droit de la RDA ou le droit international.",
+   "en": "46.  In the light of the above principles concerning the scope of its supervision, the Court observes that it is not its task to determine whether the applicant as an individual was guilty, that being primarily a matter for the assessment of the domestic courts, but to consider, from the standpoint of Article 7 § 1 of the Convention, whether his act, at the time when it was committed, constituted an offence defined with sufficient accessibility and foreseeability by the law of the GDR or international law."
+  }
+ ]
+}

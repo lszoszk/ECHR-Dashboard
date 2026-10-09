@@ -1,0 +1,100 @@
+{
+ "case": {
+  "id": "001-60745",
+  "en_id": "001-60745",
+  "source_id": "001-65300",
+  "title": "CASE OF ÖZEL v. TURKEY"
+ },
+ "chunk": 4,
+ "context_before": "Les cours de sûreté de l’Etat se composent d’un président, de deux membres titulaires, de deux membres suppléants, d’un procureur et d’un nombre suffisant de substituts.",
+ "rows": [
+  {
+   "id": "r0040",
+   "section": "Facts",
+   "role": "quote",
+   "para_no": null,
+   "fr": "Le président, un membre titulaire, un membre suppléant et le procureur sont choisis, selon des procédures définies par des lois spéciales, parmi les juges et les procureurs de la République de premier rang, un titulaire et un suppléant parmi les juges militaires de premier rang, et les substituts parmi les procureurs de la République et les juges militaires."
+  },
+  {
+   "id": "r0041",
+   "section": "Facts",
+   "role": "quote",
+   "para_no": null,
+   "fr": "Les présidents et les membres titulaires et suppléants (...) des cours de sûreté de l’Etat sont nommés pour une durée de quatre ans renouvelable."
+  },
+  {
+   "id": "r0042",
+   "section": "Facts",
+   "role": "quote",
+   "para_no": null,
+   "fr": "La Cour de cassation connaît des appels formés contre les arrêts rendus par les cours de sûreté de l’Etat (...) »"
+  },
+  {
+   "id": "r0043",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 21,
+   "fr": "21.  La loi no 4388 du 18 juin 1999 relative à l’instauration des cours de sûreté de l’Etat a modifié l’article 143 de la Constitution, ainsi libellé :"
+  },
+  {
+   "id": "r0044",
+   "section": "Facts",
+   "role": "quote",
+   "para_no": null,
+   "fr": "« (...) Les cours de sûreté de l’Etat se composent d’un président, de deux membres titulaires, d’un membre suppléant, d’un procureur général de la République et d’un nombre suffisant de procureurs de la République."
+  },
+  {
+   "id": "r0045",
+   "section": "Facts",
+   "role": "quote",
+   "para_no": null,
+   "fr": "Le président, deux membres titulaires, un membre suppléant et le procureur général de la République sont nommés parmi les juges et les procureurs de premier rang, les procureurs de la République parmi les procureurs d’autres rangs, pour quatre ans, par le Haut Conseil des juges et des procureurs, selon la procédure définie dans la loi spéciale. Leur mandat est renouvelable (...) »"
+  },
+  {
+   "id": "r0046",
+   "section": "Merits",
+   "role": "heading",
+   "para_no": null,
+   "fr": "EN DROIT"
+  },
+  {
+   "id": "r0047",
+   "section": "Merits",
+   "role": "heading",
+   "para_no": null,
+   "fr": "I.  SUR LA VIOLATION ALLÉGUÉE DE L’ARTICLE 6 DE LA CONVENTION"
+  },
+  {
+   "id": "r0048",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": 22,
+   "fr": "22.  Le requérant allègue que la cour de sûreté de l’Etat qui l’a jugé et condamné ne constitue pas un « tribunal impartial et indépendant » qui eût pu lui garantir un procès équitable en raison, d’une part, de la présence d’un juge militaire en son sein et d’autre part, du fait de l’absence d’un avocat pendant sa garde à vue. Il y voit une violation de l’article 6 §§ 1 et 3 c) de la Convention qui, en ses parties pertinentes, se lit ainsi :"
+  },
+  {
+   "id": "r0049",
+   "section": "Merits",
+   "role": "quote",
+   "para_no": null,
+   "fr": "« Toute personne a droit à ce que sa cause soit entendue équitablement, publiquement (...) par un tribunal indépendant et impartial (...) qui décidera (...) du bien-fondé de toute accusation en matière pénale dirigée contre elle (...) »."
+  }
+ ],
+ "glossary": {
+  "requérant": "applicant",
+  "Cour de cassation": "Court of Cassation"
+ },
+ "examples": [
+  {
+   "fr": "52.  Selon l’article 143 de la Constitution, dans sa version d’avant la modification constitutionnelle du 18 juin 1999, les cours de sûreté de l’Etat étaient alors composées d’un président, de deux membres titulaires et de deux membres suppléants. Le président, un membre titulaire et un membre suppléant étaient nommés parmi les juges civils, un membre titulaire et un membre suppléant parmi les juges militaires.",
+   "en": "52.  Before the Constitution was amended on 18 June 1999, Article 143 provided that national security courts were to be composed of a president, two other full members and two substitute members. The president of the national security court, one of the full members and one of the substitute members were to be civilian judges, and the other full member and substitute member were to be military judges."
+  },
+  {
+   "fr": "97.  Elle indiquait également que les juges expérimentés étaient les appréciateurs directs des juges qui travaillaient avec eux et que les procureurs étaient les appréciateurs directs de leurs adjoints et substituts.",
+   "en": "97.  It also indicated that the experienced judges were the direct appraisers of the judges who were working with them, and that the prosecutors were the direct appraisers of their deputies and substitutes."
+  },
+  {
+   "fr": "104.  Le 22 avril 2012, l’article 12 de la loi no 357 fut modifié de façon à mettre en conformité avec la Constitution l’appréciation des procureurs militaires.",
+   "en": "104.  On 22 April 2012 section 12 of Law no. 357 was amended to bring the appraisal of military prosecutors into line with the Constitution."
+  }
+ ]
+}

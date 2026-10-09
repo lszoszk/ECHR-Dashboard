@@ -1,0 +1,992 @@
+[
+ {
+  "id": "r0000",
+  "section": "Header",
+  "role": "heading",
+  "para_no": null,
+  "fr": "DEUXIÈME SECTION",
+  "en": "SECOND SECTION",
+  "flags": []
+ },
+ {
+  "id": "r0001",
+  "section": "Header",
+  "role": "heading",
+  "para_no": null,
+  "fr": "AFFAIRE LUNARI c. ITALIE",
+  "en": "CASE OF LUNARI v. ITALY",
+  "flags": []
+ },
+ {
+  "id": "r0002",
+  "section": "Header",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "(Requête n° 21463/93)",
+  "en": "(Application no. 21463/93)",
+  "flags": []
+ },
+ {
+  "id": "r0003",
+  "section": "Header",
+  "role": "heading",
+  "para_no": null,
+  "fr": "ARRÊT",
+  "en": "JUDGMENT",
+  "flags": []
+ },
+ {
+  "id": "r0004",
+  "section": "Header",
+  "role": "heading",
+  "para_no": null,
+  "fr": "STRASBOURG",
+  "en": "STRASBOURG",
+  "flags": []
+ },
+ {
+  "id": "r0005",
+  "section": "Header",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "11 janvier 2001",
+  "en": "11 January 2001",
+  "flags": []
+ },
+ {
+  "id": "r0006",
+  "section": "Header",
+  "role": "heading",
+  "para_no": null,
+  "fr": "DÉFINITIF",
+  "en": "FINAL",
+  "flags": []
+ },
+ {
+  "id": "r0007",
+  "section": "Header",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "11/04/2001",
+  "en": "11/04/2001",
+  "flags": []
+ },
+ {
+  "id": "r0008",
+  "section": "Header",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "Cet arrêt deviendra définitif dans les conditions définies à l’article 44 § 2 de la Convention. Il peut subir des retouches de forme avant la parution de sa version définitive.",
+  "en": "This judgment will become final in the circumstances set out in Article 44 § 2 of the Convention. It may be subject to editorial revision.",
+  "flags": []
+ },
+ {
+  "id": "r0009",
+  "section": "Header",
+  "role": "metadata",
+  "para_no": null,
+  "fr": "En l’affaire Lunari c. Italie,",
+  "en": "In the case of Lunari v. Italy,",
+  "flags": []
+ },
+ {
+  "id": "r0010",
+  "section": "Header",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "La Cour européenne des Droits de l’Homme (deuxième section), siégeant en une chambre composée de :",
+  "en": "The European Court of Human Rights (Second Section), sitting as a Chamber composed of:",
+  "flags": []
+ },
+ {
+  "id": "r0011",
+  "section": "Header",
+  "role": "metadata",
+  "para_no": null,
+  "fr": "MM.\tC.L. Rozakis, président,\n\t\tG. Bonello,\n\tMme\tV. Stráznická,\n\tM.\tP. Lorenzen,\n\t\tM. Fischbach,\n\tMme\tM. Tsatsa-Nikolovska,\n\tM.\tE. Levits, juges,\net de M. E. Fribergh, greffier de section,",
+  "en": "Mr\tC.L. Rozakis, President,\n\t\tG. Bonello,\n\tMrs\tV. Stráznická,\n\tMr\tP. Lorenzen,\n\t\tM. Fischbach,\n\tMrs\tM. Tsatsa-Nikolovska,\n\tMr\tE. Levits, judges,\nand Mr E. Fribergh, Section Registrar,",
+  "flags": []
+ },
+ {
+  "id": "r0012",
+  "section": "Header",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "Après en avoir délibéré en chambre du conseil le 14 décembre 2000,",
+  "en": "Having deliberated in private on 14 December 2000,",
+  "flags": []
+ },
+ {
+  "id": "r0013",
+  "section": "Header",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "Rend l’arrêt que voici, adopté à cette date :",
+  "en": "Delivers the following judgment, which was adopted on that date:",
+  "flags": []
+ },
+ {
+  "id": "r0014",
+  "section": "Facts",
+  "role": "heading",
+  "para_no": null,
+  "fr": "PROCÉDURE",
+  "en": "PROCEDURE",
+  "flags": []
+ },
+ {
+  "id": "r0015",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 1,
+  "fr": "1.  A l’origine de l’affaire se trouve une requête (n° 21463/92) dirigée contre l’Italie et dont un ressortissant de cet Etat, M. Fulvio Lunari (« le requérant »), avait saisi la Commission européenne des Droits de l’Homme (« la Commission ») le 10 février 1993 en vertu de l’ancien article 25 de la Convention de sauvegarde des Droits de l’Homme et des Libertés fondamentales (« la Convention »).",
+  "en": "1.  The case originated in an application (no. 21463/92) against Italy lodged with the European Commission of Human Rights (“the Commission”) under former Article 25 of the Convention for the Protection of Human Rights and Fundamental Freedoms (“the Convention”) by an Italian national, Mr Fulvio Lunari (“the applicant”), on 10 February 1993.",
+  "flags": []
+ },
+ {
+  "id": "r0016",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 2,
+  "fr": "2.  Le gouvernement italien (« le Gouvernement ») a été représenté d’abord par son agent, M. Luigi Ferrari Bravo, puis par son agent, M. Umberto Leanza et son co-agent, M. Vitaliano Esposito.",
+  "en": "2.  The Italian Government (“the Government”) were represented initially by their Agent, Mr Luigi Ferrari Bravo, and subsequently by their Agent, Mr Umberto Leanza, and their co-Agent, Mr Vitaliano Esposito.",
+  "flags": []
+ },
+ {
+  "id": "r0017",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 3,
+  "fr": "3.  Le requérant alléguait en particulier que l’impossibilité prolongée d’exécuter l’ordonnance d’expulsion de locataire, faute d’octroi de l’assistance de la force publique, constitue une violation des articles 1 du Protocole n° 1 et 6 § 1 de la Convention.",
+  "en": "3.  The applicant alleged, in particular, that his prolonged inability to enforce the order for possession against his tenant, owing to the failure to provide police assistance, constituted a violation of Article 1 of Protocol No. 1 and of Article 6 § 1 of the Convention.",
+  "flags": []
+ },
+ {
+  "id": "r0018",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 4,
+  "fr": "4.  Le 5 avril 1993, la Commission (Première Chambre) a décidé de porter la requête à la connaissance du gouvernement défendeur et de l'inviter à présenter ses observations sur sa recevabilité et son bien-fondé. Le Gouvernement a présenté ses observations le 29 juin 1993. Le requérant y a répondu les 27 juillet et 9 novembre 1993 et le 17 février 1994.",
+  "en": "4.  On 5 April 1993 the Commission (First Chamber) decided to give notice of the application to the respondent Government and to invite them to submit their observations on its admissibility and merits. The Government submitted their observations on 29 June 1993. The applicant replied on 27 July and 9 November 1993 and on 17 February 1994.",
+  "flags": []
+ },
+ {
+  "id": "r0019",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 5,
+  "fr": "5.  Par la suite, la Commission a décidé de suspendre l'examen de la requête en attendant que la Cour se prononce dans les affaires Scollo et Spadea et Scalabrino. Les arrêts ayant été rendus le 28 septembre 1995, le 12 mars 1996 les parties ont été invitées à présenter leurs observations complémentaires, ce que le Gouvernement fit en date du 3 avril 1996 et le requérant le 14 mai 1996.",
+  "en": "5.  Subsequently, the Commission decided to adjourn its examination of the application pending the Court’s rulings in the Scollo and Spadea and Scalabrino cases. Those judgments having been delivered on 28 September 1995, the parties were invited on 12 March 1996 to submit additional observations, which the Government did on 3 April 1996 and the applicant on 14 May 1996.",
+  "flags": []
+ },
+ {
+  "id": "r0020",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 6,
+  "fr": "6.  Le 16 octobre 1996, la Commission a déclaré le requête recevable.",
+  "en": "6.  On 16 October 1996 the Commission declared the application admissible.",
+  "flags": []
+ },
+ {
+  "id": "r0021",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 7,
+  "fr": "7.  Le 28 mai 1997, la Commission a décidé de suspendre l’examen de l’affaire en attendant de se prononcer sur l’affaire Immobiliare Saffi c. Italie. Le 27 mai 1998, la Commission a repris l’examen de l’affaire et a invité les parties à présenter des observations complémentaires. Le requérant et le Gouvernement ont présenté leurs observations les 16 et 19 juin 1998 respectivement.",
+  "en": "7.  On 28 May 1997 the Commission decided to adjourn its examination of the case pending its decision in Immobiliare Saffi v. Italy. On 27 May 1998 the Commission resumed its examination of the case and invited the parties to submit additional observations. The applicant and the Government submitted their observations on 16 and 19 June 1998 respectively.",
+  "flags": []
+ },
+ {
+  "id": "r0022",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 8,
+  "fr": "8.  La Commission, faute d’avoir pu terminer l’examen de la requête avant le 1er novembre 1999, l’a déférée à la Cour à cette date, conformément à l’article 5 § 3, seconde phrase, du Protocole n° 11 à la Convention.",
+  "en": "8.  As the Commission had not completed its examination of the application by 1 November 1999, it referred it to the Court on that date in accordance with Article 5 § 3, second sentence, of Protocol No. 11 to the Convention.",
+  "flags": []
+ },
+ {
+  "id": "r0023",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 9,
+  "fr": "9.  La requête a été attribuée à la deuxième section de la Cour (article 52 § 1 du règlement). Au sein de celle-ci, la chambre chargée d’examiner l’affaire (article 27 § 1 de la Convention) a été constituée conformément à l’article 26 § 1 du règlement. A la suite du déport de M. Conforti, juge élu au titre de l'Italie (article 28), le Gouvernement a renoncé à son droit de désigner un juge ad hoc pour siéger à sa place (articles 27 § 2 de la Convention et 29 § 2 du règlement).",
+  "en": "9.  The application was allocated to the Second Section of the Court (Rule 52 § 1 of the Rules of Court). Within that Section, the Chamber that would consider the case (Article 27 § 1 of the Convention) was constituted as provided in Rule 26 § 1. Following the withdrawal of Mr Conforti, the judge elected in respect of Italy (Rule 28), the Government waived their right to appoint an ad hoc judge to sit in his place (Article 27 § 2 of the Convention and Rule 29 § 2).",
+  "flags": []
+ },
+ {
+  "id": "r0024",
+  "section": "Facts",
+  "role": "heading",
+  "para_no": null,
+  "fr": "EN FAIT",
+  "en": "THE FACTS",
+  "flags": []
+ },
+ {
+  "id": "r0025",
+  "section": "Facts",
+  "role": "heading",
+  "para_no": null,
+  "fr": "I.  LES CIRCONSTANCES DE L’ESPÈCE",
+  "en": "I.  THE CIRCUMSTANCES OF THE CASE",
+  "flags": []
+ },
+ {
+  "id": "r0026",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 10,
+  "fr": "10.  Le requérant est propriétaire d'un appartement sis à Pescara, qu'il avait loué à W.A. à partir du 6 juillet 1983. Le 30 mai 1987, l'épouse du locataire, L.C., informa le requérant que, suite à leur séparation de corps, elle avait succédé à son mari dans le bail. Elle avait un enfant à sa charge et disposait d’un revenu mensuel de 577 000 lires italiennes (ITL).",
+  "en": "10.  The applicant is the owner of an apartment in Pescara, which he had let to W.A. from 6 July 1983. On 30 May 1987 the tenant’s wife, L.C., informed the applicant that, following their judicial separation, she had succeeded her husband as the tenant under the lease. She had a dependent child and a monthly income of 577,000 Italian lire (ITL).",
+  "flags": []
+ },
+ {
+  "id": "r0027",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 11,
+  "fr": "11.  Par une lettre recommandée du 3 septembre 1987, le requérant demanda à L.C. de quitter l'appartement, le bail ayant échu le 30 juin 1987.",
+  "en": "11.  In a registered letter of 3 September 1987, the applicant asked L.C. to vacate the apartment, as the lease had expired on 30 June 1987.",
+  "flags": []
+ },
+ {
+  "id": "r0028",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 12,
+  "fr": "12.  Par un acte signifié le 24 septembre 1987, le requérant l’assigna à comparaître devant le juge d’instance de Pescara.",
+  "en": "12.  In a writ served on 24 September 1987, the applicant summoned her to appear before the Pescara magistrate (*juge d’instance*).",
+  "flags": []
+ },
+ {
+  "id": "r0029",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 13,
+  "fr": "13.  Par une ordonnance du 9 octobre 1987, qui devint exécutoire le 10 octobre 1987, ce dernier confirma formellement le congé du bail et décida que les lieux devaient être libérés au plus tard le 9 octobre 1988.",
+  "en": "13.  In an order of 9 October 1987, which became enforceable on 10 October 1987, the magistrate formally confirmed the notice to quit and ordered that the premises be vacated by 9 October 1988 at the latest.",
+  "flags": []
+ },
+ {
+  "id": "r0030",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 14,
+  "fr": "14.  Le 3 août 1989, le requérant signifia à la locataire le commandement de libérer l’appartement.",
+  "en": "14.  On 3 August 1989 the applicant served notice on the tenant requiring her to vacate the apartment.",
+  "flags": []
+ },
+ {
+  "id": "r0031",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 15,
+  "fr": "15.  Le 14 septembre 1989, il lui signifia l’avis que l’expulsion serait exécutée le 11 octobre 1989 par voie d’huissier de justice.",
+  "en": "15.  On 14 September 1989 he served notice on her informing her that the order for possession would be enforced by a bailiff on 11 October 1989.",
+  "flags": []
+ },
+ {
+  "id": "r0032",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 16,
+  "fr": "16.  A cette date, puis le 7 mai 1991, l’huissier de justice ne put expulser la locataire faute d’octroi de l’assistance de la force publique.",
+  "en": "16.  On that date, and again on 7 May 1991, the bailiff was unable to evict the tenant, as police assistance was not granted.",
+  "flags": []
+ },
+ {
+  "id": "r0033",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 17,
+  "fr": "17.  Le 14 décembre 1991, le requérant s'adressa au juge d'instance de Pescara, aux termes de l'article 2 du décret-loi n° 551/88 converti en la loi 61/89, afin que celui-ci constate le non-paiement de la part de la locataire des loyers ainsi que de sa quote-part des charges de la copropriété et déclare la suspension de l'exécution forcée de l'expulsion non applicable au cas d'espèce. Le 20 décembre 1991, la locataire se constitua dans la procédure et contesta les allégations du requérant. Une audience eut lieu devant le juge d'instance de Pescara le 2 mars 1993. Par une décision du 17 avril 1993, le juge fit droit à la demande du requérant et déclara que la suspension de l'exécution n'était pas applicable à son cas.",
+  "en": "17.  On 14 December 1991 the applicant applied to the Pescara magistrate (*juge d’instance*) under section 2 of Legislative Decree (*décret-loi*) no. 551/88, converted into Law no. 61/89, for a finding that the tenant had failed to pay the rent and her share of the service charges for the building, and for a declaration that the suspension of the enforcement of evictions did not apply in the present case. On 20 December 1991 the tenant joined the proceedings and contested the applicant’s allegations. A hearing was held before the Pescara magistrate on 2 March 1993. In a decision of 17 April 1993, the magistrate allowed the applicant’s application and declared that the suspension of enforcement did not apply to his case.",
+  "flags": []
+ },
+ {
+  "id": "r0034",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 18,
+  "fr": "18.  Entre-temps, entre le 11 mai 1991 et le 21 avril 1993, l’huissier de justice avait procédé à dix-neuf tentatives d’expulsion. Ces tentatives se soldèrent toutes par un échec, les requérants n’ayant pas obtenu le concours de la force publique dans l’exécution de l’expulsion, malgré les demandes qu’il avait adressées au préfet de police les 12 octobre et 12 décembre 1992.",
+  "en": "18.  In the meantime, between 11 May 1991 and 21 April 1993, the bailiff had made nineteen attempts to recover possession. Each attempt proved unsuccessful, as the applicant was not granted police assistance in enforcing the eviction, despite the requests he had made to the Prefect on 12 October and 12 December 1992.",
+  "flags": []
+ },
+ {
+  "id": "r0035",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 19,
+  "fr": "19.  Le 2 juillet 1993, lorsque l’huissier de justice se rendit sur les lieux, assisté de la force publique, la locataire libéra l’appartement.",
+  "en": "19.  On 2 July 1993, when the bailiff went to the premises with police assistance, the tenant vacated the apartment.",
+  "flags": []
+ },
+ {
+  "id": "r0036",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 20,
+  "fr": "20.  Entre-temps, le 6 novembre 1992, le juge d'instance de Pescara avait fait droit à la demande du syndic de la copropriété dont faisait partie l'appartement du requérant, d'enjoindre au requérant d'acquitter sa quote-part des charges de la copropriété, ainsi que celle due par la locataire (pour un total de 1 406 500 ITL soit environ 4 600 FF).",
+  "en": "20.  In the meantime, on 6 November 1992, the Pescara magistrate (*juge d’instance*) had granted an application by the managing agent of the building in which the applicant’s apartment was located for an order requiring the applicant to pay his share of the service charges, together with the share owed by the tenant (a total of ITL 1,406,500, approximately FRF 4,600).",
+  "flags": []
+ },
+ {
+  "id": "r0037",
+  "section": "Legal Framework",
+  "role": "heading",
+  "para_no": null,
+  "fr": "II.  LE DROIT INTERNE PERTINENT",
+  "en": "II.  RELEVANT DOMESTIC LAW",
+  "flags": []
+ },
+ {
+  "id": "r0038",
+  "section": "Legal Framework",
+  "role": "paragraph",
+  "para_no": 21,
+  "fr": "21.  Le décret-loi n° 551 du 30 décembre 1988, converti en la loi n° 61 du 21 février 1989 (« la loi n° 61/89 »), suspendit jusqu’au 30 avril 1989 l’exécution forcée des expulsions. L’article 2 dudit décret-loi prévoyait que l’exécution n’était pas suspendue dans le cas notamment où le locataire était en retard dans le paiement des loyers ou des charges de la copropriété correspondant au moins à deux loyers mensuels.",
+  "en": "21.  Legislative Decree (*décret-loi*) no. 551 of 30 December 1988, converted into Law no. 61 of 21 February 1989 (“Law no. 61/89”), suspended the enforcement of evictions until 30 April 1989. Section 2 of that decree provided that enforcement was not suspended where, in particular, the tenant was in arrears with the rent or the service charges for an amount corresponding to at least two months’ rent.",
+  "flags": []
+ },
+ {
+  "id": "r0039",
+  "section": "Legal Framework",
+  "role": "paragraph",
+  "para_no": 22,
+  "fr": "22.  Le restant du droit interne pertinent est décrit dans l’arrêt Immobiliare Saffi c. Italie [GC], n° 22774/93, §§ 18-35, CEDU 1999-V.",
+  "en": "22.  The remainder of the relevant domestic law is described in Immobiliare Saffi v. Italy [GC], no. 22774/93, §§ 18-35, ECHR 1999-V.",
+  "flags": []
+ },
+ {
+  "id": "r0040",
+  "section": "Merits",
+  "role": "heading",
+  "para_no": null,
+  "fr": "EN DROIT",
+  "en": "THE LAW",
+  "flags": []
+ },
+ {
+  "id": "r0041",
+  "section": "Merits",
+  "role": "heading",
+  "para_no": null,
+  "fr": "I.  SUR LA VIOLATION ALLÉGUÉE DE L’ARTICLE 1 du PROTOCOLE N° 1",
+  "en": "I.  ALLEGED VIOLATION OF ARTICLE 1 OF PROTOCOL No. 1",
+  "flags": []
+ },
+ {
+  "id": "r0042",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 23,
+  "fr": "23.  Le requérant se plaint que l’impossibilité prolongée de récupérer son appartement, faute d’octroi de l’assistance de la force publique, constitue une atteinte à son droit de propriété, tel que reconnu à l’article 1 du Protocole n° 1 à la Convention, qui dispose :",
+  "en": "23.  The applicant complained that his prolonged inability to recover possession of his apartment, owing to the failure to provide police assistance, had infringed his right to property as guaranteed by Article 1 of Protocol No. 1 to the Convention, which provides:",
+  "flags": []
+ },
+ {
+  "id": "r0043",
+  "section": "Merits",
+  "role": "quote",
+  "para_no": null,
+  "fr": "« Toute personne physique ou morale a droit au respect de ses biens. Nul ne peut être privé de sa propriété que pour cause d’utilité publique et dans les conditions prévues par la loi et les principes généraux du droit international.",
+  "en": "“Every natural or legal person is entitled to the peaceful enjoyment of his possessions. No one shall be deprived of his possessions except in the public interest and subject to the conditions provided for by law and by the general principles of international law.",
+  "flags": []
+ },
+ {
+  "id": "r0044",
+  "section": "Merits",
+  "role": "quote",
+  "para_no": null,
+  "fr": "Les dispositions précédentes ne portent pas atteinte au droit que possèdent les Etats de mettre en vigueur les lois qu’ils jugent nécessaires pour réglementer l’usage des biens conformément à l’intérêt général ou pour assurer le paiement des impôts ou d’autres contributions ou des amendes. »",
+  "en": "The preceding provisions shall not, however, in any way impair the right of a State to enforce such laws as it deems necessary to control the use of property in accordance with the general interest or to secure the payment of taxes or other contributions or penalties.”",
+  "flags": []
+ },
+ {
+  "id": "r0045",
+  "section": "Merits",
+  "role": "heading",
+  "para_no": null,
+  "fr": "A.  La règle applicable",
+  "en": "A.  The applicable rule",
+  "flags": []
+ },
+ {
+  "id": "r0046",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 24,
+  "fr": "24.  La Cour, s’appuyant sur sa jurisprudence, considère que l’interférence mise en cause par le requérant s’analyse en une mesure de réglementation de l’usage des biens au sens de l’article 1 du Protocole n° 1 (voir l’arrêt Immobiliare Saffi précité, § 46).",
+  "en": "24.  The Court, relying on its case-law, considers that the interference complained of by the applicant amounts to a control of the use of property within the meaning of Article 1 of Protocol No. 1 (see Immobiliare Saffi, cited above, § 46).",
+  "flags": []
+ },
+ {
+  "id": "r0047",
+  "section": "Merits",
+  "role": "heading",
+  "para_no": null,
+  "fr": "B.  Le respect des conditions du second alinéa",
+  "en": "B.  Compliance with the conditions laid down in the second paragraph",
+  "flags": []
+ },
+ {
+  "id": "r0048",
+  "section": "Merits",
+  "role": "heading",
+  "para_no": null,
+  "fr": "1.  But de l’ingérence",
+  "en": "1.  Aim of the interference",
+  "flags": []
+ },
+ {
+  "id": "r0049",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 25,
+  "fr": "25.  La Cour a déjà dit que la législation litigieuse poursuivait un but légitime conforme à l’intérêt général, comme le veut le second alinéa de l’article 1 (voir l’arrêt Immobiliare Saffi précité, § 48).",
+  "en": "25.  The Court has already held that the legislation in issue pursued a legitimate aim in the general interest, as required by the second paragraph of Article 1 (see Immobiliare Saffi, cited above, § 48).",
+  "flags": []
+ },
+ {
+  "id": "r0050",
+  "section": "Merits",
+  "role": "heading",
+  "para_no": null,
+  "fr": "2.  Proportionnalité de l’ingérence",
+  "en": "2.  Proportionality of the interference",
+  "flags": []
+ },
+ {
+  "id": "r0051",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 26,
+  "fr": "26.  La Cour rappelle qu’une mesure d’ingérence doit ménager un « juste équilibre » entre les impératifs de l’intérêt général et ceux de la sauvegarde des droits fondamentaux de l’individu. La recherche de pareil équilibre se reflète dans la structure de l’article 1 tout entier, donc aussi dans le second alinéa : il doit exister un rapport raisonnable de proportionnalité entre les moyens employés et le but visé. En contrôlant le respect de cette exigence, la Cour reconnaît à l’Etat une grande marge d’appréciation tant pour choisir les modalités de mise en œuvre que pour juger si leurs conséquences se trouvent légitimées, dans l’intérêt général, par le souci d’atteindre l’objectif de la loi en cause. S’agissant de domaines tels que celui du logement, qui occupe une place centrale dans les politiques sociales et économiques des sociétés modernes, la Cour respecte l’appréciation portée à cet égard par le législateur national, sauf si elle est manifestement dépourvue de base raisonnable (voir l’arrêt Immobiliare Saffi, précité, § 49).",
+  "en": "26.  The Court reiterates that an interference must strike a “fair balance” between the demands of the general interest of the community and the requirements of the protection of the individual’s fundamental rights. The concern to achieve this balance is reflected in the structure of Article 1 as a whole, including therefore the second paragraph thereof: there must be a reasonable relationship of proportionality between the means employed and the aim pursued. In determining whether this requirement is met, the Court recognises that the State enjoys a wide margin of appreciation with regard both to choosing the means of enforcement and to ascertaining whether the consequences of enforcement are justified in the general interest for the purpose of achieving the object of the law in question. In spheres such as housing, which plays a central role in the welfare and economic policies of modern societies, the Court will respect the legislature’s judgment in that regard unless that judgment is manifestly without reasonable foundation (see Immobiliare Saffi, cited above, § 49).",
+  "flags": []
+ },
+ {
+  "id": "r0052",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 27,
+  "fr": "27.  Le requérant conteste la légitimité du but des lois en cause. En substance, l'absence d'une politique efficace de l'Etat en manière de logement l'aurait privé de son droit de disposer de son appartement en privilégiant exclusivement l'intérêt du locataire. En particulier, le système prévoyant des exceptions à la suspension de l'exécution forcée des expulsions serait totalement inefficace. S'il est vrai qu'il existe en théorie la possibilité de demander au juge de l'exécution que la suspension de l'exécution forcée ne s'applique pas à une situation où le locataire est en retard dans le paiement des loyers, ce qui rendrait l'expulsion prioritaire, la nécessité en pratique d'entamer une procédure à cet effet, qui, dans son cas, a duré environ deux ans rendrait le système inopérant. De plus, le système législatif ne lui fournit aucun moyen de réagir en protégeant ses intérêts.",
+  "en": "27.  The applicant disputed the legitimacy of the aim of the laws in question. In substance, he submitted that the absence of an effective State housing policy had deprived him of his right to dispose of his apartment, by favouring exclusively the interests of the tenant. In particular, the system providing for exceptions to the suspension of the enforcement of evictions was wholly ineffective. While it was true that it was possible in theory to ask the enforcement judge (*juge de l’exécution*) to rule that the suspension of enforcement did not apply to a situation in which the tenant was in arrears with the rent, which would give the eviction priority, the need in practice to institute proceedings for that purpose, which in his case had lasted approximately two years, rendered the system inoperative. Furthermore, the legislative system afforded him no means of reacting so as to protect his interests.",
+  "flags": []
+ },
+ {
+  "id": "r0053",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 28,
+  "fr": "28.  Le Gouvernement fait valoir que les mesures législatives en cause poursuivaient une finalité d'intérêt général dans la protection des locataires, compte tenu de la situation de crise de logements touchant les centres urbains les plus importants et de la difficulté de reloger de manière adéquate les locataires aux ressources modestes tombant sous le coup d'une mesure d'expulsion ; dans le cas d'espèce, la locataire percevait un revenu très modeste (577 000 ITL, soit moins de deux mille francs par mois) et avait un enfant à sa charge.",
+  "en": "28.  The Government submitted that the legislative measures in question had pursued an aim in the general interest, namely the protection of tenants, in view of the housing crisis affecting the largest urban centres and the difficulty of adequately rehousing tenants of modest means who were facing eviction; in the present case, the tenant had a very modest income (ITL 577,000, that is, less than two thousand French francs per month) and had a dependent child.",
+  "flags": []
+ },
+ {
+  "id": "r0054",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 29,
+  "fr": "29.  Le Gouvernement fait ensuite observer que de nombreux contrats de bail venaient à échéance dans les années 1982-1983 ; l'exécution forcée simultanée de tous ces baux aurait provoqué de fortes tensions sociales. Les mesures en cause tendaient donc à protéger l'ordre public. Le Gouvernement observe ensuite que l'échelonnement de l'octroi de l'assistance de la force publique s'est avéré nécessaire vu l'impossibilité de garantir en même temps et à chacun une telle assistance.",
+  "en": "29.  The Government further observed that many leases had expired in the years 1982-1983; the simultaneous enforcement of all those leases would have caused serious social tension. The measures in question had therefore been intended to protect public order. The Government also observed that the staggering of the provision of police assistance had proved necessary in view of the impossibility of guaranteeing such assistance to everyone at the same time.",
+  "flags": []
+ },
+ {
+  "id": "r0055",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 30,
+  "fr": "30.  Le Gouvernement fait enfin observer que les dispositions d'urgence visant la suspension ou l'échelonnement des exécutions forcées prévoyaient des exceptions en vertu desquelles, notamment, les propriétaires pouvaient obtenir l'exécution des expulsions avec l'assistance de la force publique lorsque, comme dans le cas d'espèce, leur locataire était en retard dans le paiement des loyers ou des charges de copropriété pour un montant global équivalant à deux loyers. Le Gouvernement souligne que dans le cas d'espèce le Préfet avait accordé l'assistance de la force publique immédiatement après avoir été informé de ce que l'expulsion était prioritaire.",
+  "en": "30.  Lastly, the Government observed that the emergency provisions concerning the suspension or staggering of the enforcement of evictions had provided for exceptions under which, in particular, landlords could obtain enforcement of evictions with police assistance where, as in the present case, their tenant was in arrears with the rent or the service charges for a total amount equivalent to two months’ rent. The Government emphasised that in the present case the Prefect had granted police assistance immediately after being informed that the eviction had priority.",
+  "flags": []
+ },
+ {
+  "id": "r0056",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 31,
+  "fr": "31.  La Cour considère qu'en adoptant des mesures d'urgence visant la suspension des expulsions et en prévoyant certaines exceptions à leur application, le législateur italien pouvait raisonnablement estimer que les moyens choisis convenaient pour atteindre le but légitime (voir, mutatis mutandis, l’arrêt Scollo c. Italie du 28 septembre 1995, Série A n° 315-C, § 40).",
+  "en": "31.  The Court considers that, in adopting emergency measures providing for the suspension of evictions and laying down certain exceptions to their application, the Italian legislature could reasonably have considered that the means chosen were appropriate for achieving the legitimate aim (see, mutatis mutandis, Scollo v. Italy, judgment of 28 September 1995, Series A no. 315-C, § 40).",
+  "flags": []
+ },
+ {
+  "id": "r0057",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 32,
+  "fr": "32.  Il échet cependant de rechercher si, en l'espèce, un juste équilibre a été ménagé entre les intérêts de la communauté et le droit des propriétaires et du requérant en particulier.",
+  "en": "32.  It remains to be determined, however, whether in the present case a fair balance was struck between the interests of the community and the rights of property owners, and of the applicant in particular.",
+  "flags": []
+ },
+ {
+  "id": "r0058",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 33,
+  "fr": "33.  La Cour observe que le requérant avait obtenu le 9 octobre 1987 une ordonnance d’expulsion, dont l’exécution avait été fixée par le juge d’instance au 9 octobre 1988 (paragraphe 13 ci-dessus). Malgré le fait que, depuis 1991, la locataire était en retard dans le paiement des loyers - ce dont le requérant avait informé les autorités (voir paragraphe 17 ci-dessus) - et que dès lors, en l'occurrence, les conditions légales pouvant permettre l'exécution de l'expulsion pendant la période de suspension de cette procédure se trouvaient remplies, le requérant n’obtint le concours de la force publique que le 2 juillet 1993 (paragraphe 19 ci-dessus). Le requérant avait non seulement dû entamer un procès visant à régler le problème des loyers partiellement impayés (voir paragraphe 17 ci-dessus), mais également acquitter lui-même la quote-part des charges de la copropriété due par la locataire, suite à une injonction de paiement obtenue par le syndic de la copropriété (voir paragraphe 20 ci-dessus).",
+  "en": "33.  The Court observes that on 9 October 1987 the applicant obtained an order for possession, the enforcement of which had been set by the magistrate (*juge d’instance*) for 9 October 1988 (see paragraph 13 above). Notwithstanding the fact that, from 1991, the tenant had been in arrears with the rent – of which the applicant had informed the authorities (see paragraph 17 above) – and that, accordingly, the statutory conditions for enforcing the eviction during the period in which that procedure was suspended had been satisfied in the present case, the applicant did not obtain police assistance until 2 July 1993 (see paragraph 19 above). The applicant had not only had to bring proceedings to resolve the problem of the partly unpaid rent (see paragraph 17 above), but had also had to pay himself the tenant’s share of the service charges, following a payment order obtained by the managing agent of the building (see paragraph 20 above).",
+  "flags": []
+ },
+ {
+  "id": "r0059",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 34,
+  "fr": "34.  Dans ces circonstances, la Cour estime que la restriction subie par le requérant à l'usage de son appartement, en raison notamment de la mauvaise application des exceptions à la suspension de l’octroi de l’assistance de la force publique par les autorités compétentes, lui a imposé une charge spéciale et excessive et a dès lors rompu l’équilibre à ménager entre la protection du droit de l’individu au respect de ses biens et les exigences de l’intérêt général (cf., mutatis mutandis, l’arrêt Scollo c. Italie du 28 septembre 1995, Série A n° 315-C, § 39).",
+  "en": "34.  In those circumstances, the Court considers that the restriction on the applicant’s use of his apartment, resulting in particular from the improper application by the competent authorities of the exceptions to the suspension of the provision of police assistance, imposed an individual and excessive burden on him and accordingly upset the balance to be struck between the protection of the individual’s right to the peaceful enjoyment of his possessions and the requirements of the general interest (see, mutatis mutandis, Scollo v. Italy, judgment of 28 September 1995, Series A no. 315-C, § 39).",
+  "flags": []
+ },
+ {
+  "id": "r0060",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "Par conséquent, il y a eu violation de l’article 1 du Protocole n° 1.",
+  "en": "There has accordingly been a violation of Article 1 of Protocol No. 1.",
+  "flags": []
+ },
+ {
+  "id": "r0061",
+  "section": "Merits",
+  "role": "heading",
+  "para_no": null,
+  "fr": "II.  SUR LA VIOLATION ALLÉGUÉE DE L’ARTICLE 6 § 1 DE LA CONVENTION",
+  "en": "II.  ALLEGED VIOLATION OF ARTICLE 6 § 1 OF THE CONVENTION",
+  "flags": []
+ },
+ {
+  "id": "r0062",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 35,
+  "fr": "35.  Le requérant allègue aussi un manquement à l’article 6 § 1 de la Convention, dont la partie pertinente dispose :",
+  "en": "35.  The applicant also alleged a breach of Article 6 § 1 of the Convention, the relevant part of which provides:",
+  "flags": []
+ },
+ {
+  "id": "r0063",
+  "section": "Merits",
+  "role": "quote",
+  "para_no": null,
+  "fr": "« Toute personne a droit à ce que sa cause soit entendue (...) dans un délai raisonnable, par un tribunal (...) qui décidera (...) des contestations sur ses droits et obligations de caractère civil (...) »",
+  "en": "“In the determination of his civil rights and obligations ..., everyone is entitled to a ... hearing within a reasonable time by [a] ... tribunal ...”",
+  "flags": []
+ },
+ {
+  "id": "r0064",
+  "section": "Merits",
+  "role": "heading",
+  "para_no": null,
+  "fr": "A.  Les exceptions préliminaires du Gouvernement",
+  "en": "A.  The Government’s preliminary objections",
+  "flags": []
+ },
+ {
+  "id": "r0065",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 36,
+  "fr": "36.  Le Gouvernement soulève les mêmes exceptions d’irrecevabilité de ce grief -  la non–applicabilité de l’article 6 à la procédure d’expulsion de locataire et le non–épuisement des voies de recours internes - qu’il avait déjà soulevées et qui avaient été rejetées par la Commission dans sa décision sur la recevabilité de la présente requête.",
+  "en": "36.  The Government raised the same objections to the admissibility of this complaint – the inapplicability of Article 6 to proceedings for the eviction of a tenant and failure to exhaust domestic remedies – as they had already raised and which had been dismissed by the Commission in its decision on the admissibility of the present application.",
+  "flags": []
+ },
+ {
+  "id": "r0066",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "La Cour estime qu’il y a lieu de les rejeter pour les même motifs.",
+  "en": "The Court considers that they must be dismissed for the same reasons.",
+  "flags": []
+ },
+ {
+  "id": "r0067",
+  "section": "Merits",
+  "role": "heading",
+  "para_no": null,
+  "fr": "B.  L’observation de l’article 6",
+  "en": "B.  Compliance with Article 6",
+  "flags": []
+ },
+ {
+  "id": "r0068",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 37,
+  "fr": "37.  Le requérant critique qu’un organe administratif ait pu retarder l’exécution d’une décision de justice définitive.",
+  "en": "37.  The applicant complained that an administrative body had been able to delay the enforcement of a final judicial decision.",
+  "flags": []
+ },
+ {
+  "id": "r0069",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 38,
+  "fr": "38.  Le Gouvernement considère que le droit d’accès à un tribunal n’a pas été méconnu en l’espèce, car le requérant a pu s’adresser tout d’abord au juge d’instance, qui a fait droit à sa demande et a ordonné la libération des lieux, et aurait pu s’adresser par la suite au tribunal administratif régional afin de contester le refus de lui accorder le concours de la force publique.",
+  "en": "38.  The Government considered that the right of access to a court had not been infringed in the present case, since the applicant had been able to apply first to the magistrate (*juge d’instance*), who had granted his application and ordered that the premises be vacated, and could subsequently have applied to the regional administrative court (*tribunal administratif régional*) to challenge the refusal to grant him police assistance.",
+  "flags": []
+ },
+ {
+  "id": "r0070",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 39,
+  "fr": "39.  La Cour rappelle que dans des affaires italiennes concernant également les retards dans l’expulsion de locataires, elle a examiné les griefs tirés de la durée de la procédure d’expulsion sous l’angle, plus général, du droit à un tribunal, et elle est parvenue à la conclusion que les requérants n’avaient pas bénéficié du droit d’accès à un tribunal (voir les arrêts Immobiliare Saffi précité, § 61 ; Edoardo Palumbo c. Italie, n° 15919/89, § 42-45).",
+  "en": "39.  The Court reiterates that in Italian cases likewise concerning delays in the eviction of tenants, it examined the complaints concerning the length of the eviction proceedings from the more general standpoint of the right to a court, and concluded that the applicants had not enjoyed the right of access to a court (see Immobiliare Saffi, cited above, § 61, and Edoardo Palumbo v. Italy, no. 15919/89, § 42-45).",
+  "flags": []
+ },
+ {
+  "id": "r0071",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 40,
+  "fr": "40.  Il s’agissait d’affaires dans lesquelles l’exécution de l’ordonnance d’expulsion avait été retardée de manière excessive en conséquence du refus, opposé par le préfet, d’accorder l’assistance de la force publique. La Cour avait observé en particulier qu’à partir du moment où le préfet était devenu l’autorité ayant compétence pour fixer la date de l’expulsion forcée, et au vu de l’absence d’un contrôle judiciaire effectif de ses décisions, les propriétaires avaient été privés de leur droit à ce que la contestation les opposant à leurs locataires soit décidée par un tribunal, comme le veut l’article 6 de la Convention.",
+  "en": "40.  Those were cases in which the enforcement of the order for possession had been excessively delayed as a result of the Prefect’s refusal to grant police assistance. The Court had observed in particular that, from the moment when the Prefect became the authority with power to set the date of the enforced eviction, and in view of the absence of effective judicial review of his decisions, the owners had been deprived of their right to have their dispute with their tenants decided by a court, as required by Article 6 of the Convention.",
+  "flags": []
+ },
+ {
+  "id": "r0072",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 41,
+  "fr": "41.  La Cour considère que la présente affaire diffère des affaires susmentionnées. En l’occurrence, le requérant a saisi, le 14 décembre 1991, le juge de l’exécution d’une demande visant à obtenir que sa locataire, étant en retard avec le paiement des loyers, ne puisse pas bénéficier de la suspension de l’octroi de la force publique. Ce juge a examiné la question et a ensuite fait droit à cette demande le 17 avril 1993 (voir paragraphe 17 ci-dessus). Peu après, le 2 juillet 1993, le requérant a obtenu le concours de la force publique (voir paragraphe 20 ci-dessus).",
+  "en": "41.  The Court considers that the present case differs from the above-mentioned cases. In the present case, on 14 December 1991 the applicant applied to the enforcement judge (*juge de l’exécution*) for a ruling that his tenant, being in arrears with the rent, could not benefit from the suspension of the provision of police assistance. That judge examined the matter and subsequently granted the application on 17 April 1993 (see paragraph 17 above). Shortly afterwards, on 2 July 1993, the applicant obtained police assistance (see paragraph 20 above).",
+  "flags": []
+ },
+ {
+  "id": "r0073",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 42,
+  "fr": "42.  Dans ces conditions, la Cour estime que le requérant a bénéficié de son droit d’accès à un tribunal. Il faut encore examiner si le requérant a bénéficié de son droit à un tribunal, dont le droit à l’exécution d’un jugement ou arrêt, de quelque juridiction que ce soit, fait partie intégrante (voir, mutatis mutandis, l’arrêt Hornsby c. Grèce du 19 mars 1997, Recueil des arrêts et décisions 1997-II, p. 510, § 40).",
+  "en": "42.  In those circumstances, the Court considers that the applicant enjoyed his right of access to a court. It remains to be examined whether the applicant enjoyed his right to a court, of which the right to the enforcement of a judgment or decision given by any court forms an integral part (see, mutatis mutandis, Hornsby v. Greece, judgment of 19 March 1997, Reports of Judgments and Decisions 1997-II, p. 510, § 40).",
+  "flags": []
+ },
+ {
+  "id": "r0074",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 43,
+  "fr": "43.  La Cour rappelle à cet égard que l’exécution d’une décision judiciaire ne peut être empêchée, invalidée ni retardée de manière excessive (arrêt Immobiliare Saffi précité, § 74).",
+  "en": "43.  The Court reiterates in this connection that the execution of a judicial decision cannot be prevented, invalidated or unduly delayed (see Immobiliare Saffi, cited above, § 74).",
+  "flags": []
+ },
+ {
+  "id": "r0075",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 44,
+  "fr": "44.  En l’espèce, le requérant a obtenu en date du 9 octobre 1987 une ordonnance d’expulsion (voir paragraphe ci-dessus), qui ne fut exécutée que le 2 juillet 1993, soit environ quatre ans après que le requérant eût signifié, le 3 août 1989, à la locataire le commandement de libérer les lieux, en commençant ainsi la procédure d’exécution (voir paragraphe 14 ci-dessus). La Cour souligne à cet égard que le requérant avait le droit d’obtenir l’octroi de l’assistance de la force publique en priorité, la locataire étant en retard dans le paiement des loyers ; environ seize mois durent cependant passer avant que cette priorité ne soit reconnue par le juge d’instance (voir paragraphe 17 ci-dessus).",
+  "en": "44.  In the present case, the applicant obtained an order for possession on 9 October 1987 (see paragraph above), which was not enforced until 2 July 1993, that is, approximately four years after the applicant had served notice on the tenant, on 3 August 1989, requiring her to vacate the premises, thereby initiating the enforcement proceedings (see paragraph 14 above). The Court emphasises in this connection that the applicant was entitled to obtain police assistance as a matter of priority, since the tenant was in arrears with the rent; approximately sixteen months nevertheless passed before that priority was recognised by the magistrate (*juge d’instance*) (see paragraph 17 above).",
+  "flags": []
+ },
+ {
+  "id": "r0076",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 45,
+  "fr": "45.  La Cour estime que le Gouvernement n’a pas démontré que ce sursis à l’exécution n’ait duré que le temps strictement nécessaire à trouver une solution satisfaisante aux problèmes d’ordre public auxquels les autorités italiennes étaient confrontées ; en particulier, la Cour note que le Gouvernement, qui fait valoir que la locataire avait un enfant à sa charge et percevait un revenu modeste, n’a pas prouvé que pendant ces quatre années les autorités aient cherché une solution aux problèmes de logement de celle-ci (voir, mutatis mutandis, l’arrêt A.O. c. Italie, n° 22534/93, § 29).",
+  "en": "45.  The Court considers that the Government have not shown that this stay of execution lasted only for such period as was strictly necessary to enable a satisfactory solution to be found to the public-order problems facing the Italian authorities; in particular, the Court notes that the Government, who submitted that the tenant had a dependent child and a modest income, have not shown that during those four years the authorities sought a solution to her housing problems (see, mutatis mutandis, A.O. v. Italy, no. 22534/93, § 29).",
+  "flags": []
+ },
+ {
+  "id": "r0077",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 46,
+  "fr": "46.  Dans ces conditions, la Cour estime qu’il y a eu violation du droit à un tribunal garanti à l’article 6 § 1 de la Convention. Le grief tiré de la durée de la procédure doit être considéré comme absorbé par le précédent.",
+  "en": "46.  In those circumstances, the Court considers that there has been a violation of the right to a court guaranteed by Article 6 § 1 of the Convention. The complaint concerning the length of the proceedings must be regarded as having been absorbed by the foregoing complaint.",
+  "flags": []
+ },
+ {
+  "id": "r0078",
+  "section": "Just Satisfaction",
+  "role": "heading",
+  "para_no": null,
+  "fr": "III.  SUR L’APPLICATION DE L’ARTICLE 41 DE LA CONVENTION",
+  "en": "III.  APPLICATION OF ARTICLE 41 OF THE CONVENTION",
+  "flags": []
+ },
+ {
+  "id": "r0079",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 47,
+  "fr": "47.  Aux termes de l’article 41 de la Convention,",
+  "en": "47.  Article 41 of the Convention provides:",
+  "flags": []
+ },
+ {
+  "id": "r0080",
+  "section": "Just Satisfaction",
+  "role": "quote",
+  "para_no": null,
+  "fr": "« Si la Cour déclare qu’il y a eu violation de la Convention ou de ses Protocoles, et si le droit interne de la Haute Partie contractante ne permet d’effacer qu’imparfaitement les conséquences de cette violation, la Cour accorde à la partie lésée, s’il y a lieu, une satisfaction équitable. »",
+  "en": "“If the Court finds that there has been a violation of the Convention or the Protocols thereto, and if the internal law of the High Contracting Party concerned allows only partial reparation to be made, the Court shall, if necessary, afford just satisfaction to the injured party.”",
+  "flags": []
+ },
+ {
+  "id": "r0081",
+  "section": "Just Satisfaction",
+  "role": "heading",
+  "para_no": null,
+  "fr": "A.  Dommage matériel",
+  "en": "A.  Pecuniary damage",
+  "flags": []
+ },
+ {
+  "id": "r0082",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 48,
+  "fr": "48.  Le requérant réclame en premier lieu la réparation du préjudice matériel subi au titre de frais d’huissier, mais laisse à la Cour le soin de l'évaluer sur la base des documents fournis au cours de la procédure. Il réclame ensuite 1 332 700 ITL correspondant aux charges de la copropriété dues par la locataire, ainsi que les loyers non payés par la locataire et la différence entre le loyer qu’il percevait et celui qu’il aurait pu percevoir aux prix du marché. Il réclame en outre 399 999 ITL pour les frais de la procédure concernant l’injonction de paiement des charges de la copropriété.",
+  "en": "48.  The applicant claimed, firstly, compensation for the pecuniary damage sustained in respect of bailiff’s fees, but left it to the Court to assess the amount on the basis of the documents submitted during the proceedings. He further claimed ITL 1,332,700, corresponding to the service charges owed by the tenant, together with the rent unpaid by the tenant and the difference between the rent he had received and the rent he could have obtained at market rates. He also claimed ITL 399,999 for the costs of the proceedings concerning the payment order for the service charges.",
+  "flags": []
+ },
+ {
+  "id": "r0083",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 49,
+  "fr": "49.  Le Gouvernement considère qu’il manque tout lien de causalité entre le préjudice réclamé et les violations de la Convention alléguées.",
+  "en": "49.  The Government considered that there was no causal link whatsoever between the damage claimed and the alleged violations of the Convention.",
+  "flags": []
+ },
+ {
+  "id": "r0084",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 50,
+  "fr": "50.  La Cour estime qu’il a lieu de rembourser les frais de la procédure d’expulsion (voir l’arrêt Immobiliare Saffi précité, § 79) : elle accorde, sur la base des documents en sa possession, la somme de 330 000 ITL à ce titre.",
+  "en": "50.  The Court considers that the costs of the eviction proceedings should be reimbursed (see Immobiliare Saffi, cited above, § 79): on the basis of the documents in its possession, it awards the sum of ITL 330,000 under that head.",
+  "flags": []
+ },
+ {
+  "id": "r0085",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "S’agissant des charges de la copropriété et des loyers non payés, qui n’ont même pas été chiffrés par le requérant, la Cour estime, étant donné que celui-ci peut les récupérer auprès de la locataire, qu’il n’y a pas lieu d’allouer une somme au requérant à ce titre.",
+  "en": "As regards the service charges and unpaid rent, which the applicant did not even quantify, the Court considers, given that he can recover them from the tenant, that there is no reason to award the applicant any sum under that head.",
+  "flags": []
+ },
+ {
+  "id": "r0086",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "S’agissant du manque à gagner en termes de loyers, la Cour rappelle qu’aux termes de l’article 60 de son règlement, le requérant doit chiffrer et ventiler ses prétentions auxquelles il doit joindre les justificatifs nécessaires, « faute de quoi la chambre peut rejeter la demande en tout ou en partie ». Le requérant ayant omis de le faire, la Cour décide de ne rien accorder sous ce chef.",
+  "en": "As regards the loss of rental income, the Court reiterates that under Rule 60 of the Rules of Court the applicant must submit itemised particulars of his claims, together with the relevant supporting documents, “failing which the Chamber may reject the claim in whole or in part”. Since the applicant failed to do so, the Court decides to make no award under this head.",
+  "flags": []
+ },
+ {
+  "id": "r0087",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "Quant aux frais de la procédure concernant l’injonction de paiement, la Cour considère, comme le Gouvernement, qu’ils n’ont pas de lien de causalité direct avec les violations constatées.",
+  "en": "As to the costs of the proceedings concerning the payment order, the Court considers, like the Government, that they have no direct causal link with the violations found.",
+  "flags": []
+ },
+ {
+  "id": "r0088",
+  "section": "Just Satisfaction",
+  "role": "heading",
+  "para_no": null,
+  "fr": "B.  Dommage moral",
+  "en": "B.  Non-pecuniary damage",
+  "flags": []
+ },
+ {
+  "id": "r0089",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 51,
+  "fr": "51.  Le requérant demande la somme de 30 000 000 ITL pour dommage moral.",
+  "en": "51.  The applicant claimed ITL 30,000,000 in respect of non-pecuniary damage.",
+  "flags": []
+ },
+ {
+  "id": "r0090",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 52,
+  "fr": "52.  Le Gouvernement considère que le constat de violation constituerait en soi, le cas échéant, une satisfaction équitable suffisante.",
+  "en": "52.  The Government submitted that the finding of a violation would in itself constitute sufficient just satisfaction.",
+  "flags": []
+ },
+ {
+  "id": "r0091",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 53,
+  "fr": "53.  La Cour estime que le requérant a subi un tort moral certain ; elle décide par conséquent de lui accorder la somme de 15 000 000 ITL à ce titre.",
+  "en": "53.  The Court considers that the applicant sustained certain non-pecuniary damage; it accordingly decides to award him ITL 15,000,000 under that head.",
+  "flags": []
+ },
+ {
+  "id": "r0092",
+  "section": "Just Satisfaction",
+  "role": "heading",
+  "para_no": null,
+  "fr": "C.  Frais et dépens",
+  "en": "C.  Costs and expenses",
+  "flags": []
+ },
+ {
+  "id": "r0093",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 54,
+  "fr": "54.  Le requérant demande enfin le remboursement des frais et honoraires exposés devant la Commission et la Cour, qu’il chiffre à 5 800 000 ITL.",
+  "en": "54.  Lastly, the applicant sought reimbursement of the costs and fees incurred before the Commission and the Court, which he put at ITL 5,800,000.",
+  "flags": []
+ },
+ {
+  "id": "r0094",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 55,
+  "fr": "55.  Le Gouvernement se remet à la sagesse de la Cour.",
+  "en": "55.  The Government left the matter to the Court’s discretion.",
+  "flags": []
+ },
+ {
+  "id": "r0095",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 56,
+  "fr": "56.  La Cour estime, en tenant compte notamment de la durée et de la complexité de la procédure devant les organes de Strasbourg, qu’il y a lieu d’accorder le montant réclamé en entier.",
+  "en": "56.  Having regard, in particular, to the length and complexity of the proceedings before the Strasbourg institutions, the Court considers it appropriate to award the full amount claimed.",
+  "flags": []
+ },
+ {
+  "id": "r0096",
+  "section": "Just Satisfaction",
+  "role": "heading",
+  "para_no": null,
+  "fr": "D.  Intérêts moratoires",
+  "en": "D.  Default interest",
+  "flags": []
+ },
+ {
+  "id": "r0097",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 57,
+  "fr": "57.  Selon les informations dont dispose la Cour, le taux d’intérêt légal applicable en Italie à la date d’adoption du présent arrêt était de 2,5 % l’an.",
+  "en": "57.  According to the information available to the Court, the statutory rate of interest applicable in Italy at the date of adoption of the present judgment was 2.5% per annum.",
+  "flags": []
+ },
+ {
+  "id": "r0098",
+  "section": "Operative part",
+  "role": "heading",
+  "para_no": null,
+  "fr": "PAR CES MOTIFS, LA COUR, À L’UNANIMITÉ,",
+  "en": "FOR THESE REASONS, THE COURT UNANIMOUSLY",
+  "flags": []
+ },
+ {
+  "id": "r0099",
+  "section": "Operative part",
+  "role": "operative_list",
+  "para_no": null,
+  "fr": "1.  Dit qu’il y a eu violation de l’article 1 du Protocole n° 1 à la Convention ;",
+  "en": "1.  Holds that there has been a violation of Article 1 of Protocol No. 1 to the Convention;",
+  "flags": []
+ },
+ {
+  "id": "r0100",
+  "section": "Operative part",
+  "role": "operative_list",
+  "para_no": null,
+  "fr": "2.  Dit qu’il y a eu violation de l’article 6 § 1 de la Convention ;",
+  "en": "2.  Holds that there has been a violation of Article 6 § 1 of the Convention;",
+  "flags": []
+ },
+ {
+  "id": "r0101",
+  "section": "Operative part",
+  "role": "operative_list",
+  "para_no": null,
+  "fr": "3.  Dit",
+  "en": "3.  Holds",
+  "flags": []
+ },
+ {
+  "id": "r0102",
+  "section": "Operative part",
+  "role": "operative_list",
+  "para_no": null,
+  "fr": "a)  que l’Etat défendeur doit verser au requérant, dans les trois mois à compter du jour où l’arrêt sera devenu définitif conformément à l’article 44 § 2 de la Convention :",
+  "en": "a)  that the respondent State is to pay the applicant, within three months from the date on which the judgment becomes final according to Article 44 § 2 of the Convention, the following sums:",
+  "flags": []
+ },
+ {
+  "id": "r0103",
+  "section": "Operative part",
+  "role": "operative_list",
+  "para_no": null,
+  "fr": "-  330 000 (trois cent trente mille) lires italiennes pour préjudice matériel ;",
+  "en": "-  ITL 330,000 (three hundred and thirty thousand Italian lire) for pecuniary damage;",
+  "flags": []
+ },
+ {
+  "id": "r0104",
+  "section": "Operative part",
+  "role": "operative_list",
+  "para_no": null,
+  "fr": "-  15 000 000 (quinze millions) lires italiennes pour dommage moral,",
+  "en": "-  ITL 15,000,000 (fifteen million Italian lire) for non-pecuniary damage;",
+  "flags": []
+ },
+ {
+  "id": "r0105",
+  "section": "Operative part",
+  "role": "operative_list",
+  "para_no": null,
+  "fr": "-  5 800 000 (cinq millions huit cent mille) lires italiennes pour frais et dépens ;",
+  "en": "-  ITL 5,800,000 (five million eight hundred thousand Italian lire) for costs and expenses;",
+  "flags": []
+ },
+ {
+  "id": "r0106",
+  "section": "Operative part",
+  "role": "operative_list",
+  "para_no": null,
+  "fr": "b)  que ces montants seront à majorer d’un intérêt simple de 2,5 % l’an à compter de l’expiration dudit délai et jusqu’au versement ;",
+  "en": "b)  that simple interest at an annual rate of 2.5% shall be payable on those sums from the expiry of the above-mentioned three months until settlement;",
+  "flags": []
+ },
+ {
+  "id": "r0107",
+  "section": "Operative part",
+  "role": "operative_list",
+  "para_no": null,
+  "fr": "4.  Rejette la demande de satisfaction équitable pour le surplus.",
+  "en": "4.  Dismisses the remainder of the applicant’s claim for just satisfaction.",
+  "flags": []
+ },
+ {
+  "id": "r0108",
+  "section": "Appendix",
+  "role": "footer",
+  "para_no": null,
+  "fr": "Fait en français, puis communiqué par écrit le 11 janvier 2001 en application de l’article 77 §§ 2 et 3 du règlement de la Cour.",
+  "en": "Done in French, and notified in writing on 11 January 2001, pursuant to Rule 77 §§ 2 and 3 of the Rules of Court.",
+  "flags": []
+ },
+ {
+  "id": "r0109",
+  "section": "Appendix",
+  "role": "signature",
+  "para_no": null,
+  "fr": "Erik Fribergh\tChristos Rozakis\n\tGreffier\tPrésident",
+  "en": "Erik Fribergh\tChristos Rozakis\n\tRegistrar\tPresident",
+  "flags": []
+ }
+]

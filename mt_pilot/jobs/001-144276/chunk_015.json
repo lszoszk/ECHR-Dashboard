@@ -1,0 +1,50 @@
+{
+ "case": {
+  "id": "001-144276",
+  "en_id": "001-144276",
+  "source_id": "001-144609",
+  "title": "CASE OF MARGUŠ v. CROATIA"
+ },
+ "chunk": 15,
+ "context_before": "138.  La Cour prend également note de la jurisprudence de la Cour interaméricaine des droits de l’homme, notamment des affaires Barrios Altos, Gomes Lund et autres, Gelman et Massacres d’El Mozote et lieux voisins, toutes précitées, dans lesquelles la haute juridiction, se fondant sur sa jurisprudence antérieure ainsi que sur les conclusions de la Commission interaméricaine des droits de l’homme, des organes des Nations unies et d’autres organes universels et régionaux de protection des droits de l’homme, a pris fermement position sur cette question, déclarant qu’aucune amnistie ne pouvait être admise relativement à des violations graves des droits fondamentaux de l’homme. Elle a expliqué qu’en pareil cas, l’amnistie porterait gravement atteinte à l’obligation pour les États de mener des investigations sur de telles exactions et d’en punir les auteurs (Gelman, précité, § 195, et Gomes Lund et autres, précité, § 171). La Cour interaméricaine a souligné que pareilles mesures d’amnistie contrevenaient aux droits indérogeables reconnus par le droit international des droits de l’homme (Gomes Lund et autres, § 171).",
+ "rows": [
+  {
+   "id": "p139",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "139.  En l’espèce, le tribunal de comté a octroyé au requérant une amnistie pour des actes, à savoir des assassinats de civils et des coups et blessures graves infligés à un enfant, qui s’analysent en des violations graves des droits fondamentaux de l’homme, soulignant dans son raisonnement les mérites de l’intéressé en tant que militaire. Or le droit international tend de plus en plus à considérer ces amnisties comme inacceptables car incompatibles avec l’obligation universellement reconnue pour les États de poursuivre et de punir les auteurs de violations graves des droits fondamentaux de l’homme. À supposer que les amnisties soient possibles lorsqu’elles s’accompagnent de circonstances particulières telles qu’un processus de réconciliation et/ou une forme de réparation pour les victimes, l’amnistie octroyée au requérant en l’espèce n’en resterait pas moins inacceptable puisque rien n’indique la présence de telles circonstances en l’espèce."
+  },
+  {
+   "id": "p140",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "140.  La Cour estime qu’en dressant un nouvel acte d’accusation contre le requérant et en le condamnant pour crimes de guerre contre la population civile, les autorités croates ont agi dans le respect tant des obligations découlant des articles 2 et 3 de la Convention que des exigences et recommandations figurant dans les mécanismes et instruments internationaux susmentionnés."
+  },
+  {
+   "id": "p141",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "141.  Eu égard à ce qui précède, la Cour conclut que l’article 4 du Protocole no 7 à la Convention ne trouve donc pas à s’appliquer aux circonstances de l’espèce."
+  }
+ ],
+ "glossary": {
+  "requérant": "applicant"
+ },
+ "examples": [
+  {
+   "fr": "64.  L’article 31 § 4 de la Constitution lituanienne énonce que les peines ne peuvent être prononcées ou appliquées que pour des motifs prévus par la loi. L’article 135 du même texte dispose que la République de Lituanie est guidée par les principes et les normes du droit international universellement reconnus et qu’elle aspire à garantir les droits et libertés fondamentaux des citoyens. L’article 138 § 3 stipule que les traités internationaux ratifiés par le Parlement font partie intégrante de l’ordre juridique lituanien.",
+   "en": "64.  Article 31 § 4 of the Constitution stipulates that punishment may be imposed or applied only on grounds established by law. Article 135 states that the Republic of Lithuania shall follow the universally recognised principles and norms of international law and shall seek to ensure citizens’ basic rights and freedoms. Article 138 § 3 provides that international treaties which have been ratified by Parliament are a constituent part of the Lithuanian legal system."
+  },
+  {
+   "fr": "159.  Concernant la situation en Abkhazie, les passages pertinents du rapport d’International Crisis Group « Abkhazia : the Long Road to Reconciliation », 10 avril 2013, sont ainsi libellés :",
+   "en": "159.  With regard to the situation in Abkhazia, the relevant passages from the report by the International Crisis Group, “Abkhazia: The Long Road to Reconciliation”, 10 April 2013, read as follows:"
+  },
+  {
+   "fr": "65.  L’article 11 de la loi sur les traités prévoit que les dispositions des traités ratifiés priment les normes de droit interne qui leur seraient contraires. Le 14 mars 2006, la Cour constitutionnelle a déclaré que l’état lituanien restauré et indépendant avait pour tradition juridique et principe constitutionnel de respecter les obligations internationales volontairement contractées par lui ainsi que les principes de droit international universellement reconnus, notamment le principe pacta sunt servanda. Le 18 mars 2014, elle a jugé que, en vertu du principe en question, les obligations issues des règles de droit international universellement reconnues condamnant les crimes internationaux devaient être exécutées de bonne foi, et qu’il était par conséquent important, au regard de l’affaire constitutionnelle dont elle était saisie (paragraphes 56-63 ci-dessus), de clarifier le contenu des règles en question, notamment celles qui portaient sur le génocide.",
+   "en": "65.  Pursuant to Article 11 of the Law on treaties, if a ratified treaty establishes norms other than those established by laws, the provision contained in the treaty shall prevail. On 14 March 2006 the Constitutional Court held that it was a legal tradition and a constitutional principle for the restored independent State of Lithuania to observe international obligations undertaken of its own free will and to respect the universally recognised principles of international law, including the principle of pacta sunt servanda. On 18 March 2014 the Constitutional Court further held that, pursuant to the principle of pacta sunt servanda, obligations arising from the universally recognised norms of international law that prohibit international crimes are to be fulfilled in good faith. Thus, in the context of the constitutional justice case in issue (see paragraphs 56-63 above), it was important to clarify the content of the universally recognised norms of international law which are related to international crimes, namely, inter alia, that of genocide."
+  }
+ ]
+}

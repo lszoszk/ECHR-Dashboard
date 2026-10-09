@@ -124,9 +124,10 @@ const serverSearch = {
     if (filters.importance.size) p.set("importance", [...filters.importance].join(","));
     if (filters.bodies.size) p.set("bodies", [...filters.bodies].join(","));
     if (filters.keywords && filters.keywords.size) p.set("keywords", [...filters.keywords].join(","));
-    const serverOutcomes = [...filters.outcomes].filter(v => PRIMARY_OUTCOMES.has(v));
+    const serverOutcomes = serverOutcomeValues(filters.outcomes);
     if (serverOutcomes.length) p.set("outcomes", serverOutcomes.join(","));
     if (filters.docTypes.size) p.set("doc_types", [...filters.docTypes].join(","));
+    if (filters.includeMt) p.set("include_mt", "true");
     // filters.dateFrom/dateTo are epoch-ms (parseDateInput → getTime()).
     // The API compares against judgment_date, so send an ISO yyyy-mm-dd
     // string it can normalise — never the raw timestamp.
@@ -219,6 +220,9 @@ const serverSearch = {
       __isPressRelease: (apiCase.document_type || "").toLowerCase().includes("press release"),
       __isCommittee: (apiCase.document_type || "").toLowerCase().includes("committee"),
       __isDecision: (apiCase.document_type || "").toLowerCase().startsWith("decision"),
+      // Judgments HUDOC publishes only in French, machine-translated for this tool (unofficial).
+      __isMt: apiCase.text_origin === "machine_translation",
+      __sourceCaseId: apiCase.source_case_id || null,
       __isGrandChamber: (apiCase.document_type || "").toLowerCase().includes("grand chamber") || (apiCase.originating_body || "").toLowerCase().includes("grand chamber"),
       document_type: apiCase.document_type || "",
       __judgmentDateTs: apiCase.judgment_date ? (() => { const p = apiCase.judgment_date.split("/"); return p.length === 3 ? new Date(`${p[2]}-${p[1]}-${p[0]}`).getTime() : new Date(apiCase.judgment_date).getTime(); })() : null,
@@ -486,8 +490,10 @@ const OUTCOME_LABELS = {
   both: "Mixed (violation + non-violation)",
   neither: "No finding",
   press_release: "Press Release",
-  has_inadmissibility: "Inadmissibility",
+  has_inadmissibility: "Inadmissible (in whole or in part)",
   is_struck_out: "Struck out",
+  violation: "Violation found",
+  no_violation: "No violation",
 };
 
 // HUDOC's "originating_body" field arrives in two flavours: full strings for
@@ -569,8 +575,32 @@ const SECTION_HINTS = {
 };
 
 /** Outcome values that map to __outcomePrimary (sent to server API).
- *  Flag-based values (has_inadmissibility, is_struck_out) are client-side only. */
+ *  Flag-based values (has_inadmissibility, is_struck_out) match the HUDOC conclusion text. */
 const PRIMARY_OUTCOMES = new Set(["violation_only", "non_violation_only", "both", "neither", "press_release"]);
+const SERVER_OUTCOMES = new Set([...PRIMARY_OUTCOMES, "has_inadmissibility", "is_struck_out"]);
+
+/** The four outcome options of the filter rail; `primary` lists the __outcomePrimary values an option covers. */
+const OUTCOME_OPTIONS = {
+  violation: { label: "Violation found", primary: ["violation_only", "both"],
+    tooltip: "The Court found at least one violation (possibly alongside no-violation findings on other complaints)." },
+  no_violation: { label: "No violation", primary: ["non_violation_only"],
+    tooltip: "The Court found no violation on any complaint it examined." },
+  has_inadmissibility: { label: "Inadmissible (in whole or in part)",
+    tooltip: "Application declared inadmissible in whole or in part." },
+  is_struck_out: { label: "Struck out",
+    tooltip: "Case struck out of the list (friendly settlement, withdrawal, etc.)." },
+};
+
+/** Outcome values as the API takes them: each rail option expanded to the values it covers. */
+function serverOutcomeValues(outcomes) {
+  return [...outcomes].flatMap((v) => OUTCOME_OPTIONS[v]?.primary || [v]).filter((v) => SERVER_OUTCOMES.has(v));
+}
+
+function outcomeCheckboxes() {
+  return Object.entries(OUTCOME_OPTIONS)
+    .map(([value, o]) => makeCheckbox(o.label, value, "outcomes", null, { tooltip: o.tooltip }))
+    .join("");
+}
 
 const COUNTRY_NAMES = {
   ALB: "Albania",
@@ -736,7 +766,6 @@ function cacheElements() {
   el.importanceFilters = byId("importanceFilters");
   el.docTypeFilters = byId("docTypeFilters");
   el.outcomeFilters = byId("outcomeFilters");
-  el.separateOpinionFilters = byId("separateOpinionFilters");
   el.dateFrom = byId("dateFrom");
   el.dateTo = byId("dateTo");
 
@@ -1482,6 +1511,19 @@ function setDatasetStatus(message, isError = false) {
   el.datasetStatus.classList.toggle("dataset-error", isError);
 }
 
+/** Navbar badge for the search server: "checking" → "live" or "offline". */
+function setApiStatus(state) {
+  const badge = document.getElementById("apiStatus");
+  if (!badge) return;
+  const [label, title] = {
+    live: ["Live", "Connected to the search server: full-text search across all judgments"],
+    offline: ["Offline", "The search server cannot be reached: showing a small sample dataset"],
+  }[state] || ["Connecting", "Connecting to the search server…"];
+  badge.dataset.state = state;
+  badge.title = title;
+  badge.querySelector(".api-label").textContent = label;
+}
+
 function setDatasetMeta(message) {
   // Preserve server badge if it exists
   const badge = el.datasetMeta.querySelector(".server-badge");
@@ -1500,7 +1542,7 @@ function setSearchEnabled(enabled) {
   if (el.exportIncludeClassifier) el.exportIncludeClassifier.disabled = !enabled;
 
   const dynamicInputs = document.querySelectorAll(
-    "#sectionsFilters input, #countriesFilters input, #articlesFilters input, #keywordsFilters input, #importanceFilters input, #outcomeFilters input, #separateOpinionFilters input"
+    "#sectionsFilters input, #countriesFilters input, #articlesFilters input, #keywordsFilters input, #importanceFilters input, #outcomeFilters input"
   );
   for (const input of dynamicInputs) {
     input.disabled = !enabled;
@@ -1983,20 +2025,7 @@ function renderFiltersSkeleton() {
     ].join("");
   }
   if (el.outcomeFilters) {
-    el.outcomeFilters.innerHTML = [
-      makeCheckbox("Violation only", "violation_only", "outcomes"),
-      makeCheckbox("Non-violation only", "non_violation_only", "outcomes"),
-      makeCheckbox("Mixed (violation + non-violation)", "both", "outcomes"),
-      makeCheckbox("No finding", "neither", "outcomes"),
-      makeCheckbox("Inadmissibility", "has_inadmissibility", "outcomes"),
-      makeCheckbox("Struck out", "is_struck_out", "outcomes"),
-    ].join("");
-  }
-  if (el.separateOpinionFilters) {
-    el.separateOpinionFilters.innerHTML = [
-      makeCheckbox("Yes", "yes", "separateOpinion"),
-      makeCheckbox("No", "no", "separateOpinion"),
-    ].join("");
+    el.outcomeFilters.innerHTML = outcomeCheckboxes();
   }
 }
 
@@ -2056,27 +2085,7 @@ function renderFilters() {
       { tooltip: "Admissibility decisions (a small set, mostly Grand Chamber). Hidden unless ticked." }),
   ].join("");
 
-  el.outcomeFilters.innerHTML = [
-    makeCheckbox("Violation only", "violation_only", "outcomes", null,
-      { tooltip: "Court found at least one violation; no non-violation findings." }),
-    makeCheckbox("Non-violation only", "non_violation_only", "outcomes", null,
-      { tooltip: "Court found no violation on any complaint examined." }),
-    makeCheckbox("Mixed (violation + non-violation)", "both", "outcomes", null,
-      { tooltip: "Court found violation on some Articles, no violation on others." }),
-    makeCheckbox("No finding", "neither", "outcomes", null,
-      { tooltip: "Procedural disposition without substantive Article finding (e.g., struck out, settled)." }),
-    makeCheckbox("Inadmissibility", "has_inadmissibility", "outcomes", null,
-      { tooltip: "Application declared inadmissible in whole or in part." }),
-    makeCheckbox("Struck out", "is_struck_out", "outcomes", null,
-      { tooltip: "Case struck out of the list (settled, withdrawn, applicant deceased, etc.)." }),
-  ].join("");
-
-  el.separateOpinionFilters.innerHTML = [
-    makeCheckbox("Yes", "yes", "separateOpinion", null,
-      { tooltip: "Case has at least one dissenting / concurring / partly dissenting opinion." }),
-    makeCheckbox("No", "no", "separateOpinion", null,
-      { tooltip: "Unanimous decision — no separate opinions." }),
-  ].join("");
+  el.outcomeFilters.innerHTML = outcomeCheckboxes();
 
   // Wire up search filter inputs (boxes for long lists)
   attachFilterSearchBoxes();
@@ -2155,7 +2164,7 @@ function applyRailCounts() {
   };
   el.filtersPanel.querySelectorAll('input[type="checkbox"][data-name]').forEach((input) => {
     const map = groupMap[input.getAttribute("data-name")];
-    if (!map) return; // outcomes / separateOpinion — no facet data
+    if (!map) return; // outcomes — no facet data
     const count = map[input.value];
     const labelSpan = input.parentElement.querySelector("span");
     if (!labelSpan) return;
@@ -2196,12 +2205,14 @@ async function refreshRailCounts(query, filters) {
       state.facetCounts = state.globalFacetCounts;
       applyRailCounts();
     }
+    renderYearHistogram(state.globalYears);
     return;
   }
   const seq = ++_railCountSeq;
   try {
     const facets = await serverSearch.getFacets({ q, date_from: dFrom, date_to: dTo });
     if (seq !== _railCountSeq) return; // a newer search superseded this one
+    renderYearHistogram(facets.years || state.globalYears);
     const fc = buildFacetCounts(facets);
     // Zero-fill against the stable option lists so every checkbox shows a
     // number (0 = value exists in the corpus, no hits in this search).
@@ -2219,6 +2230,64 @@ async function refreshRailCounts(query, filters) {
   } catch (e) {
     console.warn("[Rail Counts] scoped facets fetch failed:", e);
   }
+}
+
+/** Judgments per year above the date inputs (from /api/facets "years"; hidden when the API
+ *  does not send them).  A bar selects its year; shift-click extends the selected range. */
+function renderYearHistogram(years) {
+  const box = byId("yearHistogram");
+  if (!box) return;
+  const counts = new Map((years || []).map((y) => [Number(y.year), y.count]).filter(([y]) => y > 1900));
+  if (!counts.size) { box.hidden = true; byId("yearAxis")?.setAttribute("hidden", ""); return; }
+  const first = Math.min(...counts.keys());
+  const last = Math.max(...counts.keys());
+  const max = Math.max(...counts.values());
+  const bars = [];
+  for (let y = first; y <= last; y++) {
+    const n = counts.get(y) || 0;
+    bars.push(`<button type="button" class="year-bar" data-year="${y}" title="${y}: ${fmtInt.format(n)} judgment${n === 1 ? "" : "s"}"
+      aria-label="${y}, ${fmtInt.format(n)} judgments"><span style="height:${n ? Math.max(2, Math.round((n / max) * 100)) : 0}%"></span></button>`);
+  }
+  box.innerHTML = bars.join("");
+  box.hidden = false;
+  let axis = byId("yearAxis");
+  if (!axis) {
+    axis = document.createElement("div");
+    axis.id = "yearAxis";
+    axis.className = "year-axis";
+    box.after(axis);
+  }
+  axis.innerHTML = `<span>${first}</span><span>${last}</span>`;
+  axis.removeAttribute("hidden");
+  markYearRange();
+}
+
+function markYearRange() {
+  const from = el.dateFrom.value ? Number(el.dateFrom.value.slice(0, 4)) : null;
+  const to = el.dateTo.value ? Number(el.dateTo.value.slice(0, 4)) : null;
+  document.querySelectorAll("#yearHistogram .year-bar").forEach((b) => {
+    const y = Number(b.dataset.year);
+    b.classList.toggle("in-range", (from != null || to != null) && (from == null || y >= from) && (to == null || y <= to));
+  });
+}
+
+function onYearBarClick(e) {
+  const bar = e.target.closest(".year-bar");
+  if (!bar || el.dateFrom.disabled) return;
+  const y = Number(bar.dataset.year);
+  const from = el.dateFrom.value ? Number(el.dateFrom.value.slice(0, 4)) : null;
+  const to = el.dateTo.value ? Number(el.dateTo.value.slice(0, 4)) : null;
+  let a = y, b = y;
+  if (e.shiftKey && (from != null || to != null)) {
+    a = Math.min(y, from ?? y);
+    b = Math.max(y, to ?? y);
+  } else if (from === y && to === y) {
+    a = b = null; // clicking the only selected year clears the range
+  }
+  el.dateFrom.value = a == null ? "" : `${a}-01-01`;
+  el.dateTo.value = b == null ? "" : `${b}-12-31`;
+  markYearRange();
+  el.dateTo.dispatchEvent(new Event("change", { bubbles: true }));
 }
 
 /** Attach a search input above any scrollable filter list, hiding non-matching
@@ -2379,7 +2448,7 @@ function getCurrentFilters() {
     importance: collectChecked("importance"),
     outcomes: collectChecked("outcomes"),
     docTypes: collectChecked("docTypes"),
-    separateOpinion: collectChecked("separateOpinion"),
+    includeMt: !!document.getElementById("includeMachineTranslations")?.checked,
     presence: collectChecked("presence"),
     dateFrom: parseDateInput(el.dateFrom.value),
     dateTo: parseDateInput(el.dateTo.value),
@@ -2436,7 +2505,7 @@ function passesCaseFilters(c, filters, serverChecked = false) {
     // Primary outcomes (violation_only etc.) match __outcomePrimary;
     // flag-based options (has_inadmissibility, is_struck_out) match boolean fields.
     const primaryMatch = [...filters.outcomes].some(
-      v => PRIMARY_OUTCOMES.has(v) && v === c.__outcomePrimary
+      v => (OUTCOME_OPTIONS[v]?.primary || (PRIMARY_OUTCOMES.has(v) ? [v] : [])).includes(c.__outcomePrimary)
     );
     const inadmissibleMatch = filters.outcomes.has("has_inadmissibility") && c.__hasInadmissibility;
     const struckOutMatch = filters.outcomes.has("is_struck_out") && c.__isStruckOut;
@@ -2447,6 +2516,7 @@ function passesCaseFilters(c, filters, serverChecked = false) {
   // applies this itself (and lets case:/hudoc: lookups through), so its results
   // are not hidden again here.
   if (!serverChecked && c.__isDecision && !filters.docTypes.has("decision")) return false;
+  if (!serverChecked && c.__isMt && !filters.includeMt) return false;
   if (filters.docTypes.size) {
     const dtKeys = c.__isDecision
       ? ["decision"]
@@ -2458,11 +2528,6 @@ function passesCaseFilters(c, filters, serverChecked = false) {
           ? ["committee", "judgment"]
           : ["chamber", "judgment"];
     if (!dtKeys.some(k => filters.docTypes.has(k))) return false;
-  }
-
-  if (filters.separateOpinion.size) {
-    const key = c.__hasSeparateOpinion ? "yes" : "no";
-    if (!filters.separateOpinion.has(key)) return false;
   }
 
   if (filters.presence.has("has_strasbourg_caselaw") && !c.__hasStrasbourgCaselaw) {
@@ -2878,6 +2943,18 @@ function buildQueryResults(query, filters) {
 function renderActiveFilters(filters) {
   const chips = [];
 
+  // Scope first (left-rail Collection and Search in), each removable from here.
+  if (filters.includeMt) {
+    chips.push(`<button type="button" class="filter-chip scope-chip mt-scope-chip" data-clear-scope="mt"
+      title="Remove the machine translations from the search">+ English machine translations of French-only judgments (unofficial) <span aria-hidden="true">✕</span></button>`);
+  }
+  const bucketKeys = [...document.querySelectorAll('#bucketScope input[data-name="buckets"]')].map((i) => i.value);
+  if (!filters.sections.size && filters.buckets.size && filters.buckets.size < bucketKeys.length) {
+    const parts = bucketKeys.filter((k) => filters.buckets.has(k)).map((k) => SECTION_BUCKETS[k]?.label || k);
+    chips.push(`<button type="button" class="filter-chip scope-chip" data-clear-scope="buckets"
+      title="Search all parts of the judgments again">Search in: ${escapeHtml(parts.join(", "))} <span aria-hidden="true">✕</span></button>`);
+  }
+
   for (const s of filters.sections) {
     chips.push(`<span class="filter-chip">${escapeHtml(SECTION_LABELS[s] || s)}</span>`);
   }
@@ -2905,9 +2982,6 @@ function renderActiveFilters(filters) {
   for (const dt of filters.docTypes) {
     const label = dt === "press_release" ? "Press Releases" : dt === "decision" ? "Decisions" : "Judgments";
     chips.push(`<span class="filter-chip">${escapeHtml(label)}</span>`);
-  }
-  for (const value of filters.separateOpinion) {
-    chips.push(`<span class="filter-chip">Separate opinion: ${value === "yes" ? "Yes" : "No"}</span>`);
   }
   for (const key of filters.presence) {
     const label = {
@@ -4946,7 +5020,16 @@ function caseMetadataHtml(c) {
   const conclusion = (Array.isArray(c.conclusion) ? c.conclusion.join(";") : String(c.conclusion || ""))
     .split(";").map((s) => s.trim()).filter(Boolean);
   const keywords = (c.keywords || []).map(String).filter(Boolean);
-  return findings + opinion
+  const isMt = c.__isMt || c.text_origin === "machine_translation";
+  const sourceId = c.__sourceCaseId || c.source_case_id;
+  const mtNotice = isMt ? `
+    <div class="mt-case-notice" role="note">
+      <strong>Unofficial machine translation.</strong> HUDOC publishes this judgment only in French; the English
+      text here was produced by machine translation for this tool and checked automatically. It is not a
+      translation by the Court and may contain errors.
+      ${sourceId ? `<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(sourceId)}" target="_blank" rel="noopener noreferrer">Read the French original on HUDOC ↗</a>` : ""}
+    </div>` : "";
+  return mtNotice + findings + opinion
     + metaSectionHtml("Strasbourg case-law cited", c.strasbourg_caselaw, caselawItemHtml)
     + metaSectionHtml("HUDOC conclusion", conclusion)
     + metaSectionHtml("Keywords", keywords)
@@ -5173,12 +5256,20 @@ function buildCaseCard(caseId, row, rank = 1) {
           <span class="chip">${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "-")}</span>
           <span class="chip outcome ${escapeHtml(outcomeToneClass)}">${escapeHtml(outcomeLabel)}</span>
           <span class="chip">${escapeHtml(respondentSummary)}</span>
+          ${c.__isMt ? `<span class="chip mt-chip" title="HUDOC publishes this judgment only in French. This English text is a machine translation made for this tool, not a translation by the Court.">Only in French on HUDOC · machine translation, unofficial</span>` : ""}
         </div>
 
         <div class="case-actions-inline compact-actions">
-          ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="case-open-link primary" target="_blank" rel="noopener noreferrer">Open in HUDOC ↗</a>` : ""}
-          <button type="button" class="case-open-secondary cite-btn" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}" title="Copy citation to clipboard">Cite</button>
-          <button type="button" class="case-open-secondary info-btn" data-action="copy-info-card" data-case-id="${escapeHtml(caseId)}" title="Copy key info block to clipboard">Copy info</button>
+          ${c.__isMt && c.__sourceCaseId
+            ? `<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(c.__sourceCaseId)}" class="case-open-link primary" target="_blank" rel="noopener noreferrer" title="The authentic French text on HUDOC">French original ↗</a>`
+            : (c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="case-open-link primary" target="_blank" rel="noopener noreferrer">Open in HUDOC ↗</a>` : "")}
+          <details class="cite-menu">
+            <summary class="case-open-secondary cite-btn" data-action="cite-menu" title="Copy the citation or the key information of this judgment">Cite ▾</summary>
+            <div class="cite-menu-pop" role="menu">
+              <button type="button" role="menuitem" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}">Copy citation</button>
+              <button type="button" role="menuitem" data-action="copy-info-card" data-case-id="${escapeHtml(caseId)}">Copy key information</button>
+            </div>
+          </details>
           <button
             type="button"
             class="case-open-secondary expand-paras-btn"
@@ -5561,9 +5652,10 @@ async function fetchAndRenderServerAnalytics(query, filters) {
     if (filters.importance.size) p.set("importance", [...filters.importance].join(","));
     if (filters.bodies.size) p.set("bodies", [...filters.bodies].join(","));
     if (filters.keywords && filters.keywords.size) p.set("keywords", [...filters.keywords].join(","));
-    const serverOutcomes = [...filters.outcomes].filter(v => PRIMARY_OUTCOMES.has(v));
+    const serverOutcomes = serverOutcomeValues(filters.outcomes);
     if (serverOutcomes.length) p.set("outcomes", serverOutcomes.join(","));
     if (filters.docTypes.size) p.set("doc_types", [...filters.docTypes].join(","));
+    if (filters.includeMt) p.set("include_mt", "true");
     if (filters.dateFrom) p.set("date_from", filters.dateFrom);
     if (filters.dateTo) p.set("date_to", filters.dateTo);
 
@@ -6779,14 +6871,57 @@ function bindEvents() {
   // above the filters panel, outside its change listener.  Wire them
   // up to re-run the search on any change.
   document.getElementById("bucketScope")?.addEventListener("change", () => {
+    const mtNotice = document.getElementById("mtNotice");
+    if (mtNotice) mtNotice.hidden = !document.getElementById("includeMachineTranslations")?.checked;
     if (!state.loaded && !serverSearch.available) return;
     updateActiveFilterCount();
+    applySearch(true);
+  });
+
+  // Scope chips above the results switch a left-rail scope back to its default.
+  el.activeFilters?.addEventListener("click", (e) => {
+    const chip = e.target.closest("[data-clear-scope]");
+    if (!chip) return;
+    const scope = document.getElementById("bucketScope");
+    if (chip.dataset.clearScope === "mt") {
+      const mt = document.getElementById("includeMachineTranslations");
+      if (mt) mt.checked = false;
+    } else {
+      scope?.querySelectorAll('input[data-name="buckets"]').forEach((i) => { i.checked = true; });
+    }
+    scope?.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+
+  // The "i" beside the translations option: hover or focus shows it (CSS); a click pins it open
+  // (touch screens), a click elsewhere or Escape closes it.
+  const mtInfo = document.getElementById("mtInfoTip");
+  if (mtInfo) {
+    const btn = mtInfo.querySelector(".info-tip-btn");
+    const setOpen = (open) => { mtInfo.classList.toggle("open", open); btn.setAttribute("aria-expanded", String(open)); };
+    btn.addEventListener("click", () => setOpen(!mtInfo.classList.contains("open")));
+    document.addEventListener("click", (e) => { if (!mtInfo.contains(e.target)) setOpen(false); });
+    mtInfo.addEventListener("keydown", (e) => { if (e.key === "Escape") { setOpen(false); btn.focus(); } });
+  }
+
+  // A result's Cite menu closes when the click lands anywhere else.
+  document.addEventListener("click", (e) => {
+    document.querySelectorAll("details.cite-menu[open]").forEach((m) => { if (!m.contains(e.target)) m.open = false; });
+  });
+
+  // "Try" examples under the search box run their query.
+  document.getElementById("searchTry")?.addEventListener("click", (e) => {
+    const btn = e.target.closest(".try-q[data-q]");
+    if (!btn || el.searchInput.disabled) return;
+    el.searchInput.value = btn.dataset.q;
     applySearch(true);
   });
 
   // Date inputs affect the active-filter count badge.
   el.dateFrom?.addEventListener("change", updateActiveFilterCount);
   el.dateTo?.addEventListener("change", updateActiveFilterCount);
+  el.dateFrom?.addEventListener("change", markYearRange);
+  el.dateTo?.addEventListener("change", markYearRange);
+  byId("yearHistogram")?.addEventListener("click", onYearBarClick);
 
   // Result-display controls: Sort (relevance/newest/oldest) + Group
   // (by case / by paragraph). Restore persisted choice, then wire.
@@ -7287,6 +7422,16 @@ function init() {
         el.statTotalCases.textContent = fmt.format(statsData.total_cases || 0);
         el.statTotalParagraphs.textContent = fmt.format(statsData.total_paragraphs || 0);
         el.statTotalCountries.textContent = fmt.format(statsData.total_countries || 0);
+        // The machine-translation option appears only where translations are loaded.
+        const mtN = statsData.total_machine_translations || 0;
+        const mtPill = document.getElementById("mtPill");
+        if (mtPill) mtPill.hidden = !mtN;
+        for (const id of ["mtCount", "mtCountRail"]) {
+          const node = document.getElementById(id);
+          if (node) node.textContent = fmt.format(mtN);
+        }
+        const officialCount = document.getElementById("officialCount");
+        if (officialCount && statsData.total_judgments) officialCount.textContent = fmt.format(statsData.total_judgments);
         // Parse DD/MM/YYYY dates into readable range
         const parseDMY = (s) => { if (!s) return null; const p = s.split("/"); return p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : s; };
         const df = parseDMY(statsData.date_from);
@@ -7297,6 +7442,7 @@ function init() {
       }
 
       // Update data source panel
+      setApiStatus("live");
       setDatasetStatus("Connected to HUDOC Researcher API — full-text search across all judgments (English texts).");
       const badgeEl = document.getElementById("serverBadgeHeader");
       if (badgeEl) {
@@ -7327,6 +7473,8 @@ function init() {
         // (see refreshRailCounts); facetCounts is the currently-shown set.
         state.globalFacetCounts = buildFacetCounts(facets);
         state.facetCounts = state.globalFacetCounts;
+        state.globalYears = facets.years || null;
+        renderYearHistogram(state.globalYears);
 
         // Build the stable filter option lists — the universe of values.
         // These never change; only the counts beside them do (per search).
@@ -7409,6 +7557,9 @@ function init() {
 
     } else {
       // Server not available — fall back to sample dataset with file upload option
+      setApiStatus("offline");
+      const dsPanel = document.getElementById("dataSourcePanel");
+      if (dsPanel) dsPanel.hidden = false;
       setDatasetStatus("Server unavailable — using local sample dataset.");
       const sourceActions = document.getElementById("sourceActions");
       if (sourceActions) sourceActions.classList.remove("hidden");

@@ -1,0 +1,102 @@
+{
+ "case": {
+  "id": "001-60745",
+  "en_id": "001-60745",
+  "source_id": "001-65300",
+  "title": "CASE OF ÖZEL v. TURKEY"
+ },
+ "chunk": 9,
+ "context_before": "47.  La Cour considère que le taux annuel des intérêts moratoires doit être calqué sur celui de la facilité de prêt marginal de la Banque centrale européenne augmenté de trois points de pourcentage.",
+ "rows": [
+  {
+   "id": "r0089",
+   "section": "Operative part",
+   "role": "heading",
+   "para_no": null,
+   "fr": "PAR CES MOTIFS, LA COUR, À l’UNANIMITÉ,"
+  },
+  {
+   "id": "r0090",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "1.  Déclare recevable le grief tiré de l’article 6 § 1 de la Convention en ce qui concerne le manque d’indépendance et d’impartialité de la cour de sûreté de l’Etat d’İstanbul ;"
+  },
+  {
+   "id": "r0091",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "2.  Dit qu’il y a eu violation de l’article 6 § 1 de la Convention quant au grief relatif au manque d’indépendance et d’impartialité de la cour de sûreté de l’Etat d’İstanbul ;"
+  },
+  {
+   "id": "r0092",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "3.  Dit qu’il n’y a pas lieu d’examiner les autres griefs tirés de l’article 6 de la Convention ;"
+  },
+  {
+   "id": "r0093",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "4.  Dit"
+  },
+  {
+   "id": "r0094",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "a)  que l’Etat défendeur doit verser au requérant, dans les trois mois à compter du jour où l’arrêt sera devenu définitif conformément à l’article 44 § 2 de la Convention, la somme suivante, à convertir en livres turques au taux applicable à la date du règlement : 3 000 EUR (trois mille euros ) pour frais et dépens, plus tout montant pouvant être dû au titre de la taxe sur la valeur ajoutée au toutes autres charges fiscales exigibles au moment du versement, moins 630 EUR (six cent trente euros) perçus au titre de l’assistance judiciaire ;"
+  },
+  {
+   "id": "r0095",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "b)  qu’à compter de l’expiration dudit délai et jusqu’au versement, ces montants seront à majorer d’un intérêt simple à un taux égal à celui de la facilité de prêt marginal de la Banque centrale européenne, applicable pendant cette période, augmenté de trois points de pourcentage ;"
+  },
+  {
+   "id": "r0096",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "5.  Rejette la demande de satisfaction équitable pour le surplus."
+  },
+  {
+   "id": "r0097",
+   "section": "Appendix",
+   "role": "footer",
+   "para_no": null,
+   "fr": "Fait en français, puis communiqué par écrit le 7 novembre 2002 en application de l’article 77 §§ 2 et 3 du règlement."
+  },
+  {
+   "id": "r0098",
+   "section": "Appendix",
+   "role": "signature",
+   "para_no": null,
+   "fr": "Vincent Berger\tGeorg Ress\n\tGreffier\tPrésident"
+  }
+ ],
+ "glossary": {
+  "requérant": "applicant",
+  "frais et dépens": "costs and expenses",
+  "satisfaction équitable": "just satisfaction",
+  "recevable": "admissible"
+ },
+ "examples": [
+  {
+   "fr": "b)  qu’à compter de l’expiration dudit délai et jusqu’au versement, ces montants seront à majorer d’un intérêt simple à un taux égal à celui de la facilité de prêt marginal de la Banque centrale européenne applicable pendant cette période, augmenté de trois points de pourcentage ;",
+   "en": "(b)  that from the expiry of the above-mentioned three months until settlement simple interest shall be payable on the above amounts at a rate equal to the marginal lending rate of the European Central Bank during the default period plus three percentage points;"
+  },
+  {
+   "fr": "b)  qu’à compter de l’expiration dudit délai et jusqu’au versement, ces montants seront à majorer d’un intérêt simple à un taux égal à celui de la facilité de prêt marginal de la Banque centrale européenne applicable pendant cette période, augmenté de trois points de pourcentage ;",
+   "en": "(b)  that from the expiry of the above-mentioned three months until settlement simple interest shall be payable on the above amounts at a rate equal to the marginal lending rate of the European Central Bank during the default period plus three percentage points;"
+  },
+  {
+   "fr": "b)  qu’à compter de l’expiration dudit délai et jusqu’au versement, ces montants seront à majorer d’un intérêt simple à un taux égal à celui de la facilité de prêt marginal de la Banque centrale européenne applicable pendant cette période, augmenté de trois points de pourcentage ;",
+   "en": "(b)  that from the expiry of the above-mentioned three months until settlement simple interest shall be payable on the above amounts at a rate equal to the marginal lending rate of the European Central Bank during the default period plus three percentage points;"
+  }
+ ]
+}

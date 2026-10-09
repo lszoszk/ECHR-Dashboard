@@ -1,0 +1,73 @@
+{
+ "case": {
+  "id": "001-138992",
+  "en_id": "001-138992",
+  "source_id": "001-138939",
+  "title": "CASE OF X v. LATVIA"
+ },
+ "chunk": 2,
+ "context_before": "28.  À une date non précisée, un huissier saisit le tribunal d’arrondissement aux fins d’exécution de la décision ordonnant le retour de l’enfant. Parallèlement, saisi d’une demande de la requérante tendant à l’obtention d’un sursis à exécution de cette décision pour une durée de six à douze mois, le tribunal fixa une date d’audience au 16 avril 2009.",
+ "rows": [
+  {
+   "id": "p29",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "29.  Le 6 mars 2009, à la demande de T., l’autorité centrale lettone pria le « Bāriņtiesa » de se renseigner sur les conditions de vie de l’enfant et de signifier à la requérante la demande de T. tendant à voir l’enfant."
+  },
+  {
+   "id": "p30",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "30.  Le 14 mars 2009, à l’occasion d’une rencontre fortuite près d’un centre commercial, T. rencontra la requérante et E. Profitant de cette situation, il prit E., la conduisit en voiture à Tallinn (Estonie) et entama ensuite le voyage de retour vers l’Australie. Le 16 mars 2009, l’autorité centrale lettone adressa à son homologue estonienne, à la demande de celle-ci et en vue d’autoriser T. à prendre un vol en direction d’Helsinki, les informations concernant le droit, pour T., de rentrer en Australie avec sa fille."
+  },
+  {
+   "id": "p31",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "31.  Par la suite, une plainte déposée par la requérante pour enlèvement n’aboutit pas, à l’instar d’un recours disciplinaire dirigé contre l’autorité centrale lettone et de la demande de sursis, devenue sans objet."
+  },
+  {
+   "id": "p32",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "32.  En septembre 2009, le tribunal aux affaires familiales australien invalida toutes les décisions antérieures concernant les droits des parents et jugea que T. avait seul la responsabilité parentale de l’enfant. Tout en interdisant à la requérante de discuter en public de toute question concernant l’enfant ou T., il l’autorisa à rendre visite à sa fille, sous la surveillance d’un travailleur social. Par ailleurs, le tribunal lui interdit, d’une part, de parler à sa fille en langue lettone et, d’autre part, tant que l’enfant n’aurait pas atteint l’âge de onze ans, de visiter ou de prendre contact par quelque moyen que ce soit avec les centres d’accueil pour enfants et les établissements préscolaires ou scolaires où serait inscrite sa fille, ainsi qu’avec les parents de tout autre enfant inscrit dans ces mêmes centres et établissements."
+  },
+  {
+   "id": "p33",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "33.  Devant la Grande Chambre, le Gouvernement, faisant référence à un article paru dans la presse lettone en octobre 2011 et qui contient notamment des déclarations faites par la sœur de la requérante, indique que la requérante est retournée vivre en Australie, qu’elle y dispose d’un logement et qu’elle travaille dans une institution publique d’aide sociale. Il précise en outre qu’elle maintient des contacts réguliers avec sa fille, en la rencontrant deux fois par semaine dans un centre social, et qu’elle a pu la voir sans la présence d’un travailleur social."
+  },
+  {
+   "id": "p34",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "34.  Les dispositions pertinentes de la Convention de La Haye stipulent ce qui suit :"
+  }
+ ],
+ "glossary": {
+  "requérant": "applicant",
+  "requérante": "applicant",
+  "la grande chambre": "the Grand Chamber"
+ },
+ "examples": [
+  {
+   "fr": "29.   Le code disciplinaire de Basse-Saxe (Niedersächsische Disziplinarordnung) contient les dispositions pertinentes ci-après:",
+   "en": "29.   The Lower Saxony Disciplinary Code (Niedersächsische Disziplinarordnung) contains the following relevant provisions:"
+  },
+  {
+   "fr": "65.  L’avis no 27 du CCJE (2024) à l’attention du Comité des Ministres du Conseil de l’Europe sur la responsabilité disciplinaire des juges est rédigé comme suit en ses parties pertinentes en l’espèce (notes de bas de page omises) :",
+   "en": "65.  Opinion No. 27 (2024) of the CCJE to the attention of the Committee of Ministers of the Council of Europe on the disciplinary liability of judges, in so far as relevant, reads (footnotes omitted):"
+  },
+  {
+   "fr": "56.  La question de savoir si la matière litigieuse figurant au programme de l’enseignement primaire en Norvège a entraîné une violation des normes pertinentes dans le domaine des droits de l’homme s’agissant de la liberté de religion, des droits parentaux, du respect de la vie privée et de l’interdiction de toute discrimination, doit être examinée dans le contexte plus large d’une société à très forte prédominance chrétienne. La Norvège a une religion d’Etat et une Eglise d’Etat ; la foi chrétienne (évangélique luthérienne) y jouit de prérogatives constitutionnelles. Une clause de vocation chrétienne s’applique aux écoles et établissements préscolaires publics. On trouve des prêtres de l’Eglise d’Etat dans l’armée, les prisons, les universités et les hôpitaux. Les médias publics diffusent des prières et cultes quotidiens. Pas moins de 86 % de la population appartiennent à l’Eglise d’Etat, c’est-à-dire l’Eglise de Norvège.",
+   "en": "56.  The issue whether the contested Norwegian primary-school subject constituted a violation of the relevant human rights standards on freedom of religion, parental rights, freedom of privacy and prohibition of discrimination ought to be seen in the broader context of a society with an extreme Christian predominance. Norway had a State religion, a State Church, with constitutional prerogatives being afforded to the Christian (Evangelical Lutheran) Faith. There was a Christian object clause for State schools and pre-schools. There were State Church priests in the armed forces, prisons, universities and hospitals. There were daily Christian devotions and services in State broadcasting. No less than 86% of the population belonged to the State Church, the Church of Norway."
+  }
+ ]
+}

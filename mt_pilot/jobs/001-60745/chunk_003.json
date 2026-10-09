@@ -1,0 +1,100 @@
+{
+ "case": {
+  "id": "001-60745",
+  "en_id": "001-60745",
+  "source_id": "001-65300",
+  "title": "CASE OF ÖZEL v. TURKEY"
+ },
+ "chunk": 3,
+ "context_before": "13.  Le 13 octobre 1994, le requérant et un dénommé C.A. furent arrêtés par des policiers de la section d’ordre public de la direction de la sûreté de Gayrettepe (İstanbul). Ils étaient soupçonnés d’avoir commis un vol avec effraction dans un bijouterie. Le requérant fût placé en garde à vue pour huit jours dans les locaux de ladite section. Il fut ensuite transféré à la section anti-terrorisme de ladite direction, où il demeura pendant sept jours.",
+ "rows": [
+  {
+   "id": "r0030",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 14,
+   "fr": "14.  Le 27 octobre 1994, le requérant fut traduit devant le juge assesseur près la cour de sûreté de l’Etat d’İstanbul, lequel ordonna sa mise en détention provisoire. Devant le juge, le requérant affirma avoir commis deux vols à main armée et une tentative de vol à main armée, dans une banque et deux bijouteries, afin de procurer des fonds à une organisation illégale, le TKEP/TKP (Parti des travailleurs communistes de Turquie – Parti communiste du Kurdistan)."
+  },
+  {
+   "id": "r0031",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 15,
+   "fr": "15.  Le 29 novembre 1994, le procureur près la cour de sûreté de l’Etat d’İstanbul mit le requérant en accusation devant ladite cour, composée de trois juges de profession, dont l’un relevant de la magistrature militaire. Reprochant au requérant d’avoir tenté de renverser par la force l’ordre constitutionnel turc, il requit l’application de l’article 146 du code pénal et de l’article 5 de la loi no 3713 sur la lutte contre le terrorisme."
+  },
+  {
+   "id": "r0032",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 16,
+   "fr": "16.  Par arrêt du 4 mars 1997, la cour de sûreté de l’Etat déclara le requérant coupable des faits qui lui étaient reprochés et le condamna à la réclusion à perpétuité (soit en pratique, conformément à l’article 19 de la loi no 647 sur l’exécution des peines, vingt ans de détention effective puis seize ans de liberté conditionnelle). Dans son arrêt, celle-ci releva que lors de l’instruction, le requérant avait reconnu les délits incriminés, qu’il avait été identifié par le bijoutier et les employés du magasin et que les dépositions du coaccusé C.A. confirmaient la version de faits tels qu’exposée dans l’acte d’accusation."
+  },
+  {
+   "id": "r0033",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 17,
+   "fr": "17.  Le 5 mars 1997, le requérant forma un pourvoi en cassation contre le jugement en demandant la tenue d’une audience publique."
+  },
+  {
+   "id": "r0034",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 18,
+   "fr": "18.  Le 6 juin 1997, le procureur transmit le dossier à la Cour de cassation, en y joignant ses observations écrites, dans lesquelles il demandait la confirmation de la condamnation du requérant."
+  },
+  {
+   "id": "r0035",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 19,
+   "fr": "19.  Le 15 janvier 1998, après avoir tenu une audience, la Cour de cassation confirma le jugement attaqué."
+  },
+  {
+   "id": "r0036",
+   "section": "Facts",
+   "role": "heading",
+   "para_no": null,
+   "fr": "II.  LE DROIT ET LA PRATIQUE INTERNES PERTINENTS"
+  },
+  {
+   "id": "r0037",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 20,
+   "fr": "20.  Avant la réforme du 18 juin 1999, la partie pertinente de l’article 143 de la Constitution régissant l’organisation judiciaire des cours de sûreté de l’Etat, était ainsi libellé :"
+  },
+  {
+   "id": "r0038",
+   "section": "Facts",
+   "role": "quote",
+   "para_no": null,
+   "fr": "« Il est institué des cours de sûreté de l’Etat chargées de connaître des infractions commises contre la République – dont les caractéristiques sont énoncées dans la Constitution –, contre l’intégrité territoriale de l’Etat ou l’unité indivisible de la nation et contre l’ordre libre et démocratique, ainsi que des infractions touchant directement à la sécurité intérieure ou extérieure de l’Etat."
+  },
+  {
+   "id": "r0039",
+   "section": "Facts",
+   "role": "quote",
+   "para_no": null,
+   "fr": "Les cours de sûreté de l’Etat se composent d’un président, de deux membres titulaires, de deux membres suppléants, d’un procureur et d’un nombre suffisant de substituts."
+  }
+ ],
+ "glossary": {
+  "requérant": "applicant",
+  "Cour de cassation": "Court of Cassation"
+ },
+ "examples": [
+  {
+   "fr": "108.  De plus, les principes constitutionnels relatifs à l’indépendance de la magistrature et à l’inamovibilité des juges confirmaient que le droit pour le requérant d’accomplir l’intégralité de son mandat à la présidence de la Cour suprême était protégé. L’article 48 § 3 de la Constitution de 1949 établissait que les juges ne pouvaient être révoqués que pour des motifs et selon des procédures prévus par la loi. L’article 50 § 3 de la Constitution garantissait quant à lui l’indépendance des juges (paragraphe 38 ci-dessus).",
+   "en": "Moreover, the protection of the applicant’s entitlement to serve his full term as President of the Supreme Court was supported by constitutional principles regarding the independence of the judiciary and the irremovability of judges. Article 48 § 3 of the 1949 Constitution established that judges could only be removed from office on the grounds and in accordance with the procedures specified by law. Article 50 § 3 of the Constitution guaranteed the independence of judges (see paragraph 38 above)."
+  },
+  {
+   "fr": "87.  La loi no 357 relative aux « juges militaires » pose le principe de l’indépendance de la magistrature et reprend les termes des articles 138 et 139 de la Constitution.",
+   "en": "87.  The Military Judges Act (Law no. 357) lays down the principle that the judiciary is to be independent and reiterates the provisions of Articles 138 and 139 of the Constitution."
+  },
+  {
+   "fr": "21.  Le 23 juin 1971, la Conférence générale de l’Organisation internationale du travail (« l’OIT ») adopta la Recommandation no 143 concernant les représentants des travailleurs, dont le point 15 se lit comme suit :",
+   "en": "21.  On 23 June 1971 the General Conference of the International Labour Organization (ILO) adopted Recommendation No. 143 concerning workers’ representatives, point 15 of which reads as follows:"
+  }
+ ]
+}

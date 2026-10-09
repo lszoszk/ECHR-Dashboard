@@ -2272,3 +2272,165 @@ a.case-context-ecli-link .ext-icon {
   border-bottom: 1px solid var(--garnet-edge, var(--garnet)); cursor: pointer;
 }
 .cn-appno:hover { background: var(--garnet-soft, transparent); }
+
+
+/* ── "Try" examples under the search box ─────────────────────────────────── */
+.search-try { flex-wrap: wrap; align-items: center; }
+.try-q {
+  padding: 0; border: 0; background: none; cursor: pointer; font: inherit; text-align: left;
+}
+@media (max-width: 540px) {
+  .try-q:nth-of-type(n+4) { display: none; } /* three examples on a phone */
+}
+.try-q code {
+  display: inline-block; padding: 2px 7px; font-size: 0.74rem; color: var(--ink-2);
+  background: var(--paper-3); border: 1px solid var(--rule); font-family: var(--font-mono);
+}
+.try-q:hover code, .try-q:focus-visible code { color: var(--garnet); border-color: var(--garnet-edge); background: var(--garnet-soft); }
+
+/* ── Left rail: what is searched (Collection, Search in) ─────────────────── */
+.rail-scope {
+  display: flex; flex-direction: column; gap: 20px;
+  padding: 20px 24px 22px; border-bottom: 1px solid var(--rule);
+}
+.rail-scope .filter-title { margin-bottom: 8px; }
+.rail-scope .cb-label { align-items: flex-start; line-height: 1.35; }
+.rail-scope .cb-label input { margin-top: 2px; flex: 0 0 auto; }
+.rail-scope .scope-fixed { cursor: default; color: var(--ink); }
+.rail-scope .scope-fixed input { opacity: 0.8; }
+
+/* Machine translations (unofficial): opt-in box in the rail, notice above the results, chip and case notice */
+.mt-scope {
+  margin-top: 12px; padding: 9px 10px 10px;
+  border: 1px dashed var(--mt-flag-fg, #b26b00); background: var(--mt-flag-bg, #fbf3e2);
+}
+.mt-scope[hidden] { display: none; }
+.mt-scope-head {
+  margin-bottom: 6px; font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--mt-flag-fg, #7a4b00);
+}
+.mt-scope .mt-option { color: var(--ink); font-weight: 500; }
+.mt-scope-note { margin: 6px 0 0 20px; font-size: 0.76rem; line-height: 1.4; color: var(--ink-2); }
+.mt-unofficial {
+  display: inline-block; margin-right: 0.3em; padding: 0 0.4em; border-radius: 2px;
+  font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--mt-flag-fg, #7a4b00); border: 1px solid var(--mt-flag-fg, #b26b00);
+}
+.mt-notice, .mt-case-notice {
+  margin: 0.6rem 0 0; padding: 0.55rem 0.8rem; border-left: 3px solid var(--mt-flag-fg, #b26b00);
+  background: var(--mt-flag-bg, #fbf3e2); color: inherit; font-size: 0.9rem; line-height: 1.45;
+}
+.results-main > .mt-notice { margin: 0 0 16px; }
+.mt-case-notice { margin: 0 0 0.8rem; }
+.mt-case-notice a, .mt-notice a { margin-left: 0.25rem; }
+.chip.mt-chip { background: var(--mt-flag-bg, #fbf3e2); color: var(--mt-flag-fg, #7a4b00); border-color: var(--mt-flag-fg, #b26b00); }
+
+/* Scope chips above the results: removable */
+.scope-chip { cursor: pointer; gap: 6px; }
+.scope-chip:hover { border-color: var(--garnet); }
+.filter-chip.mt-scope-chip { color: var(--mt-flag-fg, #7a4b00); background: var(--mt-flag-bg, #fbf3e2); border: 1px dashed var(--mt-flag-fg, #b26b00); }
+
+[data-theme="dark"] .mt-scope, [data-theme="dark"] .mt-unofficial, [data-theme="dark"] .mt-notice,
+[data-theme="dark"] .mt-case-notice, [data-theme="dark"] .chip.mt-chip,
+[data-theme="dark"] .filter-chip.mt-scope-chip { --mt-flag-bg: #3a2c12; --mt-flag-fg: #e6b34f; }
+
+/* ── Judgments per year (Judgment Date filter) ──────────────────────────── */
+.year-histogram {
+  display: flex; align-items: flex-end; gap: 1px; height: 54px; margin: 2px 0 4px;
+}
+.year-histogram[hidden] { display: none; }
+.year-bar {
+  flex: 1 1 0; min-width: 0; height: 100%; padding: 0; border: 0; cursor: pointer;
+  display: flex; align-items: flex-end; background: none;
+}
+.year-bar > span { display: block; width: 100%; background: var(--ink-3); opacity: 0.45; min-height: 1px; }
+.year-bar:hover > span { opacity: 0.9; }
+.year-bar.in-range > span { background: var(--garnet); opacity: 0.9; }
+.year-axis {
+  display: flex; justify-content: space-between; margin-bottom: 8px;
+  font-family: var(--font-mono); font-size: 0.6rem; color: var(--ink-3);
+}
+.year-axis[hidden] { display: none; }
+/* the two date fields share the rail's width instead of running past its edge */
+.editorial-filter-rail .date-input { min-width: 0; padding: 5px 3px; font-size: 0.74rem; }
+.editorial-filter-rail .date-range { gap: 4px; }
+
+/* ── Masthead marks: beta, experimental, server status ─────────────────── */
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.beta-badge {
+  align-self: center; padding: 1px 6px; border: 1px solid var(--garnet-edge, var(--garnet));
+  color: var(--garnet); background: var(--garnet-soft); font-family: var(--font-mono);
+  font-size: 0.58rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; line-height: 1.5;
+}
+.exp-icon { width: 0.9em; height: 0.9em; margin-left: 1px; vertical-align: -0.08em; opacity: 0.75; }
+.api-status {
+  display: inline-flex; align-items: center; gap: 6px; align-self: center; white-space: nowrap;
+  padding: 2px 9px; border: 1px solid var(--rule); border-radius: 999px;
+  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3);
+}
+.api-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); }
+.api-status[data-state="live"] .api-dot { background: #2f9e5b; box-shadow: 0 0 0 3px rgba(47, 158, 91, 0.15); }
+.api-status[data-state="offline"] { color: var(--garnet); border-color: var(--garnet-edge, var(--garnet)); }
+.api-status[data-state="offline"] .api-dot { background: var(--garnet); }
+.api-status[data-state="checking"] .api-dot { animation: api-pulse 1.2s ease-in-out infinite; }
+@keyframes api-pulse { 50% { opacity: 0.25; } }
+@media (prefers-reduced-motion: reduce) { .api-status[data-state="checking"] .api-dot { animation: none; } }
+@media (max-width: 768px) { .api-status .api-label { display: none; } .api-status { padding: 5px; } }
+.data-source-panel[hidden], .filter-disclosure[hidden] { display: none !important; }
+
+/* ── "i" beside the translations option ────────────────────────────────── */
+.mt-option-row { display: flex; align-items: flex-start; gap: 6px; }
+.mt-option-row .mt-option { flex: 1 1 auto; }
+.info-tip { position: relative; flex: 0 0 auto; }
+.info-tip-btn {
+  width: 17px; height: 17px; margin-top: 1px; padding: 0; border-radius: 50%; cursor: pointer;
+  border: 1px solid var(--mt-flag-fg, #b26b00); background: var(--paper); color: var(--mt-flag-fg, #7a4b00);
+  font-family: var(--font-serif); font-size: 0.72rem; font-style: italic; font-weight: 600; line-height: 15px;
+}
+.info-tip-pop {
+  display: none; position: absolute; z-index: 70; top: calc(100% + 6px); right: -8px; width: 240px;
+  padding: 10px 12px; background: var(--paper); border: 1px solid var(--ink); box-shadow: 0 2px 0 rgba(36, 35, 40, 0.16);
+  font-family: var(--font-serif); font-size: 0.8rem; line-height: 1.45; color: var(--ink-2); font-style: normal;
+}
+.info-tip-pop a { display: block; margin-top: 6px; color: var(--garnet); }
+.info-tip:hover .info-tip-pop, .info-tip:focus-within .info-tip-pop, .info-tip.open .info-tip-pop { display: block; }
+
+/* ── Footer, one line (as in the UHRI+ dashboard) ──────────────────────── */
+.footer.site-footer {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 18px;
+  margin: 0; padding: 9px 24px; background: var(--paper); border-top: 1px solid var(--rule);
+  font-family: var(--font-mono); font-size: 0.64rem; letter-spacing: 0.03em; color: var(--ink-3); text-align: left;
+}
+.site-footer .sf-left, .site-footer .sf-right { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.site-footer b { color: var(--ink-2); font-weight: 500; }
+.site-footer a { color: var(--ink-3); text-decoration: none; border-bottom: 1px dotted var(--rule); opacity: 1; }
+.site-footer a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+.site-footer .sf-sep { color: var(--rule); }
+.site-footer .sf-label { font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; }
+.site-footer .sf-sup {
+  padding: 1px 6px; border: 1px solid var(--rule); font-size: 0.56rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-2);
+}
+
+/* ── Result card: one Cite menu (citation / key information) ───────────── */
+.cite-menu { position: relative; display: inline-block; }
+.cite-menu > summary { list-style: none; cursor: pointer; user-select: none; }
+.cite-menu > summary::-webkit-details-marker { display: none; }
+.cite-menu-pop {
+  position: absolute; z-index: 40; top: calc(100% + 4px); left: 0; min-width: 190px;
+  display: flex; flex-direction: column; padding: 4px 0;
+  background: var(--paper); border: 1px solid var(--ink); box-shadow: 0 2px 0 rgba(36, 35, 40, 0.16);
+}
+.cite-menu-pop button {
+  padding: 6px 12px; border: 0; background: none; text-align: left; cursor: pointer;
+  font-family: var(--font-serif); font-size: 0.84rem; color: var(--ink-2);
+}
+.cite-menu-pop button:hover, .cite-menu-pop button:focus-visible { background: var(--garnet-soft); color: var(--garnet); }
+
+/* Phones: the right column holds only the case details (shown inside the results here instead)
+   and the analytics hidden by dashboard.css, so it was an empty band above the filters. */
+@media (max-width: 860px) {
+  .editorial-workspace .results-sidebar { display: none; }
+}

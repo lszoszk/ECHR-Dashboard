@@ -1,0 +1,99 @@
+{
+ "case": {
+  "id": "001-59122",
+  "en_id": "001-59122",
+  "source_id": "001-63689",
+  "title": "CASE OF LUNARI v. ITALY"
+ },
+ "chunk": 1,
+ "context_before": "En l’affaire Lunari c. Italie,",
+ "rows": [
+  {
+   "id": "r0010",
+   "section": "Header",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "La Cour européenne des Droits de l’Homme (deuxième section), siégeant en une chambre composée de :"
+  },
+  {
+   "id": "r0011",
+   "section": "Header",
+   "role": "metadata",
+   "para_no": null,
+   "fr": "MM.\tC.L. Rozakis, président,\n\t\tG. Bonello,\n\tMme\tV. Stráznická,\n\tM.\tP. Lorenzen,\n\t\tM. Fischbach,\n\tMme\tM. Tsatsa-Nikolovska,\n\tM.\tE. Levits, juges,\net de M. E. Fribergh, greffier de section,"
+  },
+  {
+   "id": "r0012",
+   "section": "Header",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "Après en avoir délibéré en chambre du conseil le 14 décembre 2000,"
+  },
+  {
+   "id": "r0013",
+   "section": "Header",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "Rend l’arrêt que voici, adopté à cette date :"
+  },
+  {
+   "id": "r0014",
+   "section": "Facts",
+   "role": "heading",
+   "para_no": null,
+   "fr": "PROCÉDURE"
+  },
+  {
+   "id": "r0015",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 1,
+   "fr": "1.  A l’origine de l’affaire se trouve une requête (n° 21463/92) dirigée contre l’Italie et dont un ressortissant de cet Etat, M. Fulvio Lunari (« le requérant »), avait saisi la Commission européenne des Droits de l’Homme (« la Commission ») le 10 février 1993 en vertu de l’ancien article 25 de la Convention de sauvegarde des Droits de l’Homme et des Libertés fondamentales (« la Convention »)."
+  },
+  {
+   "id": "r0016",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 2,
+   "fr": "2.  Le gouvernement italien (« le Gouvernement ») a été représenté d’abord par son agent, M. Luigi Ferrari Bravo, puis par son agent, M. Umberto Leanza et son co-agent, M. Vitaliano Esposito."
+  },
+  {
+   "id": "r0017",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 3,
+   "fr": "3.  Le requérant alléguait en particulier que l’impossibilité prolongée d’exécuter l’ordonnance d’expulsion de locataire, faute d’octroi de l’assistance de la force publique, constitue une violation des articles 1 du Protocole n° 1 et 6 § 1 de la Convention."
+  },
+  {
+   "id": "r0018",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 4,
+   "fr": "4.  Le 5 avril 1993, la Commission (Première Chambre) a décidé de porter la requête à la connaissance du gouvernement défendeur et de l'inviter à présenter ses observations sur sa recevabilité et son bien-fondé. Le Gouvernement a présenté ses observations le 29 juin 1993. Le requérant y a répondu les 27 juillet et 9 novembre 1993 et le 17 février 1994."
+  },
+  {
+   "id": "r0019",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": 5,
+   "fr": "5.  Par la suite, la Commission a décidé de suspendre l'examen de la requête en attendant que la Cour se prononce dans les affaires Scollo et Spadea et Scalabrino. Les arrêts ayant été rendus le 28 septembre 1995, le 12 mars 1996 les parties ont été invitées à présenter leurs observations complémentaires, ce que le Gouvernement fit en date du 3 avril 1996 et le requérant le 14 mai 1996."
+  }
+ ],
+ "glossary": {
+  "requérant": "applicant"
+ },
+ "examples": [
+  {
+   "fr": "1.  A l’origine de l’affaire se trouve une requête (no 16574/08) dirigée contre la République française et dont un ressortissant de cet Etat, M. Henry Fabris («le requérant»), a saisi la Cour le 1er avril 2008 en vertu de l’article 34 de la Convention de sauvegarde des droits de l’homme et des libertés fondamentales (« la Convention »). Le requérant est représenté par Me A. Ottan, avocat à Lunel. Le gouvernement français (« le Gouvernement ») est représenté par son agent, Mme E. Belliard, directrice des affaires juridiques au ministère des Affaires étrangères.",
+   "en": "1.  The case originated in an application (no. 16574/08) against the French Republic lodged with the Court under Article 34 of the Convention for the Protection of Human Rights and Fundamental Freedoms (“the Convention”) by a French national, Mr Henry Fabris (“the applicant”), on 1 April 2008. The applicant was represented by Mr A. Ottan, a lawyer practising in Lunel. The French Government (“the Government”) were represented by their Agent, Mrs E. Belliard, Director of Legal Affairs at the Ministry of Foreign Affairs."
+  },
+  {
+   "fr": "1.  A l’origine de l’affaire se trouve une requête (no 64705/01) dirigée contre la République italienne et dont un ressortissant de cet Etat, M. Giuseppe Mostacciuolo (« le requérant »), avait saisi la Commission européenne des Droits de l’Homme (« la Commission ») le 4 mars 1998 en vertu de l’ancien article 25 de la Convention de sauvegarde des Droits de l’Homme et des Libertés fondamentales (« la Convention »).",
+   "en": "1.  The case originated in an application (no. 64705/01) against the Italian Republic lodged with the European Commission of Human Rights (“the Commission”) under former Article 25 of the Convention for the Protection of Human Rights and Fundamental Freedoms (“the Convention”) by an Italian national, Mr Giuseppe Mostacciuolo (“the applicant”), on 4 March 1998."
+  },
+  {
+   "fr": "1.  A l’origine de l’affaire se trouve une requête (no 64886/01) dirigée contre la République italienne et dont un ressortissant de cet Etat, M. Giovanni Cocchiarella (« le requérant »), avait saisi la Commission européenne des droits de l’homme (« la Commission ») le 22 décembre 1997 en vertu de l’ancien article 25 de la Convention de sauvegarde des droits de l’homme et des libertés fondamentales (« la Convention »).",
+   "en": "1.  The case originated in an application (no. 64886/01) against the Italian Republic lodged with the European Commission of Human Rights (“the Commission”) under former Article 25 of the Convention for the Protection of Human Rights and Fundamental Freedoms (“the Convention”) by an Italian national, Mr Giovanni Cocchiarella (“the applicant”), on 22 December 1997."
+  }
+ ]
+}

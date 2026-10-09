@@ -1,0 +1,101 @@
+{
+ "case": {
+  "id": "001-144276",
+  "en_id": "001-144276",
+  "source_id": "001-144609",
+  "title": "CASE OF MARGUŠ v. CROATIA"
+ },
+ "chunk": 0,
+ "context_before": "",
+ "rows": [
+  {
+   "id": "op0",
+   "section": "Operative part",
+   "role": "quote",
+   "para_no": null,
+   "fr": "PAR CES MOTIFS, LA COUR"
+  },
+  {
+   "id": "op1",
+   "section": "Operative part",
+   "role": "quote",
+   "para_no": null,
+   "fr": "1.  Déclare irrecevable, à l’unanimité, le grief tiré de l’article 4 du Protocole no 7 à la Convention concernant le droit du requérant à ne pas être jugé ou puni deux fois relativement aux accusations de meurtre de N.V. et Ne.V., abandonnées par le procureur le 25 janvier 1996 ;"
+  },
+  {
+   "id": "op2",
+   "section": "Operative part",
+   "role": "heading_h0",
+   "para_no": null,
+   "fr": "2.  Dit, à l’unanimité, qu’il n’y a pas eu violation de l’article 6 de la Convention ;"
+  },
+  {
+   "id": "op3",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "3.  Dit, par seize voix contre une, que l’article 4 du Protocole no 7 à la Convention n’est pas applicable relativement aux accusations de meurtre de S.B. et V.B. et aux blessures graves infligées à Sl.B."
+  },
+  {
+   "id": "op4",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "Au présent arrêt se trouve joint, conformément aux articles 45 § 2 de la Convention et 74 § 2 du règlement, l’exposé des opinions séparées suivantes :"
+  },
+  {
+   "id": "op5",
+   "section": "Operative part",
+   "role": "operative_list",
+   "para_no": null,
+   "fr": "–  opinion concordante commune aux juges Spielmann, Power-Forde et Nußberger ;\n–  opinion concordante commune aux juges Ziemele, Berro-Lefèvre et Karakaş ;\n–  opinion concordante commune aux juges Šikuta, Wojtyczek et Vehabović ;\n–  opinion concordante du juge Vučinić ; et\n–  opinion en partie dissidente du juge Dedov."
+  },
+  {
+   "id": "p15",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "15.  Le 25 janvier 1996, le procureur militaire adjoint d’Osijek abandonna les charges énumérées aux points 3, 4, 6, 7 et 9 de l’acte d’accusation, ainsi que les accusations de vol de biens d’autrui. Il inculpa le requérant d’un nouveau chef de coups et blessures graves pour avoir tiré sur un enfant, Sl.B., le 20 novembre 1991 vers 7 heures à Čepin. L’ancien point 8 de l’acte d’accusation en devint donc le point 4."
+  },
+  {
+   "id": "p16",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "16.  Le 24 septembre 1996 fut promulguée la loi d’amnistie générale, qui disposait qu’une amnistie générale devait s’appliquer à toutes les infractions pénales commises en rapport avec la guerre en Croatie entre le 17 août 1990 et le 23 août 1996, sauf pour les actes constitutifs de violations très graves du droit humanitaire ou de crimes de guerre, notamment du crime de génocide (paragraphe 27 ci-dessous)."
+  },
+  {
+   "id": "p17",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "17.  Le 24 juin 1997, un collège du tribunal de comté d’Osijek présidé par le juge M.K. décida de mettre fin à la procédure contre le requérant en application de la loi d’amnistie générale. Les passages pertinents de cette décision se lisent ainsi :"
+  },
+  {
+   "id": "p18",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "18.  À une date non précisée, le procureur général saisit la Cour suprême d’un pourvoi dans l’intérêt de la loi (zahtjev za zaštitu zakonitosti), la priant d’établir qu’il y avait eu violation de l’article 3 § 2 de la loi d’amnistie générale."
+  }
+ ],
+ "glossary": {
+  "requérant": "applicant",
+  "irrecevable": "inadmissible",
+  "recevable": "admissible"
+ },
+ "examples": [
+  {
+   "fr": "Au présent arrêt se trouve joint, conformément aux articles 45 § 2 de la Convention et 74 § 2 du règlement, l'exposé de l'opinion concordante de Mme Tulkens.",
+   "en": "3.\tDismisses the remainder of the applicant's claim for just satisfaction."
+  },
+  {
+   "fr": "Au présent arrêt se trouve joint, conformément aux articles 45 § 2 de la Convention et 74 § 2 du règlement, l’exposé de l’opinion concordante commune aux juges Pinto de Albuquerque et Turković.",
+   "en": "In accordance with Article 45 § 2 of the Convention and Rule 74 § 2 of the Rules of Court, the joint concurring opinion of Judge Pinto de Albuquerque and Judge Turković is annexed to this judgment."
+  },
+  {
+   "fr": "Au présent arrêt se trouve joint, conformément aux articles 51 par. 2 (art. 51-2) de la Convention et 53 par. 2 du règlement A, l’exposé de l’opinion concordante de M. Lopes Rocha.",
+   "en": "In accordance with Article 51 para. 2 (art. 51-2) of the Convention and Rule 53 para. 2 of Rules of Court A, the concurring opinion of Mr Lopes Rocha is annexed to this judgment."
+  }
+ ]
+}

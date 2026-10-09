@@ -1,0 +1,99 @@
+{
+ "case": {
+  "id": "001-61392",
+  "en_id": "001-61392",
+  "source_id": "001-65950",
+  "title": "CASE OF GENCEL v. TURKEY"
+ },
+ "chunk": 3,
+ "context_before": "12.  L'article 327 du code de procédure pénale énumère les cas où « une affaire qui a abouti à un jugement passé en force de chose jugée peut faire l'objet d'un nouveau procès en faveur du condamné ».",
+ "rows": [
+  {
+   "id": "r0030",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "Il a été modifié par l'article 3 de la loi no 4793, qui a ajouté un sixième cas de réouverture :"
+  },
+  {
+   "id": "r0031",
+   "section": "Facts",
+   "role": "quote",
+   "para_no": null,
+   "fr": "« Lorsqu'il est établi par un arrêt définitif de la Cour européenne des Droits de l'Homme qu'une décision pénale a été prononcée en violation de la Convention de sauvegarde des Droits de l'Homme et des Libertés fondamentales et de ses protocoles additionnels. Dans ce cas, la réouverture du procès peut être demandée dans un délai d'un an à partir de la date à laquelle l'arrêt de la Cour européenne des Droits de l'Homme est devenu définitif. »"
+  },
+  {
+   "id": "r0032",
+   "section": "Facts",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "La loi no 4793 est entrée en vigueur le 3 février 2003. Selon son article provisoire no 1, l'article 3 ne joue que dans les deux hypothèses suivantes : celle où la Cour a rendu un arrêt devenu définitif avant l'entrée en vigueur de la loi ; celle où la Cour rendra un arrêt définitif au sujet d'une requête introduite après l'entrée en vigueur de la loi."
+  },
+  {
+   "id": "r0033",
+   "section": "Merits",
+   "role": "heading",
+   "para_no": null,
+   "fr": "EN DROIT"
+  },
+  {
+   "id": "r0034",
+   "section": "Merits",
+   "role": "heading",
+   "para_no": null,
+   "fr": "I.  SUR LA VIOLATION ALLÉGUÉE DE L'ARTICLE 6 DE LA CONVENTION"
+  },
+  {
+   "id": "r0035",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": 13,
+   "fr": "13.  Le requérant allègue que la cour de sûreté de l'Etat qui l'a jugé et condamné ne constitue pas un « tribunal impartial et indépendant » qui eût pu lui garantir un procès équitable en raison de la présence d'un juge militaire en son sein."
+  },
+  {
+   "id": "r0036",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "Le requérant dénonce également le défaut d'équité de la procédure devant cette cour. Il se plaint en ce sens de n'avoir pas bénéficié de l'assistance d'un avocat lors de sa garde à vue et de n'avoir pas disposé du temps et des facilités nécessaires à la préparation de sa défense."
+  },
+  {
+   "id": "r0037",
+   "section": "Merits",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "Il y voit une violation de l'article 6 §§ 1 et 3 b), c) de la Convention qui, en ses parties pertinentes, se lit ainsi :"
+  },
+  {
+   "id": "r0038",
+   "section": "Merits",
+   "role": "quote",
+   "para_no": null,
+   "fr": "« 1.  Toute personne a droit à ce que sa cause soit entendue équitablement, publiquement (...) par un tribunal indépendant et impartial (...) qui décidera (...) du bien-fondé de toute accusation en matière pénale dirigée contre elle (...)"
+  },
+  {
+   "id": "r0039",
+   "section": "Merits",
+   "role": "quote",
+   "para_no": null,
+   "fr": "(...)"
+  }
+ ],
+ "glossary": {
+  "requérant": "applicant"
+ },
+ "examples": [
+  {
+   "fr": "46.  M. Hood a saisi la Commission le 18 avril 1995. Invoquant les articles 5 et 13 de la Convention, il prétendait n’avoir pas été traduit aussitôt après son arrestation devant un juge ou un autre magistrat habilité par la loi à exercer des fonctions judiciaires, n’avoir disposé d’aucun recours conforme à l’article 5 § 4 pour contester son maintien en détention, et n’avoir pas eu droit à réparation ou disposé d’un recours interne effectif pour exposer ces griefs. Il affirmait aussi, sur le terrain de l’article 6 §§ 1 et 3, que sa cause n’avait pas été entendue équitablement et publiquement par un tribunal indépendant et impartial, établi par la loi.",
+   "en": "46.  Mr Hood applied to the Commission on 18April 1995. Relying on Articles 5 and 13 of the Convention, he submitted that he had not been brought promptly before a judge or other officer authorised by law to exercise judicial power, that he had had available to him no procedure complying with Article 5 § 4 to challenge his continuing detention and that he had no enforceable right to compensation or effective domestic remedy in those respects. He also contended under Article 6 §§ 1 and 3 that he had been denied a fair and public hearing by an independent and impartial tribunal established by law."
+  },
+  {
+   "fr": "1.  L’affaire a été déférée à la Cour, conformément aux dispositions applicables avant l’entrée en vigueur du Protocole n° 11 à la Convention de sauvegarde des Droits de l’Homme et des Libertés fondamentales (« la Convention »), par la Commission européenne des Droits de l’Homme (« la Commission ») le 15 septembre 1997 (article 5 § 5 du Protocole n° 11 et anciens articles 47 et 48 de la Convention).",
+   "en": "1.  The case was referred to the Court, in accordance with the provisions applicable prior to the entry into force of Protocol No. 11 to the Convention for the Protection of Human Rights and Fundamental Freedoms (“the Convention”), by the European Commission of Human Rights (“the Commission”) on 15 September 1997 (Article 5 § 5 of Protocol No. 11 and former Articles 47 and 48 of the Convention)."
+  },
+  {
+   "fr": "1.  L'affaire a été déférée à la Cour, conformément aux dispositions qui s'appliquaient avant l'entrée en vigueur du Protocole no 11 à la Convention de sauvegarde des Droits de l'Homme et des Libertés fondamentales (« la Convention »), par la Commission européenne des Droits de l'Homme (« la Commission ») le 6 mars 1999 (article 5 § 4 du Protocole no 11 et anciens articles 47 et 48 de la Convention).",
+   "en": "1.  The case was referred to the Court in accordance with the provisions applicable prior to the entry into force of Protocol No. 11 to the Convention for the Protection of Human Rights and Fundamental Freedoms (“the Convention”) by the European Commission of Human Rights (“the Commission”) on 6 March 1999 (Article 5 § 4 of Protocol No. 11 and former Articles 47 and 48 of the Convention)."
+  }
+ ]
+}

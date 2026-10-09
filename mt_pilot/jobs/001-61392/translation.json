@@ -1,0 +1,659 @@
+[
+ {
+  "id": "r0000",
+  "section": "Header",
+  "role": "heading",
+  "para_no": null,
+  "fr": "TROISIÈME SECTION",
+  "en": "THIRD SECTION",
+  "flags": []
+ },
+ {
+  "id": "r0001",
+  "section": "Header",
+  "role": "heading",
+  "para_no": null,
+  "fr": "AFFAIRE GENÇEL c. TURQUIE",
+  "en": "CASE OF GENÇEL v. TURKEY",
+  "flags": []
+ },
+ {
+  "id": "r0002",
+  "section": "Header",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "(Requête no 53431/99)",
+  "en": "(Application no. 53431/99)",
+  "flags": []
+ },
+ {
+  "id": "r0003",
+  "section": "Header",
+  "role": "heading",
+  "para_no": null,
+  "fr": "ARRÊT",
+  "en": "JUDGMENT",
+  "flags": []
+ },
+ {
+  "id": "r0004",
+  "section": "Header",
+  "role": "heading",
+  "para_no": null,
+  "fr": "STRASBOURG",
+  "en": "STRASBOURG",
+  "flags": []
+ },
+ {
+  "id": "r0005",
+  "section": "Header",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "23 octobre 2003",
+  "en": "23 October 2003",
+  "flags": []
+ },
+ {
+  "id": "r0006",
+  "section": "Header",
+  "role": "heading",
+  "para_no": null,
+  "fr": "DÉFINITIF",
+  "en": "FINAL",
+  "flags": []
+ },
+ {
+  "id": "r0007",
+  "section": "Header",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "24/03/2004",
+  "en": "24/03/2004",
+  "flags": []
+ },
+ {
+  "id": "r0008",
+  "section": "Header",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "Cet arrêt deviendra définitif dans les conditions définies à l'article 44 § 2 de la Convention. Il peut subir des retouches de forme.",
+  "en": "This judgment will become final in the circumstances set out in Article 44 § 2 of the Convention. It may be subject to editorial revision.",
+  "flags": []
+ },
+ {
+  "id": "r0009",
+  "section": "Header",
+  "role": "metadata",
+  "para_no": null,
+  "fr": "En l'affaire Gençel c. Turquie,",
+  "en": "In the case of Gençel v. Turkey,",
+  "flags": []
+ },
+ {
+  "id": "r0010",
+  "section": "Header",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "La Cour européenne des Droits de l'Homme (troisième section), siégeant en une chambre composée de :",
+  "en": "The European Court of Human Rights (Third Section), sitting as a Chamber composed of:",
+  "flags": []
+ },
+ {
+  "id": "r0011",
+  "section": "Header",
+  "role": "metadata",
+  "para_no": null,
+  "fr": "MM.\tG. Ress, président,\n\t\tL. Caflisch,\n\t\tP. Kūris,\n\t\tR. Türmen,\n\t\tJ. Hedigan,\n\tMme\tH.S. Greve,\n\tM.\tK. Traja, juges,\net de M. V. Berger, greffier de section,",
+  "en": "Mr\tG. Ress, President,\n\tMr\tL. Caflisch,\n\tMr\tP. Kūris,\n\tMr\tR. Türmen,\n\tMr\tJ. Hedigan,\n\tMrs\tH.S. Greve,\n\tMr\tK. Traja, judges,\nand Mr V. Berger, Section Registrar,",
+  "flags": []
+ },
+ {
+  "id": "r0012",
+  "section": "Header",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "Après en avoir délibéré en chambre du conseil le 2 octobre 2003,",
+  "en": "Having deliberated in private on 2 October 2003,",
+  "flags": []
+ },
+ {
+  "id": "r0013",
+  "section": "Header",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "Rend l'arrêt que voici, adopté à cette dernière date :",
+  "en": "Delivers the following judgment, which was adopted on that date:",
+  "flags": []
+ },
+ {
+  "id": "r0014",
+  "section": "Facts",
+  "role": "heading",
+  "para_no": null,
+  "fr": "PROCÉDURE",
+  "en": "PROCEDURE",
+  "flags": []
+ },
+ {
+  "id": "r0015",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 1,
+  "fr": "1.  A l'origine de l'affaire se trouve une requête (no 53431/99) dirigée contre la République de Turquie et dont un ressortissant de cet Etat, Binali Gençel (« le requérant »), a saisi la Cour le 17 septembre 1999 en vertu de l'article 34 de la Convention de sauvegarde des Droits de l'Homme et des Libertés fondamentales (« la Convention »).",
+  "en": "1.  The case originated in an application (no. 53431/99) against the Republic of Turkey lodged with the Court under Article 34 of the Convention for the Protection of Human Rights and Fundamental Freedoms (“the Convention”) by a Turkish national, Binali Gençel (“the applicant”), on 17 September 1999.",
+  "flags": []
+ },
+ {
+  "id": "r0016",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 2,
+  "fr": "2.  Le requérant est représenté par Me Z.S. Özdoğan, avocate à Izmir. Le gouvernement turc (« le Gouvernement ») n'a pas désigné d'agent dans la procédure devant la Cour.",
+  "en": "2.  The applicant was represented by Ms Z.S. Özdoğan, a lawyer practising in Izmir. The Turkish Government (“the Government”) did not designate an Agent for the purposes of the proceedings before the Court.",
+  "flags": []
+ },
+ {
+  "id": "r0017",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 3,
+  "fr": "3.  Le 7 novembre 2000, la Cour (première section) a décidé de communiquer la requête au Gouvernement.",
+  "en": "3.  On 7 November 2000 the Court (First Section) decided to communicate the application to the Government.",
+  "flags": []
+ },
+ {
+  "id": "r0018",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 4,
+  "fr": "4.  Par une lettre du 18 novembre 2002, la Cour a informé les parties qu'elle se prononcerait, en application de l'article 29 §§ 1 et 3 de la Convention, tant sur la recevabilité que sur le fond de la requête.",
+  "en": "4.  By a letter of 18 November 2002, the Court informed the parties that, in accordance with Article 29 §§ 1 and 3 of the Convention, it would rule on both the admissibility and the merits of the application.",
+  "flags": []
+ },
+ {
+  "id": "r0019",
+  "section": "Facts",
+  "role": "heading",
+  "para_no": null,
+  "fr": "EN FAIT",
+  "en": "THE FACTS",
+  "flags": []
+ },
+ {
+  "id": "r0020",
+  "section": "Facts",
+  "role": "heading",
+  "para_no": null,
+  "fr": "I.  LES CIRCONSTANCES DE L'ESPÈCE",
+  "en": "I.  THE CIRCUMSTANCES OF THE CASE",
+  "flags": []
+ },
+ {
+  "id": "r0021",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 5,
+  "fr": "5.  Le requérant est né en 1969. Lors de l'introduction de la requête, il était détenu à la maison d'arrêt de Nazilli à Aydın.",
+  "en": "5.  The applicant was born in 1969. When the application was lodged, he was detained in Nazilli Prison in Aydın.",
+  "flags": []
+ },
+ {
+  "id": "r0022",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 6,
+  "fr": "6.  Le 17 janvier 1997, il fut arrêté par la police pour appartenance à une organisation illégale, à savoir le PKK.",
+  "en": "6.  On 17 January 1997 he was arrested by the police on suspicion of membership of an illegal organisation, namely the PKK.",
+  "flags": []
+ },
+ {
+  "id": "r0023",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 7,
+  "fr": "7.  Le 31 janvier 1997, il fut déféré devant le juge assesseur près la cour de sûreté de l'Etat d'Izmir, qui ordonna sa détention provisoire.",
+  "en": "7.  On 31 January 1997 he was brought before the substitute judge at the Izmir State Security Court (*cour de sûreté de l'Etat d'Izmir*), who ordered his pre-trial detention.",
+  "flags": []
+ },
+ {
+  "id": "r0024",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 8,
+  "fr": "8.  Le 20 mars 1997, le procureur près la cour de sûreté de l'Etat requit l'application de l'article 168 du code pénal pour appartenance au PKK.",
+  "en": "8.  On 20 March 1997 the public prosecutor at the State Security Court (*cour de sûreté de l'Etat*) sought the application of Article 168 of the Criminal Code (*code pénal*) for membership of the PKK.",
+  "flags": []
+ },
+ {
+  "id": "r0025",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 9,
+  "fr": "9.  Le 29 décembre 1997, la cour de sûreté de l'Etat, composée de deux juges civils et d'un juge militaire, déclara le requérant coupable des faits qui lui étaient reprochés et le condamna à une peine de dix-huit ans et neuf mois d'emprisonnement. Dans son arrêt, celle-ci releva que, lors de l'instruction ainsi que devant le procureur et le juge assesseur qui avaient établi ses dépositions, le requérant avait reconnu les délits incriminés, et que les déclarations des coaccusés et d'autres preuves supplémentaires confirmaient la version des faits tels qu'exposés dans l'acte d'accusation.",
+  "en": "9.  On 29 December 1997 the State Security Court (*cour de sûreté de l'Etat*), composed of two civilian judges and a military judge, found the applicant guilty of the offences with which he had been charged and sentenced him to eighteen years and nine months' imprisonment. In its judgment, the court noted that the applicant had admitted the offences in question during the preliminary investigation and before the public prosecutor and the substitute judge who had taken his statements, and that the statements of the co-accused and other additional evidence confirmed the version of events set out in the indictment.",
+  "flags": []
+ },
+ {
+  "id": "r0026",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 10,
+  "fr": "10.  Par un arrêt du 4 mars 1999, prononcé le 17 mars 1999, la Cour de cassation confirma l'arrêt attaqué.",
+  "en": "10.  In a judgment of 4 March 1999, delivered on 17 March 1999, the Court of Cassation (*Cour de cassation*) upheld the impugned judgment.",
+  "flags": []
+ },
+ {
+  "id": "r0027",
+  "section": "Facts",
+  "role": "heading",
+  "para_no": null,
+  "fr": "II.  LE DROIT ET LA PRATIQUE INTERNES PERTINENTS",
+  "en": "II.  RELEVANT DOMESTIC LAW AND PRACTICE",
+  "flags": []
+ },
+ {
+  "id": "r0028",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 11,
+  "fr": "11.  Le droit et la pratique internes pertinents sont décrits dans les arrêts Özel c. Turquie (no 42739/98, §§ 20-21, 7 novembre 2002) et Özdemir c. Turquie (no 59659/00, §§ 21-22, 6 février 2003).",
+  "en": "11.  The relevant domestic law and practice are described in the judgments in Özel v. Turkey (no. 42739/98, §§ 20-21, 7 November 2002) and Özdemir v. Turkey (no. 59659/00, §§ 21-22, 6 February 2003).",
+  "flags": []
+ },
+ {
+  "id": "r0029",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 12,
+  "fr": "12.  L'article 327 du code de procédure pénale énumère les cas où « une affaire qui a abouti à un jugement passé en force de chose jugée peut faire l'objet d'un nouveau procès en faveur du condamné ».",
+  "en": "12.  Article 327 of the Code of Criminal Procedure (*code de procédure pénale*) lists the situations in which “a case that has been concluded by a final judgment may be retried in favour of the convicted person”.",
+  "flags": []
+ },
+ {
+  "id": "r0030",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "Il a été modifié par l'article 3 de la loi no 4793, qui a ajouté un sixième cas de réouverture :",
+  "en": "That provision was amended by Article 3 of Law no. 4793, which added a sixth ground for reopening:",
+  "flags": []
+ },
+ {
+  "id": "r0031",
+  "section": "Facts",
+  "role": "quote",
+  "para_no": null,
+  "fr": "« Lorsqu'il est établi par un arrêt définitif de la Cour européenne des Droits de l'Homme qu'une décision pénale a été prononcée en violation de la Convention de sauvegarde des Droits de l'Homme et des Libertés fondamentales et de ses protocoles additionnels. Dans ce cas, la réouverture du procès peut être demandée dans un délai d'un an à partir de la date à laquelle l'arrêt de la Cour européenne des Droits de l'Homme est devenu définitif. »",
+  "en": "“Where it has been established by a final judgment of the European Court of Human Rights that a criminal judgment was delivered in breach of the Convention for the Protection of Human Rights and Fundamental Freedoms and its additional Protocols. In such cases, the reopening of the proceedings may be requested within one year from the date on which the judgment of the European Court of Human Rights became final.”",
+  "flags": []
+ },
+ {
+  "id": "r0032",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "La loi no 4793 est entrée en vigueur le 3 février 2003. Selon son article provisoire no 1, l'article 3 ne joue que dans les deux hypothèses suivantes : celle où la Cour a rendu un arrêt devenu définitif avant l'entrée en vigueur de la loi ; celle où la Cour rendra un arrêt définitif au sujet d'une requête introduite après l'entrée en vigueur de la loi.",
+  "en": "Law no. 4793 came into force on 3 February 2003. Under its Provisional Article 1, Article 3 applies only in the following two situations: where the Court has delivered a judgment which became final before the entry into force of the Law; and where the Court delivers a final judgment concerning an application lodged after the entry into force of the Law.",
+  "flags": []
+ },
+ {
+  "id": "r0033",
+  "section": "Merits",
+  "role": "heading",
+  "para_no": null,
+  "fr": "EN DROIT",
+  "en": "THE LAW",
+  "flags": []
+ },
+ {
+  "id": "r0034",
+  "section": "Merits",
+  "role": "heading",
+  "para_no": null,
+  "fr": "I.  SUR LA VIOLATION ALLÉGUÉE DE L'ARTICLE 6 DE LA CONVENTION",
+  "en": "I.  ALLEGED VIOLATION OF ARTICLE 6 OF THE CONVENTION",
+  "flags": []
+ },
+ {
+  "id": "r0035",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 13,
+  "fr": "13.  Le requérant allègue que la cour de sûreté de l'Etat qui l'a jugé et condamné ne constitue pas un « tribunal impartial et indépendant » qui eût pu lui garantir un procès équitable en raison de la présence d'un juge militaire en son sein.",
+  "en": "13.  The applicant alleged that the State Security Court (*cour de sûreté de l'Etat*) which had tried and convicted him was not an “independent and impartial tribunal” capable of guaranteeing him a fair trial, on account of the presence of a military judge on the bench.",
+  "flags": []
+ },
+ {
+  "id": "r0036",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "Le requérant dénonce également le défaut d'équité de la procédure devant cette cour. Il se plaint en ce sens de n'avoir pas bénéficié de l'assistance d'un avocat lors de sa garde à vue et de n'avoir pas disposé du temps et des facilités nécessaires à la préparation de sa défense.",
+  "en": "The applicant also complained that the proceedings before that court had been unfair. In that connection, he complained that he had not had the assistance of a lawyer while in police custody and that he had not had adequate time and facilities for the preparation of his defence.",
+  "flags": []
+ },
+ {
+  "id": "r0037",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "Il y voit une violation de l'article 6 §§ 1 et 3 b), c) de la Convention qui, en ses parties pertinentes, se lit ainsi :",
+  "en": "He alleged a violation of Article 6 §§ 1 and 3 (b) and (c) of the Convention, the relevant parts of which provide:",
+  "flags": []
+ },
+ {
+  "id": "r0038",
+  "section": "Merits",
+  "role": "quote",
+  "para_no": null,
+  "fr": "« 1.  Toute personne a droit à ce que sa cause soit entendue équitablement, publiquement (...) par un tribunal indépendant et impartial (...) qui décidera (...) du bien-fondé de toute accusation en matière pénale dirigée contre elle (...)",
+  "en": "“1.  In the determination of ... any criminal charge against him, everyone is entitled to a fair and public hearing ... by an independent and impartial tribunal ...",
+  "flags": []
+ },
+ {
+  "id": "r0039",
+  "section": "Merits",
+  "role": "quote",
+  "para_no": null,
+  "fr": "(...)",
+  "en": "...",
+  "flags": []
+ },
+ {
+  "id": "r0040",
+  "section": "Merits",
+  "role": "quote",
+  "para_no": null,
+  "fr": "3.  Tout accusé a droit notamment à :",
+  "en": "3.  Everyone charged with a criminal offence has the following minimum rights:",
+  "flags": []
+ },
+ {
+  "id": "r0041",
+  "section": "Merits",
+  "role": "quote",
+  "para_no": null,
+  "fr": "(...)",
+  "en": "...",
+  "flags": []
+ },
+ {
+  "id": "r0042",
+  "section": "Merits",
+  "role": "quote",
+  "para_no": null,
+  "fr": "b)  disposer du temps et des facilités nécessaires à la préparation de sa défense ;",
+  "en": "b)  to have adequate time and facilities for the preparation of his defence;",
+  "flags": []
+ },
+ {
+  "id": "r0043",
+  "section": "Merits",
+  "role": "quote",
+  "para_no": null,
+  "fr": "c)  se défendre lui-même ou avoir l'assistance d'un défenseur de son choix et, s'il n'a pas les moyens de rémunérer un défenseur, pouvoir être assisté gratuitement par un avocat d'office, lorsque les intérêts de la justice l'exigent ;",
+  "en": "c)  to defend himself in person or through legal assistance of his own choosing or, if he has not sufficient means to pay for legal assistance, to be given it free when the interests of justice so require;",
+  "flags": []
+ },
+ {
+  "id": "r0044",
+  "section": "Merits",
+  "role": "quote",
+  "para_no": null,
+  "fr": "(...) »",
+  "en": "...”",
+  "flags": []
+ },
+ {
+  "id": "r0045",
+  "section": "Merits",
+  "role": "heading",
+  "para_no": null,
+  "fr": "A.  Sur la recevabilité",
+  "en": "A.  Admissibility",
+  "flags": []
+ },
+ {
+  "id": "r0046",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 14,
+  "fr": "14.  Le Gouvernement invite la Cour à rejeter le grief concernant la composition de la cour de sûreté de l'Etat pour non-respect du délai de six mois prévu à l'article 35 de la Convention. Il soutient que la décision interne définitive concernant le grief relatif au manque d'indépendance et d'impartialité de la cour de sûreté de l'Etat est celle rendue par cette même juridiction. A cet égard, il fait valoir que ni la cour de sûreté de l'Etat ni la Cour de cassation n'étaient habilitées à se prononcer sur ce grief dans la mesure où la composition des cours de sûreté de l'Etat découlait, à l'époque des faits, de la législation interne. Il en conclut que le requérant aurait dû introduire sa requête dans les six mois suivant le moment où il s'était rendu compte de l'inefficacité des recours internes, soit à compter du 29 décembre 1997, date de l'arrêt de la cour de sûreté de l'Etat. Or, il souligne que la requête a été introduite le 17 septembre 1999.",
+  "en": "14.  The Government asked the Court to dismiss the complaint concerning the composition of the State Security Court (*cour de sûreté de l'Etat*) for failure to comply with the six-month time-limit laid down in Article 35 of the Convention. They submitted that the final domestic decision in respect of the complaint concerning the lack of independence and impartiality of the State Security Court was the one delivered by that court itself. In that connection, they argued that neither the State Security Court nor the Court of Cassation (*Cour de cassation*) had been empowered to rule on that complaint, since the composition of the State Security Courts had been laid down, at the material time, by domestic legislation. They concluded that the applicant should have lodged his application within six months of the time when he had become aware of the ineffectiveness of the domestic remedies, that is, from 29 December 1997, the date of the State Security Court's judgment. They pointed out, however, that the application had been lodged on 17 September 1999.",
+  "flags": []
+ },
+ {
+  "id": "r0047",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 15,
+  "fr": "15.  La Cour rappelle qu'elle a rejeté une exception semblable dans l'affaire Özdemir c. Turquie (arrêt précité, § 26). Elle n'aperçoit aucun motif de déroger à sa précédente conclusion et rejette donc l'exception du Gouvernement.",
+  "en": "15.  The Court reiterates that it dismissed a similar objection in Özdemir v. Turkey (judgment cited above, § 26). It sees no reason to depart from that conclusion and therefore dismisses the Government's objection.",
+  "flags": []
+ },
+ {
+  "id": "r0048",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 16,
+  "fr": "16.  La Cour estime, à la lumière des critères qui se dégagent de sa jurisprudence (voir, notamment, Çiraklar c. Turquie, arrêt du 28 octobre 1998, Recueil des arrêts et décisions 1998VII) et compte tenu de l'ensemble des éléments en sa possession, que ces griefs doivent faire l'objet d'un examen au fond. Elle constate en outre que ceux-ci ne se heurtent à aucun autre motif d'irrecevabilité.",
+  "en": "16.  The Court considers, in the light of the criteria established in its case-law (see, in particular, Çiraklar v. Turkey, judgment of 28 October 1998, Reports of Judgments and Decisions 1998-VII) and having regard to all the evidence before it, that these complaints require an examination on the merits. It further notes that they are not inadmissible on any other grounds.",
+  "flags": []
+ },
+ {
+  "id": "r0049",
+  "section": "Merits",
+  "role": "heading",
+  "para_no": null,
+  "fr": "B.  Sur le fond",
+  "en": "B.  Merits",
+  "flags": []
+ },
+ {
+  "id": "r0050",
+  "section": "Merits",
+  "role": "heading",
+  "para_no": null,
+  "fr": "1.  Sur l'indépendance et l'impartialité de la cour de sûreté de l'Etat",
+  "en": "1.  Independence and impartiality of the State Security Court (*cour de sûreté de l'Etat*)",
+  "flags": []
+ },
+ {
+  "id": "r0051",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 17,
+  "fr": "17.  La Cour a traité à maintes reprises d'affaires soulevant des questions semblables à celles du cas d'espèce et a constaté la violation de l'article 6 § 1 de la Convention (voir Özel, précité, §§ 33-34, et Özdemir, précité, §§ 3536).",
+  "en": "17.  The Court has dealt with many cases raising issues similar to those in the present case and has found a violation of Article 6 § 1 of the Convention (see Özel, cited above, §§ 33-34, and Özdemir, cited above, §§ 3536).",
+  "flags": []
+ },
+ {
+  "id": "r0052",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 18,
+  "fr": "18.  La Cour a examiné la présente affaire et considère que le Gouvernement n'a fourni aucun fait ni argument pouvant mener à une conclusion différente dans le cas présent. Elle constate qu'il est compréhensible que le requérant, qui répondait devant une cour de sûreté de l'Etat d'infractions prévues et réprimées par le code pénal, ait redouté de comparaître devant des juges parmi lesquels figurait un officier de carrière appartenant à la magistrature militaire. De ce fait, il pouvait légitimement craindre que la cour de sûreté de l'Etat se laissât indûment guider par des considérations étrangères à la nature de sa cause. Partant, on peut considérer qu'étaient objectivement justifiés les doutes nourris par le requérant quant à l'indépendance et à l'impartialité de cette juridiction (İncal c. Turquie, arrêt du 9 juin 1998, Recueil 1998IV, p. 1573, § 72 in fine).",
+  "en": "18.  The Court has examined the present case and considers that the Government have not put forward any fact or argument capable of leading to a different conclusion in this instance. It is understandable that the applicant – prosecuted in a State Security Court (*cour de sûreté de l'Etat*) for offences under the Criminal Code (*code pénal*) – should have been apprehensive about being tried by a bench which included a regular army officer belonging to the military legal service. On that account he could legitimately fear that the State Security Court might allow itself to be unduly influenced by considerations which had nothing to do with the nature of the case. In other words, the applicant's misgivings about the independence and impartiality of that court can be regarded as objectively justified (see İncal v. Turkey, judgment of 9 June 1998, Reports 1998-IV, p. 1573, § 72 in fine).",
+  "flags": []
+ },
+ {
+  "id": "r0053",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 19,
+  "fr": "19.  La Cour conclut que, lorsqu'elle a jugé et condamné le requérant, la cour de sûreté de l'Etat n'était pas un tribunal indépendant et impartial au sens de l'article 6 § 1.",
+  "en": "19.  The Court concludes that, when it tried and convicted the applicant, the State Security Court (*cour de sûreté de l'Etat*) was not an independent and impartial tribunal within the meaning of Article 6 § 1.",
+  "flags": []
+ },
+ {
+  "id": "r0054",
+  "section": "Merits",
+  "role": "heading",
+  "para_no": null,
+  "fr": "2.  Sur l'équité de la procédure pénale",
+  "en": "2.  Fairness of the criminal proceedings",
+  "flags": []
+ },
+ {
+  "id": "r0055",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 20,
+  "fr": "20.  La Cour rappelle avoir déjà jugé dans des affaires similaires qu'un tribunal dont le manque d'indépendance et d'impartialité a été établi ne peut, en toute hypothèse, garantir un procès équitable aux personnes soumises à sa juridiction.",
+  "en": "20.  The Court reiterates that it has already held in similar cases that a court whose lack of independence and impartiality has been established cannot, in any circumstances, guarantee a fair trial to the persons subject to its jurisdiction.",
+  "flags": []
+ },
+ {
+  "id": "r0056",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 21,
+  "fr": "21.  Eu égard au constat de violation du droit du requérant à voir sa cause entendue par un tribunal indépendant et impartial auquel elle parvient, la Cour estime qu'il n'y a pas lieu d'examiner le présent grief (voir, entre autres, Çiraklar, précité, p. 3074, §§ 44-45).",
+  "en": "21.  Having regard to its finding of a violation of the applicant's right to have his case heard by an independent and impartial tribunal, the Court considers that it is unnecessary to examine this complaint (see, among other authorities, Çiraklar, cited above, p. 3074, §§ 44-45).",
+  "flags": []
+ },
+ {
+  "id": "r0057",
+  "section": "Just Satisfaction",
+  "role": "heading",
+  "para_no": null,
+  "fr": "II.  SUR L'APPLICATION DE L'ARTICLE 41 DE LA CONVENTION",
+  "en": "II.  APPLICATION OF ARTICLE 41 OF THE CONVENTION",
+  "flags": []
+ },
+ {
+  "id": "r0058",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 22,
+  "fr": "22.  Aux termes de l'article 41 de la Convention,",
+  "en": "22.  Article 41 of the Convention provides:",
+  "flags": []
+ },
+ {
+  "id": "r0059",
+  "section": "Just Satisfaction",
+  "role": "quote",
+  "para_no": null,
+  "fr": "« Si la Cour déclare qu'il y a eu violation de la Convention ou de ses Protocoles, et si le droit interne de la Haute Partie contractante ne permet d'effacer qu'imparfaitement les conséquences de cette violation, la Cour accorde à la partie lésée, s'il y a lieu, une satisfaction équitable. »",
+  "en": "“If the Court finds that there has been a violation of the Convention or the Protocols thereto, and if the internal law of the High Contracting Party concerned allows only partial reparation to be made, the Court shall, if necessary, afford just satisfaction to the injured party.”",
+  "flags": []
+ },
+ {
+  "id": "r0060",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 23,
+  "fr": "23.  Le requérant allègue avoir subi un préjudice matériel et moral qu'il n'évalue pas.",
+  "en": "23.  The applicant claimed to have sustained pecuniary and non-pecuniary damage, which he did not quantify.",
+  "flags": []
+ },
+ {
+  "id": "r0061",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 24,
+  "fr": "24.  Le Gouvernement ne se prononce pas.",
+  "en": "24.  The Government did not comment.",
+  "flags": []
+ },
+ {
+  "id": "r0062",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 25,
+  "fr": "25.  En ce qui concerne le dommage matériel allégué, la Cour ne saurait spéculer sur le résultat auquel la procédure devant la cour de sûreté de l'Etat aurait abouti si l'infraction à la Convention n'avait pas eu lieu. Il n'y a donc pas lieu d'accorder au requérant une indemnité à ce titre (voir Findlay c. Royaume-Uni, arrêt du 25 février 1997, Recueil 1997-I, p. 284, § 85).",
+  "en": "25.  As regards the alleged pecuniary damage, the Court cannot speculate as to the outcome of the proceedings before the State Security Court (*cour de sûreté de l'Etat*) had the breach of the Convention not occurred. There is therefore no reason to award the applicant compensation under this head (see Findlay v. the United Kingdom, judgment of 25 February 1997, Reports 1997-I, p. 284, § 85).",
+  "flags": []
+ },
+ {
+  "id": "r0063",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 26,
+  "fr": "26.  Quant au préjudice moral, la Cour estime que, dans les circonstances de l'espèce, le constat de violation constitue en soi une satisfaction équitable suffisante (Çiraklar, précité, p. 3074, § 49).",
+  "en": "26.  As to non-pecuniary damage, the Court considers that, in the circumstances of the case, the finding of a violation constitutes in itself sufficient just satisfaction (Çiraklar, cited above, p. 3074, § 49).",
+  "flags": []
+ },
+ {
+  "id": "r0064",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 27,
+  "fr": "27.  Lorsque la Cour conclut que la condamnation d'un requérant a été prononcée par un tribunal qui n'était pas indépendant et impartial au sens de l'article 6 § 1, elle estime qu'en principe le redressement le plus approprié serait de faire rejuger le requérant en temps utile par un tribunal indépendant et impartial.",
+  "en": "27.  Where the Court finds that an applicant has been convicted by a tribunal which was not independent and impartial within the meaning of Article 6 § 1, it considers that, in principle, the most appropriate form of relief would be to ensure that the applicant is granted in due course a retrial by an independent and impartial tribunal.",
+  "flags": []
+ },
+ {
+  "id": "r0065",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 28,
+  "fr": "28.  Le requérant ne sollicite pas le remboursement de frais et dépens supportés devant les organes de la Convention et/ou les juridictions internes, et pareille question n'appelle pas un examen d'office (voir Colacioppo c. Italie, arrêt du 19 février 1991, série A no 197-D, p. 52, § 16).",
+  "en": "28.  The applicant did not seek reimbursement of the costs and expenses incurred before the Convention institutions and/or the domestic courts, and this is not a matter which the Court has to examine of its own motion (see Colacioppo v. Italy, judgment of 19 February 1991, Series A no. 197-D, p. 52, § 16).",
+  "flags": []
+ },
+ {
+  "id": "r0066",
+  "section": "Operative part",
+  "role": "heading",
+  "para_no": null,
+  "fr": "PAR CES MOTIFS, LA COUR, À L'UNANIMITÉ,",
+  "en": "FOR THESE REASONS, THE COURT UNANIMOUSLY",
+  "flags": []
+ },
+ {
+  "id": "r0067",
+  "section": "Operative part",
+  "role": "operative_list",
+  "para_no": null,
+  "fr": "1.  Déclare la requête recevable ;",
+  "en": "1.  Declares the application admissible;",
+  "flags": []
+ },
+ {
+  "id": "r0068",
+  "section": "Operative part",
+  "role": "operative_list",
+  "para_no": null,
+  "fr": "2.  Dit qu'il y a eu violation de l'article 6 § 1 de la Convention en raison du manque d'indépendance et d'impartialité de la cour de sûreté de l'Etat d'Izmir ;",
+  "en": "2.  Holds that there has been a violation of Article 6 § 1 of the Convention on account of the lack of independence and impartiality of the Izmir State Security Court (*cour de sûreté de l'Etat d'Izmir*);",
+  "flags": []
+ },
+ {
+  "id": "r0069",
+  "section": "Operative part",
+  "role": "operative_list",
+  "para_no": null,
+  "fr": "3.  Dit qu'il n'y a pas lieu d'examiner les autres griefs tirés de l'article 6 de la Convention ;",
+  "en": "3.  Holds that it is not necessary to examine the other complaints under Article 6 of the Convention;",
+  "flags": []
+ },
+ {
+  "id": "r0070",
+  "section": "Operative part",
+  "role": "operative_list",
+  "para_no": null,
+  "fr": "4.  Dit que le présent arrêt constitue par lui-même une satisfaction équitable suffisante pour le préjudice moral allégué.",
+  "en": "4.  Holds that the present judgment in itself constitutes sufficient just satisfaction for the non-pecuniary damage alleged.",
+  "flags": []
+ },
+ {
+  "id": "r0071",
+  "section": "Appendix",
+  "role": "footer",
+  "para_no": null,
+  "fr": "Fait en français, puis communiqué par écrit le 23 octobre 2003 en application de l'article 77 §§ 2 et 3 du règlement.",
+  "en": "Done in French, and notified in writing on 23 October 2003, pursuant to Rule 77 §§ 2 and 3 of the Rules of Court.",
+  "flags": []
+ },
+ {
+  "id": "r0072",
+  "section": "Appendix",
+  "role": "signature",
+  "para_no": null,
+  "fr": "Vincent Berger\tGeorg Ress\n\tGreffier\tPrésident",
+  "en": "Vincent Berger\tGeorg Ress\n\tRegistrar\tPresident",
+  "flags": []
+ }
+]

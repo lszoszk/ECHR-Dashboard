@@ -1,0 +1,97 @@
+{
+ "case": {
+  "id": "001-144276",
+  "en_id": "001-144276",
+  "source_id": "001-144609",
+  "title": "CASE OF MARGUŠ v. CROATIA"
+ },
+ "chunk": 2,
+ "context_before": "28.  En application du code pénal (Kazeni zakon, Journal officiel nos 53/1991, 39/1992 et 91/1992), la culpabilité d’une personne est exclue dans les circonstances suivantes : irresponsabilité (neubrojivost), erreur de droit ou erreur de fait.",
+ "rows": [
+  {
+   "id": "p29",
+   "section": "Legal Framework",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "29.  Les passages pertinents de la loi d’amnistie générale du 24 septembre 1996 (Zakon o općem oprostu, Journal officiel no 80/1996) se lisent ainsi :"
+  },
+  {
+   "id": "p30",
+   "section": "Legal Framework",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "30.  Dans sa décision no U-III/543/1999 du 26 novembre 2008, la Cour constitutionnelle s’exprima notamment comme suit :"
+  },
+  {
+   "id": "p31",
+   "section": "Legal Framework",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "31.  La décision no U-III-791/1997 rendue par la Cour constitutionnelle le 14 mars 2001 portait sur une situation dans laquelle il avait été mis un terme, en vertu de la loi d’amnistie générale, à la procédure pénale diligentée contre l’accusé. Les passages pertinents de cette décision se lisent ainsi :"
+  },
+  {
+   "id": "p32",
+   "section": "Legal Framework",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "32.  Le passage pertinent de l’arrêt no I Kž-533/00-3 du 11 décembre 2001 est ainsi libellé :"
+  },
+  {
+   "id": "p33",
+   "section": "Legal Framework",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "33.  Le passage pertinent de l’arrêt no I Kž-257/02-5 du 12 octobre 2005 se lit ainsi :"
+  },
+  {
+   "id": "p34",
+   "section": "Legal Framework",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "34.  Le passage pertinent de l’arrêt no I Kž-657/10-3 du 27 octobre 2010 est ainsi libellé :"
+  },
+  {
+   "id": "p35",
+   "section": "Legal Framework",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "35.  Le passage pertinent de la Convention de Vienne sur le droit des traités du 23 mai 1969 (« la Convention de Vienne ») se lit ainsi :"
+  },
+  {
+   "id": "p36",
+   "section": "Legal Framework",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "36.  Le passage pertinent de l’article 3 commun aux Conventions de Genève de 1949 est libellé comme suit :"
+  },
+  {
+   "id": "p37",
+   "section": "Legal Framework",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "37.  Les parties pertinentes de la Convention (I) pour l’amélioration du sort des blessés et des malades dans les forces armées en campagne (Genève, 12 août 1949) se lisent ainsi :"
+  },
+  {
+   "id": "p38",
+   "section": "Legal Framework",
+   "role": "paragraph",
+   "para_no": null,
+   "fr": "38.  Les articles 50 et 51 de la Convention (II) pour l’amélioration du sort des blessés, des malades et des naufragés des forces armées sur mer (Genève, 12 août 1949) ont le même libellé que les articles 49 et 50 de la première Convention de Genève."
+  }
+ ],
+ "glossary": {},
+ "examples": [
+  {
+   "fr": "323.  Les dispositions pertinentes à cet égard sont les articles 1, 49 et 50 de la Convention (I) de Genève pour l’amélioration du sort des blessés et des malades dans les forces armées en campagne, les articles 1, 129 et 130 de la Convention (III) de Genève relative au traitement des prisonniers de guerre, les articles 1, 146 et 147 de la Convention (IV) de Genève relative à la protection des personnes civiles en temps de guerre et les articles 85, 86, 87 et 88 du Protocole (I) relative à la protection des victimes des conflits internationaux.",
+   "en": "323.  The relevant provisions in this connection are Articles 1, 49 and 50 of the First Geneva Convention for the Amelioration of the Condition of the Wounded and Sick in Armed Forces in the Field, Articles 1, 129 and 130 of the Third Geneva Convention on the Treatment of Prisoners of War, Articles 1, 146 and 147 of the Fourth Geneva Convention relative to the Protection of Civilian Persons in Time of War, and Articles 85, 86, 87 and 88 of Additional Protocol (I) relating to the Protection of Victims of International Armed Conflicts."
+  },
+  {
+   "fr": "57.  A la demande de la Cour, le Gouvernement a produit, le 7 mars 2011, la déclaration du procureur V.D., chargé de la procédure diligentée contre le requérant. Datée du 17 janvier 2011, elle est ainsi libellée dans ses parties pertinentes :",
+   "en": "57.  At the request of the Court, on 7 March 2011 the Government produced the statement of the prosecutor V.D., responsible for the proceedings brought against the applicant. Dated 17 January 2011, the relevant parts read as follows:"
+  },
+  {
+   "fr": "64.  Les requérants soutiennent que la procédure pénale diligentée à leur encontre ne s’est pas déroulée dans un délai raisonnable comme l’eût voulu l’article 6 § 1 de la Convention.",
+   "en": "64.  The applicants maintained that, contrary to Article 6 § 1 of the Convention, the criminal proceedings brought against them had been unduly long."
+  }
+ ]
+}

@@ -1,0 +1,893 @@
+[
+ {
+  "id": "r0000",
+  "section": "Header",
+  "role": "heading",
+  "para_no": null,
+  "fr": "TROISIÈME SECTION",
+  "en": "THIRD SECTION",
+  "flags": []
+ },
+ {
+  "id": "r0001",
+  "section": "Header",
+  "role": "heading",
+  "para_no": null,
+  "fr": "AFFAIRE ÖZEL c. TURQUIE",
+  "en": "CASE OF ÖZEL v. TURKEY",
+  "flags": []
+ },
+ {
+  "id": "r0002",
+  "section": "Header",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "(Requête no 42739/98)",
+  "en": "(Application no. 42739/98)",
+  "flags": []
+ },
+ {
+  "id": "r0003",
+  "section": "Header",
+  "role": "heading",
+  "para_no": null,
+  "fr": "ARRÊT",
+  "en": "JUDGMENT",
+  "flags": []
+ },
+ {
+  "id": "r0004",
+  "section": "Header",
+  "role": "heading",
+  "para_no": null,
+  "fr": "STRASBOURG",
+  "en": "STRASBOURG",
+  "flags": []
+ },
+ {
+  "id": "r0005",
+  "section": "Header",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "7 novembre 2002",
+  "en": "7 November 2002",
+  "flags": []
+ },
+ {
+  "id": "r0006",
+  "section": "Header",
+  "role": "heading",
+  "para_no": null,
+  "fr": "DÉFINITIF",
+  "en": "FINAL",
+  "flags": []
+ },
+ {
+  "id": "r0007",
+  "section": "Header",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "07/02/2003",
+  "en": "07/02/2003",
+  "flags": []
+ },
+ {
+  "id": "r0008",
+  "section": "Header",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "Cet arrêt deviendra définitif dans les conditions définies à l’article 44 § 2 de la Convention. Il peut subir des retouches de forme.",
+  "en": "This judgment will become final in the circumstances set out in Article 44 § 2 of the Convention. It may be subject to editorial revision.",
+  "flags": []
+ },
+ {
+  "id": "r0009",
+  "section": "Header",
+  "role": "metadata",
+  "para_no": null,
+  "fr": "En l’affaire Özel c. Turquie,",
+  "en": "In the case of Özel v. Turkey,",
+  "flags": []
+ },
+ {
+  "id": "r0010",
+  "section": "Header",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "La Cour européenne des Droits de l’Homme (troisième section), siégeant en une chambre composée de :",
+  "en": "The European Court of Human Rights (Third Section), sitting as a Chamber composed of:",
+  "flags": []
+ },
+ {
+  "id": "r0011",
+  "section": "Header",
+  "role": "metadata",
+  "para_no": null,
+  "fr": "MM.\tG. Ress, président,\n\t\tL. Caflisch,\n\t\tP. Kūris,\n\t\tR. Türmen,\n\t\tJ. Hedigan,\n\tMmes\tM. Tsatsa-Nikolovska,\n\t\tH.S. Greve, juges,\net de M. V. Berger, greffier de section,",
+  "en": "Mr\tG. Ress, President,\n\t\tL. Caflisch,\n\t\tP. Kūris,\n\t\tR. Türmen,\n\t\tJ. Hedigan,\n\tMrs\tM. Tsatsa-Nikolovska,\n\t\tH.S. Greve, judges,\nand Mr V. Berger, Section Registrar,",
+  "flags": []
+ },
+ {
+  "id": "r0012",
+  "section": "Header",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "Après en avoir délibéré en chambre du conseil le 17 octobre 2002,",
+  "en": "Having deliberated in private on 17 October 2002,",
+  "flags": []
+ },
+ {
+  "id": "r0013",
+  "section": "Header",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "Rend l’arrêt que voici, adopté à cette dernière date :",
+  "en": "Delivers the following judgment, which was adopted on that date:",
+  "flags": []
+ },
+ {
+  "id": "r0014",
+  "section": "Facts",
+  "role": "heading",
+  "para_no": null,
+  "fr": "PROCÉDURE",
+  "en": "PROCEDURE",
+  "flags": []
+ },
+ {
+  "id": "r0015",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 1,
+  "fr": "1.  A l’origine de l’affaire se trouve une requête (no 42739/98) dirigée contre la République de Turquie et dont un ressortissant de cet Etat, Yaşar Özel (« le requérant »), avait saisi la Commission européenne des Droits de l’Homme (« la Commission ») le 1 juillet 1998 en vertu de l’ancien article 25 de la Convention de sauvegarde des Droits de l’Homme et des Libertés fondamentales (« la Convention »).",
+  "en": "1.  The case originated in an application (no. 42739/98) against the Republic of Turkey lodged with the European Commission of Human Rights (“the Commission”) under former Article 25 of the Convention for the Protection of Human Rights and Fundamental Freedoms (“the Convention”) by a Turkish national, Yaşar Özel (“the applicant”), on 1 July 1998.",
+  "flags": []
+ },
+ {
+  "id": "r0016",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 2,
+  "fr": "2.  Le requérant, qui a été admis au bénéfice de l’assistance judiciaire, est représenté devant la Cour par M. Kırdök, avocat à Istanbul. Le gouvernement turc (« le Gouvernement ») est représenté par son agent.",
+  "en": "2.  The applicant, who had been granted legal aid, was represented before the Court by Mr Kırdök, a lawyer practising in Istanbul. The Turkish Government (“the Government”) were represented by their Agent.",
+  "flags": []
+ },
+ {
+  "id": "r0017",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 3,
+  "fr": "3.  Le requérant alléguait, notamment, avoir été victime d’une violation de l’article 6 § 1 du fait du manque d’indépendance et d’impartialité de la cour de sûreté de l’Etat qui l’avait jugé et condamné ainsi que de l’iniquité de la procédure devant cette même juridiction.",
+  "en": "3.  The applicant alleged, in particular, that he had been the victim of a violation of Article 6 § 1 on account of the lack of independence and impartiality of the National Security Court (*cour de sûreté de l’Etat*) which had tried and convicted him, and of the unfairness of the proceedings before that court.",
+  "flags": []
+ },
+ {
+  "id": "r0018",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 4,
+  "fr": "4.  La requête a été transmise à la Cour le 1er novembre 1998, date d’entrée en vigueur du Protocole no 11 à la Convention (article 5 § 2 du Protocole no 11).",
+  "en": "4.  The application was transmitted to the Court on 1 November 1998, when Protocol No. 11 to the Convention came into force (Article 5 § 2 of Protocol No. 11).",
+  "flags": []
+ },
+ {
+  "id": "r0019",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 5,
+  "fr": "5.  La requête a été attribuée à la première section de la Cour (article 52 § 1 du règlement).",
+  "en": "5.  The application was allocated to the First Section of the Court (Rule 52 § 1 of the Rules of Court).",
+  "flags": []
+ },
+ {
+  "id": "r0020",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 6,
+  "fr": "6.  Le 4 avril 2000, la Cour a décidé de communiquer les griefs tirés de l’article 6 § 1 de la Convention au Gouvernement défendeur et a déclaré la requête irrecevable pour le surplus.",
+  "en": "6.  On 4 April 2000 the Court decided to give notice to the respondent Government of the complaints under Article 6 § 1 of the Convention and declared the remainder of the application inadmissible.",
+  "flags": []
+ },
+ {
+  "id": "r0021",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 7,
+  "fr": "7.  Tant le requérant que le Gouvernement ont déposé des observations écrites sur la recevabilité et le fond de l’affaire.",
+  "en": "7.  Both the applicant and the Government filed written observations on the admissibility and merits of the case.",
+  "flags": []
+ },
+ {
+  "id": "r0022",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 8,
+  "fr": "8.  Le 1er novembre 2001, la Cour a modifié la composition de ses sections (article 25 § 1 du règlement). La présente requête a été attribuée à la troisième section ainsi remaniée (article 52 § 1).",
+  "en": "8.  On 1 November 2001 the Court changed the composition of its Sections (Rule 25 § 1). This case was assigned to the newly composed Third Section (Rule 52 § 1).",
+  "flags": []
+ },
+ {
+  "id": "r0023",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 9,
+  "fr": "9.  Par une lettre du 7 mai 2002, la Cour a informé les parties qu’elle se prononcerait, en application de l’article 29 §§ 1 et 3 de la Convention, tant sur la recevabilité que sur le fond de la requête. Elle a également invité les parties à présenter leurs observations complémentaires sur le fond de l’affaire, et le requérant à présenter ses demandes de satisfaction équitable.",
+  "en": "9.  By a letter of 7 May 2002, the Court informed the parties that, in accordance with Article 29 §§ 1 and 3 of the Convention, it would rule on both the admissibility and the merits of the application. It also invited the parties to submit their additional observations on the merits of the case, and the applicant to submit his claims for just satisfaction.",
+  "flags": []
+ },
+ {
+  "id": "r0024",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 10,
+  "fr": "10.  Le 10 juin 2002, le requérant a transmis à la Cour ses observations complémentaires sur le fond de l’affaire ainsi que sa demande de satisfaction équitable.",
+  "en": "10.  On 10 June 2002 the applicant submitted to the Court his additional observations on the merits of the case together with his claim for just satisfaction.",
+  "flags": []
+ },
+ {
+  "id": "r0025",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 11,
+  "fr": "11.  Par une lettre du 19 juin 2002, le Gouvernement a présenté ses commentaires sur la demande de satisfaction équitable.",
+  "en": "11.  By a letter of 19 June 2002, the Government submitted their comments on the claim for just satisfaction.",
+  "flags": []
+ },
+ {
+  "id": "r0026",
+  "section": "Facts",
+  "role": "heading",
+  "para_no": null,
+  "fr": "EN FAIT",
+  "en": "THE FACTS",
+  "flags": []
+ },
+ {
+  "id": "r0027",
+  "section": "Facts",
+  "role": "heading",
+  "para_no": null,
+  "fr": "I.  LES CIRCONSTANCES DE L’ESPÈCE",
+  "en": "I.  THE CIRCUMSTANCES OF THE CASE",
+  "flags": []
+ },
+ {
+  "id": "r0028",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 12,
+  "fr": "12.  Le requérant, Yaşar Özel, ressortissant turc né en 1961, est actuellement détenu à la prison de Bayrampaşa à Istanbul.",
+  "en": "12.  The applicant, Yaşar Özel, is a Turkish national who was born in 1961 and is currently detained in Bayrampaşa Prison in Istanbul.",
+  "flags": []
+ },
+ {
+  "id": "r0029",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 13,
+  "fr": "13.  Le 13 octobre 1994, le requérant et un dénommé C.A. furent arrêtés par des policiers de la section d’ordre public de la direction de la sûreté de Gayrettepe (İstanbul). Ils étaient soupçonnés d’avoir commis un vol avec effraction dans un bijouterie. Le requérant fût placé en garde à vue pour huit jours dans les locaux de ladite section. Il fut ensuite transféré à la section anti-terrorisme de ladite direction, où il demeura pendant sept jours.",
+  "en": "13.  On 13 October 1994 the applicant and a certain C.A. were arrested by police officers from the public order branch of the Gayrettepe (İstanbul) Security Directorate. They were suspected of having committed a burglary at a jeweller’s shop. The applicant was placed in police custody for eight days on the premises of that branch. He was then transferred to the anti-terrorism branch of the same directorate, where he remained for seven days.",
+  "flags": []
+ },
+ {
+  "id": "r0030",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 14,
+  "fr": "14.  Le 27 octobre 1994, le requérant fut traduit devant le juge assesseur près la cour de sûreté de l’Etat d’İstanbul, lequel ordonna sa mise en détention provisoire. Devant le juge, le requérant affirma avoir commis deux vols à main armée et une tentative de vol à main armée, dans une banque et deux bijouteries, afin de procurer des fonds à une organisation illégale, le TKEP/TKP (Parti des travailleurs communistes de Turquie – Parti communiste du Kurdistan).",
+  "en": "14.  On 27 October 1994 the applicant was brought before the substitute judge at the İstanbul National Security Court (*cour de sûreté de l’Etat*), who ordered his detention on remand. Before the judge, the applicant stated that he had committed two armed robberies and one attempted armed robbery, at a bank and two jewellers’ shops, in order to raise funds for an illegal organisation, the TKEP/TKP (Communist Workers’ Party of Turkey – Communist Party of Kurdistan).",
+  "flags": []
+ },
+ {
+  "id": "r0031",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 15,
+  "fr": "15.  Le 29 novembre 1994, le procureur près la cour de sûreté de l’Etat d’İstanbul mit le requérant en accusation devant ladite cour, composée de trois juges de profession, dont l’un relevant de la magistrature militaire. Reprochant au requérant d’avoir tenté de renverser par la force l’ordre constitutionnel turc, il requit l’application de l’article 146 du code pénal et de l’article 5 de la loi no 3713 sur la lutte contre le terrorisme.",
+  "en": "15.  On 29 November 1994 the public prosecutor at the İstanbul National Security Court (*cour de sûreté de l’Etat*) indicted the applicant before that court, which was composed of three professional judges, one of whom was a member of the military judiciary. Accusing the applicant of having attempted to overthrow the Turkish constitutional order by force, he sought the application of Article 146 of the Criminal Code (*code pénal*) and section 5 of the Prevention of Terrorism Act (Law no. 3713) (*loi sur la lutte contre le terrorisme*).",
+  "flags": []
+ },
+ {
+  "id": "r0032",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 16,
+  "fr": "16.  Par arrêt du 4 mars 1997, la cour de sûreté de l’Etat déclara le requérant coupable des faits qui lui étaient reprochés et le condamna à la réclusion à perpétuité (soit en pratique, conformément à l’article 19 de la loi no 647 sur l’exécution des peines, vingt ans de détention effective puis seize ans de liberté conditionnelle). Dans son arrêt, celle-ci releva que lors de l’instruction, le requérant avait reconnu les délits incriminés, qu’il avait été identifié par le bijoutier et les employés du magasin et que les dépositions du coaccusé C.A. confirmaient la version de faits tels qu’exposée dans l’acte d’accusation.",
+  "en": "16.  In a judgment of 4 March 1997, the National Security Court (*cour de sûreté de l’Etat*) found the applicant guilty of the offences with which he had been charged and sentenced him to life imprisonment (that is, in practice, in accordance with section 19 of the Execution of Sentences Act (Law no. 647) (*loi sur l’exécution des peines*), twenty years’ actual imprisonment followed by sixteen years’ conditional release). In its judgment, the court noted that during the investigation the applicant had admitted the offences in question, that he had been identified by the jeweller and the shop’s employees and that the statements of his co-accused, C.A., confirmed the version of the facts as set out in the indictment.",
+  "flags": []
+ },
+ {
+  "id": "r0033",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 17,
+  "fr": "17.  Le 5 mars 1997, le requérant forma un pourvoi en cassation contre le jugement en demandant la tenue d’une audience publique.",
+  "en": "17.  On 5 March 1997 the applicant appealed on points of law against the judgment, requesting a public hearing.",
+  "flags": []
+ },
+ {
+  "id": "r0034",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 18,
+  "fr": "18.  Le 6 juin 1997, le procureur transmit le dossier à la Cour de cassation, en y joignant ses observations écrites, dans lesquelles il demandait la confirmation de la condamnation du requérant.",
+  "en": "18.  On 6 June 1997 the public prosecutor transmitted the case file to the Court of Cassation (*Cour de cassation*), together with his written observations, in which he sought the upholding of the applicant’s conviction.",
+  "flags": []
+ },
+ {
+  "id": "r0035",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 19,
+  "fr": "19.  Le 15 janvier 1998, après avoir tenu une audience, la Cour de cassation confirma le jugement attaqué.",
+  "en": "19.  On 15 January 1998, after holding a hearing, the Court of Cassation (*Cour de cassation*) upheld the impugned judgment.",
+  "flags": []
+ },
+ {
+  "id": "r0036",
+  "section": "Facts",
+  "role": "heading",
+  "para_no": null,
+  "fr": "II.  LE DROIT ET LA PRATIQUE INTERNES PERTINENTS",
+  "en": "II.  RELEVANT DOMESTIC LAW AND PRACTICE",
+  "flags": []
+ },
+ {
+  "id": "r0037",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 20,
+  "fr": "20.  Avant la réforme du 18 juin 1999, la partie pertinente de l’article 143 de la Constitution régissant l’organisation judiciaire des cours de sûreté de l’Etat, était ainsi libellé :",
+  "en": "20.  Before the amendment of 18 June 1999, the relevant part of Article 143 of the Constitution, governing the judicial organisation of national security courts (*cours de sûreté de l’Etat*), read as follows:",
+  "flags": []
+ },
+ {
+  "id": "r0038",
+  "section": "Facts",
+  "role": "quote",
+  "para_no": null,
+  "fr": "« Il est institué des cours de sûreté de l’Etat chargées de connaître des infractions commises contre la République – dont les caractéristiques sont énoncées dans la Constitution –, contre l’intégrité territoriale de l’Etat ou l’unité indivisible de la nation et contre l’ordre libre et démocratique, ainsi que des infractions touchant directement à la sécurité intérieure ou extérieure de l’Etat.",
+  "en": "“National security courts (*cours de sûreté de l’Etat*) shall be established to try persons accused of offences against the Republic – whose constituent qualities are enunciated in the Constitution –, against the territorial integrity of the State or the indivisible unity of the nation, or against the free and democratic system of government, and offences directly affecting the State’s internal or external security.",
+  "flags": []
+ },
+ {
+  "id": "r0039",
+  "section": "Facts",
+  "role": "quote",
+  "para_no": null,
+  "fr": "Les cours de sûreté de l’Etat se composent d’un président, de deux membres titulaires, de deux membres suppléants, d’un procureur et d’un nombre suffisant de substituts.",
+  "en": "National security courts (*cours de sûreté de l’Etat*) shall consist of a president, two full members, two substitute members, a public prosecutor and a sufficient number of assistant prosecutors.",
+  "flags": []
+ },
+ {
+  "id": "r0040",
+  "section": "Facts",
+  "role": "quote",
+  "para_no": null,
+  "fr": "Le président, un membre titulaire, un membre suppléant et le procureur sont choisis, selon des procédures définies par des lois spéciales, parmi les juges et les procureurs de la République de premier rang, un titulaire et un suppléant parmi les juges militaires de premier rang, et les substituts parmi les procureurs de la République et les juges militaires.",
+  "en": "The president, one full member, one substitute member and the public prosecutor shall be chosen, in accordance with procedures laid down in special legislation, from among judges and public prosecutors of the Republic of the first rank, one full member and one substitute member from among military judges of the first rank, and the assistant prosecutors from among public prosecutors of the Republic and military judges.",
+  "flags": []
+ },
+ {
+  "id": "r0041",
+  "section": "Facts",
+  "role": "quote",
+  "para_no": null,
+  "fr": "Les présidents et les membres titulaires et suppléants (...) des cours de sûreté de l’Etat sont nommés pour une durée de quatre ans renouvelable.",
+  "en": "The presidents and the full and substitute members ... of national security courts (*cours de sûreté de l’Etat*) shall be appointed for a renewable term of four years.",
+  "flags": []
+ },
+ {
+  "id": "r0042",
+  "section": "Facts",
+  "role": "quote",
+  "para_no": null,
+  "fr": "La Cour de cassation connaît des appels formés contre les arrêts rendus par les cours de sûreté de l’Etat (...) »",
+  "en": "The Court of Cassation (*Cour de cassation*) shall hear appeals against judgments of national security courts (*cours de sûreté de l’Etat*) ...”",
+  "flags": []
+ },
+ {
+  "id": "r0043",
+  "section": "Facts",
+  "role": "paragraph",
+  "para_no": 21,
+  "fr": "21.  La loi no 4388 du 18 juin 1999 relative à l’instauration des cours de sûreté de l’Etat a modifié l’article 143 de la Constitution, ainsi libellé :",
+  "en": "21.  Law no. 4388 of 18 June 1999 on the establishment of national security courts (*loi relative à l’instauration des cours de sûreté de l’Etat*) amended Article 143 of the Constitution, which now reads as follows:",
+  "flags": []
+ },
+ {
+  "id": "r0044",
+  "section": "Facts",
+  "role": "quote",
+  "para_no": null,
+  "fr": "« (...) Les cours de sûreté de l’Etat se composent d’un président, de deux membres titulaires, d’un membre suppléant, d’un procureur général de la République et d’un nombre suffisant de procureurs de la République.",
+  "en": "“... National security courts (*cours de sûreté de l’Etat*) shall consist of a president, two full members, one substitute member, a chief public prosecutor of the Republic and a sufficient number of public prosecutors of the Republic.",
+  "flags": []
+ },
+ {
+  "id": "r0045",
+  "section": "Facts",
+  "role": "quote",
+  "para_no": null,
+  "fr": "Le président, deux membres titulaires, un membre suppléant et le procureur général de la République sont nommés parmi les juges et les procureurs de premier rang, les procureurs de la République parmi les procureurs d’autres rangs, pour quatre ans, par le Haut Conseil des juges et des procureurs, selon la procédure définie dans la loi spéciale. Leur mandat est renouvelable (...) »",
+  "en": "The president, two full members, one substitute member and the chief public prosecutor of the Republic shall be appointed from among judges and public prosecutors of the first rank, and the public prosecutors of the Republic from among public prosecutors of other ranks, for a term of four years, by the Supreme Council of Judges and Public Prosecutors, in accordance with the procedure laid down in special legislation. Their term of office shall be renewable ...”",
+  "flags": []
+ },
+ {
+  "id": "r0046",
+  "section": "Merits",
+  "role": "heading",
+  "para_no": null,
+  "fr": "EN DROIT",
+  "en": "THE LAW",
+  "flags": []
+ },
+ {
+  "id": "r0047",
+  "section": "Merits",
+  "role": "heading",
+  "para_no": null,
+  "fr": "I.  SUR LA VIOLATION ALLÉGUÉE DE L’ARTICLE 6 DE LA CONVENTION",
+  "en": "I.  ALLEGED VIOLATION OF ARTICLE 6 OF THE CONVENTION",
+  "flags": []
+ },
+ {
+  "id": "r0048",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 22,
+  "fr": "22.  Le requérant allègue que la cour de sûreté de l’Etat qui l’a jugé et condamné ne constitue pas un « tribunal impartial et indépendant » qui eût pu lui garantir un procès équitable en raison, d’une part, de la présence d’un juge militaire en son sein et d’autre part, du fait de l’absence d’un avocat pendant sa garde à vue. Il y voit une violation de l’article 6 §§ 1 et 3 c) de la Convention qui, en ses parties pertinentes, se lit ainsi :",
+  "en": "22.  The applicant alleged that the National Security Court (*cour de sûreté de l’Etat*) which had tried and convicted him was not an “independent and impartial tribunal” capable of guaranteeing him a fair trial, on account of, firstly, the presence of a military judge on its bench and, secondly, the absence of a lawyer during his police custody. He submitted that there had been a violation of Article 6 §§ 1 and 3 (c) of the Convention, the relevant parts of which provide:",
+  "flags": []
+ },
+ {
+  "id": "r0049",
+  "section": "Merits",
+  "role": "quote",
+  "para_no": null,
+  "fr": "« Toute personne a droit à ce que sa cause soit entendue équitablement, publiquement (...) par un tribunal indépendant et impartial (...) qui décidera (...) du bien-fondé de toute accusation en matière pénale dirigée contre elle (...) ».",
+  "en": "“In the determination of ... any criminal charge against him, everyone is entitled to a fair and public hearing ... by an independent and impartial tribunal ...”.",
+  "flags": []
+ },
+ {
+  "id": "r0050",
+  "section": "Merits",
+  "role": "quote",
+  "para_no": null,
+  "fr": "3. Tout accusé a droit notamment à :",
+  "en": "3. Everyone charged with a criminal offence has the following minimum rights:",
+  "flags": []
+ },
+ {
+  "id": "r0051",
+  "section": "Merits",
+  "role": "quote",
+  "para_no": null,
+  "fr": "(...)",
+  "en": "...",
+  "flags": []
+ },
+ {
+  "id": "r0052",
+  "section": "Merits",
+  "role": "quote",
+  "para_no": null,
+  "fr": "c) se défendre lui-même ou avoir l’assistance d’un défenseur de son choix et, s’il n’a pas les moyens de rémunérer un défenseur, pouvoir être assisté gratuitement par un avocat d’office, lorsque les intérêts de la justice l’exigent (...) »",
+  "en": "(c) to defend himself in person or through legal assistance of his own choosing or, if he has not sufficient means to pay for legal assistance, to be given it free when the interests of justice so require; ...”",
+  "flags": []
+ },
+ {
+  "id": "r0053",
+  "section": "Merits",
+  "role": "heading",
+  "para_no": null,
+  "fr": "A.  Sur la recevabilité",
+  "en": "A.  Admissibility",
+  "flags": []
+ },
+ {
+  "id": "r0054",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 23,
+  "fr": "23.  Le Gouvernement invite la Cour à rejeter la requête pour non-épuisement des voies de recours internes en vertu de l’article 35 de la Convention. A cet égard, il soutient que le requérant n’a soulevé son grief tiré de l’article 6 § 1 de la Convention ni devant la cour de sûreté de l’Etat ni devant la Cour de cassation, alors qu’en vertu de l’article 90 de la Constitution, la Convention fait partie intégrante du droit national. Il invoque l’arrêt Ahmet Sadık c. Grèce du 15 novembre 1996 (Recueil 1996V, p 1638).",
+  "en": "23.  The Government asked the Court to dismiss the application for failure to exhaust domestic remedies under Article 35 of the Convention. In that connection, they submitted that the applicant had not raised his complaint under Article 6 § 1 of the Convention either before the National Security Court (*cour de sûreté de l’Etat*) or before the Court of Cassation (*Cour de cassation*), even though, under Article 90 of the Constitution, the Convention formed an integral part of domestic law. They relied on the judgment in Ahmet Sadık v. Greece of 15 November 1996 (Reports 1996-V, p. 1638).",
+  "flags": []
+ },
+ {
+  "id": "r0055",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 24,
+  "fr": "24.  Le requérant s’oppose à la thèse du Gouvernement et soutient que lors de sa défense devant la cour de sûreté de l’Etat ainsi que dans sa défense écrite présentée à la Cour de cassation, il a toujours demandé à bénéficier d’un procès équitable. Le requérant allègue, à cet effet, que ce procès équitable devait s’entendre de celui garantit par l’article 6 § 1 de la Convention.",
+  "en": "24.  The applicant disputed the Government’s argument and submitted that, in his defence before the National Security Court (*cour de sûreté de l’Etat*) and in his written defence submitted to the Court of Cassation (*Cour de cassation*), he had always asked to be given a fair trial. He maintained in that connection that this fair trial was to be understood as the one guaranteed by Article 6 § 1 of the Convention.",
+  "flags": []
+ },
+ {
+  "id": "r0056",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 25,
+  "fr": "25.  La Cour renvoie aux éléments de droit interne exposés ci-dessus et observe d’emblée que la présence d’un juge militaire dans la composition des collèges des cours des sûreté de l’Etat était expressément prévue par la loi. Elle relève également que le requérant n’alléguait nullement que la législation ait été incorrectement appliquée. Il s’ensuit qu’une éventuelle récusation du magistrat militaire pour la simple raison qu’il faisait partie du corps militaire était nécessairement vouée à l’échec. Dès lors, une telle affirmation devant les juridictions nationales n’aurait en aucun cas permis au requérant de remédier à la situation dénoncée, dans la mesure où comme elle l’a rappelé, les cours de sûreté de l’Etat sont instaurées par la loi (voir mutatis mutandis, no 9214/80, Cabales, Balkandali et autres c. Royaume-Uni, décision du 11.05.82, D.R. 29, p. 176).",
+  "en": "25.  The Court refers to the domestic-law provisions set out above and observes at the outset that the presence of a military judge on the benches of national security courts (*cours de sûreté de l’Etat*) was expressly provided for by law. It also notes that the applicant did not in any way allege that the legislation had been incorrectly applied. It follows that any challenge to the military judge on the sole ground that he was a member of the armed forces would inevitably have been doomed to failure. Accordingly, such an assertion before the domestic courts could not in any event have enabled the applicant to remedy the situation complained of, since, as the Court has noted, national security courts are established by law (see, mutatis mutandis, no. 9214/80, Cabales, Balkandali and Others v. the United Kingdom, decision of 11 May 1982, Decisions and Reports (DR) 29, p. 176).",
+  "flags": []
+ },
+ {
+  "id": "r0057",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "Partant, la Cour rejette l’exception préliminaire du Gouvernement.",
+  "en": "Accordingly, the Court dismisses the Government’s preliminary objection.",
+  "flags": []
+ },
+ {
+  "id": "r0058",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 26,
+  "fr": "26.  La Cour estime qu’à la lumière des critères qui se dégagent de sa jurisprudence (voir notamment l’arrêt Çıraklar c. Turquie du 28 octobre 1998, Recueil 1998-VII, fasc. 94), et compte tenu de l’ensemble des éléments en sa possession, ce grief doit faire l’objet d’un examen au fond. Elle constate en outre que ce grief ne se heurte à aucun autre motif d’irrecevabilité.",
+  "en": "26.  The Court considers, in the light of the criteria established in its case-law (see, in particular, Çıraklar v. Turkey, judgment of 28 October 1998, Reports 1998-VII, fasc. 94), and having regard to all the evidence before it, that this complaint requires an examination on the merits. It further finds that the complaint is not inadmissible on any other ground.",
+  "flags": []
+ },
+ {
+  "id": "r0059",
+  "section": "Merits",
+  "role": "heading",
+  "para_no": null,
+  "fr": "B. Sur le fond",
+  "en": "B. Merits",
+  "flags": []
+ },
+ {
+  "id": "r0060",
+  "section": "Merits",
+  "role": "heading",
+  "para_no": null,
+  "fr": "1.  Sur l’indépendance et l’impartialité de la cour de sûreté de l’Etat",
+  "en": "1.  Independence and impartiality of the National Security Court (*cour de sûreté de l’Etat*)",
+  "flags": []
+ },
+ {
+  "id": "r0061",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 27,
+  "fr": "27.  Le Gouvernement fait valoir, dans un premier temps, que la présence d’un magistrat militaire au sein d’un tribunal aux côtés de juges civils ne constitue pas, en soi, une violation de l’article 6 § 1 de la Convention. A l’appui de son argumentation, il se réfère à la jurisprudence de la Cour (entre autres, les arrêts Engel et autres c. Pays Bas, Belilos c. Suisse, Campbell et Fell c. Royaume-Uni).",
+  "en": "27.  The Government submitted, firstly, that the presence of a military judge on a court alongside civilian judges did not in itself amount to a violation of Article 6 § 1 of the Convention. In support of their argument, they referred to the Court’s case-law (among others, the judgments in Engel and Others v. the Netherlands, Belilos v. Switzerland and Campbell and Fell v. the United Kingdom).",
+  "flags": []
+ },
+ {
+  "id": "r0062",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 28,
+  "fr": "28.  Le Gouvernement fait également valoir que les dispositions constitutionnelles régissant la nomination des juges et la loi relative aux magistrats militaires siégeant au sein des cours de sûreté de l’Etat ainsi que les garanties dont ces derniers jouissent dans l’exercice de leurs fonctions judiciaires sont telles que ces cours satisfont pleinement à l’exigence d’indépendance et d’impartialité énoncée à l’article 6 § 1 de la Convention.",
+  "en": "28.  The Government also submitted that the constitutional provisions governing the appointment of judges, the legislation on military judges sitting in national security courts (*cours de sûreté de l’Etat*) and the guarantees enjoyed by the latter in the performance of their judicial duties were such that those courts fully complied with the requirement of independence and impartiality laid down in Article 6 § 1 of the Convention.",
+  "flags": []
+ },
+ {
+  "id": "r0063",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 29,
+  "fr": "29.  Le Gouvernement fait observer, en outre, que le 18 juin 1999 est intervenu l’amendement constitutionnel relatif à l’article 143 de la Constitution régissant la composition des cours de sûreté de l’Etat. Il fait notamment valoir, que suite à cet amendement, la loi no 4390 dispose désormais que les fonctions des magistrats et procureurs militaires prennent fin le 22 juin 1999. Le Gouvernement en conclut que le requérant ne peut disposer d’un intérêt juridique quant à son grief tiré de la violation de l’article 6 § 1 de la Convention.",
+  "en": "29.  The Government further pointed out that on 18 June 1999 Article 143 of the Constitution, governing the composition of national security courts (*cours de sûreté de l’Etat*), had been amended. They submitted in particular that, following that amendment, Law no. 4390 now provided that the duties of military judges and prosecutors would end on 22 June 1999. The Government concluded that the applicant could not have any legal interest in his complaint of a violation of Article 6 § 1 of the Convention.",
+  "flags": []
+ },
+ {
+  "id": "r0064",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 30,
+  "fr": "30.  Le requérant s’oppose à la thèse du Gouvernement. Se référant à l’arrêt Incal c. Turquie du 9 juin 1998 (Recueil 1998-IV, § 72), il soutient que la cour de sûreté de l’Etat devant laquelle il a été jugé et condamné ne peut passer pour un « tribunal indépendant et impartial » au sens de l’article 6 § 1 de la Convention. D’autre part, le requérant souligne, que les amendements constitutionnel et législatif relatifs au statut des cours de sûreté de l’Etat ne sauraient avoir de conséquences sur sa situation dans la mesure où la cour de sûreté de l’Etat d’Istanbul qui a entendu sa cause et l’a condamné le 4 mars 1997, était, alors, composée de trois juges dont l’un était un magistrat militaire.",
+  "en": "30.  The applicant disputed the Government’s argument. Referring to the judgment in Incal v. Turkey of 9 June 1998 (Reports 1998-IV, § 72), he submitted that the National Security Court (*cour de sûreté de l’Etat*) before which he had been tried and convicted could not be regarded as an “independent and impartial tribunal” within the meaning of Article 6 § 1 of the Convention. The applicant further stressed that the constitutional and legislative amendments concerning the status of national security courts could have no bearing on his situation, since the Istanbul National Security Court, which had heard his case and convicted him on 4 March 1997, had at that time been composed of three judges, one of whom was a military judge.",
+  "flags": []
+ },
+ {
+  "id": "r0065",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 31,
+  "fr": "31.  La Cour rappelle que, dans les arrêts Incal c. Turquie (précité) et Çıraklar c. Turquie (précité), elle a déjà examiné des griefs similaires à ceux soulevés dans la présente affaire. Elle a notamment relevé, dans ces affaires, que certaines caractéristiques du statut des juges militaires siégeant au sein des cours de sûreté de l’Etat rendaient leur indépendance et leur impartialité sujettes à caution (arrêt Incal c . Turquie, précité, p. 1571, § 68). Elle a ainsi souligné que les intéressés étaient des militaires continuant d’appartenir à l’armée, donc au pouvoir exécutif, qu’ils restaient soumis à la discipline militaire et faisaient l’objet de notations par l’armée à cet égard, que leurs désignation et nomination requéraient pour une large part l’intervention de l’administration et de l’armée et qu’enfin, leur mandat comme juge à la cour de sûreté de l’Etat était de quatre ans et pouvait se voir renouvelé.",
+  "en": "31.  The Court reiterates that in Incal v. Turkey (cited above) and Çıraklar v. Turkey (cited above) it has already examined complaints similar to those raised in the present case. In those cases the Court noted, in particular, that certain aspects of the status of military judges sitting as members of national security courts (*cours de sûreté de l’Etat*) made their independence and impartiality questionable (see Incal v. Turkey, cited above, p. 1571, § 68). It pointed out that the judges in question were servicemen who still belonged to the army, which in turn took its orders from the executive; that they remained subject to military discipline and that assessment reports were compiled on them by the army for that purpose; that decisions pertaining to their appointment were to a great extent taken by the administrative authorities and the army; and, lastly, that their term of office as national security court judges was four years and could be renewed.",
+  "flags": []
+ },
+ {
+  "id": "r0066",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 32,
+  "fr": "32.  La Cour, cependant, prend en considération les renseignements du Gouvernement selon lesquels, la législation turque a été amendée de manière à répondre aux exigences de la Convention. Toutefois, elle précise que sa tâche se limite à l’appréciation des circonstances propres à l’espèce ; elle ne saurait donc être appelée à conclure qu’une affaire ne présente plus un intérêt juridique valable pour le requérant au motif que des développements seraient survenus dans la législation interne depuis l’époque pertinente (voir Sadak et autres c. Turquie, arrêt du 17 juillet 2001, § 38).",
+  "en": "32.  The Court nevertheless takes into consideration the information provided by the Government according to which Turkish legislation has been amended so as to comply with the requirements of the Convention. However, it points out that its task is confined to assessing the particular circumstances of the case; it cannot therefore be called upon to find that a case no longer presents a valid legal interest for the applicant on the ground that developments have occurred in domestic legislation since the relevant time (see Sadak and Others v. Turkey, judgment of 17 July 2001, § 38).",
+  "flags": []
+ },
+ {
+  "id": "r0067",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 33,
+  "fr": "33.  Il lui incombe dés lors de rechercher si l’intéressé avait objectivement un motif légitime de redouter un manque d’indépendance et d’impartialité de la part de la juridiction qui le jugeait (arrêt İncal précité, p. 1572, § 70, et Çıraklar précité, p. 3072, § 38).",
+  "en": "33.  It must therefore determine whether the applicant objectively had a legitimate reason to fear a lack of independence and impartiality on the part of the court which tried him (see İncal, cited above, p. 1572, § 70, and Çıraklar, cited above, p. 3072, § 38).",
+  "flags": []
+ },
+ {
+  "id": "r0068",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": null,
+  "fr": "A cet égard, la Cour ne voit aucune raison de s’écarter de la conclusion à laquelle elle est parvenue en ce qui concerne MM. İncal et Çıraklar, qui, comme le requérant, étaient tous deux des civils. Il est compréhensible dans la présente affaire que le requérant, qui répondait devant une cour de sûreté de l’Etat du chef d’accusation d’avoir tenté de renverser par la force l’ordre constitutionnel turc, crime prévu et réprimé par l’article 146 § 1 du code pénal, ait redouté de comparaître devant des juges parmi lesquels figurait un officier de carrière appartenant à la magistrature militaire. De ce fait, il pouvait légitimement craindre que la cour de sûreté de l’Etat d’Istanbul se laissât indûment guider par des considérations étrangères à la nature de sa cause. Partant, on peut considérer qu’étaient objectivement justifiés les doutes nourris par le requérant quant à l’indépendance et à l’impartialité de cette juridiction (arrêt İncal précité, p. 1573, § 72 in fine).",
+  "en": "In that connection, the Court sees no reason to depart from the conclusion it reached in respect of Mr İncal and Mr Çıraklar, both of whom, like the applicant, were civilians. It is understandable in the present case that the applicant – who was being tried in a national security court (*cour de sûreté de l’Etat*) on a charge of having attempted to overthrow the Turkish constitutional order by force, an offence under Article 146 § 1 of the Criminal Code (*code pénal*) – should have been apprehensive about being tried by a bench which included a regular army officer who was a member of the military judiciary. On that account he could legitimately fear that the Istanbul National Security Court might allow itself to be unduly influenced by considerations which had nothing to do with the nature of his case. Accordingly, the applicant’s doubts about the independence and impartiality of that court may be regarded as objectively justified (see İncal, cited above, p. 1573, § 72 in fine).",
+  "flags": []
+ },
+ {
+  "id": "r0069",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 34,
+  "fr": "34.  Partant, la Cour conclut que, lorsqu’elle a jugé et condamné le requérant, la cour de sûreté de l’Etat d’Istanbul n’était pas un tribunal indépendant et impartial au sens de l’article 6 § 1 de la Convention.",
+  "en": "34.  The Court therefore concludes that, when it tried and convicted the applicant, the Istanbul National Security Court (*cour de sûreté de l’Etat*) was not an independent and impartial tribunal within the meaning of Article 6 § 1 of the Convention.",
+  "flags": []
+ },
+ {
+  "id": "r0070",
+  "section": "Merits",
+  "role": "heading",
+  "para_no": null,
+  "fr": "2.  Sur l’équité de la procédure pénale",
+  "en": "2.  Fairness of the criminal proceedings",
+  "flags": []
+ },
+ {
+  "id": "r0071",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 35,
+  "fr": "35.  Le requérant allègue, en outre sous l’angle de l’article 6 de la Convention, qu’il n’a pu bénéficier de l’assistance d’un avocat durant sa garde à vue et d’autre part, qu’il a été condamné sur la base de ses dépositions faites à la police. Il invoque à cet égard, l’article 6 §§ 1 et 3 c) de la Convention.",
+  "en": "35.  The applicant further alleged under Article 6 of the Convention that he had not been able to have the assistance of a lawyer during his police custody and, furthermore, that he had been convicted on the basis of the statements he had made to the police. In that connection, he relied on Article 6 §§ 1 and 3 (c) of the Convention.",
+  "flags": []
+ },
+ {
+  "id": "r0072",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 36,
+  "fr": "36.  Le Gouvernement ne se prononce pas.",
+  "en": "36.  The Government did not comment.",
+  "flags": []
+ },
+ {
+  "id": "r0073",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 37,
+  "fr": "37.  La Cour rappelle avoir déjà jugé dans des affaires similaires qu’un tribunal dont le manque d’indépendance et d’impartialité a été établi ne peut, en toute hypothèse, garantir un procès équitable aux personnes soumises à sa juridiction.",
+  "en": "37.  The Court reiterates that it has already held in similar cases that a court whose lack of independence and impartiality has been established cannot, in any circumstances, guarantee a fair trial to the persons subject to its jurisdiction.",
+  "flags": []
+ },
+ {
+  "id": "r0074",
+  "section": "Merits",
+  "role": "paragraph",
+  "para_no": 38,
+  "fr": "38.  Eu égard au constat de violation du droit de M. Özel à voir sa cause entendue par un tribunal indépendant et impartial auquel elle parvient, la Cour estime qu’il n’y a pas lieu d’examiner le présent grief (voir, entre autres, l’arrêt Çıraklar précité, p 14, §§ 44-45).",
+  "en": "38.  Having regard to its finding of a violation of Mr Özel’s right to have his case heard by an independent and impartial tribunal, the Court considers that it is unnecessary to examine this complaint (see, among other authorities, Çıraklar, cited above, p. 14, §§ 44-45).",
+  "flags": []
+ },
+ {
+  "id": "r0075",
+  "section": "Just Satisfaction",
+  "role": "heading",
+  "para_no": null,
+  "fr": "II.  SUR L’APPLICATION DE L’ARTICLE 41 DE LA CONVENTION",
+  "en": "II.  APPLICATION OF ARTICLE 41 OF THE CONVENTION",
+  "flags": []
+ },
+ {
+  "id": "r0076",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 39,
+  "fr": "39.  Aux termes de l’article 41 de la Convention,",
+  "en": "39.  Article 41 of the Convention provides:",
+  "flags": []
+ },
+ {
+  "id": "r0077",
+  "section": "Just Satisfaction",
+  "role": "quote",
+  "para_no": null,
+  "fr": "« Si la Cour déclare qu’il y a eu violation de la Convention ou de ses Protocoles, et si le droit interne de la Haute Partie contractante ne permet d’effacer qu’imparfaitement les conséquences de cette violation, la Cour accorde à la partie lésée, s’il y a lieu, une satisfaction équitable. »",
+  "en": "“If the Court finds that there has been a violation of the Convention or the Protocols thereto, and if the internal law of the High Contracting Party concerned allows only partial reparation to be made, the Court shall, if necessary, afford just satisfaction to the injured party.”",
+  "flags": []
+ },
+ {
+  "id": "r0078",
+  "section": "Just Satisfaction",
+  "role": "heading",
+  "para_no": null,
+  "fr": "A.  Dommage",
+  "en": "A.  Damage",
+  "flags": []
+ },
+ {
+  "id": "r0079",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 40,
+  "fr": "40.  Le requérant allègue avoir subi un préjudice matériel correspondant à une perte de gains équivalant aux vingt années qu’il devra passer en prison et qu’il évalue à 53 280 000 000 de livres turques (35 520 EUR). Par ailleurs, il estime avoir subi un dommage moral de 50 000 000 000 de livres turques (33 333 EUR) en raison de sa condamnation, notamment, sur la base de la loi sur le terrorisme.",
+  "en": "40.  The applicant alleged that he had sustained pecuniary damage corresponding to the loss of earnings over the twenty years he would have to spend in prison, which he assessed at 53,280,000,000 Turkish liras (EUR 35,520). He further claimed to have sustained non-pecuniary damage in the amount of 50,000,000,000 Turkish liras (EUR 33,333) on account of his conviction, in particular on the basis of the Prevention of Terrorism Act (*loi sur le terrorisme*).",
+  "flags": []
+ },
+ {
+  "id": "r0080",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 41,
+  "fr": "41.  Le Gouvernement estime que les sommes réclamées par le requérant sont excessives et injustifiées. A cet égard, il fait valoir, quant au préjudice matériel, une absence de lien de causalité entre la violation et le manque à gagner invoqué par le requérant. Quant au préjudice moral, le Gouvernement considère que le constat de violation constitue une satisfaction équitable suffisante.",
+  "en": "41.  The Government considered the amounts claimed by the applicant to be excessive and unjustified. In that connection, they submitted, as regards pecuniary damage, that there was no causal link between the violation and the loss of earnings alleged by the applicant. As regards non-pecuniary damage, the Government considered that the finding of a violation constituted sufficient just satisfaction.",
+  "flags": []
+ },
+ {
+  "id": "r0081",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 42,
+  "fr": "42.  Quant au dommage matériel allégué, la Cour ne saurait spéculer sur le résultat auquel la procédure devant la cour de sûreté de l’Etat aurait abouti si l’infraction à la Convention n’avait pas eu lieu. Il n’y a donc pas lieu d’accorder au requérant une indemnité pour dommage matériel (Findlay c. Royaume-Uni, arrêt du 25 février 1997, Recueil des arrêts et décisions 1997-I, p. 284, § 85)",
+  "en": "42.  As regards the alleged pecuniary damage, the Court cannot speculate as to what the outcome of the proceedings before the National Security Court (*cour de sûreté de l’Etat*) would have been had the breach of the Convention not occurred. There is therefore no reason to award the applicant compensation for pecuniary damage (see Findlay v. the United Kingdom, judgment of 25 February 1997, Reports of Judgments and Decisions 1997-I, p. 284, § 85).",
+  "flags": []
+ },
+ {
+  "id": "r0082",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 43,
+  "fr": "43.  Pour ce qui est du dédommagement des préjudices moraux, la Cour estime que, dans les circonstances de l’espèce, le constat de violation constitue en soi une satisfaction équitable suffisante pour le préjudice moral allégué (arrêt Çıraklar précité, p. 3074, § 49).",
+  "en": "43.  As regards compensation for non-pecuniary damage, the Court considers that, in the circumstances of the case, the finding of a violation constitutes in itself sufficient just satisfaction for the non-pecuniary damage alleged (see Çıraklar, cited above, p. 3074, § 49).",
+  "flags": []
+ },
+ {
+  "id": "r0083",
+  "section": "Just Satisfaction",
+  "role": "heading",
+  "para_no": null,
+  "fr": "B.  Frais et dépens",
+  "en": "B.  Costs and expenses",
+  "flags": []
+ },
+ {
+  "id": "r0084",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 44,
+  "fr": "44.  A titre de frais et dépens afférents à sa représentation, le requérant réclame au total, justificatifs à l’appui, 4 226 EUR. Cette somme comprend les frais de la procédure interne et de celle devant les organes de la Convention.",
+  "en": "44.  The applicant claimed a total of EUR 4,226, supported by vouchers, for the costs and expenses relating to his representation. That sum included the costs of the domestic proceedings and of the proceedings before the Convention institutions.",
+  "flags": []
+ },
+ {
+  "id": "r0085",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 45,
+  "fr": "45.  Le Gouvernement soutient que les pièces présentées par le requérant ne justifient pas la somme réclamée par celui-ci.",
+  "en": "45.  The Government submitted that the documents produced by the applicant did not substantiate the amount claimed.",
+  "flags": []
+ },
+ {
+  "id": "r0086",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 46,
+  "fr": "46.  Sur la base des éléments en sa possession, la Cour, statuant en équité, accorde au requérant 3000 EUR, déduction faite des 630 EUR versés par le Conseil de l’Europe au titre de l’assistance judiciaire et qui n’ont pas déjà été pris en compte dans la demande.",
+  "en": "46.  On the basis of the information in its possession, the Court, ruling on an equitable basis, awards the applicant EUR 3,000, less the EUR 630 paid by the Council of Europe by way of legal aid which have not already been taken into account in the claim.",
+  "flags": []
+ },
+ {
+  "id": "r0087",
+  "section": "Just Satisfaction",
+  "role": "heading",
+  "para_no": null,
+  "fr": "C.  Intérêts moratoires",
+  "en": "C.  Default interest",
+  "flags": []
+ },
+ {
+  "id": "r0088",
+  "section": "Just Satisfaction",
+  "role": "paragraph",
+  "para_no": 47,
+  "fr": "47.  La Cour considère que le taux annuel des intérêts moratoires doit être calqué sur celui de la facilité de prêt marginal de la Banque centrale européenne augmenté de trois points de pourcentage.",
+  "en": "47.  The Court considers it appropriate that the default interest should be based on the marginal lending rate of the European Central Bank, to which should be added three percentage points.",
+  "flags": []
+ },
+ {
+  "id": "r0089",
+  "section": "Operative part",
+  "role": "heading",
+  "para_no": null,
+  "fr": "PAR CES MOTIFS, LA COUR, À l’UNANIMITÉ,",
+  "en": "FOR THESE REASONS, THE COURT UNANIMOUSLY",
+  "flags": []
+ },
+ {
+  "id": "r0090",
+  "section": "Operative part",
+  "role": "operative_list",
+  "para_no": null,
+  "fr": "1.  Déclare recevable le grief tiré de l’article 6 § 1 de la Convention en ce qui concerne le manque d’indépendance et d’impartialité de la cour de sûreté de l’Etat d’İstanbul ;",
+  "en": "1.  Declares admissible the complaint under Article 6 § 1 of the Convention concerning the lack of independence and impartiality of the İstanbul National Security Court (*cour de sûreté de l’Etat*);",
+  "flags": []
+ },
+ {
+  "id": "r0091",
+  "section": "Operative part",
+  "role": "operative_list",
+  "para_no": null,
+  "fr": "2.  Dit qu’il y a eu violation de l’article 6 § 1 de la Convention quant au grief relatif au manque d’indépendance et d’impartialité de la cour de sûreté de l’Etat d’İstanbul ;",
+  "en": "2.  Holds that there has been a violation of Article 6 § 1 of the Convention as regards the complaint concerning the lack of independence and impartiality of the İstanbul National Security Court (*cour de sûreté de l’Etat*);",
+  "flags": []
+ },
+ {
+  "id": "r0092",
+  "section": "Operative part",
+  "role": "operative_list",
+  "para_no": null,
+  "fr": "3.  Dit qu’il n’y a pas lieu d’examiner les autres griefs tirés de l’article 6 de la Convention ;",
+  "en": "3.  Holds that it is not necessary to examine the other complaints under Article 6 of the Convention;",
+  "flags": []
+ },
+ {
+  "id": "r0093",
+  "section": "Operative part",
+  "role": "operative_list",
+  "para_no": null,
+  "fr": "4.  Dit",
+  "en": "4.  Holds",
+  "flags": []
+ },
+ {
+  "id": "r0094",
+  "section": "Operative part",
+  "role": "operative_list",
+  "para_no": null,
+  "fr": "a)  que l’Etat défendeur doit verser au requérant, dans les trois mois à compter du jour où l’arrêt sera devenu définitif conformément à l’article 44 § 2 de la Convention, la somme suivante, à convertir en livres turques au taux applicable à la date du règlement : 3 000 EUR (trois mille euros ) pour frais et dépens, plus tout montant pouvant être dû au titre de la taxe sur la valeur ajoutée au toutes autres charges fiscales exigibles au moment du versement, moins 630 EUR (six cent trente euros) perçus au titre de l’assistance judiciaire ;",
+  "en": "(a)  that the respondent State is to pay the applicant, within three months from the date on which the judgment becomes final according to Article 44 § 2 of the Convention, the following amount, to be converted into Turkish liras at the rate applicable at the date of settlement: EUR 3,000 (three thousand euros) in respect of costs and expenses, plus any amount that may be chargeable in respect of value-added tax or any other taxes payable at the time of payment, less EUR 630 (six hundred and thirty euros) received by way of legal aid;",
+  "flags": []
+ },
+ {
+  "id": "r0095",
+  "section": "Operative part",
+  "role": "operative_list",
+  "para_no": null,
+  "fr": "b)  qu’à compter de l’expiration dudit délai et jusqu’au versement, ces montants seront à majorer d’un intérêt simple à un taux égal à celui de la facilité de prêt marginal de la Banque centrale européenne, applicable pendant cette période, augmenté de trois points de pourcentage ;",
+  "en": "(b)  that from the expiry of the above-mentioned three months until settlement simple interest shall be payable on the above amounts at a rate equal to the marginal lending rate of the European Central Bank during the default period plus three percentage points;",
+  "flags": []
+ },
+ {
+  "id": "r0096",
+  "section": "Operative part",
+  "role": "operative_list",
+  "para_no": null,
+  "fr": "5.  Rejette la demande de satisfaction équitable pour le surplus.",
+  "en": "5.  Dismisses the remainder of the applicant’s claim for just satisfaction.",
+  "flags": []
+ },
+ {
+  "id": "r0097",
+  "section": "Appendix",
+  "role": "footer",
+  "para_no": null,
+  "fr": "Fait en français, puis communiqué par écrit le 7 novembre 2002 en application de l’article 77 §§ 2 et 3 du règlement.",
+  "en": "Done in French, and notified in writing on 7 November 2002, pursuant to Rule 77 §§ 2 and 3 of the Rules of Court.",
+  "flags": []
+ },
+ {
+  "id": "r0098",
+  "section": "Appendix",
+  "role": "signature",
+  "para_no": null,
+  "fr": "Vincent Berger\tGeorg Ress\n\tGreffier\tPrésident",
+  "en": "Vincent Berger\tGeorg Ress\n\tRegistrar\tPresident",
+  "flags": []
+ }
+]

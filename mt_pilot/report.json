@@ -1,0 +1,50 @@
+{
+ "judgments": 6,
+ "complete": 6,
+ "rows": 612,
+ "flags": {},
+ "rows_flagged_share": 0.0,
+ "chrf_mean": 88.4,
+ "glossary_term_accuracy": 0.9955,
+ "per_judgment": [
+  {
+   "id": "001-109577",
+   "rows": 84,
+   "complete": true,
+   "flagged": 0,
+   "chrf": 88.1
+  },
+  {
+   "id": "001-138992",
+   "rows": 113,
+   "complete": true,
+   "flagged": 0,
+   "chrf": 89.7
+  },
+  {
+   "id": "001-144276",
+   "rows": 133,
+   "complete": true,
+   "flagged": 0,
+   "chrf": 87.5
+  },
+  {
+   "id": "001-59122",
+   "rows": 110,
+   "complete": true,
+   "flagged": 0
+  },
+  {
+   "id": "001-60745",
+   "rows": 99,
+   "complete": true,
+   "flagged": 0
+  },
+  {
+   "id": "001-61392",
+   "rows": 73,
+   "complete": true,
+   "flagged": 0
+  }
+ ]
+}
