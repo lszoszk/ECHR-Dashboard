@@ -249,7 +249,8 @@ def citations(req: CitReq):
         meta[cid] = {"title": node.get("title", ""), "case_no": node.get("case_no", ""),
                      "judgment_date": node.get("judgment_date", "")}
         cites = node.get("cites", []); citedby = node.get("cited_by", [])
-        cbt[cid] = len(citedby); ct[cid] = len(cites)
+        # + judgments HUDOC has only in French (not in the corpus yet), as the Search page counts them
+        cbt[cid] = len(citedby) + int(node.get("cited_by_french_only", 0)); ct[cid] = len(cites)
         for tgt in cites:
             if tgt in id_set and tgt != cid: edges.append({"from": cid, "to": tgt})
         cs[cid] = expand(cites); cbs[cid] = expand(citedby)

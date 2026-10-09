@@ -8,7 +8,12 @@ pages show the same numbers.
 Shape (one node per case that has at least one edge):
 
     {"<case_id>": {"title": ..., "case_no": ..., "judgment_date": "DD/MM/YYYY",
-                   "cites": ["<case_id>", ...], "cited_by": ["<case_id>", ...]}}
+                   "cites": ["<case_id>", ...], "cited_by": ["<case_id>", ...],
+                   "cited_by_french_only": N}}
+
+cited_by_french_only (present when > 0) counts the judgments that cite the case but that HUDOC
+publishes only in French and that are not in `cases` yet (french_only_citations, written by
+scripts/p70_french_only_metadata.py), so the Cited by count matches the Search page's.
 
 Usage
 -----
@@ -36,7 +41,15 @@ def build_graph(con: sqlite3.Connection) -> dict[str, dict]:
             "SELECT DISTINCT citing_case_id, cited_case_id FROM case_citations"):
         cites[citing].add(cited)
         cited_by[cited].add(citing)
-    ids = set(cites) | set(cited_by)
+    french: dict[str, int] = {}
+    try:
+        for cited, n in con.execute(
+                "SELECT cited_case_id, count(DISTINCT citing_case_id) FROM french_only_citations "
+                "WHERE citing_case_id NOT IN (SELECT case_id FROM cases) GROUP BY cited_case_id"):
+            french[cited] = n
+    except sqlite3.OperationalError:
+        pass  # no french_only_citations table: no French-only citers
+    ids = set(cites) | set(cited_by) | set(french)
     graph: dict[str, dict] = {}
     for case_id, title, case_no, judgment_date in con.execute(
             "SELECT case_id, title, case_no, judgment_date FROM cases"):
@@ -49,6 +62,8 @@ def build_graph(con: sqlite3.Connection) -> dict[str, dict]:
             "cites": sorted(cites.get(case_id, ())),
             "cited_by": sorted(cited_by.get(case_id, ())),
         }
+        if french.get(case_id):
+            graph[case_id]["cited_by_french_only"] = french[case_id]
     return graph
 
 
