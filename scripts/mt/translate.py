@@ -48,9 +48,22 @@ def submit(args) -> None:
     jobs = jobs[args.offset:]
     if args.limit:
         jobs = jobs[: args.limit]
+    rows_wanted = None
+    if args.rows:                       # "case__chunk row_id" per line: repair only these paragraphs
+        rows_wanted = {}
+        for line in Path(args.rows).read_text().splitlines():
+            if line.strip():
+                rid, row_id = line.split()
+                rows_wanted.setdefault(rid, set()).add(row_id)
+        jobs = [jf for jf in jobs if f"{jf.parent.name}__{jf.stem[6:]}" in rows_wanted]
     requests = []
     for jf in jobs:
         job = json.loads(jf.read_text())
+        if rows_wanted is not None:
+            keep = rows_wanted[f"{jf.parent.name}__{jf.stem[6:]}"]
+            job["rows"] = [r for r in job["rows"] if r["id"] in keep]
+        if args.no_examples:
+            job["examples"] = []
         requests.append({
             "custom_id": f"{jf.parent.name}__{jf.stem[6:]}",
             "params": {"model": args.model, "max_tokens": MAX_TOKENS, "thinking": {"type": args.thinking},
@@ -110,6 +123,9 @@ def main() -> int:
     s.add_argument("--tag", required=True)
     s.add_argument("--thinking", choices=["disabled", "adaptive"], default="disabled",
                    help="reasoning before the answer: billed as output tokens; off by default")
+    s.add_argument("--rows", help="file of 'case__chunk row_id' lines (judge.py --fix-list): translate only these "
+                   "paragraphs; collect writes files holding just those rows, which assemble.py merges row by row")
+    s.add_argument("--no-examples", action="store_true", help="leave out the translation-memory examples (fewer tokens)")
     s.add_argument("--only", help="request ids (case__chunk, as collect prints them), comma-separated or a file")
     s.add_argument("--offset", type=int, default=0, help="skip the first N chunks (to send a large set in parts)")
     s.add_argument("--limit", type=int, help="only N chunks (a dry run, or one part)")

@@ -50,6 +50,17 @@ def chrf(hyp: str, ref: str, n: int = 6, beta: float = 2.0) -> float:
     return 0.0 if p + r == 0 else 100 * (1 + beta ** 2) * p * r / (beta ** 2 * p + r)
 
 
+def merged_translation(chunk: Path, tags: list[str]) -> dict:
+    """Row id -> English, taking each row from the first tag whose file has it (a repair file holds only the
+    rows it repaired, so it goes first)."""
+    merged: dict = {}
+    for t in reversed(tags):
+        f = chunk.with_name(f"{chunk.stem}.{t}.json")
+        if f.exists():
+            merged.update(json.loads(f.read_text()))
+    return merged
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--jobs", required=True)
@@ -73,11 +84,10 @@ def main() -> int:
         for jf in jobs:
             job = json.loads(jf.read_text())
             glossary.update(job.get("glossary", {}))
-            tf = next((jf.with_name(f"{jf.stem}.{t}.json") for t in args.suffix.split(",")
-                       if jf.with_name(f"{jf.stem}.{t}.json").exists()), None)
-            tr = json.loads(tf.read_text()) if tf else {}
-            complete &= tf is not None
-            chunk_flagged = tf is None
+            tr = merged_translation(jf, args.suffix.split(","))
+            tf = tr or None
+            complete &= all(r["id"] in tr for r in job["rows"])
+            chunk_flagged = False
             for r in job["rows"]:
                 en = tr.get(r["id"])
                 flags = []
