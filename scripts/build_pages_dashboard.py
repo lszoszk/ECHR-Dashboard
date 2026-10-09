@@ -269,7 +269,7 @@ def parse_conclusion_clauses(conclusion: str) -> dict:
             else:
                 clause_types["Preliminary objection other"] += 1
         elif "just satisfaction" in cl:
-            clause_types["Just satisfaction reserved"] += 1
+            clause_types["Just satisfaction reserved" if "reserved" in cl else "Just satisfaction other"] += 1
         elif "pecuniary damage" in cl and "non-pecuniary" not in cl:
             if "financial award" in cl or ("award" in cl and "dismiss" not in cl):
                 clause_types["Pecuniary damage awarded"] += 1
@@ -284,7 +284,7 @@ def parse_conclusion_clauses(conclusion: str) -> dict:
             else:
                 clause_types["Pecuniary damage other"] += 1
         elif "non-pecuniary damage" in cl:
-            if "financial award" in cl:
+            if "financial award" in cl or ("award" in cl and "dismiss" not in cl):
                 clause_types["Non-pecuniary damage awarded"] += 1
                 m = re.search(r"EUR\s+([\d,]+(?:\.\d+)?)", clause)
                 if m:
@@ -376,6 +376,10 @@ def is_press_release(case) -> bool:
     return "press release" in doc_type
 
 
+def is_judgment(case) -> bool:
+    return any(str(kind).lower().startswith("judgment") for kind in normalize_doc_types(case))
+
+
 # Same canonical spellings as the API (_STATE_ALIASES in api/main.py), so a state
 # is counted once whether a case spells it "Türkiye" or "Turkey".
 STATE_ALIASES = {
@@ -407,6 +411,8 @@ def infer_chamber_category(doc_types, originating_body: str) -> str:
 
     if "GRANDCHAMBER" in doc_text or "GRAND CHAMBER" in doc_text or "GRAND CHAMBER" in body_text:
         return "GRANDCHAMBER"
+    if "COMMITTEE" in doc_text or "COMMITTEE" in body_text:
+        return "COMMITTEE"
     if "CHAMBER" in doc_text or "SECTION" in body_text or "CHAMBER" in body_text:
         return "CHAMBER"
     return "OTHER"
@@ -430,6 +436,28 @@ def normalize_articles(case):
         if token:
             articles.append(token)
     return articles
+
+
+def primary_articles(tags):
+    """Collapse provisions to article families, preserving Protocol identity.
+
+    Conjunction components describe article-related HUDOC tags, not separate
+    standalone legal findings. A set prevents counting subparagraphs twice.
+    """
+    result = set()
+    for tag in tags:
+        for component in re.split(r"[+;,]", str(tag)):
+            component = component.strip().upper()
+            if not re.fullmatch(r"(?:P\d+-\d+|\d+)(?:-[A-Z0-9]+)*", component):
+                continue
+            parts = component.split("-")
+            result.add("-".join(parts[:2]) if component.startswith("P") else parts[0])
+    return result
+
+
+def primary_article_order(article):
+    parts = article.replace("P", "").split("-")
+    return (article.startswith("P"), *(int(part) for part in parts))
 
 
 def derive_outcome_bucket(violation, non_violation):
@@ -479,7 +507,8 @@ def normalize_case(case):
         "importance": str(case.get("importance") or "").strip() or "Unspecified",
         "separate_opinion": normalize_bool(case.get("separate_opinion")),
         "paragraphs": paragraphs,
-        "paragraph_len": len(paragraphs),
+        "paragraph_len": sum(case["paragraph_section_counts"].values())
+        if "paragraph_section_counts" in case else len(paragraphs),
         "violation": violation,
         "non_violation": non_violation,
         "outcome_bucket": outcome_primary,
@@ -543,6 +572,7 @@ def build_payload(cases, source_file: str):
     article_non_violation_counts = Counter()
     article_case_counts = Counter()
     article_violation_case_counts = Counter()
+    primary_article_counts = defaultdict(Counter)
     inadmissibility_ground_counts = Counter()
     state_case_counts = Counter()
     state_outcome_counts = defaultdict(Counter)
@@ -582,6 +612,7 @@ def build_payload(cases, source_file: str):
 
     total_paragraphs = 0
     press_release_count = 0
+    other_document_count = 0
     violation_cases = 0
     non_violation_cases = 0
     key_cases = 0
@@ -626,6 +657,9 @@ def build_payload(cases, source_file: str):
         if is_press_release(case):
             press_release_count += 1
             continue
+        if not is_judgment(case):
+            other_document_count += 1
+            continue
 
         normalized = normalize_case(case)
         case_id = str(case.get("case_id") or "").strip()
@@ -659,7 +693,7 @@ def build_payload(cases, source_file: str):
 
         case_articles = set()
         for article in normalized["articles"]:
-            if article and not article.startswith("P") and len(article) < 10:
+            if article and len(article) < 10:
                 article_counts[article] += 1
                 unique_articles.add(article)
                 case_articles.add(article)
@@ -679,10 +713,21 @@ def build_payload(cases, source_file: str):
         for article in set(normalized["non_violation"]):
             article_non_violation_counts[article] += 1
 
+        primary_v = primary_articles(normalized["violation"])
+        primary_nv = primary_articles(normalized["non_violation"])
+        primary_referenced = primary_articles(normalized["articles"]) | primary_v | primary_nv
+        for article in primary_referenced:
+            counts = primary_article_counts[article]
+            counts["referenced"] += 1
+            bucket = derive_outcome_bucket(primary_v & {article}, primary_nv & {article})
+            counts[bucket] += 1
+
         if normalized["chamber_category"] == "GRANDCHAMBER":
             chamber_counts["Grand Chamber"] += 1
         elif normalized["chamber_category"] == "CHAMBER":
             chamber_counts["Chamber"] += 1
+        elif normalized["chamber_category"] == "COMMITTEE":
+            chamber_counts["Committee"] += 1
         else:
             chamber_counts["Other"] += 1
 
@@ -735,8 +780,12 @@ def build_payload(cases, source_file: str):
         if normalized["separate_opinion"]:
             separate_opinion_by_body_cases[body] += 1
 
-        for para in normalized["paragraphs"]:
-            section_counts[para["section"]] += 1
+        if "paragraph_section_counts" in case:
+            for section, count in case["paragraph_section_counts"].items():
+                section_counts[normalize_section_key(section)] += count
+        else:
+            for para in normalized["paragraphs"]:
+                section_counts[para["section"]] += 1
 
         for keyword in normalized["keywords"]:
             keyword_counts[keyword] += 1
@@ -782,7 +831,8 @@ def build_payload(cases, source_file: str):
             # Conclusion outcome categories by year
             has_v_clause = parsed_conc["clause_types"].get("Violation finding", 0) > 0
             has_nv_clause = parsed_conc["clause_types"].get("No violation finding", 0) > 0
-            has_award = any(conc_awards[k] for k in conc_awards)
+            has_award = any(parsed_conc["clause_types"].get(k, 0) for k in (
+                "Pecuniary damage awarded", "Non-pecuniary damage awarded", "Costs & expenses awarded"))
             has_inadm = parsed_conc["clause_types"].get("Inadmissible", 0) > 0
             if has_v_clause:
                 conclusion_outcome_by_year[yr]["violation"] += 1
@@ -797,16 +847,15 @@ def build_payload(cases, source_file: str):
         kpt_raw = str(case.get("hudoc_kpthesaurus") or "").strip()
         if kpt_raw:
             kpt_cases_count += 1
-            kpt_ids = [k.strip() for k in kpt_raw.split(";") if k.strip()]
-            for kid in kpt_ids:
-                label = KPT_LABELS.get(kid, f"#{kid}")
+            kpt_ids = list(dict.fromkeys(k.strip() for k in kpt_raw.split(";") if k.strip()))
+            labels_list = list(dict.fromkeys(KPT_LABELS.get(kid, f"#{kid}") for kid in kpt_ids))
+            for label in labels_list:
                 kpt_term_counts[label] += 1
                 for state in normalized["states"]:
                     kpt_by_country[state][label] += 1
                 if date_obj:
                     kpt_by_year[date_obj.strftime("%Y")][label] += 1
-            # Co-occurrence pairs (top-level only, limit to first 8 terms)
-            labels_list = [KPT_LABELS.get(k.strip(), f"#{k.strip()}") for k in kpt_ids[:8]]
+            # Count every distinct topic pair once per judgment, without truncation.
             for i in range(len(labels_list)):
                 for j in range(i + 1, len(labels_list)):
                     pair = tuple(sorted([labels_list[i], labels_list[j]]))
@@ -814,7 +863,7 @@ def build_payload(cases, source_file: str):
 
     sorted_lengths = sorted(case_lengths)
     # total_cases counts only judgments — press releases are excluded
-    total_cases = len(cases) - press_release_count
+    total_cases = len(cases) - press_release_count - other_document_count
 
     avg_len = (sum(sorted_lengths) / total_cases) if total_cases else 0
     med_len = percentile(sorted_lengths, 0.5)
@@ -829,6 +878,7 @@ def build_payload(cases, source_file: str):
 
     grand_count = chamber_counts.get("Grand Chamber", 0)
     chamber_count = chamber_counts.get("Chamber", 0)
+    committee_count = chamber_counts.get("Committee", 0)
     other_count = chamber_counts.get("Other", 0)
     grand_share = (grand_count / total_cases * 100) if total_cases else 0
 
@@ -841,7 +891,7 @@ def build_payload(cases, source_file: str):
         v_count = article_violation_counts.get(article, 0)
         nv_count = article_non_violation_counts.get(article, 0)
         article_outcomes.append([article, v_count, nv_count, v_count + nv_count])
-    article_outcomes.sort(key=lambda row: row[3], reverse=True)
+    article_outcomes.sort(key=lambda row: (-row[3], row[0]))
 
     article_violation_rates = []
     for article, denominator in article_case_counts.items():
@@ -850,7 +900,20 @@ def build_payload(cases, source_file: str):
         numerator = article_violation_case_counts.get(article, 0)
         rate = numerator / denominator
         article_violation_rates.append([article, round(rate, 4), numerator, denominator])
-    article_violation_rates.sort(key=lambda row: (row[1], row[3], row[2]), reverse=True)
+    article_violation_rates.sort(key=lambda row: (-row[1], -row[3], -row[2], row[0]))
+
+    primary_article_rows = []
+    for article in sorted(primary_article_counts, key=primary_article_order):
+        counts = primary_article_counts[article]
+        v, nv, mixed = (counts[key] for key in ("violation_only", "non_violation_only", "both"))
+        denominator = v + nv + mixed
+        primary_article_rows.append({
+            "article": article, "referenced": counts["referenced"],
+            "violation_only": v, "non_violation_only": nv, "mixed": mixed,
+            "without_outcome": counts["neither"], "with_outcome": denominator,
+            "with_violation": v + mixed,
+            "violation_share": (v + mixed) / denominator if denominator else None,
+        })
 
     state_outcomes = []
     for state, total in state_case_counts.items():
@@ -952,6 +1015,7 @@ def build_payload(cases, source_file: str):
         [OUTCOME_LABELS.get(key, key), outcome_counts.get(key, 0)]
         for key in OUTCOME_KEYS
     ]
+    top_year_terms = [label for label, _ in kpt_term_counts.most_common(5)]
 
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -961,7 +1025,8 @@ def build_payload(cases, source_file: str):
         "summary": {
             "total_cases": total_cases,
             "total_press_releases": press_release_count,
-            "input_record_count": total_cases + press_release_count,
+            "total_other_documents": other_document_count,
+            "input_record_count": len(cases),
             "schema_version": SCHEMA_VERSION,
             "parser_version": PARSER_VERSION,
             "total_paragraphs": total_paragraphs,
@@ -980,6 +1045,7 @@ def build_payload(cases, source_file: str):
             "grand_chamber_share": grand_share,
             "grand_chamber_cases": grand_count,
             "chamber_cases": chamber_count,
+            "committee_cases": committee_count,
             "other_cases": other_count,
             "key_cases": key_cases,
             "separate_opinion_cases": separate_opinion_cases,
@@ -997,6 +1063,14 @@ def build_payload(cases, source_file: str):
             "outcome_both": outcome_counts.get("both", 0),
             "outcome_neither": outcome_counts.get("neither", 0),
         },
+        "article_analytics": {
+            "method": "Primary article families; one judgment record per article and outcome bucket. "
+                      "Includes conjunction-related HUDOC tags, not necessarily standalone findings. "
+                      "Violation share = (violation-only + mixed) / judgments with either outcome tag. "
+                      "Untagged outcomes are excluded, not classified as non-violations.",
+            "default_minimum": 100,
+            "rows": primary_article_rows,
+        },
         "series": {
             "cases_by_month": sorted(case_count_by_month.items()),
             "cases_by_year": sorted(case_count_by_year.items()),
@@ -1004,6 +1078,7 @@ def build_payload(cases, source_file: str):
             "chamber_breakdown": [
                 ["Grand Chamber", grand_count],
                 ["Chamber", chamber_count],
+                ["Committee", committee_count],
                 ["Other", other_count],
             ],
             "case_length_snapshot": [
@@ -1062,22 +1137,10 @@ def build_payload(cases, source_file: str):
                 )[:15]
             },
             "terms_by_year": [
-                [yr] + [kpt_by_year[yr].get(t, 0) for t in [
-                    KPT_LABELS.get("445", "#445"),
-                    KPT_LABELS.get("350", "#350"),
-                    KPT_LABELS.get("451", "#451"),
-                    KPT_LABELS.get("369", "#369"),
-                    KPT_LABELS.get("449", "#449"),
-                ]]
+                [yr] + [kpt_by_year[yr].get(t, 0) for t in top_year_terms]
                 for yr in sorted(kpt_by_year.keys())
             ],
-            "terms_by_year_labels": [
-                KPT_LABELS.get("445", "#445"),
-                KPT_LABELS.get("350", "#350"),
-                KPT_LABELS.get("451", "#451"),
-                KPT_LABELS.get("369", "#369"),
-                KPT_LABELS.get("449", "#449"),
-            ],
+            "terms_by_year_labels": top_year_terms,
         },
         "conclusion_analytics": {
             "clause_breakdown": conclusion_clause_counts.most_common(20),
