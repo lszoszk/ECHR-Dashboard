@@ -527,19 +527,26 @@ function formationLabel(c) {
   return b || getChamberLabel(c.__chamberCategory);
 }
 
-/* Outcome on the result card: a symbol and one or two words; the full label is the tooltip. */
+/* Outcome on the result card: a symbol and one or two words; the full label is the tooltip.
+ * The symbols are drawn at one size: a full disc (violation), a ring (no violation), a half disc
+ * (mixed), a dashed ring (no finding). */
 const OUTCOME_SHORT = {
-  violation_only: ["●", "Violation"],
-  non_violation_only: ["○", "No violation"],
-  both: ["◐", "Mixed"],
-  neither: ["–", "No finding"],
+  violation_only: ["full", "Violation"],
+  non_violation_only: ["ring", "No violation"],
+  both: ["half", "Mixed"],
+  neither: ["dash", "No finding"],
 };
+function outcomeIconSvg(kind) {
+  const ring = `<circle cx="6" cy="6" r="4.6" fill="${kind === "full" ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.4"${kind === "dash" ? ' stroke-dasharray="2 1.6"' : ""}/>`;
+  const half = kind === "half" ? '<path d="M6 1.4a4.6 4.6 0 0 0 0 9.2z" fill="currentColor"/>' : "";
+  return `<svg class="oc-icon" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true">${ring}${half}</svg>`;
+}
 function outcomeChipHtml(c) {
   const key = c.__outcomePrimary;
   const full = OUTCOME_LABELS[key] || key || "-";
   const [icon, short] = OUTCOME_SHORT[key] || ["", full];
   return `<span class="chip outcome ${escapeHtml(getOutcomeToneClass(key))}" title="${escapeHtml(full)}">`
-    + (icon ? `<span class="oc-icon" aria-hidden="true">${icon}</span>` : "") + `${escapeHtml(short)}</span>`;
+    + (icon ? outcomeIconSvg(icon) : "") + `${escapeHtml(short)}</span>`;
 }
 
 /**
@@ -1470,7 +1477,7 @@ function paraHoverActions(caseId, p) {
   const caseObj = state.caseById.get(caseId);
   const hudocUrl = caseObj ? paragraphHudocUrl(caseObj, p) : "";
   return `<span class="dossier-para-actions">
-    ${hudocUrl ? `<a href="${escapeHtml(hudocUrl)}" target="_blank" rel="noopener noreferrer" title="Open this paragraph's judgment on HUDOC">HUDOC ↗</a>` : ""}
+    ${hudocUrl ? `<a href="${escapeHtml(hudocUrl)}" target="_blank" rel="noopener noreferrer" title="Open on HUDOC at this paragraph">HUDOC ↗</a>` : ""}
     <button type="button" data-action="para-cite" ${data} title="Copy an OSCOLA citation of this paragraph">Cite</button>
     <button type="button" data-action="para-copy" ${data} title="Copy the text of this paragraph">Copy</button>
     ${window.ECHRWorkspace ? `<button type="button" data-action="para-bookmark" ${data} aria-pressed="${!!saved}"
@@ -1619,14 +1626,38 @@ function buildEcliCitation(caseObj) {
  * natively honour `#paragraph_N`, so we keep the case-level URL but
  * append a fragment that the user can paste / Ctrl-F against in the
  * HUDOC page.  Falls back to the case URL when no para number. */
+/* HUDOC opens a judgment at a passage when its link carries the passage as a quoted full-text term:
+ * it highlights those exact words (punctuation included) and scrolls to their first occurrence. The
+ * words come from the paragraph's opening after its number — of the parent paragraph for a quotation
+ * or list item: the first run of at least five words between quotation marks (which cannot go inside
+ * the term), preferring the Court's own words to a quotation, which recurs elsewhere; up to ten words.
+ * The passage must occur only once: when HUDOC finds it twice it returns to the top. When the words
+ * differ from HUDOC's text the judgment simply opens at the top. */
+function hudocPassage(para) {
+  const src = para && (para.hudocParaNo == null && para.parentText ? para.parentText : (para.text || para.rawText));
+  const text = String(src || "").replace(/^\s*\d+\.\s*/, "").replace(/\s+/g, " ");
+  const segs = text.split(/["“”«»„]/);
+  const order = [...segs.filter((_, i) => i % 2 === 0), ...segs.filter((_, i) => i % 2 === 1)]; // outside quotes first
+  for (const seg of order) {
+    const words = seg.replace(/^[\s,;:.)\]]+/, "").trim().split(" ").filter(Boolean);
+    if (words.length < 5) continue;
+    const out = [];
+    for (const w of words) {
+      out.push(w);
+      if (out.length >= 10 || out.join(" ").length >= 80) break;
+    }
+    return out.join(" ").replace(/[\s,;:.]+$/, "");
+  }
+  return "";
+}
+
 function paragraphHudocUrl(caseObj, para) {
   const base = caseObj.hudoc_url || "";
   if (!base) return "";
-  // Fall back to the P58 display number so a fragment hit still anchors
-  // at its parent ¶ in HUDOC rather than dropping to the case URL.
-  const hp = para && (para.hudocParaNo != null ? para.hudocParaNo : para.displayParaNo);
-  if (hp == null) return base;
-  return `${base}#${"{"}\"paragraphno\":\"${hp}\"${"}"}`;
+  const id = caseObj.case_id || (/[?&]i=([\w-]+)/.exec(base) || [])[1];
+  const phrase = id && !caseObj.__isMt ? hudocPassage(para) : "";
+  if (!phrase) return base;
+  return "https://hudoc.echr.coe.int/eng#" + encodeURI(JSON.stringify({ itemid: [id], fulltext: [`"${phrase}"`] }));
 }
 
 function copyToClipboardWithFeedback(text, buttonEl) {
@@ -2429,19 +2460,80 @@ function renderYearHistogram(years) {
     axis.id = "yearAxis";
     axis.className = "year-axis";
     box.after(axis);
+    const slider = document.createElement("div");
+    slider.id = "yearSlider";
+    slider.className = "year-slider";
+    slider.innerHTML = `<span class="ys-fill"></span>
+      <input type="range" step="1" aria-label="From year"><input type="range" step="1" aria-label="To year">`;
+    box.after(slider);
+    wireYearSlider(slider, axis);
   }
-  axis.innerHTML = `<span>${first}</span><span>${last}</span>`;
+  byId("yearSlider").querySelectorAll("input").forEach((i) => { i.min = first; i.max = last; });
+  axis.innerHTML = `<span>${first}</span><button type="button" class="ys-reset" id="yearReset" hidden title="Show all years"></button><span>${last}</span>`;
   axis.removeAttribute("hidden");
   markYearRange();
 }
 
-function markYearRange() {
-  const from = el.dateFrom.value ? Number(el.dateFrom.value.slice(0, 4)) : null;
-  const to = el.dateTo.value ? Number(el.dateTo.value.slice(0, 4)) : null;
-  document.querySelectorAll("#yearHistogram .year-bar").forEach((b) => {
-    const y = Number(b.dataset.year);
-    b.classList.toggle("in-range", (from != null || to != null) && (from == null || y >= from) && (to == null || y <= to));
+/* Two handles under the histogram select a span of years: dragging marks the bars, releasing
+ * applies it (the change bubbles to the filter panel, which runs the search). The middle of the
+ * axis shows the span; clicking it returns to all years. */
+function wireYearSlider(slider, axis) {
+  const [a, b] = slider.querySelectorAll("input");
+  slider.addEventListener("input", (e) => {
+    if (Number(a.value) > Number(b.value)) {
+      if (e.target === a) a.value = b.value; else b.value = a.value;
+    }
+    paintYearSlider();
   });
+  slider.addEventListener("change", () => {
+    const all = Number(a.value) === Number(a.min) && Number(b.value) === Number(b.max);
+    el.dateFrom.value = all ? "" : `${a.value}-01-01`;
+    el.dateTo.value = all ? "" : `${b.value}-12-31`;
+    markYearRange();
+  });
+  axis.addEventListener("click", (e) => {
+    if (!e.target.closest("#yearReset") || el.dateFrom.disabled) return;
+    el.dateFrom.value = "";
+    el.dateTo.value = "";
+    markYearRange();
+    el.dateTo.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+}
+
+/* Handles, the band between them, the bars in range and the axis label, from the handles' values. */
+function paintYearSlider() {
+  const slider = byId("yearSlider");
+  if (!slider) return;
+  const [a, b] = slider.querySelectorAll("input");
+  const min = Number(a.min), max = Number(a.max), span = Math.max(1, max - min);
+  const lo = Number(a.value), hi = Number(b.value);
+  const all = lo === min && hi === max;
+  const fill = slider.querySelector(".ys-fill");
+  fill.style.left = `${((lo - min) / span) * 100}%`;
+  fill.style.right = `${100 - ((hi - min) / span) * 100}%`;
+  a.disabled = b.disabled = el.dateFrom.disabled;
+  const reset = byId("yearReset");
+  if (reset) {
+    reset.hidden = all;
+    reset.textContent = `${lo === hi ? lo : `${lo}–${hi}`} ✕`;
+  }
+  document.querySelectorAll("#yearHistogram .year-bar").forEach((bar) => {
+    const y = Number(bar.dataset.year);
+    bar.classList.toggle("in-range", !all && y >= lo && y <= hi);
+  });
+}
+
+/* The date fields decide; the slider follows them (typed dates, bar clicks, restored searches). */
+function markYearRange() {
+  const slider = byId("yearSlider");
+  if (!slider) return;
+  const [a, b] = slider.querySelectorAll("input");
+  const min = Number(a.min), max = Number(a.max);
+  const from = el.dateFrom.value ? Number(el.dateFrom.value.slice(0, 4)) : min;
+  const to = el.dateTo.value ? Number(el.dateTo.value.slice(0, 4)) : max;
+  a.value = Math.min(Math.max(from, min), max);
+  b.value = Math.max(Math.min(to, max), Number(a.value));
+  paintYearSlider();
 }
 
 function onYearBarClick(e) {
@@ -4960,7 +5052,7 @@ function caseNoteContextHtml(ctx, paras, activeIdx) {
       : "";
     return `
       <div class="dossier-ctx-para${isActive ? " dossier-ctx-active" : ""}" tabindex="0">
-        ${head.paraIdx != null ? paraHoverActions(state.activeCaseId, head) : ""}<span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(head))}</span>${quoteBadge}${inner}
+        <div class="dossier-ctx-head"><span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(head))}</span>${head.paraIdx != null ? paraHoverActions(state.activeCaseId, head) : ""}</div>${quoteBadge}${inner}
       </div>`;
   };
   const moreBtn = (dir, count) => {
@@ -5363,7 +5455,7 @@ function buildCaseCard(caseId, row, rank = 1) {
     const hudocUrl = paragraphHudocUrl(c, p);
     const paraLabel = formatParaNum(p);
     const hudocLink = hudocUrl
-      ? `<a class="hudoc-para-link" data-action="open-hudoc" href="${escapeHtml(hudocUrl)}" target="_blank" rel="noopener noreferrer" title="Open in HUDOC (use Ctrl-F for ${escapeHtml(paraLabel)})">HUDOC ↗</a>`
+      ? `<a class="hudoc-para-link" data-action="open-hudoc" href="${escapeHtml(hudocUrl)}" target="_blank" rel="noopener noreferrer" title="Open on HUDOC at ${escapeHtml(paraLabel)}">HUDOC ↗</a>`
       : "";
     // Whole row → show this paragraph in the Case Note. Nested
     // buttons/links carry their own data-action so the delegated
@@ -5451,7 +5543,7 @@ function buildCaseCard(caseId, row, rank = 1) {
         <div class="case-actions-inline compact-actions">
           ${c.__isMt && c.__sourceCaseId
             ? `<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(c.__sourceCaseId)}" class="card-act" target="_blank" rel="noopener noreferrer" title="The authentic French text on HUDOC">French original ↗</a>`
-            : (c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="card-act" target="_blank" rel="noopener noreferrer" title="Open this judgment on HUDOC">HUDOC ↗</a>` : "")}
+            : (c.hudoc_url ? `<a href="${escapeHtml(primaryPara ? paragraphHudocUrl(c, primaryPara) : c.hudoc_url)}" class="card-act" target="_blank" rel="noopener noreferrer" title="${primaryPara ? "Open on HUDOC at this paragraph" : "Open this judgment on HUDOC"}">HUDOC ↗</a>` : "")}
           <button type="button" class="card-act" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}"
             data-para-idx="${escapeHtml(String(primaryPara && primaryPara.paraIdx != null ? primaryPara.paraIdx : ""))}"
             title="Copy an OSCOLA citation${primaryPara ? " with the paragraph shown" : ""}">Cite</button>
@@ -6774,11 +6866,11 @@ function paintDossier() {
 
   const renderCtx = (p) => `
     <div class="dossier-ctx-para" tabindex="0">
-      ${paraHoverActions(d.caseId, p)}<span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(p))}</span>${escapeHtml(p.text)}
+      <div class="dossier-ctx-head"><span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(p))}</span>${paraHoverActions(d.caseId, p)}</div>${escapeHtml(p.text)}
     </div>`;
   const activeHtml = `
     <div class="dossier-ctx-para dossier-ctx-active" tabindex="0">
-      ${paraHoverActions(d.caseId, ctx.active)}<span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(ctx.active))}</span>${dossierHighlight(ctx.active.text, terms)}
+      <div class="dossier-ctx-head"><span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(ctx.active))}</span>${paraHoverActions(d.caseId, ctx.active)}</div>${dossierHighlight(ctx.active.text, terms)}
     </div>`;
 
   let expander = "";

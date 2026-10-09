@@ -2306,10 +2306,36 @@ mark.hl {
 .year-bar:hover > span { opacity: 0.9; }
 .year-bar.in-range > span { background: var(--garnet); opacity: 0.9; }
 .year-axis {
-  display: flex; justify-content: space-between; margin-bottom: 8px;
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
   font-family: var(--font-mono); font-size: 0.6rem; color: var(--ink-3);
 }
 .year-axis[hidden] { display: none; }
+.ys-reset {
+  padding: 0 4px; cursor: pointer; font: inherit; font-weight: 600; color: var(--garnet);
+  background: none; border: 0; border-bottom: 1px dashed var(--garnet-edge, var(--garnet));
+}
+.ys-reset[hidden] { display: none; }
+/* two range inputs on one track; only their handles take the pointer */
+.year-slider { position: relative; height: 16px; margin: 0 0 2px; }
+.year-slider::before, .ys-fill { content: ""; position: absolute; top: 7px; height: 2px; }
+.year-slider::before { left: 0; right: 0; background: var(--rule); }
+.ys-fill { background: var(--garnet); }
+.year-slider input[type="range"] {
+  position: absolute; inset: 0; width: 100%; height: 16px; margin: 0; padding: 0;
+  background: none; pointer-events: none; -webkit-appearance: none; appearance: none;
+}
+.year-slider input[type="range"]::-webkit-slider-runnable-track { height: 16px; background: none; }
+.year-slider input[type="range"]::-moz-range-track { height: 16px; background: none; }
+.year-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; pointer-events: auto; cursor: grab;
+  width: 12px; height: 12px; margin-top: 2px; border-radius: 50%; background: var(--paper); border: 2px solid var(--garnet);
+}
+.year-slider input[type="range"]::-moz-range-thumb {
+  pointer-events: auto; cursor: grab; width: 9px; height: 9px; border-radius: 50%; background: var(--paper); border: 2px solid var(--garnet);
+}
+.year-slider input[type="range"]:focus-visible { outline: none; }
+.year-slider input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px var(--garnet-soft); }
+.year-slider input[type="range"]:disabled::-webkit-slider-thumb { border-color: var(--ink-4); cursor: default; }
 /* the two date fields share the rail's width instead of running past its edge */
 .editorial-filter-rail .date-input { min-width: 0; padding: 5px 3px; font-size: 0.74rem; }
 .editorial-filter-rail .date-range { gap: 4px; }
@@ -2427,13 +2453,18 @@ body { padding-bottom: var(--bar-h); }
 .dossier-ctx-para { position: relative; }
 .dossier-ctx-para:focus { outline: none; }
 .dossier-ctx-para:focus-visible { outline: 2px solid var(--garnet-edge, var(--garnet)); outline-offset: 2px; }
-.dossier-para-actions {
-  position: absolute; top: -12px; right: 4px; z-index: 2; display: none; gap: 4px; padding: 3px;
-  background: var(--paper); border: 1px solid var(--rule); box-shadow: 0 2px 0 rgba(36, 35, 40, 0.12);
+/* the paragraph's actions sit on its number line, in the number's type, shown on hover */
+.dossier-ctx-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; margin-bottom: 3px; }
+.dossier-ctx-head .dossier-ctx-num { display: inline; margin-bottom: 0; }
+.dossier-para-actions { display: inline-flex; flex-wrap: wrap; gap: 2px 8px; visibility: hidden; }
+.dossier-ctx-para:hover .dossier-para-actions, .dossier-ctx-para:focus-within .dossier-para-actions { visibility: visible; }
+.dossier-para-actions a, .dossier-para-actions button {
+  padding: 0; cursor: pointer; text-decoration: none; background: none; border: 0;
+  font-family: var(--font-mono); font-size: 0.62rem; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase;
+  color: var(--garnet);
 }
-.dossier-ctx-para:hover .dossier-para-actions, .dossier-ctx-para:focus-within .dossier-para-actions { display: inline-flex; }
-.dossier-para-actions button[aria-pressed="true"] { color: var(--garnet); }
-@media (hover: none) { .dossier-ctx-active .dossier-para-actions { display: inline-flex; position: static; margin-bottom: 6px; } }
+.dossier-para-actions a:hover, .dossier-para-actions button:hover { text-decoration: underline; text-underline-offset: 2px; }
+@media (hover: none) { .dossier-ctx-active .dossier-para-actions { visibility: visible; } }
 
 /* ── Filters: Basic / Advanced switch; the advanced groups show only in Advanced ── */
 .filter-mode { display: inline-flex; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; }
@@ -2465,23 +2496,20 @@ body { padding-bottom: var(--bar-h); }
    the same as the toolbar's Save search / Export Excel. ── */
 .card-act,
 .researcher-result .card-act.expand-paras-btn,
-.cn-action,
-.dossier-para-actions a,
-.dossier-para-actions button {
+.cn-action {
   display: inline-flex; align-items: center; gap: 4px; margin: 0; padding: 3px 10px; min-height: 24px;
   font-family: var(--font-mono); font-size: 0.64rem; font-style: normal; font-weight: 400; line-height: 1.2;
   letter-spacing: 0.05em; text-transform: uppercase; text-decoration: none;
   color: var(--ink-2); background: var(--paper); border: 1px solid var(--rule); border-radius: 3px; cursor: pointer;
 }
-.card-act:hover, .cn-action:hover, .dossier-para-actions a:hover, .dossier-para-actions button:hover {
+.card-act:hover, .cn-action:hover {
   color: var(--garnet); border-color: var(--garnet-edge, var(--garnet)); background: var(--paper-2); text-decoration: none;
 }
 .card-act.on, .card-act[aria-expanded="true"] { color: var(--garnet); border-color: var(--garnet-edge, var(--garnet)); }
 .researcher-result .case-actions-inline { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-.dossier-para-actions a, .dossier-para-actions button { min-height: 20px; padding: 2px 8px; font-size: 0.6rem; }
 
 /* Outcome on the card: a symbol and a word (● violation, ○ no violation, ◐ mixed) */
-.chip.outcome .oc-icon { margin-right: 4px; font-size: 0.9em; }
+.chip.outcome .oc-icon { flex: 0 0 auto; margin-right: 5px; vertical-align: -1px; }
 
 /* ── Influence: the (i) and its pop-up ── */
 .researcher-influence { position: relative; }
