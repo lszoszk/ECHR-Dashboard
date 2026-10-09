@@ -2249,3 +2249,26 @@ a.case-context-ecli-link .ext-icon {
 .rs-conclusions { margin: 6px 0 0; padding-left: 1.1em; font-size: 0.85rem; color: var(--ink-2); }
 .rs-conclusions li { margin: 2px 0; }
 .rs-source { font-size: 0.75rem !important; color: var(--ink-3) !important; }
+
+/* ── Case details: HUDOC metadata ─────────────────────────────── */
+.cn-meta { margin-top: 10px; }
+.cn-findings { display: grid; gap: 5px; margin-bottom: 8px; }
+.cn-findings .cnm-label { display: inline-block; min-width: 92px; }
+.cn-art {
+  display: inline-block; margin: 0 4px 3px 0; padding: 1px 6px;
+  font-size: 0.78rem; border: 1px solid var(--rule); border-radius: 2px; color: var(--ink-2);
+}
+.cn-art.is-violation { border-color: var(--garnet-edge, var(--garnet)); color: var(--garnet); }
+.cn-meta-line { margin: 2px 0 6px; font-size: 0.85rem; color: var(--ink-2); }
+.cn-meta-sec { border-top: 1px solid var(--rule-soft); padding: 5px 0; }
+.cn-meta-sec summary {
+  cursor: pointer; font-size: 0.8rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-3);
+}
+.cn-meta-count { margin-left: 4px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.cn-meta-sec ul { margin: 6px 0 2px; padding-left: 1.1em; font-size: 0.85rem; line-height: 1.4; color: var(--ink-2); }
+.cn-meta-sec li { margin: 2px 0; }
+.cn-appno {
+  padding: 0 2px; font: inherit; color: var(--garnet); background: none; border: 0;
+  border-bottom: 1px solid var(--garnet-edge, var(--garnet)); cursor: pointer;
+}
+.cn-appno:hover { background: var(--garnet-soft, transparent); }

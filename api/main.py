@@ -710,7 +710,7 @@ def _case_projection(cur: sqlite3.Cursor, include_ecli: bool = False) -> str:
         "keywords", "originating_body", "document_type",
     ])
     for col in ("strasbourg_caselaw", "domestic_law",
-                "international_law", "rules_of_court"):
+                "international_law", "rules_of_court", "separate_opinion"):
         fields.append(_optional_column_expr(cur, "cases", col))
     return ", ".join(fields)
 

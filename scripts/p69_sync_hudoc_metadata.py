@@ -21,8 +21,8 @@ Two steps, so the network part and the database part can run on different machin
   * `violation` / `non_violation` become HUDOC's lists (";"-separated tokens, including HUDOC's
     combined codes such as "13+8-1"); the *_inferred columns are emptied, because nothing is inferred.
     When HUDOC has neither field for a case, our existing values are kept and the case is counted;
-  * `strasbourg_caselaw`, `domestic_law`, `international_law`, `rules_of_court` are added to `cases`
-    if missing and filled (the API already serves them when the columns exist).
+  * `strasbourg_caselaw`, `domestic_law`, `international_law`, `rules_of_court` and `separate_opinion`
+    ("true"/"false") are added to `cases` if missing and filled (the API serves them when present).
 
 Rollback of the outcome columns:
   UPDATE cases SET violation=b.violation, non_violation=b.non_violation,
@@ -46,6 +46,8 @@ NEW_COLUMNS = {
     "international_law": "externalsources",
     "rules_of_court": "rulesofcourt",
 }
+# Single values, stored as text ("true" / "false" / "").
+SCALAR_COLUMNS = {"separate_opinion": "separateopinion"}
 
 
 def split(value) -> list[str]:
@@ -117,7 +119,7 @@ def cmd_apply(args) -> int:
     have = {r[1] for r in con.execute("PRAGMA table_info(cases)")}
     con.execute("BEGIN")
     try:
-        for col in NEW_COLUMNS:
+        for col in list(NEW_COLUMNS) + list(SCALAR_COLUMNS):
             if col not in have:
                 con.execute(f"ALTER TABLE cases ADD COLUMN {col} TEXT")
         con.execute("CREATE TABLE IF NOT EXISTS outcome_backup_p69 (case_id TEXT PRIMARY KEY, violation TEXT, "
@@ -132,6 +134,7 @@ def cmd_apply(args) -> int:
             con.execute(f"INSERT OR REPLACE INTO hudoc_metadata ({', '.join(cols)}) VALUES ({', '.join('?' * len(cols))})",
                         [case_id, now] + [m.get(f) for f in FIELDS.split(",")])
             sets = {col: json.dumps(split(m.get(src))) for col, src in NEW_COLUMNS.items()}
+            sets.update({col: str(m.get(src) or "").strip().lower() for col, src in SCALAR_COLUMNS.items()})
             if new_v is not None:
                 sets.update(violation=new_v, non_violation=new_nv,
                             violation_inferred="[]", non_violation_inferred="[]")

@@ -33,7 +33,8 @@ def setup(tmp):
     meta = Path(tmp) / "m.json"
     meta.write_text(json.dumps({
         "001-1": {"violation": "8;8-1", "nonviolation": "13+8-1", "scl": "A v. B, no. 1/01;C v. D, no. 2/02",
-                  "issue": "Child Welfare Act", "externalsources": "", "rulesofcourt": "39"},
+                  "issue": "Child Welfare Act", "externalsources": "", "rulesofcourt": "39",
+                  "separateopinion": "TRUE"},
         "001-2": {"violation": "", "nonviolation": None, "scl": ""},
     }))
     return db, meta
@@ -68,6 +69,7 @@ class ApplyTests(unittest.TestCase):
             self.assertEqual(json.loads(row[3]), ["A v. B, no. 1/01", "C v. D, no. 2/02"])
             self.assertEqual(json.loads(row[4]), ["Child Welfare Act"])
             self.assertEqual(json.loads(row[5]), ["39"])
+            self.assertEqual(con.execute("SELECT separate_opinion FROM cases WHERE case_id='001-1'").fetchone()[0], "true")
             self.assertEqual(con.execute("SELECT violation FROM cases WHERE case_id='001-2'").fetchone()[0], '["3"]')
             self.assertEqual(con.execute("SELECT violation FROM cases WHERE case_id='001-3'").fetchone()[0], "[]")
             con.close()

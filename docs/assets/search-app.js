@@ -185,6 +185,7 @@ const serverSearch = {
       __outcomePrimary: deriveOutcomeBucket(violation, nonViolation),
       __chamberCategory: deriveChamberCategory([apiCase.document_type || ""], origBody),
       __hasSeparateOpinion: parseBoolLike(apiCase.separate_opinion),
+      separate_opinion: apiCase.separate_opinion || "",
       // P28: citation arrays are now exposed by /api.  The API returns
       // either a list (multi-cite case) or a single string for
       // domestic_law / rules_of_court (legacy serialisation in the JSONL),
@@ -4759,6 +4760,7 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
         ${c.document_type ? `<span class="cnm-doctype">${escapeHtml(c.document_type)}</span>` : ""}
       </div>
     </div>
+    <div class="cn-meta">${caseMetadataHtml(c)}</div>
     ${registryDetailHtml(c.case_id)}`;
 
   // Action bar: HUDOC ↗ · Cite · Copy.  `activePara` is the matched
@@ -4875,6 +4877,69 @@ function selectCaseParagraph(caseId, paraIdx) {
   const selected = byId(`case-${caseId}`);
   if (selected) selected.classList.add("active");
   renderCaseContextRail(caseId, { center: true });
+}
+
+/* ── Case metadata from HUDOC (case details panel) ───────────── */
+/* "8-1" -> "Art. 8 § 1", "P1-1" -> "Art. 1 of Prot. 1", "5-1-c" -> "Art. 5 § 1 (c)", "13+8-1" -> "Art. 13 + Art. 8 § 1" */
+function formatArticleToken(token) {
+  return String(token).split("+").map((part) => {
+    const m = /^(?:P(\d+)-)?(\d+)(?:-(\d+))?(?:-([a-z]|\d+))?$/.exec(part.trim());
+    if (!m) return part.trim();
+    const [, prot, art, para, sub] = m;
+    let s = `Art. ${art}`;
+    if (para) s += ` § ${para}`;
+    if (sub) s += /^[a-z]$/.test(sub) ? ` (${sub})` : ` § ${sub}`;
+    if (prot) s += ` of Prot. ${prot}`;
+    return s;
+  }).join(" + ");
+}
+
+/* Drop a bare article when a more specific token for it is present ("8" next to "8-1"). */
+function mostSpecificTokens(tokens) {
+  const list = [...new Set((tokens || []).map(String).filter(Boolean))];
+  return list.filter((t) => !list.some((o) => o !== t && o.startsWith(t + "-")));
+}
+
+/* Citation text with its application number turned into a "search this case" button. */
+function caselawItemHtml(text) {
+  const m = /\b\d{3,6}\/\d{2,4}\b/.exec(text);
+  if (!m) return escapeHtml(text);
+  return escapeHtml(text.slice(0, m.index))
+    + `<button type="button" class="cn-appno" data-action="search-appno" data-appno="${escapeHtml(m[0])}" title="Search this case">${escapeHtml(m[0])}</button>`
+    + escapeHtml(text.slice(m.index + m[0].length));
+}
+
+function metaSectionHtml(label, items, renderItem = escapeHtml, open = false) {
+  if (!items || !items.length) return "";
+  return `
+    <details class="cn-meta-sec"${open ? " open" : ""}>
+      <summary>${escapeHtml(label)} <span class="cn-meta-count">${fmtInt.format(items.length)}</span></summary>
+      <ul>${items.map((t) => `<li>${renderItem(String(t))}</li>`).join("")}</ul>
+    </details>`;
+}
+
+function caseMetadataHtml(c) {
+  const v = mostSpecificTokens(c.violation);
+  const nv = mostSpecificTokens(c.non_violation || c["non-violation"]);
+  const chips = (list, cls) => list.map((t) => `<span class="cn-art ${cls}" title="${escapeHtml(t)}">${escapeHtml(formatArticleToken(t))}</span>`).join("");
+  const findings = (v.length || nv.length) ? `
+    <div class="cn-findings">
+      ${v.length ? `<div><span class="cnm-label">Violation</span> ${chips(v, "is-violation")}</div>` : ""}
+      ${nv.length ? `<div><span class="cnm-label">No violation</span> ${chips(nv, "is-no-violation")}</div>` : ""}
+    </div>` : "";
+  const so = String(c.separate_opinion || "").toLowerCase();
+  const opinion = so === "true" ? `<p class="cn-meta-line"><span class="cnm-label">Separate opinions</span> yes</p>`
+    : so === "false" ? `<p class="cn-meta-line"><span class="cnm-label">Separate opinions</span> none</p>` : "";
+  const conclusion = (Array.isArray(c.conclusion) ? c.conclusion.join(";") : String(c.conclusion || ""))
+    .split(";").map((s) => s.trim()).filter(Boolean);
+  const keywords = (c.keywords || []).map(String).filter(Boolean);
+  return findings + opinion
+    + metaSectionHtml("Strasbourg case-law cited", c.strasbourg_caselaw, caselawItemHtml)
+    + metaSectionHtml("HUDOC conclusion", conclusion)
+    + metaSectionHtml("Keywords", keywords)
+    + metaSectionHtml("Domestic law", c.domestic_law)
+    + metaSectionHtml("International law", c.international_law)
+    + metaSectionHtml("Rules of Court", c.rules_of_court);
 }
 
 /* ── Registry summaries (Grand Chamber) ─────────────────────────
@@ -7005,6 +7070,12 @@ function bindEvents() {
     if (action === "close-casenote") {
       e.preventDefault();
       document.body.classList.remove("casenote-open");
+      return;
+    }
+    if (action === "search-appno") {
+      e.preventDefault();
+      el.searchInput.value = `case:${clickable.getAttribute("data-appno")}`;
+      applySearch(true);
       return;
     }
     if (action === "copy-citation" && caseId) {
