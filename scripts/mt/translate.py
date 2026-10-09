@@ -42,6 +42,7 @@ def parse_answer(text: str) -> dict:
 
 def submit(args) -> None:
     jobs = sorted(Path(args.jobs).glob("*/chunk_[0-9][0-9][0-9].json"))
+    jobs = jobs[args.offset:]
     if args.limit:
         jobs = jobs[: args.limit]
     requests = []
@@ -97,7 +98,8 @@ def main() -> int:
     s.add_argument("--jobs", required=True)
     s.add_argument("--model", required=True)
     s.add_argument("--tag", required=True)
-    s.add_argument("--limit", type=int, help="only the first N chunks (a dry run)")
+    s.add_argument("--offset", type=int, default=0, help="skip the first N chunks (to send a large set in parts)")
+    s.add_argument("--limit", type=int, help="only N chunks (a dry run, or one part)")
     c = sub.add_parser("collect")
     c.add_argument("--jobs", required=True)
     c.add_argument("--tag", required=True)
