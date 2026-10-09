@@ -1486,6 +1486,19 @@ function setDatasetStatus(message, isError = false) {
   el.datasetStatus.classList.toggle("dataset-error", isError);
 }
 
+/** Navbar badge for the search server: "checking" → "live" or "offline". */
+function setApiStatus(state) {
+  const badge = document.getElementById("apiStatus");
+  if (!badge) return;
+  const [label, title] = {
+    live: ["Live", "Connected to the search server: full-text search across all judgments"],
+    offline: ["Offline", "The search server cannot be reached: showing a small sample dataset"],
+  }[state] || ["Connecting", "Connecting to the search server…"];
+  badge.dataset.state = state;
+  badge.title = title;
+  badge.querySelector(".api-label").textContent = label;
+}
+
 function setDatasetMeta(message) {
   // Preserve server badge if it exists
   const badge = el.datasetMeta.querySelector(".server-badge");
@@ -6891,6 +6904,17 @@ function bindEvents() {
     scope?.dispatchEvent(new Event("change", { bubbles: true }));
   });
 
+  // The "i" beside the translations option: hover or focus shows it (CSS); a click pins it open
+  // (touch screens), a click elsewhere or Escape closes it.
+  const mtInfo = document.getElementById("mtInfoTip");
+  if (mtInfo) {
+    const btn = mtInfo.querySelector(".info-tip-btn");
+    const setOpen = (open) => { mtInfo.classList.toggle("open", open); btn.setAttribute("aria-expanded", String(open)); };
+    btn.addEventListener("click", () => setOpen(!mtInfo.classList.contains("open")));
+    document.addEventListener("click", (e) => { if (!mtInfo.contains(e.target)) setOpen(false); });
+    mtInfo.addEventListener("keydown", (e) => { if (e.key === "Escape") { setOpen(false); btn.focus(); } });
+  }
+
   // "Try" examples under the search box run their query.
   document.getElementById("searchTry")?.addEventListener("click", (e) => {
     const btn = e.target.closest(".try-q[data-q]");
@@ -7425,6 +7449,7 @@ function init() {
       }
 
       // Update data source panel
+      setApiStatus("live");
       setDatasetStatus("Connected to HUDOC Researcher API — full-text search across all judgments (English texts).");
       const badgeEl = document.getElementById("serverBadgeHeader");
       if (badgeEl) {
@@ -7539,6 +7564,9 @@ function init() {
 
     } else {
       // Server not available — fall back to sample dataset with file upload option
+      setApiStatus("offline");
+      const dsPanel = document.getElementById("dataSourcePanel");
+      if (dsPanel) dsPanel.hidden = false;
       setDatasetStatus("Server unavailable — using local sample dataset.");
       const sourceActions = document.getElementById("sourceActions");
       if (sourceActions) sourceActions.classList.remove("hidden");
