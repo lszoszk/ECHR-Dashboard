@@ -47,6 +47,7 @@ CASES = [
     ("/api/suggest", {"q": "Kudla v. Poland"}),
     ("/api/cases/001-58920", {}),
     ("/api/cases/001-58920/cited_by", {}),
+    ("/api/cases/001-58920/cited_by", {"limit": 500}),
     ("/api/cases/001-58920/cites", {}),
 ]
 

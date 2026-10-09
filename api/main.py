@@ -633,6 +633,27 @@ def _enrich_case_row(row: dict[str, Any]) -> dict[str, Any]:
     return row
 
 
+def _french_only_cited_by(cur: sqlite3.Cursor, case_ids: list[str]) -> dict[str, int]:
+    """Judgments that cite each case but exist only in French so far.
+
+    french_only_citations (scripts/p70_french_only_metadata.py) holds links from judgments that HUDOC
+    publishes only in French and that are not in `cases` yet. A row stops counting once its
+    judgment is in `cases`, where case_citations has the link, so nothing is counted twice.
+    Absent table: no French-only citers.
+    """
+    if not case_ids:
+        return {}
+    try:
+        ph = ",".join("?" for _ in case_ids)
+        cur.execute(
+            f"SELECT cited_case_id, count(DISTINCT citing_case_id) AS n FROM french_only_citations "
+            f"WHERE cited_case_id IN ({ph}) AND citing_case_id NOT IN (SELECT case_id FROM cases) "
+            f"GROUP BY cited_case_id", case_ids)
+        return {r["cited_case_id"]: r["n"] for r in cur.fetchall()}
+    except sqlite3.OperationalError:
+        return {}
+
+
 def _attach_citation_counts(cur: sqlite3.Cursor,
                              case_details: dict[str, dict]) -> None:
     """Bulk-attach P29 cites_count + cited_by_count to a dict of case rows.
@@ -669,6 +690,11 @@ def _attach_citation_counts(cur: sqlite3.Cursor,
     for cd in case_details.values():
         cd.setdefault("cites_count", 0)
         cd.setdefault("cited_by_count", 0)
+    for cid, n in _french_only_cited_by(cur, case_ids).items():
+        cd = case_details.get(cid)
+        if cd is not None:
+            cd["cited_by_count"] += n
+            cd["cited_by_french_only"] = n
 
 
 _COLUMN_CACHE: dict[tuple[str, str], bool] = {}
@@ -2338,6 +2364,9 @@ def get_case(case_id: str):
                     "WHERE cited_case_id = ?", (case_id,),
                 )
                 case["cited_by_count"] = cur.fetchone()[0] or 0
+                french_only = _french_only_cited_by(cur, [case_id]).get(case_id, 0)
+                case["cited_by_count"] += french_only
+                case["cited_by_french_only"] = french_only
             except sqlite3.OperationalError:
                 # case_citations table not yet built — leave counts unset.
                 case["cites_count"] = 0
@@ -2359,6 +2388,11 @@ def get_case(case_id: str):
 
 @app.get("/api/cases/{case_id}/cited_by")
 def case_cited_by(case_id: str, limit: int = Query(50, ge=1, le=500)):
+    """Judgments that cite this case, newest first.
+
+    Entries with in_corpus false are judgments that HUDOC publishes only in French and that are not
+    in this corpus yet: they have no page here, so hudoc_url points at the French text.
+    """
     try:
         with get_cursor() as cur:
             cur.execute(
@@ -2375,7 +2409,33 @@ def case_cited_by(case_id: str, limit: int = Query(50, ge=1, le=500)):
                 "LIMIT ?",
                 (case_id, limit),
             )
-            return {"cited_by": [_row_to_dict(r) for r in cur.fetchall()]}
+            rows = [_row_to_dict(r) for r in cur.fetchall()]
+            try:
+                cur.execute(
+                    "SELECT f.case_id, f.title, f.case_no, f.judgment_date, f.respondent_state, "
+                    "       0 AS in_corpus, f.hudoc_url "
+                    "FROM french_only_citations fc "
+                    "JOIN french_only_cases f ON f.case_id = fc.citing_case_id "
+                    "WHERE fc.cited_case_id = ? AND fc.citing_case_id NOT IN (SELECT case_id FROM cases) "
+                    "ORDER BY substr(f.judgment_date, 7, 4) DESC, "
+                    "         substr(f.judgment_date, 4, 2) DESC, "
+                    "         substr(f.judgment_date, 1, 2) DESC "
+                    "LIMIT ?",
+                    (case_id, limit),
+                )
+                french_only = [{**_row_to_dict(r), "in_corpus": False, "para_count": None}
+                               for r in cur.fetchall()]
+            except sqlite3.OperationalError:
+                french_only = []
+
+            def newest_first(row):
+                d, m, y = (row.get("judgment_date") or "00/00/0000").split("/")
+                return (y, m, d)
+
+            for row in rows:
+                row["in_corpus"] = True
+            merged = sorted(rows + french_only, key=newest_first, reverse=True)[:limit]
+            return {"cited_by": merged}
     except sqlite3.OperationalError:
         return {"cited_by": [], "note": "case_citations table not yet built"}
     except Exception as exc:
