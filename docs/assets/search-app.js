@@ -102,7 +102,7 @@ const serverSearch = {
             .map(([k]) => k);
       const scope = activeBuckets.flatMap(b => SECTION_BUCKETS[b]?.sections || []);
       // Cover page / headings and the appendix are no longer bucket pills —
-      // they opt in via the "Also search in" checkboxes in Advanced filters.
+      // they opt in via the "Also search in" checkboxes in the filter rail.
       if (filters.includeMeta) scope.push("header", "summary");
       if (filters.includeAppendix) scope.push("appendix");
       const dbSections = scope.flatMap(s => SECTION_DB_NAMES[s] || [s]);
