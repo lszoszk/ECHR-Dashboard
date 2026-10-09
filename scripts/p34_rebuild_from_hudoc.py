@@ -579,7 +579,11 @@ def para_text_full(p):
             parts.append("\t")
         elif local == "br":
             parts.append("\n")
-        # instrText / fldChar / etc. are skipped (non-visible)
+        elif local == "noBreakHyphen":
+            # Word stores "non‑pecuniary", "ill‑founded" with a non-breaking hyphen element, not a
+            # character; dropping it gave "nonpecuniary", which a search for "non-pecuniary" misses.
+            parts.append("-")
+        # instrText / fldChar / softHyphen (invisible) etc. are skipped (non-visible)
     return "".join(parts)
 
 

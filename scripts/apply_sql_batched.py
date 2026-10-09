@@ -43,6 +43,8 @@ def main() -> int:
     ap.add_argument("--sql", required=True)
     ap.add_argument("--batch-cases", type=int, default=100)
     ap.add_argument("--checkpoint-every", type=int, default=5, help="batches between checkpoints")
+    ap.add_argument("--batch-updates", type=int, default=2000,
+                    help="UPDATE/DELETE statements outside a document per transaction (repair files)")
     ap.add_argument("--min-free-gb", type=float, default=3.0)
     args = ap.parse_args()
 
@@ -60,6 +62,7 @@ def main() -> int:
     t0 = time.time()
     buf, cases, batches, in_tx, peak_wal = "", 0, 0, False, 0
     skipping, skipped = False, 0
+    updates = 0
     optimize = None
 
     def commit_and_maybe_checkpoint():
@@ -94,6 +97,13 @@ def main() -> int:
                     con.execute("BEGIN")
                     in_tx = True
                 cases += 1
+            elif stmt.lstrip()[:6].upper() in ("UPDATE", "DELETE") and not skipping:
+                # repair files: many single-row updates, committed in batches like documents
+                if updates % args.batch_updates == 0:
+                    commit_and_maybe_checkpoint()
+                    con.execute("BEGIN")
+                    in_tx = True
+                updates += 1
             elif "paragraphs_fts" in stmt[:40]:
                 optimize = stmt                     # run once, after the last commit
                 continue
@@ -111,6 +121,8 @@ def main() -> int:
              con.execute("SELECT count(*) FROM paragraphs").fetchone()[0])
     if skipped:
         print(f"skipped {skipped:,} documents that were already in the database")
+    if updates:
+        print(f"{updates:,} update/delete statements applied")
     print(f"cases {before[0]:,} -> {after[0]:,}   paragraphs {before[1]:,} -> {after[1]:,}   "
           f"peak WAL {peak_wal / 1e6:.0f} MB   {time.time() - t0:.0f} s")
     return 0
