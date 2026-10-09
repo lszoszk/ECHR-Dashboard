@@ -407,7 +407,30 @@ def _validate_page_size(page_size: int, *, allow_large: bool = False) -> int:
     return max(1, min(page_size, upper))
 
 
-def _doc_type_clause(doc_type_list: list[str], explicit_lookup: bool = False) -> str:
+_MT_COLUMN: list[bool] = []
+
+
+def _has_mt_column() -> bool:
+    """Whether cases.text_origin exists (machine translations loaded); checked once per process."""
+    if not _MT_COLUMN:
+        try:
+            con = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True)
+            _MT_COLUMN.append(any(r[1] == "text_origin" for r in con.execute("PRAGMA table_info(cases)")))
+            con.close()
+        except sqlite3.Error:
+            return False
+    return _MT_COLUMN[0]
+
+
+def _mt_clause(include_mt: bool, explicit_lookup: bool = False) -> str:
+    """Judgments HUDOC publishes only in French, machine-translated for this tool, are left out unless the
+    user asks for them (include_mt) or names the document (case:/hudoc:/ecli:)."""
+    if include_mt or explicit_lookup or not _has_mt_column():
+        return "1=1"
+    return "COALESCE(c.text_origin, '') != 'machine_translation'"
+
+
+def _doc_type_clause(doc_type_list: list[str], explicit_lookup: bool = False, include_mt: bool = False) -> str:
     """SQL condition for the document-type filter.
 
     Admissibility decisions are separate documents from judgments: they appear
@@ -437,9 +460,10 @@ def _doc_type_clause(doc_type_list: list[str], explicit_lookup: bool = False) ->
                 "AND (c.originating_body IS NULL "
                 "OR c.originating_body NOT LIKE '%Grand Chamber%'))"
             )
+    mt = _mt_clause(include_mt, explicit_lookup)
     if parts:
-        return f"({' OR '.join(parts)})"
-    return "1=1" if explicit_lookup else not_decision
+        return f"(({' OR '.join(parts)}) AND {mt})"
+    return "1=1" if explicit_lookup else f"({not_decision} AND {mt})"
 
 
 def _parse_comma_param(value: Optional[str]) -> list[str]:
@@ -736,7 +760,8 @@ def _case_projection(cur: sqlite3.Cursor, include_ecli: bool = False) -> str:
         "keywords", "originating_body", "document_type",
     ])
     for col in ("strasbourg_caselaw", "domestic_law",
-                "international_law", "rules_of_court", "separate_opinion"):
+                "international_law", "rules_of_court", "separate_opinion",
+                "text_origin", "source_case_id"):
         fields.append(_optional_column_expr(cur, "cases", col))
     return ", ".join(fields)
 
@@ -824,6 +849,12 @@ def stats():
             cur.execute("SELECT count(*) FROM cases WHERE document_type LIKE 'Decision%'")
             total_decisions = cur.fetchone()[0]
 
+            total_machine_translations = 0
+            if _has_column(cur, "cases", "text_origin"):
+                cur.execute("SELECT count(*) FROM cases WHERE text_origin = 'machine_translation'")
+                total_machine_translations = cur.fetchone()[0]
+                total_judgments -= total_machine_translations
+
             cur.execute("SELECT count(*) FROM cases WHERE document_type LIKE '%Press Release%'")
             total_press_releases = cur.fetchone()[0]
 
@@ -882,6 +913,7 @@ def stats():
             "total_cases": total_cases,
             "total_judgments": total_judgments,
             "total_decisions": total_decisions,
+            "total_machine_translations": total_machine_translations,
             "total_press_releases": total_press_releases,
             "total_paragraphs": total_paragraphs,
             "citable_paragraphs": meaningful["citable_paragraphs"],
@@ -1099,6 +1131,7 @@ def _build_case_filter_sql(
     keyword_list: list[str] | None = None,
     date_from: str | None = None,
     date_to: str | None = None,
+    include_mt: bool = False,
 ) -> tuple[str, str, list[Any]]:
     """Build shared WHERE/JOIN clauses for case queries.
 
@@ -1179,7 +1212,7 @@ def _build_case_filter_sql(
         if oc_conditions:
             where_clauses.append(f"({' OR '.join(oc_conditions)})")
 
-    where_clauses.append(_doc_type_clause(doc_type_list))
+    where_clauses.append(_doc_type_clause(doc_type_list, include_mt=include_mt))
 
     _df_key = _date_key(date_from)
     if _df_key:
@@ -1208,6 +1241,8 @@ def analytics(
     doc_types: Optional[str] = Query(None),
     date_from: Optional[str] = Query(None),
     date_to: Optional[str] = Query(None),
+    include_mt: bool = Query(False, description="Include judgments HUDOC publishes only in French, machine-translated "
+                             "into English for this tool (unofficial translations)"),
 ):
     """Return aggregated analytics for the given query/filters over ALL matching cases."""
     t0 = time.perf_counter()
@@ -1227,6 +1262,7 @@ def analytics(
         doc_type_list=_parse_comma_param(doc_types),
         date_from=date_from,
         date_to=date_to,
+        include_mt=include_mt,
     )
 
     try:
@@ -1378,6 +1414,8 @@ def search(
     keywords: Optional[str] = Query(None, description="Comma-separated HUDOC thesaurus keyword filter (OR within)"),
     outcomes: Optional[str] = Query(None, description="Comma-separated outcome filter (violation_only,non_violation_only,both,neither)"),
     doc_types: Optional[str] = Query(None, description="Comma-separated document type filter (judgment,press_release,committee,chamber,grand_chamber)"),
+    include_mt: bool = Query(False, description="Include judgments HUDOC publishes only in French, machine-translated "
+                             "into English for this tool (unofficial translations)"),
     date_from: Optional[str] = Query(None, description="Earliest judgment_date (YYYY-MM-DD)"),
     date_to: Optional[str] = Query(None, description="Latest judgment_date (YYYY-MM-DD)"),
     sort: str = Query("relevance", pattern="^(relevance|date_desc|date_asc)$"),
@@ -1596,7 +1634,8 @@ def search(
 
     where_clauses.append(_doc_type_clause(
         doc_type_list,
-        explicit_lookup=bool(q_prefix["case"] or q_prefix["hudoc"] or q_prefix["ecli"])))
+        explicit_lookup=bool(q_prefix["case"] or q_prefix["hudoc"] or q_prefix["ecli"]),
+        include_mt=include_mt))
 
     _df_key = _date_key(date_from)
     if _df_key:
@@ -2483,6 +2522,8 @@ def browse(
     date_from: Optional[str] = Query(None),
     date_to: Optional[str] = Query(None),
     sort: str = Query("date_desc", pattern="^(date_desc|date_asc)$"),
+    include_mt: bool = Query(False, description="Include judgments HUDOC publishes only in French, machine-translated "
+                             "into English for this tool (unofficial translations)"),
 ):
     """Browse / filter cases without full-text search."""
     t0 = time.perf_counter()
@@ -2557,7 +2598,7 @@ def browse(
         if oc_conditions:
             where_clauses.append(f"({' OR '.join(oc_conditions)})")
 
-    where_clauses.append(_doc_type_clause(doc_type_list))
+    where_clauses.append(_doc_type_clause(doc_type_list, include_mt=include_mt))
 
     _df_key = _date_key(date_from)
     if _df_key:

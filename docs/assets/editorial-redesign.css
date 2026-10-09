@@ -2272,3 +2272,21 @@ a.case-context-ecli-link .ext-icon {
   border-bottom: 1px solid var(--garnet-edge, var(--garnet)); cursor: pointer;
 }
 .cn-appno:hover { background: var(--garnet-soft, transparent); }
+
+
+/* Machine translations (unofficial): opt-in pill, notice above the results, chip and case notice */
+.bucket-pill.mt-pill { border-style: dashed; }
+.bucket-pill.mt-pill .mt-unofficial {
+  font-style: normal; font-size: 0.72em; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 0 0.35em; margin-left: 0.25em; border-radius: 3px;
+  background: var(--mt-flag-bg, #f6e7c8); color: var(--mt-flag-fg, #7a4b00);
+}
+.mt-notice, .mt-case-notice {
+  margin: 0.6rem 0 0; padding: 0.55rem 0.8rem; border-left: 3px solid var(--mt-flag-fg, #b26b00);
+  background: var(--mt-flag-bg, #fbf3e2); color: inherit; font-size: 0.9rem; line-height: 1.45;
+}
+.mt-case-notice { margin: 0 0 0.8rem; }
+.mt-case-notice a, .mt-notice a { margin-left: 0.25rem; }
+.chip.mt-chip { background: var(--mt-flag-bg, #fbf3e2); color: var(--mt-flag-fg, #7a4b00); border-color: var(--mt-flag-fg, #b26b00); }
+[data-theme="dark"] .bucket-pill.mt-pill .mt-unofficial, [data-theme="dark"] .mt-notice,
+[data-theme="dark"] .mt-case-notice, [data-theme="dark"] .chip.mt-chip { --mt-flag-bg: #3a2c12; --mt-flag-fg: #e6b34f; }

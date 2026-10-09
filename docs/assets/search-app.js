@@ -127,6 +127,7 @@ const serverSearch = {
     const serverOutcomes = [...filters.outcomes].filter(v => PRIMARY_OUTCOMES.has(v));
     if (serverOutcomes.length) p.set("outcomes", serverOutcomes.join(","));
     if (filters.docTypes.size) p.set("doc_types", [...filters.docTypes].join(","));
+    if (filters.includeMt) p.set("include_mt", "true");
     // filters.dateFrom/dateTo are epoch-ms (parseDateInput → getTime()).
     // The API compares against judgment_date, so send an ISO yyyy-mm-dd
     // string it can normalise — never the raw timestamp.
@@ -219,6 +220,9 @@ const serverSearch = {
       __isPressRelease: (apiCase.document_type || "").toLowerCase().includes("press release"),
       __isCommittee: (apiCase.document_type || "").toLowerCase().includes("committee"),
       __isDecision: (apiCase.document_type || "").toLowerCase().startsWith("decision"),
+      // Judgments HUDOC publishes only in French, machine-translated for this tool (unofficial).
+      __isMt: apiCase.text_origin === "machine_translation",
+      __sourceCaseId: apiCase.source_case_id || null,
       __isGrandChamber: (apiCase.document_type || "").toLowerCase().includes("grand chamber") || (apiCase.originating_body || "").toLowerCase().includes("grand chamber"),
       document_type: apiCase.document_type || "",
       __judgmentDateTs: apiCase.judgment_date ? (() => { const p = apiCase.judgment_date.split("/"); return p.length === 3 ? new Date(`${p[2]}-${p[1]}-${p[0]}`).getTime() : new Date(apiCase.judgment_date).getTime(); })() : null,
@@ -2379,6 +2383,7 @@ function getCurrentFilters() {
     importance: collectChecked("importance"),
     outcomes: collectChecked("outcomes"),
     docTypes: collectChecked("docTypes"),
+    includeMt: !!document.getElementById("includeMachineTranslations")?.checked,
     separateOpinion: collectChecked("separateOpinion"),
     presence: collectChecked("presence"),
     dateFrom: parseDateInput(el.dateFrom.value),
@@ -2447,6 +2452,7 @@ function passesCaseFilters(c, filters, serverChecked = false) {
   // applies this itself (and lets case:/hudoc: lookups through), so its results
   // are not hidden again here.
   if (!serverChecked && c.__isDecision && !filters.docTypes.has("decision")) return false;
+  if (!serverChecked && c.__isMt && !filters.includeMt) return false;
   if (filters.docTypes.size) {
     const dtKeys = c.__isDecision
       ? ["decision"]
@@ -4946,7 +4952,16 @@ function caseMetadataHtml(c) {
   const conclusion = (Array.isArray(c.conclusion) ? c.conclusion.join(";") : String(c.conclusion || ""))
     .split(";").map((s) => s.trim()).filter(Boolean);
   const keywords = (c.keywords || []).map(String).filter(Boolean);
-  return findings + opinion
+  const isMt = c.__isMt || c.text_origin === "machine_translation";
+  const sourceId = c.__sourceCaseId || c.source_case_id;
+  const mtNotice = isMt ? `
+    <div class="mt-case-notice" role="note">
+      <strong>Unofficial machine translation.</strong> HUDOC publishes this judgment only in French; the English
+      text here was produced by machine translation for this tool and checked automatically. It is not a
+      translation by the Court and may contain errors.
+      ${sourceId ? `<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(sourceId)}" target="_blank" rel="noopener noreferrer">Read the French original on HUDOC ↗</a>` : ""}
+    </div>` : "";
+  return mtNotice + findings + opinion
     + metaSectionHtml("Strasbourg case-law cited", c.strasbourg_caselaw, caselawItemHtml)
     + metaSectionHtml("HUDOC conclusion", conclusion)
     + metaSectionHtml("Keywords", keywords)
@@ -5173,10 +5188,13 @@ function buildCaseCard(caseId, row, rank = 1) {
           <span class="chip">${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "-")}</span>
           <span class="chip outcome ${escapeHtml(outcomeToneClass)}">${escapeHtml(outcomeLabel)}</span>
           <span class="chip">${escapeHtml(respondentSummary)}</span>
+          ${c.__isMt ? `<span class="chip mt-chip" title="HUDOC publishes this judgment only in French. This English text is a machine translation made for this tool, not a translation by the Court.">Machine translation · unofficial</span>` : ""}
         </div>
 
         <div class="case-actions-inline compact-actions">
-          ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="case-open-link primary" target="_blank" rel="noopener noreferrer">Open in HUDOC ↗</a>` : ""}
+          ${c.__isMt && c.__sourceCaseId
+            ? `<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(c.__sourceCaseId)}" class="case-open-link primary" target="_blank" rel="noopener noreferrer" title="The authentic French text on HUDOC">French original ↗</a>`
+            : (c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="case-open-link primary" target="_blank" rel="noopener noreferrer">Open in HUDOC ↗</a>` : "")}
           <button type="button" class="case-open-secondary cite-btn" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}" title="Copy citation to clipboard">Cite</button>
           <button type="button" class="case-open-secondary info-btn" data-action="copy-info-card" data-case-id="${escapeHtml(caseId)}" title="Copy key info block to clipboard">Copy info</button>
           <button
@@ -5564,6 +5582,7 @@ async function fetchAndRenderServerAnalytics(query, filters) {
     const serverOutcomes = [...filters.outcomes].filter(v => PRIMARY_OUTCOMES.has(v));
     if (serverOutcomes.length) p.set("outcomes", serverOutcomes.join(","));
     if (filters.docTypes.size) p.set("doc_types", [...filters.docTypes].join(","));
+    if (filters.includeMt) p.set("include_mt", "true");
     if (filters.dateFrom) p.set("date_from", filters.dateFrom);
     if (filters.dateTo) p.set("date_to", filters.dateTo);
 
@@ -6779,6 +6798,8 @@ function bindEvents() {
   // above the filters panel, outside its change listener.  Wire them
   // up to re-run the search on any change.
   document.getElementById("bucketScope")?.addEventListener("change", () => {
+    const mtNotice = document.getElementById("mtNotice");
+    if (mtNotice) mtNotice.hidden = !document.getElementById("includeMachineTranslations")?.checked;
     if (!state.loaded && !serverSearch.available) return;
     updateActiveFilterCount();
     applySearch(true);
@@ -7287,6 +7308,12 @@ function init() {
         el.statTotalCases.textContent = fmt.format(statsData.total_cases || 0);
         el.statTotalParagraphs.textContent = fmt.format(statsData.total_paragraphs || 0);
         el.statTotalCountries.textContent = fmt.format(statsData.total_countries || 0);
+        // The machine-translation option appears only where translations are loaded.
+        const mtN = statsData.total_machine_translations || 0;
+        const mtPill = document.getElementById("mtPill");
+        if (mtPill) mtPill.hidden = !mtN;
+        const mtCount = document.getElementById("mtCount");
+        if (mtCount) mtCount.textContent = fmt.format(mtN);
         // Parse DD/MM/YYYY dates into readable range
         const parseDMY = (s) => { if (!s) return null; const p = s.split("/"); return p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : s; };
         const df = parseDMY(statsData.date_from);

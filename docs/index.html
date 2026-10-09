@@ -16,7 +16,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css?v=20260727-reading-space">
   <link rel="stylesheet" href="assets/search-app.css?v=20260727-reading-space">
-  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261009-casemeta">
+  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261010-mt">
   <link rel="stylesheet" href="assets/judgment-hudoc.css?v=20260706-deadmodal">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
@@ -131,7 +131,17 @@
               <input type="checkbox" data-name="buckets" value="individual_opinions" checked>
               <span>Individual opinions</span>
             </label>
+            <label class="bucket-pill mt-pill" id="mtPill" hidden
+                   title="Add judgments that HUDOC publishes only in French, machine-translated into English for this tool. They are not official translations of the Court.">
+              <input type="checkbox" id="includeMachineTranslations">
+              <span>+ Machine translations <em class="mt-unofficial">unofficial</em></span>
+            </label>
           </div>
+          <p class="mt-notice" id="mtNotice" role="status" hidden>
+            Results include <strong>unofficial machine translations</strong> of <span id="mtCount">some</span>
+            judgments that HUDOC publishes only in French. They are marked <em>Machine translation · unofficial</em>.
+            They are not translations by the Court and may contain errors: check and quote the French original on HUDOC.
+          </p>
         </form>
       </div>
     </section>
@@ -516,6 +526,6 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
-  <script src="assets/search-app.js?v=20261009-frcited"></script>
+  <script src="assets/search-app.js?v=20261010-mt"></script>
 </body>
 </html>
