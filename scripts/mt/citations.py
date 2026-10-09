@@ -50,7 +50,8 @@ PIN = re.compile(r"§§?\s*\d+(?:\s*(?:-|–|—|et|and|à|to)\s*\d+)?")
 
 def fr_date_to_en(m: re.Match) -> str:
     day = "1" if m.group(1).lower() == "1er" else str(int(m.group(1)))
-    return f"{day} {MONTHS[m.group(2).lower()]} {m.group(3)}"
+    # IGNORECASE lets a dotless ı (a HUDOC typo, "juıllet") match "i": fold it before the lookup
+    return f"{day} {MONTHS[m.group(2).lower().replace('ı', 'i')]} {m.group(3)}"
 
 
 def convert(text: str) -> str:
