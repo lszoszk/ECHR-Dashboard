@@ -42,6 +42,9 @@ def parse_answer(text: str) -> dict:
 
 def submit(args) -> None:
     jobs = sorted(Path(args.jobs).glob("*/chunk_[0-9][0-9][0-9].json"))
+    if args.only:
+        wanted = set(Path(args.only).read_text().split() if Path(args.only).is_file() else args.only.split(","))
+        jobs = [jf for jf in jobs if f"{jf.parent.name}__{jf.stem[6:]}" in wanted]
     jobs = jobs[args.offset:]
     if args.limit:
         jobs = jobs[: args.limit]
@@ -101,6 +104,7 @@ def main() -> int:
     s.add_argument("--tag", required=True)
     s.add_argument("--thinking", choices=["disabled", "adaptive"], default="disabled",
                    help="reasoning before the answer: billed as output tokens; off by default")
+    s.add_argument("--only", help="request ids (case__chunk, as collect prints them), comma-separated or a file")
     s.add_argument("--offset", type=int, default=0, help="skip the first N chunks (to send a large set in parts)")
     s.add_argument("--limit", type=int, help="only N chunks (a dry run, or one part)")
     c = sub.add_parser("collect")

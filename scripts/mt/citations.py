@@ -45,7 +45,7 @@ MARKERS = [
 ]
 DATE_FR = re.compile(r"\b(1er|\d{1,2})\s+(" + "|".join(MONTHS) + r")\s+(\d{4})\b", re.IGNORECASE)
 APPNO = re.compile(r"\b\d{3,6}/\d{2,4}\b")
-PIN = re.compile(r"§§?\s*\d+(?:\s*-\s*\d+)?")
+PIN = re.compile(r"§§?\s*\d+(?:\s*(?:-|–|—|et|and|à|to)\s*\d+)?")
 
 
 def fr_date_to_en(m: re.Match) -> str:
@@ -86,13 +86,16 @@ def check(source_fr: str, target_en: str) -> list[str]:
     for a in set(APPNO.findall(source_fr)):
         if a not in target_en:
             problems.append(f"application number {a} missing")
+    # Compare the digits only: the French originals have typos ("§§ 7981" for §§ 79-81, "§ 81-84" for
+    # §§ 81-84) that a correct translation repairs.
+    digits = lambda pin: re.sub(r"\D", "", pin)
     src_pins = [re.sub(r"\s+", " ", p) for p in PIN.findall(source_fr)]
-    tgt_pins = [re.sub(r"\s+", " ", p) for p in PIN.findall(pins_en)]
+    tgt_digits = [digits(p) for p in PIN.findall(pins_en)]
     for p in set(src_pins):
-        if src_pins.count(p) > tgt_pins.count(p):
+        if src_pins.count(p) > tgt_digits.count(digits(p)):
             problems.append(f"pinpoint {p} missing")
     for m in DATE_FR.finditer(source_fr):
-        if fr_date_to_en(m) not in target_en:
+        if fr_date_to_en(m).lower() not in target_en.lower():
             problems.append(f"date {m.group(0)} not rendered as {fr_date_to_en(m)}")
     for residue in ("(déc.)", " c. ", "CEDH ", "série A"):
         if residue in target_en:

@@ -54,8 +54,14 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--jobs", required=True)
     ap.add_argument("--report", required=True)
-    ap.add_argument("--suffix", default="en", help="translation files chunk_NNN.<suffix>.json (translate.py --tag)")
+    ap.add_argument("--suffix", default="en", help="translation files chunk_NNN.<suffix>.json (translate.py --tag); "
+                    "several tags comma-separated: the first file that exists is used, so a retry tag can go first")
+    ap.add_argument("--fix-list", help="write the request ids (case__chunk) of chunks with a flagged or missing row, "
+                    "for translate.py submit --only")
+    ap.add_argument("--out-name", default=None, help="name of the per-judgment output file (default translation.json "
+                    "or translation.<suffix>.json)")
     args = ap.parse_args()
+    to_fix = []
     summary = {"judgments": 0, "complete": 0, "rows": 0, "flags": Counter(), "chrf": [], "terms": [0, 0]}
     per_case = []
     for case_dir in sorted(p for p in Path(args.jobs).iterdir() if p.is_dir()):
@@ -67,9 +73,11 @@ def main() -> int:
         for jf in jobs:
             job = json.loads(jf.read_text())
             glossary.update(job.get("glossary", {}))
-            tf = jf.with_name(f"{jf.stem}.{args.suffix}.json")
-            tr = json.loads(tf.read_text()) if tf.exists() else {}
-            complete &= tf.exists()
+            tf = next((jf.with_name(f"{jf.stem}.{t}.json") for t in args.suffix.split(",")
+                       if jf.with_name(f"{jf.stem}.{t}.json").exists()), None)
+            tr = json.loads(tf.read_text()) if tf else {}
+            complete &= tf is not None
+            chunk_flagged = tf is None
             for r in job["rows"]:
                 en = tr.get(r["id"])
                 flags = []
@@ -85,7 +93,10 @@ def main() -> int:
                     if len(FRENCH.findall(en)) >= 3:
                         flags.append("french")
                 rows.append({**r, "en": en, "flags": flags})
+                chunk_flagged |= bool(flags)
                 summary["flags"].update(flags)
+            if chunk_flagged:
+                to_fix.append(f"{case_dir.name}__{jf.stem[6:]}")
         summary["rows"] += len(rows)
         summary["complete"] += complete
         info = {"id": case_dir.name, "rows": len(rows), "complete": complete,
@@ -104,7 +115,8 @@ def main() -> int:
                     if fr.lower() in r["fr"].lower() and en.lower() in ref[r["id"]].lower():
                         summary["terms"][1] += 1
                         summary["terms"][0] += en.lower() in r["en"].lower()
-        (case_dir / ("translation.json" if args.suffix == "en" else f"translation.{args.suffix}.json")).write_text(json.dumps(rows, ensure_ascii=False, indent=1))
+        name = args.out_name or ("translation.json" if args.suffix == "en" else f"translation.{args.suffix.split(',')[0]}.json")
+        (case_dir / name).write_text(json.dumps(rows, ensure_ascii=False, indent=1))
         per_case.append(info)
     report = {
         "judgments": summary["judgments"], "complete": summary["complete"], "rows": summary["rows"],
@@ -115,6 +127,9 @@ def main() -> int:
         "per_judgment": per_case,
     }
     Path(args.report).write_text(json.dumps(report, ensure_ascii=False, indent=1))
+    if args.fix_list:
+        Path(args.fix_list).write_text("\n".join(to_fix) + "\n")
+        print(f"{len(to_fix)} chunks to repair -> {args.fix_list}")
     print(json.dumps({k: v for k, v in report.items() if k != "per_judgment"}, indent=1))
     return 0
 

@@ -43,5 +43,16 @@ class CheckTests(unittest.TestCase):
             self.assertIn(word, problems)
 
 
+class SourceTypoTests(unittest.TestCase):
+    def test_repaired_pinpoint_typos_and_capital_dates_are_not_flagged(self):
+        self.assertEqual(c.check("précité, §§ 7981", "cited above, §§ 79-81"), [])
+        self.assertEqual(c.check("précité, § 81-84", "cited above, §§ 81-84"), [])
+        self.assertEqual(c.check("ARRÊT DU 11 JANVIER 2006", "JUDGMENT OF 11 JANUARY 2006"), [])
+        self.assertEqual(c.check("précité, §§ 59 et 60 ; §§ 15–20", "cited above, §§ 59-60; §§ 15-20"), [])
+
+    def test_a_lost_pinpoint_is_still_flagged(self):
+        self.assertEqual(c.check("précité, §§ 79-81", "cited above"), ["pinpoint §§ 79-81 missing"])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
