@@ -4,15 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Methodology — HUDOC Researcher</title>
+  <meta name="description" content="How HUDOC Researcher splits ECtHR judgments into numbered paragraphs, labels their sections, builds the citation graph and translates French-only judgments, with validation figures and known limits.">
+  <link rel="canonical" href="https://lszoszk.github.io/ECHR-Dashboard/methodology.html">
+  <meta property="og:site_name" content="HUDOC Researcher">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Methodology — HUDOC Researcher">
+  <meta property="og:description" content="How HUDOC Researcher splits ECtHR judgments into numbered paragraphs, labels their sections, builds the citation graph and translates French-only judgments, with validation figures and known limits.">
+  <meta property="og:url" content="https://lszoszk.github.io/ECHR-Dashboard/methodology.html">
+  <meta property="og:image" content="https://lszoszk.github.io/ECHR-Dashboard/assets/social-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="HUDOC Researcher — the judgments of the European Court of Human Rights, paragraph by paragraph">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>§</text></svg>">
-  <meta name="description" content="Data cleaning methodology summary for HUDOC Researcher.">
-  <!-- Analytics: loaded only after consent. See assets/analytics-consent.js -->
-  <script src="assets/analytics-consent.js?v=20260802-consent" defer></script>
+  <!-- Analytics: cookie-free GoatCounter; GA4 only after consent. See assets/analytics-consent.js -->
+  <script src="assets/analytics-consent.js?v=20261010-gc" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css">
   <link rel="stylesheet" href="assets/search-app.css">
-  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261010-cite2">
+  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261010-ui3">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <style>
     .meth-content { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
@@ -87,16 +98,21 @@
     <section class="meth-md" id="privacy-analytics">
       <h2>Privacy &amp; analytics</h2>
       <p>
-        This site uses Google Analytics 4 only to see which views are used, and
-        only after you accept the banner. Consent Mode v2 defaults to denied:
-        nothing is sent to Google — not even a request for the analytics
-        library — before you choose. A Do&nbsp;Not&nbsp;Track or Global Privacy
-        Control setting in your browser skips analytics entirely, and no banner
-        is shown.
+        Two counters, both limited to which pages are used.
+        <a href="https://www.goatcounter.com/" target="_blank" rel="noopener">GoatCounter</a>,
+        an open-source counter that sets no cookies and stores nothing in your
+        browser, counts each page opened: its path and view name, the referring
+        page cut to its address without query, your screen width and the browser
+        named in your User-Agent; it runs without the banner because it keeps
+        nothing on your device. Google Analytics 4 runs only after you accept the
+        banner: Consent Mode v2 defaults to denied, so nothing is sent to Google
+        &mdash; not even a request for the analytics library &mdash; before you
+        choose. A Do&nbsp;Not&nbsp;Track or Global Privacy Control setting in your
+        browser turns both off, and no banner is shown.
       </p>
       <p>
-        We record <strong>view names only</strong> (Search, Statistics,
-        Methodology, About, Semantic Search). We never send your search queries,
+        We record <strong>view names only</strong> (Search, Semantic Search,
+        Check, Workspace, Statistics, Methodology, About). We never send your search queries,
         the filters or countries you select, or the judgments you open. The page
         address is stripped to its path before being sent, so a search you ran
         cannot leak through the URL or through the referrer on the next page you
