@@ -234,12 +234,12 @@
             become and later judgments are absent. Note that
             HUDOC's default search covers Grand Chamber + Chamber only, so
             counts here can legitimately exceed a default HUDOC search.</li>
-          <li><strong>Judgments only</strong>: HUDOC's other collections
-            &mdash; admissibility <em>Decisions</em>, Communicated Cases,
-            Legal Summaries, Advisory Opinions, Commission decisions &mdash;
-            are not included. A landmark <em>decision</em> (e.g.
-            <em>Bankovi&#263;</em>) returns no results here; press releases
-            are excluded as duplicates of the underlying judgments.</li>
+          <li><strong>Judgments, plus a few dozen Grand Chamber decisions</strong>: the corpus is made of judgments and
+            a small set of Grand Chamber admissibility decisions (e.g. <em>Bankovi&#263;</em>), which are listed only
+            when the <em>Decisions</em> filter is ticked. HUDOC's other collections &mdash; the many thousands of other
+            admissibility decisions, Communicated Cases, Legal Summaries, Advisory Opinions, Commission decisions
+            &mdash; are not included, so a decision that is not a Grand Chamber one returns no results here. Press
+            releases are excluded as duplicates of the underlying judgments.</li>
           <li><strong>English texts only</strong>: a few recent judgments are
             present only as their French original (titles beginning &ldquo;AFFAIRE&rdquo;) until the English text
             can be loaded. On Semantic Search,
@@ -249,9 +249,12 @@
             older judgments (before about 1999) unnumbered text and separate opinions are sometimes filed under the
             wrong section and may show no &sect; number, and occasionally a number is wrong. Always verify a pinpoint
             on HUDOC before citing it.</li>
-          <li><strong>Citation counts</strong>: &ldquo;Cites&rdquo; and &ldquo;Cited by&rdquo; are derived from
-            application numbers found in the paragraph text. Older judgments, which cite by case name, are
-            under-counted, so a landmark of the 1970s can show only a handful of citing cases.</li>
+          <li><strong>Citation counts</strong>: &ldquo;Cites&rdquo; and &ldquo;Cited by&rdquo; are derived from the
+            text of the judgments. Recent judgments are matched by application number. Older ones, which cite by case
+            name, are matched on the parties, the respondent State and the date, and only when exactly one judgment
+            fits. A reference to an admissibility decision counts only if that decision is in this corpus. The
+            figures are indicative: a reference that gives just a short name without a date is not counted, so a
+            number can still be lower than the true one.</li>
           <li><strong>Keywords</strong>: HUDOC thesaurus keywords are not yet indexed for every judgment.</li>
           <li><strong>No judge filter yet</strong>: HUDOC can filter by
             judge; bench-composition metadata is not ingested here.
@@ -534,7 +537,8 @@
         .then(function (d) {
           var m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(d.date_to || ''));
           document.querySelectorAll('[data-live="cases"]').forEach(function (n) {
-            if (d.total_cases) n.textContent = Number(d.total_cases).toLocaleString('en-GB');
+            var judgments = d.total_judgments || d.total_cases;
+            if (judgments) n.textContent = Number(judgments).toLocaleString('en-GB');
           });
           document.querySelectorAll('[data-live="newest"]').forEach(function (n) {
             if (m) n.textContent = Number(m[1]) + '\u00a0' + MONTHS[Number(m[2]) - 1] + '\u00a0' + m[3];
