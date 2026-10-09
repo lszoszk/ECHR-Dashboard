@@ -769,10 +769,12 @@ function cacheElements() {
   el.dateFrom = byId("dateFrom");
   el.dateTo = byId("dateTo");
 
-  el.statTotalCases = byId("statTotalCases");
-  el.statTotalParagraphs = byId("statTotalParagraphs");
-  el.statTotalCountries = byId("statTotalCountries");
-  el.statDateRange = byId("statDateRange");
+  // Corpus figures: no longer shown on this page (the tour and the Collection block give them);
+  // detached stand-ins keep the code that fills them harmless.
+  el.statTotalCases = byId("statTotalCases") || document.createElement("span");
+  el.statTotalParagraphs = byId("statTotalParagraphs") || document.createElement("span");
+  el.statTotalCountries = byId("statTotalCountries") || document.createElement("span");
+  el.statDateRange = byId("statDateRange") || document.createElement("span");
 
   el.resultsHeader = byId("resultsHeader");
   el.inlineSearchForm = byId("inlineSearchForm");
@@ -7414,6 +7416,7 @@ function init() {
   serverSearch.probe().then(async (available) => {
     if (available) {
       setSearchEnabled(true);
+      setApiStatus("live");
 
       // Fetch full stats from server for KPI bar
       try {
@@ -7442,7 +7445,6 @@ function init() {
       }
 
       // Update data source panel
-      setApiStatus("live");
       setDatasetStatus("Connected to HUDOC Researcher API — full-text search across all judgments (English texts).");
       const badgeEl = document.getElementById("serverBadgeHeader");
       if (badgeEl) {

@@ -2378,7 +2378,6 @@ a.case-context-ecli-link .ext-icon {
 .api-status[data-state="checking"] .api-dot { animation: api-pulse 1.2s ease-in-out infinite; }
 @keyframes api-pulse { 50% { opacity: 0.25; } }
 @media (prefers-reduced-motion: reduce) { .api-status[data-state="checking"] .api-dot { animation: none; } }
-@media (max-width: 768px) { .api-status .api-label { display: none; } .api-status { padding: 5px; } }
 .data-source-panel[hidden], .filter-disclosure[hidden] { display: none !important; }
 
 /* ── "i" beside the translations option ────────────────────────────────── */
@@ -2398,20 +2397,51 @@ a.case-context-ecli-link .ext-icon {
 .info-tip-pop a { display: block; margin-top: 6px; color: var(--garnet); }
 .info-tip:hover .info-tip-pop, .info-tip:focus-within .info-tip-pop, .info-tip.open .info-tip-pop { display: block; }
 
-/* ── Footer, one line (as in the UHRI+ dashboard) ──────────────────────── */
+/* ── Bottom bar: always visible, one line, 30 px (as in the HRC voting dashboard) ──
+   Holds what the masthead used to carry besides the navigation: server status, theme,
+   accessibility, methodology, the tour; and the credits. */
+:root { --bar-h: 30px; }
+body { padding-bottom: var(--bar-h); }
 .footer.site-footer {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 18px;
-  margin: 0; padding: 9px 24px; background: var(--paper); border-top: 1px solid var(--rule);
-  font-family: var(--font-mono); font-size: 0.64rem; letter-spacing: 0.03em; color: var(--ink-3); text-align: left;
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 150; height: var(--bar-h); box-sizing: border-box;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  margin: 0; padding: 0 16px; background: var(--paper); border-top: 1px solid var(--rule);
+  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.03em; color: var(--ink-3);
+  white-space: nowrap; overflow: hidden; text-align: left;
 }
-.site-footer .sf-left, .site-footer .sf-right { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.site-footer .sf-left { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 10px; overflow: hidden; text-overflow: ellipsis; }
+.site-footer .sf-right { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
+.site-footer .sf-left > * { flex: 0 0 auto; }
+.site-footer .sf-left > .sf-fine { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.site-footer .sf-name { color: var(--ink); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
 .site-footer b { color: var(--ink-2); font-weight: 500; }
-.site-footer a { color: var(--ink-3); text-decoration: none; border-bottom: 1px dotted var(--rule); opacity: 1; }
+.site-footer a { color: var(--ink-3); text-decoration: none; border-bottom: 1px dotted var(--rule); }
 .site-footer a:hover { color: var(--ink); border-bottom-color: var(--ink); }
 .site-footer .sf-sep { color: var(--rule); }
-.site-footer .sf-label { font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; }
-.site-footer .sf-sup {
-  padding: 1px 6px; border: 1px solid var(--rule); font-size: 0.56rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-2);
+.site-footer .sf-label { font-size: 0.56rem; letter-spacing: 0.12em; text-transform: uppercase; }
+.site-footer .sf-sup { padding: 1px 6px; border: 1px solid var(--rule); font-size: 0.56rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-2); }
+/* one control style for everything on the right */
+.site-footer .sf-btn, .site-footer .api-status {
+  display: inline-flex; align-items: center; gap: 5px; height: 20px; box-sizing: border-box; padding: 0 8px; margin: 0;
+  font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1;
+  color: var(--ink-2); background: transparent; border: 1px solid var(--rule); border-radius: 0; cursor: pointer;
+}
+.site-footer a.sf-btn { border-bottom: 1px solid var(--rule); }
+.site-footer .sf-btn:hover { color: var(--ink); border-color: var(--ink); }
+.site-footer .api-status { cursor: default; }
+.site-footer .sf-tour { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+.site-footer .sf-tour:hover { color: var(--paper); background: var(--garnet); border-color: var(--garnet); }
+/* the side panels end above the bar */
+.editorial-filter-rail { height: calc(100vh - 74px - var(--bar-h)); }
+@media (min-width: 1181px) {
+  .editorial-workspace .results-sidebar { height: calc(100vh - 74px - var(--bar-h)); max-height: calc(100vh - 74px - var(--bar-h)); }
+}
+.dossier-panel { max-height: calc(100vh - 74px - var(--bar-h)); }
+.stats-sidebar { max-height: calc(100vh - 74px - var(--bar-h)); }
+@media (max-width: 860px) {
+  .site-footer .sf-left, .site-footer .sf-long { display: none; }
+  .footer.site-footer { justify-content: flex-end; padding: 0 10px; }
+  .editorial-filter-rail { height: auto; }
 }
 
 /* ── Result card: one Cite menu (citation / key information) ───────────── */
