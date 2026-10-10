@@ -1457,7 +1457,11 @@ footer {
         model (rerank-3), and the index is now stored more compactly (512 dimensions, 4-bit) so that it fits the server's
         memory. Measured on the same benchmarks, the update and the compact index changed nothing beyond noise; the newer
         second read placed the right judgment first more often (on the 1,570-case test, 65% instead of 58%). We also
-        tried embedding each paragraph together with the rest of its judgment; it did markedly worse and was dropped.</div>
+        tried embedding each paragraph together with the rest of its judgment; it did markedly worse and was dropped.
+        The labels are relative: the second model's scores are not on a fixed scale (one query scores everything
+        above .80, another mostly under .50), so a judgment is called the <em>closest match</em>, <em>related</em> or
+        <em>peripheral</em> against the best result of the same search. The <em>established line</em> note above
+        the results counts which judgment most of the top 20 cite, from the full citation graph.</div>
       <h2>Where to be cautious</h2>
       <div class="box warn"><ul>
         <li><strong>A research aid, not legal advice</strong>, and never a substitute for reading the judgment. Always open the case on HUDOC and verify.</li>
