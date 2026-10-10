@@ -24,14 +24,16 @@
  * OFF. It is on by default and sends its own page_view with the raw URL on
  * every history.replaceState, which send_page_view:false does not suppress.
  *
- * Deliberately NOT added to semantic.html or the *_hudoc.html pages: they carry
- * no analytics today, and adding this script there would be introducing
- * tracking under cover of a privacy change.
+ * GOATCOUNTER (cookie-free page counter) runs without the banner: it sets no
+ * cookies, stores nothing in the browser and sends only the page path, the
+ * view name, a referrer cut to origin + path, screen width and User-Agent.
+ * Skipped for Do-Not-Track / GPC, localhost, automated browsers and ?notrack=1.
  */
 (function () {
   "use strict";
 
-  var MEASUREMENT_ID = "G-F3XBX45HQC";
+  var MEASUREMENT_ID = "G-RT7YD56MZP";   // GA4 property "HUDOC Researcher"
+  var GOATCOUNTER = "https://hudoc-researcher.goatcounter.com/count";
   var STORE_KEY = "echr-analytics-consent";
   var POLICY_VERSION = 1;
 
@@ -130,6 +132,8 @@
     if (p.indexOf("methodology") !== -1) return "Methodology";
     if (p.indexOf("about") !== -1) return "About";
     if (p.indexOf("semantic") !== -1) return "Semantic Search";
+    if (p.indexOf("check") !== -1) return "Check";
+    if (p.indexOf("workspace") !== -1) return "Workspace";
     return "Search";
   }
 
@@ -157,6 +161,39 @@
         page_referrer: cleanUrl(document.referrer),
       });
     } catch (e) { /* analytics must never break the page */ }
+  }
+
+  // ------------------------------------------------------------ goatcounter
+
+  /** Our own test traffic and local previews are not counted. */
+  function countSuppressed() {
+    try {
+      var h = window.location.hostname;
+      if (h === "localhost" || h === "127.0.0.1" || h === "[::1]" || h === "") return true;
+      if (window.navigator.webdriver) return true;
+      if (/[?&]notrack=1/.test(window.location.search)) return true;
+    } catch (e) { return true; }
+    return false;
+  }
+
+  /** One count per page load: the path and view name, never ?q= or #hash. */
+  function countPage() {
+    if (countSuppressed()) return;
+    var s = document.createElement("script");
+    s.async = true;
+    s.src = "https://gc.zgo.at/count.js";
+    s.setAttribute("data-goatcounter", GOATCOUNTER);
+    s.setAttribute("data-goatcounter-settings", '{"no_onload":true}');
+    s.onload = function () {
+      try {
+        window.goatcounter.count({
+          path: window.location.pathname,
+          title: viewName(),
+          referrer: cleanUrl(document.referrer),
+        });
+      } catch (e) { /* analytics must never break the page */ }
+    };
+    document.head.appendChild(s);
   }
 
   // ----------------------------------------------------------------- status
@@ -240,9 +277,10 @@
     p.className = "echr-consent-text";
     p.id = "echr-consent-text";
     p.innerHTML =
-      "We’d like to count which views of this site get used (Search, " +
-      "Statistics, Methodology…). Nothing is sent unless you allow it, and " +
-      "we never send your searches, your filters, or the judgments you open. " +
+      "A cookie-free counter records which page is opened. We’d also like to " +
+      "use Google Analytics to see which views get used; it stays off unless " +
+      "you allow it. Neither ever receives your searches, your filters, or the " +
+      "judgments you open. " +
       '<a href="' + methodologyHref() + '">What this means</a>.';
 
     var actions = document.createElement("div");
@@ -350,6 +388,7 @@
     // DNT/GPC: stop entirely. Nothing persisted, so clearing the browser
     // setting later re-surfaces the prompt rather than silently resuming.
     if (signalsOptOut()) return;
+    countPage();
 
     var stored = readChoice();
     if (!stored) {

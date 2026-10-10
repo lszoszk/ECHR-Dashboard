@@ -5,7 +5,7 @@ the index stays on disk, OS page-cache reclaimable). Loading happens on first
 request, so the dashboard API isn't delayed at container start and RAM is only
 used if the RAG is actually queried.
 
-Pipeline: voyage-4-large embedding -> FAISS mmap ANN -> rerank-2.5 (top 100)
+Pipeline: voyage-4-large embedding -> FAISS mmap ANN -> rerank-3 (top 100)
 -> +importance authority boost -> group by case.
 Endpoints (served under /echr-api/rag via nginx): / , /health , /respondents ,
 /sections , /similar .
@@ -22,7 +22,7 @@ import embed  # voyage HTTP client (ships alongside in backend/)
 
 BASE = Path("/data/rag")
 STATIC = Path(__file__).resolve().parent / "rag_static"
-VOYAGE_MODEL = "voyage-4-large"; RERANK_MODEL = "rerank-2.5"
+VOYAGE_MODEL = "voyage-4-large"; RERANK_MODEL = "rerank-3"
 NPROBE = 128; FETCH = 300; RERANK_POOL = 100; IMP_BOOST = 0.05
 # Hybrid lexical arm (P0 measurement, Aug 2026): case-level OR-mode BM25 fused
 # with the dense ranking. Offline on the de-anchoring benchmark: expert-register
@@ -103,6 +103,8 @@ def _split(raw): return [p.strip() for p in (raw or "").split(",") if p.strip()]
 def run_paragraph_search(q, respondent=None, article=None, section=None):
     S = _load()
     qv = _embed_query(q)
+    if qv.shape[1] > S["index"].d:  # a smaller (Matryoshka) index: the query's leading dims, re-normalised
+        qv = np.ascontiguousarray(qv[:, :S["index"].d]); faiss.normalize_L2(qv)
     fetch = FETCH if not (respondent or article or section) else FETCH * 2
     D, I = S["index"].search(qv, fetch)
     case, sno, rid, meta, rowsec, art, fts = S["case"], S["sno"], S["rid"], S["meta"], S["rowsec"], S["artmap"], S["fts"]
@@ -249,7 +251,8 @@ def citations(req: CitReq):
         meta[cid] = {"title": node.get("title", ""), "case_no": node.get("case_no", ""),
                      "judgment_date": node.get("judgment_date", "")}
         cites = node.get("cites", []); citedby = node.get("cited_by", [])
-        cbt[cid] = len(citedby); ct[cid] = len(cites)
+        # + judgments HUDOC has only in French (not in the corpus yet), as the Search page counts them
+        cbt[cid] = len(citedby) + int(node.get("cited_by_french_only", 0)); ct[cid] = len(cites)
         for tgt in cites:
             if tgt in id_set and tgt != cid: edges.append({"from": cid, "to": tgt})
         cs[cid] = expand(cites); cbs[cid] = expand(citedby)

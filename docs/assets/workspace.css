@@ -1,0 +1,44 @@
+/* Workspace page (workspace.html): saved paragraphs and searches. */
+body { background: var(--paper); }
+.ws-shell { max-width: 940px; margin: 0 auto; padding: 32px 24px 64px; }
+.ws-head h1 { margin: 6px 0 10px; font-family: var(--font-serif); font-size: 2rem; font-weight: 500; color: var(--ink); }
+.ws-sub { margin: 0; max-width: 780px; font-family: var(--font-serif); font-size: 1rem; line-height: 1.6; color: var(--ink-2); }
+.ws-bar {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
+  margin: 24px 0 8px; padding: 10px 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--rule);
+}
+.ws-count-line { font-family: var(--font-mono); font-size: 0.74rem; color: var(--ink-3); }
+.ws-bar-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.ws-btn {
+  display: inline-flex; align-items: center; padding: 5px 11px; cursor: pointer; text-decoration: none;
+  font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ink-2); background: var(--paper); border: 1px solid var(--rule);
+}
+.ws-btn:hover { color: var(--ink); border-color: var(--ink); }
+.ws-btn:disabled { opacity: 0.45; cursor: default; }
+.ws-block { margin-top: 26px; }
+.ws-block h2 { margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); }
+.ws-empty { font-family: var(--font-serif); color: var(--ink-3); }
+.ws-empty a { color: var(--garnet); }
+.ws-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.ws-item { padding: 12px 16px; border: 1px solid var(--rule); border-left: 3px solid var(--garnet); background: var(--paper); }
+.ws-search { border-left-color: var(--ink-3); }
+.ws-item-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.ws-item-title { font-family: var(--font-serif); font-size: 1.05rem; font-weight: 600; color: var(--ink); text-decoration: none; }
+a.ws-item-title:hover { color: var(--garnet); }
+.ws-del { flex: 0 0 auto; padding: 0 6px; cursor: pointer; font-size: 1.1rem; line-height: 1; color: var(--ink-3); background: none; border: 0; }
+.ws-del:hover { color: var(--garnet); }
+.ws-meta { margin-top: 3px; font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-3); }
+.ws-meta code { color: var(--ink-2); }
+.ws-mt { display: inline-block; margin-top: 6px; padding: 1px 6px; font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--mt-flag-fg, #7a4b00); border: 1px solid var(--mt-flag-fg, #b26b00); background: var(--mt-flag-bg, #fbf3e2); }
+.ws-text { margin: 10px 0 0; padding: 4px 0 4px 12px; border-left: 2px solid var(--rule); font-family: var(--font-serif); font-size: 0.95rem;
+  line-height: 1.6; color: var(--ink-2); white-space: pre-wrap; max-height: 16em; overflow: auto; }
+.ws-cite { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 10px; }
+.ws-cite code { flex: 1 1 100%; font-family: var(--font-mono); font-size: 0.74rem; color: var(--ink); }
+.ws-note-label { display: block; margin-top: 10px; font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+.ws-note { display: block; width: 100%; box-sizing: border-box; margin-top: 4px; padding: 8px 10px; resize: vertical;
+  font-family: var(--font-serif); font-size: 0.95rem; line-height: 1.5; color: var(--ink); background: var(--paper-2); border: 1px solid var(--rule); }
+.ws-note:focus { outline: none; border-color: var(--ink); }
+.ws-run { margin-top: 8px; }
+@media (max-width: 600px) { .ws-shell { padding: 22px 16px 48px; } .ws-head h1 { font-size: 1.5rem; } }

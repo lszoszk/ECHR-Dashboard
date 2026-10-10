@@ -162,7 +162,7 @@ class StatisticsTests(unittest.TestCase):
         case = catalog_case(metadata(kpthesaurus=";".join(str(n) for n in range(20000, 20009)) + ";20000"))
         result = build_payload([case], "fixture")["thesaurus_analytics"]
         self.assertEqual(result["unique_terms"], 9)
-        self.assertEqual(result["terms_by_year_labels"], [row[0] for row in result["top_terms"][:5]])
+        self.assertEqual(result["terms_by_year_labels"], [row[0] for row in result["top_terms"][:10]])  # top 10 trend lines
         self.assertTrue(all(n == 1 for _, n in result["top_terms"]))
         # The ninth topic must participate even though the old build truncated at eight.
         self.assertTrue(any("#20008" in pair for pair, _ in result["top_cooccurrences"]))

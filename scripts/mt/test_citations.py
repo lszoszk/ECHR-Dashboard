@@ -19,6 +19,7 @@ class ConvertTests(unittest.TestCase):
         self.assertEqual(c.convert("Ahmed c. Autriche, 17 décembre 1996, Recueil des arrêts et décisions 1996-VI"),
                          "Ahmed v. Austria, 17 December 1996, Reports of Judgments and Decisions 1996-VI")
         self.assertEqual(c.convert("nos 123/05 et 2 autres, 1er mars 2010"), "nos. 123/05 and 2 others, 1 March 2010")
+        self.assertEqual(c.convert("19 juıllet 1999"), "19 July 1999")  # HUDOC typo: dotless ı
 
     def test_states_with_article(self):
         self.assertEqual(c.convert("X c. Pays-Bas"), "X v. the Netherlands")

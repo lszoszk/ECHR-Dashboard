@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Citation Check — HUDOC Researcher</title>
-  <meta name="description" content="Paste a text and check every citation of a European Court of Human Rights judgment in it: case name, application number, paragraph number and quotation.">
-  <link rel="canonical" href="https://lszoszk.github.io/ECHR-Dashboard/check.html">
+  <title>Workspace — HUDOC Researcher</title>
+  <meta name="description" content="The paragraphs and searches you saved in HUDOC Researcher, with your notes, kept in your browser.">
+  <link rel="canonical" href="https://lszoszk.github.io/ECHR-Dashboard/workspace.html">
+  <meta name="robots" content="noindex">
   <meta property="og:site_name" content="HUDOC Researcher">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Citation Check — HUDOC Researcher">
-  <meta property="og:description" content="Paste a text and check every citation of a European Court of Human Rights judgment in it: case name, application number, paragraph number and quotation.">
-  <meta property="og:url" content="https://lszoszk.github.io/ECHR-Dashboard/check.html">
+  <meta property="og:title" content="Workspace — HUDOC Researcher">
+  <meta property="og:description" content="The paragraphs and searches you saved in HUDOC Researcher, with your notes, kept in your browser.">
+  <meta property="og:url" content="https://lszoszk.github.io/ECHR-Dashboard/workspace.html">
   <meta property="og:image" content="https://lszoszk.github.io/ECHR-Dashboard/assets/social-card.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -24,8 +25,8 @@
   <link rel="stylesheet" href="assets/dashboard.css">
   <link rel="stylesheet" href="assets/search-app.css">
   <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261010-ui4">
-  <link rel="stylesheet" href="assets/check.css?v=20261010-check">
-  <script src="assets/check-app.js?v=20261010-check" defer></script>
+  <link rel="stylesheet" href="assets/workspace.css?v=20261010-ws">
+  <script src="assets/workspace-page.js?v=20261010-ws" defer></script>
   <script src="assets/tour.js?v=20261010-mcp" defer></script>
   <script src="assets/workspace.js?v=20261010-ws"></script>
   <script src="assets/cite.js?v=20261010-cite" defer></script>
@@ -44,55 +45,41 @@
       <div class="nav-links">
         <a href="./" class="nav-link">Search</a>
         <a href="semantic.html" class="nav-link" title="Experimental">Semantic Search <svg class="exp-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 1.5h4M6.7 1.5v4.2L2.6 13a1.2 1.2 0 0 0 1 1.8h8.8a1.2 1.2 0 0 0 1-1.8L9.3 5.7V1.5M4.4 10h7.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="visually-hidden"> (experimental)</span></a>
-        <a href="check.html" class="nav-link active">Check</a>
-        <a href="workspace.html" class="nav-link">Workspace <span class="ws-count" data-ws-count hidden></span></a>
+        <a href="check.html" class="nav-link">Check</a>
+        <a href="workspace.html" class="nav-link active">Workspace <span class="ws-count" data-ws-count hidden></span></a>
         <a href="analytics.html" class="nav-link">Statistics</a>
         <a href="about.html" class="nav-link">About</a>
       </div>
     </div>
   </nav>
 
-  <main class="ck-shell">
-    <header class="ck-head">
-      <div class="folio-label garnet">Citation check · in your browser</div>
-      <h1>Check the Strasbourg citations in your text</h1>
-      <p class="ck-sub">
-        Paste a paragraph, a footnote block or a whole section. Every “X v. State”, application number
-        (<em>no. 12345/67</em>) and “X, cited above” is resolved against the Court's judgments; a pinpointed
-        paragraph is checked to exist, and a quotation is compared word by word with the judgment.
-        A wrong name for a real application number, a [GC] that is not a Grand Chamber judgment, a Chamber
-        judgment later decided by the Grand Chamber and invented references are flagged.
-        <strong>Your text stays in this browser:</strong> only the identifiers of the cited judgments are sent.
-      </p>
+  <main class="ws-shell">
+    <header class="ws-head">
+      <div class="folio-label garnet">Personal · in your browser only</div>
+      <h1>Your workspace</h1>
+      <p class="ws-sub">Paragraphs you save (☆ next to a search result) and searches you keep with their filters
+        (“☆ Save search”) live in this browser's storage. Nothing leaves your device, and nobody else can see them;
+        clearing the browser's data deletes them, so export a copy now and then.</p>
     </header>
 
-    <section class="ck-form" aria-label="Text to check">
-      <label class="folio-label" for="ckInput">Text to check</label>
-      <textarea id="ckInput" rows="9" spellcheck="false"
-                placeholder="… (Kudła v. Poland [GC], no. 30210/96, § 156, ECHR 2000-XI) …"></textarea>
-      <div class="ck-actions">
-        <button type="button" class="search-btn" id="ckRun">Check citations</button>
-        <button type="button" class="ck-btn" id="ckSample">Try a sample</button>
-        <button type="button" class="ck-btn" id="ckClear">Clear</button>
-        <label class="ck-opt"><input type="checkbox" id="ckQuotes" checked> Compare quotations with the judgment</label>
-        <span class="ck-status-line" id="ckStatus" role="status"></span>
+    <div class="ws-bar">
+      <span class="ws-count-line" id="wsCount">0 items in your workspace</span>
+      <div class="ws-bar-actions">
+        <button type="button" class="ws-btn" id="wsExportMd" title="A Markdown file with every paragraph, its citation and note, and every saved search">⬇ Markdown</button>
+        <button type="button" class="ws-btn" id="wsExportJson" title="A complete backup, which Import can restore in any browser">⬇ JSON backup</button>
+        <button type="button" class="ws-btn" id="wsImport" title="Add the contents of a JSON backup to this workspace">⬆ Import</button>
+        <input type="file" id="wsImportFile" accept="application/json,.json" hidden>
       </div>
+    </div>
+
+    <section class="ws-block" aria-labelledby="wsParaTitle">
+      <h2 class="folio-label" id="wsParaTitle">★ Saved paragraphs <span id="wsParaCount"></span></h2>
+      <div id="wsParagraphs"></div>
     </section>
 
-    <section class="ck-output" id="ckOutput" hidden aria-live="polite">
-      <p class="ck-summary" id="ckSummary"></p>
-      <div class="ck-legend" aria-hidden="true">
-        <span class="st-found">✓ found</span><span class="st-check">⚠ check</span><span class="st-not_found">✖ not found</span>
-        <span class="st-ambiguous">? ambiguous</span><span class="st-outside">○ outside this database</span>
-      </div>
-      <div class="ck-text" id="ckText"></div>
-      <div class="ck-cards" id="ckCards"></div>
-      <div class="ck-foot">
-        <button type="button" class="ck-btn" id="ckCopy">⎘ Copy report</button>
-        <p>The corpus holds the Court's judgments in English (judgments, not decisions); judgments that HUDOC
-          publishes only in French are recognised but cannot be checked here. A citation marked “found” has been
-          matched, not proofread: open the judgment on HUDOC before you rely on it.</p>
-      </div>
+    <section class="ws-block" aria-labelledby="wsSearchTitle">
+      <h2 class="folio-label" id="wsSearchTitle">Saved searches <span id="wsSearchCount"></span></h2>
+      <div id="wsSearches"></div>
     </section>
   </main>
 

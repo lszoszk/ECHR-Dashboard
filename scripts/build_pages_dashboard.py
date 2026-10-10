@@ -101,6 +101,8 @@ OUTCOME_LABELS = {
 }
 
 OUTCOME_KEYS = ("violation_only", "non_violation_only", "both", "neither")
+FORMATIONS = (("GRANDCHAMBER", "Grand Chamber"), ("CHAMBER", "Chamber"), ("COMMITTEE", "Committee"))
+STATE_CODES = {name: code for code, name in COUNTRY_NAMES.items()}
 SCHEMA_VERSION = "echr-dashboard-v2"
 PARSER_VERSION = "2.0.0"
 
@@ -185,6 +187,7 @@ def parse_conclusion_flags(conclusion: str):
     return {
         "has_inadmissibility": "inadmissible" in text,
         "is_struck_out": "struck out" in text,
+        "is_friendly_settlement": "friendly settlement" in text,
         "has_procedural_aspect": "procedural aspect" in text,
         "has_substantive_aspect": "substantive aspect" in text,
     }
@@ -515,6 +518,7 @@ def normalize_case(case):
         "outcome_primary": outcome_primary,
         "has_inadmissibility": conclusion_flags["has_inadmissibility"],
         "is_struck_out": conclusion_flags["is_struck_out"],
+        "is_friendly_settlement": conclusion_flags["is_friendly_settlement"],
         "has_procedural_aspect": conclusion_flags["has_procedural_aspect"],
         "has_substantive_aspect": conclusion_flags["has_substantive_aspect"],
         "inadmissibility_grounds": extract_inadmissibility_grounds(conclusion),
@@ -577,11 +581,14 @@ def build_payload(cases, source_file: str):
     state_case_counts = Counter()
     state_outcome_counts = defaultdict(Counter)
     state_violation_counts = Counter()
-    article_state_counts = defaultdict(Counter)
-    article_state_violation_counts = defaultdict(Counter)
-    state_article_violation_counts = defaultdict(Counter)
+    # Judgments with no outcome tag that strike out or record a friendly settlement, per State.
+    state_settled_counts = Counter()
+    # state -> article family -> {"with_outcome", "with_violation"}, same rule as article_analytics.
+    state_article_outcomes = defaultdict(lambda: defaultdict(Counter))
+    case_state_sets = []
     state_cases_by_year = defaultdict(Counter)
     outcomes_by_year = defaultdict(Counter)
+    outcomes_by_year_formation = defaultdict(lambda: defaultdict(Counter))
     procedural_vs_substantive_by_year = defaultdict(Counter)
     precedent_to_cases = defaultdict(set)
 
@@ -677,15 +684,21 @@ def build_payload(cases, source_file: str):
             paragraph_count_by_month[month_key] += paragraph_len
             parsed_dates.append(date_obj)
             outcomes_by_year[year_key][normalized["outcome_primary"]] += 1
+            outcomes_by_year_formation[year_key][normalized["chamber_category"]][normalized["outcome_primary"]] += 1
             if normalized["has_procedural_aspect"]:
                 procedural_vs_substantive_by_year[year_key]["procedural"] += 1
             if normalized["has_substantive_aspect"]:
                 procedural_vs_substantive_by_year[year_key]["substantive"] += 1
 
+        settled = normalized["outcome_primary"] == "neither" and (
+            normalized["is_struck_out"] or normalized["is_friendly_settlement"])
+        case_state_sets.append(set(normalized["states"]))
         for state in normalized["states"]:
             country_counts[state] += 1
             state_case_counts[state] += 1
             state_outcome_counts[state][normalized["outcome_primary"]] += 1
+            if settled:
+                state_settled_counts[state] += 1
             if normalized["violation"]:
                 state_violation_counts[state] += 1
             if date_obj:
@@ -699,13 +712,6 @@ def build_payload(cases, source_file: str):
                 case_articles.add(article)
         for article in case_articles:
             article_case_counts[article] += 1
-            for state in normalized["states"]:
-                article_state_counts[article][state] += 1
-
-        for article in set(normalized["violation"]):
-            for state in normalized["states"]:
-                article_state_violation_counts[article][state] += 1
-                state_article_violation_counts[state][article] += 1
 
         for article in set(normalized["violation"]):
             article_violation_counts[article] += 1
@@ -721,6 +727,11 @@ def build_payload(cases, source_file: str):
             counts["referenced"] += 1
             bucket = derive_outcome_bucket(primary_v & {article}, primary_nv & {article})
             counts[bucket] += 1
+            if bucket != "neither":
+                for state in normalized["states"]:
+                    state_article_outcomes[state][article]["with_outcome"] += 1
+                    if bucket != "non_violation_only":
+                        state_article_outcomes[state][article]["with_violation"] += 1
 
         if normalized["chamber_category"] == "GRANDCHAMBER":
             chamber_counts["Grand Chamber"] += 1
@@ -917,16 +928,17 @@ def build_payload(cases, source_file: str):
 
     state_outcomes = []
     for state, total in state_case_counts.items():
-        if total < 5:
-            continue
         counters = state_outcome_counts[state]
         v_only = counters.get("violation_only", 0)
         nv_only = counters.get("non_violation_only", 0)
         both = counters.get("both", 0)
         neither = counters.get("neither", 0)
         v_rate = (state_violation_counts.get(state, 0) / total * 100) if total else 0
-        state_outcomes.append([state, total, v_only, nv_only, both, neither, round(v_rate, 2)])
+        state_outcomes.append([state, total, v_only, nv_only, both, neither, round(v_rate, 2),
+                               state_settled_counts.get(state, 0)])
     state_outcomes.sort(key=lambda row: (row[1], row[6]), reverse=True)
+    top_states = [row[0] for row in state_outcomes[:3]]
+    top_states_judgments = sum(1 for states in case_state_sets if states & set(top_states))
 
     precedent_to_citing_cases = [
         [citation, len(case_ids)]
@@ -942,17 +954,6 @@ def build_payload(cases, source_file: str):
         cumulative_share += share
         precedent_concentration.append([citation, count, round(share, 2), round(cumulative_share, 2)])
 
-    # Article × State cross-tabulation (top 15 articles, top 15 states each)
-    top_articles_for_crosstab = [a for a, _ in article_counts.most_common(20)]
-    article_by_state = {}
-    for article in top_articles_for_crosstab:
-        state_rows = []
-        for state, count in article_state_counts[article].most_common(15):
-            v_count = article_state_violation_counts.get(article, {}).get(state, 0)
-            state_rows.append([state, count, v_count])
-        if state_rows:
-            article_by_state[article] = state_rows
-
     # Per-state comparison data (states with >= 3 cases)
     all_years = sorted(set(y for counts in state_cases_by_year.values() for y in counts))
     state_profiles = {}
@@ -960,9 +961,13 @@ def build_payload(cases, source_file: str):
         if total < 3:
             continue
         yearly = [state_cases_by_year[state].get(y, 0) for y in all_years]
-        top_articles = state_article_violation_counts[state].most_common(10)
+        # Every article family with an outcome tag: [article, with_violation, with_outcome], most violations first.
+        articles = sorted(
+            ([article, c["with_violation"], c["with_outcome"]] for article, c in state_article_outcomes[state].items()),
+            key=lambda row: (-row[1], -row[2], primary_article_order(row[0])))
         counters = state_outcome_counts[state]
         state_profiles[state] = {
+            "code": STATE_CODES.get(state),
             "total": total,
             "violation_rate": round(state_violation_counts.get(state, 0) / total * 100, 1),
             "outcomes": {
@@ -971,7 +976,8 @@ def build_payload(cases, source_file: str):
                 "both": counters.get("both", 0),
                 "neither": counters.get("neither", 0),
             },
-            "top_violated_articles": top_articles,
+            "settled": state_settled_counts.get(state, 0),
+            "articles": articles,
             "cases_by_year": yearly,
         }
     compare_data = {
@@ -1015,7 +1021,10 @@ def build_payload(cases, source_file: str):
         [OUTCOME_LABELS.get(key, key), outcome_counts.get(key, 0)]
         for key in OUTCOME_KEYS
     ]
-    top_year_terms = [label for label, _ in kpt_term_counts.most_common(5)]
+    top_year_terms = [label for label, _ in kpt_term_counts.most_common(10)]
+    trend_years = sorted(kpt_by_year.keys())
+    # every topic with enough judgments to draw a line, for the Statistics page's topic picker
+    trend_terms = [label for label, n in kpt_term_counts.most_common() if n >= 20]
 
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -1091,6 +1100,12 @@ def build_payload(cases, source_file: str):
             "outcome_breakdown": outcome_breakdown,
             "separate_opinion_share_by_body": separate_opinion_share_by_body,
             "outcomes_by_year": outcomes_by_year_series,
+            # Same rows as outcomes_by_year, one list per judicial formation (every year, zeros kept).
+            "outcomes_by_year_formation": {
+                label: [[year] + [outcomes_by_year_formation[year][key].get(k, 0) for k in OUTCOME_KEYS]
+                        for year in sorted(outcomes_by_year)]
+                for key, label in FORMATIONS
+            },
             "procedural_vs_substantive_by_year": procedural_vs_substantive_series,
         },
         "rankings": {
@@ -1108,13 +1123,15 @@ def build_payload(cases, source_file: str):
             "article_outcomes_top": article_outcomes[:20],
             "article_violation_rates_top": article_violation_rates[:20],
             "state_outcomes_top": state_outcomes[:30],
+            "state_outcomes_all": state_outcomes,
+            # Distinct judgments with at least one of the three largest respondent States.
+            "top_states_share": {"states": top_states, "judgments": top_states_judgments},
             "inadmissibility_grounds_top": inadmissibility_ground_counts.most_common(20),
             "precedent_concentration_top": precedent_concentration,
             "precedent_to_citing_cases_top": precedent_to_citing_cases[:20],
             "outcomes": outcome_breakdown,
         },
         "cross_tabs": {
-            "article_by_state": article_by_state,
             "compare": compare_data,
         },
         "quality": {
@@ -1134,13 +1151,17 @@ def build_payload(cases, source_file: str):
                     kpt_by_country.keys(),
                     key=lambda s: state_case_counts.get(s, 0),
                     reverse=True,
-                )[:15]
+                )
             },
             "terms_by_year": [
                 [yr] + [kpt_by_year[yr].get(t, 0) for t in top_year_terms]
                 for yr in sorted(kpt_by_year.keys())
             ],
             "terms_by_year_labels": top_year_terms,
+            "term_trends": {
+                "years": trend_years,
+                "series": {t: [kpt_by_year[yr].get(t, 0) for yr in trend_years] for t in trend_terms},
+            },
         },
         "conclusion_analytics": {
             "clause_breakdown": conclusion_clause_counts.most_common(20),

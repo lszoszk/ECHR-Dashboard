@@ -1851,15 +1851,6 @@ mark.hl {
   line-height: 1.15;
 }
 
-.case-context-ecli {
-  margin-top: 5px;
-  color: var(--ink-4);
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  line-height: 1.45;
-  overflow-wrap: anywhere;
-}
-
 .case-context-empty {
   color: var(--ink-3);
   font-family: var(--font-serif);
@@ -1917,13 +1908,6 @@ mark.hl {
   font-size: 0.92rem;
   font-style: italic;
   line-height: 1.58;
-}
-
-.case-context-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 18px;
 }
 
 .mobile-case-context {
@@ -2107,25 +2091,6 @@ mark.hl {
   color: var(--garnet);
 }
 
-/* ── Case Note drawer — case number / ECLI as a HUDOC link. ───────── */
-a.case-context-ecli-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--garnet);
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  width: max-content;
-  max-width: 100%;
-}
-a.case-context-ecli-link:hover {
-  border-bottom-color: var(--garnet-edge, var(--garnet));
-}
-a.case-context-ecli-link .ext-icon {
-  font-size: 0.82em;
-  flex-shrink: 0;
-}
-
 /* ── Hits toggle — render like the Cite / Info secondary actions
    (plain italic garnet) instead of an uppercase-mono hit-count. ───── */
 .researcher-result .expand-paras-btn {
@@ -2229,12 +2194,6 @@ a.case-context-ecli-link .ext-icon {
 .footer-note a { color: var(--garnet); }
 
 /* ── Registry summaries (Grand Chamber) ─────────────────────── */
-.registry-subject {
-  margin: 6px 0 4px;
-  font-size: 0.9rem;
-  line-height: 1.45;
-  color: var(--ink-2);
-}
 .rs-label {
   display: inline-block;
   margin-right: 6px;
@@ -2347,10 +2306,36 @@ a.case-context-ecli-link .ext-icon {
 .year-bar:hover > span { opacity: 0.9; }
 .year-bar.in-range > span { background: var(--garnet); opacity: 0.9; }
 .year-axis {
-  display: flex; justify-content: space-between; margin-bottom: 8px;
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
   font-family: var(--font-mono); font-size: 0.6rem; color: var(--ink-3);
 }
 .year-axis[hidden] { display: none; }
+.ys-reset {
+  padding: 0 4px; cursor: pointer; font: inherit; font-weight: 600; color: var(--garnet);
+  background: none; border: 0; border-bottom: 1px dashed var(--garnet-edge, var(--garnet));
+}
+.ys-reset[hidden] { display: none; }
+/* two range inputs on one track; only their handles take the pointer */
+.year-slider { position: relative; height: 16px; margin: 0 0 2px; }
+.year-slider::before, .ys-fill { content: ""; position: absolute; top: 7px; height: 2px; }
+.year-slider::before { left: 0; right: 0; background: var(--rule); }
+.ys-fill { background: var(--garnet); }
+.year-slider input[type="range"] {
+  position: absolute; inset: 0; width: 100%; height: 16px; margin: 0; padding: 0;
+  background: none; pointer-events: none; -webkit-appearance: none; appearance: none;
+}
+.year-slider input[type="range"]::-webkit-slider-runnable-track { height: 16px; background: none; }
+.year-slider input[type="range"]::-moz-range-track { height: 16px; background: none; }
+.year-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; pointer-events: auto; cursor: grab;
+  width: 12px; height: 12px; margin-top: 2px; border-radius: 50%; background: var(--paper); border: 2px solid var(--garnet);
+}
+.year-slider input[type="range"]::-moz-range-thumb {
+  pointer-events: auto; cursor: grab; width: 9px; height: 9px; border-radius: 50%; background: var(--paper); border: 2px solid var(--garnet);
+}
+.year-slider input[type="range"]:focus-visible { outline: none; }
+.year-slider input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px var(--garnet-soft); }
+.year-slider input[type="range"]:disabled::-webkit-slider-thumb { border-color: var(--ink-4); cursor: default; }
 /* the two date fields share the rail's width instead of running past its edge */
 .editorial-filter-rail .date-input { min-width: 0; padding: 5px 3px; font-size: 0.74rem; }
 .editorial-filter-rail .date-range { gap: 4px; }
@@ -2378,7 +2363,6 @@ a.case-context-ecli-link .ext-icon {
 .api-status[data-state="checking"] .api-dot { animation: api-pulse 1.2s ease-in-out infinite; }
 @keyframes api-pulse { 50% { opacity: 0.25; } }
 @media (prefers-reduced-motion: reduce) { .api-status[data-state="checking"] .api-dot { animation: none; } }
-@media (max-width: 768px) { .api-status .api-label { display: none; } .api-status { padding: 5px; } }
 .data-source-panel[hidden], .filter-disclosure[hidden] { display: none !important; }
 
 /* ── "i" beside the translations option ────────────────────────────────── */
@@ -2398,39 +2382,183 @@ a.case-context-ecli-link .ext-icon {
 .info-tip-pop a { display: block; margin-top: 6px; color: var(--garnet); }
 .info-tip:hover .info-tip-pop, .info-tip:focus-within .info-tip-pop, .info-tip.open .info-tip-pop { display: block; }
 
-/* ── Footer, one line (as in the UHRI+ dashboard) ──────────────────────── */
+/* ── Bottom bar: always visible, one line, 30 px (as in the HRC voting dashboard) ──
+   Holds what the masthead used to carry besides the navigation: server status, theme,
+   accessibility, methodology, the tour; and the credits. */
+:root { --bar-h: 30px; }
+body { padding-bottom: var(--bar-h); }
 .footer.site-footer {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 18px;
-  margin: 0; padding: 9px 24px; background: var(--paper); border-top: 1px solid var(--rule);
-  font-family: var(--font-mono); font-size: 0.64rem; letter-spacing: 0.03em; color: var(--ink-3); text-align: left;
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 150; height: var(--bar-h); box-sizing: border-box;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  margin: 0; padding: 0 16px; background: var(--paper); border-top: 1px solid var(--rule);
+  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.03em; color: var(--ink-3);
+  white-space: nowrap; overflow: hidden; text-align: left;
 }
-.site-footer .sf-left, .site-footer .sf-right { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.site-footer .sf-left { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 10px; overflow: hidden; text-overflow: ellipsis; }
+.site-footer .sf-right { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
+.site-footer .sf-left > * { flex: 0 0 auto; }
+.site-footer .sf-left > .sf-fine { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.site-footer .sf-name { color: var(--ink); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
 .site-footer b { color: var(--ink-2); font-weight: 500; }
-.site-footer a { color: var(--ink-3); text-decoration: none; border-bottom: 1px dotted var(--rule); opacity: 1; }
+.site-footer a { color: var(--ink-3); text-decoration: none; border-bottom: 1px dotted var(--rule); }
 .site-footer a:hover { color: var(--ink); border-bottom-color: var(--ink); }
 .site-footer .sf-sep { color: var(--rule); }
-.site-footer .sf-label { font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; }
-.site-footer .sf-sup {
-  padding: 1px 6px; border: 1px solid var(--rule); font-size: 0.56rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-2);
+.site-footer .sf-label { font-size: 0.56rem; letter-spacing: 0.12em; text-transform: uppercase; }
+.site-footer .sf-sup { padding: 1px 6px; border: 1px solid var(--rule); font-size: 0.56rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-2); }
+/* one control style for everything on the right */
+.site-footer .sf-btn, .site-footer .api-status {
+  display: inline-flex; align-items: center; gap: 5px; height: 20px; box-sizing: border-box; padding: 0 8px; margin: 0;
+  font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1;
+  color: var(--ink-2); background: transparent; border: 1px solid var(--rule); border-radius: 0; cursor: pointer;
 }
-
-/* ── Result card: one Cite menu (citation / key information) ───────────── */
-.cite-menu { position: relative; display: inline-block; }
-.cite-menu > summary { list-style: none; cursor: pointer; user-select: none; }
-.cite-menu > summary::-webkit-details-marker { display: none; }
-.cite-menu-pop {
-  position: absolute; z-index: 40; top: calc(100% + 4px); left: 0; min-width: 190px;
-  display: flex; flex-direction: column; padding: 4px 0;
-  background: var(--paper); border: 1px solid var(--ink); box-shadow: 0 2px 0 rgba(36, 35, 40, 0.16);
+.site-footer a.sf-btn { border-bottom: 1px solid var(--rule); }
+.site-footer .sf-btn:hover { color: var(--ink); border-color: var(--ink); }
+.site-footer .sf-btn[aria-current="page"] { color: var(--garnet); border-color: var(--garnet); }
+.site-footer .api-status { cursor: default; }
+.site-footer .sf-tour { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+.site-footer .sf-tour:hover { color: var(--paper); background: var(--garnet); border-color: var(--garnet); }
+/* the side panels end above the bar */
+.editorial-filter-rail { height: calc(100vh - 74px - var(--bar-h)); }
+@media (min-width: 1181px) {
+  .editorial-workspace .results-sidebar { height: calc(100vh - 74px - var(--bar-h)); max-height: calc(100vh - 74px - var(--bar-h)); }
 }
-.cite-menu-pop button {
-  padding: 6px 12px; border: 0; background: none; text-align: left; cursor: pointer;
-  font-family: var(--font-serif); font-size: 0.84rem; color: var(--ink-2);
+.dossier-panel { max-height: calc(100vh - 74px - var(--bar-h)); }
+.stats-sidebar { max-height: calc(100vh - 74px - var(--bar-h)); }
+@media (max-width: 860px) {
+  .site-footer .sf-left, .site-footer .sf-long { display: none; }
+  .footer.site-footer { justify-content: flex-end; padding: 0 10px; }
+  .editorial-filter-rail { height: auto; }
 }
-.cite-menu-pop button:hover, .cite-menu-pop button:focus-visible { background: var(--garnet-soft); color: var(--garnet); }
 
 /* Phones: the right column holds only the case details (shown inside the results here instead)
    and the analytics hidden by dashboard.css, so it was an empty band above the filters. */
 @media (max-width: 860px) {
   .editorial-workspace .results-sidebar { display: none; }
 }
+
+/* ── Workspace: the count on the nav link, the ☆ on result paragraphs ───── */
+.ws-count {
+  display: inline-block; min-width: 1.3em; margin-left: 3px; padding: 0 4px; box-sizing: border-box; text-align: center;
+  font-family: var(--font-mono); font-size: 0.6rem; line-height: 1.5; color: var(--paper); background: var(--garnet); border-radius: 8px;
+  vertical-align: 2px;
+}
+.ws-count[hidden] { display: none; }
+.ws-star {
+  padding: 0 4px; cursor: pointer; font-size: 0.95rem; line-height: 1; color: var(--ink-3); background: none; border: 0;
+}
+.ws-star:hover, .ws-star.on { color: var(--garnet); }
+
+/* ── Result card: Cite (OSCOLA) and Bookmark; drawer paragraphs: actions on hover ── */
+.ws-bookmark-btn.on { color: var(--garnet); border-color: var(--garnet-edge, var(--garnet)); }
+.dossier-ctx-para { position: relative; }
+.dossier-ctx-para:focus { outline: none; }
+.dossier-ctx-para:focus-visible { outline: 2px solid var(--garnet-edge, var(--garnet)); outline-offset: 2px; }
+/* the paragraph's actions sit on its number line, in the number's type, shown on hover */
+.dossier-ctx-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; margin-bottom: 3px; }
+.dossier-ctx-head .dossier-ctx-num { display: inline; margin-bottom: 0; }
+.dossier-para-actions { display: inline-flex; flex-wrap: wrap; gap: 2px 8px; visibility: hidden; }
+.dossier-ctx-para:hover .dossier-para-actions, .dossier-ctx-para:focus-within .dossier-para-actions { visibility: visible; }
+.dossier-para-actions a, .dossier-para-actions button {
+  padding: 0; cursor: pointer; text-decoration: none; background: none; border: 0;
+  font-family: var(--font-mono); font-size: 0.62rem; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase;
+  color: var(--garnet);
+}
+.dossier-para-actions a:hover, .dossier-para-actions button:hover { text-decoration: underline; text-underline-offset: 2px; }
+@media (hover: none) { .dossier-ctx-active .dossier-para-actions { visibility: visible; } }
+
+/* ── Filters: Basic / Advanced switch; the advanced groups show only in Advanced ── */
+.filter-mode { display: inline-flex; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; }
+.filter-mode button {
+  display: inline-flex; align-items: center; gap: 3px; padding: 3px 9px; cursor: pointer;
+  font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ink-3); background: var(--paper); border: 0;
+}
+.filter-mode button + button { border-left: 1px solid var(--rule); }
+.filter-mode button:hover { color: var(--garnet); }
+.filter-mode button[aria-pressed="true"] { color: var(--paper); background: var(--garnet); }
+.filter-mode button[aria-pressed="true"] .fold-count { color: var(--garnet); background: var(--paper); }
+.filters-panel:not(.show-advanced) .filter-advanced,
+.filters-panel:not(.show-advanced) .filter-advanced-head { display: none; }
+.filter-advanced-head {
+  margin: 4px 0 -4px; padding-top: 12px; border-top: 2px solid var(--garnet-edge, var(--garnet));
+  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--garnet);
+}
+@keyframes filter-appear { from { background: var(--garnet-soft); } to { background: transparent; } }
+.filter-advanced.just-shown, .filter-advanced-head.just-shown { animation: filter-appear 1.6s ease-out; }
+@media (prefers-reduced-motion: reduce) { .filter-advanced.just-shown, .filter-advanced-head.just-shown { animation: none; } }
+.fold-count {
+  display: inline-block; min-width: 1.3em; margin-left: 4px; padding: 0 4px; box-sizing: border-box; text-align: center;
+  font-size: 0.6rem; line-height: 1.5; color: var(--paper); background: var(--garnet); border-radius: 8px;
+}
+.fold-count[hidden] { display: none; }
+
+/* ── One button style for HUDOC ↗ · Cite · Bookmark · hits (result cards, dossier, drawer),
+   the same as the toolbar's Save search / Export Excel. ── */
+.card-act,
+.researcher-result .card-act.expand-paras-btn,
+.cn-action {
+  display: inline-flex; align-items: center; gap: 4px; margin: 0; padding: 3px 10px; min-height: 24px;
+  font-family: var(--font-mono); font-size: 0.64rem; font-style: normal; font-weight: 400; line-height: 1.2;
+  letter-spacing: 0.05em; text-transform: uppercase; text-decoration: none;
+  color: var(--ink-2); background: var(--paper); border: 1px solid var(--rule); border-radius: 3px; cursor: pointer;
+}
+.card-act:hover, .cn-action:hover {
+  color: var(--garnet); border-color: var(--garnet-edge, var(--garnet)); background: var(--paper-2); text-decoration: none;
+}
+.card-act.on, .card-act[aria-expanded="true"] { color: var(--garnet); border-color: var(--garnet-edge, var(--garnet)); }
+.researcher-result .case-actions-inline { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+
+/* Outcome on the card: a symbol and a word (● violation, ○ no violation, ◐ mixed) */
+.chip.outcome .oc-icon { flex: 0 0 auto; margin-right: 5px; vertical-align: -1px; }
+
+/* ── Influence: the (i) and its pop-up ── */
+.researcher-influence { position: relative; }
+.info-dot {
+  display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px;
+  margin-left: 4px; padding: 0; vertical-align: 1px; cursor: pointer;
+  font: italic 600 0.62rem/1 var(--font-serif); letter-spacing: 0; text-transform: none;
+  color: var(--ink-3); background: var(--paper); border: 1px solid var(--rule); border-radius: 50%;
+}
+.info-dot:hover, .info-dot[aria-expanded="true"] { color: var(--garnet); border-color: var(--garnet-edge, var(--garnet)); }
+.influence-help {
+  position: absolute; z-index: 30; right: 0; top: 20px; width: 260px; padding: 10px 12px;
+  font-family: var(--font-serif); font-size: 0.8rem; line-height: 1.45; color: var(--ink-2);
+  background: var(--paper); border: 1px solid var(--rule); box-shadow: 0 4px 14px rgba(36, 35, 40, 0.14);
+}
+.influence-help p { margin: 0 0 6px; }
+.influence-help .ih-note { margin: 0; font-size: 0.76rem; color: var(--ink-3); }
+.influence-help a { color: var(--garnet); }
+
+/* ── Case details drawer: title, one line of facts, findings; the rest under "More" ── */
+.cn-subline {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 0; margin: 6px 0 10px;
+  font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-3);
+}
+.cn-dot { margin: 0 7px; color: var(--ink-4); }
+.cn-key { color: var(--garnet); }
+.cn-subline-actions { display: inline-flex; gap: 6px; margin-left: auto; padding-left: 10px; }
+.cn-more { margin: 4px 0 12px; padding-top: 8px; border-top: 1px solid var(--rule); }
+.cn-more > summary {
+  cursor: pointer; font-family: var(--font-mono); font-size: 0.64rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3);
+}
+.cn-more > summary:hover, .cn-more[open] > summary { color: var(--garnet); }
+.cn-more[open] > summary { margin-bottom: 10px; }
+.cn-more .cnm-facts { margin-bottom: 8px; }
+.cn-more .cnm-facts dd.violation { color: var(--garnet); }
+.cn-more .cnm-facts dd.non-violation { color: var(--blue-ink); }
+.cn-more .registry-detail { margin: 0 0 10px; padding: 0 0 10px; border-top: 0; border-bottom: 1px solid var(--rule-soft); }
+
+/* ── Results toolbar: Save search and Export together, at the right ── */
+.results-display-controls .rdc-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.results-display-controls .rdc-actions .export-btn { margin-left: 0; }
+.results-display-controls #saveSearchBtn::before { content: none; }
+/* the matched-paragraph rows under "N hits": same buttons, a size smaller */
+.paragraph-item .para-actions { flex-wrap: wrap; justify-content: flex-end; }
+.paragraph-item .para-actions a.hudoc-para-link,
+.paragraph-item .para-actions button:not(.ws-star) {
+  min-height: 20px; padding: 2px 8px; border-radius: 3px;
+  font-family: var(--font-mono); font-size: 0.6rem; font-weight: 400; letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--ink-2); background: var(--paper); border: 1px solid var(--rule);
+}
+.paragraph-item .para-actions a.hudoc-para-link:hover,
+.paragraph-item .para-actions button:not(.ws-star):hover { color: var(--garnet); border-color: var(--garnet-edge, var(--garnet)); background: var(--paper-2); }

@@ -51,7 +51,7 @@ layperson's question even when none of the Court's words appear.
 | lever | effect | notes |
 |---|---|---|
 | **voyage-4-large** (embedding) | largest single win | beat mpnet / BM25 / old hybrid, esp. lay queries |
-| **rerank-2.5** (top 100) | precision at the top | pool=100 optimal (150 exceeds token cap) |
+| **rerank-2.5** (top 100) | precision at the top | pool=100 optimal (150 exceeds token cap); rerank-3 better in the October 2026 tests (§6) |
 | **+ importance** (HUDOC authority) | **best single add, +5–10 pts** | beat citation-graph PageRank |
 | SQ8 quantization | ≈ exact (recall@50 98 %) | ¼ size → deployable on a small VM |
 
@@ -85,7 +85,60 @@ On a 15-query lawyer panel (446 passages): after the fixes, uncitable ¶0 = 0 %,
 boilerplate 0 %, mid-sentence starts 0 %, near-duplicate 0 %, and
 dissent-out-ranks-holding 0/120.
 
-## 6. Limitations (honest)
+## 6. October 2026 tests: index update, rerank-3, smaller index, voyage-context-4
+Run locally on 10 October 2026; **nothing deployed** (the VM still serves the July index with
+rerank-2.5). Pipeline as in production: dense top 300 → drop ¶0 → rerank top 100 → +0.05 ×
+importance − section penalties. Guides n=409 (284 with pinpoints); Summary = expert tier, n=1,570,
+doc-level. Exact McNemar on paired items; each reranker run twice (Guides identical across runs,
+Summary differs by 1–3 items).
+
+**Same-model update.** The July index (1,318,250 rows, 20,010 cases) brought up to the live DB:
+160 new cases, 40,536 rows with changed text (October hyphen and number repairs), 16 deleted
+duplicate cases removed, 6,298 section labels and 308 § numbers refreshed → 1,328,635 rows,
+20,150 cases. Only the 52,122 new/changed rows re-embedded (~8M tokens); re-embedding 20 unchanged
+rows gave cosine 1.0000 with the stored vectors. Self-retrieval 200/200 at rank 1. Artifacts:
+`rag/pipeline/data_2026-10/` (git-ignored), deploy plan in the session notes.
+
+| configuration | G d@1 | G d@10 | G p@1 | G p@10 | S d@1 | S d@10 | index |
+|---|--:|--:|--:|--:|--:|--:|--:|
+| July index + rerank-2.5 | 61.6 | 87.8 | 37.7 | 72.9 | — | — | 1.39 GB |
+| October index + rerank-2.5 | 62.6 | 88.5 | 37.3 | 72.9 | 58.5 | 89.6 | 1.39 GB |
+| **October index + rerank-3** | **63.6** | **89.0** | **39.4** | **75.0** | **64.8** | **92.0** | 1.39 GB |
+| + 1024-d SQ4 | — | 88.0 | — | 74.6 | 64.8 | 92.0 | 0.71 GB |
+| + 512-d SQ8 | — | 87.8 | — | 74.3 | 64.8 | 91.7 | 0.70 GB |
+| + 512-d SQ4 | — | 87.8 | — | 74.6 | 64.9 | 91.9 | 0.36 GB |
+| voyage-context-4 + rerank-3 | 54.5 | 71.1 | 31.0 | 51.8 | 64.6 | 79.4 | 1.39 GB |
+
+- **Index update:** parity with July (all differences n.s.); it adds the new judgments and repairs.
+- **rerank-3 vs rerank-2.5** (identical candidate pools): better on every metric; on Summary
+  significant (d@1 −45/+145 items, d@10 −15/+52, p<0.001), on Guides not (p@10 −2/+8, p=0.11).
+  Same price ($0.05/M tokens, ~30K tokens per query) and latency (median 0.6–0.7 s per call).
+  rerank-2.5 is now listed as legacy by Voyage. **Adopt** (one constant, `RERANK_MODEL`).
+- **Smaller index:** voyage-4 vectors truncate exactly to 512-d (cosine 1.0000 against the API's
+  512-d output). 512-d and/or 4-bit cost ~1 point Guides d@10, n.s. (p ≥ 0.18). The FAISS step is
+  a small part of query time (single thread, nprobe 128, top 300, 49 queries on the Mac):
+
+  | index | size | median | p90 |
+  |---|--:|--:|--:|
+  | 1024 SQ8 (current) | 1.39 GB | 19 ms | 44 ms |
+  | 1024 SQ4 | 0.71 GB | 35 ms | 44 ms |
+  | 512 SQ8 | 0.70 GB | 11 ms | 25 ms |
+  | 512 SQ4 | 0.36 GB | 18 ms | 26 ms |
+
+  against ~0.2–0.3 s for the query embedding and ~0.6–0.7 s for the rerank call, so the user does
+  not notice. The gain is memory: a smaller memory-mapped index stays in the VM's page cache, so a
+  query after a quiet spell or under memory pressure does not wait on disk. **Keep 1024 SQ8**; use
+  512-d SQ4 if the VM runs short of memory.
+- **voyage-context-4** (each judgment's paragraphs embedded together; 825 long judgments split into
+  windows of whole paragraphs; 136.9M tokens): **rejected**. Paragraphs of one judgment become
+  near-duplicates (mean within-case cosine 0.80 vs 0.51 with voyage-4-large), so the top-100 pool
+  covers ~10 cases instead of ~50 and holds the right case 73 % of the time on Guides (94 % now).
+  Capping paragraphs per case in the pool does not fix it. Same lesson as the ±1 window in §4:
+  for pinpoint retrieval, one paragraph = one context-free vector.
+
+Experiment files: `rag/pipeline/data_2026-10_exp/` (scripts, logs, pools, per-item results; git-ignored).
+
+## 7. Limitations (honest)
 - **Summary is a *secondary* instrument** — self-sourced; even de-anchored, some
   residual paraphrase overlap remains. Court-Guides is the independent primary.
 - **Leading-case skew** — both Guides and summaries cover prominent cases; little

@@ -29,7 +29,7 @@ REMOTE_DIR="${REMOTE_DIR:-/home/amuvmuser/echr/backend}"
 STAMP="$(date -u +%Y%m%d-%H%M)"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SRC="${ROOT}/api/main.py"
-MODULES=(citation_check.py)   # imported by main.py; copied next to it
+MODULES=(citation_check.py rag_mod.py)   # imported by main.py; copied next to it
 SSH=(ssh -o BatchMode=yes "${HOST}")
 
 python3 -m py_compile "${SRC}"

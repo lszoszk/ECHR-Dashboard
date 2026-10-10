@@ -49,15 +49,20 @@ python rag_api.py                         # → http://127.0.0.1:8000
 ```
 
 ## Data & reproducibility
-Large artifacts — the corpus DB, the ~1.3 GB FAISS index, the 5 GB embeddings —
-are **not in git** (git-ignored). They are rebuildable from `rag/pipeline/` and
-`scripts/`. Curated benchmark data is intended for separate release (e.g.
-HuggingFace). The corpus is a point-in-time snapshot of English ECtHR judgments.
+The paragraph-level corpus (judgments, paragraphs with numbers and section labels,
+citation links) is published on Hugging Face:
+[lszoszk/ecthr-judgments](https://huggingface.co/datasets/lszoszk/ecthr-judgments)
+(snapshot of 9 October 2026). Large artifacts — the corpus DB, the ~1.3 GB FAISS
+index, the 5 GB embeddings — are **not in git** (git-ignored); they are rebuildable
+from `rag/pipeline/` and `scripts/`.
 
 ## Licensing / attribution
 - Dashboard, API, pipeline, and RAG code: PolyForm Noncommercial 1.0.0;
   research, education, non-profit, and personal use are permitted. See
   [`LICENSE`](LICENSE).
+- Curated dataset (segmentation, paragraph numbers, section labels, metadata,
+  citation links; on [Hugging Face](https://huggingface.co/datasets/lszoszk/ecthr-judgments)):
+  CC BY-NC-SA 4.0. See [`LICENSE-DATA`](LICENSE-DATA).
 - ECtHR judgments & Case-Law Guides are © Council of Europe / ECtHR, reused under
   HUDOC terms and are not re-licensed by this project. See [`NOTICE`](NOTICE).
   This project is **not affiliated with or endorsed by** the Court.

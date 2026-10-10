@@ -4,8 +4,11 @@
 
 ## What's in the dataset
 
-- **20,010 court rulings** from the European Court of Human Rights (14 November 1960 – **23 July 2026**)
-- **3.30 million segmented text rows** — body paragraphs, headings, quoted passages and operative formulae — of which **1.25 million carry the Court's own paragraph numbering** (`¶ 1`, `¶ 2`…)
+Figures of the live corpus on 9 October 2026:
+
+- **20,123 judgments** of the European Court of Human Rights and **31 Grand Chamber admissibility decisions** (14 November 1960 – **8 October 2026**)
+- **3.32 million segmented text rows** — body paragraphs, headings, quoted passages and operative formulae — of which **1.23 million carry the Court's own paragraph numbering** (`¶ 1`, `¶ 2`…)
+- **247,436 citation links** between judgments (see *Citation graph* below)
 
 > **Cut-off.** The corpus ends at the newest judgment listed above, not at
 > today's date. It is topped up by a monthly ingest, and the Court publishes
@@ -13,8 +16,8 @@
 > last few weeks before the cut-off are thinner than they will eventually be,
 > and anything decided after it is absent entirely. Charts with a time axis
 > therefore show a short final year; that is the harvest boundary, not a drop
-> in the Court's output. The live corpus size is shown in the Search header,
-> and the Statistics page prints the build date of its own snapshot.
+> in the Court's output. The live corpus size is shown on the Search page and in
+> the tour, and the Statistics page prints the build date of its own snapshot.
 - **Source:** the official HUDOC portal (cases harvested by the Court itself)
 - **Coverage:** all 47 Council of Europe contracting parties plus their successor states
 
@@ -22,8 +25,8 @@
 
 Two deliberate boundaries a HUDOC user should know about:
 
-- **Judgments only.** The corpus covers the Court's judgments (including ~6,300 Committee judgments, which HUDOC's default search omits). HUDOC's other collections — admissibility **Decisions**, Communicated Cases, Legal Summaries, Advisory Opinions, Commission decisions — are not included. A landmark *decision* (e.g. *Banković*) will therefore return no results here; consult HUDOC for those collections.
-- **English texts only.** Judgments delivered only in French — a substantial share of Chamber and Committee output — are not yet ingested. On the Semantic Search page, "describe your case in any language" refers to the *query* (the embedding model is multilingual); the retrieved paragraphs are always the English texts.
+- **Judgments, plus a few Grand Chamber decisions.** The corpus covers the Court's judgments (including ~6,300 Committee judgments, which HUDOC's default search omits) and 31 Grand Chamber admissibility decisions such as *Banković*, which appear when the *Decisions* filter is ticked. HUDOC's other collections — the other admissibility decisions, Communicated Cases, Legal Summaries, Advisory Opinions, Commission decisions — are not included; consult HUDOC for those.
+- **English texts only.** About 9,300 judgments were delivered only in French — a substantial share of Chamber and Committee output — and are not in the search; unofficial English machine translations of the most-cited of them are being prepared (see [Machine translations of French-only judgments](#machine-translation)). On the Semantic Search page, "describe your case in any language" refers to the *query* (the embedding model is multilingual); the retrieved paragraphs are always the English texts.
 
 The Statistics page is a static snapshot (its build date is printed under its title) and can lag the live counts shown in the Search header.
 
@@ -104,9 +107,29 @@ template rules plus an LLM cross-check on every remaining distinct text;
 numbered paragraphs were never touched, and search now excludes these roles by
 default. A full pre-change snapshot and a row-level undo table are retained.
 
+### Text and numbering repairs (October 2026)
+
+An audit against fresh copies of the HUDOC documents found the text itself essentially complete (0.4 % of rows differed, all hyphenation) and three systematic faults, each repaired by a guarded, reversible pass:
+
+- **Hyphens.** The DOCX parser had dropped Word's non-breaking hyphens, so *non-pecuniary* read *nonpecuniary* and a phrase search for *"manifestly ill-founded"* missed 598 judgments. Restored in **46,013 rows** of 8,919 judgments.
+- **Stray "Operative part" labels.** In 21 % of judgments a few rows before *FOR THESE REASONS* (headings, quotation fragments, award lists) were labelled as the operative part, and in older judgments the separate opinions after it were filed under the operative part or the appendix. **15,935 rows** relabelled.
+- **Paragraph numbers.** Rows whose number sat behind a hidden marker or in Word's automatic numbering were stored unnumbered. Where HUDOC's own page confirms the number, **7,664 rows** received it.
+
+Measured number by number with full text against HUDOC's pages on 300 judgments, **98.6 %** of paragraph numbers match after the repairs (98.4 % before). Verify a pinpoint on HUDOC before citing it.
+
+<a id="influence"></a>
+
 ## Citation graph (Cites / Cited by)
 
-Each result card carries two influence metrics — **Cites** (judgments this ruling refers to) and **Cited by** (later judgments that refer back to it). They come from a citation graph rebuilt after every corpus update, from three sources.
+Each result card has an **Influence** panel with three numbers for that judgment:
+
+- **Hits** — how many of its paragraphs match your search. It describes your search, not the judgment.
+- **Cites** — how many other judgments it refers to.
+- **Cited by** — how many later judgments refer to it, including judgments that HUDOC publishes only in French and that are not in this corpus yet.
+
+The bars compare the three numbers of the same judgment: the largest fills the bar. Compare judgments by the numbers, not the bar lengths. A dash (—) means the citation graph has no data for that judgment, not that it has never been cited.
+
+**Cites** and **Cited by** come from a citation graph rebuilt after every corpus update, from three sources.
 
 | Source | What it finds | Share of links (October 2026) |
 | --- | --- | ---: |
@@ -144,16 +167,68 @@ HUDOC itself analyses cases unevenly. Per the HUDOC FAQ (§ 12, "Which texts are
 
 Because this tool parses the **full judgment text** rather than relying on those curated fields, two things work here that HUDOC's own filters cannot do for level-3 cases: the *Separate opinion* filter (opinions are detected in the text) and the citation graph above (references are extracted from the text).
 
+<a id="machine-translation"></a>
+
+## Machine translations of French-only judgments
+
+HUDOC publishes about 9,300 judgments only in French. The Court has no duty to publish every Chamber or Committee judgment in both official languages, so for these there is no English text at all. To make them findable next to the English case-law, we translate them into English by machine.
+
+> **These are not translations by the Court.** They are not yet available in the public search. Once released they will be left out of every search unless you tick *English translations of French-only judgments* in the left pane; each one is labelled *Only in French on HUDOC · machine translation, unofficial* and links to the authentic French text on HUDOC. Quote the French original, never the translation.
+
+### Which judgments
+
+| Tier | Selection | Judgments | State |
+| --- | --- | ---: | --- |
+| 1 | French-only judgments cited by at least 5 judgments in the corpus | 503 | translated, checked and repaired |
+| 2 | cited by 1 to 4 judgments | 1,892 | being translated (13,592 of 30,497 chunks done on 9 October) |
+| — | not cited by any judgment in the corpus | about 6,900 | not translated |
+
+A judgment is selected only when its application number points to it unambiguously.
+
+### How a judgment is translated
+
+Each judgment is split into chunks of consecutive paragraphs, so that the paragraph numbers, sections and quotations of the French text are kept one to one. Every request carries the case title, the terms of a glossary built from the Court's own bilingual judgments (only pairs the Court translates the same way at least 9 times in 10, e.g. *requérant* → *applicant*, *dommage moral* → *non-pecuniary damage*) and examples from judgments the Court published in both languages. The instructions give the Court's English citation conventions (`c.` → `v.`, `(déc.)` → `(dec.)`, `série A` → `Series A`, from the Court's citation notes); no French citation form is left in the tier-1 texts.
+
+| Step | Model / method | What it does | Tier 1 |
+| --- | --- | --- | ---: |
+| 1. Translate | Claude Haiku 5.5 (Anthropic Message Batches, no extended reasoning) | translates every chunk | 10,657 chunks, 99,034 paragraphs; 10,628 chunks answered |
+| 2. Check by rule | deterministic checks | numbers, dates, application numbers, § references, citation format, French left untranslated, length out of proportion, missing paragraphs | every paragraph |
+| 3. Review | Jev (TypeSafe System One), a calibrated yes/no judge | asks of each paragraph whether the English is a complete and faithful translation of the French, and returns a probability | every paragraph |
+| 4. Repair | Claude Sonnet 5.5 | translates again, paragraph by paragraph, every paragraph scored below 0.8 or failing a check | 12,902 paragraphs (13 %) |
+| 5. Re-check | Jev and the rules again | paragraphs still in doubt are listed for human review | 361 paragraphs (0.36 %) |
+
+The threshold of step 4 is deliberately cautious: in a calibration test, at 0.8 Jev caught all 43 errors we had planted in correct translations, while it also doubts about one in ten of the Court's own official translations. More paragraphs are therefore sent to repair than are actually wrong. For tier 2 the threshold is 0.7.
+
+Of the 361 paragraphs listed for review, 197 scored below 0.3 after the repair, 132 failed a rule check and 32 have no translation; those 32 are shown in French.
+
+### How good it is
+
+On a judgment the Court published in both languages and that was kept out of the examples (*Aksu v. Turkey* [GC]), the machine translation scored chrF 85.2 (Haiku) and 86.0 (Sonnet) against the Court's official English, with no lost citations, dates or numbers and every glossary term used. chrF measures overlap with the official wording on a 0–100 scale; at this level the two texts mostly differ in wording, not in content. This is one test, not a guarantee for every paragraph.
+
+### Limits
+
+- Errors remain possible, especially in legal terms of art, long quotations and tables. The human review of the listed paragraphs is not finished.
+- The translations are not in Semantic Search and are not counted in the citation graph (they neither cite nor are cited).
+- Corrections are welcome: <l.szoszkiewicz@amu.edu.pl>.
+
 ## Analytics & privacy
 
-This site uses Google Analytics 4 only to see which views are used, and only
-after you accept the banner. Consent Mode v2 defaults to denied — nothing is
-sent to Google, not even a request for the analytics library, before you
-choose. A Do Not Track or Global Privacy Control setting skips analytics
-entirely and no banner is shown.
+Two counters, both limited to which pages are used:
 
-We record **view names only** (Search, Statistics, Methodology, About, Semantic
-Search). We never send your search queries, the filters or countries you
+- **GoatCounter**, an open-source counter that sets no cookies and stores
+  nothing in your browser, counts each page opened: the page path and view name,
+  the referring page cut to its address without query, your screen width and the
+  browser named in your User-Agent. It runs without the banner because it keeps
+  nothing on your device.
+- **Google Analytics 4**, only after you accept the banner. Consent Mode v2
+  defaults to denied — nothing is sent to Google, not even a request for the
+  analytics library, before you choose.
+
+A Do Not Track or Global Privacy Control setting turns both off and no banner is
+shown.
+
+We record **view names only** (Search, Semantic Search, Check, Workspace,
+Statistics, Methodology, About). We never send your search queries, the filters or countries you
 select, or the judgments you open. The page address is stripped to its path
 before being sent, so a query cannot leak through the URL or through the
 referrer on the next page. Ad personalisation and Google signals are disabled.
@@ -168,14 +243,18 @@ Methodology page.
 - **Some misclassifications remain.** Approximately one paragraph in eight still sits in a slightly imperfect section. Most are boundary cases where a single PDF-extracted paragraph genuinely contains content from two adjacent sections.
 - **Population C (Committee / mass cases) is the hardest.** These cases lack reliable paragraph ordering, lowercase the operative section, and frequently compress substantive analysis into the `Facts` block. A `ⓘ` warning icon flags affected sections in the search UI.
 - **Sub-paragraph splitting is out of scope.** Where a single physical paragraph spans two logical sections (e.g., end of Just Satisfaction concatenated with the start of the Operative Part), we keep it intact and assign the dominant label.
+- **Older templates.** Judgments before about 1995 use a different DOCX template; segmentation was verified on a stratified 50-case battery, but edge cases (e.g. pilot judgments with more than 12,000 applicant rows, such as *Burmych and Others v. Ukraine*) can show drift. In judgments before about 1999 some unnumbered text and separate opinions may sit under the wrong section or show no § number.
+- **Citation counts are indicative.** A reference that gives only a short name without a date is not counted, and a reference to a decision counts only if that decision is in the corpus, so a figure can be lower than the true one.
+- **Keywords** from the HUDOC thesaurus are not available for every judgment, and there is no filter by judge: bench composition is not ingested.
 
 ## Reproducibility & citation
 
 All transformation scripts are versioned in the project repository under `scripts/`. Each script supports a default dry-run mode, an `--apply` flag, and writes a backup table before any change. The full per-pass change log, precision-audit reports, and per-sample LLM verdicts are maintained internally and available on request.
 
-If you use this dataset in research, please cite:
+If you use the tool or its data in research, please cite (copy buttons on the [About](../about.html#cite) page):
 
-> Szoszkiewicz, Ł., & Marcisz, S. (2026). *ECHR Dashboard: tier-1 paragraph-level search across European Court of Human Rights case law.* Adam Mickiewicz University, Poznań.
-> Source: <https://github.com/lszoszk/ECHR-Dashboard>
+> Szoszkiewicz, Ł., & Marcisz, S. (2026). *HUDOC Researcher — ECtHR case-law search and RAG* [Computer software]. Zenodo. <https://doi.org/10.5281/zenodo.21319703>
+
+The paragraph-level corpus is published as a dataset on Hugging Face: <https://huggingface.co/datasets/lszoszk/ecthr-judgments>. Code: <https://github.com/lszoszk/ECHR-Dashboard>.
 
 For methodology questions, validation reports, or access to internal documentation: **<l.szoszkiewicz@amu.edu.pl>**.

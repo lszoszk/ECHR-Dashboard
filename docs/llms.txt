@@ -1,0 +1,39 @@
+# HUDOC Researcher
+
+> Paragraph-level search over the judgments of the European Court of Human Rights (ECtHR), built at Adam Mickiewicz University, Poznań (Łukasz Szoszkiewicz, Sebastian Marcisz). It holds 20,123 judgments in English and 31 Grand Chamber admissibility decisions (14 November 1960 – 8 October 2026), split into the Court's own numbered paragraphs (1,259,906 of them) with the part of the judgment each belongs to, plus 247,436 citation links between judgments. Free to use; an independent research tool, not affiliated with the Court and not legal advice.
+
+## What is in it
+
+- Grand Chamber, Chamber and Committee judgments that HUDOC publishes in English. Each row of text keeps the Court's paragraph number (§) and its section: Facts, Legal Framework, Admissibility, Merits, Just Satisfaction, Operative part, Separate Opinion.
+- HUDOC metadata for each judgment: application numbers, ECLI, respondent State, Convention Articles, violation / no-violation findings, importance level, HUDOC thesaurus keywords, separate opinions.
+- Cites / Cited by: which judgments a judgment cites and which later judgments cite it, found in the text (application numbers; for judgments before about 1999, case name and date) and in HUDOC's case-law lists.
+- Not included: HUDOC's other collections (admissibility decisions other than the 31 above, communicated cases, legal summaries, advisory opinions), footnotes, and the judgments HUDOC publishes only in French. Unofficial machine translations of some French-only judgments can be switched on in the search; they are marked as such and are not the Court's text.
+
+## How to link
+
+- A search: https://lszoszk.github.io/ECHR-Dashboard/?q=<terms>, e.g. https://lszoszk.github.io/ECHR-Dashboard/?q=%22margin%20of%20appreciation%22%20article:10
+- Operators, as in HUDOC: "exact phrase", OR (AND is implicit between words), NEAR, article:8, violation:3, nonviolation:8, state:Poland, case:30210/96 (application number), cites:hatton or cites:36022/97 (judgments citing a judgment), keyword:"positive obligations", body:"Grand Chamber", hudoc:001-58920, ecli:...
+- Paste a text to check its ECtHR citations (case names, application numbers, paragraph numbers, quotations): https://lszoszk.github.io/ECHR-Dashboard/check.html
+
+## How to cite
+
+- Cite the judgment itself, with the paragraph: Kudła v Poland [GC] App no 30210/96 (ECtHR, 26 October 2000), para 152. HUDOC (https://hudoc.echr.coe.int) is the authoritative text; check a passage there before relying on it.
+- Paragraph numbers are those printed in the judgment; in older judgments a few are missing or wrong.
+- Cite the tool as: Szoszkiewicz, Ł., & Marcisz, S. (2026). HUDOC Researcher — ECtHR case-law search and RAG [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.21319703
+
+## For AI assistants
+
+- MCP server (search, verbatim paragraphs with their § numbers, Cites / Cited by): https://github.com/lszoszk/mcp-echr. Setup for Claude Desktop and Claude Code: https://lszoszk.github.io/ECHR-Dashboard/about.html#mcp
+- Quote paragraphs verbatim with case name, application number, date and § number; do not paraphrase a judgment as if quoting it.
+
+## Data and documentation
+
+- [Dataset on Hugging Face (paragraphs, judgments, citations; CC BY-NC-SA 4.0 for the curation)](https://huggingface.co/datasets/lszoszk/ecthr-judgments)
+- [Methodology: segmentation, sections, citation graph, translations, validation, limits](https://lszoszk.github.io/ECHR-Dashboard/methodology.html)
+- [Statistics](https://lszoszk.github.io/ECHR-Dashboard/analytics.html)
+- [About, licences, how to cite](https://lszoszk.github.io/ECHR-Dashboard/about.html)
+- [Source code](https://github.com/lszoszk/ECHR-Dashboard) · [Releases and DOI (Zenodo)](https://doi.org/10.5281/zenodo.21319703)
+
+## Licence
+
+Software: PolyForm Noncommercial 1.0.0. Curated dataset: CC BY-NC-SA 4.0. The judgments are © Council of Europe / European Court of Human Rights, reused under the Court's terms for HUDOC content. Contact: l.szoszkiewicz@amu.edu.pl

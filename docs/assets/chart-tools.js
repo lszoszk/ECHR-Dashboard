@@ -411,6 +411,10 @@
     if (!chart || !HAS_EXPORT) return;
     const rows = chartToRows(chart);
     if (!rows.length) return;
+    // Provenance travels with the file; the on-page data table stays data only.
+    const meta = window.EchrStatsMeta || {};
+    rows.push([], ["Source", "HUDOC Researcher, Statistics; HUDOC catalog cut-off " + (meta.cutoff || snapshotDate())],
+      ["Cite as", citationText(chart.canvas)]);
     window.EchrExport.triggerDownload(
       window.EchrExport.rowsToCsvBlob(rows),
       fileBase(chart.canvas) + ".csv"
@@ -447,8 +451,8 @@
 
   function chartPermalink(canvas) {
     const anchor = sectionAnchorFor(canvas);
+    // The query string is kept: it carries the view (selected States, topics, toggles).
     const u = new URL(window.location.href);
-    u.search = "";
     u.hash = anchor ? "#" + anchor : "";
     return u.toString();
   }
