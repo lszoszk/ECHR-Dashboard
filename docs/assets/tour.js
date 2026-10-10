@@ -61,7 +61,8 @@
   .tour-views .s{display:none}
   @media (max-width:600px){.tour-slides{padding:22px 18px 14px}.tour-h{font-size:1.35rem}.tour-nav{padding:10px 18px}}
   /* phones: every slide fits a 375 x 667 screen without scrolling, Skip / Next always in view */
-  @media (max-width:860px){.tour-nav button:not(.tdot){min-height:36px;padding:0 4px}}
+  @media (max-width:860px){.tour-nav button:not(.tdot){min-height:36px;padding:0 4px}
+    .tour-dots{gap:0}.tour-dots .tdot{width:28px;height:32px;padding:12px 10px;background-clip:content-box}}
   @media (max-width:600px){
     .tourwrap{padding:10px}
     .tour-box{max-height:calc(100vh - 20px);max-height:calc(100dvh - 20px)}

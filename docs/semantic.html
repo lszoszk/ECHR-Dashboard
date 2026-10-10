@@ -845,6 +845,13 @@ body.mode-natural .expert-only { display: none; }
 .est-panel { margin: 10px 0 16px; padding: 10px 14px; border-left: 3px solid var(--garnet); background: var(--paper-2); font-family: var(--body); font-size: 14px; line-height: 1.5; color: var(--ink-2); }
 .est-panel p { margin: 0; }
 .est-panel .est-note { margin-top: 4px; font-size: 12px; color: var(--ink-3); }
+/* every control at least 32 px tall on phones and tablets */
+@media (max-width: 860px) {
+  .cite-btn, .chip, .case-toggle, select, .cmp-chip { min-height: 32px; }
+  .cite-btn { padding: 4px 8px; }
+  details > summary { padding-top: 8px; padding-bottom: 8px; }
+  .nav-links a { padding-top: 6px; padding-bottom: 6px; }
+}
 .nav-links .nav-disclaimer { display: none; }
 @media (max-width: 860px) {
   .nav-links .nav-disclaimer { display: block; flex: 1 1 100%; padding: 6px 0 0; border: 0; border-top: 1px solid var(--rule); font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.62rem; font-weight: 400; letter-spacing: 0.04em; line-height: 1.5; color: var(--ink-3); }
@@ -1450,7 +1457,7 @@ footer {
   .site-footer #status-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 </style>
-<script src="assets/tour.js?v=20261010-mob2" defer></script>
+<script src="assets/tour.js?v=20261010-tap" defer></script>
 <script src="assets/workspace.js?v=20261010-ws"></script>
   <script src="assets/cite.js?v=20261010-cite" defer></script>
 </head>

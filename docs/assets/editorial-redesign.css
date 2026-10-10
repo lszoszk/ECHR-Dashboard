@@ -2665,3 +2665,30 @@ body { padding-bottom: var(--bar-h); }
      so the rows keep their height */
   .article-outcome-table th a { display: inline-block; padding: 7px 0; margin: -7px 0; }
 }
+
+/* ── Every remaining control at least 32 px tall on phones and tablets (Oct 2026) ── */
+@media (max-width: 860px) {
+  .paragraph-item .para-actions a.hudoc-para-link,
+  .paragraph-item .para-actions button:not(.ws-star) { min-height: 32px; padding: 6px 10px; }
+  .ws-star { min-width: 32px; min-height: 32px; }
+  .dossier-para-actions a, .dossier-para-actions button { display: inline-flex; align-items: center; min-height: 32px; padding: 0 4px; }
+  .cn-zoom-btn { min-width: 36px; min-height: 32px; }
+  .cn-action { min-height: 32px; }
+  .nav-brand { min-height: 32px; }
+  .cn-appno { min-height: 32px; padding: 4px 6px; }
+  .rdc-opt, .results-display-controls .export-btn, .try-q, .pagination-btn, .cite-copy { min-height: 32px; }
+  .pagination-btn { min-width: 36px; }
+  .ops-more summary, .cn-more > summary, .cn-meta-sec summary { padding-top: 8px; padding-bottom: 8px; }
+  .nav-links .nav-disclaimer { padding-top: 8px; padding-bottom: 8px; }
+  .ck-opt { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; }
+  .ck-opt input[type="checkbox"] { width: 18px; height: 18px; }
+  /* Statistics */
+  .seg button, .chart-section .export-btn { min-height: 32px; }
+  .section-share-btn { min-width: 32px; min-height: 32px; }
+  .chart-section details > summary { padding-top: 8px; padding-bottom: 8px; }
+}
+@media (max-width: 600px) {
+  /* the bottom bar's buttons too */
+  :root { --bar-h: 44px; }
+  .site-footer .sf-btn, .site-footer .api-status { height: 32px; }
+}
