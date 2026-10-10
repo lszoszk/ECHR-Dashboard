@@ -142,7 +142,7 @@
          <a href="./" data-tour-go="search">→ Search a phrase</a>
          <a href="check.html">→ Check the citations in a text</a>
          <a href="analytics.html">→ See the corpus in charts</a>
-         <a href="about.html#mcp">→ Use it from your AI assistant (MCP)</a>
+         <a href="about.html#mcp">→ Use it from Claude or another AI assistant (connector + skill)</a>
        </div>
        <div class="tour-cap" style="margin-top:18px">Reopen this tour any time: bottom bar → ✦ tour.</div>`,
     ];
@@ -241,4 +241,93 @@
     // first visit to Search (not a shared link to a search), or ?tour on any page
     if (params.has("tour") || (onSearchPage && !done && !params.has("q"))) setTimeout(open, 600);
   });
+})();
+
+/* ✦ in the bottom-left corner: a card on using HUDOC Researcher from an AI assistant (the hosted MCP
+   connector and the Claude skill). × closes the card; "Hide this button" removes the ✦ for good in
+   this browser. It stays out of the way of the phone sheets (filters, case details) and the tour. */
+(function () {
+  "use strict";
+  const HIDE_KEY = "echr-ai-fab-hidden";
+  const MCP_URL = "https://150.254.115.204/echr-api/mcp";
+  const SKILL_URL = "https://github.com/lszoszk/mcp-echr/raw/main/skills/echr-research.zip";
+  try { if (localStorage.getItem(HIDE_KEY)) return; } catch (_) { /* private mode: show it */ }
+
+  const CSS = `
+  .ai-fab{position:fixed;left:14px;bottom:calc(var(--bar-h,30px) + 14px);z-index:150;width:40px;height:40px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;line-height:1;
+    color:var(--paper,#faf8f3);background:var(--garnet,#8d2f2f);border:0;box-shadow:0 4px 14px rgba(36,35,40,.22);
+    animation:ai-fab-pulse 4s ease-in-out infinite}
+  .ai-fab:hover,.ai-fab:focus-visible{animation:none;transform:scale(1.06)}
+  @keyframes ai-fab-pulse{0%,70%,100%{box-shadow:0 4px 14px rgba(36,35,40,.22),0 0 0 0 rgba(141,47,47,.35)}
+    85%{box-shadow:0 4px 14px rgba(36,35,40,.22),0 0 0 9px rgba(141,47,47,0)}}
+  @media (prefers-reduced-motion:reduce){.ai-fab{animation:none}}
+  html.filters-sheet-open .ai-fab,html.filters-sheet-open .ai-card,body:has(#echr-consent-banner) .ai-fab{display:none}
+  @media (max-width:860px){body.casenote-open .ai-fab,body.dossier-open .ai-fab,body.casenote-open .ai-card,body.dossier-open .ai-card{display:none}}
+  .ai-card{position:fixed;left:14px;bottom:calc(var(--bar-h,30px) + 62px);z-index:151;width:min(360px,calc(100vw - 28px));
+    max-height:calc(100vh - var(--bar-h,30px) - 90px);overflow:auto;padding:16px 18px 14px;
+    background:var(--paper,#faf8f3);color:var(--ink,#242328);border:1px solid var(--ink,#242328);
+    box-shadow:0 10px 30px rgba(36,35,40,.22);font-family:var(--font-serif,Georgia,serif);font-size:.92rem;line-height:1.5}
+  .ai-card[hidden]{display:none}
+  .ai-card h2{margin:0 26px 6px 0;font-size:1.05rem;font-weight:600}
+  .ai-card p{margin:0 0 10px}
+  .ai-card ol{margin:0 0 10px;padding-left:1.2em}
+  .ai-card li{margin:0 0 8px}
+  .ai-card code{font-family:var(--font-mono,monospace);font-size:.72rem;word-break:break-all}
+  .ai-card .ai-url{display:flex;gap:6px;align-items:center;margin-top:4px;padding:5px 8px;background:var(--paper-2,#f4f1ea);border:1px solid var(--rule,#d8d0c3)}
+  .ai-card button.ai-copy,.ai-card a.ai-btn{flex:0 0 auto;padding:3px 8px;cursor:pointer;font:600 .62rem var(--font-mono,monospace);letter-spacing:.05em;
+    text-transform:uppercase;color:var(--ink-2,#48464c);background:var(--paper,#faf8f3);border:1px solid var(--rule,#d8d0c3);text-decoration:none}
+  .ai-card button.ai-copy:hover,.ai-card a.ai-btn:hover{color:var(--garnet,#8d2f2f);border-color:var(--garnet,#8d2f2f)}
+  .ai-card .ai-x{position:absolute;top:8px;right:10px;width:30px;height:30px;cursor:pointer;font-size:20px;line-height:1;
+    color:var(--ink-3,#706d72);background:none;border:0}
+  .ai-card .ai-foot{display:flex;justify-content:space-between;gap:10px;margin-top:6px;font-size:.78rem}
+  .ai-card .ai-foot a,.ai-card .ai-foot button{color:var(--ink-3,#706d72);background:none;border:0;padding:0;cursor:pointer;font:inherit;text-decoration:underline}
+  .ai-card a{color:var(--garnet,#8d2f2f)}
+  @media (max-width:600px){.ai-fab{left:10px;width:44px;height:44px}.ai-card{left:10px;font-size:.88rem}}`;
+
+  function build() {
+    const st = document.createElement("style"); st.textContent = CSS; document.head.appendChild(st);
+    const fab = document.createElement("button");
+    fab.type = "button"; fab.className = "ai-fab"; fab.textContent = "✦";
+    fab.setAttribute("aria-label", "Use HUDOC Researcher from your AI assistant");
+    fab.setAttribute("aria-expanded", "false"); fab.setAttribute("aria-controls", "aiCard");
+    fab.title = "Use it from your AI assistant";
+    const card = document.createElement("section");
+    card.className = "ai-card"; card.id = "aiCard"; card.hidden = true;
+    card.setAttribute("role", "dialog"); card.setAttribute("aria-label", "Use HUDOC Researcher from your AI assistant");
+    card.innerHTML = `
+      <button type="button" class="ai-x" aria-label="Close">×</button>
+      <h2>Use it from your AI assistant</h2>
+      <p>Ask Claude, or another assistant that takes MCP connectors, about Strasbourg case-law: it searches these
+        judgments, quotes paragraphs verbatim with their § numbers and checks citations.</p>
+      <ol>
+        <li><b>Add the connector</b> — in Claude: Settings → Connectors → Add custom connector, with the address:
+          <span class="ai-url"><code>${MCP_URL}</code><button type="button" class="ai-copy">Copy</button></span></li>
+        <li><b>Add the skill</b> (optional, for Claude) — it teaches the research steps and OSCOLA citations:
+          <a class="ai-btn" href="${SKILL_URL}">Download</a>, then Settings → Capabilities → Skills → Upload.</li>
+      </ol>
+      <p>Nothing to install; no account with us. The assistant's answers are not legal advice — check every
+        passage on HUDOC.</p>
+      <div class="ai-foot"><a href="about.html#mcp">Setup for Claude Code and other clients</a>
+        <button type="button" class="ai-hide">Hide this button</button></div>`;
+    document.body.append(fab, card);
+
+    const setOpen = (open) => {
+      card.hidden = !open; fab.setAttribute("aria-expanded", String(open));
+      if (open) card.querySelector(".ai-copy").focus(); else fab.focus();
+    };
+    fab.addEventListener("click", () => setOpen(card.hidden));
+    card.querySelector(".ai-x").addEventListener("click", () => setOpen(false));
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !card.hidden) setOpen(false); });
+    card.querySelector(".ai-copy").addEventListener("click", (e) => {
+      const b = e.currentTarget;
+      navigator.clipboard?.writeText(MCP_URL).then(() => { b.textContent = "Copied"; setTimeout(() => { b.textContent = "Copy"; }, 1400); },
+        () => window.prompt("Copy the connector address:", MCP_URL));
+    });
+    card.querySelector(".ai-hide").addEventListener("click", () => {
+      try { localStorage.setItem(HIDE_KEY, "1"); } catch (_) { /* private mode */ }
+      card.remove(); fab.remove();
+    });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", build); else build();
 })();
