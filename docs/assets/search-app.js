@@ -4929,9 +4929,10 @@ function citedByTitle(c) {
   const n = Number(c.__citedByCount || 0);
   const fr = Number(c.__citedByFrenchOnly || 0);
   const base = `Cited by ${fmtInt.format(n)} other judgment(s)`;
+  const once = ". Each judgment counts once, however many paragraphs refer to the case";
   return fr > 0
-    ? `${base}, ${fmtInt.format(fr)} of them published by HUDOC only in French`
-    : `${base} in this dataset`;
+    ? `${base}, ${fmtInt.format(fr)} of them published by HUDOC only in French${once}`
+    : `${base} in this dataset${once}`;
 }
 
 function buildResearcherBars(c, row) {
@@ -4985,6 +4986,7 @@ function toggleInfluenceHelp(btn) {
     <p><b>Hits</b> — paragraphs of this judgment that match your search.</p>
     <p><b>Cites</b> — other judgments this one refers to.</p>
     <p><b>Cited by</b> — later judgments that refer to this one, including those HUDOC has only in French.</p>
+    <p>Cites and Cited by count judgments, not mentions: a judgment that refers to the case in ten paragraphs counts once.</p>
     <p class="ih-note">The bars compare the three numbers of this judgment. A dash means no citation data.
       <a href="methodology.html#influence">How citations are found</a></p>`;
   pop.addEventListener("click", (ev) => ev.stopPropagation()); // reading it does not select the card

@@ -292,7 +292,7 @@
             <h2 class="chart-section-title">Most cited judgments
               <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-cited-judgments')">&#x1F517;</button>
             </h2>
-            <p class="chart-section-desc">Top 20 by unique citing judgments, using resolved HUDOC citation metadata: the curated case-law lists, or those plus the application numbers HUDOC extracted from each judgment's text. English/French versions and repeated citations count once; different judgments in the same application remain separate.</p>
+            <p class="chart-section-desc">Top 20 by citing judgments, counted as in Search's <em>Cited by</em>: judgments, not mentions — a judgment that refers to the case in ten paragraphs counts once. Judgments HUDOC publishes only in French are included. Under <em>Evidence</em>, the same ranking from HUDOC's citation metadata alone, for comparison.</p>
             <p class="chart-takeaway" id="citationTakeaway"></p>
             <p id="judgmentCitationCoverage" class="chart-caveat" aria-live="polite">Loading the citation snapshot...</p>
             <div class="chart-canvas-wrap judgment-citation-canvas"><canvas id="judgmentCitationsChart"></canvas></div>
@@ -615,6 +615,6 @@
        Chart.js plugin before pages-dashboard.js constructs any chart. -->
   <script src="assets/echr-export-core.js?v=20260802-export"></script>
   <script src="assets/chart-tools.js?v=20261010-stats3"></script>
-  <script src="assets/pages-dashboard.js?v=20261010-cit"></script>
+  <script src="assets/pages-dashboard.js?v=20261010-cnt"></script>
 </body>
 </html>

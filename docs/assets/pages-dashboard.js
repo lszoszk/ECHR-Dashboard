@@ -201,7 +201,7 @@ async function renderJudgmentCitations(scope) {
       if (view === views.search) {
         coverageNote.textContent = `Counted as in Search: judgments citing it in their text or in HUDOC's metadata, and judgments HUDOC publishes only in French that cite it according to HUDOC's metadata. ${fmtInt.format(c.citation_pairs)} citation pairs in the corpus, plus ${fmtInt.format(c.french_only_pairs)} from French-only judgments. Snapshot: ${snapshot.cutoff}.`;
         lines.push(
-          "These are the numbers shown under Cited by on every search result. A citation found in the text is counted once however many paragraphs repeat it.",
+          "These are the numbers shown under Cited by on every search result. They count judgments, not mentions: a judgment that refers to the case in ten paragraphs counts once.",
           "Citations by French-only judgments come from HUDOC's metadata alone, so they are minimums and carry no paragraph; the share is shown for each judgment.",
           "The two other choices of Evidence count HUDOC's metadata alone, for comparison.");
       } else if (view === views.curated) {
@@ -286,7 +286,7 @@ async function renderJudgmentCitations(scope) {
         name.appendChild(hudocLink(row)); const date = document.createElement("td"); date.textContent = row.date;
         tr.append(name, date); body.appendChild(tr);
       }
-      document.getElementById("citingJudgmentsSummary").textContent = `View ${fmtInt.format(rows.length)} unique citing judgments (${Math.min(visible, rows.length)} shown)`;
+      document.getElementById("citingJudgmentsSummary").textContent = `View ${fmtInt.format(rows.length)} citing judgments, each counted once however often it refers to this one (${Math.min(visible, rows.length)} shown)`;
       document.getElementById("moreCitingJudgments").hidden = visible >= rows.length;
     }
     function selectJudgment() {
