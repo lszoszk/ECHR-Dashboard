@@ -42,10 +42,14 @@ def build_graph(con: sqlite3.Connection) -> dict[str, dict]:
         cites[citing].add(cited)
         cited_by[cited].add(citing)
     french: dict[str, int] = {}
+    # machine translations stay French-only citers (they are never citing in case_citations)
+    has_mt = any(r[1] == "text_origin" for r in con.execute("PRAGMA table_info(cases)"))
+    corpus = ("SELECT case_id FROM cases WHERE COALESCE(text_origin, '') != 'machine_translation'"
+              if has_mt else "SELECT case_id FROM cases")
     try:
         for cited, n in con.execute(
                 "SELECT cited_case_id, count(DISTINCT citing_case_id) FROM french_only_citations "
-                "WHERE citing_case_id NOT IN (SELECT case_id FROM cases) GROUP BY cited_case_id"):
+                f"WHERE citing_case_id NOT IN ({corpus}) GROUP BY cited_case_id"):
             french[cited] = n
     except sqlite3.OperationalError:
         pass  # no french_only_citations table: no French-only citers
