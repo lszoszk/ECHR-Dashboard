@@ -2912,6 +2912,42 @@ if __name__ == "__main__":
         reload=True,
     )
 
+# --- MCP for AI assistants (Streamable HTTP) -----------------------------------
+# https://<host>/echr-api/mcp is forwarded to the mcp-echr container (github.com/lszoszk/mcp-echr,
+# src/http.js) on the API's Docker network, which has no port of its own: the public address reuses
+# this API's route and TLS, so the shared web server's configuration is not touched. The container
+# answers in plain JSON (stateless, no event stream), so a simple forward is enough.
+MCP_UPSTREAM = os.environ.get("ECHR_MCP_UPSTREAM", "http://mcp-echr-http:8007/mcp")
+_MCP_HEADERS = ("content-type", "accept", "authorization", "x-api-key", "mcp-protocol-version", "mcp-session-id")
+
+
+@app.api_route("/mcp", methods=["POST", "GET", "DELETE"], include_in_schema=False)
+async def mcp_forward(request: Request):
+    import urllib.error
+    import urllib.request
+    from fastapi.responses import Response
+    from starlette.concurrency import run_in_threadpool
+
+    body = await request.body() if request.method == "POST" else None
+    headers = {k: v for k in _MCP_HEADERS if (v := request.headers.get(k))}
+
+    def call():
+        req = urllib.request.Request(MCP_UPSTREAM, data=body, headers=headers, method=request.method)
+        try:
+            with urllib.request.urlopen(req, timeout=120) as r:
+                return r.status, r.headers.get("content-type", "application/json"), r.read()
+        except urllib.error.HTTPError as e:
+            return e.code, e.headers.get("content-type", "application/json"), e.read()
+        except Exception as e:  # container down or unreachable
+            logger.warning("MCP forward failed: %s", e)
+            return 502, "application/json", json.dumps({"jsonrpc": "2.0", "id": None, "error": {
+                "code": -32603, "message": "The HUDOC Researcher MCP server is not reachable right now."}}).encode()
+
+    status, ctype, data = await run_in_threadpool(call)
+    return Response(content=data, status_code=status, media_type=ctype.split(";")[0],
+                    headers={"Cache-Control": "no-store"})
+
+
 # --- RAG semantic-search sub-app (mounted at /rag; lazy-loaded, mmap index) ---
 try:
     from rag_mod import rag_app

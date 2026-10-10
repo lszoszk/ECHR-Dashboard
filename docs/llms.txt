@@ -23,7 +23,8 @@
 
 ## For AI assistants
 
-- MCP server (search, verbatim paragraphs with their § numbers, Cites / Cited by): https://github.com/lszoszk/mcp-echr. Setup for Claude Desktop and Claude Code: https://lszoszk.github.io/ECHR-Dashboard/about.html#mcp
+- MCP connector (hosted, Streamable HTTP, no key): https://150.254.115.204/echr-api/mcp — tools echr_search, echr_get_case, echr_get_paragraphs, echr_cited_by, echr_cites, echr_facets, echr_stats; verbatim paragraphs with their § numbers. Source and local install: https://github.com/lszoszk/mcp-echr. Setup: https://lszoszk.github.io/ECHR-Dashboard/about.html#mcp
+- Claude skill for ECtHR research (workflows, OSCOLA pinpoints, citation checking): https://github.com/lszoszk/mcp-echr/tree/main/skills/echr-research
 - Quote paragraphs verbatim with case name, application number, date and § number; do not paraphrase a judgment as if quoting it.
 
 ## Data and documentation
