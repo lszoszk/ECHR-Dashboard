@@ -902,6 +902,8 @@ body.mode-natural .expert-only { display: none; }
 }
 .cite-btn:hover { color: var(--garnet); border-color: var(--garnet); }
 .cite-btn.copied { color: var(--garnet); border-color: var(--garnet); }
+.hit-num .ws-sem-btn, .para-num .ws-sem-btn { display: block; margin-top: 4px; }
+.para-foot .ws-sem-btn, .dossier-passage .ws-sem-btn { margin: 0 6px 0 0; }
 .hit-text {
   font-family: var(--body); font-style: normal; font-size: 14.5px; line-height: 1.65;
   color: var(--ink); margin: 0; white-space: pre-wrap;
@@ -2002,19 +2004,54 @@ function toggleCase(i, btn) {
 }
 window.toggleCase = toggleCase;
 
+/* "no. 1874/13" / "nos. 1874/13 and 8567/13" / "nos. 1874/13 and 3 others" */
+function appnoLabel(caseNo) {
+  const n = String(caseNo || '').split(/[;,]\s*/).map((x) => x.trim()).filter(Boolean);
+  if (!n.length) return '';
+  return n.length === 1 ? `, no. ${n[0]}` : n.length === 2 ? `, nos. ${n[0]} and ${n[1]}` : `, nos. ${n[0]} and ${n.length - 1} others`;
+}
+
 function copyCite(ev, ci, para) {
   ev.stopPropagation();
   const c = ((state.results && state.results.results) || [])[ci];
   if (!c) return;
   const title = (c.title || c.case_id || '').replace(/^CASE OF /i, '');
-  const no = c.case_no ? `, no. ${c.case_no}` : '';
-  const cite = `${title}${no}, § ${para}`;
+  const cite = `${title}${appnoLabel(c.case_no)}, § ${para}`;
   const btn = ev.currentTarget;
   const done = () => { const o = btn.innerHTML; btn.innerHTML = '&#10003; copied'; btn.classList.add('copied'); setTimeout(() => { btn.innerHTML = o; btn.classList.remove('copied'); }, 1300); };
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(cite).then(done).catch(() => { window.prompt('Copy citation:', cite); });
   } else { window.prompt('Copy citation:', cite); }
 }
+
+/* ☆ Save a paragraph to the Workspace (assets/workspace.js), as on the Search page. Here a paragraph
+ * is known by its § number, so the item is keyed case#§N; the citation is the one "cite" copies. */
+const wsSemKey = (c, n) => `${c.case_id}#§${n}`;
+function wsSemBtn(ci, n) {
+  const c = ((state.results && state.results.results) || [])[ci];
+  if (!window.ECHRWorkspace || !c || n == null || n === '') return '';
+  const on = window.ECHRWorkspace.has(wsSemKey(c, n));
+  return `<button type="button" class="cite-btn ws-sem-btn${on ? ' copied' : ''}" aria-pressed="${on}"
+    title="${on ? 'Remove from your Workspace' : 'Save this paragraph to your Workspace'}"
+    onclick="wsSemToggle(event, ${ci}, '${escapeHtml(String(n))}')">${on ? '★ saved' : '☆ save'}</button>`;
+}
+function wsSemToggle(ev, ci, n) {
+  ev.stopPropagation();
+  const c = ((state.results && state.results.results) || [])[ci];
+  if (!c || !window.ECHRWorkspace) return;
+  const h = (c.hits || []).find((x) => String(x.para_idx) === String(n)) || {};
+  const title = (c.title || c.case_id || '').replace(/^CASE OF /i, '');
+  const on = window.ECHRWorkspace.toggleParagraph({
+    key: wsSemKey(c, n), caseId: c.case_id, title, appnos: c.case_no || '', date: c.judgment_date || '',
+    machineTranslation: false, paraIdx: null, paraNo: Number(n) || n, section: h.section || '', text: h.text || '',
+    citation: `${title}${appnoLabel(c.case_no)}, § ${n}`, url: safeHudocUrl(c.hudoc_url),
+  });
+  document.querySelectorAll(`.ws-sem-btn[onclick*="wsSemToggle(event, ${ci}, '${String(n)}')"]`).forEach((b) => {
+    b.textContent = on ? '★ saved' : '☆ save'; b.classList.toggle('copied', on); b.setAttribute('aria-pressed', String(on));
+    b.title = on ? 'Remove from your Workspace' : 'Save this paragraph to your Workspace';
+  });
+}
+window.wsSemToggle = wsSemToggle;
 
 function renderViewA(data) {
   const list = $('case-list');
@@ -2046,7 +2083,7 @@ function renderViewA(data) {
         <div class="case-hits">
           ${(c.hits||[]).map(h => `
             <div class="hit-item">
-              <div class="hit-num">¶ ${escapeHtml(String(h.para_idx||''))}<small>${(h.score*100).toFixed(0)}%</small><button type="button" class="cite-btn" aria-label="Copy pinpoint citation for paragraph ${escapeHtml(String(h.para_idx||''))}" onclick="copyCite(event, ${idx}, '${escapeHtml(String(h.para_idx||''))}')">&#8862; cite</button></div>
+              <div class="hit-num">¶ ${escapeHtml(String(h.para_idx||''))}<small>${(h.score*100).toFixed(0)}%</small><button type="button" class="cite-btn" aria-label="Copy pinpoint citation for paragraph ${escapeHtml(String(h.para_idx||''))}" onclick="copyCite(event, ${idx}, '${escapeHtml(String(h.para_idx||''))}')">&#8862; cite</button>${wsSemBtn(idx, h.para_idx)}</div>
               <div>
                 <div class="hit-section${h.section==='Separate Opinion'?' sep':h.section==='Legal Framework'?' lf':''}">${h.section==='Separate Opinion'?'\u2691 separate opinion \u00b7 not the Court\u2019s holding':h.section==='Legal Framework'?'\u00a7 legal framework \u00b7 quoted provisions, not the Court\u2019s reasoning':escapeHtml(h.section||'')}</div>
                 <p class="hit-text">${escapeHtml(h.text)}</p>
@@ -2100,6 +2137,7 @@ function renderViewB(data) {
         <span class="folio">${(sim*100).toFixed(0)}%</span>
         <span style="flex:1"></span>
         ${(p.articles||[]).slice(0,2).map(a=>`<span class="meta-tag" style="font-size:9px;padding:1px 5px;">${artLabel(a)}</span>`).join('')}
+        ${wsSemBtn(p.caseIdx, p.para_idx)}
         <button class="cmp-chip ${inCmp?'on':''}" onclick="event.stopPropagation();toggleCompare('${escapeHtml(c.case_id)}')" title="Add to compare">${inCmp?'✓ COMPARE':'+ COMPARE'}</button>
       </div>
     </li>`;
@@ -2516,7 +2554,7 @@ function renderDossier(data) {
   const arts = (c.articles||[]).slice(0,6).map(a=>`<span class="chip">${artLabel(a)}</span>`).join('');
   const passages = (c.hits||[]).map(h => `
     <div class="dossier-passage">
-      <div class="num">¶ ${escapeHtml(String(h.para_idx||''))} · ${escapeHtml(h.section||'')} · ${(h.score*100).toFixed(0)}%</div>
+      <div class="num">¶ ${escapeHtml(String(h.para_idx||''))} · ${escapeHtml(h.section||'')} · ${(h.score*100).toFixed(0)}% ${wsSemBtn(state.selectedCaseIdx, h.para_idx)}</div>
       <p>${escapeHtml(h.text)}</p>
     </div>`).join('');
   const inCmp = state.compareTray.includes(c.case_id);
@@ -2899,7 +2937,7 @@ function riverParaHtml(c, h, dropcap) {
     : h.section==='Legal Framework' ? '§ legal framework · quoted provisions, not the Court’s reasoning' : (h.section||'');
   return `
     <div class="para-block">
-      <div class="para-num">¶ ${p}${h.score!=null?`<small>${(h.score*100).toFixed(0)}%</small>`:''}${ci>=0?`<button type="button" class="cite-btn" aria-label="Copy pinpoint citation for paragraph ${p}" onclick="copyCite(event, ${ci}, '${p}')">&#8862; cite</button>`:''}</div>
+      <div class="para-num">¶ ${p}${h.score!=null?`<small>${(h.score*100).toFixed(0)}%</small>`:''}${ci>=0?`<button type="button" class="cite-btn" aria-label="Copy pinpoint citation for paragraph ${p}" onclick="copyCite(event, ${ci}, '${p}')">&#8862; cite</button>${wsSemBtn(ci, h.para_idx)}`:''}</div>
       <div>
         ${secText ? `<div class="hit-section${sec}">${escapeHtml(secText)}</div>` : ''}
         <p class="para-prose ${dropcap?'dropcap':''}">${escapeHtml(h.text)}</p>
