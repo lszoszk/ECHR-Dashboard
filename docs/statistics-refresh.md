@@ -167,3 +167,11 @@ checks with `node tests/test_citation_labels.cjs`.
 Case duration, applicant demographics and exact monetary-award distributions
 should not be added from this catalog alone: the needed fields are absent or
 not reliably structured. No values should be invented or inferred from titles.
+
+## Most cited judgments, as Search counts them
+
+`refresh_statistics.py` rewrites `docs/data/judgment-citations.json` without the view the page shows
+first. After it, export Search's counts from the API container and merge them:
+
+    ssh amuvmuser@150.254.115.204 "docker exec -i echr-api python3 - --db /data/echr_search.db --top 20" < scripts/export_search_citations.py > /tmp/search_citations.json
+    python3 scripts/merge_search_citations.py /tmp/search_citations.json
