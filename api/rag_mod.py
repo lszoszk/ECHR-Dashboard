@@ -23,7 +23,11 @@ import embed  # voyage HTTP client (ships alongside in backend/)
 BASE = Path("/data/rag")
 STATIC = Path(__file__).resolve().parent / "rag_static"
 VOYAGE_MODEL = "voyage-4-large"; RERANK_MODEL = "rerank-3"
-NPROBE = 128; FETCH = 300; RERANK_POOL = 100; IMP_BOOST = 0.05
+NPROBE = 128; FETCH = 600; RERANK_POOL = 100; IMP_BOOST = 0.05
+# At most CASE_CAP paragraphs of one judgment go to the reranker: uncapped, one judgment took up to
+# 82 of the 100 places. 10 is neutral on both benchmarks; 4 or fewer cost paragraph recall, because a
+# judgment's best paragraph is often its 5th or later by cosine (rag/FINDINGS.md §6).
+CASE_CAP = 10
 # Hybrid lexical arm (P0 measurement, Aug 2026): case-level OR-mode BM25 fused
 # with the dense ranking. Offline on the de-anchoring benchmark: expert-register
 # queries 87.7 -> 92.9 docHit@10, raw 94.8 -> 97.3, lay ~unchanged (at ceiling).
@@ -108,11 +112,8 @@ def run_paragraph_search(q, respondent=None, article=None, section=None):
     fetch = FETCH if not (respondent or article or section) else FETCH * 2
     D, I = S["index"].search(qv, fetch)
     case, sno, rid, meta, rowsec, art, fts = S["case"], S["sno"], S["rid"], S["meta"], S["rowsec"], S["artmap"], S["fts"]
-    pos = [int(i) for i in I[0] if i >= 0]; rids = [rid[p] for p in pos]
-    txt = {}
-    if rids:
-        txt = {r: t for r, t in fts.execute("SELECT rid,text FROM para WHERE rid IN (%s)" % ",".join("?" * len(rids)), rids)}
-    cand = []
+    pos = [int(i) for i in I[0] if i >= 0]
+    cand = []; per_case = {}
     for scr, p in zip(D[0], pos):
         cid = case[p]; s = sno[p]; m = meta.get(cid, {}) or {}
         if s is None or s == 0: continue  # skip uncitable sub-fragments (no HUDOC § number → would render as ¶0)
@@ -121,7 +122,13 @@ def run_paragraph_search(q, respondent=None, article=None, section=None):
         if article and article not in arts and art.get((cid, s)) != article: continue
         sec = rowsec.get(rid[p], "")
         if section and sec != section: continue
+        if per_case.get(cid, 0) >= CASE_CAP: continue
+        per_case[cid] = per_case.get(cid, 0) + 1
         cand.append((p, float(scr), sec, m, arts))
+        if len(cand) >= RERANK_POOL: break
+    rids = [rid[p] for p, *_ in cand]; txt = {}
+    if rids:
+        txt = {r: t for r, t in fts.execute("SELECT rid,text FROM para WHERE rid IN (%s)" % ",".join("?" * len(rids)), rids)}
     rr = None; src = cand
     if len(cand) > 1:
         head = cand[:RERANK_POOL]; docs = [(txt.get(rid[p]) or "")[:1200] for p, *_ in head]
