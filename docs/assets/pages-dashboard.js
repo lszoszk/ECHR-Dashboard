@@ -13,6 +13,114 @@ const PALETTE = [
 
 const fmtInt = new Intl.NumberFormat("en-US");
 
+// One colour per outcome (Okabe–Ito, colour-blind safe), identical in every chart; legends and
+// labels always name the outcome too. Keys read the outcome rows of stats.json.
+const OUTCOME_SERIES = [
+  { key: "v", label: "Violation only", color: "#D55E00" },
+  { key: "both", label: "Violation and no violation", color: "#E69F00" },
+  { key: "nv", label: "No violation", color: "#0072B2" },
+  { key: "none", label: "No outcome tag", color: "#999999" },
+];
+const FORMATION_COLORS = { "Grand Chamber": "#AA4499", Chamber: "#009E73", Committee: "#56B4E9", Other: "#999999" };
+const STATE_COLORS = ["#6a5acd", "#1a9e6e", "#a8326e"];
+// Rates resting on fewer judgments than this are greyed or left out, and the page says so.
+const MIN_RATE_N = 20;
+
+// Outcome rows: [year, violation_only, non_violation_only, both, neither] and
+// [state, total, violation_only, non_violation_only, both, neither, rate, settled].
+const yearOutcome = (r) => ({ v: r[1], nv: r[2], both: r[3], none: r[4] });
+const stateOutcome = (r) => ({ v: r[2], nv: r[3], both: r[4], none: r[5] });
+const outcomeTotal = (o) => o.v + o.nv + o.both + o.none;
+const withViolation = (o) => o.v + o.both;
+const pct = (part, whole, digits = 0) => (whole ? `${(part / whole * 100).toFixed(digits)}%` : "–");
+const rateWithN = (part, whole, digits = 0) => `${pct(part, whole, digits)} (n=${fmtInt.format(whole)})`;
+
+function cssVar(name, fallback) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+}
+
+// ── View state in the URL, so a view can be shared ──────────────────────────
+// ?states=POL,TUR&topics=top10|<a>|<b>&formation=committee&articles=convention#stats-…
+const pageParams = new URLSearchParams(location.search);
+function setPageParam(key, value) {
+  const params = new URLSearchParams(location.search);
+  if (value) params.set(key, value); else params.delete(key);
+  const query = params.toString().replace(/%2C/gi, ",").replace(/%7C/gi, "|");
+  history.replaceState(history.state, "", `${location.pathname}${query ? `?${query}` : ""}${location.hash}`);
+}
+
+/** Buttons with aria-pressed acting as one toggle group. */
+function bindToggle(buttons, attribute, onSelect) {
+  const select = (value) => {
+    buttons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset[attribute] === value)));
+    onSelect(value);
+  };
+  buttons.forEach((b) => b.addEventListener("click", () => select(b.dataset[attribute])));
+  return select;
+}
+
+// The catalog's final year is partial unless the cut-off is 31 December.
+let partialYear = "";
+const yearLabels = (years) => years.map((y) => (String(y) === partialYear ? `${y} (partial)` : String(y)));
+
+/** A short label just past the end of each horizontal (stacked) bar. */
+const barEndLabels = {
+  id: "barEndLabels",
+  afterDatasetsDraw(chart, _args, options) {
+    if (!options?.text) return;
+    const metas = chart.getSortedVisibleDatasetMetas();
+    const { ctx } = chart;
+    ctx.save();
+    ctx.font = `11px ${Chart.defaults.font.family}`;
+    ctx.fillStyle = cssVar("--ink-2", "#48464c");
+    ctx.textBaseline = "middle";
+    chart.data.labels.forEach((_, i) => {
+      const bars = metas.map((meta) => meta.data[i]).filter(Boolean);
+      if (bars.length) ctx.fillText(options.text(i), Math.max(...bars.map((bar) => bar.x)) + 6, bars[0].y);
+    });
+    ctx.restore();
+  },
+};
+
+// Three events marked, sparingly, on the year charts (frac = point in the year).
+const COURT_EVENTS = [
+  { year: "1998", frac: 10 / 12, label: "Protocol No. 11", short: "P11" },
+  { year: "2010", frac: 5 / 12, label: "Protocol No. 14", short: "P14" },
+  { year: "2022", frac: 8.5 / 12, label: "Russia leaves", short: "RU" },
+];
+const eventLines = {
+  id: "eventLines",
+  afterDatasetsDraw(chart) {
+    const scale = chart.scales.x;
+    const labels = (chart.data.labels || []).map(String);
+    if (!scale || labels.length < 2) return;
+    const { ctx, chartArea: area } = chart;
+    const step = scale.getPixelForValue(1) - scale.getPixelForValue(0);
+    const ink = cssVar("--ink-2", "#48464c");
+    ctx.save();
+    ctx.font = `10px ${Chart.defaults.font.family}`;
+    ctx.textBaseline = "top";
+    COURT_EVENTS.forEach((event, k) => {
+      const i = labels.findIndex((label) => label.startsWith(event.year));
+      if (i < 0) return;
+      const x = scale.getPixelForValue(i) + (event.frac - 0.5) * step;
+      ctx.strokeStyle = ink;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(x, area.top); ctx.lineTo(x, area.bottom); ctx.stroke();
+      const text = chart.width < 560 ? event.short : event.label;
+      const width = ctx.measureText(text).width + 6;
+      const left = x + width + 4 > area.right ? x - width - 2 : x + 2;
+      const y = area.top + 2 + k * 14;
+      ctx.fillStyle = cssVar("--bg-card", "#fffdf8");
+      ctx.fillRect(left, y - 1, width, 13);
+      ctx.fillStyle = ink;
+      ctx.fillText(text, left + 3, y);
+    });
+    ctx.restore();
+  },
+};
+
 function formatDateForMeta(raw) {
   const dt = new Date(raw);
   if (Number.isNaN(dt.getTime())) return raw || "-";
@@ -116,6 +224,12 @@ async function renderJudgmentCitations(scope) {
     const evidenceLabel = document.querySelector('label[for="citationEvidence"]');
     if (evidenceLabel) evidenceLabel.hidden = !views.extracted;
     if (!ranked.length) return;
+    const sayTopCited = () => {
+      const [top, next] = ranked;
+      document.getElementById("citationTakeaway").textContent = `${top.title} (${top.date.slice(0, 4)}) is the most cited judgment: ` +
+        `${fmtInt.format(top.cited_by_count)} judgments cite it${next ? `, ahead of ${next.title} (${fmtInt.format(next.cited_by_count)})` : ""}.`;
+    };
+    sayTopCited();
     const select = document.getElementById("citedJudgmentSelect");
     function fillSelect() {
       select.replaceChildren();
@@ -201,7 +315,7 @@ async function renderJudgmentCitations(scope) {
     if (evidenceSelect) evidenceSelect.addEventListener("change", () => {
       view = views[evidenceSelect.value] || views.curated;
       ranked = view.ranking || [];
-      describe(); fillSelect();
+      describe(); fillSelect(); sayTopCited();
       if (chart) {
         chart.data.labels = chartLabels();
         chart.data.datasets[0].data = ranked.map((row) => row.cited_by_count);
@@ -273,141 +387,75 @@ function articleLabel(article) {
   return `${protocol}, Art. ${number}`;
 }
 
-function selectArticleRows(rows, minimum, order) {
-  const selected = rows.filter((row) => row.with_outcome >= minimum && row.with_outcome > 0);
-  return selected.sort((a, b) => {
-    if (order === "article") return 0; // Payload is in Convention / Protocol article order.
-    const rate = (b.violation_share - a.violation_share) * (order === "lowest" ? -1 : 1);
-    if (order !== "volume" && rate !== 0) return rate;
-    return b.with_outcome - a.with_outcome || a.article.localeCompare(b.article, "en", { numeric: true });
-  });
-}
+const listNames = (names) => (names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names.at(-1)}` : names[0] || "");
 
-function createArticleOutcomeChart(canvas, rows, percentages) {
-  if (!canvas || !rows.length) return null;
-  const buckets = [
-    ["Violation only", "violation_only", "#a53643"],
-    ["Mixed: both outcomes", "mixed", "#b78025"],
-    ["Non-violation only", "non_violation_only", "#3b7497"],
-  ];
-  return new Chart(canvas, {
+/** Outcomes by Article: one chart of judgments with an outcome tag, the violation share (with n) at each bar's end. */
+function renderArticleAnalytics(analytics) {
+  const canvas = document.getElementById("articleViolationRateChart");
+  const tagged = (analytics?.rows || []).filter((row) => row.with_outcome > 0);
+  if (!canvas || !tagged.length) return;
+  const rows = tagged.filter((row) => row.with_outcome >= MIN_RATE_N); // payload order is Convention order
+  const hidden = tagged.length - rows.length;
+  document.getElementById("articleHiddenNote").textContent = hidden
+    ? `${hidden} Article${hidden === 1 ? "" : "s"} with fewer than ${MIN_RATE_N} such judgments ${hidden === 1 ? "is" : "are"} left out.` : "";
+  const largest = rows.reduce((a, b) => (b.with_outcome > a.with_outcome ? b : a));
+  const rated = rows.filter((row) => row.with_outcome >= 500).sort((a, b) => b.violation_share - a.violation_share);
+  document.getElementById("articleTakeaway").textContent =
+    `${articleLabel(largest.article)} has the most judgments with an outcome (n=${fmtInt.format(largest.with_outcome)}; ${pct(largest.with_violation, largest.with_outcome)} with a violation).` +
+    (rated.length > 1 ? ` Among Articles with 500 or more, the violation share runs from ${rateWithN(rated.at(-1).with_violation, rated.at(-1).with_outcome)} under ${articleLabel(rated.at(-1).article)} to ${rateWithN(rated[0].with_violation, rated[0].with_outcome)} under ${articleLabel(rated[0].article)}.` : "");
+  canvas.parentElement.style.height = `${rows.length * 26 + 90}px`;
+  const buckets = [["violation_only", OUTCOME_SERIES[0]], ["mixed", OUTCOME_SERIES[1]], ["non_violation_only", OUTCOME_SERIES[2]]];
+  let ordered = rows;
+  const chart = new Chart(canvas, {
     type: "bar",
-    data: {
-      labels: rows.map((row) => articleLabel(row.article) + (percentages ? ` (n=${fmtInt.format(row.with_outcome)})` : "")),
-      datasets: buckets.map(([label, key, color]) => ({
-        label: label + (percentages ? " (%)" : ""),
-        data: rows.map((row) => percentages ? row[key] / row.with_outcome * 100 : row[key]),
-        backgroundColor: color, borderWidth: 0, maxBarThickness: 24,
-      })),
-    },
+    data: { labels: [], datasets: buckets.map(([, { label, color }]) => ({ label, data: [], backgroundColor: color, borderWidth: 0, maxBarThickness: 20 })) },
     options: {
       responsive: true, maintainAspectRatio: false, indexAxis: "y",
+      layout: { padding: { right: 92 } },
       plugins: {
         legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } },
+        barEndLabels: { text: (i) => `${fmtInt.format(ordered[i].with_outcome)} · ${pct(ordered[i].with_violation, ordered[i].with_outcome)}` },
         tooltip: { callbacks: {
           label(context) {
-            const row = rows[context.dataIndex];
-            const key = buckets[context.datasetIndex][1];
-            return `${buckets[context.datasetIndex][0]}: ${fmtInt.format(row[key])} judgments (${(row[key] / row.with_outcome * 100).toFixed(1)}%)`;
+            const row = ordered[context.dataIndex];
+            const key = buckets[context.datasetIndex][0];
+            return `${context.dataset.label}: ${fmtInt.format(row[key])} (${pct(row[key], row.with_outcome, 1)})`;
           },
           footer(items) {
-            const row = rows[items[0].dataIndex];
-            return `Any violation: ${(row.violation_share * 100).toFixed(1)}% (${fmtInt.format(row.with_violation)}/${fmtInt.format(row.with_outcome)})`;
+            const row = ordered[items[0].dataIndex];
+            return `At least one violation: ${rateWithN(row.with_violation, row.with_outcome, 1)}`;
           },
         } },
       },
       scales: {
-        x: { stacked: true, beginAtZero: true, ...(percentages ? { max: 100, ticks: { callback: (value) => `${value}%` } } : {}) },
+        x: { stacked: true, beginAtZero: true },
         y: { stacked: true, grid: { display: false }, ticks: { autoSkip: false, font: { size: 11 } } },
       },
     },
+    plugins: [barEndLabels],
   });
-}
-
-function renderArticleAnalytics(analytics) {
-  const rows = analytics?.rows || [];
-  const canvas = document.getElementById("articleViolationRateChart");
-  const sort = document.getElementById("articleRateSort");
-  const minimum = document.getElementById("articleRateMinimum");
-  if (!canvas || !sort || !minimum || !rows.length) return;
-  canvas.dataset.keepEmptyView = "true";
-  let chart;
-  function render() {
-    const selected = selectArticleRows(rows, Number(minimum.value), sort.value);
-    if (chart) chart.destroy();
-    canvas.parentElement.style.height = `${Math.max(360, selected.length * 36 + 90)}px`;
-    canvas.parentElement.hidden = !selected.length;
-    chart = createArticleOutcomeChart(canvas, selected, true);
-    document.getElementById("articleRateSummary").textContent = selected.length
-      ? `${selected.length} of ${rows.filter((row) => row.with_outcome > 0).length} article families with outcome tags shown. Minimum ${fmtInt.format(Number(minimum.value))} judgments per article. Bar segments sum to 100%; violation share includes the mixed segment.`
-      : "No articles meet this minimum sample. Choose a lower threshold.";
-    const highlights = document.getElementById("articleRateHighlights");
-    highlights.replaceChildren();
-    if (selected.length) {
-      const ranked = selectArticleRows(rows, Number(minimum.value), "highest");
-      for (const [label, row] of [["Highest share", ranked[0]], ["Lowest share", ranked[ranked.length - 1]]]) {
-        const item = document.createElement("p");
-        const value = document.createElement("strong");
-        value.textContent = `${articleLabel(row.article)} · ${(row.violation_share * 100).toFixed(1)}%`;
-        item.append(`${label}: `, value, ` · ${fmtInt.format(row.with_violation)} / ${fmtInt.format(row.with_outcome)} judgments`);
-        highlights.appendChild(item);
-      }
-    }
-    const table = document.getElementById("articleOutcomeRows");
-    table.replaceChildren();
-    for (const row of selected) {
+  const table = document.getElementById("articleOutcomeRows");
+  const draw = (order) => {
+    ordered = order === "convention" ? rows : rows.slice().sort((a, b) => b.with_outcome - a.with_outcome);
+    chart.data.labels = ordered.map((row) => articleLabel(row.article));
+    chart.data.datasets.forEach((dataset, i) => { dataset.data = ordered.map((row) => row[buckets[i][0]]); });
+    chart.update("none");
+    table.replaceChildren(...ordered.map((row) => {
       const tr = document.createElement("tr");
-      const values = [articleLabel(row.article), `${(row.violation_share * 100).toFixed(1)}%`,
-        ...["with_outcome", "violation_only", "mixed", "non_violation_only", "without_outcome"].map((key) => fmtInt.format(row[key]))];
-      values.forEach((value, index) => {
-        const cell = document.createElement(index === 0 ? "th" : "td");
-        if (index === 0) cell.scope = "row";
-        cell.textContent = value;
-        tr.appendChild(cell);
-      });
-      table.appendChild(tr);
-    }
-    syncChartTheme();
-  }
-  sort.addEventListener("change", render);
-  minimum.addEventListener("change", render);
-  render();
-  const largest = selectArticleRows(rows, 1, "volume").slice(0, 15);
-  const countsCanvas = document.getElementById("articleOutcomesCountChart");
-  if (countsCanvas) countsCanvas.parentElement.style.height = `${Math.max(360, largest.length * 32 + 90)}px`;
-  createArticleOutcomeChart(countsCanvas, largest, false);
-}
-
-function createLineChart(ctx, labels, values, color) {
-  if (!ctx || !values.some((value) => Number(value) > 0)) return null;
-  return new Chart(ctx, {
-    type: "line",
-    data: {
-      labels,
-      datasets: [
-        {
-          data: values,
-          borderColor: color,
-          backgroundColor: `${color}33`,
-          fill: true,
-          tension: 0.2,
-          pointRadius: 2.5,
-          pointHoverRadius: 4,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-      },
-      scales: {
-        x: { grid: { display: false } },
-        y: { beginAtZero: true },
-      },
-    },
-  });
+      [articleLabel(row.article), pct(row.with_violation, row.with_outcome, 1),
+        ...["with_outcome", "violation_only", "mixed", "non_violation_only", "without_outcome"].map((key) => fmtInt.format(row[key]))]
+        .forEach((value, index) => {
+          const cell = document.createElement(index === 0 ? "th" : "td");
+          if (index === 0) cell.scope = "row";
+          cell.textContent = value;
+          tr.appendChild(cell);
+        });
+      return tr;
+    }));
+    setPageParam("articles", order === "convention" ? "convention" : "");
+  };
+  const select = bindToggle([...document.querySelectorAll("[data-article-sort]")], "articleSort", draw);
+  select(pageParams.get("articles") === "convention" ? "convention" : "count");
 }
 
 function createDoughnutChart(ctx, labels, values, colors = []) {
@@ -419,9 +467,8 @@ function createDoughnutChart(ctx, labels, values, colors = []) {
       datasets: [
         {
           data: values,
-          backgroundColor: (colors.length ? colors : labels.map((_, i) => PALETTE[i % PALETTE.length])).map(
-            (c) => `${c}CC`
-          ),
+          // Fixed colours (outcomes, formations) are used exactly; the generic palette is softened.
+          backgroundColor: colors.length ? colors : labels.map((_, i) => `${PALETTE[i % PALETTE.length]}CC`),
           borderColor: colors.length ? colors : labels.map((_, i) => PALETTE[i % PALETTE.length]),
           borderWidth: 1,
         },
@@ -432,6 +479,10 @@ function createDoughnutChart(ctx, labels, values, colors = []) {
       maintainAspectRatio: false,
       plugins: {
         legend: { position: "bottom" },
+        tooltip: { callbacks: { label(context) {
+          const sum = context.dataset.data.reduce((a, b) => a + Number(b || 0), 0);
+          return `${context.label}: ${fmtInt.format(context.parsed)} (${pct(context.parsed, sum, 1)})`;
+        } } },
       },
     },
   });
@@ -439,20 +490,23 @@ function createDoughnutChart(ctx, labels, values, colors = []) {
 
 function createGroupedBarChart(ctx, labels, datasets, options = {}) {
   if (!ctx || !datasets.some((dataset) => dataset.data.some((value) => Number(value) > 0))) return null;
+  const [category, value] = options.horizontal ? ["y", "x"] : ["x", "y"];
   return new Chart(ctx, {
     type: "bar",
     data: { labels, datasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      indexAxis: category,
       plugins: {
         legend: { position: "bottom" },
       },
       scales: {
-        x: { stacked: !!options.stacked, grid: { display: false } },
-        y: { beginAtZero: true, stacked: !!options.stacked },
+        [category]: { stacked: !!options.stacked, grid: { display: false } },
+        [value]: { beginAtZero: true, stacked: !!options.stacked },
       },
     },
+    plugins: options.plugins || [],
   });
 }
 
@@ -475,29 +529,43 @@ function createMultiLineChart(ctx, labels, datasets) {
   });
 }
 
-/** Outcomes by respondent State: every State, sticky header, sorted by clicking a column. */
+/** Outcomes by respondent State: every State, sticky header, frozen first column, sorted by clicking a column. */
 function renderStateOutcomeTable(container, rows) {
   if (!container) return;
   if (!rows.length) {
     container.innerHTML = '<p class="state-outcome-empty">No state-level rows.</p>';
     return;
   }
-  const cols = ["State", "Cases", "Violation only", "Non-violation only", "Mixed", "No finding", "Violation rate"];
+  // The Court's own columns ("Violations by Article and by State"), as far as HUDOC metadata allow.
+  const cols = [
+    ["State", (r) => r[0]],
+    ["Judgments", (r) => r[1]],
+    ["≥ 1 violation", (r) => r[2] + r[4]],
+    ["No violation", (r) => r[3]],
+    ["Friendly settlement / struck out", (r) => r[7]],
+    ["Other", (r) => r[5] - r[7]],
+    ["Violation rate", (r) => (r[2] + r[4]) / r[1] * 100],
+  ];
+  const rateCol = cols.length - 1;
   let sortCol = 1, desc = true;
-  const cell = (row, i) => (i === 0 ? row[0] : i === 6 ? `${Number(row[6] || 0).toFixed(1)}%` : fmtInt.format(row[i] || 0));
+  const cell = (row, i) => (i === rateCol ? `${cols[i][1](row).toFixed(1)}%` : fmtInt.format(cols[i][1](row)));
   const draw = () => {
     const sorted = rows.slice().sort((a, b) => {
-      const c = sortCol === 0 ? String(a[0]).localeCompare(String(b[0])) : (a[sortCol] || 0) - (b[sortCol] || 0);
+      const c = sortCol === 0 ? String(a[0]).localeCompare(String(b[0])) : cols[sortCol][1](a) - cols[sortCol][1](b);
       return desc ? -c : c;
     });
     container.innerHTML = `
-      <div class="state-outcome-scroll">
+      <div class="state-outcome-scroll" tabindex="0" role="region" aria-label="Outcomes by respondent State">
         <table class="state-outcome-table">
-          <thead><tr>${cols.map((label, i) => `
+          <thead><tr>${cols.map(([label], i) => `
             <th scope="col" aria-sort="${i === sortCol ? (desc ? "descending" : "ascending") : "none"}">
               <button type="button" class="sort-btn" data-col="${i}">${label}<span aria-hidden="true">${i === sortCol ? (desc ? " ▾" : " ▴") : ""}</span></button>
             </th>`).join("")}</tr></thead>
-          <tbody>${sorted.map((row) => `<tr${row[1] < 5 ? ' class="few"' : ""}>${cols.map((_, i) => `<td>${cell(row, i)}</td>`).join("")}</tr>`).join("")}</tbody>
+          <tbody>${sorted.map((row) => {
+            const few = row[1] < MIN_RATE_N;
+            return `<tr${few ? ' class="few"' : ""}><th scope="row">${row[0]}</th>${cols.slice(1).map((_, j) =>
+              `<td${j + 1 === rateCol && few ? ` title="Fewer than ${MIN_RATE_N} judgments"` : ""}>${cell(row, j + 1)}</td>`).join("")}</tr>`;
+          }).join("")}</tbody>
         </table>
       </div>`;
   };
@@ -507,9 +575,156 @@ function renderStateOutcomeTable(container, rows) {
     const col = Number(btn.dataset.col);
     if (col === sortCol) desc = !desc;
     else { sortCol = col; desc = col !== 0; }
+    const scroller = container.querySelector(".state-outcome-scroll");
+    const [left, top] = [scroller.scrollLeft, scroller.scrollTop];
     draw();
+    const redrawn = container.querySelector(".state-outcome-scroll");
+    redrawn.scrollLeft = left; redrawn.scrollTop = top;
+    container.querySelector(`.sort-btn[data-col="${col}"]`).focus();
   });
   draw();
+  const busiest = rows.reduce((a, b) => (b[1] > a[1] ? b : a));
+  const rated = rows.filter((r) => r[1] >= MIN_RATE_N).sort((a, b) => cols[rateCol][1](b) - cols[rateCol][1](a));
+  const rate = (r) => `${rateWithN(r[2] + r[4], r[1])} in ${r[0]}`;
+  document.getElementById("stateTableTakeaway").textContent = `${busiest[0]} has the most judgments (${fmtInt.format(busiest[1])}).` +
+    (rated.length > 1 ? ` Among the ${rated.length} States with ${MIN_RATE_N} or more, the violation rate runs from ${rate(rated.at(-1))} to ${rate(rated[0])}.` : "");
+}
+
+/** The 15 States with most judgments plus the rest together: count (bar) and violation rate (label) at once. */
+function renderStateChart(rows, totalJudgments, topShare) {
+  const canvas = document.getElementById("countriesChart");
+  if (!canvas || !rows.length) return;
+  const sorted = rows.slice().sort((a, b) => b[1] - a[1]);
+  const rest = sorted.slice(15);
+  const bars = sorted.slice(0, 15).map((r) => ({ label: r[0], ...stateOutcome(r) }));
+  if (rest.length) {
+    const sum = (key) => rest.reduce((total, r) => total + stateOutcome(r)[key], 0);
+    bars.push({ label: `Other ${rest.length}`, title: `Other ${rest.length} States together`, v: sum("v"), nv: sum("nv"), both: sum("both"), none: sum("none") });
+  }
+  canvas.parentElement.style.height = `${bars.length * 28 + 90}px`;
+  new Chart(canvas, {
+    type: "bar",
+    data: {
+      labels: bars.map((b) => b.label),
+      datasets: OUTCOME_SERIES.map(({ key, label, color }) => ({ label, data: bars.map((b) => b[key]), backgroundColor: color, borderWidth: 0, maxBarThickness: 20 })),
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: "y",
+      layout: { padding: { right: 92 } },
+      plugins: {
+        legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } },
+        barEndLabels: { text: (i) => `${fmtInt.format(outcomeTotal(bars[i]))} · ${pct(withViolation(bars[i]), outcomeTotal(bars[i]))}` },
+        tooltip: { callbacks: {
+          title: (items) => bars[items[0].dataIndex].title || items[0].label,
+          label: (context) => `${context.dataset.label}: ${fmtInt.format(context.parsed.x)} (${pct(context.parsed.x, outcomeTotal(bars[context.dataIndex]), 1)})`,
+          footer: (items) => `At least one violation: ${rateWithN(withViolation(bars[items[0].dataIndex]), outcomeTotal(bars[items[0].dataIndex]), 1)}`,
+        } },
+      },
+      scales: {
+        x: { stacked: true, beginAtZero: true },
+        y: { stacked: true, grid: { display: false }, ticks: { autoSkip: false } },
+      },
+    },
+    plugins: [barEndLabels],
+  });
+  const shown = bars.slice(0, 15).sort((a, b) => withViolation(b) / outcomeTotal(b) - withViolation(a) / outcomeTotal(a));
+  const rate = (b) => `${b.label}, ${rateWithN(withViolation(b), outcomeTotal(b))}`;
+  document.getElementById("stateChartTakeaway").textContent =
+    (topShare?.states?.length ? `${listNames(topShare.states)} are the respondent States in ${pct(topShare.judgments, totalJudgments)} of all judgments (${fmtInt.format(topShare.judgments)} of ${fmtInt.format(totalJudgments)}). ` : "") +
+    `Of the 15 shown, the violation rate is highest for ${rate(shown[0])}, and lowest for ${rate(shown.at(-1))}.`;
+}
+
+/** State profile: 1–3 States → judgments by year, Articles found violated, most frequent topics. */
+function renderStateProfile(compare, topicsByState) {
+  const profiles = compare.states || {};
+  const names = Object.keys(profiles).sort((a, b) => profiles[b].total - profiles[a].total);
+  const selects = [1, 2, 3].map((n) => document.getElementById(`compareState${n}`));
+  if (!names.length || selects.some((sel) => !sel)) return;
+  const options = names.map((name) => `<option value="${name}">${name} (${fmtInt.format(profiles[name].total)})</option>`).join("");
+  selects.forEach((sel, i) => { sel.innerHTML = (i ? '<option value="">(none)</option>' : "") + options; });
+  // ?states= takes ISO codes (POL,TUR) or names.
+  const find = (token) => names.find((name) => profiles[name].code === token.toUpperCase() || name.toLowerCase() === token.toLowerCase());
+  const fromUrl = [...new Set((pageParams.get("states") || "").split(",").map((t) => find(t.trim())).filter(Boolean))].slice(0, 3);
+  const initial = fromUrl.length ? fromUrl : names.slice(0, 3);
+  selects.forEach((sel, i) => { sel.value = initial[i] || ""; });
+
+  const years = yearLabels(compare.years || []);
+  const share = (count, state) => Math.round(count / profiles[state].total * 1000) / 10;
+  const violationRate = (p) => {
+    const text = rateWithN(p.outcomes.violation_only + p.outcomes.both, p.total);
+    return p.total < MIN_RATE_N ? `<span class="few-rate" title="Fewer than ${MIN_RATE_N} judgments">${text}</span>` : text;
+  };
+  const metrics = [
+    ["Judgments", (p) => fmtInt.format(p.total)],
+    ["At least one violation", violationRate],
+    ["No violation", (p) => fmtInt.format(p.outcomes.non_violation_only)],
+    ["Friendly settlement / struck out", (p) => fmtInt.format(p.settled)],
+    ["Other", (p) => fmtInt.format(p.outcomes.neither - p.settled)],
+    ["Most often found violated", (p) => (p.articles[0] ? `${articleLabel(p.articles[0][0])} (${fmtInt.format(p.articles[0][1])})` : "–")],
+  ];
+  const charts = {};
+  const horizontalShare = (chart, tooltipLabel) => {
+    if (!chart) return;
+    chart.options.scales.x.ticks = { callback: (v) => `${v}%` };
+    chart.options.scales.y.ticks = { autoSkip: false, font: { size: 11 } };
+    chart.options.plugins.tooltip = { callbacks: { label: tooltipLabel } };
+    chart.update("none");
+  };
+
+  const render = () => {
+    const selected = [...new Set(selects.map((sel) => sel.value).filter((v) => profiles[v]))];
+    document.getElementById("compareSummaryTable").innerHTML = `<table class="compare-summary-table"><thead><tr><th scope="col">Metric</th>${selected
+      .map((s, i) => `<th scope="col"><span class="state-swatch" style="background:${STATE_COLORS[i]}" aria-hidden="true"></span>${s}</th>`).join("")}</tr></thead><tbody>${metrics
+      .map(([label, fn]) => `<tr><th scope="row">${label}</th>${selected.map((s) => `<td>${fn(profiles[s])}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+
+    Object.values(charts).forEach((chart) => chart?.destroy());
+    charts.trend = createMultiLineChart(document.getElementById("compareTrendChart"), years, selected.map((state, i) => ({
+      label: state, data: profiles[state].cases_by_year, borderColor: STATE_COLORS[i], backgroundColor: STATE_COLORS[i],
+      fill: false, tension: 0.2, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4,
+    })));
+
+    const articleCounts = Object.fromEntries(selected.map((s) => [s, new Map(profiles[s].articles.map(([a, v, o]) => [a, [v, o]]))]));
+    const articles = [...new Set(selected.flatMap((s) => profiles[s].articles.slice(0, 6).map(([a]) => a)))]
+      .map((a) => [a, Math.max(...selected.map((s) => share((articleCounts[s].get(a) || [0])[0], s)))])
+      .sort((x, y) => y[1] - x[1]).slice(0, 8).map(([a]) => a);
+    charts.articles = createGroupedBarChart(document.getElementById("compareArticlesChart"), articles.map(articleLabel), selected.map((state, i) => ({
+      label: state, data: articles.map((a) => share((articleCounts[state].get(a) || [0])[0], state)),
+      backgroundColor: STATE_COLORS[i], borderWidth: 0, maxBarThickness: 14,
+    })), { horizontal: true });
+    horizontalShare(charts.articles, (context) => {
+      const state = selected[context.datasetIndex];
+      const [violations, tagged] = articleCounts[state].get(articles[context.dataIndex]) || [0, 0];
+      return `${state}: ${fmtInt.format(violations)} of ${fmtInt.format(profiles[state].total)} judgments (${context.parsed.x}%); ` +
+        `violation share under this Article ${rateWithN(violations, tagged)}`;
+    });
+
+    // Topics: each State's top ten are stored; a topic outside a State's top ten has no bar for it.
+    const topicCounts = Object.fromEntries(selected.map((s) => [s, new Map(topicsByState[s] || [])]));
+    const topics = [...new Set(selected.flatMap((s) => (topicsByState[s] || []).slice(0, 4).map(([t]) => t)))].slice(0, 8);
+    charts.topics = createGroupedBarChart(document.getElementById("thesaurusCountryChart"), topics.map((t) => truncateLabel(t, 34)), selected.map((state, i) => ({
+      label: state, data: topics.map((t) => (topicCounts[state].has(t) ? share(topicCounts[state].get(t), state) : null)),
+      backgroundColor: STATE_COLORS[i], borderWidth: 0, maxBarThickness: 14,
+    })), { horizontal: true });
+    horizontalShare(charts.topics, (context) => {
+      const state = selected[context.datasetIndex];
+      return `${state}: ${fmtInt.format(topicCounts[state].get(topics[context.dataIndex]))} of ${fmtInt.format(profiles[state].total)} judgments (${context.parsed.x}%)`;
+    });
+    syncChartTheme();
+
+    const rateOf = (s) => (profiles[s].outcomes.violation_only + profiles[s].outcomes.both) / profiles[s].total;
+    const describe = (s) => `${s}, ${rateWithN(profiles[s].outcomes.violation_only + profiles[s].outcomes.both, profiles[s].total)}`;
+    const byRate = selected.slice().sort((a, b) => rateOf(b) - rateOf(a));
+    const top = profiles[selected[0]].articles[0];
+    document.getElementById("compareTakeaway").textContent = selected.length > 1
+      ? `Of ${listNames(selected)}, the violation rate is highest for ${describe(byRate[0])}, and lowest for ${describe(byRate.at(-1))}.`
+      : `${selected[0]}: ${fmtInt.format(profiles[selected[0]].total)} judgments, ${pct(profiles[selected[0]].outcomes.violation_only + profiles[selected[0]].outcomes.both, profiles[selected[0]].total)} with at least one violation` +
+        (top ? `; the Article most often found violated is ${articleLabel(top[0])}, in ${pct(top[1], profiles[selected[0]].total)} of its judgments.` : ".");
+    return selected;
+  };
+  render();
+  selects.forEach((sel) => sel.addEventListener("change", () => {
+    setPageParam("states", render().map((s) => profiles[s].code || s).join(","));
+  }));
 }
 
 function rowsOrEmpty(value) {
@@ -520,6 +735,7 @@ function syncChartTheme() {
   const style = getComputedStyle(document.documentElement);
   const ink = style.getPropertyValue("--ink-3").trim() || "#706d72";
   const rule = style.getPropertyValue("--rule-soft").trim() || "#e8e0d4";
+  const strongInk = style.getPropertyValue("--ink").trim() || "#242328";
   Chart.defaults.color = ink;
   Object.values(Chart.instances).forEach((chart) => {
     chart.options.color = ink;
@@ -528,20 +744,230 @@ function syncChartTheme() {
       if (axis.grid) axis.grid.color = rule;
     }
     if (chart.options.plugins?.legend?.labels) chart.options.plugins.legend.labels.color = ink;
+    chart.data.datasets.forEach((dataset) => {
+      if (dataset.inkLine) dataset.borderColor = dataset.backgroundColor = strongInk;
+    });
     chart.update("none");
   });
 }
 
-function renderChamberTrend(rows) {
-  const labels = ["Grand Chamber", "Chamber", "Committee"];
-  const chart = createGroupedBarChart(document.getElementById("chamberTrendChart"), rows.map((r) => r[0]),
-    labels.map((label, i) => ({label, data: rows.map((r) => r[i + 1]),
-      backgroundColor: ["#395d7f", "#43705a", "#8d2f2f"][i], borderRadius: 2})));
-  if (chart) {
-    chart.options.scales.x.stacked = true;
-    chart.options.scales.y.stacked = true;
-    chart.update("none");
+/** Judgments by year, stacked by formation: the bar height is the year's total. */
+function renderFormationTrend(rows, lastFullYear) {
+  const names = ["Grand Chamber", "Chamber", "Committee"];
+  const chart = createGroupedBarChart(document.getElementById("casesYearChart"), yearLabels(rows.map((r) => r[0])),
+    names.map((label, i) => ({ label, data: rows.map((r) => r[i + 1]), backgroundColor: FORMATION_COLORS[label], borderWidth: 0 })),
+    { stacked: true, plugins: [eventLines] });
+  if (!chart) return;
+  chart.options.interaction = { mode: "index", intersect: false };
+  chart.options.plugins.tooltip = { callbacks: {
+    footer: (items) => `Total: ${fmtInt.format(rows[items[0].dataIndex].slice(1).reduce((a, b) => a + b, 0))} judgments`,
+  } };
+  chart.update("none");
+  const row = rows.find((r) => r[0] === lastFullYear);
+  if (!row) return;
+  const total = row[1] + row[2] + row[3];
+  document.getElementById("formationTakeaway").textContent = `In ${lastFullYear}, Committees delivered ${fmtInt.format(row[3])} of the ${fmtInt.format(total)} judgments ` +
+    `(${pct(row[3], total)}), Chambers ${fmtInt.format(row[2])} and the Grand Chamber ${fmtInt.format(row[1])}.`;
+}
+
+/** The rate line's latest value, written beside its last point. */
+const rateEndLabel = {
+  id: "rateEndLabel",
+  afterDatasetsDraw(chart) {
+    const index = chart.data.datasets.findIndex((dataset) => dataset.type === "line");
+    if (index < 0 || !chart.isDatasetVisible(index)) return;
+    const data = chart.data.datasets[index].data;
+    let i = data.length - 1;
+    while (i >= 0 && data[i] == null) i -= 1;
+    const point = chart.getDatasetMeta(index).data[i];
+    if (!point) return;
+    const { ctx } = chart;
+    const text = `${Math.round(data[i])}%`;
+    ctx.save();
+    ctx.font = `bold 11px ${Chart.defaults.font.family}`;
+    const width = ctx.measureText(text).width + 6;
+    ctx.fillStyle = cssVar("--bg-card", "#fffdf8");
+    ctx.fillRect(point.x - width - 4, point.y - 17, width, 14);
+    ctx.fillStyle = cssVar("--ink", "#242328");
+    ctx.textBaseline = "bottom";
+    ctx.fillText(text, point.x - width - 1, point.y - 4);
+    ctx.restore();
+  },
+};
+
+/** Outcome shares by year (100% bars) with the violation rate as a line, for all judgments or one formation. */
+function renderOutcomeTrend(series, lastFullYear) {
+  const canvas = document.getElementById("outcomesYearChart");
+  const all = rowsOrEmpty(series.outcomes_by_year);
+  const byFormation = series.outcomes_by_year_formation || {};
+  if (!canvas || !all.length) return;
+  // outcomes_by_year_formation rows share the years (and order) of outcomes_by_year.
+  const parts = { chamber: ["Grand Chamber", "Chamber"], committee: ["Committee"] };
+  const rowsFor = (formation) => (parts[formation] && byFormation.Committee
+    ? all.map((row, i) => [row[0], ...[1, 2, 3, 4].map((j) => parts[formation].reduce((sum, name) => sum + byFormation[name][i][j], 0))])
+    : all);
+  const yearRate = (formation) => {
+    const row = rowsFor(formation).find((r) => r[0] === lastFullYear);
+    return row ? [withViolation(yearOutcome(row)), outcomeTotal(yearOutcome(row))] : [0, 0];
+  };
+  const [allV, allN] = yearRate("all"), [coV, coN] = yearRate("committee"), [chV, chN] = yearRate("chamber");
+  if (allN) {
+    document.getElementById("outcomeYearTakeaway").textContent = `In ${lastFullYear}, ${pct(allV, allN)} of judgments found at least one violation (n=${fmtInt.format(allN)})` +
+      (coN ? `: ${pct(coV, coN)} of Committee judgments (n=${fmtInt.format(coN)}) against ${pct(chV, chN)} of Chamber and Grand Chamber judgments (n=${fmtInt.format(chN)}).` : ".");
   }
+  let chart = null;
+  const draw = (formation) => {
+    const rows = rowsFor(formation);
+    const outcomes = rows.map(yearOutcome);
+    const totals = outcomes.map(outcomeTotal);
+    const enough = totals.map((n) => n >= MIN_RATE_N);
+    const share = (part, i) => (totals[i] ? Math.round(part / totals[i] * 1000) / 10 : null);
+    const datasets = OUTCOME_SERIES.map(({ key, label, color }) => ({
+      label, stack: "outcomes", legendColor: color, data: outcomes.map((o, i) => share(o[key], i)),
+      backgroundColor: enough.map((ok) => (ok ? color : `${color}55`)), borderWidth: 0, barPercentage: 1, categoryPercentage: 0.9,
+    }));
+    datasets.push({
+      type: "line", label: "At least one violation", stack: "rate", inkLine: true, order: -1, // drawn above the bars
+      data: outcomes.map((o, i) => (enough[i] ? share(withViolation(o), i) : null)),
+      borderColor: cssVar("--ink", "#242328"), backgroundColor: cssVar("--ink", "#242328"),
+      borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0,
+    });
+    if (chart) chart.destroy();
+    chart = new Chart(canvas, {
+      type: "bar",
+      data: { labels: yearLabels(rows.map((r) => r[0])), datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          // Faded (small-n) years must not fade the legend: it takes the full outcome colour.
+          legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 }, generateLabels: (c) => Chart.defaults.plugins.legend.labels
+            .generateLabels(c).map((item) => ({ ...item, fillStyle: c.data.datasets[item.datasetIndex].legendColor || item.fillStyle })) } },
+          tooltip: { callbacks: {
+            title: (items) => `${items[0].label} · n=${fmtInt.format(totals[items[0].dataIndex])} judgments`,
+            label: (context) => (context.dataset.type === "line"
+              ? `At least one violation: ${context.parsed.y}%`
+              : `${context.dataset.label}: ${context.parsed.y}% (${fmtInt.format(outcomes[context.dataIndex][OUTCOME_SERIES[context.datasetIndex].key])})`),
+            footer: (items) => (enough[items[0].dataIndex] ? "" : `Fewer than ${MIN_RATE_N} judgments: no rate shown`),
+          } },
+        },
+        scales: {
+          x: { stacked: true, grid: { display: false } },
+          y: { stacked: true, min: 0, max: 100, ticks: { callback: (v) => `${v}%` } },
+        },
+      },
+      plugins: [eventLines, rateEndLabel],
+    });
+    syncChartTheme();
+    setPageParam("formation", formation === "all" ? "" : formation);
+  };
+  const select = bindToggle([...document.querySelectorAll("[data-formation]")], "formation", draw);
+  select(["chamber", "committee"].includes(pageParams.get("formation")) ? pageParams.get("formation") : "all");
+}
+
+/** Topic trends: top 5 (default), top 10 or up to 10 chosen; more than five lines are grey until one is picked out. */
+function renderTopicTrends(thesaurus) {
+  const TREND_COLORS = ["#245ea8", "#b03e45", "#3c8d5a", "#d97a2b", "#6c5db5", "#1f8a8a", "#a3612a", "#8d4f78", "#55708f", "#7a8b2f"];
+  const termTrends = thesaurus.term_trends || null;
+  const trendLabels = thesaurus.terms_by_year_labels || [];
+  const termsByYear = rowsOrEmpty(thesaurus.terms_by_year);
+  const trendYears = termTrends ? termTrends.years : termsByYear.map((d) => d[0]);
+  const trendSeries = termTrends ? termTrends.series
+    : Object.fromEntries(trendLabels.map((t, i) => [t, termsByYear.map((d) => d[i + 1] || 0)]));
+  const canvas = document.getElementById("thesaurusTrendsChart");
+  const controls = document.getElementById("topicControls");
+  const picker = document.getElementById("topicPicker");
+  const input = document.getElementById("topicInput");
+  const chips = document.getElementById("topicChips");
+  if (!canvas || !controls || !trendYears.length || !trendLabels.length) return;
+  let chart = null;
+  let customTopics = [];
+  let mode = "5";
+  const grey = () => `${cssVar("--ink-4", "#969197")}77`;
+  const draw = (topics) => {
+    const shown = topics.filter((t) => trendSeries[t]);
+    const many = shown.length > 5;
+    if (chart) chart.destroy();
+    chart = createMultiLineChart(canvas, yearLabels(trendYears), shown.map((t, i) => ({
+      label: truncateLabel(t, 40),
+      data: trendSeries[t],
+      topicColor: TREND_COLORS[i % TREND_COLORS.length],
+      borderColor: many ? grey() : TREND_COLORS[i % TREND_COLORS.length],
+      backgroundColor: TREND_COLORS[i % TREND_COLORS.length],
+      borderWidth: many ? 1.5 : 2, fill: false, tension: 0.2, pointRadius: many ? 0 : 2, pointHoverRadius: 4,
+    })));
+    let peak = null;
+    shown.forEach((t) => trendSeries[t].forEach((n, i) => { if (!peak || n > peak.n) peak = { t, n, year: trendYears[i] }; }));
+    document.getElementById("trendTakeaway").textContent = peak
+      ? `Of the topics shown, “${peak.t}” reached the highest yearly count: ${fmtInt.format(peak.n)} judgments in ${peak.year}.` : "";
+    if (!chart || !many) return;
+    let current = -1;
+    const highlight = (index) => {
+      if (index === current) return;
+      current = index;
+      chart.data.datasets.forEach((dataset, j) => {
+        dataset.borderColor = j === index ? dataset.topicColor : grey();
+        dataset.borderWidth = j === index ? 3 : 1.5;
+      });
+      chart.update("none");
+    };
+    const legend = chart.options.plugins.legend;
+    legend.labels = { ...legend.labels, generateLabels: (c) => Chart.defaults.plugins.legend.labels.generateLabels(c)
+      .map((item) => ({ ...item, fillStyle: c.data.datasets[item.datasetIndex].topicColor, strokeStyle: c.data.datasets[item.datasetIndex].topicColor })) };
+    legend.onHover = (_, item) => highlight(item.datasetIndex);
+    legend.onLeave = () => highlight(-1);
+    legend.onClick = (_, item) => highlight(item.datasetIndex);
+    chart.options.interaction = { mode: "nearest", intersect: false };
+    chart.options.onHover = (_, elements) => { if (elements.length) highlight(elements[0].datasetIndex); };
+    chart.update("none");
+  };
+  const writeUrl = () => setPageParam("topics", mode === "custom" ? customTopics.join("|") : mode === "10" ? "top10" : "");
+  const paintChips = () => {
+    chips.innerHTML = customTopics.map((t, i) => `<span class="topic-chip" style="border-color:${TREND_COLORS[i]}">${t
+      .replace(/</g, "&lt;")}<button type="button" data-remove="${i}" aria-label="Remove ${t.replace(/"/g, "&quot;")}">×</button></span>`).join("");
+    input.disabled = customTopics.length >= 10;
+    input.placeholder = customTopics.length >= 10 ? "Ten topics chosen" : "Type a topic, e.g. Article 8 or detention…";
+  };
+  const showMode = (next, focus = true) => {
+    mode = next;
+    controls.querySelectorAll("[data-topics]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.topics === mode)));
+    picker.hidden = mode !== "custom";
+    if (mode === "custom") {
+      if (!customTopics.length) customTopics = trendLabels.slice(0, 3);
+      paintChips();
+      draw(customTopics);
+      if (focus) input.focus();
+    } else {
+      draw(trendLabels.slice(0, Number(mode)));
+    }
+    syncChartTheme();
+    writeUrl();
+  };
+  document.getElementById("topicOptions").innerHTML = Object.keys(trendSeries).map((t) => `<option value="${t.replace(/"/g, "&quot;")}"></option>`).join("");
+  controls.addEventListener("click", (e) => {
+    const button = e.target.closest("[data-topics]");
+    if (button) return showMode(button.dataset.topics);
+    const rm = e.target.closest("[data-remove]");
+    if (rm) { customTopics.splice(Number(rm.dataset.remove), 1); paintChips(); draw(customTopics); syncChartTheme(); writeUrl(); }
+  });
+  const addTopic = () => {
+    const t = input.value.trim();
+    if (!trendSeries[t] || customTopics.includes(t) || customTopics.length >= 10) return;
+    customTopics.push(t);
+    input.value = "";
+    paintChips();
+    draw(customTopics);
+    syncChartTheme();
+    writeUrl();
+  };
+  input.addEventListener("input", addTopic);   // picking a suggestion fills the exact name
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); addTopic(); } });
+  // ?topics=top10, or ?topics=<topic>|<topic>|… for your own choice.
+  const param = pageParams.get("topics") || "";
+  const chosen = [...new Set(param.split("|").filter((t) => trendSeries[t]))].slice(0, 10);
+  if (param === "top10") showMode("10", false);
+  else if (chosen.length) { customTopics = chosen; showMode("custom", false); }
+  else showMode("5", false);
 }
 
 function renderCoverage(data) {
@@ -607,18 +1033,26 @@ async function loadDashboard() {
   Chart.defaults.font.family = getComputedStyle(document.documentElement).getPropertyValue("--font-mono").trim() || "Georgia";
   Chart.defaults.color = getComputedStyle(document.documentElement).getPropertyValue("--ink-3").trim() || "#706d72";
 
-  // Provenance for the export filenames, the PNG footer and the Cite dialog.
+  const s = data.summary || {};
+  const series = data.series || {};
+  const rankings = data.rankings || {};
+  const scope = data.scope || {};
+  const texts = data.text_coverage || {};
+  const thesaurus = data.thesaurus_analytics || {};
+
+  // Provenance for the export filenames, the CSV source line, the PNG footer and the Cite dialog.
   // Read from the payload rather than scraped back out of #metaGenerated's
   // formatted text, which would break the moment that formatting changes.
   window.EchrStatsMeta = {
     generated_at: data.generated_at,
+    cutoff: scope.cutoff,
     source_file: data.source_file,
     schema_version: data.schema_version,
     parser_version: data.parser_version,
   };
 
-  document.getElementById("metaSource").textContent = `Source: ${data.source_file || "-"} · Schema: ${data.schema_version || "-"}`;
-  document.getElementById("metaGenerated").textContent = `Generated: ${formatDateForMeta(data.generated_at)} · Parser: ${data.parser_version || "-"}`;
+  document.getElementById("metaSource").textContent = "Verified HUDOC catalog + read-only text inventories";
+  document.getElementById("metaGenerated").textContent = "Built " + formatDateForMeta(data.generated_at);
 
   // Some figures may have been refreshed from the live DB after the snapshot
   // was built (P66 does this for the section counts and corpus totals, which
@@ -632,150 +1066,78 @@ async function loadDashboard() {
     prEl.hidden = false;
   }
 
-  const s = data.summary || {};
-  const series = data.series || {};
-  const rankings = data.rankings || {};
-  const fieldCompleteness = (data.quality && data.quality.field_completeness) || {};
-
-  const scope = data.scope || {};
-  const texts = data.text_coverage || {};
   const total = Number(s.total_cases || 0);
   const withText = Number(s.cases_with_text || 0);
   const violationCount = Number(s.outcome_violation_only || 0) + Number(s.outcome_both || 0);
+  const casesByYear = rowsOrEmpty(series.cases_by_year);
+  const cutoff = scope.cutoff || "";
+  partialYear = cutoff && !cutoff.endsWith("-12-31") ? cutoff.slice(0, 4) : "";
+  const lastYear = cutoff.slice(0, 4) || String(casesByYear.at(-1)?.[0] || "");
+  const lastFullYear = partialYear ? String(Number(lastYear) - 1) : lastYear;
+
+  // ── 1 · At a glance ──────────────────────────────────────────────────
+  const perYear = new Map(casesByYear);
+  const latest = perYear.get(lastFullYear);
+  const previous = perYear.get(String(Number(lastFullYear) - 1));
+  const change = latest && previous
+    ? `${lastFullYear}: ${fmtInt.format(latest)} judgments, ${latest >= previous ? "+" : "−"}${Math.abs((latest / previous - 1) * 100).toFixed(0)}% on ${Number(lastFullYear) - 1}`
+    : "No decisions or press releases";
   document.getElementById("kpiGrid").innerHTML = [
-    makeKpi("Judgment records", fmtInt.format(total), "No decisions or press releases"),
-    makeKpi("Respondent states", fmtInt.format(s.unique_countries || 0), "Multi-state judgments count for each state"),
-    makeKpi("At least one violation", total ? (violationCount / total * 100).toFixed(1) + "%" : "Unavailable", fmtInt.format(violationCount) + " of " + fmtInt.format(total) + " judgments"),
-    makeKpi("Text rows", fmtInt.format(s.total_paragraphs || 0), fmtInt.format(withText) + " judgments with text; includes table/header rows"),
+    makeKpi("Judgments", fmtInt.format(total), change),
+    makeKpi("Respondent States", fmtInt.format(s.unique_countries || 0), "A judgment against several States counts for each"),
+    makeKpi("At least one violation", total ? pct(violationCount, total, 1) : "Unavailable", `${fmtInt.format(violationCount)} of ${fmtInt.format(total)} judgments`),
+    makeKpi("Committee judgments", pct(s.committee_cases || 0, total), `${fmtInt.format(s.committee_cases || 0)} · Chamber ${fmtInt.format(s.chamber_cases || 0)} · Grand Chamber ${fmtInt.format(s.grand_chamber_cases || 0)}`),
   ].join("");
-  document.getElementById("metaSource").textContent = "Verified HUDOC catalog + read-only text inventories";
-  document.getElementById("metaGenerated").textContent = "Built " + formatDateForMeta(data.generated_at);
-  document.getElementById("scopeCutoff").textContent = "Catalog cut-off: " + (scope.cutoff || "Unavailable") + " · " + (s.date_range_label || "");
-  const sourceLanguages = texts.by_language || {};
-  const sourceOrigins = texts.by_origin || {};
-  const knownLanguages = [["English", sourceLanguages.ENG], ["French", sourceLanguages.FRE]]
-    .filter((row) => row[1] > 0).map(([label, count]) => fmtInt.format(count) + " " + label).join(", ") || "none recorded";
-  document.getElementById("textCoverageSummary").textContent =
-    fmtInt.format(withText) + " / " + fmtInt.format(total) + " judgment records have inventoried text. " +
-    "Confirmed source language: " + knownLanguages + "; " + fmtInt.format(sourceLanguages.Unknown || 0) +
-    " not recorded. " + fmtInt.format(sourceOrigins["Local source bundle"] || 0) + " local bundles are staged, not yet in live Search.";
+  if (cutoff) {
+    const cutoffDate = new Date(`${cutoff}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+    document.getElementById("howCountDate").textContent = `Snapshot: judgments delivered up to ${cutoffDate}.`;
+  }
+  document.getElementById("scopeCutoff").textContent = "Catalog cut-off: " + (cutoff || "Unavailable") + " · " + (s.date_range_label || "");
   const caveat = document.getElementById("scopeCaveat");
   caveat.textContent = (scope.note || "") + " " + (scope.translation_title_warnings?.length || 0) + " translation-title records remain in the literal catalog count.";
-  renderCoverage(data);
-  renderChamberTrend(series.chambers_by_year || []);
 
-  const casesByYear = rowsOrEmpty(series.cases_by_year);
-  const chamberBreakdown = rowsOrEmpty(series.chamber_breakdown);
-  const countriesTop = rowsOrEmpty(rankings.countries_top);
-  const sections = rowsOrEmpty(rankings.sections);
-  const importanceDistribution = rowsOrEmpty(rankings.importance_distribution);
-  const outcomeRows = rowsOrEmpty(series.outcome_breakdown);
-  const outcomes = outcomeRows.length ? outcomeRows : rowsOrEmpty(rankings.outcomes);
-  const bodiesTop = rowsOrEmpty(rankings.originating_bodies_top);
-  const separateShareByBody = rowsOrEmpty(series.separate_opinion_share_by_body);
-  const keywordsTop = rowsOrEmpty(rankings.keywords_top);
-  const stateOutcomesTop = rowsOrEmpty(rankings.state_outcomes_top);
-  const stateOutcomesAll = rowsOrEmpty(rankings.state_outcomes_all || rankings.state_outcomes_top);
-  const inadmissibilityGroundsTop = rowsOrEmpty(rankings.inadmissibility_grounds_top);
-  const outcomesByYear = rowsOrEmpty(series.outcomes_by_year);
-  const proceduralVsSubstantiveByYear = rowsOrEmpty(series.procedural_vs_substantive_by_year);
+  // ── 2 · Respondent States ────────────────────────────────────────────
+  const stateRows = rowsOrEmpty(rankings.state_outcomes_all);
+  renderStateOutcomeTable(document.getElementById("stateOutcomeTable"), stateRows);
+  renderStateChart(stateRows, total, rankings.top_states_share);
+  renderStateProfile(data.cross_tabs?.compare || {}, thesaurus.top_terms_by_country || {});
 
-  createLineChart(
-    document.getElementById("casesYearChart"),
-    casesByYear.map((d) => d[0]),
-    casesByYear.map((d) => d[1]),
-    "#d97a2b"
-  );
+  // ── 3 · Convention Articles ──────────────────────────────────────────
+  renderArticleAnalytics(data.article_analytics);
 
-  createBarChart(
-    document.getElementById("countriesChart"),
-    countriesTop.map((d) => d[0]),
-    countriesTop.map((d) => d[1]),
-    { horizontal: true }
-  );
+  // ── 4 · Over time ────────────────────────────────────────────────────
+  renderFormationTrend(rowsOrEmpty(series.chambers_by_year), lastFullYear);
+  renderOutcomeTrend(series, lastFullYear);
 
-  // Violation Rate by Country — horizontal bar, sorted descending by rate,
-  // filtered to states with at least 10 cases, top 25 shown.
-  const countryRatesEl = document.getElementById("countryRatesChart");
-  if (countryRatesEl && stateOutcomesTop.length) {
-    const MIN_CASES = 10;
-    const TOP_N = 25;
-    const rateRows = stateOutcomesTop
-      .filter((r) => Number(r[1]) >= MIN_CASES)
-      .slice()
-      .sort((a, b) => Number(b[6]) - Number(a[6]))
-      .slice(0, TOP_N);
-
-    const rateColor = (rate) => {
-      // Green (low rate) → amber → red (high rate)
-      if (rate >= 85) return "#c0392b";
-      if (rate >= 70) return "#e67e22";
-      if (rate >= 50) return "#d4a017";
-      if (rate >= 30) return "#3c8d5a";
-      return "#245ea8";
-    };
-
-    const labels = rateRows.map((r) => r[0]);
-    const values = rateRows.map((r) => Number(r[6]));
-    const totals = rateRows.map((r) => Number(r[1]));
-    const colors = values.map(rateColor);
-
-    new Chart(countryRatesEl, {
-      type: "bar",
-      data: {
-        labels,
-        datasets: [
-          {
-            data: values,
-            backgroundColor: colors.map((c) => `${c}CC`),
-            borderColor: colors,
-            borderWidth: 1,
-            borderRadius: 6,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        indexAxis: "y",
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => {
-                const idx = ctx.dataIndex;
-                return `${values[idx].toFixed(1)}% violation rate (${totals[idx]} cases)`;
-              },
-            },
-          },
-        },
-        scales: {
-          x: {
-            beginAtZero: true,
-            max: 100,
-            ticks: { callback: (v) => `${v}%` },
-            grid: { display: true },
-          },
-          y: { grid: { display: false } },
-        },
-      },
-    });
+  // ── 5 · Topics ───────────────────────────────────────────────────────
+  const topTerms = rowsOrEmpty(thesaurus.top_terms);
+  if (topTerms.length) {
+    const ttData = topTerms.slice(0, 25);
+    createBarChart(
+      document.getElementById("thesaurusTopChart"),
+      ttData.map((d) => truncateLabel(d[0], 50)),
+      ttData.map((d) => d[1]),
+      { horizontal: true, colors: ["#6c5db5"] }
+    );
+    const withTopics = Number(thesaurus.cases_with_thesaurus || 0);
+    document.getElementById("topicTakeaway").textContent = `“${topTerms[0][0]}” is the most frequent topic: ${fmtInt.format(topTerms[0][1])} judgments` +
+      (withTopics ? `, ${pct(topTerms[0][1], withTopics)} of the ${fmtInt.format(withTopics)} with HUDOC topics.` : ".");
   }
+  renderTopicTrends(thesaurus);
 
-  createBarChart(
-    document.getElementById("sectionsChart"),
-    sections.map((d) => d[0]),
-    sections.map((d) => d[1]),
-    { horizontal: true }
-  );
+  // ── 6 · Citations ────────────────────────────────────────────────────
+  await renderJudgmentCitations(scope);
 
+  // ── 7 · Procedure ────────────────────────────────────────────────────
+  const chamberBreakdown = rowsOrEmpty(series.chamber_breakdown).filter((d) => d[1] > 0);
   createDoughnutChart(
     document.getElementById("chamberChart"),
     chamberBreakdown.map((d) => d[0]),
     chamberBreakdown.map((d) => d[1]),
-    ["#395d7f", "#43705a", "#8d2f2f", "#969197"]
+    chamberBreakdown.map((d) => FORMATION_COLORS[d[0]] || FORMATION_COLORS.Other)
   );
 
+  const importanceDistribution = rowsOrEmpty(rankings.importance_distribution);
   createBarChart(
     document.getElementById("importanceChart"),
     importanceDistribution.map((d) => d[0]),
@@ -783,13 +1145,15 @@ async function loadDashboard() {
     { colors: ["#6c5db5", "#245ea8", "#d97a2b"] }
   );
 
+  const outcomeTotals = { v: s.outcome_violation_only || 0, nv: s.outcome_non_violation_only || 0, both: s.outcome_both || 0, none: s.outcome_neither || 0 };
   createDoughnutChart(
     document.getElementById("outcomesChart"),
-    outcomes.map((d) => d[0]),
-    outcomes.map((d) => d[1]),
-    ["#3c8d5a", "#245ea8", "#d97a2b", "#8c8c8c"]
+    OUTCOME_SERIES.map((o) => o.label),
+    OUTCOME_SERIES.map((o) => outcomeTotals[o.key]),
+    OUTCOME_SERIES.map((o) => o.color)
   );
 
+  const proceduralVsSubstantiveByYear = rowsOrEmpty(series.procedural_vs_substantive_by_year);
   if (proceduralVsSubstantiveByYear.length) {
     createGroupedBarChart(
       document.getElementById("proceduralSubstantiveChart"),
@@ -822,125 +1186,19 @@ async function loadDashboard() {
     );
   }
 
-  createBarChart(
-    document.getElementById("inadmissibilityChart"),
-    ["Inadmissible", "Struck out"],
-    [s.inadmissible_cases || 0, s.struck_out_cases || 0],
-    { colors: ["#b03e45", "#8c8c8c"] }
-  );
-
-  if (outcomesByYear.length) {
-    createMultiLineChart(
-      document.getElementById("outcomesYearChart"),
-      outcomesByYear.map((d) => d[0]),
-      [
-        {
-          label: "Violation only",
-          data: outcomesByYear.map((d) => d[1]),
-          borderColor: "#3c8d5a",
-          backgroundColor: "#3c8d5a33",
-          fill: false,
-          tension: 0.2,
-          pointRadius: 2.5,
-          pointHoverRadius: 4,
-        },
-        {
-          label: "Non-violation only",
-          data: outcomesByYear.map((d) => d[2]),
-          borderColor: "#245ea8",
-          backgroundColor: "#245ea833",
-          fill: false,
-          tension: 0.2,
-          pointRadius: 2.5,
-          pointHoverRadius: 4,
-        },
-        {
-          label: "Mixed",
-          data: outcomesByYear.map((d) => d[3]),
-          borderColor: "#d97a2b",
-          backgroundColor: "#d97a2b33",
-          fill: false,
-          tension: 0.2,
-          pointRadius: 2.5,
-          pointHoverRadius: 4,
-        },
-        {
-          label: "No finding",
-          data: outcomesByYear.map((d) => d[4]),
-          borderColor: "#8c8c8c",
-          backgroundColor: "#8c8c8c33",
-          fill: false,
-          tension: 0.2,
-          pointRadius: 2.5,
-          pointHoverRadius: 4,
-        },
-      ]
-    );
-  }
-
-  createBarChart(
-    document.getElementById("bodiesChart"),
-    bodiesTop.map((d) => d[0]),
-    bodiesTop.map((d) => d[1]),
-    { horizontal: true, colors: ["#4f7ca6"] }
-  );
-
+  const separateShareByBody = rowsOrEmpty(series.separate_opinion_share_by_body);
   createBarChart(
     document.getElementById("separateByBodyChart"),
-    separateShareByBody.map((d) => `${truncateLabel(d[0], 26)} (n=${d[2]})`),
+    separateShareByBody.map((d) => `${truncateLabel(d[0], 26)} (n=${fmtInt.format(d[2])})`),
     separateShareByBody.map((d) => d[1]),
     { horizontal: true, colors: ["#b03e45"] }
   );
+  const grandChamberOpinions = separateShareByBody.find((d) => d[0] === "Grand Chamber");
+  document.getElementById("typesTakeaway").textContent = `Committees delivered ${pct(s.committee_cases || 0, total)} of all judgments, Chambers ${pct(s.chamber_cases || 0, total)} ` +
+    `and the Grand Chamber ${pct(s.grand_chamber_cases || 0, total, 1)}` +
+    (grandChamberOpinions ? `; ${pct(grandChamberOpinions[3], grandChamberOpinions[2])} of Grand Chamber judgments carry a separate opinion (n=${fmtInt.format(grandChamberOpinions[2])}).` : ".");
 
-  createBarChart(
-    document.getElementById("keywordsChart"),
-    keywordsTop.slice(0, 20).map((d) => truncateLabel(d[0], 45)),
-    keywordsTop.slice(0, 20).map((d) => d[1]),
-    { horizontal: true, colors: ["#b28a2f"] }
-  );
-
-  renderArticleAnalytics(data.article_analytics);
-  await renderJudgmentCitations(scope);
-
-  // Violation Rate by Year (%)
-  if (outcomesByYear.length) {
-    const vrYears = [];
-    const vrRates = [];
-    for (const d of outcomesByYear) {
-      const vOnly = d[1] || 0, nvOnly = d[2] || 0, both = d[3] || 0, neither = d[4] || 0;
-      const denom = vOnly + nvOnly + both + neither;
-      if (denom > 5) {
-        vrYears.push(d[0]);
-        vrRates.push(((vOnly + both) / denom) * 100);
-      }
-    }
-    new Chart(document.getElementById("violationRateYearChart"), {
-      type: "line",
-      data: {
-        labels: vrYears,
-        datasets: [{
-          data: vrRates,
-          borderColor: "rgba(220, 80, 60, 0.85)",
-          backgroundColor: "rgba(220, 80, 60, 0.15)",
-          fill: true,
-          tension: 0.3,
-          pointRadius: 2.5,
-          pointHoverRadius: 4,
-        }],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { grid: { display: false } },
-          y: { beginAtZero: true, min: 0, max: 100, ticks: { callback: (v) => v + "%" } },
-        },
-      },
-    });
-  }
-
-  // Top Inadmissibility Grounds
+  const inadmissibilityGroundsTop = rowsOrEmpty(rankings.inadmissibility_grounds_top);
   if (inadmissibilityGroundsTop.length) {
     const igData = inadmissibilityGroundsTop.slice(0, 12);
     createBarChart(
@@ -950,297 +1208,53 @@ async function loadDashboard() {
       { horizontal: true, colors: ["#6478b4"] }
     );
   }
+  const unspecified = (inadmissibilityGroundsTop.find((d) => d[0] === "Other / unspecified") || [0, 0])[1];
+  document.getElementById("inadmissibilityTakeaway").textContent = `${fmtInt.format(s.inadmissible_cases || 0)} judgments (${pct(s.inadmissible_cases || 0, total, 1)}) ` +
+    `declare part of an application inadmissible and ${fmtInt.format(s.struck_out_cases || 0)} (${pct(s.struck_out_cases || 0, total, 1)}) strike part of it out` +
+    (unspecified ? `; in ${fmtInt.format(unspecified)} of the ${fmtInt.format(s.inadmissible_cases || 0)} the conclusion names no specific ground.` : ".");
 
-  // Article × State interactive chart
-  const crossTabs = data.cross_tabs || {};
-  const articleByState = crossTabs.article_by_state || {};
-  const articleStateSelect = document.getElementById("articleStateSelect");
-  const articleByStateCtx = document.getElementById("articleByStateChart");
-  let articleByStateChart = null;
-
-  if (articleStateSelect && articleByStateCtx && Object.keys(articleByState).length) {
-    const articleKeys = Object.keys(articleByState).sort((a, b) => {
-      const na = parseInt(a, 10);
-      const nb = parseInt(b, 10);
-      if (!isNaN(na) && !isNaN(nb)) return na - nb;
-      return a.localeCompare(b);
-    });
-
-    articleKeys.forEach((art) => {
-      const opt = document.createElement("option");
-      opt.value = art;
-      opt.textContent = `Art. ${art}`;
-      articleStateSelect.appendChild(opt);
-    });
-
-    function renderArticleByState(article) {
-      const rows = articleByState[article] || [];
-      const labels = rows.map((r) => r[0]);
-      const totalCases = rows.map((r) => r[1]);
-      const violations = rows.map((r) => r[2]);
-
-      if (articleByStateChart) articleByStateChart.destroy();
-      articleByStateChart = createGroupedBarChart(
-        articleByStateCtx,
-        labels,
-        [
-          {
-            label: "Total cases",
-            data: totalCases,
-            backgroundColor: "#245ea8CC",
-            borderColor: "#245ea8",
-            borderWidth: 1,
-            borderRadius: 5,
-          },
-          {
-            label: "Violations",
-            data: violations,
-            backgroundColor: "#b03e45CC",
-            borderColor: "#b03e45",
-            borderWidth: 1,
-            borderRadius: 5,
-          },
-        ]
-      );
-    }
-
-    renderArticleByState(articleKeys[0]);
-    articleStateSelect.addEventListener("change", () => {
-      renderArticleByState(articleStateSelect.value);
-    });
+  // ── 8 · About the data ───────────────────────────────────────────────
+  const sections = rowsOrEmpty(rankings.sections);
+  createBarChart(
+    document.getElementById("sectionsChart"),
+    sections.map((d) => d[0]),
+    sections.map((d) => d[1]),
+    { horizontal: true }
+  );
+  const sectionRows = sections.reduce((sum, d) => sum + d[1], 0);
+  if (sections.length > 1) {
+    document.getElementById("paragraphTakeaway").textContent = `${sections[0][0]} rows are the largest part of the ${fmtInt.format(sectionRows)} text rows ` +
+      `(${pct(sections[0][1], sectionRows)}), followed by ${sections[1][0]} (${pct(sections[1][1], sectionRows)}).`;
   }
 
-  // Comparative State Analysis
-  const compareData = crossTabs.compare || {};
-  const compareYears = compareData.years || [];
-  const stateProfiles = compareData.states || {};
-  const compareStateNames = Object.keys(stateProfiles).sort((a, b) => {
-    return (stateProfiles[b].total || 0) - (stateProfiles[a].total || 0);
-  });
+  renderCoverage(data);
+  const sourceLanguages = texts.by_language || {};
+  const sourceOrigins = texts.by_origin || {};
+  const knownLanguages = [["English", sourceLanguages.ENG], ["French", sourceLanguages.FRE]]
+    .filter((row) => row[1] > 0).map(([label, count]) => fmtInt.format(count) + " " + label).join(", ") || "none recorded";
+  document.getElementById("textCoverageSummary").textContent =
+    fmtInt.format(withText) + " / " + fmtInt.format(total) + " judgment records have inventoried text: " +
+    fmtInt.format(s.total_paragraphs || 0) + " text rows, including table and header rows. " +
+    "Confirmed source language: " + knownLanguages + "; " + fmtInt.format(sourceLanguages.Unknown || 0) +
+    " not recorded. " + fmtInt.format(sourceOrigins["Local source bundle"] || 0) + " local bundles are staged, not yet in live Search.";
 
-  const compareSelects = [1, 2, 3].map((n) => document.getElementById(`compareState${n}`));
-  const compareSummaryEl = document.getElementById("compareSummaryTable");
-  const compareTrendCtx = document.getElementById("compareTrendChart");
-  const compareArticlesCtx = document.getElementById("compareArticlesChart");
-  let compareTrendChart = null;
-  let compareArticlesChart = null;
+  // Legacy charts whose canvases are no longer on the page (createBarChart returns null for them).
+  const bodiesTop = rowsOrEmpty(rankings.originating_bodies_top);
+  const keywordsTop = rowsOrEmpty(rankings.keywords_top);
 
-  const COMPARE_COLORS = ["#245ea8", "#b03e45", "#3c8d5a"];
+  createBarChart(
+    document.getElementById("bodiesChart"),
+    bodiesTop.map((d) => d[0]),
+    bodiesTop.map((d) => d[1]),
+    { horizontal: true, colors: ["#4f7ca6"] }
+  );
 
-  if (compareSelects[0] && compareTrendCtx && compareStateNames.length >= 2) {
-    compareStateNames.forEach((state) => {
-      compareSelects.forEach((sel, i) => {
-        if (!sel) return;
-        const opt = document.createElement("option");
-        opt.value = state;
-        opt.textContent = `${state} (${stateProfiles[state].total})`;
-        sel.appendChild(opt);
-      });
-    });
-
-    // Pre-select top states for comparison
-    const topStates = countriesTop.slice(0, 3).map(d => d[0]);
-    ["compareState1","compareState2","compareState3"].forEach((id, i) => {
-      const sel = document.getElementById(id);
-      if (sel && topStates[i]) sel.value = topStates[i];
-    });
-
-    function getSelectedStates() {
-      return compareSelects
-        .map((sel) => sel ? sel.value : "")
-        .filter((v) => v && stateProfiles[v]);
-    }
-
-    function renderComparison() {
-      const selected = getSelectedStates();
-      if (selected.length < 2) return;
-
-      // Summary table
-      const headerCells = ["Metric", ...selected].map((h) => `<th>${h}</th>`).join("");
-      const rows = [
-        ["Total cases", ...selected.map((s) => fmtInt.format(stateProfiles[s].total))],
-        ["Violation rate", ...selected.map((s) => `${stateProfiles[s].violation_rate}%`)],
-        ["Violation only", ...selected.map((s) => fmtInt.format(stateProfiles[s].outcomes.violation_only))],
-        ["Non-violation only", ...selected.map((s) => fmtInt.format(stateProfiles[s].outcomes.non_violation_only))],
-        ["Mixed", ...selected.map((s) => fmtInt.format(stateProfiles[s].outcomes.both))],
-        ["No finding", ...selected.map((s) => fmtInt.format(stateProfiles[s].outcomes.neither))],
-      ];
-      const bodyRows = rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("");
-      compareSummaryEl.innerHTML = `<table class="compare-summary-table"><thead><tr>${headerCells}</tr></thead><tbody>${bodyRows}</tbody></table>`;
-
-      // Trend chart
-      if (compareTrendChart) compareTrendChart.destroy();
-      compareTrendChart = createMultiLineChart(
-        compareTrendCtx,
-        compareYears,
-        selected.map((state, i) => ({
-          label: state,
-          data: stateProfiles[state].cases_by_year,
-          borderColor: COMPARE_COLORS[i % COMPARE_COLORS.length],
-          backgroundColor: `${COMPARE_COLORS[i % COMPARE_COLORS.length]}33`,
-          fill: false,
-          tension: 0.2,
-          pointRadius: 3,
-          pointHoverRadius: 5,
-        }))
-      );
-
-      // Articles chart — collect union of top articles across selected states
-      const articleSet = new Set();
-      selected.forEach((state) => {
-        (stateProfiles[state].top_violated_articles || []).forEach(([art]) => articleSet.add(art));
-      });
-      const articleLabels = [...articleSet].sort((a, b) => {
-        const na = parseInt(a, 10);
-        const nb = parseInt(b, 10);
-        if (!isNaN(na) && !isNaN(nb)) return na - nb;
-        return a.localeCompare(b);
-      });
-
-      if (compareArticlesChart) compareArticlesChart.destroy();
-      compareArticlesChart = createGroupedBarChart(
-        compareArticlesCtx,
-        articleLabels.map((a) => `Art. ${a}`),
-        selected.map((state, i) => {
-          const artMap = new Map((stateProfiles[state].top_violated_articles || []).map(([a, c]) => [a, c]));
-          return {
-            label: state,
-            data: articleLabels.map((a) => artMap.get(a) || 0),
-            backgroundColor: `${COMPARE_COLORS[i % COMPARE_COLORS.length]}CC`,
-            borderColor: COMPARE_COLORS[i % COMPARE_COLORS.length],
-            borderWidth: 1,
-            borderRadius: 5,
-          };
-        })
-      );
-    }
-
-    renderComparison();
-    compareSelects.forEach((sel) => {
-      if (sel) sel.addEventListener("change", renderComparison);
-    });
-  }
-
-  renderStateOutcomeTable(document.getElementById("stateOutcomeTable"), stateOutcomesAll);
-
-  // ── Thesaurus Topic Analytics ────────────────────────────────────────
-  const thesaurusAnalytics = data.thesaurus_analytics || {};
-
-  // Top Topics bar chart
-  const topTerms = rowsOrEmpty(thesaurusAnalytics.top_terms);
-  if (topTerms.length) {
-    const ttData = topTerms.slice(0, 25);
-    createBarChart(
-      document.getElementById("thesaurusTopChart"),
-      ttData.map((d) => truncateLabel(d[0], 50)),
-      ttData.map((d) => d[1]),
-      { horizontal: true, colors: ["#6c5db5"] }
-    );
-  }
-
-  // Topic Trends: the top 5 by default, the top 10, or up to 10 topics of your choice
-  const TREND_COLORS = ["#245ea8", "#b03e45", "#3c8d5a", "#d97a2b", "#6c5db5", "#1f8a8a", "#a3612a", "#8d4f78", "#55708f", "#7a8b2f"];
-  const termTrends = thesaurusAnalytics.term_trends || null;
-  const trendLabels = thesaurusAnalytics.terms_by_year_labels || [];
-  const termsByYear = rowsOrEmpty(thesaurusAnalytics.terms_by_year);
-  const trendYears = termTrends ? termTrends.years : termsByYear.map((d) => d[0]);
-  const trendSeries = termTrends ? termTrends.series
-    : Object.fromEntries(trendLabels.map((t, i) => [t, termsByYear.map((d) => d[i + 1] || 0)]));
-  const trendsCanvas = document.getElementById("thesaurusTrendsChart");
-  let trendsChart = null;
-  let customTopics = [];
-  const drawTrends = (topics) => {
-    if (trendsChart) trendsChart.destroy();
-    trendsChart = createMultiLineChart(trendsCanvas, trendYears, topics.filter((t) => trendSeries[t]).map((t, i) => ({
-      label: truncateLabel(t, 40),
-      data: trendSeries[t],
-      borderColor: TREND_COLORS[i % TREND_COLORS.length],
-      backgroundColor: `${TREND_COLORS[i % TREND_COLORS.length]}33`,
-      fill: false, tension: 0.2, pointRadius: 2, pointHoverRadius: 4,
-    })));
-  };
-  const topicControls = document.getElementById("topicControls");
-  const topicPicker = document.getElementById("topicPicker");
-  const topicInput = document.getElementById("topicInput");
-  const topicChips = document.getElementById("topicChips");
-  const topicOptions = document.getElementById("topicOptions");
-  const paintChips = () => {
-    topicChips.innerHTML = customTopics.map((t, i) => `<span class="topic-chip" style="border-color:${TREND_COLORS[i]}">${t
-      .replace(/</g, "&lt;")}<button type="button" data-remove="${i}" aria-label="Remove ${t.replace(/"/g, "&quot;")}">×</button></span>`).join("");
-    topicInput.disabled = customTopics.length >= 10;
-    topicInput.placeholder = customTopics.length >= 10 ? "Ten topics chosen" : "Type a topic, e.g. Article 8 or detention…";
-  };
-  const showMode = (mode) => {
-    topicControls.querySelectorAll("[data-topics]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.topics === mode)));
-    topicPicker.hidden = mode !== "custom";
-    if (mode === "custom") {
-      if (!customTopics.length) customTopics = trendLabels.slice(0, 3);
-      paintChips();
-      drawTrends(customTopics);
-      topicInput.focus();
-    } else {
-      drawTrends(trendLabels.slice(0, Number(mode)));
-    }
-  };
-  if (trendYears.length && trendLabels.length) {
-    if (topicControls && topicOptions) {
-      topicOptions.innerHTML = Object.keys(trendSeries).map((t) => `<option value="${t.replace(/"/g, "&quot;")}"></option>`).join("");
-      topicControls.addEventListener("click", (e) => {
-        const mode = e.target.closest("[data-topics]");
-        if (mode) return showMode(mode.dataset.topics);
-        const rm = e.target.closest("[data-remove]");
-        if (rm) { customTopics.splice(Number(rm.dataset.remove), 1); paintChips(); drawTrends(customTopics); }
-      });
-      const addTopic = () => {
-        const t = topicInput.value.trim();
-        if (!trendSeries[t] || customTopics.includes(t) || customTopics.length >= 10) return;
-        customTopics.push(t);
-        topicInput.value = "";
-        paintChips();
-        drawTrends(customTopics);
-      };
-      topicInput.addEventListener("input", addTopic);   // picking a suggestion fills the exact name
-      topicInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); addTopic(); } });
-    }
-    showMode("5");
-  }
-
-  // Topics by Country interactive
-  const topTermsByCountry = thesaurusAnalytics.top_terms_by_country || {};
-  const thesCountrySelect = document.getElementById("thesaurusCountrySelect");
-  const thesCountryCtx = document.getElementById("thesaurusCountryChart");
-  let thesCountryChart = null;
-
-  if (thesCountrySelect && thesCountryCtx && Object.keys(topTermsByCountry).length) {
-    const countryKeys = Object.keys(topTermsByCountry).sort((a, b) => {
-      const aTotal = (topTermsByCountry[a] || []).reduce((s, d) => s + d[1], 0);
-      const bTotal = (topTermsByCountry[b] || []).reduce((s, d) => s + d[1], 0);
-      return bTotal - aTotal;
-    });
-
-    countryKeys.forEach((country) => {
-      const opt = document.createElement("option");
-      opt.value = country;
-      opt.textContent = country;
-      thesCountrySelect.appendChild(opt);
-    });
-
-    function renderThesaurusCountry(country) {
-      const rows = topTermsByCountry[country] || [];
-      if (thesCountryChart) thesCountryChart.destroy();
-      thesCountryChart = createBarChart(
-        thesCountryCtx,
-        rows.map((d) => truncateLabel(d[0], 45)),
-        rows.map((d) => d[1]),
-        { horizontal: true, colors: ["#4f7ca6"] }
-      );
-    }
-
-    renderThesaurusCountry(countryKeys[0]);
-    thesCountrySelect.addEventListener("change", () => {
-      renderThesaurusCountry(thesCountrySelect.value);
-    });
-  }
+  createBarChart(
+    document.getElementById("keywordsChart"),
+    keywordsTop.slice(0, 20).map((d) => truncateLabel(d[0], 45)),
+    keywordsTop.slice(0, 20).map((d) => d[1]),
+    { horizontal: true, colors: ["#b28a2f"] }
+  );
 
   // ── Citation Network Analytics ──────────────────────────────────────────
   const citNet = data.citation_network || {};
@@ -1553,9 +1567,24 @@ loadDashboard()
  * these URLs from 17 sections, so they were already broken in the wild.
  * behavior:"auto" — this is a correction, not a second animation.
  */
+// Sections merged in the October 2026 redesign: old shared links land on their successor.
+const SECTION_ALIASES = {
+  "stats-chamber-trend": "stats-cases-year",
+  "stats-violation-rate-year": "stats-outcomes-year",
+  "stats-article-counts": "stats-article-rates",
+  "stats-country-rates": "stats-country-cases",
+  "stats-citations-country": "stats-country-compare",
+  "stats-thesaurus-country": "stats-country-compare",
+  "stats-admissibility-overview": "stats-inadmissibility",
+};
+
 function scrollToHashIfAny() {
   if (!location.hash) return;
-  const id = decodeURIComponent(location.hash.slice(1));
+  let id = decodeURIComponent(location.hash.slice(1));
+  if (SECTION_ALIASES[id]) {
+    id = SECTION_ALIASES[id];
+    history.replaceState(history.state, "", `#${id}`);
+  }
   const target = document.getElementById(id);
   if (!target) return;
   target.scrollIntoView({ behavior: "auto", block: "start" });

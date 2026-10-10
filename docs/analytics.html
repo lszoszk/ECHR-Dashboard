@@ -24,8 +24,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css">
   <link rel="stylesheet" href="assets/search-app.css">
-  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261010-ui3">
-  <link rel="stylesheet" href="assets/analytics-page.css?v=20261010-stats2">
+  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261010-ui4">
+  <link rel="stylesheet" href="assets/analytics-page.css?v=20261010-stats3">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1"></script>
   <script src="assets/tour.js?v=20261010-mcp" defer></script>
@@ -87,53 +87,44 @@
             </div>
 
             <div class="sidebar-category">
-              <span class="sidebar-category-label">Temporal Trends</span>
-              <a class="sidebar-link" data-target="stats-cases-year" href="#stats-cases-year">Judgments by Year</a>
-              <a class="sidebar-link" data-target="stats-chamber-trend" href="#stats-chamber-trend">Judicial Collections</a>
-              <a class="sidebar-link" data-target="stats-violation-rate-year" href="#stats-violation-rate-year">Violation Rate %</a>
-              <a class="sidebar-link" data-target="stats-outcomes-year" href="#stats-outcomes-year">Outcomes by Year</a>
+              <span class="sidebar-category-label">Respondent States</span>
+              <a class="sidebar-link" data-target="stats-state-outcomes" href="#stats-state-outcomes">Outcomes by State</a>
+              <a class="sidebar-link" data-target="stats-country-cases" href="#stats-country-cases">Judgments and violation rate</a>
+              <a class="sidebar-link" data-target="stats-country-compare" href="#stats-country-compare">State profile</a>
             </div>
 
             <div class="sidebar-category">
               <span class="sidebar-category-label">Convention Articles</span>
               <a class="sidebar-link" data-target="stats-article-rates" href="#stats-article-rates">Outcomes by Article</a>
-              <a class="sidebar-link" data-target="stats-article-counts" href="#stats-article-counts">Article Outcome Counts</a>
-              <a class="sidebar-link" data-target="stats-cited-judgments" href="#stats-cited-judgments">Most Cited Judgments</a>
             </div>
 
             <div class="sidebar-category">
-              <span class="sidebar-category-label">Respondent States</span>
-              <a class="sidebar-link" data-target="stats-country-cases" href="#stats-country-cases">Judgments by State</a>
-              <a class="sidebar-link" data-target="stats-country-rates" href="#stats-country-rates">Violation Rate by Country</a>
-              <a class="sidebar-link" data-target="stats-state-outcomes" href="#stats-state-outcomes">State Outcome Table</a>
-              <a class="sidebar-link" data-target="stats-country-compare" href="#stats-country-compare">Country Comparison</a>
-              <a class="sidebar-link" data-target="stats-citations-country" href="#stats-citations-country">Articles by State</a>
+              <span class="sidebar-category-label">Over time</span>
+              <a class="sidebar-link" data-target="stats-cases-year" href="#stats-cases-year">Judgments by formation</a>
+              <a class="sidebar-link" data-target="stats-outcomes-year" href="#stats-outcomes-year">Outcomes and violation rate</a>
             </div>
 
             <div class="sidebar-category">
-              <span class="sidebar-category-label">Thesaurus Topics</span>
-              <a class="sidebar-link" data-target="stats-thesaurus-top" href="#stats-thesaurus-top">Top Topics</a>
-              <a class="sidebar-link" data-target="stats-thesaurus-trends" href="#stats-thesaurus-trends">Topic Trends</a>
-              <a class="sidebar-link" data-target="stats-thesaurus-country" href="#stats-thesaurus-country">Topics by Country</a>
-            </div>
-
-
-            <div class="sidebar-category">
-              <span class="sidebar-category-label">Case Characteristics</span>
-              <a class="sidebar-link" data-target="stats-judgment-types" href="#stats-judgment-types">Judgment Types</a>
+              <span class="sidebar-category-label">Topics</span>
+              <a class="sidebar-link" data-target="stats-thesaurus-top" href="#stats-thesaurus-top">Top topics</a>
+              <a class="sidebar-link" data-target="stats-thesaurus-trends" href="#stats-thesaurus-trends">Topic trends</a>
             </div>
 
             <div class="sidebar-category">
-              <span class="sidebar-category-label">Admissibility</span>
-              <a class="sidebar-link" data-target="stats-inadmissibility" href="#stats-inadmissibility">Inadmissibility Grounds</a>
-              <a class="sidebar-link" data-target="stats-admissibility-overview" href="#stats-admissibility-overview">Inadmissibility &amp; Struck Out</a>
+              <span class="sidebar-category-label">Citations</span>
+              <a class="sidebar-link" data-target="stats-cited-judgments" href="#stats-cited-judgments">Most cited judgments</a>
             </div>
 
+            <div class="sidebar-category">
+              <span class="sidebar-category-label">Procedure</span>
+              <a class="sidebar-link" data-target="stats-judgment-types" href="#stats-judgment-types">Judgment types</a>
+              <a class="sidebar-link" data-target="stats-inadmissibility" href="#stats-inadmissibility">Inadmissibility and strike-outs</a>
+            </div>
 
             <div class="sidebar-category">
-              <span class="sidebar-category-label">Corpus Quality</span>
-              <a class="sidebar-link" data-target="stats-paragraphs" href="#stats-paragraphs">Paragraph Distribution</a>
-              <a class="sidebar-link" data-target="stats-coverage" href="#stats-coverage">Coverage &amp; Languages</a>
+              <span class="sidebar-category-label">About the data</span>
+              <a class="sidebar-link" data-target="stats-paragraphs" href="#stats-paragraphs">Paragraph distribution</a>
+              <a class="sidebar-link" data-target="stats-coverage" href="#stats-coverage">Coverage and languages</a>
             </div>
 
           </div>
@@ -141,102 +132,168 @@
         <!-- ── End Sidebar ───────────────────────────────────────────── -->
 
         <!-- ── Main Content ──────────────────────────────────────────── -->
+        <!-- Each chart opens with a one-sentence takeaway (.chart-takeaway), computed
+             from the data in pages-dashboard.js. Outcome colours (Okabe–Ito) and
+             formation colours are fixed there and used identically in every chart. -->
         <div class="stats-main" id="statsMain" aria-busy="true">
 
-          <!-- ① Key Statistics (KPIs) -->
+          <!-- 1 · At a glance -->
           <section class="chart-section" id="stats-kpi">
             <h2 class="chart-section-title">At a glance</h2>
-            <p class="chart-section-desc">The essentials from the verified judgment catalog. Text totals combine the current production inventory with newly downloaded local sources.</p>
             <div id="kpiGrid" class="kpi-row compact-metrics"></div>
-            <p id="textCoverageSummary" class="text-coverage-summary"></p>
+            <p class="how-we-count"><strong>How we count.</strong> Every figure counts judgments, not applications. A judgment that decides several Articles counts under each, so the Article bars do not add up to the total, and a judgment against several States counts once for each State. Committee judgments are included; admissibility decisions are not, nor are the 31 Grand Chamber decisions that Search holds. <span id="howCountDate"></span> <a href="methodology.html#scope-judgments-in-english">Methodology</a></p>
           </section>
 
-          <!-- ② Judgments by Year -->
-          <section class="chart-section" id="stats-cases-year">
-            <h2 class="chart-section-title">Judgments by Year</h2>
-            <p class="chart-section-desc">Number of ECHR judgments delivered per calendar year since the Court's inception, illustrating the steady growth of the Strasbourg docket over six decades.</p>
-            <p class="chart-caveat">The final bar is a <strong>partial year</strong> — the corpus ends part-way through it (see the catalog cut-off above), so the last column counts only the months harvested so far. It is a cut-off, not a collapse in the Court’s output. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
-            <div class="chart-canvas-wrap">
-              <canvas id="casesYearChart"></canvas>
+          <!-- 2 · Respondent States -->
+          <section class="chart-section" id="stats-state-outcomes">
+            <h2 class="chart-section-title">Outcomes by respondent State
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-state-outcomes')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Every respondent State, in the columns of the Court's own table <em>Violations by Article and by State</em> as far as the HUDOC metadata allow. Click a column heading to sort.</p>
+            <p class="chart-takeaway" id="stateTableTakeaway"></p>
+            <div id="stateOutcomeTable" class="state-outcome-wrap"></div>
+            <p class="chart-caveat">Violation rate = judgments with at least one violation ÷ all judgments against the State. <em>Other</em> = judgments with no violation or no-violation tag that neither strike out nor record a friendly settlement: mostly just-satisfaction judgments, and some whose HUDOC record lacks the outcome tag. States with fewer than 20 judgments are greyed: their rates rest on too few cases.</p>
+          </section>
+
+          <section class="chart-section" id="stats-country-cases">
+            <h2 class="chart-section-title">Judgments and violation rate by State
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-country-cases')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">The 15 States with the most judgments, and all others together. Bar length is the number of judgments, colours split it by outcome, and the label gives judgments · share with at least one violation.</p>
+            <p class="chart-takeaway" id="stateChartTakeaway"></p>
+            <div class="chart-canvas-wrap"><canvas id="countriesChart"></canvas></div>
+          </section>
+
+          <section class="chart-section" id="stats-country-compare">
+            <h2 class="chart-section-title">State profile
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-country-compare')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Pick one to three States: their judgments by year, the Articles most often found violated and their most frequent HUDOC topics, as shares of each State's judgments so that States of different size compare.</p>
+            <div class="chart-controls">
+              <label for="compareState1">State</label>
+              <select id="compareState1" class="chart-select"></select>
+              <label for="compareState2" class="visually-hidden">Second State</label>
+              <select id="compareState2" class="chart-select"></select>
+              <label for="compareState3" class="visually-hidden">Third State</label>
+              <select id="compareState3" class="chart-select"></select>
+            </div>
+            <p class="chart-takeaway" id="compareTakeaway" aria-live="polite"></p>
+            <div id="compareSummaryTable" class="compare-summary-wrap"></div>
+            <div class="compare-charts-grid">
+              <div class="compare-chart-wrap compare-wide">
+                <h4 class="chart-subtitle">Judgments by year</h4>
+                <div class="chart-canvas-wrap"><canvas id="compareTrendChart"></canvas></div>
+              </div>
+              <div class="compare-chart-wrap">
+                <h4 class="chart-subtitle">Articles found violated (% of the State's judgments)</h4>
+                <div class="chart-canvas-wrap"><canvas id="compareArticlesChart"></canvas></div>
+              </div>
+              <div class="compare-chart-wrap">
+                <h4 class="chart-subtitle">Most frequent topics (% of the State's judgments; no bar = outside its top ten)</h4>
+                <div class="chart-canvas-wrap"><canvas id="thesaurusCountryChart"></canvas></div>
+              </div>
             </div>
           </section>
 
-          <section class="chart-section" id="stats-chamber-trend">
-            <h2 class="chart-section-title">Judicial Collections Over Time</h2>
-            <p class="chart-section-desc">Annual output from the Grand Chamber, Chambers and three-judge Committees. Counts come from the official judicial collection, not inference from case titles.</p>
-            <p class="chart-caveat">The final year is partial through the catalog cut-off shown above.</p>
-            <div class="chart-canvas-wrap"><canvas id="chamberTrendChart"></canvas></div>
-          </section>
-
-          <!-- ③ Violation Rate by Year -->
-          <section class="chart-section" id="stats-violation-rate-year">
-            <h2 class="chart-section-title">Violation Rate by Year (%)</h2>
-            <p class="chart-section-desc">Share of judgment records with at least one tagged violation, by calendar year. Includes judgments without a tagged merits finding in the denominator; it is not an application success rate or a measure of state compliance.</p>
-            <p class="chart-caveat">The final year is <strong>partial</strong> and rests on far fewer cases, so its rate is noisier than the rest of the series. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
-            <div class="chart-canvas-wrap">
-              <canvas id="violationRateYearChart" style="height:400px"></canvas>
-            </div>
-          </section>
-
-          <!-- ④ Outcomes by Year -->
-          <section class="chart-section" id="stats-outcomes-year">
-            <h2 class="chart-section-title">Outcomes by Year</h2>
-            <p class="chart-section-desc">Annual breakdown of case outcomes — violation only, non-violation only, mixed findings, and no finding — showing how the Court's caseload composition has evolved over time.</p>
-            <p class="chart-caveat">The final year is <strong>partial</strong> (the corpus ends part-way through it — see the catalog cut-off above); read the last column as an incomplete sample, not a trend. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
-            <div class="chart-canvas-wrap">
-              <canvas id="outcomesYearChart"></canvas>
-            </div>
-          </section>
-
-          <!-- ⑤ Primary-article outcomes -->
+          <!-- 3 · Convention Articles -->
           <section class="chart-section" id="stats-article-rates">
-            <h2 class="chart-section-title">Outcomes by Article</h2>
-            <p class="chart-section-desc">Compare main Convention and Protocol articles, not combinations or subparagraphs. The violation share counts judgments with at least one violation tag, out of judgments with a violation or non-violation tag for that article.</p>
+            <h2 class="chart-section-title">Outcomes by Convention Article
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-article-rates')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Judgments with a violation or no-violation tag for each Article (subparagraphs count under their Article). Bar length is the number of such judgments (n), colours split it by outcome, and the label gives n · share with at least one violation.</p>
             <div class="chart-controls article-controls">
-              <label for="articleRateSort">Order</label>
-              <select id="articleRateSort" class="chart-select">
-                <option value="volume">Most judgments</option>
-                <option value="highest">Highest violation share</option>
-                <option value="lowest">Lowest violation share</option>
-                <option value="article">Article order</option>
-              </select>
-              <label for="articleRateMinimum">Minimum sample</label>
-              <select id="articleRateMinimum" class="chart-select">
-                <option value="100" selected>100 judgments</option>
-                <option value="500">500 judgments</option>
-                <option value="50">50 judgments</option>
-                <option value="1">All with outcome tags</option>
-              </select>
+              <span id="articleSortLabel">Order</span>
+              <div class="seg" role="group" aria-labelledby="articleSortLabel">
+                <button type="button" data-article-sort="count" aria-pressed="true">By judgments</button>
+                <button type="button" data-article-sort="convention" aria-pressed="false">Convention order</button>
+              </div>
             </div>
-            <p id="articleRateSummary" class="chart-caveat" aria-live="polite"></p>
-            <div id="articleRateHighlights" class="article-highlights"></div>
-            <div class="chart-canvas-wrap article-rate-wrap">
-              <canvas id="articleViolationRateChart"></canvas>
-            </div>
+            <p class="chart-takeaway" id="articleTakeaway"></p>
+            <div class="chart-canvas-wrap"><canvas id="articleViolationRateChart"></canvas></div>
             <details class="article-method">
               <summary>Exact counts for this view</summary>
               <div class="article-table-scroll"><table class="article-outcome-table">
-                <caption>Each judgment counts once per article. Mixed means both outcome tags for different complaints or aspects.</caption>
-                <thead><tr><th scope="col">Article</th><th scope="col">Violation share</th><th scope="col">With outcome</th><th scope="col">Violation only</th><th scope="col">Mixed</th><th scope="col">Non-violation only</th><th scope="col">No outcome tag</th></tr></thead>
+                <caption>Each judgment counts once per Article. Both outcomes = a violation and a no-violation tag for different complaints or aspects.</caption>
+                <thead><tr><th scope="col">Article</th><th scope="col">Violation share</th><th scope="col">With outcome (n)</th><th scope="col">Violation only</th><th scope="col">Both outcomes</th><th scope="col">No violation only</th><th scope="col">No outcome tag</th></tr></thead>
                 <tbody id="articleOutcomeRows"></tbody>
               </table></div>
             </details>
-            <p class="chart-caveat">Example: 6-1 and 6-3-d count once under Article 6; P1-1 remains Protocol 1, Article 1. Linked tags such as 14+8 contribute to both article families, not necessarily two standalone findings. Mixed judgments appear in the violation share, but are shown separately. No outcome tag does not mean no violation. English/French text versions are not counted twice.</p>
-            <p class="chart-caveat">This is a descriptive metadata comparison, not the probability of winning a claim. <a href="https://www.echr.coe.int/documents/d/echr/hudoc_manual_eng" target="_blank" rel="noopener">HUDOC tag conventions</a>.</p>
+            <p class="chart-caveat">Example: 6-1 and 6-3-d count once under Article 6; P1-1 is Protocol No. 1, Article 1. Linked tags such as 14+8 count under both Articles. Judgments without an outcome tag for the Article are left out of n: no tag does not mean no violation. <span id="articleHiddenNote"></span> A description of HUDOC metadata, not the probability of winning a claim. <a href="https://www.echr.coe.int/documents/d/echr/hudoc_manual_eng" target="_blank" rel="noopener">HUDOC tag conventions</a></p>
           </section>
 
-          <!-- ⑥ Article Outcome Counts -->
-          <section class="chart-section" id="stats-article-counts">
-            <h2 class="chart-section-title">Article Outcome Counts</h2>
-            <p class="chart-section-desc">Judgments with outcome tags, grouped by main article. The 15 largest samples are shown, split into mutually exclusive violation-only, mixed and non-violation-only buckets. Uses the same article families as the comparison above; linked findings are included.</p>
-            <div class="chart-canvas-wrap">
-              <canvas id="articleOutcomesCountChart" style="height:450px"></canvas>
+          <!-- 4 · Over time -->
+          <section class="chart-section" id="stats-cases-year">
+            <h2 class="chart-section-title">Judgments by year and formation
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-cases-year')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Judgments delivered each year by the Grand Chamber, Chambers and three-judge Committees; the bar height is the year's total.</p>
+            <p class="chart-takeaway" id="formationTakeaway"></p>
+            <div class="chart-canvas-wrap" style="height:420px"><canvas id="casesYearChart"></canvas></div>
+            <p class="chart-note">Dashed lines: Protocol No. 11 in force, 1 November 1998 (the single full-time Court); Protocol No. 14 in force, 1 June 2010 (Committees begin to give judgments on the merits); Russia ceases to be a party to the Convention, 16 September 2022. The final year is partial: the catalog ends at its cut-off.</p>
+          </section>
+
+          <section class="chart-section" id="stats-outcomes-year">
+            <h2 class="chart-section-title">Outcomes and violation rate by year
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-outcomes-year')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Each year's judgments split by outcome, as shares of 100%; the line is the share with at least one violation.</p>
+            <div class="chart-controls">
+              <span id="formationLabel">Formation</span>
+              <div class="seg" role="group" aria-labelledby="formationLabel">
+                <button type="button" data-formation="all" aria-pressed="true">All</button>
+                <button type="button" data-formation="chamber" aria-pressed="false">Chamber &amp; Grand Chamber</button>
+                <button type="button" data-formation="committee" aria-pressed="false">Committee</button>
+              </div>
+            </div>
+            <p class="chart-takeaway" id="outcomeYearTakeaway"></p>
+            <div class="chart-canvas-wrap" style="height:440px"><canvas id="outcomesYearChart"></canvas></div>
+            <p class="chart-caveat">Committee judgments (since 2010) apply well-established case-law and nearly always find a violation, so they push the overall rate up: compare the formations above. Years with fewer than 20 judgments in the selected formation are faded and have no rate. The final year is partial. Not an application success rate. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
+          </section>
+
+          <!-- 5 · Topics -->
+          <section class="chart-section" id="stats-thesaurus-top">
+            <h2 class="chart-section-title">HUDOC topics
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-thesaurus-top')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">The 25 most frequent HUDOC thesaurus keywords: the Registry's controlled vocabulary for the legal themes, Convention provisions and procedural aspects of each judgment.</p>
+            <p class="chart-takeaway" id="topicTakeaway"></p>
+            <div class="chart-canvas-wrap" style="height:680px;">
+              <canvas id="thesaurusTopChart"></canvas>
             </div>
           </section>
 
+          <section class="chart-section" id="stats-thesaurus-trends">
+            <h2 class="chart-section-title">Topic trends
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-thesaurus-trends')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Judgments per year tagged with a HUDOC topic: the five most frequent, the top ten, or up to ten of your choice (start typing to see the topics available). With more than five lines, hover over or click a topic in the legend to pick out its line.</p>
+            <div class="chart-controls topic-controls" id="topicControls">
+              <div class="seg" role="group" aria-label="Topics shown">
+                <button type="button" data-topics="5" aria-pressed="true">Top 5</button>
+                <button type="button" data-topics="10" aria-pressed="false">Top 10</button>
+                <button type="button" data-topics="custom" aria-pressed="false">Your choice</button>
+              </div>
+              <div class="topic-picker" id="topicPicker" hidden>
+                <label class="visually-hidden" for="topicInput">Add a topic</label>
+                <input type="text" id="topicInput" class="topic-input" list="topicOptions" autocomplete="off">
+                <datalist id="topicOptions"></datalist>
+                <div class="topic-chips" id="topicChips"></div>
+              </div>
+            </div>
+            <p class="chart-takeaway" id="trendTakeaway" aria-live="polite"></p>
+            <div class="chart-canvas-wrap" style="height:460px">
+              <canvas id="thesaurusTrendsChart"></canvas>
+            </div>
+            <p class="chart-note">The final year is partial: the catalog ends at its cut-off.</p>
+          </section>
+
+          <!-- 6 · Citations -->
           <section class="chart-section" id="stats-cited-judgments">
-            <h2 class="chart-section-title">Most Cited Judgments</h2>
+            <h2 class="chart-section-title">Most cited judgments
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-cited-judgments')">&#x1F517;</button>
+            </h2>
             <p class="chart-section-desc">Top 20 by unique citing judgments, using resolved HUDOC citation metadata: the curated case-law lists, or those plus the application numbers HUDOC extracted from each judgment's text. English/French versions and repeated citations count once; different judgments in the same application remain separate.</p>
+            <p class="chart-takeaway" id="citationTakeaway"></p>
             <p id="judgmentCitationCoverage" class="chart-caveat" aria-live="polite">Loading the citation snapshot...</p>
             <div class="chart-canvas-wrap judgment-citation-canvas"><canvas id="judgmentCitationsChart"></canvas></div>
             <div class="chart-controls article-controls">
@@ -263,232 +320,68 @@
             </details>
           </section>
 
-
-          <!-- ⑧ Judgments by State -->
-          <section class="chart-section" id="stats-country-cases">
-            <h2 class="chart-section-title">Judgments by State</h2>
-            <p class="chart-section-desc">Judgment records by respondent state. Counts describe the selected judgment catalog, not all applications, admissibility decisions or population-adjusted litigation rates.</p>
-            <p class="chart-caveat">Counts use the complete verified judgment catalog, including records whose available source text is French. A multi-state judgment contributes once to each respondent state, so state totals can exceed the judgment count.</p>
-            <div class="chart-canvas-wrap">
-              <canvas id="countriesChart"></canvas>
-            </div>
-          </section>
-
-          <!-- ⑨ Violation Rate by Country -->
-          <section class="chart-section" id="stats-country-rates">
-            <h2 class="chart-section-title">Violation Rate by Country
-              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-country-rates')">🔗</button>
-            </h2>
-            <p class="chart-section-desc">Proportion of cases resulting in at least one violation finding per respondent state (top 25 by caseload, minimum 10 cases). Normalises raw case counts to reveal which states have the highest per-case breach rates.</p>
-            <p class="chart-caveat">Rates use the verified English-flagged HUDOC metadata catalog, including judgments whose inventoried source text is French. Language versions are not counted twice; see the catalog scope and language limits at the top.</p>
-            <div class="chart-canvas-wrap" style="height:620px;">
-              <canvas id="countryRatesChart"></canvas>
-            </div>
-          </section>
-
-          <!-- ⑩ State Outcome Table -->
-          <section class="chart-section" id="stats-state-outcomes">
-            <h2 class="chart-section-title">State Outcome Table
-              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-state-outcomes')">🔗</button>
-            </h2>
-            <p class="chart-section-desc">Outcomes (violation only, non-violation only, mixed, no tagged finding) and the violation rate for every respondent State. Click a column heading to sort; States with fewer than 5 judgments are greyed, as their rates rest on very few cases.</p>
-            <div id="stateOutcomeTable" class="state-outcome-wrap"></div>
-          </section>
-
-          <!-- ⑩b Country Comparison Tool -->
-          <section class="chart-section" id="stats-country-compare">
-            <h2 class="chart-section-title">Country Comparison
-              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-country-compare')">🔗</button>
-            </h2>
-            <p class="chart-section-desc">Compare caseload trends and most frequently violated articles across up to three respondent states. Pre-populated with the three highest-volume states — change any dropdown to update the charts.</p>
-            <div class="chart-controls">
-              <label for="compareState1">State 1</label>
-              <select id="compareState1" class="chart-select"></select>
-              <label for="compareState2">State 2</label>
-              <select id="compareState2" class="chart-select"></select>
-              <label for="compareState3">State 3</label>
-              <select id="compareState3" class="chart-select">
-                <option value="">(none)</option>
-              </select>
-            </div>
-            <div id="compareSummaryTable" class="compare-summary-wrap"></div>
-            <div class="compare-charts-grid">
-              <div class="compare-chart-wrap">
-                <h4 class="chart-subtitle">Judgments by Year</h4>
-                <div class="chart-canvas-wrap" style="height:360px">
-                  <canvas id="compareTrendChart"></canvas>
-                </div>
-              </div>
-              <div class="compare-chart-wrap">
-                <h4 class="chart-subtitle">Top Violated Articles</h4>
-                <div class="chart-canvas-wrap" style="height:360px">
-                  <canvas id="compareArticlesChart"></canvas>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <!-- Articles by Respondent State (article × state) -->
-          <section class="chart-section" id="stats-citations-country">
-            <h2 class="chart-section-title">Articles by Respondent State</h2>
-            <p class="chart-section-desc">Top respondent states in cases involving a given Convention article — select an article to see which countries are most litigated under that provision, with total case counts and violation counts side by side.</p>
-            <div class="chart-controls">
-              <label for="articleStateSelect">Convention Article:</label>
-              <select id="articleStateSelect" class="chart-select"></select>
-            </div>
-            <div class="chart-canvas-wrap">
-              <canvas id="articleByStateChart"></canvas>
-            </div>
-          </section>
-
-          <!-- Thesaurus: Top Topics -->
-          <section class="chart-section" id="stats-thesaurus-top">
-            <h2 class="chart-section-title">HUDOC Thesaurus Topics
-              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-thesaurus-top')">&#x1F517;</button>
-            </h2>
-            <p class="chart-section-desc">Distribution of HUDOC thesaurus keywords across all judgments. These controlled-vocabulary tags are assigned by the Court's registry and capture the legal themes, Convention articles, and procedural aspects of each case (see measured field coverage below).</p>
-            <div class="chart-canvas-wrap" style="height:680px;">
-              <canvas id="thesaurusTopChart"></canvas>
-            </div>
-          </section>
-
-          <!-- Thesaurus: Topic Trends -->
-          <section class="chart-section" id="stats-thesaurus-trends">
-            <h2 class="chart-section-title">Topic Trends Over Time
-              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-thesaurus-trends')">&#x1F517;</button>
-            </h2>
-            <p class="chart-section-desc">Judgments per year tagged with a HUDOC thesaurus topic: the five most common by default, the top ten, or up to ten topics of your choice (start typing to see the topics available).</p>
-            <div class="chart-controls topic-controls" id="topicControls">
-              <div class="topic-seg" role="group" aria-label="Topics shown">
-                <button type="button" data-topics="5" aria-pressed="true">Top 5</button>
-                <button type="button" data-topics="10" aria-pressed="false">Top 10</button>
-                <button type="button" data-topics="custom" aria-pressed="false">Your choice</button>
-              </div>
-              <div class="topic-picker" id="topicPicker" hidden>
-                <label class="visually-hidden" for="topicInput">Add a topic</label>
-                <input type="text" id="topicInput" class="topic-input" list="topicOptions" autocomplete="off">
-                <datalist id="topicOptions"></datalist>
-                <div class="topic-chips" id="topicChips"></div>
-              </div>
-            </div>
-            <p class="chart-caveat">The final year is <strong>partial</strong> — the corpus ends part-way through it. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
-            <div class="chart-canvas-wrap">
-              <canvas id="thesaurusTrendsChart"></canvas>
-            </div>
-          </section>
-
-          <!-- Thesaurus: Topics by Country -->
-          <section class="chart-section" id="stats-thesaurus-country">
-            <h2 class="chart-section-title">Top Topics by Country
-              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-thesaurus-country')">&#x1F517;</button>
-            </h2>
-            <p class="chart-section-desc">Select a respondent state to see which thesaurus topics dominate its caseload. Reveals which legal issues are most litigated in each country.</p>
-            <div class="chart-controls">
-              <label for="thesaurusCountrySelect">Respondent State:</label>
-              <select id="thesaurusCountrySelect" class="chart-select"></select>
-            </div>
-            <div class="chart-canvas-wrap" style="height:400px;">
-              <canvas id="thesaurusCountryChart"></canvas>
-            </div>
-          </section>
-
-
-
-
-
-
-          <!-- Citation Network: Landmark Cases -->
-
-
-          <!-- Citation Network: Citation Distribution -->
-
-
-          <!-- Citation Network: Citation Age -->
-
-
-          <!-- Citation Network: Cross-Article Heatmap -->
-
-
-          <!-- Citation Network: Cross-State Influence -->
-
-
-          <!-- Citation Network: PageRank & Betweenness -->
-
-
-          <!-- ⑪ Case Duration (placeholder) -->
-
-
-          <!-- ⑫ Judgment Types -->
+          <!-- 7 · Procedure -->
           <section class="chart-section" id="stats-judgment-types">
-            <h2 class="chart-section-title">Judgment Types</h2>
-            <p class="chart-section-desc">Structural breakdown of the corpus by chamber composition, ECHR importance classification, outcome category, procedural versus substantive wording in conclusions, and judicial collection.</p>
+            <h2 class="chart-section-title">Judgment types</h2>
+            <p class="chart-section-desc">The judgments by formation, HUDOC importance level, outcome, procedural or substantive wording in the conclusion, and share with a separate opinion.</p>
+            <p class="chart-takeaway" id="typesTakeaway"></p>
             <div class="chart-row">
               <article class="chart-container">
-                <h3 class="chart-title">Chamber Split</h3>
+                <h3 class="chart-title">Formation</h3>
                 <canvas id="chamberChart"></canvas>
               </article>
               <article class="chart-container">
-                <h3 class="chart-title">Importance Distribution</h3>
+                <h3 class="chart-title">Importance level</h3>
                 <canvas id="importanceChart"></canvas>
               </article>
             </div>
             <div class="chart-row" style="margin-top: var(--gap);">
               <article class="chart-container">
-                <h3 class="chart-title">Outcome Composition</h3>
+                <h3 class="chart-title">Outcome</h3>
                 <canvas id="outcomesChart"></canvas>
               </article>
               <article class="chart-container">
-                <h3 class="chart-title">Procedural / Substantive Wording</h3>
+                <h3 class="chart-title">Procedural / substantive wording</h3>
                 <canvas id="proceduralSubstantiveChart"></canvas>
               </article>
             </div>
             <div class="chart-row" style="margin-top: var(--gap);">
               <article class="chart-container">
-                <h3 class="chart-title">Separate Opinion Share by Body</h3>
+                <h3 class="chart-title">Separate opinion share by formation</h3>
                 <canvas id="separateByBodyChart"></canvas>
               </article>
             </div>
           </section>
 
-          <!-- ⑬ Inadmissibility Grounds -->
           <section class="chart-section" id="stats-inadmissibility">
-            <h2 class="chart-section-title">Inadmissibility Grounds</h2>
-            <p class="chart-section-desc">The most frequently cited grounds for declaring applications inadmissible, showing the procedural and substantive barriers applicants most often fail to satisfy before the Court.</p>
-            <p class="chart-caveat">Admissibility <em>Decisions</em> are outside this corpus entirely. This measures inadmissibility <strong>as discussed within judgments</strong>, not the Court’s actual filtering of applications. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
-            <div class="chart-canvas-wrap">
-              <canvas id="inadmissibilityGroundsChart" style="height:500px"></canvas>
+            <h2 class="chart-section-title">Inadmissibility and strike-outs in judgments</h2>
+            <p class="chart-section-desc">Judgments whose conclusion declares part of the application inadmissible or strikes it out of the list, and the inadmissibility grounds the conclusion names.</p>
+            <p class="chart-caveat">Admissibility decisions are outside this corpus, so this is <strong>not</strong> the Court's filtering rate: most applications are declared inadmissible or struck out by a decision and never reach a judgment. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
+            <p class="chart-takeaway" id="inadmissibilityTakeaway"></p>
+            <div class="chart-canvas-wrap" style="height:420px">
+              <canvas id="inadmissibilityGroundsChart"></canvas>
             </div>
           </section>
 
-          <!-- ⑭ Inadmissibility & Struck Out -->
-          <section class="chart-section" id="stats-admissibility-overview">
-            <h2 class="chart-section-title">Inadmissibility &amp; Struck Out</h2>
-            <p class="chart-section-desc">Judgments whose conclusion mentions inadmissibility or striking out. Standalone admissibility decisions are excluded; this does not measure the Court's filtering of applications.</p>
-            <div class="chart-canvas-wrap">
-              <canvas id="inadmissibilityChart"></canvas>
-            </div>
-          </section>
-
-
-
-          <!-- ⑰ Paragraph Distribution -->
-          <section class="chart-section" id="stats-paragraphs">
-            <h2 class="chart-section-title">Paragraph Distribution</h2>
-            <p class="chart-section-desc">Nonempty text rows by parser/index section, combining inventoried production text and local English/French source bundles. Header and applicant-table rows are included; this is not a count of numbered judicial paragraphs.</p>
-            <p class="chart-caveat">French text is included. Section assignment in newly parsed bundles has not yet undergone source-exact QA. Applicant tables can dominate Appendix counts; compare structural rows cautiously.</p>
-            <div class="chart-canvas-wrap">
+          <!-- 8 · About the data -->
+          <section class="chart-section about-data" id="stats-paragraphs">
+            <h2 class="chart-section-title">Paragraph distribution</h2>
+            <p class="chart-section-desc">Non-empty text rows by section of the judgment, from the production texts and the local English and French source bundles. Header and applicant-table rows are included, so this is not a count of numbered paragraphs. <a href="methodology.html">Methodology</a></p>
+            <p class="chart-takeaway" id="paragraphTakeaway"></p>
+            <div class="chart-canvas-wrap" style="height:440px">
               <canvas id="sectionsChart"></canvas>
             </div>
+            <p class="chart-note">French texts are included; section labels in the newly parsed bundles have not yet had source-exact checks, and applicant tables can dominate the Appendix count.</p>
           </section>
 
-          <!-- ⑱ Coverage Notes (placeholder) -->
-          <section class="chart-section" id="stats-coverage">
-            <h2 class="chart-section-title">Coverage &amp; Source Languages</h2>
-            <p class="chart-section-desc">Measured availability, not an accuracy score. A blank optional field does not mean a judgment contains no discussion of that subject.</p>
+          <section class="chart-section about-data" id="stats-coverage">
+            <h2 class="chart-section-title">Coverage and languages</h2>
+            <p class="chart-section-desc">How many judgments carry each metadata field, and the language of the texts. Availability, not an accuracy score: a blank field does not mean the judgment does not discuss the subject. <a href="methodology.html">Methodology</a></p>
+            <p id="textCoverageSummary" class="text-coverage-summary"></p>
             <div id="coverageTable" class="coverage-table-wrap"></div>
             <h3 class="chart-section-subtitle">Language of inventoried judgment texts</h3>
-            <p class="chart-caveat">An English metadata flag does not prove an English source text exists. Older production texts have no confirmed source-language field, so they remain unknown rather than being guessed as English. French bundles are original texts, not translations generated by this tool.</p>
-            <div class="chart-canvas-wrap"><canvas id="textLanguageChart"></canvas></div>
+            <p class="chart-note">An English metadata flag does not prove that an English text exists. Older production texts have no recorded source language and stay unknown rather than guessed. French bundles are original texts, not translations made by this tool.</p>
+            <div class="chart-canvas-wrap" style="height:200px"><canvas id="textLanguageChart"></canvas></div>
           </section>
 
         </div>
@@ -720,7 +613,7 @@
   <!-- Plain (non-defer) and in this order: chart-tools.js must register its
        Chart.js plugin before pages-dashboard.js constructs any chart. -->
   <script src="assets/echr-export-core.js?v=20260802-export"></script>
-  <script src="assets/chart-tools.js?v=20260802-cite"></script>
-  <script src="assets/pages-dashboard.js?v=20261010-stats"></script>
+  <script src="assets/chart-tools.js?v=20261010-stats3"></script>
+  <script src="assets/pages-dashboard.js?v=20261010-stats3"></script>
 </body>
 </html>
