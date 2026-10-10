@@ -43,11 +43,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css?v=20261010-ui3">
   <link rel="stylesheet" href="assets/search-app.css?v=20260727-reading-space">
-  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261010-mob">
+  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261010-mob2">
   <link rel="stylesheet" href="assets/judgment-hudoc.css?v=20260706-deadmodal">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
-  <script src="assets/tour.js?v=20261010-cit" defer></script>
+  <script src="assets/tour.js?v=20261010-mob2" defer></script>
   <script src="assets/workspace.js?v=20261010-ws"></script>
   <script src="assets/cite.js?v=20261010-cite" defer></script>
 </head>
@@ -69,6 +69,7 @@
         <a href="workspace.html" class="nav-link">Workspace <span class="ws-count" data-ws-count hidden></span></a>
         <a href="analytics.html" class="nav-link">Statistics</a>
         <a href="about.html" class="nav-link">About</a>
+        <a href="about.html#scope" class="nav-disclaimer">Not affiliated with the ECtHR &middot; not legal advice</a>
       </div>
     </div>
   </nav>
@@ -144,7 +145,12 @@
     </section>
 
     <div class="results-layout editorial-workspace">
-      <aside class="editorial-filter-rail" aria-label="Search filters">
+      <aside class="editorial-filter-rail" id="filterRail" aria-label="Search filters">
+        <!-- Phones and small tablets: the rail opens as a full-screen sheet from #filtersSheetBtn. -->
+        <div class="rail-sheet-head">
+          <span class="rail-sheet-title">Filters</span>
+          <button type="button" class="rail-sheet-done" id="filtersSheetDone">Done</button>
+        </div>
         <!-- What is searched: which texts (collection), then which parts of them.
              Outside #filtersPanel: its own change listener re-runs the search. -->
         <div class="rail-scope" id="bucketScope">
@@ -287,6 +293,7 @@
       </aside>
 
       <div class="results-main">
+        <button type="button" class="filters-sheet-btn" id="filtersSheetBtn" aria-controls="filterRail" aria-expanded="false">Filters<span id="filtersSheetCount"></span></button>
         <p class="mt-notice" id="mtNotice" role="status" hidden>
           The search includes <strong>English machine translations</strong> of <span id="mtCount">some</span>
           judgments that HUDOC publishes only in French. They are marked <em>Only in French on HUDOC · machine
@@ -557,6 +564,6 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
-  <script src="assets/search-app.js?v=20261010-cnt"></script>
+  <script src="assets/search-app.js?v=20261010-mob2"></script>
 </body>
 </html>

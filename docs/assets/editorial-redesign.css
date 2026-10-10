@@ -2610,3 +2610,58 @@ body { padding-bottom: var(--bar-h); }
   /* the dot alone; the word stays for screen readers */
   .site-footer .api-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
+
+/* ── Phones and small tablets, follow-up (Oct 2026) ─────────────────────────
+   Also inside max-width queries only. */
+/* The navbar stays at the top: dashboard.css (≤ 768 px) sets overflow-x: hidden on html, body,
+   .stats-page and .main-content against sideways scrolling, which made body a scroll container
+   and broke position: sticky. clip cuts the overflow the same way without creating one. */
+@media (max-width: 768px) {
+  html, body, .stats-page, .main-content { overflow-x: clip; }
+}
+/* "Not affiliated with the ECtHR · not legal advice": the bottom bar's credits are hidden on
+   phones, so the line closes the ☰ menu there instead. */
+.nav-links .nav-disclaimer { display: none; }
+/* Search filters: the "Filters" button above the results, and the rail's own head; both phone-only. */
+.filters-sheet-btn, .rail-sheet-head { display: none; }
+@media (max-width: 860px) {
+  .nav-links .nav-disclaimer {
+    display: block; margin-top: 6px; padding: 10px 0 2px; border-top: 1px solid var(--rule);
+    font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.04em; line-height: 1.5;
+    color: var(--ink-3); text-decoration: none;
+  }
+  .nav-links .nav-disclaimer:hover { color: var(--garnet); }
+
+  .filters-sheet-btn {
+    display: inline-flex; align-items: center; min-height: 36px; margin: 0 0 14px; padding: 0 14px; cursor: pointer;
+    font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink); background: var(--paper); border: 1px solid var(--ink); border-radius: 3px;
+  }
+  .filters-sheet-btn.has-active { color: var(--paper); background: var(--garnet); border-color: var(--garnet); }
+  /* the rail: out of the page until opened, then a full-screen sheet above the navbar and bottom bar */
+  .editorial-filter-rail { display: none; }
+  .filters-sheet-open, .filters-sheet-open body { overflow: hidden; }
+  .filters-sheet-open .editorial-filter-rail {
+    display: block; position: fixed; inset: 0; z-index: 320; height: auto; max-height: none;
+    align-self: stretch; /* the grid's align-self: start would size the fixed box to its content */
+    overflow-y: auto; overscroll-behavior: contain; border: 0;
+  }
+  .filters-sheet-open .rail-sheet-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    position: sticky; top: 0; z-index: 3; padding: 10px 16px 10px 22px;
+    background: var(--paper); border-bottom: 1px solid var(--ink);
+  }
+  .rail-sheet-title { font-family: var(--font-serif); font-size: 1.15rem; font-weight: 600; color: var(--ink); }
+  .rail-sheet-done {
+    min-height: 36px; padding: 0 16px; cursor: pointer;
+    font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--paper); background: var(--ink); border: 1px solid var(--ink); border-radius: 3px;
+  }
+  .rail-sheet-done:hover { background: var(--garnet); border-color: var(--garnet); }
+  /* thumb-sized controls (≥ 32 px high) */
+  .filter-mode button { min-height: 32px; padding: 0 12px; }
+  .researcher-result .card-act, .researcher-result .card-act.expand-paras-btn { min-height: 32px; }
+  /* Statistics: the judgment links in the table rows; the padding is taken back by the margin,
+     so the rows keep their height */
+  .article-outcome-table th a { display: inline-block; padding: 7px 0; margin: -7px 0; }
+}

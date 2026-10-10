@@ -58,7 +58,28 @@
   .tour-dots{display:flex;gap:8px}
   .tour-dots .tdot{width:7px;height:7px;padding:0;border-radius:50%;background:var(--rule,#d8d0c3)}
   .tour-dots .tdot.on{background:var(--garnet,#8d2f2f)}
-  @media (max-width:600px){.tour-slides{padding:22px 18px 14px}.tour-h{font-size:1.35rem}.tour-nav{padding:10px 18px}}`;
+  .tour-views .s{display:none}
+  @media (max-width:600px){.tour-slides{padding:22px 18px 14px}.tour-h{font-size:1.35rem}.tour-nav{padding:10px 18px}}
+  /* phones: every slide fits a 375 x 667 screen without scrolling, Skip / Next always in view */
+  @media (max-width:860px){.tour-nav button:not(.tdot){min-height:36px;padding:0 4px}}
+  @media (max-width:600px){
+    .tourwrap{padding:10px}
+    .tour-box{max-height:calc(100vh - 20px);max-height:calc(100dvh - 20px)}
+    .tour-slides{padding:16px 16px 12px}
+    .tour-kicker{font-size:.6rem;margin-bottom:6px}
+    .tour-h{font-size:1.2rem;margin-bottom:8px}
+    .tour-lead{font-size:.88rem;line-height:1.45}
+    .tour-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin:12px 0 4px}
+    .tour-stats b{font-size:1.15rem}
+    .tour-spark{height:34px}
+    .tour-list{margin-top:8px}
+    .tour-list li{grid-template-columns:22px 1fr;padding:6px 0;font-size:.88rem;line-height:1.4}
+    .tour-views .d{display:none}.tour-views .s{display:inline}
+    .tour-chips{margin-top:10px;gap:6px}
+    .tour-chips button{padding:6px 8px;font-size:.7rem}
+    .tour-go{gap:8px;margin-top:12px}
+    .tour-nav{padding:6px 14px}
+  }`;
 
   function slides(stats, years) {
     const s = stats || {};
@@ -85,16 +106,16 @@
        </div>${spark}`,
       `<div class="tour-kicker">The views</div>
        <h2 class="tour-h">Five ways in.</h2>
-       <ul class="tour-list">
-         <li><span class="n">01</span><div><b>Search</b> <span>— full text at paragraph level, with HUDOC's operators, the parts of
+       <ul class="tour-list tour-views">
+         <li><span class="n">01</span><div><b>Search</b> <span class="s">— full text, paragraph by paragraph</span> <span class="d">— full text at paragraph level, with HUDOC's operators, the parts of
            the judgment to search in, filters, and each judgment's Cites / Cited by.</span></div></li>
-         <li><span class="n">02</span><div><b>Semantic Search</b> <span class="x">experimental</span> <span>— describe a case in plain language;
+         <li><span class="n">02</span><div><b>Semantic Search</b> <span class="x">experimental</span> <span class="s">— describe a case in plain words</span> <span class="d">— describe a case in plain language;
            it runs on its own index of English judgments.</span></div></li>
-         <li><span class="n">03</span><div><b>Check</b> <span>— paste a text: every citation, paragraph number and quotation is checked
+         <li><span class="n">03</span><div><b>Check</b> <span class="s">— verify the citations in a text</span> <span class="d">— paste a text: every citation, paragraph number and quotation is checked
            against the judgments.</span></div></li>
-         <li><span class="n">04</span><div><b>Workspace</b> <span>— the paragraphs you save (☆), with your notes, and your saved searches;
+         <li><span class="n">04</span><div><b>Workspace</b> <span class="s">— your saved paragraphs and searches</span> <span class="d">— the paragraphs you save (☆), with your notes, and your saved searches;
            kept in your browser only, exportable.</span></div></li>
-         <li><span class="n">05</span><div><b>Statistics</b> <span>— the corpus in charts: judgments and outcomes by year, article and State, the most cited judgments, HUDOC topics.</span></div></li>
+         <li><span class="n">05</span><div><b>Statistics</b> <span class="s">— the corpus in charts</span> <span class="d">— the corpus in charts: judgments and outcomes by year, article and State, the most cited judgments, HUDOC topics.</span></div></li>
        </ul>
        <div class="tour-cap" style="margin-top:12px">How the texts were split, labelled and checked: Methodology, in the bottom bar.</div>`,
       `<div class="tour-kicker">Search</div>
@@ -192,14 +213,14 @@
     build(stats, facets && facets.years);
     go(0);
     wrap.classList.add("open");
-    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
     wrap.querySelector(".tour-box").focus();
   }
 
   function close() {
     if (!wrap) return;
     wrap.classList.remove("open");
-    document.body.style.overflow = "";
+    document.documentElement.style.overflow = "";
     try { localStorage.setItem(DONE_KEY, "1"); } catch (_) { /* private mode */ }
     lastFocus?.focus?.();
   }

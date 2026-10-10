@@ -845,6 +845,11 @@ body.mode-natural .expert-only { display: none; }
 .est-panel { margin: 10px 0 16px; padding: 10px 14px; border-left: 3px solid var(--garnet); background: var(--paper-2); font-family: var(--body); font-size: 14px; line-height: 1.5; color: var(--ink-2); }
 .est-panel p { margin: 0; }
 .est-panel .est-note { margin-top: 4px; font-size: 12px; color: var(--ink-3); }
+.nav-links .nav-disclaimer { display: none; }
+@media (max-width: 860px) {
+  .nav-links .nav-disclaimer { display: block; flex: 1 1 100%; padding: 6px 0 0; border: 0; border-top: 1px solid var(--rule); font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.62rem; font-weight: 400; letter-spacing: 0.04em; line-height: 1.5; color: var(--ink-3); }
+  .nav-links .nav-disclaimer:hover { color: var(--garnet); }
+}
 .case-why { margin: 4px 0 6px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .02em; color: var(--ink-3); }
 .hits-pill {
   font-family: var(--mono); font-size: 10px; letter-spacing: .05em; padding: 3px 9px;
@@ -1445,7 +1450,7 @@ footer {
   .site-footer #status-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 </style>
-<script src="assets/tour.js?v=20261010-cit" defer></script>
+<script src="assets/tour.js?v=20261010-mob2" defer></script>
 <script src="assets/workspace.js?v=20261010-ws"></script>
   <script src="assets/cite.js?v=20261010-cite" defer></script>
 </head>
@@ -1466,6 +1471,7 @@ footer {
       <a href="workspace.html">Workspace <span class="ws-count" data-ws-count hidden></span></a>
       <a href="analytics.html">Statistics</a>
       <a href="about.html">About</a>
+      <a href="about.html#scope" class="nav-disclaimer">Not affiliated with the ECtHR &middot; not legal advice</a>
     </div>
   </div>
 </nav>
