@@ -2564,3 +2564,49 @@ body { padding-bottom: var(--bar-h); }
 .paragraph-item .para-actions button:not(.ws-star):hover { color: var(--garnet); border-color: var(--garnet-edge, var(--garnet)); background: var(--paper-2); }
 /* "802 only in French" under the Cited-by bar */
 .researcher-bar-note { margin-top: 2px; text-align: right; font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.04em; color: var(--ink-3); }
+
+/* ── Phones and small tablets (mobile audit, Oct 2026) ─────────────────────
+   Everything below sits inside max-width queries: the desktop layout is untouched. */
+@media (max-width: 860px) {
+  /* Bottom bar: the credits are already hidden here; the buttons now shrink to fit
+     ("Theme" instead of "Theme: light") and scroll sideways rather than being cut off at the left. */
+  .site-footer .sf-right { flex: 0 1 auto; min-width: 0; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+  .site-footer .sf-right::-webkit-scrollbar { display: none; }
+  .site-footer .sf-btn, .site-footer .api-status { flex: 0 0 auto; }
+  .site-footer #themeToggle { gap: 0; }
+  .site-footer #themeToggle > span { font-size: 0; letter-spacing: 0; }
+  .site-footer #themeToggle::after { content: "Theme"; }
+  /* Case details: shown only once a result is selected, as a sheet above the bottom bar
+     (it used to sit, ~1,800 px tall, between the result count and the first result). */
+  body:not(.casenote-open) .mobile-case-context { display: none; }
+  body.casenote-open .mobile-case-context {
+    position: fixed; left: 0; right: 0; bottom: var(--bar-h); z-index: 160;
+    max-height: 70vh; margin: 0; padding: 0 18px 18px; overflow-y: auto; overscroll-behavior: contain;
+    background: var(--paper); border-top: 1px solid var(--ink); border-bottom: 0;
+    box-shadow: 0 -8px 24px rgba(36, 35, 40, 0.18);
+  }
+  /* its title row (A− A+ ×) stays in view while the sheet scrolls */
+  body.casenote-open .mobile-case-context .cn-head-row { position: sticky; top: 0; z-index: 2; padding: 12px 0 8px; background: var(--paper); }
+  body.casenote-open .back-to-top { display: none; }
+  .back-to-top { right: 16px; bottom: calc(var(--bar-h) + 12px); }
+  /* the six links fold into the menu button below 860 px, not only below 600 px (search-app.css):
+     between the two, the name and "Semantic Search" broke over two or three lines */
+  .nav-hamburger { display: flex; margin-left: auto; margin-right: 0; }
+  .nav-container { position: relative; }
+  .nav-links {
+    display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column;
+    padding: 8px 16px 12px; background: var(--bg-header, var(--paper));
+    border-bottom: 1px solid var(--ink); box-shadow: 0 8px 18px rgba(36, 35, 40, 0.12);
+  }
+  .nav-links.open { display: flex; }
+}
+@media (max-width: 600px) {
+  /* a taller bar with thumb-sized buttons */
+  :root { --bar-h: 40px; }
+  .site-footer .sf-btn, .site-footer .api-status { height: 28px; padding: 0 9px; }
+}
+@media (max-width: 420px) {
+  .site-footer .api-status { padding: 0 8px; }
+  /* the dot alone; the word stays for screen readers */
+  .site-footer .api-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
