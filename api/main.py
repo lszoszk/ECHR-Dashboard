@@ -166,8 +166,12 @@ def _parse_json_field(value: Optional[str]):
 
 
 def _row_to_dict(row: sqlite3.Row) -> dict[str, Any]:
-    """Convert a sqlite3.Row to a plain dict."""
-    return dict(row)
+    """Convert a sqlite3.Row to a plain dict; Committee formation codes become their labels."""
+    d = dict(row)
+    body = d.get("originating_body")
+    if body in _BODY_CODE_LABELS:
+        d["originating_body"] = _BODY_CODE_LABELS[body]
+    return d
 
 
 _OR_RE = re.compile(r"\bOR\b", re.IGNORECASE)
@@ -1964,7 +1968,7 @@ def search(
                             "respondent_state": r["respondent_state"],
                             "importance": r["importance"], "conclusion": r["conclusion"],
                             "violation": r["violation"], "non_violation": r["non_violation"],
-                            "originating_body": r["originating_body"],
+                            "originating_body": _BODY_CODE_LABELS.get(r["originating_body"], r["originating_body"]),
                             "document_type": r["document_type"],
                             "articles": sorted(case_articles_flat.get(r["case_id"], [])),
                         },
@@ -2082,7 +2086,7 @@ def search(
                         "sum_bm25": r["relevance_score"],
                         "hit_count": r["hit_count"],
                         "importance": r["importance"],
-                        "originating_body": r["originating_body"],
+                        "originating_body": _BODY_CODE_LABELS.get(r["originating_body"], r["originating_body"]),
                         "document_type": r["document_type"],
                         "title_match": ranking.title_matches_query(r["title"], query_terms),
                     }

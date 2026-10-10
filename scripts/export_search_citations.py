@@ -90,12 +90,12 @@ def main() -> int:
             src = fm if fm else (french_meta.get(x) or meta.get(x) or ("", "", ""))
             citing_meta[x] = {"title": (src[0] or "").replace("CASE OF ", ""), "date": iso(src[1]),
                               "ecli": src[2] or "", "french_only": x not in official}
-        by_target[cid] = sorted(ids, key=lambda x: citing_meta[x]["date"], reverse=True)
+        by_target[cid] = sorted(ids, key=lambda x: (citing_meta[x]["date"], x), reverse=True)  # ties by id: stable diffs
 
     json.dump({
         "source": "Search's Cited by: case_citations (judgments' text and HUDOC metadata) plus French-only "
                   "judgments citing it according to HUDOC's metadata",
-        "ranking": ranking, "citing_by_target": by_target, "citing_judgments": citing_meta,
+        "ranking": ranking, "citing_by_target": by_target, "citing_judgments": dict(sorted(citing_meta.items())),
         "coverage": {"cited_judgments": len(totals),
                      "citation_pairs": sum(len(v) for v in citers.values()),
                      "french_only_pairs": sum(len(v) for v in french.values())},
