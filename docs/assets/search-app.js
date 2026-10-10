@@ -4895,7 +4895,7 @@ function citedByTitle(c) {
   const fr = Number(c.__citedByFrenchOnly || 0);
   const base = `Cited by ${fmtInt.format(n)} other judgment(s)`;
   return fr > 0
-    ? `${base}, ${fmtInt.format(fr)} of them published by HUDOC only in French (not yet in this dataset)`
+    ? `${base}, ${fmtInt.format(fr)} of them published by HUDOC only in French`
     : `${base} in this dataset`;
 }
 
