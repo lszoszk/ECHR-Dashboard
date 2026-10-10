@@ -423,6 +423,15 @@ def _has_mt_column() -> bool:
     return _MT_COLUMN[0]
 
 
+def _corpus_cases_sql() -> str:
+    """The judgments in the corpus in their own right: machine translations are left out, so that a
+    French-only judgment keeps counting as a French-only citer once its translation is loaded (the
+    citation graph never counts translations as citing)."""
+    if _has_mt_column():
+        return "SELECT case_id FROM cases WHERE COALESCE(text_origin, '') != 'machine_translation'"
+    return "SELECT case_id FROM cases"
+
+
 def _mt_clause(include_mt: bool, explicit_lookup: bool = False) -> str:
     """Judgments HUDOC publishes only in French, machine-translated for this tool, are left out unless the
     user asks for them (include_mt) or names the document (case:/hudoc:/ecli:)."""
@@ -672,7 +681,7 @@ def _french_only_cited_by(cur: sqlite3.Cursor, case_ids: list[str]) -> dict[str,
         ph = ",".join("?" for _ in case_ids)
         cur.execute(
             f"SELECT cited_case_id, count(DISTINCT citing_case_id) AS n FROM french_only_citations "
-            f"WHERE cited_case_id IN ({ph}) AND citing_case_id NOT IN (SELECT case_id FROM cases) "
+            f"WHERE cited_case_id IN ({ph}) AND citing_case_id NOT IN ({_corpus_cases_sql()}) "
             f"GROUP BY cited_case_id", case_ids)
         return {r["cited_case_id"]: r["n"] for r in cur.fetchall()}
     except sqlite3.OperationalError:
@@ -2505,7 +2514,7 @@ def case_cited_by(case_id: str, limit: int = Query(50, ge=1, le=500)):
                     "       0 AS in_corpus, f.hudoc_url "
                     "FROM french_only_citations fc "
                     "JOIN french_only_cases f ON f.case_id = fc.citing_case_id "
-                    "WHERE fc.cited_case_id = ? AND fc.citing_case_id NOT IN (SELECT case_id FROM cases) "
+                    f"WHERE fc.cited_case_id = ? AND fc.citing_case_id NOT IN ({_corpus_cases_sql()}) "
                     "ORDER BY substr(f.judgment_date, 7, 4) DESC, "
                     "         substr(f.judgment_date, 4, 2) DESC, "
                     "         substr(f.judgment_date, 1, 2) DESC "

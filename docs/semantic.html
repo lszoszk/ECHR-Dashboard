@@ -1373,7 +1373,7 @@ footer {
   .standfirst h1 { font-size: 38px; }
 }
 </style>
-<script src="assets/tour.js?v=20261010-mcp" defer></script>
+<script src="assets/tour.js?v=20261010-mt" defer></script>
 <script src="assets/workspace.js?v=20261010-ws"></script>
   <script src="assets/cite.js?v=20261010-cite" defer></script>
 </head>
@@ -1419,17 +1419,17 @@ footer {
         .meth .ex b{color:var(--garnet)} .meth ul{padding-left:20px}
       </style>
       <h1>How this case-law search works — and how well</h1>
-      <p class="sub">A plain-English note for lawyers. Last reviewed May 2026.</p>
+      <p class="sub">A plain-English note for lawyers. Last reviewed October 2026.</p>
       <div class="box"><strong>In one sentence.</strong> You describe a legal question; the system returns the most relevant <em>paragraphs</em> of Strasbourg case-law — with the exact §, the case name and a HUDOC link — ranked by legal substance and by how authoritative the case is.</div>
 
       <h2>What it searches</h2>
-      <p>Every English-language ECtHR judgment in our snapshot — <strong>19,822 cases, ~1.31 million numbered paragraphs</strong> — restricted to substantive text (reasoning, facts, admissibility, just satisfaction, separate opinions). Pure boilerplate (headers, annexes, one-line summaries) is excluded.</p>
+      <p>Every English-language ECtHR judgment in our snapshot of 8 October 2026 — <strong>20,150 judgments and Grand Chamber decisions, ~1.33 million numbered paragraphs</strong> — restricted to substantive text (reasoning, facts, admissibility, just satisfaction, separate opinions). Pure boilerplate (headers, annexes, one-line summaries) is excluded.</p>
 
       <h2>How it works (without the jargon)</h2>
       <ul>
         <li><strong>Meaning, not keywords.</strong> Each paragraph becomes a numeric "meaning fingerprint" (an embedding); your query is fingerprinted the same way and matched by legal substance. That is why it understands plain language — "can the police read my texts?" finds the Article 8 interception case-law even though those words never appear.</li>
         <li><strong>Authority weighting.</strong> Results are nudged toward the Court's <em>leading</em> cases (HUDOC "Key case"/importance), because a practitioner wants the authoritative judgment.</li>
-        <li><strong>A second read.</strong> The top candidates are re-read against your query by a separate model to sharpen the order.</li>
+        <li><strong>A second read.</strong> The top 100 candidates are re-read against your query by a separate model (Voyage rerank-3) to sharpen the order.</li>
       </ul>
 
       <h2>How we measured it</h2>
@@ -1438,13 +1438,19 @@ footer {
 
       <h2>How well it works</h2>
       <table>
-        <tr><th>On the Court-Guides benchmark</th><th class="num">Top 5</th><th class="num">Top 10</th></tr>
-        <tr><td>Correct <strong>case</strong> retrieved</td><td class="num">~82%</td><td class="num">~88%</td></tr>
-        <tr><td>Exact cited <strong>paragraph</strong> retrieved</td><td class="num">~60%</td><td class="num">~73%</td></tr>
+        <tr><th>On the Court-Guides benchmark (409 items)</th><th class="num">First</th><th class="num">Top 10</th></tr>
+        <tr><td>Correct <strong>case</strong> retrieved</td><td class="num">~64%</td><td class="num">~89%</td></tr>
+        <tr><td>Exact cited <strong>paragraph</strong> retrieved</td><td class="num">~39%</td><td class="num">~75%</td></tr>
       </table>
       <p>An independent AI-lawyer review found <strong>~85–90% of the top-10 paragraphs genuinely relevant</strong> — higher than the "exact paragraph" figure, because the Guides cite only <em>some</em> of the relevant paragraphs, so the strict measure understates real usefulness.</p>
       <div class="box"><strong>It searches by meaning, not keywords.</strong> On the second benchmark, given a <em>plain-language</em> description of a case’s issue, the right judgment is in the top 10 for <strong>~87%</strong> of cases. A keyword (BM25) baseline reaches only ~60% on those same plain-language queries — where this system holds — because it retrieves by legal <em>substance</em>, not matching words. You need not write like a headnote.</div>
 
+      <div class="box"><strong>Updated October 2026.</strong> The index was brought up to the corpus of 8 October 2026
+        (160 judgments added, the October text and paragraph-number repairs applied), the second read moved to a newer
+        model (rerank-3), and the index is now stored more compactly (512 dimensions, 4-bit) so that it fits the server's
+        memory. Measured on the same benchmarks, the update and the compact index changed nothing beyond noise; the newer
+        second read placed the right judgment first more often (on the 1,570-case test, 65% instead of 58%). We also
+        tried embedding each paragraph together with the rest of its judgment; it did markedly worse and was dropped.</div>
       <h2>Where to be cautious</h2>
       <div class="box warn"><ul>
         <li><strong>A research aid, not legal advice</strong>, and never a substitute for reading the judgment. Always open the case on HUDOC and verify.</li>
@@ -1452,7 +1458,7 @@ footer {
         <li><strong>"The paragraph" is rarely one paragraph.</strong> The Court states a principle, applies it, and concludes across several §§; the system may surface the reasoning where you expected the holding. Read around the hit (click a paragraph to expand neighbours).</li>
         <li><strong>It favours leading cases</strong> — a niche but on-point lesser-known judgment may rank lower.</li>
         <li><strong>Absence is not proof.</strong> If a point is not in the results, that is not evidence it does not exist — refine the query.</li>
-        <li><strong>Coverage.</strong> English judgments in a point-in-time snapshot; excludes inadmissibility-only and non-judgment documents.</li>
+        <li><strong>Coverage.</strong> English judgments up to 8 October 2026; excludes admissibility decisions (other than 31 Grand Chamber ones), non-judgment documents and the machine translations of judgments that exist only in French.</li>
       </ul></div>
 
       <h2>Examples</h2>
@@ -1470,10 +1476,10 @@ footer {
           Semantic search over Strasbourg jurisprudence. Describe your case in any language — the index returns the English-text paragraphs that mattered.
         </div>
         <p class="sem-coverage" role="note">
-          <strong>Experimental.</strong> Semantic Search runs on its own index, built once from an earlier snapshot of the
-          corpus: <strong>19,822 English-language judgments</strong> (about 1.32 million paragraphs). It does not cover
-          judgments added since, judgments that exist only in French, or admissibility
-          decisions. For the complete, current corpus use <a href="./">Search</a>. <a href="#" data-section="methodology">How Semantic Search works, and how well &rarr;</a>
+          <strong>Experimental.</strong> Semantic Search runs on its own index, last brought up to the corpus of
+          8 October 2026: <strong>20,150 English-language judgments and Grand Chamber decisions</strong> (about 1.33 million
+          paragraphs). It does not cover judgments added since, the machine translations of judgments that exist only in
+          French, or other admissibility decisions. For the complete, current corpus use <a href="./">Search</a>. <a href="#" data-section="methodology">How Semantic Search works, and how well &rarr;</a>
         </p>
       </div>
       <div class="stats" style="display:none">

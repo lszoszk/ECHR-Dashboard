@@ -26,7 +26,7 @@ Figures of the live corpus on 9 October 2026:
 Two deliberate boundaries a HUDOC user should know about:
 
 - **Judgments, plus a few Grand Chamber decisions.** The corpus covers the Court's judgments (including ~6,300 Committee judgments, which HUDOC's default search omits) and 31 Grand Chamber admissibility decisions such as *Banković*, which appear when the *Decisions* filter is ticked. HUDOC's other collections — the other admissibility decisions, Communicated Cases, Legal Summaries, Advisory Opinions, Commission decisions — are not included; consult HUDOC for those.
-- **English texts only.** About 9,300 judgments were delivered only in French — a substantial share of Chamber and Committee output — and are not in the search; unofficial English machine translations of the most-cited of them are being prepared (see [Machine translations of French-only judgments](#machine-translation)). On the Semantic Search page, "describe your case in any language" refers to the *query* (the embedding model is multilingual); the retrieved paragraphs are always the English texts.
+- **English texts only.** About 9,300 judgments were delivered only in French — a substantial share of Chamber and Committee output — and are not in the official English corpus; unofficial English machine translations of the 2,460 most-cited of them can be switched on in Search (see [Machine translations of French-only judgments](#machine-translation)). On the Semantic Search page, "describe your case in any language" refers to the *query* (the embedding model is multilingual); the retrieved paragraphs are always the English texts.
 
 The Statistics page is a static snapshot (its build date is printed under its title) and can lag the live counts shown in the Search header.
 
@@ -173,31 +173,36 @@ Because this tool parses the **full judgment text** rather than relying on those
 
 HUDOC publishes about 9,300 judgments only in French. The Court has no duty to publish every Chamber or Committee judgment in both official languages, so for these there is no English text at all. To make them findable next to the English case-law, we translate them into English by machine.
 
-> **These are not translations by the Court.** They are not yet available in the public search. Once released they will be left out of every search unless you tick *English translations of French-only judgments* in the left pane; each one is labelled *Only in French on HUDOC · machine translation, unofficial* and links to the authentic French text on HUDOC. Quote the French original, never the translation.
+> **These are not translations by the Court.** They are left out of every search unless you tick *English translations of French-only judgments* in the left pane; each one is labelled *Only in French on HUDOC · machine translation, unofficial* and links to the authentic French text on HUDOC. Quote the French original, never the translation.
 
 ### Which judgments
 
 | Tier | Selection | Judgments | State |
 | --- | --- | ---: | --- |
 | 1 | French-only judgments cited by at least 5 judgments in the corpus | 503 | translated, checked and repaired |
-| 2 | cited by 1 to 4 judgments | 1,892 | being translated (13,592 of 30,497 chunks done on 9 October) |
-| — | not cited by any judgment in the corpus | about 6,900 | not translated |
+| 2 | cited by 1 to 4 judgments | 1,892 | translated, checked and repaired |
+| 3 | cited, but sharing its application number with another document (a citation cannot tell which one is meant) | 65 | translated, checked and repaired |
+| — | not cited by any judgment in the corpus | about 6,890 | not yet translated; to be added |
 
-A judgment is selected only when its application number points to it unambiguously.
+The translations of tiers 1 to 3 (2,460 judgments) are in the search since 10 October 2026; the rest will be added.
 
 ### How a judgment is translated
 
 Each judgment is split into chunks of consecutive paragraphs, so that the paragraph numbers, sections and quotations of the French text are kept one to one. Every request carries the case title, the terms of a glossary built from the Court's own bilingual judgments (only pairs the Court translates the same way at least 9 times in 10, e.g. *requérant* → *applicant*, *dommage moral* → *non-pecuniary damage*) and examples from judgments the Court published in both languages. The instructions give the Court's English citation conventions (`c.` → `v.`, `(déc.)` → `(dec.)`, `série A` → `Series A`, from the Court's citation notes); no French citation form is left in the tier-1 texts.
 
-| Step | Model / method | What it does | Tier 1 |
-| --- | --- | --- | ---: |
-| 1. Translate | Claude Haiku 5.5 (Anthropic Message Batches, no extended reasoning) | translates every chunk | 10,657 chunks, 99,034 paragraphs; 10,628 chunks answered |
-| 2. Check by rule | deterministic checks | numbers, dates, application numbers, § references, citation format, French left untranslated, length out of proportion, missing paragraphs | every paragraph |
-| 3. Review | Jev (TypeSafe System One), a calibrated yes/no judge | asks of each paragraph whether the English is a complete and faithful translation of the French, and returns a probability | every paragraph |
-| 4. Repair | Claude Sonnet 5.5 | translates again, paragraph by paragraph, every paragraph scored below 0.8 or failing a check | 12,902 paragraphs (13 %) |
-| 5. Re-check | Jev and the rules again | paragraphs still in doubt are listed for human review | 361 paragraphs (0.36 %) |
+| Step | Model / method | What it does | Tier 1 | Tier 2 |
+| --- | --- | --- | ---: | ---: |
+| 1. Translate | Claude Haiku 5.5 (Anthropic Message Batches, no extended reasoning) | translates every chunk | 10,657 chunks, 99,034 paragraphs; 10,628 chunks answered | 30,497 chunks, 283,799 paragraphs; 30,478 chunks answered |
+| 2. Check by rule | deterministic checks | numbers, dates, application numbers, § references, citation format, French left untranslated, length out of proportion, missing paragraphs | every paragraph | every paragraph |
+| 3. Review | Jev (TypeSafe System One), a calibrated yes/no judge | asks of each paragraph whether the English is a complete and faithful translation of the French, and returns a probability | every paragraph | every paragraph |
+| 4. Repair | Claude Sonnet 5.5 | translates again, paragraph by paragraph, every paragraph scored below the threshold (0.8 for tier 1, 0.7 for tier 2) or failing a check | 12,902 paragraphs (13 %) | 13,863 paragraphs (4.9 %) |
+| 5. Re-check | Jev and the rules again | paragraphs still in doubt are listed for human review | 361 paragraphs (0.36 %) | 862 paragraphs (0.30 %) |
+
+What the repair changed, on tier 2: of the 13,592 paragraphs Sonnet answered, 30 % came back unchanged, 44 % with light edits and 25 % substantially reworded; in 6.3 % a number changed. The rewordings are mostly terminology and the official wording of quoted provisions; a few correct the facts.
 
 The threshold of step 4 is deliberately cautious: in a calibration test, at 0.8 Jev caught all 43 errors we had planted in correct translations, while it also doubts about one in ten of the Court's own official translations. More paragraphs are therefore sent to repair than are actually wrong. For tier 2 the threshold is 0.7.
+
+In tier 2, 30 paragraphs could not be translated (the model declined them) and are shown in French; in tier 3 (7,134 paragraphs, repaired at 0.7 like tier 2), 10 such paragraphs, and 29 are listed for human review.
 
 Of the 361 paragraphs listed for review, 197 scored below 0.3 after the repair, 132 failed a rule check and 32 have no translation; those 32 are shown in French.
 
@@ -208,7 +213,7 @@ On a judgment the Court published in both languages and that was kept out of the
 ### Limits
 
 - Errors remain possible, especially in legal terms of art, long quotations and tables. The human review of the listed paragraphs is not finished.
-- The translations are not in Semantic Search and are not counted in the citation graph (they neither cite nor are cited).
+- The translations are not in Semantic Search and are not counted in the citation graph as judgments (they neither cite nor are cited). A French-only judgment that cites a case still counts in its *Cited by*, from HUDOC's metadata, whether or not it has been translated.
 - Corrections are welcome: <l.szoszkiewicz@amu.edu.pl>.
 
 ## Analytics & privacy

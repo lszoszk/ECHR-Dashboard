@@ -106,8 +106,8 @@
       `<div class="tour-kicker">Built for research</div>
        <h2 class="tour-h">Honest about what it holds.</h2>
        <ul class="tour-list">
-         <li><span class="n">·</span><div><span><b>Judgments, in English.</b> Admissibility decisions are not included, and judgments that HUDOC
-           publishes only in French are not in the search.</span></div></li>
+         <li><span class="n">·</span><div><span><b>Judgments, in English.</b> Admissibility decisions are not included. Judgments that HUDOC
+           publishes only in French are left out, except unofficial machine translations of the most-cited, which you can switch on.</span></div></li>
          <li><span class="n">·</span><div><span><b>The Court's own paragraph numbers</b>, as in HUDOC's text of each judgment, so a result can be cited as it stands.</span></div></li>
          <li><span class="n">·</span><div><span><b>Cites / Cited by</b> come from the judgments' text and HUDOC's case-law lists; every matching
            rule is documented in Methodology.</span></div></li>
