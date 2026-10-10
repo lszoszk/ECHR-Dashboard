@@ -1379,6 +1379,68 @@ footer {
 @media (max-width: 700px) {
   .standfirst h1 { font-size: 38px; }
 }
+/* ── Phones and small tablets (mobile audit, Oct 2026); the desktop layout is untouched ── */
+@media (max-width: 1100px) {
+  /* one column: graph, then the ranked paragraphs, then the dossier
+     (the two-column areas left the paragraph list 0 px wide) */
+  .workspace { grid-template-areas: "graph" "stream" "dossier"; }
+  .ws-stream { max-height: 70vh; }
+}
+@media (max-width: 860px) {
+  /* the six links wrap under the name instead of running off the screen */
+  .nav-links { flex: 1 1 100%; flex-wrap: wrap; justify-content: flex-start; gap: 6px 16px; }
+  /* bottom bar: the buttons shrink to fit and scroll sideways rather than being cut off */
+  .site-footer .sf-right { flex: 0 1 auto; min-width: 0; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+  .site-footer .sf-right::-webkit-scrollbar { display: none; }
+  .site-footer .sf-right > *, .site-footer .nav-meta > * { flex: 0 0 auto; }
+  .site-footer .nav-meta { gap: 6px; }
+  .site-footer .nav-meta select { width: auto; }
+  /* the masthead is two rows here (88 px): the sticky View bar stops below it, not under it */
+  .view-bar.inline-bar { top: 88px; }
+}
+@media (max-width: 600px) {
+  .navbar { position: relative; }
+  .nav-brand { font-size: 1.18rem; }
+  body { padding-bottom: 40px; }
+  footer.site-footer { height: 40px; }
+  .site-footer .sf-btn, .site-footer .nav-meta .status-pill, .site-footer .nav-meta select { height: 28px; padding: 0 9px; }
+  .page { padding: 18px 16px 48px; }
+  /* example cases: the Article tag goes under the text instead of taking a column */
+  .preset-row { grid-template-columns: 26px minmax(0, 1fr); row-gap: 6px; }
+  .preset-arts { grid-column: 2; justify-self: start; }
+  /* View A / B / C: the three tabs share one row */
+  .view-bar.inline-bar { position: static; flex-wrap: wrap; gap: 8px 12px; padding: 10px 12px; margin: 14px 0 18px; }
+  .view-toggle { display: flex; flex: 1 1 100%; }
+  .view-btn { flex: 1 1 auto; justify-content: center; gap: 5px; padding: 7px 6px; font-size: 12.5px; }
+  /* List: the rank sits above the title, so the text gets the card's full width */
+  .case-card { grid-template-columns: minmax(0, 1fr); gap: 6px; padding: 16px 14px; }
+  .case-rank { display: flex; align-items: center; gap: 8px; font-size: 20px; }
+  .case-rank::before { margin-bottom: 0; }
+  .case-title { min-width: 0; font-size: 19px; }
+  .hit-item { grid-template-columns: 44px minmax(0, 1fr); gap: 10px; }
+  .para-block { grid-template-columns: 40px minmax(0, 1fr); gap: 10px; }
+  /* Citation network and Timeline: captions above the chart and the legend below it, not over it */
+  .ws-graph { min-height: 0; }
+  .ws-graph-title { position: static; padding: 18px 16px 0; }
+  .ws-graph-title h2 { font-size: 21px; }
+  .ws-graph svg, .river svg { position: relative; inset: auto; display: block; width: 100%; height: auto; }
+  .ws-legend { position: static; flex-wrap: wrap; gap: 6px 12px; margin: 0 12px 12px; box-shadow: none; }
+  .dossier { padding: 18px 16px 40px; }
+  .dossier .dossier { padding: 0; }
+  .river { min-height: 0; }
+  .river-title { position: static; padding: 18px 16px 0; background: none; backdrop-filter: none; }
+  .river-title h2 { font-size: 26px; }
+  .river-year { position: static; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding: 12px 16px 0; text-align: left; background: none; backdrop-filter: none; }
+  .river-year .num { font-size: 32px; }
+  .river-year .nudge { margin-top: 0; }
+  .river-narration { position: static; flex-direction: column; gap: 6px; margin: 0 12px 12px; }
+  .year-strip { padding: 12px 16px; }
+  .reading-col { padding: 20px 16px 40px; }
+}
+@media (max-width: 420px) {
+  /* the status dot alone; the word stays for screen readers */
+  .site-footer #status-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
 </style>
 <script src="assets/tour.js?v=20261010-cit" defer></script>
 <script src="assets/workspace.js?v=20261010-ws"></script>

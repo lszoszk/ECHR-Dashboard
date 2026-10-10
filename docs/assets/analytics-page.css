@@ -415,3 +415,8 @@
 .topic-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 4px 2px 8px; font-size: 0.8rem; border: 1px solid; border-left-width: 4px; background: var(--paper, #fff); }
 .topic-chip button { border: 0; background: none; cursor: pointer; font-size: 0.95rem; line-height: 1; color: var(--ink-3, #706d72); }
 .topic-chip button:hover { color: var(--garnet, #8d2f2f); }
+/* Phones: the label column of the State and State-profile tables wraps, so more numbers fit beside it */
+@media (max-width: 540px) {
+  .state-outcome-table tbody th, .state-outcome-table thead th:first-child { white-space: normal; width: 7.5em; min-width: 7.5em; }
+  .compare-summary-table th:first-child, .compare-summary-table td:first-child { white-space: normal; min-width: 9em; }
+}
