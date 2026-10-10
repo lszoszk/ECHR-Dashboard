@@ -32,6 +32,12 @@ class MtFilterTests(unittest.TestCase):
 
     def test_years_facet_counts_judgments_of_the_default_search(self):
         import sqlite3
+        # Another test module may have imported main first, with its own DB_PATH: point it at a
+        # fresh database for this test, and drop the cached read-only connection.
+        old_path, main.DB_PATH = main.DB_PATH, tempfile.NamedTemporaryFile(suffix=".db", delete=False).name
+        main._local.conn = None
+        self.addCleanup(setattr, main, "DB_PATH", old_path)
+        self.addCleanup(setattr, main._local, "conn", None)
         con = sqlite3.connect(main.DB_PATH)
         con.execute("PRAGMA journal_mode = wal")     # the API opens it read-only, already in WAL
         con.executescript("""
