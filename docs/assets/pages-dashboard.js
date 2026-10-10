@@ -188,7 +188,9 @@ async function renderJudgmentCitations(scope) {
     // has it) the application numbers HUDOC extracted from each judgment's text.
     const views = { curated: snapshot };
     if (snapshot.with_extracted_appno) views.extracted = { ...snapshot, ...snapshot.with_extracted_appno };
-    let view = views.curated;
+    // Shown first: the counts of Search's "Cited by", so that a judgment has one number on the whole site.
+    if (snapshot.with_search_graph) views.search = { ...snapshot, ...snapshot.with_search_graph };
+    let view = views.search || views.curated;
     let ranked = view.ranking || [];
     const quality = document.getElementById("judgmentCitationQuality");
     const evidenceSelect = document.getElementById("citationEvidence");
@@ -196,7 +198,13 @@ async function renderJudgmentCitations(scope) {
       const c = view.coverage;
       const statuses = c.by_status || {};
       const lines = [];
-      if (view === views.curated) {
+      if (view === views.search) {
+        coverageNote.textContent = `Counted as in Search: judgments citing it in their text or in HUDOC's metadata, and judgments HUDOC publishes only in French that cite it according to HUDOC's metadata. ${fmtInt.format(c.citation_pairs)} citation pairs in the corpus, plus ${fmtInt.format(c.french_only_pairs)} from French-only judgments. Snapshot: ${snapshot.cutoff}.`;
+        lines.push(
+          "These are the numbers shown under Cited by on every search result. A citation found in the text is counted once however many paragraphs repeat it.",
+          "Citations by French-only judgments come from HUDOC's metadata alone, so they are minimums and carry no paragraph; the share is shown for each judgment.",
+          "The two other choices of Evidence count HUDOC's metadata alone, for comparison.");
+      } else if (view === views.curated) {
         coverageNote.textContent = `${fmtInt.format(c.judgments_with_metadata)} / ${fmtInt.format(c.judgments)} judgments have citation metadata; ${fmtInt.format(c.unique_edges)} unique resolved pairs. Snapshot: ${snapshot.cutoff}. Not a full-text ranking.`;
         lines.push(
           `Reference observations across both languages: ${fmtInt.format(c.reference_observations)}. These are source entries, not unique citation pairs.`,
@@ -220,9 +228,13 @@ async function renderJudgmentCitations(scope) {
       }));
     }
     describe();
-    if (evidenceSelect) evidenceSelect.hidden = !views.extracted;
+    if (evidenceSelect) {
+      evidenceSelect.hidden = !views.extracted && !views.search;
+      if (!views.search) evidenceSelect.querySelector('option[value="search"]')?.remove();
+      evidenceSelect.value = views.search ? "search" : "curated";
+    }
     const evidenceLabel = document.querySelector('label[for="citationEvidence"]');
-    if (evidenceLabel) evidenceLabel.hidden = !views.extracted;
+    if (evidenceLabel) evidenceLabel.hidden = !views.extracted && !views.search;
     if (!ranked.length) return;
     const sayTopCited = () => {
       const [top, next] = ranked;
@@ -257,7 +269,8 @@ async function renderJudgmentCitations(scope) {
           ...(extended ? ["Citing via curated lists", "Citing via extracted application numbers"] : []), "Source", "Cutoff"],
         ...ranked.map((row) => [row.case_id, row.ecli || "", row.title, row.date, row.cited_by_count,
           ...(extended ? [row.cited_by_curated_list, row.cited_by_extracted_application] : []),
-          extended ? "Resolved bilingual HUDOC metadata plus application numbers extracted by HUDOC" : "Resolved bilingual HUDOC metadata",
+          view === views.search ? "As Search's Cited by: text and HUDOC metadata, plus French-only judgments (HUDOC metadata)"
+            : extended ? "Resolved bilingual HUDOC metadata plus application numbers extracted by HUDOC" : "Resolved bilingual HUDOC metadata",
           snapshot.cutoff]),
       ], `echr-most-cited-judgments${extended ? "-with-extracted-application-numbers" : ""}-${snapshot.cutoff}.csv`);
     });
@@ -281,7 +294,8 @@ async function renderJudgmentCitations(scope) {
       const row = ranked.find((r) => r.case_id === select.value);
       const identity = document.getElementById("citedJudgmentIdentity");
       const split = view === views.extracted
-        ? ` (${fmtInt.format(row.cited_by_curated_list)} via curated lists, ${fmtInt.format(row.cited_by_extracted_application)} via extracted application numbers)` : "";
+        ? ` (${fmtInt.format(row.cited_by_curated_list)} via curated lists, ${fmtInt.format(row.cited_by_extracted_application)} via extracted application numbers)`
+        : view === views.search && row.cited_by_french_only ? ` (${fmtInt.format(row.cited_by_french_only)} only in French)` : "";
       identity.replaceChildren(hudocLink(row), document.createTextNode(` · ${row.date} · ${row.ecli || row.case_id} · ${fmtInt.format(row.cited_by_count)} unique citing judgments${split}`));
       renderList();
     }

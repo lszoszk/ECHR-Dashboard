@@ -478,6 +478,22 @@ def _has_mt_column() -> bool:
     return _MT_COLUMN[0]
 
 
+def _metadata_cites(cur: sqlite3.Cursor, case_ids: list[str]) -> dict[str, int]:
+    """What machine-translated judgments cite, from HUDOC's metadata (french_only_citations): their
+    translated text is never read for citations, so that a translation slip cannot add a link."""
+    if not case_ids or not _has_mt_column():
+        return {}
+    try:
+        ph = ",".join("?" for _ in case_ids)
+        cur.execute(
+            f"SELECT fc.citing_case_id, count(DISTINCT fc.cited_case_id) AS n FROM french_only_citations fc "
+            f"JOIN cases c ON c.case_id = fc.citing_case_id AND c.text_origin = 'machine_translation' "
+            f"WHERE fc.citing_case_id IN ({ph}) GROUP BY fc.citing_case_id", case_ids)
+        return {r["citing_case_id"]: r["n"] for r in cur.fetchall()}
+    except sqlite3.OperationalError:
+        return {}
+
+
 def _corpus_cases_sql() -> str:
     """The judgments in the corpus in their own right: machine translations are left out, so that a
     French-only judgment keeps counting as a French-only citer once its translation is loaded (the
@@ -487,15 +503,27 @@ def _corpus_cases_sql() -> str:
     return "SELECT case_id FROM cases"
 
 
-def _mt_clause(include_mt: bool, explicit_lookup: bool = False) -> str:
+def _mt_mode(value) -> str:
+    """include_mt as sent: "true"/"1"/"yes" adds the translations, "only" keeps nothing else."""
+    v = str(value).strip().lower()
+    return "only" if v == "only" else "with" if v in ("true", "1", "yes", "on") else "without"
+
+
+def _mt_clause(include_mt, explicit_lookup: bool = False) -> str:
     """Judgments HUDOC publishes only in French, machine-translated for this tool, are left out unless the
-    user asks for them (include_mt) or names the document (case:/hudoc:/ecli:)."""
-    if include_mt or explicit_lookup or not _has_mt_column():
+    user asks for them (include_mt) or names the document (case:/hudoc:/ecli:); include_mt=only searches
+    the translations alone."""
+    mode = _mt_mode(include_mt)
+    if not _has_mt_column():
+        return "1=1"
+    if mode == "only" and not explicit_lookup:
+        return "COALESCE(c.text_origin, '') = 'machine_translation'"
+    if mode == "with" or explicit_lookup:
         return "1=1"
     return "COALESCE(c.text_origin, '') != 'machine_translation'"
 
 
-def _doc_type_clause(doc_type_list: list[str], explicit_lookup: bool = False, include_mt: bool = False) -> str:
+def _doc_type_clause(doc_type_list: list[str], explicit_lookup: bool = False, include_mt="false") -> str:
     """SQL condition for the document-type filter.
 
     Admissibility decisions are separate documents from judgments: they appear
@@ -784,6 +812,10 @@ def _attach_citation_counts(cur: sqlite3.Cursor,
         if cd is not None:
             cd["cited_by_count"] += n
             cd["cited_by_french_only"] = n
+    for cid, n in _metadata_cites(cur, case_ids).items():
+        cd = case_details.get(cid)
+        if cd is not None:
+            cd["cites_count"] = max(cd.get("cites_count") or 0, n)
 
 
 _COLUMN_CACHE: dict[tuple[str, str], bool] = {}
@@ -1232,7 +1264,7 @@ def _build_case_filter_sql(
     keyword_list: list[str] | None = None,
     date_from: str | None = None,
     date_to: str | None = None,
-    include_mt: bool = False,
+    include_mt: str = "false",
 ) -> tuple[str, str, list[Any]]:
     """Build shared WHERE/JOIN clauses for case queries.
 
@@ -1330,8 +1362,8 @@ def analytics(
     doc_types: Optional[str] = Query(None),
     date_from: Optional[str] = Query(None),
     date_to: Optional[str] = Query(None),
-    include_mt: bool = Query(False, description="Include judgments HUDOC publishes only in French, machine-translated "
-                             "into English for this tool (unofficial translations)"),
+    include_mt: str = Query("false", description="Unofficial machine translations of judgments HUDOC publishes only "
+                            "in French: false leaves them out, true adds them, only shows nothing else"),
 ):
     """Return aggregated analytics for the given query/filters over ALL matching cases."""
     t0 = time.perf_counter()
@@ -1503,8 +1535,8 @@ def search(
     keywords: Optional[str] = Query(None, description="Comma-separated HUDOC thesaurus keyword filter (OR within)"),
     outcomes: Optional[str] = Query(None, description="Comma-separated outcome filter (violation_only,non_violation_only,both,neither,has_inadmissibility,is_struck_out)"),
     doc_types: Optional[str] = Query(None, description="Comma-separated document type filter (judgment,press_release,committee,chamber,grand_chamber)"),
-    include_mt: bool = Query(False, description="Include judgments HUDOC publishes only in French, machine-translated "
-                             "into English for this tool (unofficial translations)"),
+    include_mt: str = Query("false", description="Unofficial machine translations of judgments HUDOC publishes only "
+                            "in French: false leaves them out, true adds them, only shows nothing else"),
     date_from: Optional[str] = Query(None, description="Earliest judgment_date (YYYY-MM-DD)"),
     date_to: Optional[str] = Query(None, description="Latest judgment_date (YYYY-MM-DD)"),
     sort: str = Query("relevance", pattern="^(relevance|date_desc|date_asc)$"),
@@ -2512,6 +2544,7 @@ def get_case(case_id: str):
                     "WHERE citing_case_id = ?", (case_id,),
                 )
                 case["cites_count"] = cur.fetchone()[0] or 0
+                case["cites_count"] = max(case["cites_count"], _metadata_cites(cur, [case_id]).get(case_id, 0))
                 cur.execute(
                     "SELECT count(DISTINCT citing_case_id) FROM case_citations "
                     "WHERE cited_case_id = ?", (case_id,),
@@ -2612,7 +2645,18 @@ def case_cites(case_id: str, limit: int = Query(100, ge=1, le=500)):
                 "LIMIT ?",
                 (case_id, limit),
             )
-            return {"cites": [_row_to_dict(r) for r in cur.fetchall()]}
+            rows = [_row_to_dict(r) for r in cur.fetchall()]
+            if not rows and _metadata_cites(cur, [case_id]):
+                # a machine translation: what it cites, from HUDOC's metadata (no paragraph)
+                cur.execute(
+                    "SELECT DISTINCT fc.cited_case_id AS case_id, c.title, c.case_no, "
+                    "       c.judgment_date, c.respondent_state, NULL AS para_count "
+                    "FROM french_only_citations fc JOIN cases c ON c.case_id = fc.cited_case_id "
+                    "WHERE fc.citing_case_id = ? ORDER BY c.judgment_date DESC LIMIT ?",
+                    (case_id, limit),
+                )
+                rows = [{**_row_to_dict(r), "source": "hudoc_metadata"} for r in cur.fetchall()]
+            return {"cites": rows}
     except sqlite3.OperationalError:
         return {"cites": [], "note": "case_citations table not yet built"}
     except Exception as exc:
@@ -2636,8 +2680,8 @@ def browse(
     date_from: Optional[str] = Query(None),
     date_to: Optional[str] = Query(None),
     sort: str = Query("date_desc", pattern="^(date_desc|date_asc)$"),
-    include_mt: bool = Query(False, description="Include judgments HUDOC publishes only in French, machine-translated "
-                             "into English for this tool (unofficial translations)"),
+    include_mt: str = Query("false", description="Unofficial machine translations of judgments HUDOC publishes only "
+                            "in French: false leaves them out, true adds them, only shows nothing else"),
 ):
     """Browse / filter cases without full-text search."""
     t0 = time.perf_counter()

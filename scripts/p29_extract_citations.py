@@ -167,23 +167,30 @@ class Indexes(NamedTuple):
     by_date_decision: dict[str, list[Doc]]
     docs: dict[str, Doc]
     excluded: set[str]                  # translations: neither cited nor citing
+    not_citing: set[str]                # machine translations: cited, never citing (their own
+                                        # citations come from HUDOC's metadata, french_only_citations)
 
 
 def build_indexes(cur: sqlite3.Cursor) -> Indexes:
-    has_body = any(r[1] == "originating_body" for r in cur.execute("PRAGMA table_info(cases)"))
+    cols = [r[1] for r in cur.execute("PRAGMA table_info(cases)")]
+    has_body = "originating_body" in cols
     cur.execute("SELECT case_id, case_no, title, judgment_date, document_type, "
                 + ("originating_body" if has_body else "'' AS originating_body")
+                + (", COALESCE(text_origin, '') AS text_origin" if "text_origin" in cols else ", '' AS text_origin")
                 + " FROM cases")
     by_appno: dict[str, list[Doc]] = defaultdict(list)
     by_date_j: dict[str, list[Doc]] = defaultdict(list)
     by_date_d: dict[str, list[Doc]] = defaultdict(list)
     docs: dict[str, Doc] = {}
     excluded: set[str] = set()
+    not_citing: set[str] = set()
     for r in cur.fetchall():
         title = r["title"] or ""
         if TRANSLATION_RE.search(title):
             excluded.add(r["case_id"])
             continue
+        if r["text_origin"] == "machine_translation":
+            not_citing.add(r["case_id"])
         dtype = r["document_type"] or ""
         is_dec = dtype.startswith("Decision")
         left, _, right = fold(title.replace("CASE OF ", "")).partition(" v. ")
@@ -208,7 +215,7 @@ def build_indexes(cur: sqlite3.Cursor) -> Indexes:
         # case_no often holds several appnos for joined cases ("32310/08; 33191/08").
         for part in own:
             by_appno[part].append(doc)
-    return Indexes(by_appno, by_date_j, by_date_d, docs, excluded)
+    return Indexes(by_appno, by_date_j, by_date_d, docs, excluded, not_citing)
 
 
 def extract_appnos(text: str) -> list[tuple[str, int, int]]:
@@ -425,7 +432,7 @@ def hudoc_additions(cur, idx: Indexes, citations: list, text_appnos: dict, stats
     for r in rows:
         citing_id = r["case_id"]
         citing = idx.docs.get(citing_id)
-        if citing is None or citing_id in idx.excluded:
+        if citing is None or citing_id in idx.excluded or citing_id in idx.not_citing:
             continue
         have = covered[citing_id]
 
@@ -494,11 +501,13 @@ def main() -> int:
     print("building case indexes…")
     idx = build_indexes(cur)
     print(f"  {len(idx.docs):,} documents, {len(idx.by_appno):,} unique application numbers, "
-          f"{len(idx.excluded):,} translations excluded")
+          f"{len(idx.excluded):,} translations excluded, "
+          f"{len(idx.not_citing):,} machine translations cited only")
 
     print("\nscanning paragraphs for citations…")
     cur.execute("SELECT DISTINCT case_id FROM paragraphs ORDER BY case_id")
-    case_ids = [r["case_id"] for r in cur.fetchall() if r["case_id"] not in idx.excluded]
+    case_ids = [r["case_id"] for r in cur.fetchall()
+                if r["case_id"] not in idx.excluded and r["case_id"] not in idx.not_citing]
     if args.limit_cases:
         case_ids = case_ids[: args.limit_cases]
 

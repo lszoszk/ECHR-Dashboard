@@ -2562,3 +2562,5 @@ body { padding-bottom: var(--bar-h); }
 }
 .paragraph-item .para-actions a.hudoc-para-link:hover,
 .paragraph-item .para-actions button:not(.ws-star):hover { color: var(--garnet); border-color: var(--garnet-edge, var(--garnet)); background: var(--paper-2); }
+/* "802 only in French" under the Cited-by bar */
+.researcher-bar-note { margin-top: 2px; text-align: right; font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.04em; color: var(--ink-3); }

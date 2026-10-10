@@ -37,13 +37,19 @@ from collections import defaultdict
 def build_graph(con: sqlite3.Connection) -> dict[str, dict]:
     cites: dict[str, set] = defaultdict(set)
     cited_by: dict[str, set] = defaultdict(set)
+    # Semantic Search is English-only: machine translations are left out of its graph (they are
+    # cited in case_citations, and count as French-only citers below).
+    has_mt = any(r[1] == "text_origin" for r in con.execute("PRAGMA table_info(cases)"))
+    mt = ({r[0] for r in con.execute("SELECT case_id FROM cases WHERE text_origin = 'machine_translation'")}
+          if has_mt else set())
     for citing, cited in con.execute(
             "SELECT DISTINCT citing_case_id, cited_case_id FROM case_citations"):
+        if citing in mt or cited in mt:
+            continue
         cites[citing].add(cited)
         cited_by[cited].add(citing)
     french: dict[str, int] = {}
     # machine translations stay French-only citers (they are never citing in case_citations)
-    has_mt = any(r[1] == "text_origin" for r in con.execute("PRAGMA table_info(cases)"))
     corpus = ("SELECT case_id FROM cases WHERE COALESCE(text_origin, '') != 'machine_translation'"
               if has_mt else "SELECT case_id FROM cases")
     try:
@@ -53,7 +59,7 @@ def build_graph(con: sqlite3.Connection) -> dict[str, dict]:
             french[cited] = n
     except sqlite3.OperationalError:
         pass  # no french_only_citations table: no French-only citers
-    ids = set(cites) | set(cited_by) | set(french)
+    ids = (set(cites) | set(cited_by) | set(french)) - mt
     graph: dict[str, dict] = {}
     for case_id, title, case_no, judgment_date in con.execute(
             "SELECT case_id, title, case_no, judgment_date FROM cases"):
