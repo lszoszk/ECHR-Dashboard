@@ -1135,6 +1135,19 @@ function parseQuery(query) {
   return { andTerms, orGroups };
 }
 
+/* Words of a server query to mark in the text: not the operators, nor the word after NOT. */
+function queryHighlightTerms(query) {
+  const out = [];
+  let skip = false;
+  for (const w of query.toLowerCase().split(/\s+/).filter(Boolean)) {
+    if (w === "not") { skip = true; continue; }
+    if (w === "or" || w === "and" || w === "near") continue;
+    if (skip) { skip = false; continue; }
+    out.push(w);
+  }
+  return out;
+}
+
 function highlightTerms(text, terms) {
   let html = escapeHtml(text);
   const sortedTerms = [...new Set(terms)].sort((a, b) => b.length - a.length);
@@ -6212,7 +6225,7 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
       state.currentMode = "search";
       state.currentResultsById = resultsById;
       state.currentOrderedCaseIds = orderedCaseIds;
-      state.currentTerms = query.toLowerCase().split(/\s+/).filter(Boolean);
+      state.currentTerms = queryHighlightTerms(query);
       state.totalHits = data.total_hits || 0;
       state.limited = false;
       state.searchTimeMs = data.search_time_ms || (t1 - t0);
@@ -6299,7 +6312,7 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
     state.currentMode = query ? "search" : "browse";
     state.currentOrderedCaseIds = orderedCaseIds;
     state.currentResultsById = resultsById;
-    state.currentTerms = query.toLowerCase().split(/\s+/).filter(Boolean);
+    state.currentTerms = queryHighlightTerms(query);
     state.totalHits = data.total_hits || 0;
     state.limited = false;
     state.searchTimeMs = data.search_time_ms || (t1 - t0);

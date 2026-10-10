@@ -262,6 +262,27 @@ def _extract_phrases(raw: str) -> tuple[list[str], str]:
     return phrases, "".join(remainder_parts)
 
 
+_PREFIX_ENDINGS = ("", "e", "ed", "es", "s", "ion", "ions", "ing", "y", "al", "ive")
+_STEMMER: list = []
+_STEMMER_LOCK = threading.Lock()
+
+
+def _porter_stem(word: str) -> str:
+    """The stem the index stores for ``word``, from SQLite's own porter tokenizer (the one the
+    paragraph index uses), so that a prefix query can be matched against stems."""
+    with _STEMMER_LOCK:
+        if not _STEMMER:
+            con = sqlite3.connect(":memory:", check_same_thread=False)
+            con.execute("CREATE VIRTUAL TABLE s USING fts5(t, tokenize='porter unicode61')")
+            con.execute("CREATE VIRTUAL TABLE v USING fts5vocab(s, 'row')")
+            _STEMMER.append(con)
+        con = _STEMMER[0]
+        con.execute("DELETE FROM s")
+        con.execute("INSERT INTO s(t) VALUES (?)", (word,))
+        row = con.execute("SELECT term FROM v LIMIT 1").fetchone()
+        return row[0] if row else word.lower()
+
+
 def _build_fts_query(raw: str, broaden: bool = False) -> str:
     """
     Convert a user query string into an FTS5 MATCH expression.
@@ -284,7 +305,10 @@ def _build_fts_query(raw: str, broaden: bool = False) -> str:
            FTS5 and bypass the Porter stemmer, so ``detention`` would not
            match ``detained``.  Bare tokens are stemmed normally.
         5. Join everything with ``AND`` by default; honour an explicit
-           uppercase ``OR`` between tokens as a disjunction.
+           uppercase ``OR`` between tokens as a disjunction, and ``NOT``
+           before a token as an exclusion (FTS5 binary NOT).
+        6. A trailing ``*`` after at least three letters (``discriminat*``)
+           is kept as an FTS5 prefix query: every word beginning so.
     """
     raw = (raw or "").strip()
     if not raw:
@@ -304,6 +328,8 @@ def _build_fts_query(raw: str, broaden: bool = False) -> str:
     # ``O'Halloran`` becomes two tokens (``O`` ``Halloran``) that align
     # with how unicode61 tokenized them at index time.  Then split on
     # whitespace to get clean bare tokens.
+    # A trailing * (prefix query) survives the character filter under a stand-in.
+    remainder = re.sub(r"(\w{3,})\*", "\\1\u204e", remainder)
     normalised = _FTS5_DANGEROUS_CHARS.sub(" ", remainder).replace('"', " ")
     # Cap bare tokens — a pasted multi-page query would otherwise build a
     # MATCH expression with hundreds of AND-ed terms (~0.2 s/term against
@@ -311,6 +337,7 @@ def _build_fts_query(raw: str, broaden: bool = False) -> str:
     # genuine query.
     tokens = normalised.split()[:40]
     near_pending = False
+    drop_next = False   # the term after a leading NOT: nothing to exclude it from
     for tok in tokens:
         upper = tok.upper()
         if upper == "OR":
@@ -325,11 +352,39 @@ def _build_fts_query(raw: str, broaden: bool = False) -> str:
                 parts.pop()          # drop the implicit AND; term stays last
                 near_pending = True
             continue
+        if upper == "NOT":
+            # "a NOT b": FTS5's binary NOT replaces the joining operator; a leading NOT has no
+            # left side in FTS5 and is dropped.
+            if len(parts) >= 2 and parts[-1] in ("AND", "OR"):
+                # NOT binds tighter than AND/OR in FTS5; group what came before, so that
+                # "a OR b NOT c" excludes c from both a and b, as a reader expects.
+                parts = [f"({' '.join(parts[:-1])})", "NOT"] if len(parts) > 2 else [parts[0], "NOT"]
+            else:
+                drop_next = True
+            continue
         if upper in _FTS5_RESERVED_OPERATORS:
-            # Swallow stray AND/NOT — they're implicit or unsupported.
+            # Swallow a stray AND — it is implicit.
             continue
         if not tok:
             continue
+        if drop_next:
+            drop_next = False
+            continue
+        if tok.endswith("\u204e"):
+            # prefix query: every word beginning so. The index holds stems ("discrimination" is
+            # "discrimin"), which a raw prefix can overshoot, so the stems of the prefix completed
+            # with common endings are matched as well (discriminat* -> discrimin, discriminatori).
+            prefix = tok[:-1].replace("\u204e", "")
+            stems = sorted({_porter_stem(prefix + end) for end in _PREFIX_ENDINGS}
+                           - {prefix.lower()})
+            stems = [x for x in stems if x[:3] == prefix[:3].lower() and x.isalnum()
+                     and len(x) >= max(4, len(prefix) - 3)]
+            tok = f"({' OR '.join([prefix + '*'] + stems)})" if stems else f"{prefix}*"
+            near_pending = False
+            parts.append(tok)
+            parts.append("OR" if broaden else "AND")
+            continue
+        tok = tok.replace("\u204e", "")
         if near_pending and parts:
             prev = parts.pop()
             if prev.startswith("NEAR(") and prev.endswith(")"):
@@ -357,7 +412,7 @@ def _build_fts_query(raw: str, broaden: bool = False) -> str:
         parts.append("AND")
 
     # Remove trailing operator.
-    if parts and parts[-1] in ("AND", "OR"):
+    if parts and parts[-1] in ("AND", "OR", "NOT"):
         parts.pop()
 
     expr = " ".join(parts)

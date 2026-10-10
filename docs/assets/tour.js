@@ -17,7 +17,7 @@
   const DONE_KEY = "echr-tour-done";
   const onSearchPage = !!document.getElementById("searchInput");
   const fmt = (n) => Number(n).toLocaleString("en-GB");
-  const EXAMPLES = ['"margin of appreciation" article:10', 'violation:3 "police custody"', "cites:hatton"];
+  const EXAMPLES = ["surveillance OR interception NOT terrorism", "discriminat* Roma", '"margin of appreciation" article:10'];
 
   const CSS = `
   .tourwrap{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;padding:16px;
@@ -99,8 +99,9 @@
        <div class="tour-cap" style="margin-top:12px">How the texts were split, labelled and checked: Methodology, in the bottom bar.</div>`,
       `<div class="tour-kicker">Search</div>
        <h2 class="tour-h">From a phrase to the paragraph.</h2>
-       <div class="tour-lead">Type a phrase, or use HUDOC's operators — <code>article:8</code>, <code>violation:3</code>,
-         <code>state:Poland</code>, <code>cites:hatton</code>, <code>NEAR</code>. Every result opens at the paragraph, with its
+       <div class="tour-lead">Type words or a <code>"phrase"</code>, combine them with <code>OR</code> and <code>NOT</code>, and end a word
+         with <code>*</code> for every word that begins so (<code>discriminat*</code>); HUDOC's own operators work too
+         (<code>article:8</code>, <code>cites:hatton</code>, <code>NEAR</code>). Every result opens at the paragraph, with its
          number and the judgment's other matches; Cite copies an OSCOLA citation and ☆ Bookmark saves it to your Workspace. Try one:</div>
        <div class="tour-chips">${EXAMPLES.map((q) => `<button type="button" data-tour-q="${q.replace(/"/g, "&quot;")}">${q.replace(/</g, "&lt;")}</button>`).join("")}</div>`,
       `<div class="tour-kicker">Built for research</div>
