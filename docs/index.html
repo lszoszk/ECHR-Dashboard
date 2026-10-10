@@ -43,11 +43,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css?v=20261010-ui3">
   <link rel="stylesheet" href="assets/search-app.css?v=20260727-reading-space">
-  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261010-ui4">
+  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261010-cit">
   <link rel="stylesheet" href="assets/judgment-hudoc.css?v=20260706-deadmodal">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
-  <script src="assets/tour.js?v=20261010-ops" defer></script>
+  <script src="assets/tour.js?v=20261010-cit" defer></script>
   <script src="assets/workspace.js?v=20261010-ws"></script>
   <script src="assets/cite.js?v=20261010-cite" defer></script>
 </head>
@@ -115,7 +115,7 @@
           <div class="search-tips search-try" id="searchTry">
             <span class="tip">Try</span>
             <button type="button" class="try-q" data-q="surveillance OR interception NOT terrorism" title="Either word, leaving out paragraphs that mention terrorism"><code>surveillance OR interception NOT terrorism</code></button>
-            <button type="button" class="try-q" data-q="discriminat* Roma" title="A trailing * matches every word that begins so: discrimination, discriminatory, discriminated"><code>discriminat* Roma</code></button>
+            <button type="button" class="try-q" data-q="environment* pollution" title="A trailing * matches every word that begins so: environment, environmental"><code>environment* pollution</code></button>
             <button type="button" class="try-q" data-q='"margin of appreciation" article:10' title="Exact phrase, limited to one Convention article"><code>"margin of appreciation" article:10</code></button>
             <button type="button" class="try-q" data-q="cites:hatton" title="Judgments that cite Hatton and Others v. the United Kingdom"><code>cites:hatton</code></button>
             <details class="ops-more">
@@ -124,7 +124,7 @@
                 <div role="listitem"><code>"exact phrase"</code><span>exact word order</span></div>
                 <div role="listitem"><code>torture OR inhuman</code><span>either term &mdash; <code>AND</code> is implicit between words</span></div>
                 <div role="listitem"><code>expulsion NOT asylum</code><span>leave out paragraphs with a word &mdash; <code>a OR b NOT c</code> leaves <code>c</code> out of both</span></div>
-                <div role="listitem"><code>discriminat*</code><span>every word that begins so &mdash; discrimination, discriminatory&hellip; (at least 3 letters before <code>*</code>)</span></div>
+                <div role="listitem"><code>environment*</code><span>every word that begins so &mdash; environment, environmental&hellip; (at least 3 letters before <code>*</code>)</span></div>
                 <div role="listitem"><code>data NEAR retention</code><span>terms near each other &mdash; as in HUDOC</span></div>
                 <div role="listitem"><code>article:8</code><span>Convention article &mdash; also <code>article:P1-1</code></span></div>
                 <div role="listitem"><code>violation:8</code> <code>nonviolation:8</code><span>outcome for a specific article &mdash; as in HUDOC; <code>violation:3+14</code> requires both</span></div>
@@ -150,8 +150,8 @@
         <div class="rail-scope" id="bucketScope">
           <section class="scope-block" aria-labelledby="collectionTitle">
             <h3 class="filter-title" id="collectionTitle">Collection</h3>
-            <label class="cb-label scope-fixed" title="Always searched: the English texts of the judgments as published on HUDOC">
-              <input type="checkbox" checked disabled>
+            <label class="cb-label scope-fixed" title="The English texts of the judgments as published on HUDOC. Untick it, with the translations ticked, to search the translations alone">
+              <input type="checkbox" id="includeOfficial" checked disabled>
               <span>Judgments &mdash; official English texts <span class="filter-count" id="officialCount"></span></span>
             </label>
             <div class="mt-scope" id="mtPill" hidden>
@@ -557,6 +557,6 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
-  <script src="assets/search-app.js?v=20261010-ops"></script>
+  <script src="assets/search-app.js?v=20261010-cit"></script>
 </body>
 </html>

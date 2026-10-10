@@ -213,7 +213,7 @@ On a judgment the Court published in both languages and that was kept out of the
 ### Limits
 
 - Errors remain possible, especially in legal terms of art, long quotations and tables. The human review of the listed paragraphs is not finished.
-- The translations are not in Semantic Search and are not counted in the citation graph as judgments (they neither cite nor are cited). A French-only judgment that cites a case still counts in its *Cited by*, from HUDOC's metadata, whether or not it has been translated.
+- The translations are not in Semantic Search. In the citation graph a translated judgment can be cited (an English judgment's reference to its application number resolves to it, as to any judgment), but its own *Cites* come from HUDOC's metadata, never from the translated text, so that a translation slip cannot create a link. A French-only judgment that cites a case counts in that case's *Cited by* whether or not it has been translated; the cards show how many of the citing judgments exist only in French, and the Statistics page counts the same way.
 - Corrections are welcome: <l.szoszkiewicz@amu.edu.pl>.
 
 ## Analytics & privacy

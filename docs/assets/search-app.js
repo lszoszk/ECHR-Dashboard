@@ -127,7 +127,7 @@ const serverSearch = {
     const serverOutcomes = serverOutcomeValues(filters.outcomes);
     if (serverOutcomes.length) p.set("outcomes", serverOutcomes.join(","));
     if (filters.docTypes.size) p.set("doc_types", [...filters.docTypes].join(","));
-    if (filters.includeMt) p.set("include_mt", "true");
+    if (filters.includeMt) p.set("include_mt", filters.includeMt === "only" ? "only" : "true");
     // filters.dateFrom/dateTo are epoch-ms (parseDateInput → getTime()).
     // The API compares against judgment_date, so send an ISO yyyy-mm-dd
     // string it can normalise — never the raw timestamp.
@@ -1588,7 +1588,7 @@ function wsFilterSnapshot() {
   const arr = (x) => [...(x || [])];
   return {
     countries: arr(f.countries), articles: arr(f.articles), keywords: arr(f.keywords), importance: arr(f.importance),
-    outcomes: arr(f.outcomes), docTypes: arr(f.docTypes), buckets: arr(f.buckets), includeMt: !!f.includeMt,
+    outcomes: arr(f.outcomes), docTypes: arr(f.docTypes), buckets: arr(f.buckets), includeMt: f.includeMt || false,
     includeExtra: !!f.includeMeta, includeAppendix: !!f.includeAppendix,
     dateFrom: el.dateFrom.value || "", dateTo: el.dateTo.value || "",
   };
@@ -1605,8 +1605,24 @@ function wsFilterSummary(s) {
   if (s.dateFrom || s.dateTo) parts.push(`${s.dateFrom.slice(0, 4) || "…"}–${s.dateTo.slice(0, 4) || "…"}`);
   const allBuckets = document.querySelectorAll('#bucketScope input[data-name="buckets"]').length;
   if (s.buckets.length && s.buckets.length < allBuckets) parts.push(`in ${s.buckets.map((b) => SECTION_BUCKETS[b]?.label || b).join(", ")}`);
-  if (s.includeMt) parts.push("+ machine translations");
+  if (s.includeMt) parts.push(s.includeMt === "only" ? "machine translations only" : "+ machine translations");
   return parts.join(" · ");
+}
+
+/* Collection: the official English texts, the machine translations, or both. The official box
+ * can be unticked only while the translations are ticked, so that something is always searched. */
+function collectionMode() {
+  const mt = document.getElementById("includeMachineTranslations");
+  if (!mt || !mt.checked) return false;
+  return document.getElementById("includeOfficial")?.checked === false ? "only" : "true";
+}
+
+function syncCollectionBoxes() {
+  const mt = document.getElementById("includeMachineTranslations");
+  const official = document.getElementById("includeOfficial");
+  if (!official) return;
+  if (!mt || !mt.checked) official.checked = true;
+  official.disabled = !mt || !mt.checked;
 }
 
 /** Put a saved search's filters back on the page (the rail must be rendered). */
@@ -1618,6 +1634,9 @@ function wsApplySnapshot(s) {
   document.querySelectorAll('#bucketScope input[data-name="buckets"]').forEach((i) => { i.checked = buckets ? buckets.includes(i.value) : true; });
   const mt = document.getElementById("includeMachineTranslations");
   if (mt) mt.checked = !!s.includeMt && !document.getElementById("mtPill")?.hidden;
+  const official = document.getElementById("includeOfficial");
+  if (official) official.checked = !(mt && mt.checked && s.includeMt === "only");
+  syncCollectionBoxes();
   const mtNotice = document.getElementById("mtNotice");
   if (mtNotice) mtNotice.hidden = !(mt && mt.checked);
   const extra = document.getElementById("scopeIncludeExtra");
@@ -2745,7 +2764,7 @@ function getCurrentFilters() {
     importance: collectChecked("importance"),
     outcomes: collectChecked("outcomes"),
     docTypes: collectChecked("docTypes"),
-    includeMt: !!document.getElementById("includeMachineTranslations")?.checked,
+    includeMt: collectionMode(),
     presence: collectChecked("presence"),
     dateFrom: parseDateInput(el.dateFrom.value),
     dateTo: parseDateInput(el.dateTo.value),
@@ -2814,6 +2833,7 @@ function passesCaseFilters(c, filters, serverChecked = false) {
   // are not hidden again here.
   if (!serverChecked && c.__isDecision && !filters.docTypes.has("decision")) return false;
   if (!serverChecked && c.__isMt && !filters.includeMt) return false;
+  if (!serverChecked && !c.__isMt && filters.includeMt === "only") return false;
   if (filters.docTypes.size) {
     const dtKeys = c.__isDecision
       ? ["decision"]
@@ -3243,7 +3263,9 @@ function renderActiveFilters(filters) {
   // Scope first (left-rail Collection and Search in), each removable from here.
   if (filters.includeMt) {
     chips.push(`<button type="button" class="filter-chip scope-chip mt-scope-chip" data-clear-scope="mt"
-      title="Remove the machine translations from the search">+ English machine translations of French-only judgments (unofficial) <span aria-hidden="true">✕</span></button>`);
+      title="Back to the official English texts only">${filters.includeMt === "only"
+        ? "Only English machine translations of French-only judgments (unofficial)"
+        : "+ English machine translations of French-only judgments (unofficial)"} <span aria-hidden="true">✕</span></button>`);
   }
   const bucketKeys = [...document.querySelectorAll('#bucketScope input[data-name="buckets"]')].map((i) => i.value);
   if (!filters.sections.size && filters.buckets.size && filters.buckets.size < bucketKeys.length) {
@@ -4942,7 +4964,10 @@ function buildResearcherBars(c, row) {
       </div>
     `;
   };
-  return `${bar("hits", hits, true)}${bar("cites", cites, false, true)}${bar("cited by", cited, false, true, citedByTitle(c))}`;
+  const fr = Number(c.__citedByFrenchOnly || 0);
+  const frNote = fr > 0 && cited > 0
+    ? `<div class="researcher-bar-note" title="${escapeHtml(citedByTitle(c))}">${fmtInt.format(fr)} only in French</div>` : "";
+  return `${bar("hits", hits, true)}${bar("cites", cites, false, true)}${bar("cited by", cited, false, true, citedByTitle(c))}${frNote}`;
 }
 
 /* The (i) next to "Influence" on a result card: what the three bars mean. One pop-up at a time;
@@ -5947,7 +5972,7 @@ async function fetchAndRenderServerAnalytics(query, filters) {
     const serverOutcomes = serverOutcomeValues(filters.outcomes);
     if (serverOutcomes.length) p.set("outcomes", serverOutcomes.join(","));
     if (filters.docTypes.size) p.set("doc_types", [...filters.docTypes].join(","));
-    if (filters.includeMt) p.set("include_mt", "true");
+    if (filters.includeMt) p.set("include_mt", filters.includeMt === "only" ? "only" : "true");
     if (filters.dateFrom) p.set("date_from", filters.dateFrom);
     if (filters.dateTo) p.set("date_to", filters.dateTo);
 
@@ -7137,6 +7162,7 @@ function bindEvents() {
   // above the filters panel, outside its change listener.  Wire them
   // up to re-run the search on any change.
   document.getElementById("bucketScope")?.addEventListener("change", () => {
+    syncCollectionBoxes();
     const mtNotice = document.getElementById("mtNotice");
     if (mtNotice) mtNotice.hidden = !document.getElementById("includeMachineTranslations")?.checked;
     if (!state.loaded && !serverSearch.available) return;
@@ -7152,6 +7178,7 @@ function bindEvents() {
     if (chip.dataset.clearScope === "mt") {
       const mt = document.getElementById("includeMachineTranslations");
       if (mt) mt.checked = false;
+      syncCollectionBoxes();
     } else {
       scope?.querySelectorAll('input[data-name="buckets"]').forEach((i) => { i.checked = true; });
     }
