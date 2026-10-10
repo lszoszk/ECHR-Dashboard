@@ -136,6 +136,7 @@ def run_paragraph_search(q, respondent=None, article=None, section=None):
         out.append({"score": round(float(base) + IMP_BOOST * _auth(cid) - pen, 4), "case_id": cid,
             "case_no": m.get("case_no", "") or "", "title": m.get("title", "") or "", "hudoc_url": m.get("hudoc", "") or "",
             "judgment_date": m.get("date", "") or "", "respondent": m.get("state", "") or "", "articles": arts,
+            "importance": m.get("importance", "") or "", "body": m.get("body", "") or "",
             "section": sec, "para_idx": s if s is not None else 0, "text": txt.get(rid[p], "")})
     out.sort(key=lambda x: -x["score"]); return out
 
@@ -181,6 +182,7 @@ def hybrid_fuse(cases, q, keep=HYBRID_KEEP, k_rrf=60):
         extra.append({"case_id": cid, "case_no": m.get("case_no", "") or "", "title": m.get("title", "") or "",
                       "hudoc_url": m.get("hudoc", "") or "", "judgment_date": m.get("date", "") or "",
                       "respondent": m.get("state", "") or "",
+                      "importance": m.get("importance", "") or "", "body": m.get("body", "") or "",
                       "articles": [str(x) for x in (m.get("violation") or [])],
                       "top_score": 0.0, "hits": [], "hit_count": 0, "matched_via": "keyword"})
         have.add(cid)
@@ -194,6 +196,7 @@ def group_by_case(paras, k):
         if cid not in g:
             g[cid] = {"case_id": cid, "case_no": p["case_no"], "title": p["title"], "hudoc_url": p["hudoc_url"],
                       "judgment_date": p["judgment_date"], "respondent": p["respondent"], "articles": list(p["articles"]),
+                      "importance": p["importance"], "body": p["body"],
                       "top_score": p["score"], "hits": []}
         c = g[cid]
         if p["score"] > c["top_score"]: c["top_score"] = p["score"]
@@ -257,8 +260,29 @@ def citations(req: CitReq):
             if tgt in id_set and tgt != cid: edges.append({"from": cid, "to": tgt})
         cs[cid] = expand(cites); cbs[cid] = expand(citedby)
     return {"edges": edges, "cited_by_total": cbt, "cites_total": ct, "cited_by_sample": cbs,
-            "cites_sample": cs, "meta": meta,
+            "cites_sample": cs, "meta": meta, "established": _established(graph, ids[:20], edges),
             "stats": {"source": "graph", "elapsed_seconds": round(time.time() - t0, 3)}}
+
+
+def _established(graph: dict, top: list, edges: list) -> dict:
+    """How established the issue looks among the top results, from the full citation graph:
+    the judgments most of them cite (shared authority), and how densely they cite each other."""
+    from collections import Counter
+    shared = Counter()
+    for cid in top:
+        for tgt in set((graph.get(cid) or {}).get("cites", [])):
+            shared[tgt] += 1
+    lead = []
+    for tgt, n in shared.most_common(3):
+        node = graph.get(tgt) or {}
+        lead.append({"case_id": tgt, "title": node.get("title", ""), "case_no": node.get("case_no", ""),
+                     "judgment_date": node.get("judgment_date", ""), "cited_by_top": n,
+                     "in_results": tgt in top})
+    inner = [e for e in edges if e["from"] in top and e["to"] in top]
+    linked = {e["from"] for e in inner} | {e["to"] for e in inner}
+    n = len(top)
+    return {"top_n": n, "shared": lead, "links": len(inner), "linked": len(linked),
+            "density": round(len(inner) / (n * (n - 1)), 3) if n > 1 else 0.0}
 
 @rag_app.get("/respondents")
 def respondents(): return {"respondents": _load()["respondents"]}

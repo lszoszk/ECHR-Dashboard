@@ -841,6 +841,11 @@ body.mode-natural .expert-only { display: none; }
 .match-pill.good   { background: oklch(58% 0.10 158); }
 .match-pill.fair   { background: var(--ink-3); }
 .match-pill.weak   { background: var(--ink-4); }
+.match-pill.kw     { background: transparent; color: var(--ink-3); border: 1px dashed var(--ink-4); }
+.est-panel { margin: 10px 0 16px; padding: 10px 14px; border-left: 3px solid var(--garnet); background: var(--paper-2); font-family: var(--body); font-size: 14px; line-height: 1.5; color: var(--ink-2); }
+.est-panel p { margin: 0; }
+.est-panel .est-note { margin-top: 4px; font-size: 12px; color: var(--ink-3); }
+.case-why { margin: 4px 0 6px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .02em; color: var(--ink-3); }
 .hits-pill {
   font-family: var(--mono); font-size: 10px; letter-spacing: .05em; padding: 3px 9px;
   background: var(--garnet); color: var(--paper); border-radius: var(--r-pill); font-weight: 600;
@@ -1452,7 +1457,11 @@ footer {
         model (rerank-3), and the index is now stored more compactly (512 dimensions, 4-bit) so that it fits the server's
         memory. Measured on the same benchmarks, the update and the compact index changed nothing beyond noise; the newer
         second read placed the right judgment first more often (on the 1,570-case test, 65% instead of 58%). We also
-        tried embedding each paragraph together with the rest of its judgment; it did markedly worse and was dropped.</div>
+        tried embedding each paragraph together with the rest of its judgment; it did markedly worse and was dropped.
+        The labels are relative: the second model's scores are not on a fixed scale (one query scores everything
+        above .80, another mostly under .50), so a judgment is called the <em>closest match</em>, <em>related</em> or
+        <em>peripheral</em> against the best result of the same search. The <em>established line</em> note above
+        the results counts which judgment most of the top 20 cite, from the full citation graph.</div>
       <h2>Where to be cautious</h2>
       <div class="box warn"><ul>
         <li><strong>A research aid, not legal advice</strong>, and never a substitute for reading the judgment. Always open the case on HUDOC and verify.</li>
@@ -1570,44 +1579,45 @@ footer {
 
       <!-- =========== VIEW BAR (A / B / C) — sits with results =========== -->
       <div class="view-bar inline-bar">
-        <span class="folio">Discovery view</span>
+        <span class="folio">View</span>
         <div class="view-toggle" role="tablist">
-          <button class="view-btn active" data-view="A" role="tab" aria-selected="true" aria-controls="view-A"><span class="num" aria-hidden="true">A</span><span>Reporter</span></button>
-          <button class="view-btn" data-view="B" role="tab" aria-selected="false" aria-controls="view-B"><span class="num" aria-hidden="true">B</span><span>Discovery Workspace</span></button>
+          <button class="view-btn active" data-view="A" role="tab" aria-selected="true" aria-controls="view-A"><span class="num" aria-hidden="true">A</span><span>List</span></button>
+          <button class="view-btn" data-view="B" role="tab" aria-selected="false" aria-controls="view-B"><span class="num" aria-hidden="true">B</span><span>Citation network</span></button>
           <button class="view-btn" data-view="C" role="tab" aria-selected="false" aria-controls="view-C"><span class="num" aria-hidden="true">C</span><span>Timeline</span></button>
         </div>
         <span class="view-desc" id="view-desc">A ranked list of judgments — broadsheet layout.</span>
       </div>
+      <div class="est-panel" id="est-panel" role="note" hidden></div>
 
       <!-- VIEW A — Reporter (broadsheet list) -->
-      <section id="view-A" class="view-pane" role="tabpanel" aria-label="Reporter — ranked list of judgments" tabindex="0">
+      <section id="view-A" class="view-pane" role="tabpanel" aria-label="List — ranked judgments" tabindex="0">
         <ul class="case-list" id="case-list"></ul>
       </section>
 
       <!-- VIEW B — Discovery workspace -->
-      <section id="view-B" class="view-pane" role="tabpanel" aria-label="Discovery Workspace — citation constellation" tabindex="0" hidden>
+      <section id="view-B" class="view-pane" role="tabpanel" aria-label="Citation network — paragraphs, judgments by year and their citations" tabindex="0" hidden>
         <div class="workspace">
           <aside class="ws-stream">
             <div class="ws-stream-head">
               <div class="folio" style="color:var(--garnet);">Ranked paragraphs</div>
               <h3 id="ws-stream-count">— passages</h3>
-              <div class="sub" id="ws-stream-sub">By cosine similarity to your case.</div>
+              <div class="sub" id="ws-stream-sub">Ranked by relevance to your case.</div>
             </div>
             <ol class="para-list" id="ws-para-list"></ol>
           </aside>
-          <section class="ws-graph" aria-label="Citation constellation">
+          <section class="ws-graph" aria-label="Citation network">
             <div class="ws-graph-title">
-              <div class="kicker">Citation constellation</div>
+              <div class="kicker">Citation network</div>
               <h2 id="ws-graph-title">The cases that answered your query</h2>
-              <p><strong>X axis = year of judgment · Y axis = similarity to your case · node size = times cited (log scale)</strong>. Arrows show citations <em>between cases visible in this view</em> — a selected case may also cite or be cited by cases not shown here; check the dossier to see all of them. Foundational doctrines (Klass-style) become large; recent cases stay small.</p>
-              <p class="ws-chart-note" id="ws-chart-note" hidden>⚐ Chart capped at 30 most relevant cases. The full result list lives in the “Ranked passages” panel below.</p>
+              <p><strong>X axis = year of judgment · Y axis = relevance, relative to the other results · node size = times cited (log scale)</strong>. Arrows show citations <em>between cases visible in this view</em> — a selected case may also cite or be cited by cases not shown here; check the dossier to see all of them. Foundational doctrines (Klass-style) become large; recent cases stay small.</p>
+              <p class="ws-chart-note" id="ws-chart-note" hidden>⚐ Chart capped at the 30 most relevant judgments. The full list is in “Ranked paragraphs” on the left.</p>
             </div>
             <svg id="ws-svg" viewBox="0 0 1500 1150" preserveAspectRatio="xMidYMid meet"></svg>
             <div class="ws-legend">
               <span style="font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);">Legend</span>
-              <span class="ws-legend-item"><span class="ws-legend-dot" style="background:oklch(38% 0.075 75)"></span>weaker match</span>
-              <span class="ws-legend-item"><span class="ws-legend-dot" style="background:oklch(49% 0.105 75)"></span>·</span>
-              <span class="ws-legend-item"><span class="ws-legend-dot" style="background:oklch(60% 0.14 75)"></span>stronger match</span>
+              <span class="ws-legend-item"><span class="ws-legend-dot" style="background:var(--ink-3)"></span>peripheral</span>
+              <span class="ws-legend-item"><span class="ws-legend-dot" style="background:oklch(38% 0.075 75)"></span>related</span>
+              <span class="ws-legend-item"><span class="ws-legend-dot" style="background:oklch(60% 0.14 75)"></span>closest match</span>
               <span class="ws-legend-item"><span class="ws-legend-dot" style="background:var(--garnet)"></span>selected</span>
               <span class="ws-legend-item">— solid arrow: direct citation</span>
               <span class="ws-legend-item">- - dashed: hit-text only</span>
@@ -1809,7 +1819,27 @@ const $ = (id) => document.getElementById(id);
 const escapeHtml = (s) => (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // hudoc_url goes into href, where escapeHtml does not stop javascript: URLs.
 const safeHudocUrl = (u) => /^https:\/\/hudoc\.echr\.coe\.int\//.test(String(u||'').trim()) ? String(u).trim() : '#';
-const matchLabel = (s) => s>=.80?{cls:'strong',text:'Strong'}:s>=.72?{cls:'good',text:'Good'}:s>=.65?{cls:'fair',text:'Possible'}:{cls:'weak',text:'Weak'};
+// The reranker's scores are not calibrated: their level depends on the query (all above .80 for one,
+// mostly under .50 for another). A judgment is therefore labelled against the best one of this search.
+const matchLabel = (s, c) => {
+  if (c && c.matched_via === 'keyword') return {cls:'kw', text:'Keyword match only'};
+  const d = (state.topScore || s || 0) - (s || 0);
+  return d <= 0.05 ? {cls:'strong', text:'Closest match'} : d <= 0.20 ? {cls:'good', text:'Related'} : {cls:'weak', text:'Peripheral'};
+};
+/* Why a judgment is in the list, in one line: how it was found, a leading-case boost, and what kind of
+ * text its closest paragraph is (quoted law, a separate opinion or the facts rank high but are not the
+ * Court's reasoning). */
+function whyLine(c) {
+  if (c.matched_via === 'keyword') return 'Found by its words only — no paragraph matched by meaning.';
+  const hc = c.hit_count || (c.hits ? c.hits.length : 0);
+  const parts = [`Matched by meaning · ${hc} paragraph${hc === 1 ? '' : 's'}`];
+  if (['Key cases', '1'].includes(c.importance)) parts.push('ranked up as a ' + (c.importance === 'Key cases' ? 'key case' : 'leading case (importance 1)'));
+  const sec = c.hits && c.hits[0] && c.hits[0].section;
+  if (sec === 'Legal Framework') parts.push('closest paragraph is quoted law, not the Court’s reasoning');
+  else if (sec === 'Separate Opinion') parts.push('closest paragraph is a separate opinion');
+  else if (['Circumstances', 'Facts', 'Procedure', 'Introduction', 'Subject Matter'].includes(sec)) parts.push('closest paragraph is from the facts');
+  return parts.join(' · ') + '.';
+}
 // Robust year extraction — works for ISO ("2011-02-08"), DD/MM/YYYY ("08/02/2011"),
 // DD.MM.YYYY, "Feb 8, 2011", or bare "2011". Returns null when no plausible year is present.
 const extractYear = (d) => { const m = d ? String(d).match(/(19\d{2}|20\d{2})/) : null; return m ? +m[1] : null; };
@@ -2057,7 +2087,7 @@ function renderViewA(data) {
   const list = $('case-list');
   if (!data.results || !data.results.length) { list.innerHTML = '<li class="state-msg">No matching paragraphs.</li>'; return; }
   list.innerHTML = data.results.map((c, idx) => {
-    const m = matchLabel(c.top_score);
+    const m = matchLabel(c.top_score, c);
     const prev = (c.hits && c.hits.length) ? previewText(c.hits[0].text) : '';
     const hc = c.hit_count || (c.hits ? c.hits.length : 0);
     const hl = hc === 1 ? '1 passage' : hc + ' passages';
@@ -2069,7 +2099,7 @@ function renderViewA(data) {
           <a class="case-title" href="${escapeHtml(safeHudocUrl(c.hudoc_url))}" target="_blank" rel="noopener" aria-label="${escapeHtml(c.title||c.case_id)} — open in HUDOC, opens in a new tab">${escapeHtml(c.title||c.case_id)}<span class="ext" aria-hidden="true">HUDOC&#8599;</span></a>
           <div class="case-pills">
             <span class="match-pill ${m.cls}">${m.text}</span>
-            <span class="hits-pill">${hl}</span>
+            ${c.matched_via === 'keyword' ? '' : `<span class="hits-pill">${hl}</span>`}
           </div>
         </div>
         <div class="case-meta">
@@ -2078,6 +2108,7 @@ function renderViewA(data) {
           ${ah}
           ${(c.hits&&c.hits[0]&&c.hits[0].section==='Legal Framework')?'<span class="meta-tag lf" title="The closest passage sits in the Legal Framework section \u2014 quoted Convention/domestic/international provisions, not the Court\u2019s own reasoning">\u00a7 legal framework</span>':''}
         </div>
+        <p class="case-why">${escapeHtml(whyLine(c))}</p>
         <p class="case-preview">${escapeHtml(prev)}</p>
         <button type="button" class="case-toggle" aria-expanded="false" onclick="toggleCase(${idx}, this)"><span class="arrow" aria-hidden="true">▶</span> Read the ${hl}</button>
         <div class="case-hits">
@@ -2116,7 +2147,7 @@ function renderViewB(data) {
   }
   const paras = flattenAllParas(data);
   $('ws-stream-count').textContent = paras.length + ' passages';
-  $('ws-stream-sub').textContent = (data.mode==='natural' ? 'By cosine similarity to your case.' : 'By BM25 similarity.');
+  $('ws-stream-sub').textContent = 'Ranked by relevance to your case (a second model re-reads the closest paragraphs; leading cases are nudged up).';
   $('ws-graph-title').textContent = `${data.results.length} judgments answered your query`;
 
   // Stream
@@ -2153,11 +2184,11 @@ function renderConstellation(data) {
   // garnet "chart capped at 30" note when >30 results were returned).
   const w = 1500, h = 1150, padX = 100, padY = 110, padYTop = 300;
   const svg = $('ws-svg');
-  // Cap to top 30 by case_score to keep the chart legible — beyond that it's pure noise.
-  const cases = data.results.slice(0, 30);
+  // The first 30 judgments found by meaning, in the API's order; keyword-only ones have no score to plot.
+  const cases = data.results.filter(c => c.matched_via !== 'keyword').slice(0, 30);
   // Show the "capped at 30" note only when there are actually more than 30 results.
   const note = $('ws-chart-note');
-  if (note) note.hidden = !(data.results && data.results.length > 30);
+  if (note) note.hidden = !(data.results && data.results.filter(c => c.matched_via !== 'keyword').length > 30);
   if (!cases.length) { svg.innerHTML = ''; return; }
 
   // ---- 1) Year axis (X) ----
@@ -2215,7 +2246,7 @@ function renderConstellation(data) {
       y: baseYof(c),
       r: sizeOf(c),
       score: c.top_score,
-      m: matchLabel(c.top_score),
+      m: matchLabel(c.top_score, c),
     };
   });
 
@@ -2386,11 +2417,12 @@ function renderConstellation(data) {
 
   // Continuous color: the better the similarity, the brighter & more saturated the green.
   // Below 0.5 falls into greys. This gives visible contrast even when all results are "good".
+  // Relative to the best judgment of this search, like the labels: grey beyond 0.20 below it.
   const colorForScore = (s) => {
     if (s == null || isNaN(s)) return 'var(--ink-4)';
-    if (s < 0.50) return 'var(--ink-4)';
-    if (s < 0.65) return 'var(--ink-3)';
-    const t = Math.min(1, Math.max(0, (s - 0.65) / 0.30));    // 0..1 across 0.65..0.95
+    const d = (state.topScore || s) - s;
+    if (d > 0.20) return 'var(--ink-3)';
+    const t = Math.min(1, Math.max(0, 1 - d / 0.20));           // 0..1 from 0.20 below the best to the best
     const lightness = (35 + t * 25).toFixed(1);                 // 35%..60%
     const chroma    = (0.07 + t * 0.07).toFixed(3);             // 0.07..0.14
     return `oklch(${lightness}% ${chroma} 75)`;
@@ -2532,7 +2564,7 @@ function openCompareView() {
       <h3>${escapeHtml(c.title||c.case_id)}</h3>
       <div class="cmp-meta">${escapeHtml(c.respondent||'')} · ${escapeHtml(c.judgment_date||'')}</div>
       <div class="cmp-chips">
-        <span class="chip garnet">${escapeHtml(matchLabel(c.top_score).text)} match</span>
+        <span class="chip garnet">${escapeHtml(matchLabel(c.top_score, c).text)}</span>
         ${arts}
       </div>
       <hr class="rule">
@@ -2600,8 +2632,9 @@ function renderDossier(data) {
 
   $('ws-dossier').innerHTML = `
     <div class="dossier">
-      <div class="dossier-kicker">Dossier · ${escapeHtml(matchLabel(c.top_score).text)} match</div>
+      <div class="dossier-kicker">Case · ${escapeHtml(matchLabel(c.top_score, c).text)}</div>
       <h3>${escapeHtml(c.title||c.case_id)}</h3>
+      <p class="case-why">${escapeHtml(whyLine(c))}</p>
       <div class="dossier-meta">${escapeHtml(c.case_no||'')} · ${escapeHtml(c.respondent||'')} · ${escapeHtml(c.judgment_date||'')}</div>
       <div class="dossier-chips">
         <span class="chip garnet">${escapeHtml(c.respondent||'')}</span>
@@ -2613,8 +2646,8 @@ function renderDossier(data) {
       </div>
       ${citationBlock}
       <div class="dossier-section">
-        <h4>Hit passages (${(c.hits||[]).length})</h4>
-        ${passages || '<p class="muted italic">No passages.</p>'}
+        <h4>Matching paragraphs (${(c.hits||[]).length})</h4>
+        ${passages || `<p class="muted italic">${c.matched_via === 'keyword' ? 'Found by its words only — no paragraph matched by meaning. Read it in HUDOC.' : 'No paragraphs.'}</p>`}
       </div>
     </div>`;
 }
@@ -2999,11 +3032,11 @@ function composeNarration(docId, year, waypoints, active, yearWps) {
     const n = yearWps.length, paras = yearWps.reduce((s, w) => s + (w.raw.hits||[]).length, 0);
     const best = Math.max(...yearWps.map(w => w.score||0));
     const names = yearWps.slice(0, 3).map(w => `${w.caseTitle} (${w.label})`).join('; ') + (n > 3 ? `; and ${n-3} more` : '');
-    return `In ${year}, ${n} judgment${n===1?'':'s'}: ${names}. ${paras ? `${paras} matching paragraph${paras===1?'':'s'}${best ? ` — the strongest at ${(best*100).toFixed(0)}% similarity` : ''}.` : `No matching paragraph text was returned${yearWps.every(w => w.raw.matched_via === 'keyword') ? ' (keyword match only)' : ''}.`}`;
+    return `In ${year}, ${n} judgment${n===1?'':'s'}: ${names}. ${paras ? `${paras} matching paragraph${paras===1?'':'s'}${best ? ` — the most relevant scoring ${(best*100).toFixed(0)}` : ''}.` : `No matching paragraph text was returned${yearWps.every(w => w.raw.matched_via === 'keyword') ? ' (keyword match only)' : ''}.`}`;
   }
   const n = active.raw.hit_count || (active.raw.hits||[]).length;
   if (!n) return `In ${active.year}, ${active.caseTitle} (${active.label}). ${active.raw.matched_via === 'keyword' ? 'Matched by keyword only — no paragraph text was returned.' : 'No paragraph text was returned.'}`;
-  return `In ${active.year}, ${active.caseTitle} (${active.label}). ${n} paragraph${n===1?' matches':'s match'} your query — the strongest at ${(active.score*100).toFixed(0)}% similarity.`;
+  return `In ${active.year}, ${active.caseTitle} (${active.label}). ${n} paragraph${n===1?' matches':'s match'} your query — the most relevant scoring ${(active.score*100).toFixed(0)}.`;
 }
 
 /* =========================================================
@@ -3014,7 +3047,7 @@ function setView(v) {
   document.querySelectorAll('.view-btn').forEach(b => { const on = b.dataset.view === v; b.classList.toggle('active', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
   ['A','B','C'].forEach(k => $(`view-${k}`).hidden = (k !== v));
   $('view-desc').textContent = v === 'A' ? 'A ranked list of judgments — broadsheet layout.'
-    : v === 'B' ? 'Three panes: paragraph stream, citation constellation, dossier.'
+    : v === 'B' ? 'Three panes: ranked paragraphs, the citation network of the judgments, and the selected case.'
     : 'Matching judgments by year — click a dot for one judgment, a year for all its paragraphs.';
   if (state.results) {
     if (v === 'B') renderViewB(state.results);
@@ -3028,12 +3061,17 @@ document.querySelectorAll('.view-btn').forEach(b => b.addEventListener('click', 
    ========================================================= */
 function renderResults(data) {
   state.results = data;
+  for (const c of (data.results || [])) {   // Chamber and Grand Chamber judgments of a case share a title
+    if (/Grand Chamber/.test(c.body || '') && !/\[GC\]/.test(c.title || '')) c.title = (c.title || c.case_id) + ' [GC]';
+  }
+  state.topScore = Math.max(0, ...(data.results || []).filter(c => c.matched_via !== 'keyword').map(c => c.top_score || 0));
   state.detectedArticles = data.suggested_articles || [];
   state.selectedCaseIdx = 0;
   state.selectedParaIdx = 0;
   state.riverActiveId = null;       // drop any stale river selection
   state.year = null;                // timeline opens on the year of the strongest match
   state.citations = null;          // reset old graph
+  renderEstablished(null);
   $('results-wrap').hidden = false;
   renderRewrite(data);
 
@@ -3069,6 +3107,7 @@ async function loadCitations(data) {
     if (state.results !== data) return;
     state.citations = c;
     state.citationsLoading = false;
+    renderEstablished(c.established);
     console.log('[citations]', c.edges.length, 'edge(s)', c.stats);
     if (state.view === 'B') {
       renderConstellation(state.results);
@@ -3078,6 +3117,25 @@ async function loadCitations(data) {
     console.warn('[citations] fetch failed:', e.message);
     state.citationsLoading = false;
   }
+}
+
+/* How established the issue looks among the top results: the judgment most of them cite, and how
+ * densely they cite each other (from the full citation graph, /citations "established"). A citation
+ * shows what the Court builds on, not that it approves, so the wording stays "cite", not "follow". */
+function renderEstablished(est) {
+  const box = $('est-panel');
+  if (!box) return;
+  if (!est || !est.top_n || !est.shared || !est.shared.length) { box.hidden = true; box.innerHTML = ''; return; }
+  const n = est.top_n, lead = est.shared[0];
+  const name = (x) => escapeHtml((x.title || x.case_id || '').replace(/^CASE OF /i, ''));
+  const link = (x) => `<a href="https://hudoc.echr.coe.int/eng?i=${encodeURIComponent(x.case_id)}" target="_blank" rel="noopener"><em>${name(x)}</em></a>${extractYear(x.judgment_date) ? ` (${extractYear(x.judgment_date)})` : ''}`;
+  const head = lead.cited_by_top >= Math.ceil(n / 2)
+    ? `<strong>Established line.</strong> ${lead.cited_by_top} of the top ${n} judgments cite ${link(lead)}.`
+    : `<strong>No common authority yet.</strong> The judgment the top ${n} cite most, ${link(lead)}, is cited by ${lead.cited_by_top} of them: an emerging or scattered line.`;
+  const others = est.shared.slice(1).filter((x) => x.cited_by_top > 1).map((x) => `${link(x)} (${x.cited_by_top})`).join(', ');
+  box.innerHTML = `<p>${head}${others ? ` Also cited by many of them: ${others}.` : ''} The top ${n} cite each other ${est.links} time${est.links === 1 ? '' : 's'}; ${est.linked} of them are linked.</p>
+    <p class="est-note">From the citations among these results: it shows what the Court builds on here, not that it approves.</p>`;
+  box.hidden = false;
 }
 
 /* =========================================================
