@@ -2685,6 +2685,63 @@ function updateActiveFilterCount() {
   const n = document.querySelectorAll('#filtersPanel .filter-advanced input[type="checkbox"]:checked').length;
   badge.textContent = n ? String(n) : "";
   badge.hidden = !n;
+  updateFiltersSheetCount();
+}
+
+/* Phones and small tablets (≤ 860 px): the rail is a full-screen sheet opened by the "Filters"
+ * button above the results, which shows how many filters are set ("Filters · 2"). */
+const filtersSheetMq = window.matchMedia("(max-width: 860px)");
+
+function updateFiltersSheetCount() {
+  const out = document.getElementById("filtersSheetCount");
+  if (!out) return;
+  let n = document.querySelectorAll('#filtersPanel input[type="checkbox"]:checked:not([hidden])').length;
+  if (el.dateFrom?.value || el.dateTo?.value) n += 1;
+  if (document.getElementById("includeMachineTranslations")?.checked) n += 1;
+  if ([...document.querySelectorAll('#bucketScope input[data-name="buckets"]')].some((i) => !i.checked)) n += 1;
+  out.textContent = n ? `\u00a0· ${n}` : "";
+  out.parentElement.classList.toggle("has-active", n > 0);
+}
+
+function setFiltersSheet(open) {
+  const rail = document.getElementById("filterRail");
+  const btn = document.getElementById("filtersSheetBtn");
+  if (!rail || !btn) return;
+  open = open && filtersSheetMq.matches;
+  const root = document.documentElement;
+  if (open === root.classList.contains("filters-sheet-open")) return;
+  root.classList.toggle("filters-sheet-open", open);
+  btn.setAttribute("aria-expanded", String(open));
+  if (open) {
+    rail.setAttribute("role", "dialog");
+    rail.setAttribute("aria-modal", "true");
+    rail.scrollTop = 0;
+    document.getElementById("filtersSheetDone")?.focus();
+  } else {
+    rail.removeAttribute("role");
+    rail.removeAttribute("aria-modal");
+    if (filtersSheetMq.matches) btn.focus();
+  }
+}
+
+function initFiltersSheet() {
+  const rail = document.getElementById("filterRail");
+  const btn = document.getElementById("filtersSheetBtn");
+  if (!rail || !btn) return;
+  btn.addEventListener("click", () => setFiltersSheet(true));
+  document.getElementById("filtersSheetDone")?.addEventListener("click", () => setFiltersSheet(false));
+  filtersSheetMq.addEventListener("change", () => setFiltersSheet(false));
+  // Escape closes; Tab stays inside the sheet while it is open
+  rail.addEventListener("keydown", (e) => {
+    if (!document.documentElement.classList.contains("filters-sheet-open")) return;
+    if (e.key === "Escape") { e.preventDefault(); setFiltersSheet(false); return; }
+    if (e.key !== "Tab") return;
+    const items = [...rail.querySelectorAll("button, input, a[href], summary")].filter((n) => !n.disabled && n.offsetParent);
+    const first = items[0], last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+  updateFiltersSheetCount();
 }
 
 /* Basic shows the five most used filters; Advanced adds the rest, marked for a moment so it is
@@ -3319,6 +3376,7 @@ function renderActiveFilters(filters) {
   }
 
   el.activeFilters.innerHTML = chips.join("");
+  updateFiltersSheetCount();
 }
 
 function getParagraphAssignment(paraKey) {
@@ -7695,6 +7753,7 @@ function init() {
   cacheElements();
   loadGcRegistry();
   initFilterMode();
+  initFiltersSheet();
   loadCardModePreference();
   updateCardModeButton();
   initTheme();

@@ -845,6 +845,11 @@ body.mode-natural .expert-only { display: none; }
 .est-panel { margin: 10px 0 16px; padding: 10px 14px; border-left: 3px solid var(--garnet); background: var(--paper-2); font-family: var(--body); font-size: 14px; line-height: 1.5; color: var(--ink-2); }
 .est-panel p { margin: 0; }
 .est-panel .est-note { margin-top: 4px; font-size: 12px; color: var(--ink-3); }
+.nav-links .nav-disclaimer { display: none; }
+@media (max-width: 860px) {
+  .nav-links .nav-disclaimer { display: block; flex: 1 1 100%; padding: 6px 0 0; border: 0; border-top: 1px solid var(--rule); font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.62rem; font-weight: 400; letter-spacing: 0.04em; line-height: 1.5; color: var(--ink-3); }
+  .nav-links .nav-disclaimer:hover { color: var(--garnet); }
+}
 .case-why { margin: 4px 0 6px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .02em; color: var(--ink-3); }
 .hits-pill {
   font-family: var(--mono); font-size: 10px; letter-spacing: .05em; padding: 3px 9px;
@@ -907,8 +912,11 @@ body.mode-natural .expert-only { display: none; }
 }
 .cite-btn:hover { color: var(--garnet); border-color: var(--garnet); }
 .cite-btn.copied { color: var(--garnet); border-color: var(--garnet); }
-.hit-num .ws-sem-btn, .para-num .ws-sem-btn { display: block; margin-top: 4px; }
-.para-foot .ws-sem-btn, .dossier-passage .ws-sem-btn { margin: 0 6px 0 0; }
+/* cite and save stacked under the ¶ number, the same width, flush with the column's edge */
+.hit-num .cite-btn, .para-num .cite-btn { display: block; width: 62px; margin: 8px 0 0 auto; text-align: center; box-sizing: border-box; }
+.hit-num .ws-sem-btn, .para-num .ws-sem-btn { margin-top: 4px; }
+.para-foot .ws-sem-btn, .dossier-passage .ws-sem-btn,
+.para-foot .cite-btn, .dossier-passage .cite-btn { margin: 0 6px 0 0; }
 .hit-text {
   font-family: var(--body); font-style: normal; font-size: 14.5px; line-height: 1.65;
   color: var(--ink); margin: 0; white-space: pre-wrap;
@@ -1442,7 +1450,7 @@ footer {
   .site-footer #status-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 </style>
-<script src="assets/tour.js?v=20261010-cit" defer></script>
+<script src="assets/tour.js?v=20261010-mob2" defer></script>
 <script src="assets/workspace.js?v=20261010-ws"></script>
   <script src="assets/cite.js?v=20261010-cite" defer></script>
 </head>
@@ -1463,6 +1471,7 @@ footer {
       <a href="workspace.html">Workspace <span class="ws-count" data-ws-count hidden></span></a>
       <a href="analytics.html">Statistics</a>
       <a href="about.html">About</a>
+      <a href="about.html#scope" class="nav-disclaimer">Not affiliated with the ECtHR &middot; not legal advice</a>
     </div>
   </div>
 </nav>
@@ -1713,7 +1722,7 @@ footer {
                 <p class="river-legend"><strong>Each dot is one case, placed by year of judgment.</strong> Bigger dot = more matching passages · labelled dots are the closest matches to your query · highlighted = what you're reading. Click a dot to read that judgment; click elsewhere in a year's column, or a year in the strip below, to read every matching paragraph from that year.</p>
               </div>
               <div class="river-year">
-                <div class="kicker">Year</div>
+                <div class="kicker">Selected year</div>
                 <div class="num" id="river-year">—</div>
                 <div class="nudge">click or drag along the timeline</div>
               </div>
@@ -1754,7 +1763,7 @@ footer {
     <div class="sf-left">
       <span class="sf-name">HUDOC Researcher</span>
       <span>Semantic Search v2.15 (experimental)</span>
-      <span>by <a href="https://lszoszk.github.io/" target="_blank" rel="noopener"><b>&#321;. Szoszkiewicz</b></a> &amp; <b>S. Marcisz</b></span>
+      <span>by <a href="https://lszoszk.github.io/" target="_blank" rel="noopener"><b>&#321;. Szoszkiewicz</b></a> &amp; <a href="https://prawo.amu.edu.pl/c/administracja/bow/biuro-ds-informatyzacji-wydzialu/p/inz-sebastian-marcisz/" target="_blank" rel="noopener"><b>S. Marcisz</b></a></span>
       <span class="sf-label">Supported by</span><span class="sf-sup" title="Adam Mickiewicz University, Pozna&#324; &mdash; research host">Adam Mickiewicz University</span>
       <span class="sf-sep">&middot;</span>
       <span>Data: <a href="https://hudoc.echr.coe.int" target="_blank" rel="noopener">HUDOC</a></span>
@@ -2230,6 +2239,7 @@ function renderViewB(data) {
         <span class="folio">${(sim*100).toFixed(0)}%</span>
         <span style="flex:1"></span>
         ${(p.articles||[]).slice(0,2).map(a=>`<span class="meta-tag" style="font-size:9px;padding:1px 5px;">${artLabel(a)}</span>`).join('')}
+        <button type="button" class="cite-btn" aria-label="Copy pinpoint citation for paragraph ${escapeHtml(String(p.para_idx||''))}" onclick="copyCite(event, ${p.caseIdx}, '${escapeHtml(String(p.para_idx||''))}')">&#8862; cite</button>
         ${wsSemBtn(p.caseIdx, p.para_idx)}
         <button class="cmp-chip ${inCmp?'on':''}" onclick="event.stopPropagation();toggleCompare('${escapeHtml(c.case_id)}')" title="Add to compare">${inCmp?'✓ COMPARE':'+ COMPARE'}</button>
       </div>
@@ -2648,7 +2658,7 @@ function renderDossier(data) {
   const arts = (c.articles||[]).slice(0,6).map(a=>`<span class="chip">${artLabel(a)}</span>`).join('');
   const passages = (c.hits||[]).map(h => `
     <div class="dossier-passage">
-      <div class="num">¶ ${escapeHtml(String(h.para_idx||''))} · ${escapeHtml(h.section||'')} · ${(h.score*100).toFixed(0)}% ${wsSemBtn(state.selectedCaseIdx, h.para_idx)}</div>
+      <div class="num">¶ ${escapeHtml(String(h.para_idx||''))} · ${escapeHtml(h.section||'')} · ${(h.score*100).toFixed(0)}% <button type="button" class="cite-btn" aria-label="Copy pinpoint citation for paragraph ${escapeHtml(String(h.para_idx||''))}" onclick="copyCite(event, ${state.selectedCaseIdx}, '${escapeHtml(String(h.para_idx||''))}')">&#8862; cite</button>${wsSemBtn(state.selectedCaseIdx, h.para_idx)}</div>
       <p>${escapeHtml(h.text)}</p>
     </div>`).join('');
   const inCmp = state.compareTray.includes(c.case_id);
@@ -2741,8 +2751,11 @@ function renderViewC(data) {
 
   const q = (data.query || '').trim();
   $('river-kicker').textContent = 'Timeline';
-  $('river-doctrine').textContent = q ? (q.length > 70 ? q.slice(0, 70).trim() + '\u2026' : q) : 'Your results over time';
-  $('river-blurb').textContent = `${data.results.length} judgments answered your query, placed by year of judgment. Click a dot to read one judgment, or a year to read all of that year's matching paragraphs.`;
+  // The query is shown as a quotation, never as the headline: a description of facts ("ongoing for over
+  // 7 years") read as a title looks like a statement next to the big year.
+  $('river-doctrine').textContent = 'Your results over time';
+  const qShown = q.length > 110 ? q.slice(0, 110).trim() + '\u2026' : q;
+  $('river-blurb').textContent = `${q ? `For your query “${qShown}”: ` : ''}${data.results.length} judgments, placed by year of judgment. Click a dot to read one judgment, or a year to read all of that year's matching paragraphs.`;
 
   // Build waypoints from result cases — one per case, sorted by year then score
   const waypoints = data.results

@@ -24,11 +24,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css">
   <link rel="stylesheet" href="assets/search-app.css">
-  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261010-mob">
+  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261010-mob2">
   <link rel="stylesheet" href="assets/analytics-page.css?v=20261010-mob">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1"></script>
-  <script src="assets/tour.js?v=20261010-cit" defer></script>
+  <script src="assets/tour.js?v=20261010-mob2" defer></script>
   <script src="assets/workspace.js?v=20261010-ws"></script>
   <script src="assets/cite.js?v=20261010-cite" defer></script>
 </head>
@@ -50,6 +50,7 @@
         <a href="workspace.html" class="nav-link">Workspace <span class="ws-count" data-ws-count hidden></span></a>
         <a href="analytics.html" class="nav-link active">Statistics</a>
         <a href="about.html" class="nav-link">About</a>
+        <a href="about.html#scope" class="nav-disclaimer">Not affiliated with the ECtHR &middot; not legal advice</a>
       </div>
     </div>
   </nav>
@@ -87,6 +88,12 @@
             </div>
 
             <div class="sidebar-category">
+              <span class="sidebar-category-label">Over time</span>
+              <a class="sidebar-link" data-target="stats-cases-year" href="#stats-cases-year">Judgments by formation</a>
+              <a class="sidebar-link" data-target="stats-outcomes-year" href="#stats-outcomes-year">Outcomes and violation rate</a>
+            </div>
+
+            <div class="sidebar-category">
               <span class="sidebar-category-label">Respondent States</span>
               <a class="sidebar-link" data-target="stats-state-outcomes" href="#stats-state-outcomes">Outcomes by State</a>
               <a class="sidebar-link" data-target="stats-country-cases" href="#stats-country-cases">Judgments and violation rate</a>
@@ -96,12 +103,6 @@
             <div class="sidebar-category">
               <span class="sidebar-category-label">Convention Articles</span>
               <a class="sidebar-link" data-target="stats-article-rates" href="#stats-article-rates">Outcomes by Article</a>
-            </div>
-
-            <div class="sidebar-category">
-              <span class="sidebar-category-label">Over time</span>
-              <a class="sidebar-link" data-target="stats-cases-year" href="#stats-cases-year">Judgments by formation</a>
-              <a class="sidebar-link" data-target="stats-outcomes-year" href="#stats-outcomes-year">Outcomes and violation rate</a>
             </div>
 
             <div class="sidebar-category">
@@ -144,7 +145,36 @@
             <p class="how-we-count"><strong>How we count.</strong> Every figure counts judgments, not applications. A judgment that decides several Articles counts under each, so the Article bars do not add up to the total, and a judgment against several States counts once for each State. Committee judgments are included; admissibility decisions are not, nor are the 31 Grand Chamber decisions that Search holds. <span id="howCountDate"></span> <a href="methodology.html#scope-judgments-in-english">Methodology</a></p>
           </section>
 
-          <!-- 2 · Respondent States -->
+          <!-- 2 · Over time -->
+          <section class="chart-section" id="stats-cases-year">
+            <h2 class="chart-section-title">Judgments by year and formation
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-cases-year')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Judgments delivered each year by the Grand Chamber, Chambers and three-judge Committees; the bar height is the year's total.</p>
+            <p class="chart-takeaway" id="formationTakeaway"></p>
+            <div class="chart-canvas-wrap" style="height:420px"><canvas id="casesYearChart"></canvas></div>
+            <p class="chart-note">Dashed lines: Protocol No. 11 in force, 1 November 1998 (the single full-time Court); Protocol No. 14 in force, 1 June 2010 (Committees begin to give judgments on the merits); Russia ceases to be a party to the Convention, 16 September 2022. The final year is partial: the catalog ends at its cut-off.</p>
+          </section>
+
+          <section class="chart-section" id="stats-outcomes-year">
+            <h2 class="chart-section-title">Outcomes and violation rate by year
+              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-outcomes-year')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Each year's judgments split by outcome, as shares of 100%; the line is the share with at least one violation.</p>
+            <div class="chart-controls">
+              <span id="formationLabel">Formation</span>
+              <div class="seg" role="group" aria-labelledby="formationLabel">
+                <button type="button" data-formation="all" aria-pressed="true">All</button>
+                <button type="button" data-formation="chamber" aria-pressed="false">Chamber &amp; Grand Chamber</button>
+                <button type="button" data-formation="committee" aria-pressed="false">Committee</button>
+              </div>
+            </div>
+            <p class="chart-takeaway" id="outcomeYearTakeaway"></p>
+            <div class="chart-canvas-wrap" style="height:440px"><canvas id="outcomesYearChart"></canvas></div>
+            <p class="chart-caveat">Committee judgments (since 2010) apply well-established case-law and nearly always find a violation, so they push the overall rate up: compare the formations above. Years with fewer than 20 judgments in the selected formation are faded and have no rate. The final year is partial. Not an application success rate. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
+          </section>
+
+          <!-- 3 · Respondent States -->
           <section class="chart-section" id="stats-state-outcomes">
             <h2 class="chart-section-title">Outcomes by respondent State
               <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-state-outcomes')">&#x1F517;</button>
@@ -195,7 +225,7 @@
             </div>
           </section>
 
-          <!-- 3 · Convention Articles -->
+          <!-- 4 · Convention Articles -->
           <section class="chart-section" id="stats-article-rates">
             <h2 class="chart-section-title">Outcomes by Convention Article
               <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-article-rates')">&#x1F517;</button>
@@ -219,35 +249,6 @@
               </table></div>
             </details>
             <p class="chart-caveat">Example: 6-1 and 6-3-d count once under Article 6; P1-1 is Protocol No. 1, Article 1. Linked tags such as 14+8 count under both Articles. Judgments without an outcome tag for the Article are left out of n: no tag does not mean no violation. <span id="articleHiddenNote"></span> A description of HUDOC metadata, not the probability of winning a claim. <a href="https://www.echr.coe.int/documents/d/echr/hudoc_manual_eng" target="_blank" rel="noopener">HUDOC tag conventions</a></p>
-          </section>
-
-          <!-- 4 · Over time -->
-          <section class="chart-section" id="stats-cases-year">
-            <h2 class="chart-section-title">Judgments by year and formation
-              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-cases-year')">&#x1F517;</button>
-            </h2>
-            <p class="chart-section-desc">Judgments delivered each year by the Grand Chamber, Chambers and three-judge Committees; the bar height is the year's total.</p>
-            <p class="chart-takeaway" id="formationTakeaway"></p>
-            <div class="chart-canvas-wrap" style="height:420px"><canvas id="casesYearChart"></canvas></div>
-            <p class="chart-note">Dashed lines: Protocol No. 11 in force, 1 November 1998 (the single full-time Court); Protocol No. 14 in force, 1 June 2010 (Committees begin to give judgments on the merits); Russia ceases to be a party to the Convention, 16 September 2022. The final year is partial: the catalog ends at its cut-off.</p>
-          </section>
-
-          <section class="chart-section" id="stats-outcomes-year">
-            <h2 class="chart-section-title">Outcomes and violation rate by year
-              <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-outcomes-year')">&#x1F517;</button>
-            </h2>
-            <p class="chart-section-desc">Each year's judgments split by outcome, as shares of 100%; the line is the share with at least one violation.</p>
-            <div class="chart-controls">
-              <span id="formationLabel">Formation</span>
-              <div class="seg" role="group" aria-labelledby="formationLabel">
-                <button type="button" data-formation="all" aria-pressed="true">All</button>
-                <button type="button" data-formation="chamber" aria-pressed="false">Chamber &amp; Grand Chamber</button>
-                <button type="button" data-formation="committee" aria-pressed="false">Committee</button>
-              </div>
-            </div>
-            <p class="chart-takeaway" id="outcomeYearTakeaway"></p>
-            <div class="chart-canvas-wrap" style="height:440px"><canvas id="outcomesYearChart"></canvas></div>
-            <p class="chart-caveat">Committee judgments (since 2010) apply well-established case-law and nearly always find a violation, so they push the overall rate up: compare the formations above. Years with fewer than 20 judgments in the selected formation are faded and have no rate. The final year is partial. Not an application success rate. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
           </section>
 
           <!-- 5 · Topics -->
@@ -395,7 +396,7 @@
   <footer class="footer site-footer site-bar">
     <div class="sf-left">
       <span class="sf-name">HUDOC Researcher</span>
-      <span>by <a href="https://lszoszk.github.io/" target="_blank" rel="noopener"><b>&#321;. Szoszkiewicz</b></a> &amp; <b>S. Marcisz</b></span>
+      <span>by <a href="https://lszoszk.github.io/" target="_blank" rel="noopener"><b>&#321;. Szoszkiewicz</b></a> &amp; <a href="https://prawo.amu.edu.pl/c/administracja/bow/biuro-ds-informatyzacji-wydzialu/p/inz-sebastian-marcisz/" target="_blank" rel="noopener"><b>S. Marcisz</b></a></span>
       <span class="sf-label">Supported by</span><span class="sf-sup" title="Adam Mickiewicz University, Pozna&#324; &mdash; research host">Adam Mickiewicz University</span>
       <span class="sf-sep">&middot;</span>
       <span>Data: <a href="https://hudoc.echr.coe.int" target="_blank" rel="noopener">HUDOC</a></span>
