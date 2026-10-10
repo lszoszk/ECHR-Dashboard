@@ -136,6 +136,24 @@ rows gave cosine 1.0000 with the stored vectors. Self-retrieval 200/200 at rank 
   Capping paragraphs per case in the pool does not fix it. Same lesson as the ±1 window in §4:
   for pinpoint retrieval, one paragraph = one context-free vector.
 
+**Per-judgment cap on the rerank pool** (production config: 512-d SQ4, rerank-3, production ordering, k=30).
+Uncapped, one judgment could fill the 100 places sent to the reranker (López Ribalda 78, Bărbulescu 82),
+crowding others out. Capping the paragraphs per judgment, taken in cosine order:
+
+| cap | G d@1 | G d@10 | G p@1 | G p@10 | S d@1 | S d@10 |
+|---|--:|--:|--:|--:|--:|--:|
+| none (FETCH 300) | 59.2 | 88.3 | 39.1 | 74.6 | 70.5 | 94.0 |
+| 2 | 55.5 | 86.1 | 37.0 | 67.3 | 65.7 | 92.1 |
+| 4 | 58.2 | 87.3 | 39.8 | 71.8 | 70.3 | 94.0 |
+| 6 | 59.4 | 87.3 | 39.4 | 72.9 | 70.5 | 94.1 |
+| **10 (FETCH 600)** | **59.9** | 88.0 | 39.4 | **74.6** | **71.1** | 94.0 |
+
+Caps of 4 or fewer cost paragraph recall significantly (G p@10 −8/+0 at 4, p=.008), because a judgment's
+best paragraph is often its 5th or later by cosine; 10 is neutral or slightly positive everywhere and removes
+almost all short result lists. **Adopted: CASE_CAP 10, FETCH 600** (deployed 10 October 2026). Sorting cases by
+top_score instead of the tier order was no better under any cap. (These rows use the production ordering with
+the hybrid keyword arm, so they differ from the table above, which scores paragraphs without it.)
+
 Experiment files: `rag/pipeline/data_2026-10_exp/` (scripts, logs, pools, per-item results; git-ignored).
 
 ## 7. Limitations (honest)
