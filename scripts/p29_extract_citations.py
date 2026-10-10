@@ -261,7 +261,7 @@ def dates_after(text: str, end: int) -> set[str]:
     return out
 
 
-_REPORT_YEAR_RE = re.compile(r"\b(?:ECHR|Reports(?: of Judgments and Decisions)?)\s+(\d{4})")
+_REPORT_YEAR_RE = re.compile(r"\b(?:ECHR|CEDH|Reports(?: of Judgments and Decisions)?)\s+(\d{4})")
 _GC_MARK_RE = re.compile(r"\[GC\]")
 
 
@@ -301,6 +301,17 @@ def pick_for_appno(cands: list[Doc], text: str, start: int, end: int,
     top = sorted((d for d in ranked if d.rank == best),
                  key=lambda d: (d.date or (9999, 0, 0), d.case_id))
     return top[0], "multi_by_rank"
+
+
+def pick_extracted(cands: list[Doc], citing: Doc) -> Optional[Doc]:
+    """Choose the document for an application number that comes without any context (HUDOC's
+    extractedappno). Once a Grand Chamber judgment exists under the number, a later judgment cites
+    it rather than the Chamber judgment it replaced (Hatton and Others, Chamber 2001 / GC 2003);
+    otherwise the usual order applies (principal judgment, then the earliest)."""
+    gc = [d for d in cands if d.is_gc and not d.is_decision and d.date and citing.date and d.date < citing.date]
+    if gc:
+        return min(gc, key=lambda d: (d.rank, d.date, d.case_id))
+    return pick_for_appno(cands, "", 0, 0, False)[0]
 
 
 def appno_citations(text: str, citing_id: str, idx: Indexes, stats: Counter):
@@ -464,8 +475,7 @@ def hudoc_additions(cur, idx: Indexes, citations: list, text_appnos: dict, stats
             cands = idx.by_appno.get(appno)
             if not cands:
                 continue
-            doc, _ = pick_for_appno(cands, "", 0, 0, False)
-            take(doc, f"HUDOC extracted application no. {appno}", "hudoc_extracted")
+            take(pick_extracted(cands, citing), f"HUDOC extracted application no. {appno}", "hudoc_extracted")
     return added
 
 

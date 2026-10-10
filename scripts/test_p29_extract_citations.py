@@ -235,6 +235,24 @@ class HudocAdditionTests(unittest.TestCase):
         self.assertEqual(len([1 for b, _ in got if b == "foot"]), 1)   # not added twice
 
 
+class PickExtractedTests(unittest.TestCase):
+    """A bare extracted number: the Grand Chamber judgment once it exists, the Chamber one before."""
+
+    @staticmethod
+    def doc(cid, date, gc=False, dec=False):
+        return p29.Doc(cid, "", date, dec, 0, frozenset({"36022/97"}), gc, frozenset(), frozenset(), frozenset())
+
+    def test_grand_chamber_after_it_exists(self):
+        chamber = self.doc("hatton-ch", (2001, 10, 2))
+        grand = self.doc("hatton-gc", (2003, 7, 8), gc=True)
+        self.assertEqual(p29.pick_extracted([chamber, grand], self.doc("later", (2012, 12, 13))).case_id, "hatton-gc")
+        self.assertEqual(p29.pick_extracted([chamber, grand], self.doc("between", (2002, 5, 1))).case_id, "hatton-ch")
+        self.assertEqual(p29.pick_extracted([chamber], self.doc("later", (2012, 12, 13))).case_id, "hatton-ch")
+
+    def test_french_report_year(self):
+        self.assertEqual(p29._REPORT_YEAR_RE.search("no 36022/97, CEDH 2003-VIII").group(1), "2003")
+
+
 class GraphJsonTests(unittest.TestCase):
     def test_graph_matches_case_citations(self):
         spec = importlib.util.spec_from_file_location(
