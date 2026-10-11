@@ -1461,7 +1461,7 @@ footer {
   .site-footer #status-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 </style>
-<script src="assets/tour.js?v=20261011-fr" defer></script>
+<script src="assets/tour.js?v=20261011-dec" defer></script>
 <script src="assets/workspace.js?v=20261011-credit"></script>
   <script src="assets/cite.js?v=20261011-hlink" defer></script>
 </head>
@@ -1531,6 +1531,7 @@ footer {
         <tr><td>Correct <strong>case</strong> retrieved</td><td class="num">~64%</td><td class="num">~89%</td></tr>
         <tr><td>Exact cited <strong>paragraph</strong> retrieved</td><td class="num">~39%</td><td class="num">~75%</td></tr>
       </table>
+      <p><strong>Judgments only in French (the option).</strong> On 400 propositions of the French editions of the Guides whose cited judgment exists only in French, ticking <em>Also judgments only in French</em> puts that judgment first for ~37% and in the top 10 for ~79% (the exact paragraph in the top 10: ~61%); without it they cannot be found. It costs the English results a little (cited case in the top 10 on the Guides benchmark: 88.0% &rarr; 86.6%), which is why it is off by default.</p>
       <p>An independent AI-lawyer review found <strong>~85–90% of the top-10 paragraphs genuinely relevant</strong> — higher than the "exact paragraph" figure, because the Guides cite only <em>some</em> of the relevant paragraphs, so the strict measure understates real usefulness.</p>
       <div class="box"><strong>It searches by meaning, not keywords.</strong> On the second benchmark, given a <em>plain-language</em> description of a case’s issue, the right judgment is in the top 10 for <strong>~87%</strong> of cases. A keyword (BM25) baseline reaches only ~60% on those same plain-language queries — where this system holds — because it retrieves by legal <em>substance</em>, not matching words. You need not write like a headnote.</div>
 
@@ -1551,7 +1552,7 @@ footer {
         <li><strong>"The paragraph" is rarely one paragraph.</strong> The Court states a principle, applies it, and concludes across several §§; the system may surface the reasoning where you expected the holding. Read around the hit (click a paragraph to expand neighbours).</li>
         <li><strong>It favours leading cases</strong> — a niche but on-point lesser-known judgment may rank lower.</li>
         <li><strong>Absence is not proof.</strong> If a point is not in the results, that is not evidence it does not exist — refine the query.</li>
-        <li><strong>Coverage.</strong> English judgments up to 8 October 2026; excludes admissibility decisions (other than 31 Grand Chamber ones), non-judgment documents and the machine translations of judgments that exist only in French.</li>
+        <li><strong>Coverage.</strong> English judgments up to 8 October 2026, and, when you tick <em>Also judgments only in French</em>, the authentic French texts of the 9,283 judgments HUDOC publishes only in French; excludes decisions (other than 31 Grand Chamber ones), non-judgment documents and the machine translations.</li>
       </ul></div>
 
       <h2>Examples</h2>
@@ -1572,7 +1573,8 @@ footer {
           <strong>Experimental.</strong> Semantic Search runs on its own index, last brought up to the corpus of
           8 October 2026: <strong>20,150 English-language judgments and Grand Chamber decisions</strong> (about 1.33 million
           paragraphs). It does not cover judgments added since, the machine translations of judgments that exist only in
-          French, or other admissibility decisions. For the complete, current corpus use <a href="./">Search</a>. <a href="#" data-section="methodology">How Semantic Search works, and how well &rarr;</a>
+          French, or other decisions. Tick <em>Also judgments only in French</em> to add the authentic French texts of the
+          9,283 judgments HUDOC publishes only in French; an English query finds them too. For the complete, current corpus use <a href="./">Search</a>. <a href="#" data-section="methodology">How Semantic Search works, and how well &rarr;</a>
         </p>
       </div>
       <div class="stats" style="display:none">
