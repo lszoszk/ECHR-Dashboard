@@ -814,6 +814,7 @@ function cacheElements() {
   el.resultsCases = byId("resultsCases");
   el.resultsCasesLabel = byId("resultsCasesLabel");
   el.resultsTime = byId("resultsTime");
+  el.resultsCorpus = byId("resultsCorpus");
   el.cardModeBtn = byId("cardModeBtn");
   el.exportBtn = byId("exportBtn");
   el.exportIncludeClassifier = byId("exportIncludeClassifier");
@@ -6434,6 +6435,20 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
   }
 }
 
+/** Default view: what the "records in the corpus" figure is made of, and whether Search covers the translations. */
+function renderCorpusNote() {
+  const c = state.corpusStats, node = el.resultsCorpus;
+  if (!node) return;
+  if (!c || !state.defaultView || !c.total_machine_translations) { node.hidden = true; return; }
+  const n = (v) => fmtInt.format(v);
+  const parts = [`${n(c.total_judgments)} judgments in English`];
+  if (c.total_decisions) parts.push(`${n(c.total_decisions)} Grand Chamber decisions`);
+  parts.push(`${n(c.total_machine_translations)} unofficial translations of French-only judgments`);
+  const mtOn = !!collectionMode();
+  node.textContent = `${parts.join(" · ")} — the translations are ${mtOn ? "included in" : "left out of"} the search${mtOn ? "" : " until you switch them on"}.`;
+  node.hidden = false;
+}
+
 /** Update results header for server-side search results. */
 function updateResultsHeaderServer(data, opts = {}) {
   const defaultView = !!opts.defaultView;
@@ -6457,6 +6472,7 @@ function updateResultsHeaderServer(data, opts = {}) {
   el.resultsTime.textContent = `(${((data.search_time_ms || state.searchTimeMs) / 1000).toFixed(3)}s · page ${state.currentPage}/${totalPages} · ${serverTag})`;
   if (el.queryMatchCount) el.queryMatchCount.textContent = fmtInt.format(defaultView ? totalCases : (data.total_hits || 0));
   if (el.queryMatchLabel) el.queryMatchLabel.textContent = defaultView ? "recent cases" : "¶ matched";
+  renderCorpusNote();
 
   el.exportBtn.disabled = !state.currentOrderedCaseIds.length;
   if (el.clearBtn) el.clearBtn.disabled = false;
@@ -7775,7 +7791,9 @@ function init() {
           if (node) node.textContent = fmt.format(mtN);
         }
         state.corpusTotal = statsData.total_cases || 0;
+        state.corpusStats = statsData;
         if (state.defaultView && state.corpusTotal && !el.resultsHeader.hidden) el.resultsCases.textContent = fmt.format(state.corpusTotal);
+        renderCorpusNote();
         const officialCount = document.getElementById("officialCount");
         if (officialCount && statsData.total_judgments) officialCount.textContent = fmt.format(statsData.total_judgments);
       } catch (e) {
