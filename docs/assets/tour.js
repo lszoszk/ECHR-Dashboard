@@ -256,28 +256,18 @@
   });
 })();
 
-/* ✦ in the bottom-left corner: a card on using HUDOC Researcher from an AI assistant (the hosted MCP
-   connector and the Claude skill). × closes the card; "Hide this button" removes the ✦ for good in
-   this browser. It stays out of the way of the phone sheets (filters, case details) and the tour. */
+/* "Use with AI" in the bottom bar, before the tour: a card on using HUDOC Researcher from an AI
+   assistant (the hosted MCP connector and the Claude skill). It was a pulsing ✦ in the corner, which
+   drew the eye from the results; the bar keeps it at hand without that. × or Esc closes the card. */
 (function () {
   "use strict";
-  const HIDE_KEY = "echr-ai-fab-hidden";
   const MCP_URL = "https://150.254.115.204/echr-api/mcp";
   const SKILL_URL = "https://github.com/lszoszk/mcp-echr/raw/main/skills/echr-research.zip";
-  try { if (localStorage.getItem(HIDE_KEY)) return; } catch (_) { /* private mode: show it */ }
 
   const CSS = `
-  .ai-fab{position:fixed;left:14px;bottom:calc(var(--bar-h,30px) + 14px);z-index:150;width:40px;height:40px;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;line-height:1;
-    color:var(--paper,#faf8f3);background:var(--garnet,#8d2f2f);border:0;box-shadow:0 4px 14px rgba(36,35,40,.22);
-    animation:ai-fab-pulse 4s ease-in-out infinite}
-  .ai-fab:hover,.ai-fab:focus-visible{animation:none;transform:scale(1.06)}
-  @keyframes ai-fab-pulse{0%,70%,100%{box-shadow:0 4px 14px rgba(36,35,40,.22),0 0 0 0 rgba(141,47,47,.35)}
-    85%{box-shadow:0 4px 14px rgba(36,35,40,.22),0 0 0 9px rgba(141,47,47,0)}}
-  @media (prefers-reduced-motion:reduce){.ai-fab{animation:none}}
-  html.filters-sheet-open .ai-fab,html.filters-sheet-open .ai-card,body:has(#echr-consent-banner) .ai-fab{display:none}
-  @media (max-width:860px){body.casenote-open .ai-fab,body.dossier-open .ai-fab,body.casenote-open .ai-card,body.dossier-open .ai-card{display:none}}
-  .ai-card{position:fixed;left:14px;bottom:calc(var(--bar-h,30px) + 62px);z-index:151;width:min(360px,calc(100vw - 28px));
+  html.filters-sheet-open .ai-card{display:none}
+  @media (max-width:860px){body.casenote-open .ai-card,body.dossier-open .ai-card{display:none}}
+  .ai-card{position:fixed;right:14px;bottom:calc(var(--bar-h,30px) + 10px);z-index:151;width:min(360px,calc(100vw - 28px));
     max-height:calc(100vh - var(--bar-h,30px) - 90px);overflow:auto;padding:16px 18px 14px;
     background:var(--paper,#faf8f3);color:var(--ink,#242328);border:1px solid var(--ink,#242328);
     box-shadow:0 10px 30px rgba(36,35,40,.22);font-family:var(--font-serif,Georgia,serif);font-size:.92rem;line-height:1.5}
@@ -296,12 +286,14 @@
   .ai-card .ai-foot{display:flex;justify-content:space-between;gap:10px;margin-top:6px;font-size:.78rem}
   .ai-card .ai-foot a,.ai-card .ai-foot button{color:var(--ink-3,#706d72);background:none;border:0;padding:0;cursor:pointer;font:inherit;text-decoration:underline}
   .ai-card a{color:var(--garnet,#8d2f2f)}
-  @media (max-width:600px){.ai-fab{left:10px;width:44px;height:44px}.ai-card{left:10px;font-size:.88rem}}`;
+  @media (max-width:600px){.ai-card{right:10px;font-size:.88rem}.sf-btn.sf-ai{display:none}}`;  /* the bar has no room on a phone; About has the setup */
 
   function build() {
     const st = document.createElement("style"); st.textContent = CSS; document.head.appendChild(st);
+    const tour = document.getElementById("tourBtn");
+    if (!tour) return;
     const fab = document.createElement("button");
-    fab.type = "button"; fab.className = "ai-fab"; fab.textContent = "✦";
+    fab.type = "button"; fab.className = "sf-btn sf-ai"; fab.textContent = "Use with AI";
     fab.setAttribute("aria-label", "Use HUDOC Researcher from your AI assistant");
     fab.setAttribute("aria-expanded", "false"); fab.setAttribute("aria-controls", "aiCard");
     fab.title = "Use it from your AI assistant";
@@ -321,9 +313,9 @@
       </ol>
       <p>Nothing to install; no account with us. The assistant's answers are not legal advice — check every
         passage on HUDOC.</p>
-      <div class="ai-foot"><a href="about.html#mcp">Setup for Claude Code and other clients</a>
-        <button type="button" class="ai-hide">Hide this button</button></div>`;
-    document.body.append(fab, card);
+      <div class="ai-foot"><a href="about.html#mcp">Setup for Claude Code and other clients</a></div>`;
+    tour.before(fab);
+    document.body.append(card);
 
     const setOpen = (open) => {
       card.hidden = !open; fab.setAttribute("aria-expanded", String(open));
@@ -336,10 +328,6 @@
       const b = e.currentTarget;
       navigator.clipboard?.writeText(MCP_URL).then(() => { b.textContent = "Copied"; setTimeout(() => { b.textContent = "Copy"; }, 1400); },
         () => window.prompt("Copy the connector address:", MCP_URL));
-    });
-    card.querySelector(".ai-hide").addEventListener("click", () => {
-      try { localStorage.setItem(HIDE_KEY, "1"); } catch (_) { /* private mode */ }
-      card.remove(); fab.remove();
     });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", build); else build();

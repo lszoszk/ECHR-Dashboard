@@ -26,8 +26,8 @@
    Colours come from the theme tokens (Classic == the dashboard light palette),
    so Dark / Accessible restyle the bar consistently with the dashboard. ===== */
 .navbar { position:sticky; top:0; z-index:200; background:var(--paper); border-bottom:1px solid var(--ink); }
-.nav-container { max-width:1480px; margin:0 auto; height:74px; padding:12px 32px 10px; display:flex; align-items:flex-end; gap:28px; }
-.nav-brand { display:flex; align-items:baseline; gap:10px; text-decoration:none; color:var(--ink); font-family:'Source Serif 4',Georgia,serif; font-size:1.5rem; font-weight:500; white-space:nowrap; }
+.nav-container { max-width:1480px; margin:0 auto; height:52px; padding:0 32px; display:flex; align-items:center; gap:28px; }
+.nav-brand { display:flex; align-items:baseline; gap:10px; text-decoration:none; color:var(--ink); font-family:'Source Serif 4',Georgia,serif; font-size:1.2rem; font-weight:500; white-space:nowrap; }
 .nav-brand .brand-icon { color:var(--garnet); font-family:'JetBrains Mono',ui-monospace,monospace; font-size:1.05rem; line-height:1; }
 .nav-brand .brand-text { line-height:1; }
 .nav-brand::after { content:"A paragraph-level companion to the Court"; margin-left:4px; color:var(--ink-3); font-family:'Source Serif 4',Georgia,serif; font-size:0.78rem; font-style:italic; font-weight:400; white-space:nowrap; }
@@ -35,7 +35,7 @@
 .nav-links a { color:var(--ink-2); text-decoration:none; padding:0 0 4px; font-family:'Source Serif 4',Georgia,serif; font-size:0.92rem; font-weight:500; border-bottom:2px solid transparent; transition:color .15s, border-color .15s; }
 .nav-links a:hover { color:var(--ink); border-bottom-color:var(--rule); }
 .nav-links a.active { color:var(--garnet); border-bottom-color:var(--garnet); }
-.nav-meta { display:flex; align-items:center; gap:10px; padding-bottom:6px; flex-shrink:0; }
+.nav-meta { display:flex; align-items:center; gap:10px; flex-shrink:0; }
 .nav-meta #count-pill { display:none; }  /* trust-count lives on the Methodology page; keeps the bar one-line like the dashboard */
 .nav-meta .status-pill { display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',ui-monospace,monospace; font-size:10.5px; color:var(--ink-3); background:var(--paper-2); border:1px solid var(--rule); border-radius:999px; padding:4px 10px; white-space:nowrap; }
 .nav-meta select { background:var(--paper-2); color:var(--ink); border:1px solid var(--rule); border-radius:6px; padding:5px 8px; font-size:12px; font-family:'Source Serif 4',Georgia,serif; cursor:pointer; }
@@ -1461,7 +1461,7 @@ footer {
   .site-footer #status-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 </style>
-<script src="assets/tour.js?v=20261011-dec2" defer></script>
+<script src="assets/tour.js?v=20261011-chrome" defer></script>
 <script src="assets/workspace.js?v=20261011-credit"></script>
   <script src="assets/cite.js?v=20261011-hlink" defer></script>
 </head>
