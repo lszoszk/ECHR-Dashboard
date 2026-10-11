@@ -2002,25 +2002,51 @@ def search(
 
             # An identifier lookup (case: / hudoc: / ecli:, nothing else typed) looks for the
             # application number in the text, and a decision often gives it only in its header,
-            # which is not searched (747 of 3,557 decisions). Then search that document for a long
-            # word of its own first paragraphs instead: the identifier filter keeps it to that document.
-            if total_cases == 0 and not q_text and (q_prefix["case"] or q_prefix["hudoc"] or q_prefix["ecli"]):
+            # which is not searched (747 of 3,557 decisions). Each document of that identifier the
+            # text search missed is then searched for a rare word of its own text; the identifier
+            # filter keeps the result to those documents.
+            if not q_text and (q_prefix["case"] or q_prefix["hudoc"] or q_prefix["ecli"]):
                 _conds, _p = [], []
                 for _k, _col in (("case", "case_no"), ("hudoc", "case_id"), ("ecli", "ecli")):
                     for _v in q_prefix[_k]:
                         _conds.append(f"c.{_col} LIKE ?")
                         _p.append(f"%{_v}%")
+                _named = cur.execute(f"SELECT c.case_id, c.title FROM cases c WHERE {' OR '.join(_conds)} LIMIT 5", _p).fetchall()
+                _found: set[str] = set()
+                if total_cases:
+                    _found = {r[0] for r in cur.execute(
+                        "SELECT DISTINCT c.case_id FROM paragraphs_fts pf JOIN paragraphs p ON p.rowid = pf.rowid "
+                        f"JOIN cases c ON c.case_id = p.case_id {join_sql} WHERE {where_sql}{role_where}",
+                        [*params, *role_params])}
                 _words: list[str] = []
-                for _r in cur.execute(f"SELECT c.case_id FROM cases c WHERE {' OR '.join(_conds)} LIMIT 5", _p).fetchall():
-                    _texts = cur.execute(
-                        "SELECT text FROM paragraphs WHERE case_id = ? AND COALESCE(row_role, '') <> 'heading' "
-                        "AND length(text) > 40 ORDER BY para_idx LIMIT 3", (_r["case_id"],)).fetchall()
-                    _cands = sorted({w for t in _texts for w in re.findall(r"\b[A-Za-z]{7,}\b", t["text"] or "")},
-                                    key=lambda w: (-len(w), w))
-                    if _cands:
-                        _words.append(f'"{_cands[0].lower()}"')
+                for _r in _named:
+                    if _r["case_id"] in _found:
+                        continue
+                    _body = " ".join(t["text"] or "" for t in cur.execute(
+                        "SELECT text FROM paragraphs WHERE case_id = ? AND section NOT IN ('Header', 'Appendix') "
+                        "AND COALESCE(row_role, '') NOT LIKE 'heading%' AND COALESCE(row_role, '') NOT IN "
+                        "('metadata', 'signature', 'footer') AND length(text) > 40 ORDER BY para_idx LIMIT 15",
+                        (_r["case_id"],)).fetchall())
+                    # The word must be rare, or counting it over the corpus is slow ("application": 8 s):
+                    # the applicant's name from the title, in the text's own spelling (the index keeps
+                    # "Tanış" as tanıs), then proper names inside a sentence ("lives in Erzurum"), then
+                    # long words; each checked with a count that stops at 3,000 rows.
+                    _spelling: dict[str, str] = {}
+                    for _tok in re.findall(r"\w+", _body):
+                        _spelling.setdefault(_fold(_tok), _tok.lower())
+                    _cands = [_spelling[w] for w in _significant(_name_tokens(_r["title"]))
+                              if w.isalpha() and len(w) >= 4 and w not in ("case", "others", "republic") and w in _spelling]
+                    _cands += sorted(set(re.findall(r"(?<=[a-z,;] )([A-Z][a-z]{4,})\b", _body)), key=lambda w: (-len(w), w))
+                    _cands += sorted(set(re.findall(r"\b[a-z]{8,}\b", _body)), key=lambda w: (-len(w), w))
+                    for _w in list(dict.fromkeys(x.lower() for x in _cands))[:16]:
+                        _n = cur.execute("SELECT count(*) FROM (SELECT rowid FROM paragraphs_fts WHERE paragraphs_fts "
+                                         "MATCH ? LIMIT 3000)", (f'{{text}} : "{_w}"',)).fetchone()[0]
+                        if 0 < _n < 3000:
+                            _words.append(f'"{_w}"')
+                            break
                 if _words:
-                    fts_expr = "{text} : (" + " OR ".join(_words) + ")"
+                    _prev = fts_expr[len("{text} : "):] if total_cases and fts_expr.startswith("{text} : ") else ""
+                    fts_expr = "{text} : (" + " OR ".join(([_prev] if _prev else []) + _words) + ")"
                     params[0] = fts_expr
                     cur.execute(count_sql, [*params, *role_params])
                     count_row = cur.fetchone()
