@@ -804,10 +804,6 @@ function cacheElements() {
 
   // Corpus figures: no longer shown on this page (the tour and the Collection block give them);
   // detached stand-ins keep the code that fills them harmless.
-  el.statTotalCases = byId("statTotalCases") || document.createElement("span");
-  el.statTotalParagraphs = byId("statTotalParagraphs") || document.createElement("span");
-  el.statTotalCountries = byId("statTotalCountries") || document.createElement("span");
-  el.statDateRange = byId("statDateRange") || document.createElement("span");
 
   el.resultsHeader = byId("resultsHeader");
   el.inlineSearchForm = byId("inlineSearchForm");
@@ -2769,28 +2765,6 @@ function initFilterMode() {
   document.querySelectorAll("[data-filter-mode]").forEach((b) => {
     b.addEventListener("click", () => setFilterMode(b.dataset.filterMode, true));
   });
-}
-
-function renderGlobalStats() {
-  // When server API is connected, KPI bar shows full server stats — don't overwrite
-  if (serverSearch.available) return;
-
-  const dates = state.cases
-    .map((c) => c.__judgmentDateTs)
-    .filter((x) => Number.isFinite(x))
-    .sort((a, b) => a - b);
-
-  let dateRange = "n/a";
-  if (dates.length) {
-    const first = new Date(dates[0]).toISOString().slice(0, 10);
-    const last = new Date(dates[dates.length - 1]).toISOString().slice(0, 10);
-    dateRange = `${first} to ${last}`;
-  }
-
-  el.statTotalCases.textContent = fmtInt.format(state.cases.length);
-  el.statTotalParagraphs.textContent = fmtInt.format(state.paragraphIndex.length);
-  el.statTotalCountries.textContent = fmtInt.format(state.countries.length);
-  el.statDateRange.textContent = dateRange;
 }
 
 function collectChecked(name) {
@@ -7098,7 +7072,6 @@ async function activateDataset(rawRows, sourceLabel, metaLine, invalidCount = 0)
 
   preprocessDataset(normalized);
   renderFilters();
-  renderGlobalStats();
 
   state.sourceLabel = sourceLabel;
 
@@ -7789,13 +7762,10 @@ function init() {
       setSearchEnabled(true);
       setApiStatus("live");
 
-      // Fetch full stats from server for KPI bar
+      // Full corpus figures from the server
       try {
         const statsData = await serverSearch.getStats();
         const fmt = new Intl.NumberFormat("en-US");
-        el.statTotalCases.textContent = fmt.format(statsData.total_cases || 0);
-        el.statTotalParagraphs.textContent = fmt.format(statsData.total_paragraphs || 0);
-        el.statTotalCountries.textContent = fmt.format(statsData.total_countries || 0);
         // The machine-translation option appears only where translations are loaded.
         const mtN = statsData.total_machine_translations || 0;
         const mtPill = document.getElementById("mtPill");
@@ -7808,11 +7778,6 @@ function init() {
         if (state.defaultView && state.corpusTotal && !el.resultsHeader.hidden) el.resultsCases.textContent = fmt.format(state.corpusTotal);
         const officialCount = document.getElementById("officialCount");
         if (officialCount && statsData.total_judgments) officialCount.textContent = fmt.format(statsData.total_judgments);
-        // Parse DD/MM/YYYY dates into readable range
-        const parseDMY = (s) => { if (!s) return null; const p = s.split("/"); return p.length === 3 ? `${p[2]}-${p[1]}-${p[0]}` : s; };
-        const df = parseDMY(statsData.date_from);
-        const dt = parseDMY(statsData.date_to);
-        if (df && dt) el.statDateRange.textContent = `${df} to ${dt}`;
       } catch (e) {
         console.warn("[Server Stats] Could not fetch stats:", e);
       }
@@ -7942,22 +7907,6 @@ function init() {
       const sourceActions = document.getElementById("sourceActions");
       if (sourceActions) sourceActions.classList.remove("hidden");
       document.getElementById("loadSampleBtn")?.click();
-
-      // Try to populate KPI from stats.json
-      try {
-        const r = await fetch("data/stats.json");
-        if (r.ok) {
-          const data = await r.json();
-          if (data?.summary) {
-            const s = data.summary;
-            const fmt = new Intl.NumberFormat("en-US");
-            if (el.statTotalCases.textContent === "-") el.statTotalCases.textContent = fmt.format(s.total_cases || 0);
-            if (el.statTotalParagraphs.textContent === "-") el.statTotalParagraphs.textContent = fmt.format(s.total_paragraphs || 0);
-            if (el.statTotalCountries.textContent === "-") el.statTotalCountries.textContent = fmt.format(s.unique_countries || 0);
-            if (el.statDateRange.textContent === "-") el.statDateRange.textContent = s.date_range_label || "-";
-          }
-        }
-      } catch (_) {}
     }
   });
 }
