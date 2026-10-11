@@ -2275,13 +2275,12 @@ mark.hl {
   font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase;
   color: var(--mt-flag-fg, #7a4b00); border: 1px solid var(--mt-flag-fg, #b26b00);
 }
-.mt-notice, .mt-case-notice {
+.mt-notice {
   margin: 0.6rem 0 0; padding: 0.55rem 0.8rem; border-left: 3px solid var(--mt-flag-fg, #b26b00);
   background: var(--mt-flag-bg, #fbf3e2); color: inherit; font-size: 0.9rem; line-height: 1.45;
 }
 .results-main > .mt-notice { margin: 0 0 16px; }
-.mt-case-notice { margin: 0 0 0.8rem; }
-.mt-case-notice a, .mt-notice a { margin-left: 0.25rem; }
+.mt-notice a { margin-left: 0.25rem; }
 .chip.mt-chip { background: var(--mt-flag-bg, #fbf3e2); color: var(--mt-flag-fg, #7a4b00); border-color: var(--mt-flag-fg, #b26b00); }
 
 /* Scope chips above the results: removable */
@@ -2290,7 +2289,7 @@ mark.hl {
 .filter-chip.mt-scope-chip { color: var(--mt-flag-fg, #7a4b00); background: var(--mt-flag-bg, #fbf3e2); border: 1px dashed var(--mt-flag-fg, #b26b00); }
 
 [data-theme="dark"] .mt-scope, [data-theme="dark"] .mt-unofficial, [data-theme="dark"] .mt-notice,
-[data-theme="dark"] .mt-case-notice, [data-theme="dark"] .chip.mt-chip,
+[data-theme="dark"] .chip.mt-chip,
 [data-theme="dark"] .filter-chip.mt-scope-chip { --mt-flag-bg: #3a2c12; --mt-flag-fg: #e6b34f; }
 
 /* ── Search language: English corpus or the French originals ─────────────── */
@@ -2305,11 +2304,21 @@ mark.hl {
 .lang-switch .filter-count { margin-left: 4px; color: inherit; opacity: 0.75; }
 .lang-note { margin: 0 0 8px; font-size: 0.8rem; line-height: 1.45; color: var(--ink-2); }
 .lang-note code { font-size: 0.75rem; }
-.fr-case-notice { margin: 0 0 0.8rem; padding: 0.55rem 0.8rem; border-left: 3px solid var(--garnet);
-  background: var(--paper-2); font-size: 0.9rem; line-height: 1.45; }
-.chip.fr-chip { color: var(--garnet); border-color: var(--garnet); }
-.mt-case-notice .link-btn, .fr-case-notice .link-btn { margin-left: 0.25rem; padding: 0; border: 0; background: none;
-  color: var(--garnet); font: inherit; text-decoration: underline; cursor: pointer; }
+/* A neutral chip (not an outcome colour) on French originals that have an English translation. */
+.chip.lang-chip { color: var(--ink-3); border-color: var(--rule); background: transparent;
+  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase; }
+/* Case pane: French original | English machine translation */
+.cn-lang { display: inline-flex; margin: 0 0 0.5rem; border: 1px solid var(--rule); }
+.cn-lang-btn { min-height: 30px; padding: 0 10px; border: 0; background: transparent; cursor: pointer;
+  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-2); }
+.cn-lang-btn + .cn-lang-btn { border-left: 1px solid var(--rule); }
+.cn-lang-btn.is-on { background: var(--ink); color: var(--paper); }
+.cn-lang-btn.is-mt.is-on { background: var(--mt-flag-bg, #fbf3e2); color: var(--mt-flag-fg, #7a4b00); }
+.cn-lang-btn:focus-visible { outline: 2px solid var(--garnet); outline-offset: 1px; }
+.cn-mt-line { margin: 0 0 0.8rem; padding-left: 0.6rem; border-left: 3px solid var(--mt-flag-fg, #b26b00);
+  font-size: 0.82rem; line-height: 1.4; color: var(--mt-flag-fg, #7a4b00); }
+.cn-mt-line a { color: inherit; }
+[data-theme="dark"] .cn-lang-btn.is-mt.is-on, [data-theme="dark"] .cn-mt-line { --mt-flag-bg: #3a2c12; --mt-flag-fg: #e6b34f; }
 
 /* ── Judgments per year (Judgment Date filter) ──────────────────────────── */
 .year-histogram {

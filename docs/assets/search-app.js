@@ -226,6 +226,8 @@ const serverSearch = {
       __sourceCaseId: apiCase.source_case_id || null,
       // The authentic French text of a judgment HUDOC publishes only in French (lang=fr).
       __isFrOriginal: apiCase.text_origin === "original",
+      __translationAvailable: !!apiCase.translation_available,   // a French original with an English MT
+      __originalAvailable: !!apiCase.original_available,         // an English MT with its French original
       __titleEn: apiCase.title_en || "",
       __isGrandChamber: (apiCase.document_type || "").toLowerCase().includes("grand chamber") || (apiCase.originating_body || "").toLowerCase().includes("grand chamber"),
       document_type: apiCase.document_type || "",
@@ -708,6 +710,7 @@ const fmtInt = new Intl.NumberFormat("en-US");
 
 const state = {
   lang: "en",   // "fr": the French originals of the judgments HUDOC publishes only in French
+  readLang: new Map(),   // caseId -> "fr" | "en": the version read in the case pane, when both exist
   loaded: false,
   datasetKey: "",
   sourceLabel: "",
@@ -1623,6 +1626,7 @@ function searchLang() {
 
 function setSearchLang(lang) {
   state.lang = lang === "fr" ? "fr" : "en";
+  state.readLang.clear();
   const fr = state.lang === "fr";
   document.querySelectorAll('input[name="searchLang"]').forEach((i) => { i.checked = i.value === state.lang; });
   const en = document.getElementById("collectionEn");
@@ -1633,6 +1637,28 @@ function setSearchLang(lang) {
     if (!el.searchInput.dataset.placeholderEn) el.searchInput.dataset.placeholderEn = el.searchInput.placeholder;
     el.searchInput.placeholder = fr ? 'ex. "marge d\u2019appréciation" article:10' : el.searchInput.dataset.placeholderEn;
   }
+}
+
+/* The version of a judgment read in the case pane: the search language unless the reader switched it. */
+function readLang(caseId) {
+  return state.readLang.get(caseId) || searchLang();
+}
+
+/* Case pane: a two-position switch between the French original and its English machine translation
+ * when both exist; the translation, when shown, is marked as unofficial in one line. */
+function caseLangHtml(c) {
+  const both = (c.__isFrOriginal && c.__translationAvailable) || (c.__isMt && c.__originalAvailable);
+  if (!both && !c.__isMt) return "";
+  const readingMt = both ? readLang(c.case_id) === "en" : true;
+  const src = c.__sourceCaseId || c.source_case_id;
+  const mtLine = readingMt ? `<p class="cn-mt-line">Unofficial machine translation, not the Court&rsquo;s text: quote the
+    French original${src ? ` (<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(src)}" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>)` : ""}.</p>` : "";
+  if (!both) return mtLine;
+  const id = escapeHtml(c.case_id);
+  return `<div class="cn-lang" role="group" aria-label="Version of the text">
+      <button type="button" class="cn-lang-btn${readingMt ? "" : " is-on"}" data-action="read-lang" data-lang="fr" data-case-id="${id}" aria-pressed="${!readingMt}">Français · original</button>
+      <button type="button" class="cn-lang-btn is-mt${readingMt ? " is-on" : ""}" data-action="read-lang" data-lang="en" data-case-id="${id}" aria-pressed="${readingMt}">English · machine translation</button>
+    </div>${mtLine}`;
 }
 
 /* Collection: the official English texts, the machine translations, or both. The official box
@@ -5423,22 +5449,7 @@ function caseFindingsHtml(c) {
       ${nv.length ? `<div><span class="cnm-label">No violation</span> ${chips(nv, "is-no-violation")}</div>` : ""}
     </div>`
     : `<div class="cn-findings"><div><span class="cnm-label">Articles</span> ${buildResearcherArticleChips(c.__articles, 8)}</div></div>`;
-  const isMt = c.__isMt || c.text_origin === "machine_translation";
-  const sourceId = c.__sourceCaseId || c.source_case_id;
-  const mtNotice = isMt ? `
-    <div class="mt-case-notice" role="note">
-      <strong>Unofficial machine translation.</strong> HUDOC publishes this judgment only in French; the English
-      text here was produced by machine translation for this tool and checked automatically. It is not a
-      translation by the Court and may contain errors.
-      ${sourceId ? `<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(sourceId)}" target="_blank" rel="noopener noreferrer">Read the French original on HUDOC ↗</a>` : ""}
-      ${c.case_no && !document.getElementById("langSwitch")?.hidden ? `<button type="button" class="link-btn" data-action="open-version" data-lang="fr" data-appno="${escapeHtml(String(c.case_no).split(";")[0].trim())}">Search the French original here</button>` : ""}
-    </div>` : "";
-  const frNotice = c.__isFrOriginal ? `
-    <div class="fr-case-notice" role="note">
-      <strong>Authentic French text.</strong> HUDOC publishes this judgment only in French; this is that text.
-      ${c.case_no ? `<button type="button" class="link-btn" data-action="open-version" data-lang="en" data-appno="${escapeHtml(String(c.case_no).split(";")[0].trim())}">Look for an English machine translation</button>` : ""}
-    </div>` : "";
-  return mtNotice + frNotice + findings;
+  return caseLangHtml(c) + findings;
 }
 
 function caseMetadataHtml(c) {
@@ -5648,7 +5659,7 @@ function buildCaseCard(caseId, row, rank = 1) {
           <span class="chip" title="${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "")}">${escapeHtml(formationLabel(c) || "-")}</span>
           ${outcomeChipHtml(c)}
           ${c.__isMt ? `<span class="chip mt-chip" title="HUDOC publishes this judgment only in French. This English text is a machine translation made for this tool, not a translation by the Court.">Only in French on HUDOC · machine translation, unofficial</span>` : ""}
-          ${c.__isFrOriginal ? `<span class="chip fr-chip" title="HUDOC publishes this judgment only in French: this is the authentic text.">Authentic French text</span>` : ""}
+          ${c.__isFrOriginal && c.__translationAvailable ? `<span class="chip lang-chip" title="An unofficial English machine translation of this judgment is available: switch to it in the case details.">EN translation</span>` : ""}
         </div>
 
         <div class="case-actions-inline compact-actions">
@@ -6843,9 +6854,10 @@ const DOSSIER_DEFAULT_W = 440;
 const DOSSIER_LS_KEY = "echr.dossierWidth";
 
 async function loadDossierCase(caseId) {
-  const cacheKey = `${searchLang()}:${caseId}`;   // a French original and its translation share the id
+  const lang = readLang(caseId);
+  const cacheKey = `${lang}:${caseId}`;   // a French original and its translation share the id
   if (dossierCaseCache.has(cacheKey)) return dossierCaseCache.get(cacheKey);
-  const data = await serverSearch.getCase(caseId);
+  const data = await serverSearch.getCase(caseId, lang);
   const paras = (data.paragraphs || []).map((p) => {
     const sec = normalizeSectionKey(p.section);
     return {
@@ -7609,13 +7621,11 @@ function bindEvents() {
       document.body.classList.remove("casenote-open");
       return;
     }
-    if (action === "open-version") {
-      // The same judgment in the other language: its application number, searched in that language.
+    if (action === "read-lang" && caseId) {
+      // Same judgment, other version (French original / English machine translation), in place.
       e.preventDefault();
-      setSearchLang(clickable.dataset.lang);
-      el.searchInput.value = `case:${clickable.getAttribute("data-appno")}`;
-      refreshRailCounts(el.searchInput.value, getCurrentFilters());
-      applySearch(true);
+      state.readLang.set(caseId, clickable.dataset.lang === "en" ? "en" : "fr");
+      renderCaseContextRail(caseId);
       return;
     }
     if (action === "search-appno") {
