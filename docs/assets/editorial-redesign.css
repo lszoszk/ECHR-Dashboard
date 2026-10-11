@@ -1747,6 +1747,7 @@ mark.hl {
    text keeps a readable measure (~78 characters) and Influence stands beside it. The switch follows the
    width of the results list itself (container query), so opening the case details changes it. */
 #casesList { container: results / inline-size; }
+.researcher-result .collapse-hits { margin: 10px 0 0; }
 .researcher-foot {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
   gap: 8px 18px; margin-top: 12px;

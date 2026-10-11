@@ -157,8 +157,14 @@ const serverSearch = {
     const origBody = Array.isArray(apiCase.originating_body)
       ? apiCase.originating_body[0] || ""
       : (apiCase.originating_body || "");
-    const violation = apiCase.violation || [];
-    const nonViolation = apiCase.non_violation || [];
+    // Lists may arrive as JSON text (paragraph grouping returned them so): always use arrays.
+    const asList = (v) => {
+      if (Array.isArray(v)) return v;
+      if (typeof v === "string" && v.trim().startsWith("[")) { try { return JSON.parse(v); } catch (_) { return []; } }
+      return v ? [String(v)] : [];
+    };
+    const violation = asList(apiCase.violation);
+    const nonViolation = asList(apiCase.non_violation);
     const conclusion = Array.isArray(apiCase.conclusion) ? apiCase.conclusion.join(" ") : (apiCase.conclusion || "");
     const conclusionUpper = conclusion.toUpperCase();
     const keywords = apiCase.keywords || [];
@@ -5691,6 +5697,7 @@ function buildCaseCard(caseId, row, rank = 1) {
 
       <div class="case-body" id="body-${escapeHtml(caseId)}">
         ${paraBlocks || `<div class="paragraph-item"><p class="para-text">${caseOnlyBrowse ? "Run a full-text query to load matched paragraphs for this case." : "No paragraphs for current filters."}</p></div>`}
+        ${paraBlocks ? `<button type="button" class="card-act collapse-hits" data-action="collapse-case" data-case-id="${escapeHtml(caseId)}">Hide the ${fmtInt.format(displayHitCount)} ${hitLabel} ▲</button>` : ""}
       </div>
     </article>
   `;
@@ -7573,6 +7580,14 @@ function bindEvents() {
     if (action === "toggle-case" && caseId) {
       toggleCase(caseId);
       selectCase(caseId);
+      return;
+    }
+
+    // "Hide the N hits" at the end of an expanded list: close it and bring the card's top back into view.
+    if (action === "collapse-case" && caseId) {
+      e.preventDefault();
+      if (byId(`body-${caseId}`)?.classList.contains("open")) toggleCase(caseId);
+      byId(`case-${caseId}`)?.scrollIntoView({ block: "start", behavior: "smooth" });
       return;
     }
 
