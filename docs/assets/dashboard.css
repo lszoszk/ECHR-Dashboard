@@ -883,13 +883,13 @@ body {
 }
 .dossier-panel {
     position: sticky;
-    top: 74px;
+    top: var(--nav-h, 52px);
     align-self: start;
     display: none;
     flex-direction: column;
     background: var(--paper-2, var(--bg-card));
     border-left: 1px solid var(--rule, var(--border));
-    max-height: calc(100vh - 74px);
+    max-height: calc(100vh - var(--nav-h, 52px));
 }
 body.dossier-open .dossier-panel { display: flex; }
 @media (min-width: 1181px) {

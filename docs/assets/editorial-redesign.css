@@ -128,10 +128,10 @@ body {
 
 .nav-container {
   max-width: 1480px;
-  height: 74px;
-  padding: 12px 32px 10px;
+  height: var(--nav-h);
+  padding: 0 32px;
   gap: 28px;
-  align-items: flex-end;
+  align-items: center;
 }
 
 .nav-brand {
@@ -139,7 +139,7 @@ body {
   gap: 10px;
   color: var(--ink);
   font-family: var(--font-serif);
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 500;
   letter-spacing: 0;
 }
@@ -549,7 +549,7 @@ input[type="checkbox"] {
 }
 
 .results-header {
-  top: 74px;
+  top: var(--nav-h);
   background: color-mix(in srgb, var(--paper) 92%, transparent);
   border-bottom: 3px double var(--rule);
   margin: -24px -32px 24px;
@@ -862,9 +862,9 @@ mark.hl {
 }
 
 .stats-sidebar {
-  top: 74px;
+  top: var(--nav-h);
   width: 250px;
-  max-height: calc(100vh - 74px);
+  max-height: calc(100vh - var(--nav-h));
   background: var(--paper-2);
   border-right: 1px solid var(--rule);
   padding: 18px 0;
@@ -1305,7 +1305,7 @@ mark.hl {
 .editorial-app {
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 74px);
+  min-height: calc(100vh - var(--nav-h));
 }
 
 .editorial-search-band {
@@ -1471,9 +1471,9 @@ mark.hl {
 
 .editorial-filter-rail {
   position: sticky;
-  top: 74px;
+  top: var(--nav-h);
   align-self: start;
-  height: calc(100vh - 74px);
+  height: calc(100vh - var(--nav-h));
   overflow: auto;
   background: var(--paper);
   border-right: 1px solid var(--rule);
@@ -1836,13 +1836,13 @@ mark.hl {
    in .sidebar-scroll instead, mirroring .dossier-panel / .dossier-body. */
 .editorial-workspace .results-sidebar {
   position: sticky;
-  top: 74px;
+  top: var(--nav-h);
   align-self: start;
   display: flex;
   flex-direction: column;
   width: auto;
-  height: calc(100vh - 74px);
-  max-height: calc(100vh - 74px);
+  height: calc(100vh - var(--nav-h));
+  max-height: calc(100vh - var(--nav-h));
   overflow: hidden;
   background: var(--paper-2);
   border: 0;
@@ -2434,7 +2434,10 @@ mark.hl {
 /* ── Bottom bar: always visible, one line, 30 px (as in the HRC voting dashboard) ──
    Holds what the masthead used to carry besides the navigation: server status, theme,
    accessibility, methodology, the tour; and the credits. */
-:root { --bar-h: 30px; }
+:root { --bar-h: 30px; --nav-h: 52px; }
+@media (max-width: 1024px) { :root { --nav-h: 64px; } }
+/* the arrow clear of the bottom bar */
+.back-to-top { bottom: calc(var(--bar-h) + 14px); }
 body { padding-bottom: var(--bar-h); }
 .footer.site-footer {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 150; height: var(--bar-h); box-sizing: border-box;
@@ -2467,12 +2470,12 @@ body { padding-bottom: var(--bar-h); }
 .site-footer .sf-tour { color: var(--paper); background: var(--ink); border-color: var(--ink); }
 .site-footer .sf-tour:hover { color: var(--paper); background: var(--garnet); border-color: var(--garnet); }
 /* the side panels end above the bar */
-.editorial-filter-rail { height: calc(100vh - 74px - var(--bar-h)); }
+.editorial-filter-rail { height: calc(100vh - var(--nav-h) - var(--bar-h)); }
 @media (min-width: 1181px) {
-  .editorial-workspace .results-sidebar { height: calc(100vh - 74px - var(--bar-h)); max-height: calc(100vh - 74px - var(--bar-h)); }
+  .editorial-workspace .results-sidebar { height: calc(100vh - var(--nav-h) - var(--bar-h)); max-height: calc(100vh - var(--nav-h) - var(--bar-h)); }
 }
-.dossier-panel { max-height: calc(100vh - 74px - var(--bar-h)); }
-.stats-sidebar { max-height: calc(100vh - 74px - var(--bar-h)); }
+.dossier-panel { max-height: calc(100vh - var(--nav-h) - var(--bar-h)); }
+.stats-sidebar { max-height: calc(100vh - var(--nav-h) - var(--bar-h)); }
 @media (max-width: 860px) {
   .site-footer .sf-left, .site-footer .sf-long { display: none; }
   .footer.site-footer { justify-content: flex-end; padding: 0 10px; }
