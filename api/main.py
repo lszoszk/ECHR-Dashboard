@@ -80,6 +80,9 @@ logger = logging.getLogger("echr-api")
 # ---------------------------------------------------------------------------
 
 _local = threading.local()
+# Memory-mapped reads (see _get_connection). SQLite caps the value at its compile-time limit:
+# 2 GB in the container's build (3.46), which maps about half of the database and was measured.
+MMAP_BYTES = 8 << 30
 
 
 def _get_connection() -> sqlite3.Connection:
@@ -93,6 +96,11 @@ def _get_connection() -> sqlite3.Connection:
         conn.execute("PRAGMA journal_mode = wal")
         conn.execute("PRAGMA query_only = ON")
         conn.execute("PRAGMA cache_size = -64000")  # 64 MB page cache
+        # Read the file through memory mapping: every thread's connection then shares the system's
+        # file cache instead of filling its own 64 MB cache. A frequent word ("detention") matches
+        # tens of thousands of paragraphs, and a thread with a cold cache took up to 20 s on it
+        # (2.4 s mapped, measured on the VM on 11 October 2026). Mapped pages are clean file cache.
+        conn.execute(f"PRAGMA mmap_size = {MMAP_BYTES}")
         setattr(_local, attr, conn)
     return conn
 
