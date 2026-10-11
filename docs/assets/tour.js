@@ -98,18 +98,19 @@
       `<div class="tour-kicker">First time here · a one-minute tour</div>
        <h2 class="tour-h">The Court's judgments, paragraph by paragraph.</h2>
        <div class="tour-lead">Every judgment of the European Court of Human Rights in English, split into the Court's own
-         numbered paragraphs — so a search lands on the paragraph you will cite, with a link to HUDOC, the authoritative source.</div>
+         numbered paragraphs — so a search lands on the paragraph you will cite, with a link to HUDOC, the authoritative source.
+         Unofficial English translations of ${fmt(s.total_machine_translations || 2460)} judgments that HUDOC has only in French can be switched on.</div>
        <div class="tour-stats">
-         <div><b>${fmt(s.total_judgments || 20086)}</b><span>judgments</span></div>
-         <div><b>${fmt(s.citable_paragraphs || 1343080)}</b><span>numbered paragraphs</span></div>
-         <div><b>${fmt(s.total_countries || 46)}</b><span>respondent States</span></div>
+         <div><b>${fmt(s.total_judgments || 20123)}</b><span>judgments in English</span></div>
+         <div><b>${fmt(s.citable_paragraphs_official || 1230176)}</b><span>numbered paragraphs</span></div>
+         <div><b>${fmt(s.total_countries || 47)}</b><span>respondent States</span></div>
          <div><b>${from}–${to}</b><span>years covered</span></div>
        </div>${spark}`,
       `<div class="tour-kicker">The views</div>
-       <h2 class="tour-h">Five ways in.</h2>
+       <h2 class="tour-h">Six ways in.</h2>
        <ul class="tour-list tour-views">
          <li><span class="n">01</span><div><b>Search</b> <span class="s">— full text, paragraph by paragraph</span> <span class="d">— full text at paragraph level, with HUDOC's operators, the parts of
-           the judgment to search in, filters, and each judgment's Cites / Cited by.</span></div></li>
+           the judgment to search in, filters, and each judgment's Cites / Cited by; a case name or application number finds the case itself.</span></div></li>
          <li><span class="n">02</span><div><b>Semantic Search</b> <span class="x">experimental</span> <span class="s">— describe a case in plain words</span> <span class="d">— describe a case in plain language;
            it runs on its own index of English judgments.</span></div></li>
          <li><span class="n">03</span><div><b>Check</b> <span class="s">— verify the citations in a text</span> <span class="d">— paste a text: every citation, paragraph number and quotation is checked
@@ -117,6 +118,8 @@
          <li><span class="n">04</span><div><b>Workspace</b> <span class="s">— your saved paragraphs and searches</span> <span class="d">— the paragraphs you save (☆), with your notes, and your saved searches;
            kept in your browser only, exportable.</span></div></li>
          <li><span class="n">05</span><div><b>Statistics</b> <span class="s">— the corpus in charts</span> <span class="d">— the corpus in charts: judgments and outcomes by year, article and State, the most cited judgments, HUDOC topics.</span></div></li>
+         <li><span class="n">06</span><div><b>AI assistant</b> <span class="s">— the same search from Claude</span> <span class="d">— a connector (MCP) for Claude or another assistant:
+           it searches these judgments and quotes paragraphs verbatim with their § numbers.</span></div></li>
        </ul>
        <div class="tour-cap" style="margin-top:12px">How the texts were split, labelled and checked: Methodology, in the bottom bar.</div>`,
       `<div class="tour-kicker">Search</div>
@@ -129,10 +132,10 @@
       `<div class="tour-kicker">Built for research</div>
        <h2 class="tour-h">Honest about what it holds.</h2>
        <ul class="tour-list">
-         <li><span class="n">·</span><div><span><b>Judgments, in English.</b> Admissibility decisions are not included. Judgments that HUDOC
-           publishes only in French are left out, except unofficial machine translations of the most-cited, which you can switch on.</span></div></li>
+         <li><span class="n">·</span><div><span><b>Judgments, in English.</b> Admissibility decisions are not included, except a few dozen Grand Chamber decisions.
+           Judgments that HUDOC publishes only in French are left out, except unofficial machine translations of those other judgments cite, which you can switch on.</span></div></li>
          <li><span class="n">·</span><div><span><b>The Court's own paragraph numbers</b>, as in HUDOC's text of each judgment, so a result can be cited as it stands.</span></div></li>
-         <li><span class="n">·</span><div><span><b>Cites / Cited by</b> come from the judgments' text and HUDOC's case-law lists; every matching
+         <li><span class="n">·</span><div><span><b>Cites / Cited by</b> count judgments, found in the judgments' text and in HUDOC's metadata; every matching
            rule is documented in Methodology.</span></div></li>
          <li><span class="n">·</span><div><span><b>HUDOC remains the authoritative source</b>: open the judgment there before you rely on a paragraph.</span></div></li>
        </ul>`,

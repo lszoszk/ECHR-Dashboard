@@ -907,11 +907,16 @@ def _meaningful_counts(cur: sqlite3.Cursor) -> dict[str, Any]:
     if key is not None and _MEANINGFUL_CACHE.get("key") == key:
         return _MEANINGFUL_CACHE["val"]
 
-    citable = cur.execute(
-        "SELECT count(*) FROM paragraphs WHERE hudoc_para_no IS NOT NULL "
-        "AND row_role='paragraph' "
-        "AND COALESCE(section,'') NOT IN ('Separate Opinion','Operative part')"
-    ).fetchone()[0]
+    citable_where = ("hudoc_para_no IS NOT NULL AND row_role='paragraph' "
+                     "AND COALESCE(section,'') NOT IN ('Separate Opinion','Operative part')")
+    citable = cur.execute(f"SELECT count(*) FROM paragraphs WHERE {citable_where}").fetchone()[0]
+    # the same, without the machine translations of French-only judgments (off in Search by default)
+    citable_official = citable
+    if _has_column(cur, "cases", "text_origin"):
+        citable_official -= cur.execute(
+            f"SELECT count(*) FROM paragraphs WHERE {citable_where} AND case_id IN "
+            "(SELECT case_id FROM cases WHERE text_origin = 'machine_translation')"
+        ).fetchone()[0]
     numbered = cur.execute(
         "SELECT count(*) FROM paragraphs WHERE hudoc_para_no IS NOT NULL"
     ).fetchone()[0]
@@ -923,6 +928,7 @@ def _meaningful_counts(cur: sqlite3.Cursor) -> dict[str, Any]:
         h = zlib.crc32((cid + ":" + str(hp)).encode(), h)
     val = {
         "citable_paragraphs": citable,
+        "citable_paragraphs_official": citable_official,
         "numbered_rows": numbered,
         "numbering_fingerprint": "%08x" % (h & 0xFFFFFFFF),
     }
@@ -1018,6 +1024,7 @@ def stats():
             "total_press_releases": total_press_releases,
             "total_paragraphs": total_paragraphs,
             "citable_paragraphs": meaningful["citable_paragraphs"],
+            "citable_paragraphs_official": meaningful["citable_paragraphs_official"],
             "numbered_rows": meaningful["numbered_rows"],
             "numbering_fingerprint": meaningful["numbering_fingerprint"],
             "total_countries": total_countries,

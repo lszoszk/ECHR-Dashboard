@@ -4,11 +4,12 @@
 
 ## What's in the dataset
 
-Figures of the live corpus on 9 October 2026:
+Figures of the live corpus on 11 October 2026:
 
-- **20,123 judgments** of the European Court of Human Rights and **31 Grand Chamber admissibility decisions** (14 November 1960 – **8 October 2026**)
-- **3.32 million segmented text rows** — body paragraphs, headings, quoted passages and operative formulae — of which **1.23 million carry the Court's own paragraph numbering** (`¶ 1`, `¶ 2`…)
-- **247,436 citation links** between judgments (see *Citation graph* below)
+- **20,123 judgments** of the European Court of Human Rights in English and **31 Grand Chamber admissibility decisions** (14 November 1960 – **8 October 2026**), against **47 respondent States**
+- **3.32 million segmented text rows** — body paragraphs, headings, quoted passages and operative formulae — of which **1.26 million carry the Court's own paragraph numbering** (`¶ 1`, `¶ 2`…); **1.23 million** of these are paragraphs of the judgment itself, outside the operative part and the separate opinions
+- **2,460 judgments that HUDOC publishes only in French**, as unofficial English machine translations (390,000 rows, 174,000 numbered paragraphs), left out of every search unless switched on (see [Machine translations](#machine-translation))
+- **245,467 citation links** between the judgments of the corpus, and **58,867** more from 8,356 French-only judgments to judgments of the corpus, which count in *Cited by* (see [Citation graph](#influence) below)
 
 > **Cut-off.** The corpus ends at the newest judgment listed above, not at
 > today's date. It is topped up by a monthly ingest, and the Court publishes
@@ -25,7 +26,7 @@ Figures of the live corpus on 9 October 2026:
 
 Two deliberate boundaries a HUDOC user should know about:
 
-- **Judgments, plus a few Grand Chamber decisions.** The corpus covers the Court's judgments (including ~6,300 Committee judgments, which HUDOC's default search omits) and 31 Grand Chamber admissibility decisions such as *Banković*, which appear when the *Decisions* filter is ticked. HUDOC's other collections — the other admissibility decisions, Communicated Cases, Legal Summaries, Advisory Opinions, Commission decisions — are not included; consult HUDOC for those.
+- **Judgments, plus a few Grand Chamber decisions.** The corpus covers the Court's judgments (including ~6,500 Committee judgments, which HUDOC's default search omits) and 31 Grand Chamber admissibility decisions such as *Banković*, which appear when the *Decisions* filter is ticked. HUDOC's other collections — the other admissibility decisions, Communicated Cases, Legal Summaries, Advisory Opinions, Commission decisions — are not included; consult HUDOC for those.
 - **English texts only.** About 9,300 judgments were delivered only in French — a substantial share of Chamber and Committee output — and are not in the official English corpus; unofficial English machine translations of the 2,460 most-cited of them can be switched on in Search (see [Machine translations of French-only judgments](#machine-translation)). On the Semantic Search page, "describe your case in any language" refers to the *query* (the embedding model is multilingual); the retrieved paragraphs are always the English texts.
 
 The Statistics page is a static snapshot (its build date is printed under its title) and can lag the live counts shown in the Search header.
@@ -135,12 +136,12 @@ The bars compare the three numbers of the same judgment: the largest fills the b
 
 | Source | What it finds | Share of links (October 2026) |
 | --- | --- | ---: |
-| Our text: application numbers | `no. 30210/96` resolved to the judgment that carries it | 80.3 % |
-| Our text: name and date | references without a number, as pre-1999 judgments are cited | 17.9 % |
-| HUDOC: Strasbourg case-law list | items of the list the Court's documentalists compile for each judgment that our text pass did not find | 0.9 % |
+| Our text: application numbers | `no. 30210/96` resolved to the judgment that carries it | 81.2 % |
+| Our text: name and date | references without a number, as pre-1999 judgments are cited | 16.9 % |
+| HUDOC: Strasbourg case-law list | items of the list the Court's documentalists compile for each judgment that our text pass did not find | 1.0 % |
 | HUDOC: extracted application numbers | numbers HUDOC extracted from the full document that do not occur in our text — mostly in footnotes, which our paragraph text does not include | 0.9 % |
 
-The figures count distinct links between a judgment and a cited case (about 227,000). The last two sources are taken from HUDOC's own "Case details" metadata and are marked as such in the data (`extraction_method` `hudoc_caselaw` / `hudoc_extracted`); they have no paragraph attached.
+The figures count distinct links between a judgment and a cited case (245,467 in the current graph); a link found by more than one source is counted under the first source in the table. The last two sources are taken from HUDOC's own "Case details" metadata and are marked as such in the data (`extraction_method` `hudoc_caselaw` / `hudoc_extracted`); they have no paragraph attached.
 
 1. **Application numbers.** The `NNNNN/YY` identifier the Court uses when citing a precedent (e.g. *Kudła v. Poland*, no. 30210/96) is looked up in the case index; a number that does not resolve to a case in the corpus is ignored, which discards date-like false positives. When one number belongs to several documents of the same case (a Chamber and a Grand Chamber judgment, merits and just satisfaction, a revision), a date or an `ECHR 2005` year written next to the number decides, then the `[GC]` marker, then the principal judgment. A reference marked `(dec.)` counts only if that admissibility decision is itself in the corpus; it is never credited to a later judgment that happens to share the number.
 2. **Name and date.** Judgments before about 1999 are cited without a number — *Handyside v. the United Kingdom, 7 December 1976, Series A no. 24*. Such a reference is accepted only if exactly one judgment in the corpus was delivered on that date, the applicant's name is contained in its title and the respondent State matches. A number written in the reference that belongs to a different application rejects the match, as does a reference to a request for revision (its date belongs to the judgment under revision). Unofficial translations are never cited or citing, and a judgment cannot cite a later one.
@@ -218,6 +219,15 @@ On a judgment the Court published in both languages and that was kept out of the
 - The translations are not in Semantic Search. In the citation graph a translated judgment can be cited (an English judgment's reference to its application number resolves to it, as to any judgment), but its own *Cites* come from HUDOC's metadata, never from the translated text, so that a translation slip cannot create a link. A French-only judgment that cites a case counts in that case's *Cited by* whether or not it has been translated; the cards show how many of the citing judgments exist only in French, and the Statistics page counts the same way.
 - Corrections are welcome: <l.szoszkiewicz@amu.edu.pl>.
 
+## How the tools use the data
+
+- **Search** is a full-text index (SQLite FTS5) over the rows described above, searched paragraph by paragraph; headings, signature blocks and procedural formulae without a § number are left out by default. A case name or application number typed as the query also finds the judgment itself, from the case titles and application numbers rather than the text, because the text index has no title for part of the corpus.
+- **Semantic Search** (experimental) runs on its own index: 1,328,635 paragraphs of 20,150 English judgments and Grand Chamber decisions, as of 8 October 2026, embedded with Voyage voyage-4-large; the 100 closest are re-read against the query by Voyage rerank-3, and leading cases are nudged up. It is measured against the Court's 41 Case-Law Guides (the cited case is in the top 10 for about 89 % of items, the cited paragraph for about 75 %); the details are in the note on the Semantic Search page. Judgments added after its snapshot and the machine translations are not in it.
+- **Check** finds the citations in a pasted text in the browser and sends only what identifies each cited judgment (application numbers, the name, a date, the `[GC]` and `(dec.)` markers); the text itself never reaches the server. Each citation is resolved with the rules of the citation graph — the application number, then the date, then `[GC]`, then the principal judgment of the case — and, failing that, against HUDOC's French-only judgments. A pinpointed § is checked to exist, and a quotation is compared word by word with the judgment.
+- **AI assistant (MCP).** A hosted connector gives Claude or another assistant that takes MCP connectors seven tools over the same data (`echr_search`, `echr_get_case`, `echr_get_paragraphs`, `echr_cites`, `echr_cited_by`, `echr_facets`, `echr_stats`), so that it quotes paragraphs verbatim with their § numbers instead of from memory. Setup: [About](about.html#mcp).
+- **Workspace** keeps saved paragraphs, notes and searches in your browser only; nothing is sent to the server.
+- **Statistics** is a static snapshot of the corpus, rebuilt after an update; its build date is printed under its title.
+
 ## Analytics & privacy
 
 Two counters, both limited to which pages are used:
@@ -242,7 +252,7 @@ referrer on the next page. Ad personalisation and Google signals are disabled.
 
 Your choice lives in this browser's local storage
 (`echr-analytics-consent`) and can be changed at any time from the
-[Privacy & analytics](../methodology.html#privacy-analytics) box on the
+[Privacy & analytics](methodology.html#privacy-analytics) box on the
 Methodology page.
 
 ## Honest limits
@@ -258,7 +268,7 @@ Methodology page.
 
 All transformation scripts are versioned in the project repository under `scripts/`. Each script supports a default dry-run mode, an `--apply` flag, and writes a backup table before any change. The full per-pass change log, precision-audit reports, and per-sample LLM verdicts are maintained internally and available on request.
 
-If you use the tool or its data in research, please cite (copy buttons on the [About](../about.html#cite) page):
+If you use the tool or its data in research, please cite (copy buttons on the [About](about.html#cite) page):
 
 > Szoszkiewicz, Ł., & Marcisz, S. (2026). *HUDOC Researcher — ECtHR case-law search and RAG* [Computer software]. Zenodo. <https://doi.org/10.5281/zenodo.21319703>
 
