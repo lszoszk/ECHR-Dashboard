@@ -1608,6 +1608,53 @@ function wsFilterSnapshot() {
   };
 }
 
+/* The address carries the whole search — query, language, filters (as a saved search keeps them) and a
+ * non-default sort — so a link opens the same results; each new search is a step in the browser's
+ * history, and Back returns to the previous one. */
+const URL_LISTS = { state: "countries", article: "articles", keyword: "keywords", importance: "importance",
+  outcome: "outcomes", doctype: "docTypes", in: "buckets" };
+
+function searchUrl(query) {
+  const p = new URLSearchParams();
+  if (query) p.set("q", query);
+  if (searchLang() === "fr") p.set("lang", "fr");
+  const s = wsFilterSnapshot();
+  const allBuckets = document.querySelectorAll('#bucketScope input[data-name="buckets"]').length;
+  for (const [key, field] of Object.entries(URL_LISTS)) {
+    const v = s[field] || [];
+    if (!v.length || (field === "buckets" && v.length >= allBuckets)) continue;
+    p.set(key, v.join(","));
+  }
+  if (s.includeMt) p.set("mt", s.includeMt === "only" ? "only" : "1");
+  if (s.includeExtra) p.set("extra", "1");
+  if (s.includeAppendix) p.set("appendix", "1");
+  if (s.dateFrom) p.set("from", s.dateFrom);
+  if (s.dateTo) p.set("to", s.dateTo);
+  if (state.resultSort && state.resultSort !== "relevance") p.set("sort", state.resultSort);
+  const qs = p.toString();
+  return qs ? `${location.pathname}?${qs}` : location.pathname;
+}
+
+function snapshotFromUrl(p) {
+  const s = {};
+  for (const [key, field] of Object.entries(URL_LISTS)) s[field] = (p.get(key) || "").split(",").map((x) => x.trim()).filter(Boolean);
+  s.includeMt = p.get("mt") === "only" ? "only" : p.get("mt") ? "true" : false;
+  s.lang = p.get("lang") === "fr" ? "fr" : "en";
+  s.includeExtra = p.get("extra") === "1";
+  s.includeAppendix = p.get("appendix") === "1";
+  s.dateFrom = p.get("from") || "";
+  s.dateTo = p.get("to") || "";
+  return s;
+}
+
+/** Filters, language and sort from the address (a shared link, or Back / Forward). */
+function applyUrlState(p, fromHistory = false) {
+  wsApplySnapshot(snapshotFromUrl(p));
+  const sort = p.get("sort");
+  // A link without a sort keeps the reader's own choice; Back / Forward restore exactly.
+  if (sort || fromHistory) state.resultSort = ["date_desc", "date_asc"].includes(sort) ? sort : "relevance";
+}
+
 function wsFilterSummary(s) {
   const parts = [];
   if (s.countries.length) parts.push(s.countries.map((c) => COUNTRY_NAMES[c] || c).join(", "));
@@ -6146,11 +6193,13 @@ function applySearch(resetPage = true) {
   // Keep the address bar shareable: the current query lives in ?q= (same
   // contract as semantic.html). Empty query → clean path.
   try {
-    const url = new URLSearchParams();
-    if (query) url.set("q", query);
-    if (searchLang() === "fr") url.set("lang", "fr");
-    history.replaceState(null, "", url.toString() ? `${location.pathname}?${url}` : location.pathname);
+    const next = searchUrl(query);
+    if (next !== location.pathname + location.search) {
+      if (state.restoringHistory) history.replaceState(null, "", next);
+      else history.pushState(null, "", next);
+    }
   } catch (_) { /* sandboxed iframes may block history */ }
+  state.restoringHistory = false;
 
   if (serverSearch.available) {
     // Default-view mode stays on only while the user hasn't typed a
@@ -6571,6 +6620,7 @@ async function exportResults() {
     "Originating Body",
     "Importance",
     "Document Type",
+    "Text",
     "Outcome Primary",
     "Inadmissibility",
     "Struck out",
@@ -6659,6 +6709,9 @@ async function exportResults() {
         data.case.__originatingBody || "",
         data.case.__importance || "",
         data.case.__isPressRelease ? "Press Release" : (data.case.document_type || "Judgment"),
+        // Which text the row quotes: the Court's English, our machine translation, or the French original.
+        data.case.__isMt ? `Unofficial machine translation from French (original: HUDOC ${data.case.__sourceCaseId || data.case.case_id})`
+          : data.case.__isFrOriginal ? "French original (authentic text)" : "Official English text",
         data.case.__outcomePrimary || "",
         data.case.__hasInadmissibility ? "yes" : "no",
         data.case.__isStruckOut ? "yes" : "no",
@@ -6756,7 +6809,8 @@ function searchExportInfo(nCases, nRows) {
       ["Collection", collection],
       ...(state.serverTotalCases > nCases ? [["Coverage", `${fmtInt.format(nCases)} of the ${fmtInt.format(state.serverTotalCases)} matching judgments`]] : []),
       ["Columns", "One row per matched paragraph. \u201cParagraph (display)\u201d is the Court's paragraph number (\u00a7); " +
-        "an asterisk marks a row number where the paragraph has none. \u201cHUDOC URL\u201d opens the judgment on HUDOC."],
+        "an asterisk marks a row number where the paragraph has none. \u201cText\u201d says whether the row is the Court's English, " +
+        "an unofficial machine translation or the French original. \u201cHUDOC URL\u201d opens the judgment on HUDOC."],
     ],
     url: location.href,
     data: fr ? `HUDOC Researcher French originals: ${fmtInt.format(st.french_originals || 0)} judgments HUDOC publishes only in French`
@@ -8044,6 +8098,16 @@ function init() {
       const runId = new URLSearchParams(location.search).get("run");
       const saved = runId && window.ECHRWorkspace ? window.ECHRWorkspace.search(runId) : null;
       if (saved) wsApplySnapshot(saved.filters || {});
+      else applyUrlState(new URLSearchParams(location.search));   // a shared link with filters
+      state.restoringHistory = true;   // the first search keeps the address it was opened with
+      window.addEventListener("popstate", () => {
+        const p = new URLSearchParams(location.search);
+        el.searchInput.value = p.get("q") || "";
+        applyUrlState(p, true);
+        state.restoringHistory = true;
+        refreshRailCounts(el.searchInput.value, getCurrentFilters());
+        applySearch(true);
+      });
       try {
         applySearch(true);
       } catch (e) {
