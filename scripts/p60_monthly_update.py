@@ -212,13 +212,17 @@ def _hudoc_date(cols: dict) -> str:
     return ""
 
 
+# HUDOC's API codes the importance levels 1-4; its search shows them as Key cases, 1, 2 and 3.
+HUDOC_IMPORTANCE = {"1": "Key cases", "2": "1", "3": "2", "4": "3"}
+
+
 def _importance(value) -> str:
     v = (str(value or "")).strip()
     if not v:
         return "Unspecified"
     if "key" in v.lower():
         return "Key cases"
-    return v if v in ("1", "2", "3") else "Unspecified"
+    return HUDOC_IMPORTANCE.get(v, "Unspecified")
 
 
 def _originating_body(cols: dict) -> str:

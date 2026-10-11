@@ -101,9 +101,11 @@
        <div class="tour-lead">Every judgment of the European Court of Human Rights in English${frN ? `, and the ${fmt(frN)} that HUDOC
          publishes only in French, in their French text` : ""}, split into the Court's own numbered paragraphs — so a search lands on
          the paragraph you will cite, with a link to HUDOC, the authoritative source. Unofficial English translations of
-         ${fmt(s.total_machine_translations || 2460)} French-only judgments can be switched on in the English search.</div>
+         ${fmt(s.total_machine_translations || 2460)} French-only judgments can be switched on in the English search${s.total_decisions ? `, and so can
+         ${fmt(s.total_decisions)} of the Court's decisions` : ""}.</div>
        <div class="tour-stats">
          <div><b>${fmt(s.total_judgments || 20123)}</b><span>judgments in English</span></div>
+         ${s.total_decisions ? `<div><b>${fmt(s.total_decisions)}</b><span>decisions, a selection</span></div>` : ""}
          ${frN ? `<div><b>${fmt(frN)}</b><span>only in French, in French</span></div>` : ""}
          <div><b>${fmt(s.citable_paragraphs || 1404444)}</b><span>numbered paragraphs</span></div>
          <div><b>${fmt(s.total_countries || 47)}</b><span>respondent States</span></div>
@@ -115,7 +117,7 @@
          <li><span class="n">01</span><div><b>Search</b> <span class="s">— full text, paragraph by paragraph</span> <span class="d">— full text at paragraph level${frN ? ", in English or in French" : ""}, with HUDOC's operators, the parts of
            the judgment to search in, filters, and each judgment's Cites / Cited by; a case name or application number finds the case itself.</span></div></li>
          <li><span class="n">02</span><div><b>Semantic Search</b> <span class="x">experimental</span> <span class="s">— describe a case in plain words</span> <span class="d">— describe a case in plain language;
-           it runs on its own index of English judgments.</span></div></li>
+           it runs on its own index of English judgments, and adds the judgments only in French when you tick the box under the query.</span></div></li>
          <li><span class="n">03</span><div><b>Check</b> <span class="s">— verify the citations in a text</span> <span class="d">— paste a text: every citation, paragraph number and quotation is checked
            against the judgments.</span></div></li>
          <li><span class="n">04</span><div><b>Workspace</b> <span class="s">— your saved paragraphs and searches</span> <span class="d">— the paragraphs you save (☆), with your notes, and your saved searches;
@@ -132,7 +134,7 @@
          (<code>article:8</code>, <code>cites:hatton</code>, <code>NEAR</code>). Every result opens at the paragraph, with its
          number and the judgment's other matches; Cite copies an OSCOLA citation and ☆ Bookmark saves it to your Workspace.${frN ? `
          <b>Français</b>, above the filters, searches the ${fmt(frN)} judgments HUDOC publishes only in French, in their French
-         text (accents optional).` : ""} Try one:</div>
+         text (accents optional).` : ""} <b>Decisions</b>, in the left pane, adds the Court's decisions to the results. Try one:</div>
        <div class="tour-chips">${EXAMPLES.map((q) => `<button type="button" data-tour-q="${q.replace(/"/g, "&quot;")}">${q.replace(/</g, "&lt;")}</button>`).join("")}</div>`,
       `<div class="tour-kicker">Built for research</div>
        <h2 class="tour-h">Honest about what it holds.</h2>
@@ -142,7 +144,7 @@
            : "Judgments that HUDOC publishes only in French are left out, except unofficial machine translations of those other judgments cite, which you can switch on."}
            Decisions are a selection for now (those cited in judgments, and key cases), shown when <i>Decisions</i> is ticked.</span></div></li>
          <li><span class="n">·</span><div><span><b>The Court's own paragraph numbers</b>, as in HUDOC's text of each judgment, so a result can be cited as it stands.</span></div></li>
-         <li><span class="n">·</span><div><span><b>Cites / Cited by</b> count judgments, found in the judgments' text and in HUDOC's metadata; every matching
+         <li><span class="n">·</span><div><span><b>Cites / Cited by</b> count judgments and decisions, found in their text and in HUDOC's metadata; every matching
            rule is documented in Methodology.</span></div></li>
          <li><span class="n">·</span><div><span><b>HUDOC remains the authoritative source</b>: open the judgment there before you rely on a paragraph.
            Every download (Excel, CSV, PNG) says where it came from and how to cite it.</span></div></li>

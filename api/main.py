@@ -80,6 +80,9 @@ logger = logging.getLogger("echr-api")
 # ---------------------------------------------------------------------------
 
 _local = threading.local()
+# Memory-mapped reads (see _get_connection). SQLite caps the value at its compile-time limit:
+# 2 GB in the container's build (3.46), which maps about half of the database and was measured.
+MMAP_BYTES = 8 << 30
 
 
 def _get_connection() -> sqlite3.Connection:
@@ -93,6 +96,11 @@ def _get_connection() -> sqlite3.Connection:
         conn.execute("PRAGMA journal_mode = wal")
         conn.execute("PRAGMA query_only = ON")
         conn.execute("PRAGMA cache_size = -64000")  # 64 MB page cache
+        # Read the file through memory mapping: every thread's connection then shares the system's
+        # file cache instead of filling its own 64 MB cache. A frequent word ("detention") matches
+        # tens of thousands of paragraphs, and a thread with a cold cache took up to 20 s on it
+        # (2.4 s mapped, measured on the VM on 11 October 2026). Mapped pages are clean file cache.
+        conn.execute(f"PRAGMA mmap_size = {MMAP_BYTES}")
         setattr(_local, attr, conn)
     return conn
 
@@ -352,6 +360,17 @@ def _build_fts_query(raw: str, broaden: bool = False) -> str:
     if not raw:
         return ""
 
+    # A phrase after a minus or NOT is excluded (torture -"inhuman treatment"); taken out before the
+    # phrases, which would otherwise make it required.
+    excluded: list[str] = []
+
+    def _exclude(m: "re.Match[str]") -> str:
+        inner = _FTS5_DANGEROUS_CHARS.sub(" ", m.group(2)).strip()
+        if inner:
+            excluded.append(inner)
+        return m.group(1) or " "
+
+    raw = re.sub(r'(^|\s)(?:-|(?i:NOT)\s+)"([^"]+)"', _exclude, raw)
     phrases, remainder = _extract_phrases(raw)
 
     parts: list[str] = []
@@ -465,6 +484,8 @@ def _build_fts_query(raw: str, broaden: bool = False) -> str:
     expr = " ".join(parts)
     if not expr:
         return ""
+    if excluded:
+        expr = f"({expr})" + "".join(f' NOT "{x}"' for x in excluded)
     # Scope every match to the paragraph BODY column.  `title` and
     # `keywords_text` are denormalised onto ~2M paragraph rows, so an
     # unscoped MATCH makes every paragraph of (e.g.) an Article 8 case
@@ -498,7 +519,7 @@ def _extract_prefix_filters(raw: str) -> tuple[str, dict[str, list[str]]]:
         key = m.group(2).lower()
         val = (m.group(3) or m.group(4) or "").strip()
         if val:
-            found[key].append(val)
+            found[key].append(_canon_state(val) if key == "state" else val)
         return m.group(1) or " "
 
     text = _QUERY_PREFIX_RX.sub(_grab, raw or "")
@@ -599,6 +620,13 @@ def _doc_type_clause(doc_type_list: list[str], explicit_lookup: bool = False, in
         elif dt == "chamber":
             formation.append(f"(c.document_type NOT LIKE '%Press Release%' AND NOT {committee} AND NOT {gc})")
     mt = _mt_clause(include_mt, explicit_lookup)
+    # include_mt=only means "the translations instead of the official judgments": with decisions asked for
+    # as well, that is decisions OR translations (ANDing the two found nothing).
+    if (collection and not explicit_lookup and _mt_mode(include_mt) == "only" and _has_mt_column()
+            and "decision" in (doc_type_list or [])):
+        collection = [x for x in collection if x != f"(c.document_type NOT LIKE '%Press Release%' AND {not_decision})"]
+        collection.append("COALESCE(c.text_origin, '') = 'machine_translation'")
+        mt = "1=1"
     parts = []
     if collection:
         parts.append(f"({' OR '.join(collection)})")
@@ -772,6 +800,20 @@ _STATE_ALIASES = {
     "Republic of Moldova": "Moldova",
     "Türkiye": "Turkey",
 }
+# Names a user may type for a respondent State (HUDOC's, the official ones, the one the results show),
+# mapped to the name the filters compare with.
+_STATE_INPUT_ALIASES = {
+    "türkiye": "Turkey", "turkiye": "Turkey", "republic of türkiye": "Turkey",
+    "russian federation": "Russia", "republic of moldova": "Moldova",
+    "uk": "United Kingdom", "great britain": "United Kingdom", "czechia": "Czech Republic",
+    "former yugoslav republic of macedonia": "North Macedonia", "macedonia": "North Macedonia",
+}
+
+
+def _canon_state(value: str) -> str:
+    """A State as typed ("Türkiye", "the United Kingdom", "Russian Federation") -> its name in the filters."""
+    v = re.sub(r"^the\s+", "", (value or "").strip().strip('"'), flags=re.I)
+    return _STATE_INPUT_ALIASES.get(v.lower(), v)
 
 
 def _split_states(raw: Optional[str]) -> list[str]:
@@ -1462,7 +1504,7 @@ def analytics(
         fts_expr=fts_expr,
         sec_list=_parse_comma_param(sections),
         art_list=_parse_comma_param(articles),
-        state_list=_parse_comma_param(states),
+        state_list=[_canon_state(v) for v in _parse_comma_param(states)],
         imp_list=_parse_comma_param(importance),
         body_list=_parse_comma_param(bodies),
         outcome_list=_parse_comma_param(outcomes),
@@ -1678,7 +1720,8 @@ def search(
             with get_cursor() as _cur:
                 _nos = []
                 for _v in _cite_names:
-                    for r in _cur.execute("SELECT case_no FROM cases WHERE title LIKE ? LIMIT 50", (f"%{_v}%",)):
+                    for r in (_cases_named(_v) or _cur.execute(
+                            "SELECT case_no FROM cases WHERE title LIKE ? LIMIT 50", (f"%{_v}%",)).fetchall()):
                         _no = (r["case_no"] or "").split(";")[0].strip()
                         if _no and _no not in _nos:
                             _nos.append(_no)
@@ -1705,7 +1748,7 @@ def search(
 
     sec_list = _parse_comma_param(sections)
     art_list = _parse_comma_param(articles)
-    state_list = _parse_comma_param(states)
+    state_list = [_canon_state(v) for v in _parse_comma_param(states)]
     imp_list = _parse_comma_param(importance)
     body_list = _parse_comma_param(bodies)
     keyword_list = _parse_comma_param(keywords)
@@ -1827,7 +1870,8 @@ def search(
                         "SELECT case_id FROM cases WHERE case_no LIKE ? LIMIT 50",
                         (f"%{_v}%",)).fetchall()
                 else:
-                    _rows = _cur.execute(
+                    # whole words, accents folded; a fragment ("Kud") still matches the title as before
+                    _rows = _cases_named(_v) or _cur.execute(
                         "SELECT case_id FROM cases WHERE title LIKE ? LIMIT 50",
                         (f"%{_v}%",)).fetchall()
                 _targets = [r["case_id"] for r in _rows]
@@ -1955,6 +1999,32 @@ def search(
                         fallback = "any_terms"
                     else:
                         params[0] = fts_expr
+
+            # An identifier lookup (case: / hudoc: / ecli:, nothing else typed) looks for the
+            # application number in the text, and a decision often gives it only in its header,
+            # which is not searched (747 of 3,557 decisions). Then search that document for a long
+            # word of its own first paragraphs instead: the identifier filter keeps it to that document.
+            if total_cases == 0 and not q_text and (q_prefix["case"] or q_prefix["hudoc"] or q_prefix["ecli"]):
+                _conds, _p = [], []
+                for _k, _col in (("case", "case_no"), ("hudoc", "case_id"), ("ecli", "ecli")):
+                    for _v in q_prefix[_k]:
+                        _conds.append(f"c.{_col} LIKE ?")
+                        _p.append(f"%{_v}%")
+                _words: list[str] = []
+                for _r in cur.execute(f"SELECT c.case_id FROM cases c WHERE {' OR '.join(_conds)} LIMIT 5", _p).fetchall():
+                    _texts = cur.execute(
+                        "SELECT text FROM paragraphs WHERE case_id = ? AND COALESCE(row_role, '') <> 'heading' "
+                        "AND length(text) > 40 ORDER BY para_idx LIMIT 3", (_r["case_id"],)).fetchall()
+                    _cands = sorted({w for t in _texts for w in re.findall(r"\b[A-Za-z]{7,}\b", t["text"] or "")},
+                                    key=lambda w: (-len(w), w))
+                    if _cands:
+                        _words.append(f'"{_cands[0].lower()}"')
+                if _words:
+                    fts_expr = "{text} : (" + " OR ".join(_words) + ")"
+                    params[0] = fts_expr
+                    cur.execute(count_sql, [*params, *role_params])
+                    count_row = cur.fetchone()
+                    total_cases, total_hits = count_row["total_cases"], count_row["total_hits"]
 
             if total_cases == 0:
                 elapsed = (time.perf_counter() - t0) * 1000
@@ -2508,6 +2578,18 @@ def _name_index() -> dict[str, Any]:
     return _NAME_IDX
 
 
+def _cases_named(name: str, limit: int = 50) -> list[dict[str, Any]]:
+    """Cases whose title holds every significant word of ``name``, accents and case folded (so "Bankovic"
+    and "Banković" find BANKOVIĆ, which SQL LIKE does not)."""
+    idx = _name_index()
+    sig = _significant(_name_tokens(name))
+    if not sig:
+        return []
+    pools = [set(idx["tok"].get(t, [])) for t in sig]
+    hits = sorted(set.intersection(*pools)) if pools else []
+    return [idx["rows"][i] for i in hits[:limit]]
+
+
 def _suggest_cases(q: str, limit: int) -> list[dict[str, Any]]:
     idx = _name_index()
     rows, tok, app = idx["rows"], idx["tok"], idx["app"]
@@ -2849,7 +2931,7 @@ def browse(
     page_size = _validate_page_size(page_size)
 
     art_list = _parse_comma_param(articles)
-    state_list = _parse_comma_param(states)
+    state_list = [_canon_state(v) for v in _parse_comma_param(states)]
     imp_list = _parse_comma_param(importance)
     body_list = _parse_comma_param(bodies)
     keyword_list = _parse_comma_param(keywords)
