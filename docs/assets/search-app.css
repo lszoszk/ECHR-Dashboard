@@ -1420,3 +1420,6 @@ html[style*="--a11y-line-height"] .modal-para {
   margin-left: 12px;
 }
 .data-source-panel .collapse-toggle:hover { opacity: 1; }
+
+/* Default view of Search: what the corpus count is made of */
+.results-lede p.results-corpus { margin: 0 0 6px; font-size: 0.86rem; line-height: 1.4; }

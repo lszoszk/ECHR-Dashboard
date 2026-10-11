@@ -823,6 +823,7 @@ function cacheElements() {
   el.resultsCases = byId("resultsCases");
   el.resultsCasesLabel = byId("resultsCasesLabel");
   el.resultsTime = byId("resultsTime");
+  el.resultsCorpus = byId("resultsCorpus");
   el.cardModeBtn = byId("cardModeBtn");
   el.exportBtn = byId("exportBtn");
   el.exportIncludeClassifier = byId("exportIncludeClassifier");
@@ -6484,6 +6485,24 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
   }
 }
 
+/** Default view: what the "records in the corpus" figure is made of, and whether Search covers the translations. */
+function renderCorpusNote() {
+  const c = state.corpusStats, node = el.resultsCorpus;
+  if (!node) return;
+  const n = (v) => fmtInt.format(v);
+  if (c && state.defaultView && searchLang() === "fr" && c.french_originals) {
+    node.textContent = `${n(c.french_originals)} judgments that HUDOC publishes only in French, in their authentic French text.`;
+    node.hidden = false; return;
+  }
+  if (!c || !state.defaultView || !c.total_machine_translations) { node.hidden = true; return; }
+  const parts = [`${n(c.total_judgments)} judgments in English`];
+  if (c.total_decisions) parts.push(`${n(c.total_decisions)} Grand Chamber decisions`);
+  parts.push(`${n(c.total_machine_translations)} unofficial translations of French-only judgments`);
+  const mtOn = !!collectionMode();
+  node.textContent = `${parts.join(" · ")} — the translations are ${mtOn ? "included in" : "left out of"} the search${mtOn ? "" : " until you switch them on"}.`;
+  node.hidden = false;
+}
+
 /** Update results header for server-side search results. */
 function updateResultsHeaderServer(data, opts = {}) {
   const defaultView = !!opts.defaultView;
@@ -6502,11 +6521,14 @@ function updateResultsHeaderServer(data, opts = {}) {
   el.resultsHits.textContent = fmtInt.format(defaultView ? totalCases : (data.total_hits || 0));
   if (el.resultsHitsLabel) el.resultsHitsLabel.textContent = defaultView ? "recent cases" : "passages";
   // Default view: the whole corpus (judgments, Grand Chamber decisions and machine translations), from /api/stats.
-  el.resultsCases.textContent = fmtInt.format(defaultView ? (state.corpusTotal || data.total_cases || totalCases) : totalCases);
+  // The default view counts the collection being browsed: the French originals under Français.
+  const corpusTotal = searchLang() === "fr" ? (state.corpusStats?.french_originals || 0) : state.corpusTotal;
+  el.resultsCases.textContent = fmtInt.format(defaultView ? (corpusTotal || data.total_cases || totalCases) : totalCases);
   if (el.resultsCasesLabel) el.resultsCasesLabel.textContent = defaultView ? "records in the corpus" : "judgments";
   el.resultsTime.textContent = `(${((data.search_time_ms || state.searchTimeMs) / 1000).toFixed(3)}s · page ${state.currentPage}/${totalPages} · ${serverTag})`;
   if (el.queryMatchCount) el.queryMatchCount.textContent = fmtInt.format(defaultView ? totalCases : (data.total_hits || 0));
   if (el.queryMatchLabel) el.queryMatchLabel.textContent = defaultView ? "recent cases" : "¶ matched";
+  renderCorpusNote();
 
   el.exportBtn.disabled = !state.currentOrderedCaseIds.length;
   if (el.clearBtn) el.clearBtn.disabled = false;
@@ -7890,6 +7912,7 @@ function init() {
         state.corpusStats = statsData;
         state.corpusTotal = statsData.total_cases || 0;
         if (state.defaultView && state.corpusTotal && !el.resultsHeader.hidden) el.resultsCases.textContent = fmt.format(state.corpusTotal);
+        renderCorpusNote();
         const officialCount = document.getElementById("officialCount");
         if (officialCount && statsData.total_judgments) officialCount.textContent = fmt.format(statsData.total_judgments);
       } catch (e) {
