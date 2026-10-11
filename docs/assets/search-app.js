@@ -1503,7 +1503,7 @@ function paraHoverActions(caseId, p) {
   const caseObj = state.caseById.get(caseId);
   const hudocUrl = caseObj ? paragraphHudocUrl(caseObj, p) : "";
   return `<span class="dossier-para-actions">
-    ${hudocUrl ? `<a href="${escapeHtml(hudocUrl)}" target="_blank" rel="noopener noreferrer" title="Open on HUDOC at this paragraph (its opening words are copied, for Find)">HUDOC ↗</a>` : ""}
+    ${hudocUrl ? `<a href="${escapeHtml(hudocUrl)}"${passageAttr(caseObj, p)} target="_blank" rel="noopener noreferrer" title="Open on HUDOC at this paragraph (its opening words are copied, for Find)">HUDOC ↗</a>` : ""}
     <button type="button" data-action="para-cite" ${data} title="Copy an OSCOLA citation of this paragraph">Cite</button>
     <button type="button" data-action="para-copy" ${data} title="Copy the text of this paragraph">Copy</button>
     ${window.ECHRWorkspace ? `<button type="button" data-action="para-bookmark" ${data} aria-pressed="${!!saved}"
@@ -1790,9 +1790,27 @@ function hudocPassage(para) {
   return "";
 }
 
+/* HUDOC scrolls to a linked passage only in older judgments; in long recent ones (Big Brother Watch
+ * [GC], 2021) the passage in the address leaves the page empty. So the passage goes into the address
+ * only for judgments before 2021; for every link it is also kept as data-passage, copied on click
+ * (cite.js) so that Find reaches it. */
+const HUDOC_PASSAGE_BEFORE = 2021;
+
+function judgmentYear(caseObj) {
+  const m = /(\d{4})\s*$/.exec(String(caseObj.judgment_date || "")) || /^(\d{4})-/.exec(String(caseObj.judgment_date || ""));
+  return m ? Number(m[1]) : 0;
+}
+
+function passageAttr(caseObj, para) {
+  const phrase = caseObj && para && !caseObj.__isMt ? hudocPassage(para) : "";
+  return phrase ? ` data-passage="${escapeHtml(phrase)}"` : "";
+}
+
 function paragraphHudocUrl(caseObj, para) {
   const base = caseObj.hudoc_url || "";
   if (!base) return "";
+  const year = judgmentYear(caseObj);
+  if (!year || year >= HUDOC_PASSAGE_BEFORE) return base;
   const fr = !!caseObj.__isFrOriginal;     // the French HUDOC item, opened in French
   const id = fr ? caseObj.__sourceCaseId : (caseObj.case_id || (/[?&]i=([\w-]+)/.exec(base) || [])[1]);
   const phrase = id && !caseObj.__isMt ? hudocPassage(para) : "";
@@ -5628,7 +5646,7 @@ function buildCaseCard(caseId, row, rank = 1) {
     const hudocUrl = paragraphHudocUrl(c, p);
     const paraLabel = formatParaNum(p);
     const hudocLink = hudocUrl
-      ? `<a class="hudoc-para-link" data-action="open-hudoc" href="${escapeHtml(hudocUrl)}" target="_blank" rel="noopener noreferrer" title="Open on HUDOC at ${escapeHtml(paraLabel)}">HUDOC ↗</a>`
+      ? `<a class="hudoc-para-link" data-action="open-hudoc" href="${escapeHtml(hudocUrl)}"${passageAttr(c, p)} target="_blank" rel="noopener noreferrer" title="Open on HUDOC at ${escapeHtml(paraLabel)}">HUDOC ↗</a>`
       : "";
     // Whole row → show this paragraph in the Case Note. Nested
     // buttons/links carry their own data-action so the delegated
@@ -5718,7 +5736,7 @@ function buildCaseCard(caseId, row, rank = 1) {
         <div class="case-actions-inline compact-actions">
           ${c.__isMt && c.__sourceCaseId
             ? `<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(c.__sourceCaseId)}" class="card-act" target="_blank" rel="noopener noreferrer" title="The authentic French text on HUDOC">French original ↗</a>`
-            : (c.hudoc_url ? `<a href="${escapeHtml(primaryPara ? paragraphHudocUrl(c, primaryPara) : c.hudoc_url)}" class="card-act" target="_blank" rel="noopener noreferrer" title="${primaryPara ? "Open on HUDOC at this paragraph (its opening words are copied, for Find)" : "Open this judgment on HUDOC"}">HUDOC ↗</a>` : "")}
+            : (c.hudoc_url ? `<a href="${escapeHtml(primaryPara ? paragraphHudocUrl(c, primaryPara) : c.hudoc_url)}"${primaryPara ? passageAttr(c, primaryPara) : ""} class="card-act" target="_blank" rel="noopener noreferrer" title="${primaryPara ? "Open on HUDOC at this paragraph (its opening words are copied, for Find)" : "Open this judgment on HUDOC"}">HUDOC ↗</a>` : "")}
           <button type="button" class="card-act" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}"
             data-para-idx="${escapeHtml(String(primaryPara && primaryPara.paraIdx != null ? primaryPara.paraIdx : ""))}"
             title="Copy an OSCOLA citation${primaryPara ? " with the paragraph shown" : ""}">Cite</button>
@@ -7149,7 +7167,7 @@ function paintDossier() {
       ${expander}
     </div>
     <div class="dossier-footer">
-      ${hudocUrl ? `<a class="card-act" href="${escapeHtml(hudocUrl)}" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>` : ""}
+      ${hudocUrl ? `<a class="card-act" href="${escapeHtml(hudocUrl)}"${passageAttr(caseObj, ctx.active)} target="_blank" rel="noopener noreferrer">HUDOC ↗</a>` : ""}
       <button type="button" class="card-act" data-action="dossier-cite">Cite ¶</button>
     </div>`;
 }

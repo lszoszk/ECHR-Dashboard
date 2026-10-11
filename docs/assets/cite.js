@@ -106,7 +106,7 @@
   document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("click", (e) => {
       const a = e.target.closest && e.target.closest('a[href^="https://hudoc.echr.coe.int/"]');
-      const passage = a ? passageOf(a.href) : "";
+      const passage = a ? (a.dataset.passage || passageOf(a.href)) : "";
       if (!passage || !navigator.clipboard) return;
       const keys = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? "\u2318F" : "Ctrl+F";
       navigator.clipboard.writeText(passage).then(() => notice(
