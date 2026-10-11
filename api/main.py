@@ -573,37 +573,42 @@ def _mt_clause(include_mt, explicit_lookup: bool = False) -> str:
 def _doc_type_clause(doc_type_list: list[str], explicit_lookup: bool = False, include_mt="false") -> str:
     """SQL condition for the document-type filter.
 
-    Admissibility decisions are separate documents from judgments: they appear
-    only when "decision" is asked for.  With no document-type filter the
-    results are judgments, as before decisions were added to the corpus —
-    except when the query names one document (case:/hudoc:/ecli:), which must
-    find it whatever its type.
+    Two kinds of values, combined with AND:
+      * the collection — "judgment", "decision" (admissibility decisions), "press_release"; any of those
+        given (OR). None given: judgments, as before decisions were added — except when the query names
+        one document (case:/hudoc:/ecli:), which must find it whatever its type;
+      * the formation — "chamber", "grand_chamber", "committee" (OR), for judgments and decisions alike.
+    So "decision" alone gives the decisions, "decision,grand_chamber" the Grand Chamber decisions, and
+    "chamber" alone the Chamber judgments, as before.
     """
     not_decision = "c.document_type NOT LIKE 'Decision%'"
-    parts = []
+    gc = "(c.originating_body LIKE '%Grand Chamber%' OR c.document_type = 'Judgment (Grand Chamber)')"
+    committee = "(c.document_type LIKE '%Committee%' OR c.originating_body LIKE '%Committee%')"
+    collection, formation = [], []
     for dt in (doc_type_list or []):
         if dt == "press_release":
-            parts.append("c.document_type LIKE '%Press Release%'")
+            collection.append("c.document_type LIKE '%Press Release%'")
         elif dt == "judgment":
-            parts.append(f"(c.document_type NOT LIKE '%Press Release%' AND {not_decision})")
+            collection.append(f"(c.document_type NOT LIKE '%Press Release%' AND {not_decision})")
         elif dt == "decision":
-            parts.append("c.document_type LIKE 'Decision%'")
+            collection.append("c.document_type LIKE 'Decision%'")
         elif dt == "committee":
-            parts.append("c.document_type LIKE '%Committee%'")
+            formation.append(committee)
         elif dt == "grand_chamber":
-            parts.append(f"(c.originating_body LIKE '%Grand Chamber%' AND {not_decision})")
+            formation.append(gc)
         elif dt == "chamber":
-            parts.append(
-                "(c.document_type NOT LIKE '%Press Release%' "
-                "AND c.document_type NOT LIKE '%Committee%' "
-                f"AND {not_decision} "
-                "AND (c.originating_body IS NULL "
-                "OR c.originating_body NOT LIKE '%Grand Chamber%'))"
-            )
+            formation.append(f"(c.document_type NOT LIKE '%Press Release%' AND NOT {committee} AND NOT {gc})")
     mt = _mt_clause(include_mt, explicit_lookup)
-    if parts:
-        return f"(({' OR '.join(parts)}) AND {mt})"
-    return "1=1" if explicit_lookup else f"({not_decision} AND {mt})"
+    parts = []
+    if collection:
+        parts.append(f"({' OR '.join(collection)})")
+    elif not explicit_lookup:
+        parts.append(not_decision)
+    if formation:
+        parts.append(f"({' OR '.join(formation)})")
+    if not parts:
+        return "1=1"
+    return f"({' AND '.join(parts)} AND {mt})"
 
 
 def _parse_comma_param(value: Optional[str]) -> list[str]:

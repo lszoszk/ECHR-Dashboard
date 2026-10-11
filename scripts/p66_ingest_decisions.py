@@ -154,24 +154,39 @@ def main() -> int:
     ap.add_argument("--also-key", action="store_true",
                     help="also ingest decisions HUDOC rates importance 1 or 2")
     ap.add_argument("--discover-only", action="store_true")
+    ap.add_argument("--ids-file", default="",
+                    help="rebuild exactly these decisions (one HUDOC id per line), skipping the selection — "
+                         "e.g. to regenerate an earlier SQL file with the current parser")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--workers", type=int, default=2)
     ap.add_argument("--fetch-delay", type=float, default=0.5)
     args = ap.parse_args()
 
+    if args.ids_file:
+        ids = [x.strip() for x in Path(args.ids_file).read_text().split() if x.strip()]
+        wanted, chosen = set(ids), {}
+        for s in range(0, len(ids), BATCH):
+            q = BASE_QUERY + " AND (" + " OR ".join(f'itemid:"{i}"' for i in ids[s:s + BATCH]) + ")"
+            # HUDOC matches itemid by tokens, so the answer also holds other documents: keep the given ids only.
+            chosen.update({d["itemid"]: d for d in hudoc_query(q) if d["itemid"] in wanted})
+        print(f"ids given: {len(ids):,}   found on HUDOC: {len(chosen):,}")
+        cited, missing = {}, sorted(set(ids) - set(chosen))
+    else:
+        chosen = None
     con = sqlite3.connect(f"file:{args.db}?mode=ro", uri=True)
-    existing_ids, have_dec = corpus_decisions(con)
-    cited = cited_decisions(con)
-    print(f"decisions cited in the corpus text: {len(cited):,}")
-    cited = {a: v for a, v in cited.items() if a not in have_dec}
-    print(f"  not yet in the corpus:            {len(cited):,}")
+    if chosen is None:
+        existing_ids, have_dec = corpus_decisions(con)
+        cited = cited_decisions(con)
+        print(f"decisions cited in the corpus text: {len(cited):,}")
+        cited = {a: v for a, v in cited.items() if a not in have_dec}
+        print(f"  not yet in the corpus:            {len(cited):,}")
 
-    chosen, missing = discover_cited(cited, existing_ids)
-    print(f"HUDOC English decisions found:      {len(chosen):,}  (no English decision for {len(missing):,} numbers)")
-    if args.also_key:
-        key = discover_key(existing_ids)
-        print(f"importance 1-2 decisions:           {len(key):,}  ({len(set(key) - set(chosen)):,} new)")
-        chosen.update(key)
+        chosen, missing = discover_cited(cited, existing_ids)
+        print(f"HUDOC English decisions found:      {len(chosen):,}  (no English decision for {len(missing):,} numbers)")
+        if args.also_key:
+            key = discover_key(existing_ids)
+            print(f"importance 1-2 decisions:           {len(key):,}  ({len(set(key) - set(chosen)):,} new)")
+            chosen.update(key)
 
     skipped = Counter()
     todo = []

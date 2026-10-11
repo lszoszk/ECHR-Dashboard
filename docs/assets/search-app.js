@@ -126,7 +126,8 @@ const serverSearch = {
     if (filters.keywords && filters.keywords.size) p.set("keywords", [...filters.keywords].join(","));
     const serverOutcomes = serverOutcomeValues(filters.outcomes);
     if (serverOutcomes.length) p.set("outcomes", serverOutcomes.join(","));
-    if (filters.docTypes.size) p.set("doc_types", [...filters.docTypes].join(","));
+    p.set("doc_types", docTypesParam(filters));
+    if (!p.get("doc_types")) p.delete("doc_types");
     if (filters.includeMt) p.set("include_mt", filters.includeMt === "only" ? "only" : "true");
     if (searchLang() === "fr") { p.delete("include_mt"); p.set("lang", "fr"); }
     // filters.dateFrom/dateTo are epoch-ms (parseDateInput → getTime()).
@@ -242,6 +243,7 @@ const serverSearch = {
     };
     // Press releases get their own outcome bucket instead of polluting "neither"
     if (c.__isPressRelease) c.__outcomePrimary = "press_release";
+    if (c.__isDecision) c.__outcomePrimary = decisionOutcome(conclusion);
     return c;
   },
 
@@ -507,6 +509,10 @@ const OUTCOME_LABELS = {
   is_struck_out: "Struck out",
   violation: "Violation found",
   no_violation: "No violation",
+  dec_inadmissible: "Decision: inadmissible",
+  dec_partly: "Decision: partly admissible, partly inadmissible",
+  dec_admissible: "Decision: admissible",
+  dec_struck: "Decision: struck out of the list",
 };
 
 // HUDOC's "originating_body" field arrives in two flavours: full strings for
@@ -548,7 +554,23 @@ const OUTCOME_SHORT = {
   non_violation_only: ["ring", "No violation"],
   both: ["half", "Mixed"],
   neither: ["dash", "No finding"],
+  dec_inadmissible: ["", "Inadmissible"],
+  dec_partly: ["", "Partly admissible"],
+  dec_admissible: ["", "Admissible"],
+  dec_struck: ["", "Struck out"],
 };
+
+/* A decision's outcome is about admissibility, from HUDOC's conclusion ("Inadmissible", "Partly
+ * admissible;Partly inadmissible", "Struck out of the list"...). */
+function decisionOutcome(conclusion) {
+  const t = String(conclusion || "").toLowerCase();
+  const inadm = /inadmissible/.test(t), adm = /(^|[^n])admissible/.test(t);
+  if (adm && inadm) return "dec_partly";
+  if (adm) return "dec_admissible";
+  if (inadm) return "dec_inadmissible";
+  if (/struck out/.test(t)) return "dec_struck";
+  return "neither";
+}
 function outcomeIconSvg(kind) {
   const ring = `<circle cx="6" cy="6" r="4.6" fill="${kind === "full" ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.4"${kind === "dash" ? ' stroke-dasharray="2 1.6"' : ""}/>`;
   const half = kind === "half" ? '<path d="M6 1.4a4.6 4.6 0 0 0 0 9.2z" fill="currentColor"/>' : "";
@@ -1603,6 +1625,7 @@ function wsFilterSnapshot() {
     countries: arr(f.countries), articles: arr(f.articles), keywords: arr(f.keywords), importance: arr(f.importance),
     outcomes: arr(f.outcomes), docTypes: arr(f.docTypes), buckets: arr(f.buckets), includeMt: f.includeMt || false,
     lang: searchLang(),
+    includeDecisions: !!f.includeDecisions, includeJudgments: f.includeJudgments !== false,
     includeExtra: !!f.includeMeta, includeAppendix: !!f.includeAppendix,
     dateFrom: el.dateFrom.value || "", dateTo: el.dateTo.value || "",
   };
@@ -1626,6 +1649,7 @@ function searchUrl(query) {
     p.set(key, v.join(","));
   }
   if (s.includeMt) p.set("mt", s.includeMt === "only" ? "only" : "1");
+  if (s.includeDecisions) p.set("dec", s.includeJudgments === false ? "only" : "1");
   if (s.includeExtra) p.set("extra", "1");
   if (s.includeAppendix) p.set("appendix", "1");
   if (s.dateFrom) p.set("from", s.dateFrom);
@@ -1639,6 +1663,8 @@ function snapshotFromUrl(p) {
   const s = {};
   for (const [key, field] of Object.entries(URL_LISTS)) s[field] = (p.get(key) || "").split(",").map((x) => x.trim()).filter(Boolean);
   s.includeMt = p.get("mt") === "only" ? "only" : p.get("mt") ? "true" : false;
+  s.includeDecisions = !!p.get("dec");
+  s.includeJudgments = p.get("dec") !== "only";
   s.lang = p.get("lang") === "fr" ? "fr" : "en";
   s.includeExtra = p.get("extra") === "1";
   s.includeAppendix = p.get("appendix") === "1";
@@ -1667,6 +1693,7 @@ function wsFilterSummary(s) {
   const allBuckets = document.querySelectorAll('#bucketScope input[data-name="buckets"]').length;
   if (s.buckets.length && s.buckets.length < allBuckets) parts.push(`in ${s.buckets.map((b) => SECTION_BUCKETS[b]?.label || b).join(", ")}`);
   if (s.includeMt) parts.push(s.includeMt === "only" ? "machine translations only" : "+ machine translations");
+  if (s.includeDecisions) parts.push(s.includeJudgments === false ? "decisions only" : "+ decisions");
   if (s.lang === "fr") parts.push("French originals");
   return parts.join(" · ");
 }
@@ -1715,6 +1742,17 @@ function caseLangHtml(c) {
     </div>${mtLine}`;
 }
 
+/* doc_types for the API: the formation ticked (Chamber / Grand Chamber / Committee) and, when
+ * decisions are included, the collection — "decision", plus "judgment" unless judgments are unticked. */
+function docTypesParam(filters) {
+  const types = new Set(filters.docTypes || []);
+  if (filters.includeDecisions && searchLang() !== "fr") {
+    types.add("decision");
+    if (filters.includeJudgments !== false) types.add("judgment");
+  }
+  return [...types].join(",");
+}
+
 /* Collection: the official English texts, the machine translations, or both. The official box
  * can be unticked only while the translations are ticked, so that something is always searched. */
 function collectionMode() {
@@ -1725,10 +1763,13 @@ function collectionMode() {
 
 function syncCollectionBoxes() {
   const mt = document.getElementById("includeMachineTranslations");
+  const dec = document.getElementById("includeDecisions");
   const official = document.getElementById("includeOfficial");
   if (!official) return;
-  if (!mt || !mt.checked) official.checked = true;
-  official.disabled = !mt || !mt.checked;
+  // Judgments can be unticked only while something else is searched (decisions or translations).
+  const other = (mt && mt.checked) || (dec && dec.checked);
+  if (!other) official.checked = true;
+  official.disabled = !other;
 }
 
 /** Put a saved search's filters back on the page (the rail must be rendered). */
@@ -1739,10 +1780,12 @@ function wsApplySnapshot(s) {
   const buckets = s.buckets && s.buckets.length ? s.buckets : null;
   document.querySelectorAll('#bucketScope input[data-name="buckets"]').forEach((i) => { i.checked = buckets ? buckets.includes(i.value) : true; });
   setSearchLang(s.lang === "fr" && !document.getElementById("langSwitch")?.hidden ? "fr" : "en");
+  const decBox = document.getElementById("includeDecisions");
+  if (decBox) decBox.checked = !!s.includeDecisions && !document.getElementById("decisionsPill")?.hidden;
   const mt = document.getElementById("includeMachineTranslations");
   if (mt) mt.checked = !!s.includeMt && !document.getElementById("mtPill")?.hidden;
   const official = document.getElementById("includeOfficial");
-  if (official) official.checked = !(mt && mt.checked && s.includeMt === "only");
+  if (official) official.checked = !(mt && mt.checked && s.includeMt === "only") && !(decBox && decBox.checked && s.includeJudgments === false);
   syncCollectionBoxes();
   const mtNotice = document.getElementById("mtNotice");
   if (mtNotice) mtNotice.hidden = !(mt && mt.checked);
@@ -2382,8 +2425,6 @@ function renderFiltersSkeleton() {
         { tooltip: "17-judge Grand Chamber judgments — major principles and inter-state cases." }),
       makeCheckbox("Committee", "committee", "docTypes", null,
         { tooltip: "3-judge Committee judgments — repetitive cases following well-established case-law." }),
-      makeCheckbox("Decisions", "decision", "docTypes", null,
-        { tooltip: "Admissibility decisions (a small set, mostly Grand Chamber). Hidden unless ticked." }),
     ].join("");
   }
   if (el.outcomeFilters) {
@@ -2443,8 +2484,6 @@ function renderFilters() {
       { tooltip: "17-judge Grand Chamber judgments — major principles and inter-state cases." }),
     makeCheckbox("Committee", "committee", "docTypes", fc.docTypes.committee,
       { tooltip: "3-judge Committee judgments — repetitive cases following well-established case-law. Often have applicant tables in Introduction." }),
-    makeCheckbox("Decisions", "decision", "docTypes", fc.docTypes.decision,
-      { tooltip: "Admissibility decisions (a small set, mostly Grand Chamber). Hidden unless ticked." }),
   ].join("");
 
   el.outcomeFilters.innerHTML = outcomeCheckboxes();
@@ -2926,6 +2965,8 @@ function getCurrentFilters() {
     outcomes: collectChecked("outcomes"),
     docTypes: collectChecked("docTypes"),
     includeMt: collectionMode(),
+    includeDecisions: !!document.getElementById("includeDecisions")?.checked,
+    includeJudgments: document.getElementById("includeOfficial")?.checked !== false,
     presence: collectChecked("presence"),
     dateFrom: parseDateInput(el.dateFrom.value),
     dateTo: parseDateInput(el.dateTo.value),
@@ -2992,7 +3033,7 @@ function passesCaseFilters(c, filters, serverChecked = false) {
   // Admissibility decisions are shown only when "Decisions" is ticked. The server
   // applies this itself (and lets case:/hudoc: lookups through), so its results
   // are not hidden again here.
-  if (!serverChecked && c.__isDecision && !filters.docTypes.has("decision")) return false;
+  if (!serverChecked && c.__isDecision && !filters.includeDecisions) return false;
   if (!serverChecked && c.__isMt && !filters.includeMt) return false;
   if (!serverChecked && !c.__isMt && filters.includeMt === "only") return false;
   if (filters.docTypes.size) {
@@ -3427,6 +3468,10 @@ function renderActiveFilters(filters) {
       title="Back to the official English texts only">${filters.includeMt === "only"
         ? "Only English machine translations of French-only judgments (unofficial)"
         : "+ English machine translations of French-only judgments (unofficial)"} <span aria-hidden="true">✕</span></button>`);
+  }
+  if (filters.includeDecisions && searchLang() !== "fr") {
+    chips.push(`<button type="button" class="filter-chip scope-chip" data-clear-scope="decisions"
+      title="Back to judgments only">${filters.includeJudgments === false ? "Only decisions" : "+ decisions"} <span aria-hidden="true">✕</span></button>`);
   }
   const bucketKeys = [...document.querySelectorAll('#bucketScope input[data-name="buckets"]')].map((i) => i.value);
   if (!filters.sections.size && filters.buckets.size && filters.buckets.size < bucketKeys.length) {
@@ -5331,7 +5376,7 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
   const appNos = splitAppNos(c.case_no);
   const isKey = String(c.__importance || "").toLowerCase() === "key cases";
   const subline = [
-    escapeHtml(shortBodyLabel(c.__originatingBody) || chamberLabel || ""),
+    escapeHtml((shortBodyLabel(c.__originatingBody) || chamberLabel || "") + (c.__isDecision ? " decision" : "")),
     escapeHtml(formatCaseDateForDisplay(c)),
     appNos.length ? escapeHtml(`no. ${appNos[0]}${appNos.length > 1 ? ` +${appNos.length - 1}` : ""}`) : "",
     isKey ? '<span class="cn-key">Key case</span>' : "",
@@ -5519,7 +5564,11 @@ function caseFindingsHtml(c) {
       ${nv.length ? `<div><span class="cnm-label">No violation</span><span class="cn-chips">${chips(nv, "is-no-violation")}</span></div>` : ""}
     </div>`
     : `<div class="cn-findings"><div><span class="cnm-label">Articles</span><span class="cn-chips">${buildResearcherArticleChips(c.__articles, 8)}</span></div></div>`;
-  return caseLangHtml(c) + findings;
+  // A decision's finding is on admissibility (HUDOC's conclusion), shown above the Articles.
+  const decision = c.__isDecision ? `<div class="cn-findings"><div><span class="cnm-label">Decision</span>` +
+    `<span class="cn-chips"><span class="cn-art" title="${escapeHtml(Array.isArray(c.conclusion) ? c.conclusion.join("; ") : String(c.conclusion || ""))}">` +
+    `${escapeHtml((OUTCOME_SHORT[c.__outcomePrimary] || ["", OUTCOME_LABELS[c.__outcomePrimary] || "—"])[1])}</span></span></div></div>` : "";
+  return caseLangHtml(c) + decision + findings;
 }
 
 function caseMetadataHtml(c) {
@@ -5726,7 +5775,7 @@ function buildCaseCard(caseId, row, rank = 1) {
 
         <div class="researcher-chip-row">
           ${buildResearcherArticleChips(c.__articles, 3)}
-          <span class="chip" title="${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "")}">${escapeHtml(formationLabel(c) || "-")}</span>
+          <span class="chip" title="${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "")}">${escapeHtml(formationLabel(c) || "-")}${c.__isDecision ? " decision" : ""}</span>
           ${outcomeChipHtml(c)}
           ${c.__isMt ? `<span class="chip mt-chip" title="HUDOC publishes this judgment only in French. This English text is a machine translation made for this tool, not a translation by the Court.">Only in French on HUDOC · machine translation, unofficial</span>` : ""}
           ${c.__isFrOriginal && c.__translationAvailable ? `<span class="chip lang-chip" title="An unofficial English machine translation of this judgment is available: switch to it in the case details.">EN translation</span>` : ""}
@@ -6126,7 +6175,7 @@ async function fetchAndRenderServerAnalytics(query, filters) {
     if (filters.keywords && filters.keywords.size) p.set("keywords", [...filters.keywords].join(","));
     const serverOutcomes = serverOutcomeValues(filters.outcomes);
     if (serverOutcomes.length) p.set("outcomes", serverOutcomes.join(","));
-    if (filters.docTypes.size) p.set("doc_types", [...filters.docTypes].join(","));
+    if (docTypesParam(filters)) p.set("doc_types", docTypesParam(filters));
     if (filters.includeMt) p.set("include_mt", filters.includeMt === "only" ? "only" : "true");
     if (searchLang() === "fr") { p.delete("include_mt"); p.set("lang", "fr"); }
     if (filters.dateFrom) p.set("date_from", filters.dateFrom);
@@ -7414,6 +7463,10 @@ function bindEvents() {
       const mt = document.getElementById("includeMachineTranslations");
       if (mt) mt.checked = false;
       syncCollectionBoxes();
+    } else if (chip.dataset.clearScope === "decisions") {
+      const dec = document.getElementById("includeDecisions");
+      if (dec) dec.checked = false;
+      syncCollectionBoxes();
     } else {
       scope?.querySelectorAll('input[data-name="buckets"]').forEach((i) => { i.checked = true; });
     }
@@ -7986,6 +8039,16 @@ function init() {
         const mtN = statsData.total_machine_translations || 0;
         const mtPill = document.getElementById("mtPill");
         if (mtPill) mtPill.hidden = !mtN;
+        const decN = statsData.total_decisions || 0;
+        const decPill = document.getElementById("decisionsPill");
+        if (decPill) decPill.hidden = !decN;
+        const decCount = document.getElementById("decisionCount");
+        if (decCount) decCount.textContent = fmt.format(decN);
+        // English decisions of the Court on HUDOC (Commission decisions aside), counted 11 October 2026.
+        const decNote = document.getElementById("decNote");
+        if (decNote) decNote.hidden = !decN;
+        const decShare = document.getElementById("decShare");
+        if (decShare) decShare.textContent = `${Math.max(1, Math.round(decN / 29001 * 100))}%`;
         const frN = statsData.french_originals || 0;
         const langSwitch = document.getElementById("langSwitch");
         if (langSwitch) langSwitch.hidden = !frN;
