@@ -124,8 +124,8 @@
               <div class="ops-pop" role="list">
                 <div role="listitem"><code>"exact phrase"</code><span>exact word order</span></div>
                 <div role="listitem"><code>torture OR inhuman</code><span>either term &mdash; <code>AND</code> is implicit between words</span></div>
-                <div role="listitem"><code>expulsion NOT asylum</code><span>leave out paragraphs with a word &mdash; <code>a OR b NOT c</code> leaves <code>c</code> out of both</span></div>
-                <div role="listitem"><code>environment*</code><span>every word that begins so &mdash; environment, environmental&hellip; (at least 3 letters before <code>*</code>)</span></div>
+                <div role="listitem"><code>expulsion NOT asylum</code> <code>-asylum</code><span>leave out paragraphs with a word &mdash; <code>a OR b NOT c</code> leaves <code>c</code> out of both</span></div>
+                <div role="listitem"><code>environment*</code><span>every word that begins so &mdash; environment, environmental&hellip; (at least 3 letters before <code>*</code>); <code>detent?on</code> is read as <code>detent*</code></span></div>
                 <div role="listitem"><code>data NEAR retention</code><span>terms near each other &mdash; as in HUDOC</span></div>
                 <div role="listitem"><code>article:8</code><span>Convention article &mdash; also <code>article:P1-1</code></span></div>
                 <div role="listitem"><code>violation:8</code> <code>nonviolation:8</code><span>outcome for a specific article &mdash; as in HUDOC; <code>violation:3+14</code> requires both</span></div>
@@ -574,6 +574,6 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
-  <script src="assets/search-app.js?v=20261011-audit1"></script>
+  <script src="assets/search-app.js?v=20261011-audit2"></script>
 </body>
 </html>
