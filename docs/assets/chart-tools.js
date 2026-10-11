@@ -161,24 +161,42 @@
   function chartToPngBlob(chart, title, cb) {
     const src = chart.canvas;
     const dpr = chart.currentDevicePixelRatio || window.devicePixelRatio || 1;
-    const footer = Math.round(34 * dpr);
+    const pad = Math.round(10 * dpr);
+    const titleFont = "600 " + Math.round(12 * dpr) + "px Inter, system-ui, sans-serif";
+    const creditFont = Math.round(10.5 * dpr) + "px Inter, system-ui, sans-serif";
+    const lineH = Math.round(15 * dpr);
+    // The source as it is cited (cite.js), wrapped to the width of the image.
+    const credit = window.HR_EXPORT
+      ? window.HR_EXPORT.creditLine({ data: "snapshot " + snapshotDate() })
+      : "HUDOC Researcher \u00b7 " + snapshotDate();
+    const measure = document.createElement("canvas").getContext("2d");
+    measure.font = creditFont;
+    const lines = [];
+    let line = "";
+    for (const word of credit.split(" ")) {
+      const next = line ? line + " " + word : word;
+      if (line && measure.measureText(next).width > src.width - 2 * pad) { lines.push(line); line = word; }
+      else line = next;
+    }
+    if (line) lines.push(line);
+    const footer = pad + lineH + lines.length * lineH + pad;
+
     const out = document.createElement("canvas");
     out.width = src.width;
     out.height = src.height + footer;
-
     const ctx = out.getContext("2d");
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, out.width, out.height);
     ctx.drawImage(src, 0, 0);
-
-    ctx.fillStyle = "#555555";
-    ctx.font = Math.round(12 * dpr) + "px Inter, system-ui, sans-serif";
-    ctx.textBaseline = "middle";
-    const pad = Math.round(10 * dpr);
-    ctx.fillText(title, pad, src.height + footer / 2);
-    const credit = "HUDOC Researcher · " + snapshotDate();
-    const w = ctx.measureText(credit).width;
-    ctx.fillText(credit, out.width - w - pad, src.height + footer / 2);
+    ctx.textBaseline = "top";
+    let y = src.height + pad;
+    ctx.fillStyle = "#333333";
+    ctx.font = titleFont;
+    ctx.fillText(title, pad, y);
+    y += lineH;
+    ctx.fillStyle = "#666666";
+    ctx.font = creditFont;
+    for (const l of lines) { ctx.fillText(l, pad, y); y += lineH; }
 
     out.toBlob(cb, "image/png");
   }
@@ -411,10 +429,19 @@
     if (!chart || !HAS_EXPORT) return;
     const rows = chartToRows(chart);
     if (!rows.length) return;
-    // Provenance travels with the file; the on-page data table stays data only.
+    // Provenance travels with the file (cite.js, HR_EXPORT); the on-page data table stays data only.
     const meta = window.EchrStatsMeta || {};
-    rows.push([], ["Source", "HUDOC Researcher, Statistics; HUDOC catalog cut-off " + (meta.cutoff || snapshotDate())],
-      ["Cite as", citationText(chart.canvas)]);
+    const data = "HUDOC Researcher statistics, snapshot " + snapshotDate() +
+      (meta.cutoff ? " (HUDOC catalogue cut-off " + meta.cutoff + ")" : "");
+    if (window.HR_EXPORT) {
+      rows.push(...window.HR_EXPORT.csvFooter({
+        what: "Data of the chart \u201c" + chartTitleFor(chart.canvas) + "\u201d, one row per bar or point",
+        details: [["How to cite this figure", citationText(chart.canvas)]],
+        url: chartPermalink(chart.canvas), data: data,
+      }));
+    } else {
+      rows.push([], ["Source", data], ["Cite as", citationText(chart.canvas)]);
+    }
     window.EchrExport.triggerDownload(
       window.EchrExport.rowsToCsvBlob(rows),
       fileBase(chart.canvas) + ".csv"

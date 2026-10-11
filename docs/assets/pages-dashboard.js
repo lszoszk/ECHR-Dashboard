@@ -257,8 +257,11 @@ async function renderJudgmentCitations(scope) {
       const a = document.createElement("a"); a.href = `https://hudoc.echr.coe.int/eng?i=${encodeURIComponent(row.case_id)}`;
       a.target = "_blank"; a.rel = "noopener"; a.textContent = row.title; return a;
     }
-    function csv(rows, filename) {
-      if (window.EchrExport) window.EchrExport.triggerDownload(window.EchrExport.rowsToCsvBlob(rows), filename);
+    function csv(rows, filename, what) {
+      // The rows are followed by what the file holds, when and from where, and how to cite it (cite.js).
+      const about = window.HR_EXPORT ? window.HR_EXPORT.csvFooter({ what,
+        data: `HUDOC Researcher citation data, snapshot ${snapshot.cutoff}`, url: location.href }) : [];
+      if (window.EchrExport) window.EchrExport.triggerDownload(window.EchrExport.rowsToCsvBlob(rows.concat(about)), filename);
     }
     const rankingExport = document.getElementById("citationRankingExport");
     rankingExport.disabled = !window.EchrExport;
@@ -272,7 +275,8 @@ async function renderJudgmentCitations(scope) {
           view === views.search ? "As Search's Cited by: text and HUDOC metadata, plus French-only judgments (HUDOC metadata)"
             : extended ? "Resolved bilingual HUDOC metadata plus application numbers extracted by HUDOC" : "Resolved bilingual HUDOC metadata",
           snapshot.cutoff]),
-      ], `echr-most-cited-judgments${extended ? "-with-extracted-application-numbers" : ""}-${snapshot.cutoff}.csv`);
+      ], `echr-most-cited-judgments${extended ? "-with-extracted-application-numbers" : ""}-${snapshot.cutoff}.csv`,
+      `The most-cited judgments (${ranked.length}), with the number of judgments citing each; each citing judgment counts once`);
     });
     let visible = 25;
     function citingRows() {
@@ -306,7 +310,8 @@ async function renderJudgmentCitations(scope) {
       const target = ranked.find((row) => row.case_id === select.value);
       csv([["Cited HUDOC ID", "Cited ECLI", "Citing HUDOC ID", "Citing ECLI", "Citing judgment", "Citing date"],
         ...citingRows().map((row) => [target.case_id, target.ecli || "", row.case_id, row.ecli || "", row.title, row.date])],
-        `echr-citing-${select.value}${view === views.extracted ? "-with-extracted-application-numbers" : ""}-${snapshot.cutoff}.csv`);
+        `echr-citing-${select.value}${view === views.extracted ? "-with-extracted-application-numbers" : ""}-${snapshot.cutoff}.csv`,
+        `The judgments citing ${target.title} (${target.date}), one row per citing judgment`);
     });
     const chartLabels = () => ranked.map((row) => `${row.title} | ${row.date} | ${row.case_id}`);
     const chart = createBarChart(document.getElementById("judgmentCitationsChart"),

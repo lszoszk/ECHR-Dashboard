@@ -2229,6 +2229,7 @@ def search(
             )
             case_details = {r["case_id"]: _enrich_case_row(_row_to_dict(r)) for r in cur.fetchall()}
             _attach_citation_counts(cur, case_details)
+            _add_language_versions(case_details)
 
             # Fetch articles per case.
             cur.execute(
@@ -2640,7 +2641,7 @@ def get_case(
                 case["cites_count"] = 0
                 case["cited_by_count"] = 0
 
-        _add_language_versions(case)
+        _add_language_versions({case["case_id"]: case})
         return case
     except HTTPException:
         raise
@@ -2649,46 +2650,46 @@ def get_case(
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
-def _add_language_versions(case: dict[str, Any]) -> None:
-    """Which other version of this judgment the API holds: the English machine translation of a French
-    original, or the French original of a translation (the two share the case_id). A French original
-    takes its citation counts from the main database: what it cites from HUDOC's metadata, and, when
-    it has been translated, the judgments citing the translation."""
-    cid = case["case_id"]
+def _add_language_versions(cases: dict[str, dict[str, Any]]) -> None:
+    """Which other version of each judgment the API holds: the English machine translation of a French
+    original (translation_available), or the French original of a translation (original_available);
+    the two share the case_id. Citation counts are each database's own (the French one is filled by
+    scripts/p76_french_citations.py)."""
+    if not cases:
+        return
     lang = _LANG.get()
-    case["language"] = lang
-    case["translation_available"] = False
-    case["original_available"] = False
+    for case in cases.values():
+        case["language"] = lang
+        case["translation_available"] = False
+        case["original_available"] = False
     if lang == "fr":
-        token = _LANG.set("en")
-        try:
-            with get_cursor() as cur:
-                row = cur.execute("SELECT COALESCE(text_origin, '') AS o FROM cases WHERE case_id = ?",
-                                  (cid,)).fetchone()
-                case["translation_available"] = bool(row and row["o"] == "machine_translation")
-                try:
-                    case["cites_count"] = cur.execute(
-                        "SELECT count(DISTINCT cited_case_id) FROM french_only_citations WHERE citing_case_id = ?",
-                        (cid,)).fetchone()[0] or 0
-                except sqlite3.OperationalError:
-                    pass
-                if case["translation_available"]:
-                    n = cur.execute("SELECT count(DISTINCT citing_case_id) FROM case_citations "
-                                    "WHERE cited_case_id = ?", (cid,)).fetchone()[0] or 0
-                    fo = _french_only_cited_by(cur, [cid]).get(cid, 0)
-                    case["cited_by_count"], case["cited_by_french_only"] = n + fo, fo
-                else:
-                    case["cited_by_count"] = None      # not a citation target in the corpus
-        finally:
-            _LANG.reset(token)
-    elif case.get("text_origin") == "machine_translation" and _french_available():
-        token = _LANG.set("fr")
-        try:
-            with get_cursor() as cur:
-                case["original_available"] = cur.execute(
-                    "SELECT 1 FROM cases WHERE case_id = ?", (cid,)).fetchone() is not None
-        finally:
-            _LANG.reset(token)
+        other, ids, where = "en", list(cases), "COALESCE(text_origin, '') = 'machine_translation'"
+    else:
+        ids = [cid for cid, c in cases.items() if c.get("text_origin") == "machine_translation"]
+        other, where = "fr", "1=1"
+        if not ids or not _french_available():
+            return
+    if not ids:
+        return
+    token = _LANG.set(other)
+    try:
+        with get_cursor() as cur:
+            ph = ",".join("?" * len(ids))
+            found = {r["case_id"] for r in cur.execute(
+                f"SELECT case_id FROM cases WHERE case_id IN ({ph}) AND {where}", ids)}
+            # A translation cites what its French original cites, French-only judgments included, so
+            # that the count does not change when the reader switches between the two.
+            fr_cites = {} if lang == "fr" or not found else {
+                r["citing_case_id"]: r["n"] for r in cur.execute(
+                    f"SELECT citing_case_id, count(DISTINCT cited_case_id) AS n FROM case_citations "
+                    f"WHERE citing_case_id IN ({','.join('?' * len(found))}) GROUP BY citing_case_id", sorted(found))}
+    finally:
+        _LANG.reset(token)
+    flag = "translation_available" if lang == "fr" else "original_available"
+    for cid in found:
+        cases[cid][flag] = True
+        if cid in fr_cites:
+            cases[cid]["cites_count"] = max(cases[cid].get("cites_count") or 0, fr_cites[cid])
 
 
 # ---- /api/cases/{case_id}/cited_by -----------------------------------------
@@ -2947,6 +2948,7 @@ def browse(
             )
             case_details = {r["case_id"]: _enrich_case_row(_row_to_dict(r)) for r in cur.fetchall()}
             _attach_citation_counts(cur, case_details)
+            _add_language_versions(case_details)
 
             # Articles per case.
             cur.execute(
