@@ -141,7 +141,7 @@ function truncateLabel(text, limit = 60) {
   return `${value.slice(0, limit - 1)}...`;
 }
 
-function citationDisplayLabel(raw) {
+function citationDisplayLabel(raw, limit = 48) {
   const title = String(raw || "")
     .split(/\s*\[GC\]|,\s*(?:nos?\.|\u00a7|ECHR\b|Series A\b|Reports\b|(?:judgment|decision) of\b|\d{1,2}\s+[A-Z])|\s+(?:judgment|decision) of\b/i)[0]
     .trim();
@@ -149,11 +149,22 @@ function citationDisplayLabel(raw) {
   // satisfaction judgment can share a case name without being the same item.
   const shorten = (text, limit) => text.length > limit ? text.slice(0, limit - 3) + "..." : text;
   const versus = title.lastIndexOf(" v. ");
-  if (title.length > 48 && versus > 0) {
+  if (title.length > limit && versus > 0) {
     const respondent = title.slice(versus);
-    if (respondent.length < 36) return shorten(title.slice(0, versus), 48 - respondent.length) + respondent;
+    if (respondent.length < limit - 12) return shorten(title.slice(0, versus), limit - respondent.length) + respondent;
   }
-  return shorten(title || String(raw || ""), 48);
+  return shorten(title || String(raw || ""), limit);
+}
+
+/* HUDOC's capitals as the Court writes the name: "IRELAND v. THE UNITED KINGDOM" -> "Ireland v. the United Kingdom". */
+const CASE_NAME_SMALL = new Set(["v.", "and", "of", "the", "on", "behalf", "for", "in", "to", "by", "at", "a", "an"]);
+function caseNameLabel(raw, limit) {
+  const t = citationDisplayLabel(raw, limit).replace(/İ/g, "I");   // Turkish İ lowers to i + a dot
+  const core = t.replace(/\sv\.\s/g, " ").replace(/\(No\.\s*\d+\)/gi, "").replace(/\bMc/g, "MC");   // HUDOC's "v.", "(No. 2)", "McCANN"
+  if (core !== core.toUpperCase()) return t;
+  return t.toLowerCase().split(" ").map((w, i) => (i && CASE_NAME_SMALL.has(w)) ? w
+    : w.replace(/(^|[-'’(.])(\p{L})/gu, (m, before, c) => before + c.toUpperCase()).replace(/^Mc(\p{L})/u, (m, c) => "Mc" + c.toUpperCase())
+  ).join(" ");
 }
 
 function wrapCitationText(text, limit) {
@@ -192,6 +203,7 @@ async function renderJudgmentCitations(scope) {
     if (snapshot.with_search_graph) views.search = { ...snapshot, ...snapshot.with_search_graph };
     let view = views.search || views.curated;
     let ranked = view.ranking || [];
+    const citers = () => (view === views.search ? "judgments and decisions" : "judgments");
     const quality = document.getElementById("judgmentCitationQuality");
     const evidenceSelect = document.getElementById("citationEvidence");
     function describe() {
@@ -199,9 +211,9 @@ async function renderJudgmentCitations(scope) {
       const statuses = c.by_status || {};
       const lines = [];
       if (view === views.search) {
-        coverageNote.textContent = `Counted as in Search: judgments citing it in their text or in HUDOC's metadata, and judgments HUDOC publishes only in French that cite it according to HUDOC's metadata. ${fmtInt.format(c.citation_pairs)} citation pairs in the corpus, plus ${fmtInt.format(c.french_only_pairs)} from French-only judgments. Snapshot: ${snapshot.cutoff}.`;
+        coverageNote.textContent = `Counted as in Search: judgments and decisions citing it in their text or in HUDOC's metadata, and judgments HUDOC publishes only in French that cite it according to HUDOC's metadata. ${fmtInt.format(c.citation_pairs)} citation pairs in the corpus, plus ${fmtInt.format(c.french_only_pairs)} from French-only judgments. Snapshot: ${snapshot.cutoff}.`;
         lines.push(
-          "These are the numbers shown under Cited by on every search result. They count judgments, not mentions: a judgment that refers to the case in ten paragraphs counts once.",
+          "These are the numbers shown under Cited by on every search result. They count documents, not mentions: a judgment that refers to the case in ten paragraphs counts once.",
           "Citations by French-only judgments come from HUDOC's metadata alone, so they are minimums and carry no paragraph; the share is shown for each judgment.",
           "The two other choices of Evidence count HUDOC's metadata alone, for comparison.");
       } else if (view === views.curated) {
@@ -238,8 +250,8 @@ async function renderJudgmentCitations(scope) {
     if (!ranked.length) return;
     const sayTopCited = () => {
       const [top, next] = ranked;
-      document.getElementById("citationTakeaway").textContent = `${top.title} (${top.date.slice(0, 4)}) is the most cited judgment: ` +
-        `${fmtInt.format(top.cited_by_count)} judgments cite it${next ? `, ahead of ${next.title} (${fmtInt.format(next.cited_by_count)})` : ""}.`;
+      document.getElementById("citationTakeaway").textContent = `${caseNameLabel(top.title, 90)} (${top.date.slice(0, 4)}) is the most cited judgment: ` +
+        `${fmtInt.format(top.cited_by_count)} ${citers()} cite it${next ? `, ahead of ${caseNameLabel(next.title, 90)} (${fmtInt.format(next.cited_by_count)})` : ""}.`;
     };
     sayTopCited();
     const select = document.getElementById("citedJudgmentSelect");
@@ -268,7 +280,7 @@ async function renderJudgmentCitations(scope) {
     rankingExport.addEventListener("click", () => {
       const extended = view === views.extracted;
       csv([
-        ["HUDOC ID", "ECLI", "Judgment", "Date", "Unique citing judgments",
+        ["HUDOC ID", "ECLI", "Judgment", "Date", `Unique citing ${citers()}`,
           ...(extended ? ["Citing via curated lists", "Citing via extracted application numbers"] : []), "Source", "Cutoff"],
         ...ranked.map((row) => [row.case_id, row.ecli || "", row.title, row.date, row.cited_by_count,
           ...(extended ? [row.cited_by_curated_list, row.cited_by_extracted_application] : []),
@@ -290,7 +302,7 @@ async function renderJudgmentCitations(scope) {
         name.appendChild(hudocLink(row)); const date = document.createElement("td"); date.textContent = row.date;
         tr.append(name, date); body.appendChild(tr);
       }
-      document.getElementById("citingJudgmentsSummary").textContent = `View ${fmtInt.format(rows.length)} citing judgments, each counted once however often it refers to this one (${Math.min(visible, rows.length)} shown)`;
+      document.getElementById("citingJudgmentsSummary").textContent = `View ${fmtInt.format(rows.length)} citing ${citers()}, each counted once however often it refers to this one (${Math.min(visible, rows.length)} shown)`;
       document.getElementById("moreCitingJudgments").hidden = visible >= rows.length;
     }
     function selectJudgment() {
@@ -300,7 +312,7 @@ async function renderJudgmentCitations(scope) {
       const split = view === views.extracted
         ? ` (${fmtInt.format(row.cited_by_curated_list)} via curated lists, ${fmtInt.format(row.cited_by_extracted_application)} via extracted application numbers)`
         : view === views.search && row.cited_by_french_only ? ` (${fmtInt.format(row.cited_by_french_only)} only in French)` : "";
-      identity.replaceChildren(hudocLink(row), document.createTextNode(` · ${row.date} · ${row.ecli || row.case_id} · ${fmtInt.format(row.cited_by_count)} unique citing judgments${split}`));
+      identity.replaceChildren(hudocLink(row), document.createTextNode(` · ${row.date} · ${row.ecli || row.case_id} · ${fmtInt.format(row.cited_by_count)} unique citing ${citers()}${split}`));
       renderList();
     }
     select.addEventListener("change", selectJudgment);
@@ -314,23 +326,43 @@ async function renderJudgmentCitations(scope) {
         `The judgments citing ${target.title} (${target.date}), one row per citing judgment`);
     });
     const chartLabels = () => ranked.map((row) => `${row.title} | ${row.date} | ${row.case_id}`);
+    // The count at each bar's end, so the chart reads without hovering.
+    const countLabels = { id: "citationCounts", afterDatasetsDraw(c) {
+      const { ctx } = c; const values = c.data.datasets[0].data;
+      ctx.save();
+      ctx.font = `11px ${Chart.defaults.font.family}`;
+      ctx.fillStyle = getComputedStyle(document.body).getPropertyValue("--text-secondary").trim() || "#5f5a55";
+      ctx.textBaseline = "middle";
+      c.getDatasetMeta(0).data.forEach((bar, i) => ctx.fillText(fmtInt.format(values[i]), bar.x + 6, bar.y));
+      ctx.restore();
+    } };
+    const sans = getComputedStyle(document.documentElement).getPropertyValue("--font-sans").trim();
     const chart = createBarChart(document.getElementById("judgmentCitationsChart"),
       chartLabels(), ranked.map((row) => row.cited_by_count),
-      { horizontal: true, colors: ["#4f83ad"] });
-    if (chart) {
-      chart.data.datasets[0].label = "Unique citing judgments";
-      chart.options.scales.y.ticks = { font: { size: 11 }, callback(value) {
-        const row = ranked[value]; const name = citationDisplayLabel(row.title);
-        return [...(this.chart.width < 500 ? wrapCitationText(name, 22) : [name]), row.date];
-      }};
-      chart.options.plugins.tooltip = {callbacks: { title: citationTooltipTitle }};
-      chart.options.onClick = (_, elements) => {
-        if (!elements.length) return;
-        select.value = ranked[elements[0].index].case_id; selectJudgment();
-        document.getElementById("citingJudgmentsDetails").open = true;
-      };
-      chart.update("none");
-    }
+      { horizontal: true, colors: ["#4f83ad"], plugins: [countLabels], configure(cfg) {
+        const ds = cfg.data.datasets[0];
+        ds.label = `Citing ${citers()}`;
+        ds.maxBarThickness = 20;
+        ds.borderRadius = 3;
+        cfg.options.scales.x.grace = "10%";           // room for the counts
+        // The name as the Court writes it, short, and the year under it; the column takes at most a third.
+        // On a phone the name wraps and the column may take half the width; every name is shown.
+        cfg.options.scales.y.ticks = { autoSkip: false,
+          font: (ctx) => ({ family: sans || undefined, size: ctx.chart.width < 500 ? 10 : 12 }), callback(value) {
+            const row = ranked[value]; const narrow = this.chart.width < 500;
+            const name = caseNameLabel(row.title, narrow ? 30 : 38);
+            return [...(narrow ? wrapCitationText(name, 18) : [name]), row.date.slice(0, 4)];
+          }};
+        cfg.options.scales.y.afterFit = (scale) => {
+          scale.width = Math.min(scale.width, scale.chart.width * (scale.chart.width < 500 ? 0.5 : 0.36));
+        };
+        cfg.options.plugins.tooltip = { callbacks: { title: citationTooltipTitle } };
+        cfg.options.onClick = (_, elements) => {
+          if (!elements.length) return;
+          select.value = ranked[elements[0].index].case_id; selectJudgment();
+          document.getElementById("citingJudgmentsDetails").open = true;
+        };
+      } });
     if (evidenceSelect) evidenceSelect.addEventListener("change", () => {
       view = views[evidenceSelect.value] || views.curated;
       ranked = view.ranking || [];
@@ -338,7 +370,8 @@ async function renderJudgmentCitations(scope) {
       if (chart) {
         chart.data.labels = chartLabels();
         chart.data.datasets[0].data = ranked.map((row) => row.cited_by_count);
-        chart.update("none");
+        chart.data.datasets[0].label = `Citing ${citers()}`;
+        chart.update();
       }
       selectJudgment();
     });
@@ -363,7 +396,7 @@ function makeKpi(label, value, note = "") {
 
 function createBarChart(ctx, labels, values, options = {}) {
   if (!ctx || !values.some((value) => Number(value) > 0)) return null;
-  return new Chart(ctx, {
+  const config = {
     type: "bar",
     data: {
       labels,
@@ -379,6 +412,7 @@ function createBarChart(ctx, labels, values, options = {}) {
         },
       ],
     },
+    plugins: options.plugins || [],
     options: {
       responsive: true,
       maintainAspectRatio: false,
@@ -397,7 +431,11 @@ function createBarChart(ctx, labels, values, options = {}) {
         },
       },
     },
-  });
+  };
+  // Options set after drawing are not all applied (the bars kept an old axis width), so a caller
+  // finishes the configuration here.
+  if (options.configure) options.configure(config);
+  return new Chart(ctx, config);
 }
 
 function articleLabel(article) {

@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="assets/dashboard.css">
   <link rel="stylesheet" href="assets/search-app.css">
   <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261011-p1p2">
-  <link rel="stylesheet" href="assets/analytics-page.css?v=20261010-mob">
+  <link rel="stylesheet" href="assets/analytics-page.css?v=20261011-cited">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1"></script>
   <script src="assets/tour.js?v=20261011-dec2" defer></script>
@@ -293,7 +293,7 @@
             <h2 class="chart-section-title">Most cited judgments
               <button class="section-share-btn" title="Copy link to this section" onclick="copySectionLink(this, 'stats-cited-judgments')">&#x1F517;</button>
             </h2>
-            <p class="chart-section-desc">Top 20 by citing judgments, counted as in Search's <em>Cited by</em>: judgments, not mentions — a judgment that refers to the case in ten paragraphs counts once. Judgments HUDOC publishes only in French are included. Under <em>Evidence</em>, the same ranking from HUDOC's citation metadata alone, for comparison.</p>
+            <p class="chart-section-desc">Top 20 by the judgments and decisions citing them, counted as in Search's <em>Cited by</em>: documents, not mentions — a judgment that refers to the case in ten paragraphs counts once. Judgments HUDOC publishes only in French are included. Under <em>Evidence</em>, the same ranking from HUDOC's citation metadata alone, for comparison.</p>
             <p class="chart-takeaway" id="citationTakeaway"></p>
             <p id="judgmentCitationCoverage" class="chart-caveat" aria-live="polite">Loading the citation snapshot...</p>
             <div class="chart-canvas-wrap judgment-citation-canvas"><canvas id="judgmentCitationsChart"></canvas></div>
@@ -616,6 +616,6 @@
        Chart.js plugin before pages-dashboard.js constructs any chart. -->
   <script src="assets/echr-export-core.js?v=20260802-export"></script>
   <script src="assets/chart-tools.js?v=20261011-credit"></script>
-  <script src="assets/pages-dashboard.js?v=20261011-credit"></script>
+  <script src="assets/pages-dashboard.js?v=20261011-cited"></script>
 </body>
 </html>
