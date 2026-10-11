@@ -344,7 +344,8 @@
 .statistics-editorial .article-outcome-table thead th { color: var(--ink); font-weight: 600; }
 .statistics-editorial #stats-article-rates .chart-caveat { background: none; border: 0; padding: 0; color: var(--ink-2); }
 .statistics-editorial .citation-canvas-wrap { height: 470px; }
-.statistics-editorial .judgment-citation-canvas { height: 930px; }
+.statistics-editorial .judgment-citation-canvas { height: 760px; }
+@media (max-width: 640px) { .statistics-editorial .judgment-citation-canvas { height: 980px; } }
 .statistics-editorial #citedJudgmentSelect { max-width: 100%; min-width: 0; flex: 1; }
 .statistics-editorial #stats-cited-judgments .chart-caveat { background: var(--paper-2); border-color: var(--rule); }
 .statistics-editorial #citedJudgmentIdentity, .statistics-editorial .citation-quality-line { color: var(--ink-2); font-size: 0.85rem; line-height: 1.6; }
