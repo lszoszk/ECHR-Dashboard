@@ -2440,8 +2440,13 @@ def _fold(text: Any) -> str:
     return "".join(ch for ch in t if not unicodedata.combining(ch))
 
 
+_INITIALS = re.compile(r"\b(?:[a-z]\.){2,}")
+
+
 def _name_tokens(text: Any) -> list[str]:
-    return re.findall(r"[a-z0-9]+", _fold(text))
+    # Initials are one name: "M.S.S." and "MSS" both become "mss" (title and query alike).
+    folded = _INITIALS.sub(lambda m: m.group(0).replace(".", "") + " ", _fold(text))
+    return re.findall(r"[a-z0-9]+", folded)
 
 
 def _significant(tokens: list[str]) -> list[str]:

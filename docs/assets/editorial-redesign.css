@@ -1752,11 +1752,17 @@ mark.hl {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
   gap: 8px 18px; margin-top: 12px;
 }
-.researcher-result .researcher-foot .case-actions-inline { margin-top: 0; }
+.researcher-result .researcher-foot .case-actions-inline { margin: 0; }   /* a bottom margin would push the buttons above the Influence line */
 .researcher-influence { display: flex; align-items: center; gap: 14px; }
 .researcher-influence .folio-label { margin: 0; white-space: nowrap; }
 .researcher-influence .researcher-bar { width: 88px; margin-top: 0; }
 .researcher-influence .researcher-bar-note { display: none; }   /* in the Cited by tooltip */
+/* On the button row: the bar's line hangs below its label, so the label sits on the buttons' centre line. */
+.researcher-influence .researcher-bar { position: relative; }
+.researcher-influence .researcher-bar-track { position: absolute; left: 0; right: 0; bottom: -4px; margin: 0; }
+/* Empty date fields: Safari draws today's date in grey, which reads as an active filter. The fields are
+   'required' only so that an empty one matches :invalid; they are not in a form. */
+.date-input:invalid:not(:focus)::-webkit-datetime-edit { color: transparent; }
 @container results (min-width: 940px) {
   .researcher-result-body {
     display: grid; grid-template-columns: minmax(0, 40rem) 150px; column-gap: 34px; align-items: start;
@@ -1765,7 +1771,8 @@ mark.hl {
   .researcher-foot { display: contents; }
   .researcher-result .researcher-foot .case-actions-inline { margin-top: 12px; }
   .researcher-influence { display: block; grid-column: 2; grid-row: 1 / span 4; padding-top: 4px; }
-  .researcher-influence .researcher-bar { width: auto; margin-top: 7px; }
+  .researcher-influence .researcher-bar { width: auto; margin-top: 7px; position: static; }
+  .researcher-influence .researcher-bar-track { position: static; margin-top: 3px; }
   .researcher-influence .researcher-bar-note { display: block; }
 }
 
