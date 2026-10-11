@@ -6477,8 +6477,9 @@ function updateResultsHeaderServer(data, opts = {}) {
   el.resultsHeader.hidden = false;
   el.resultsHits.textContent = fmtInt.format(defaultView ? totalCases : (data.total_hits || 0));
   if (el.resultsHitsLabel) el.resultsHitsLabel.textContent = defaultView ? "recent cases" : "passages";
-  el.resultsCases.textContent = fmtInt.format(defaultView ? (data.total_cases || totalCases) : totalCases);
-  if (el.resultsCasesLabel) el.resultsCasesLabel.textContent = defaultView ? "records" : "judgments";
+  // Default view: the whole corpus (judgments, Grand Chamber decisions and machine translations), from /api/stats.
+  el.resultsCases.textContent = fmtInt.format(defaultView ? (state.corpusTotal || data.total_cases || totalCases) : totalCases);
+  if (el.resultsCasesLabel) el.resultsCasesLabel.textContent = defaultView ? "records in the corpus" : "judgments";
   el.resultsTime.textContent = `(${((data.search_time_ms || state.searchTimeMs) / 1000).toFixed(3)}s · page ${state.currentPage}/${totalPages} · ${serverTag})`;
   if (el.queryMatchCount) el.queryMatchCount.textContent = fmtInt.format(defaultView ? totalCases : (data.total_hits || 0));
   if (el.queryMatchLabel) el.queryMatchLabel.textContent = defaultView ? "recent cases" : "¶ matched";
@@ -7803,6 +7804,8 @@ function init() {
           const node = document.getElementById(id);
           if (node) node.textContent = fmt.format(mtN);
         }
+        state.corpusTotal = statsData.total_cases || 0;
+        if (state.defaultView && state.corpusTotal && !el.resultsHeader.hidden) el.resultsCases.textContent = fmt.format(state.corpusTotal);
         const officialCount = document.getElementById("officialCount");
         if (officialCount && statsData.total_judgments) officialCount.textContent = fmt.format(statsData.total_judgments);
         // Parse DD/MM/YYYY dates into readable range

@@ -99,10 +99,11 @@
        <h2 class="tour-h">The Court's judgments, paragraph by paragraph.</h2>
        <div class="tour-lead">Every judgment of the European Court of Human Rights in English, split into the Court's own
          numbered paragraphs — so a search lands on the paragraph you will cite, with a link to HUDOC, the authoritative source.
-         Unofficial English translations of ${fmt(s.total_machine_translations || 2460)} judgments that HUDOC has only in French can be switched on.</div>
+         The figures include unofficial English translations of ${fmt(s.total_machine_translations || 2460)} judgments that HUDOC has only in French;
+         Search leaves them out until you switch them on.</div>
        <div class="tour-stats">
-         <div><b>${fmt(s.total_judgments || 20123)}</b><span>judgments in English</span></div>
-         <div><b>${fmt(s.citable_paragraphs_official || 1230176)}</b><span>numbered paragraphs</span></div>
+         <div><b>${fmt(s.total_cases || 22614)}</b><span>judgments and decisions</span></div>
+         <div><b>${fmt(s.citable_paragraphs || 1404444)}</b><span>numbered paragraphs</span></div>
          <div><b>${fmt(s.total_countries || 47)}</b><span>respondent States</span></div>
          <div><b>${from}–${to}</b><span>years covered</span></div>
        </div>${spark}`,
