@@ -1,13 +1,13 @@
 # HUDOC Researcher
 
-> Paragraph-level search over the judgments of the European Court of Human Rights (ECtHR), built at Adam Mickiewicz University, Poznań (Łukasz Szoszkiewicz, Sebastian Marcisz). It holds 20,123 judgments in English and 31 Grand Chamber admissibility decisions (14 November 1960 – 8 October 2026), split into the Court's own numbered paragraphs (1,259,906 of them) with the part of the judgment each belongs to, plus 247,436 citation links between judgments. Free to use; an independent research tool, not affiliated with the Court and not legal advice.
+> Paragraph-level search over the judgments of the European Court of Human Rights (ECtHR), built at Adam Mickiewicz University, Poznań (Łukasz Szoszkiewicz, Sebastian Marcisz). It holds 20,123 judgments in English and 3,557 decisions (a selection for now: those cited in judgments and HUDOC's key cases; 14 November 1960 – 8 October 2026), split into the Court's own numbered paragraphs (1,259,906 of them) with the part of the judgment each belongs to, plus 247,436 citation links between judgments. Free to use; an independent research tool, not affiliated with the Court and not legal advice.
 
 ## What is in it
 
 - Grand Chamber, Chamber and Committee judgments that HUDOC publishes in English. Each row of text keeps the Court's paragraph number (§) and its section: Facts, Legal Framework, Admissibility, Merits, Just Satisfaction, Operative part, Separate Opinion.
 - HUDOC metadata for each judgment: application numbers, ECLI, respondent State, Convention Articles, violation / no-violation findings, importance level, HUDOC thesaurus keywords, separate opinions.
 - Cites / Cited by: which judgments a judgment cites and which later judgments cite it, found in the text (application numbers; for judgments before about 1999, case name and date) and in HUDOC's case-law lists.
-- Not included: HUDOC's other collections (admissibility decisions other than the 31 above, communicated cases, legal summaries, advisory opinions), and footnotes. The ~9,300 judgments HUDOC publishes only in French are a separate collection, searched in French (API parameter lang=fr; Search page: Français); unofficial English machine translations of 2,460 of them can be switched on in the English search, marked as such and not the Court's text.
+- Not included: HUDOC's other collections (the other decisions, communicated cases, legal summaries, advisory opinions), and footnotes. The ~9,300 judgments HUDOC publishes only in French are a separate collection, searched in French (API parameter lang=fr; Search page: Français); unofficial English machine translations of 2,460 of them can be switched on in the English search, marked as such and not the Court's text.
 
 ## How to link
 

@@ -2325,6 +2325,7 @@ mark.hl {
 .lang-switch .filter-count { margin-left: 4px; color: inherit; opacity: 0.75; }
 .lang-note { margin: 0 0 8px; font-size: 0.8rem; line-height: 1.45; color: var(--ink-2); }
 .lang-note code { font-size: 0.75rem; }
+.dec-note { margin: 0 0 10px 20px; font-size: 0.75rem; color: var(--ink-3); }
 /* A neutral chip (not an outcome colour) on French originals that have an English translation. */
 .chip.lang-chip { color: var(--ink-3); border-color: var(--rule); background: transparent;
   font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase; }

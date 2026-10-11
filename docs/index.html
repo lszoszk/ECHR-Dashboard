@@ -43,11 +43,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css?v=20261010-ui3">
   <link rel="stylesheet" href="assets/search-app.css?v=20261011-corpus">
-  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261011-p1p2">
+  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261011-dec3">
   <link rel="stylesheet" href="assets/judgment-hudoc.css?v=20260706-deadmodal">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
-  <script src="assets/tour.js?v=20261011-fr" defer></script>
+  <script src="assets/tour.js?v=20261011-dec" defer></script>
   <script src="assets/workspace.js?v=20261011-credit"></script>
   <script src="assets/cite.js?v=20261011-hlink" defer></script>
 </head>
@@ -164,10 +164,16 @@
               judgments HUDOC publishes only in French. Search in French: accents are optional, and <code>*</code>
               matches word endings (<code>discrimin*</code>).</p>
             <div id="collectionEn">
-            <label class="cb-label scope-fixed" title="The English texts of the judgments as published on HUDOC. Untick it, with the translations ticked, to search the translations alone">
+            <label class="cb-label scope-fixed" title="The English texts of the judgments as published on HUDOC. Untick it, with decisions or translations ticked, to search those alone">
               <input type="checkbox" id="includeOfficial" checked disabled>
               <span>Judgments &mdash; official English texts <span class="filter-count" id="officialCount"></span></span>
             </label>
+            <label class="cb-label" id="decisionsPill" hidden title="Decisions of the Court: mostly on admissibility (whether an application can be examined at all), and strike-outs. HUDOC keeps them in a collection of their own; they are not in the default search.">
+              <input type="checkbox" id="includeDecisions">
+              <span>Decisions <span class="filter-count" id="decisionCount"></span></span>
+            </label>
+            <p class="lang-note dec-note" id="decNote" hidden><span id="decShare"></span> of HUDOC&rsquo;s English decisions:
+              those cited in judgments, and key cases. More to come.</p>
             <div class="mt-scope" id="mtPill" hidden>
               <div class="mt-scope-head">Not in the default search</div>
               <div class="mt-option-row">
@@ -574,6 +580,6 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
-  <script src="assets/search-app.js?v=20261011-hlink"></script>
+  <script src="assets/search-app.js?v=20261011-dec3"></script>
 </body>
 </html>
