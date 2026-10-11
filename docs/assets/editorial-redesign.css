@@ -1791,15 +1791,6 @@ mark.hl {
   opacity: 0.25;
 }
 
-.researcher-ecli {
-  margin-top: 12px;
-  color: var(--ink-4);
-  font-family: var(--font-mono);
-  font-size: 0.58rem;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
-}
-
 .researcher-result .hit-count {
   width: auto;
   height: auto;
@@ -2211,8 +2202,12 @@ mark.hl {
 
 /* ── Case details: HUDOC metadata ─────────────────────────────── */
 .cn-meta { margin-top: 10px; }
-.cn-findings { display: grid; gap: 5px; margin-bottom: 8px; }
-.cn-findings .cnm-label { display: inline-block; min-width: 92px; }
+.cn-findings { display: grid; gap: 6px; margin-bottom: 8px; }
+/* Label in its own column, chips wrapping beside it (not under the label) */
+.cn-findings > div { display: grid; grid-template-columns: 104px minmax(0, 1fr); align-items: baseline; column-gap: 8px; }
+.cn-findings .cnm-label { padding-top: 3px; }
+.cn-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.cn-chips .cn-art { margin: 0; }
 .cn-art {
   display: inline-block; margin: 0 4px 3px 0; padding: 1px 6px;
   font-size: 0.78rem; border: 1px solid var(--rule); border-radius: 2px; color: var(--ink-2);

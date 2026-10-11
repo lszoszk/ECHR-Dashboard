@@ -5445,10 +5445,10 @@ function caseFindingsHtml(c) {
   const chips = (list, cls) => list.map((t) => `<span class="cn-art ${cls}" title="${escapeHtml(t)}">${escapeHtml(formatArticleToken(t))}</span>`).join("");
   const findings = (v.length || nv.length) ? `
     <div class="cn-findings">
-      ${v.length ? `<div><span class="cnm-label">Violation</span> ${chips(v, "is-violation")}</div>` : ""}
-      ${nv.length ? `<div><span class="cnm-label">No violation</span> ${chips(nv, "is-no-violation")}</div>` : ""}
+      ${v.length ? `<div><span class="cnm-label">Violation</span><span class="cn-chips">${chips(v, "is-violation")}</span></div>` : ""}
+      ${nv.length ? `<div><span class="cnm-label">No violation</span><span class="cn-chips">${chips(nv, "is-no-violation")}</span></div>` : ""}
     </div>`
-    : `<div class="cn-findings"><div><span class="cnm-label">Articles</span> ${buildResearcherArticleChips(c.__articles, 8)}</div></div>`;
+    : `<div class="cn-findings"><div><span class="cnm-label">Articles</span><span class="cn-chips">${buildResearcherArticleChips(c.__articles, 8)}</span></div></div>`;
   return caseLangHtml(c) + findings;
 }
 
@@ -5687,7 +5687,6 @@ function buildCaseCard(caseId, row, rank = 1) {
       <aside class="researcher-influence">
         <div class="folio-label">Influence <button type="button" class="info-dot" data-action="influence-help" aria-label="What Influence shows" title="What Influence shows">i</button></div>
         ${buildResearcherBars(c, row)}
-        <div class="researcher-ecli">${escapeHtml(c.ecli || splitAppNos(c.case_no).join(", ") || "")}</div>
       </aside>
 
       <div class="case-body" id="body-${escapeHtml(caseId)}">

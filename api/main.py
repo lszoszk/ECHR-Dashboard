@@ -2677,11 +2677,19 @@ def _add_language_versions(cases: dict[str, dict[str, Any]]) -> None:
             ph = ",".join("?" * len(ids))
             found = {r["case_id"] for r in cur.execute(
                 f"SELECT case_id FROM cases WHERE case_id IN ({ph}) AND {where}", ids)}
+            # A translation cites what its French original cites, French-only judgments included, so
+            # that the count does not change when the reader switches between the two.
+            fr_cites = {} if lang == "fr" or not found else {
+                r["citing_case_id"]: r["n"] for r in cur.execute(
+                    f"SELECT citing_case_id, count(DISTINCT cited_case_id) AS n FROM case_citations "
+                    f"WHERE citing_case_id IN ({','.join('?' * len(found))}) GROUP BY citing_case_id", sorted(found))}
     finally:
         _LANG.reset(token)
     flag = "translation_available" if lang == "fr" else "original_available"
     for cid in found:
         cases[cid][flag] = True
+        if cid in fr_cites:
+            cases[cid]["cites_count"] = max(cases[cid].get("cites_count") or 0, fr_cites[cid])
 
 
 # ---- /api/cases/{case_id}/cited_by -----------------------------------------
