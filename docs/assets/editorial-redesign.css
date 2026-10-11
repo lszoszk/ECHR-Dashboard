@@ -1613,7 +1613,7 @@ mark.hl {
 
 .researcher-result {
   display: grid;
-  grid-template-columns: 64px minmax(0, 1fr) 142px;
+  grid-template-columns: 64px minmax(0, 1fr);
   gap: 24px;
   padding: 22px 0;
   border-bottom: 1px solid var(--rule-soft);
@@ -1739,11 +1739,33 @@ mark.hl {
 }
 
 .researcher-result .case-body {
-  grid-column: 2 / 4;
+  grid-column: 2 / -1;
 }
 
-.researcher-influence {
-  padding-top: 4px;
+/* Result card: the text takes the width of the results panel. Influence (Cites / Cited by) sits on the
+   button row while the panel is narrow (case details open, laptop, phone); when the panel is wide, the
+   text keeps a readable measure (~78 characters) and Influence stands beside it. The switch follows the
+   width of the results list itself (container query), so opening the case details changes it. */
+#casesList { container: results / inline-size; }
+.researcher-foot {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 8px 18px; margin-top: 12px;
+}
+.researcher-result .researcher-foot .case-actions-inline { margin-top: 0; }
+.researcher-influence { display: flex; align-items: center; gap: 14px; }
+.researcher-influence .folio-label { margin: 0; white-space: nowrap; }
+.researcher-influence .researcher-bar { width: 88px; margin-top: 0; }
+.researcher-influence .researcher-bar-note { display: none; }   /* in the Cited by tooltip */
+@container results (min-width: 940px) {
+  .researcher-result-body {
+    display: grid; grid-template-columns: minmax(0, 40rem) 150px; column-gap: 34px; align-items: start;
+  }
+  .researcher-result-body > * { grid-column: 1; }
+  .researcher-foot { display: contents; }
+  .researcher-result .researcher-foot .case-actions-inline { margin-top: 12px; }
+  .researcher-influence { display: block; grid-column: 2; grid-row: 1 / span 4; padding-top: 4px; }
+  .researcher-influence .researcher-bar { width: auto; margin-top: 7px; }
+  .researcher-influence .researcher-bar-note { display: block; }
 }
 
 .researcher-bar {
@@ -1979,10 +2001,6 @@ mark.hl {
   .researcher-result {
     grid-template-columns: 46px minmax(0, 1fr);
     gap: 14px;
-  }
-
-  .researcher-influence {
-    display: none;
   }
 
   .researcher-result .case-body {
