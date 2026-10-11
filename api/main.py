@@ -9,6 +9,8 @@ Database is built separately; this service opens it in read-only mode.
 
 from __future__ import annotations
 
+import contextvars
+import functools
 import json
 import logging
 import os
@@ -34,6 +36,37 @@ import ranking
 # ---------------------------------------------------------------------------
 
 DB_PATH = os.environ.get("ECHR_DB_PATH", "/data/echr_search.db")
+# The French originals of the judgments HUDOC publishes only in French (scripts/p75_build_french_db.py):
+# an optional second database with the same tables, searched when a request carries lang=fr.
+FR_DB_PATH = os.environ.get("ECHR_FR_DB_PATH", str(Path(DB_PATH).with_name("echr_fr.db")))
+_LANG: contextvars.ContextVar[str] = contextvars.ContextVar("echr_lang", default="en")
+
+
+def _db_path() -> str:
+    """The database this request reads: the French originals under lang=fr, else the main one."""
+    return FR_DB_PATH if _LANG.get() == "fr" else DB_PATH
+
+
+def _french_available() -> bool:
+    return Path(FR_DB_PATH).exists()
+
+
+def _lang_aware(fn):
+    """Run an endpoint against the database its ``lang`` parameter names ("en" or "fr"), and switch
+    back afterwards whatever happens, so that the next request on this thread reads English."""
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        lang = str(kwargs.get("lang") or "en").strip().lower()
+        if lang not in ("en", "fr"):
+            raise HTTPException(status_code=400, detail="lang must be 'en' or 'fr'")
+        if lang == "fr" and not _french_available():
+            raise HTTPException(status_code=404, detail="The French originals are not available on this server.")
+        token = _LANG.set(lang)
+        try:
+            return fn(*args, **kwargs)
+        finally:
+            _LANG.reset(token)
+    return wrapper
 
 logging.basicConfig(
     level=logging.INFO,
@@ -50,16 +83,17 @@ _local = threading.local()
 
 
 def _get_connection() -> sqlite3.Connection:
-    """Return a thread-local read-only SQLite connection."""
-    conn: sqlite3.Connection | None = getattr(_local, "conn", None)
+    """Return a thread-local read-only SQLite connection to this request's database (see _db_path)."""
+    attr = "conn_" + _LANG.get()
+    conn: sqlite3.Connection | None = getattr(_local, attr, None)
     if conn is None:
-        uri = f"file:{DB_PATH}?mode=ro"
+        uri = f"file:{_db_path()}?mode=ro"
         conn = sqlite3.connect(uri, uri=True, check_same_thread=False)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA journal_mode = wal")
         conn.execute("PRAGMA query_only = ON")
         conn.execute("PRAGMA cache_size = -64000")  # 64 MB page cache
-        _local.conn = conn
+        setattr(_local, attr, conn)
     return conn
 
 
@@ -379,6 +413,10 @@ def _build_fts_query(raw: str, broaden: bool = False) -> str:
             # "discrimin"), which a raw prefix can overshoot, so the stems of the prefix completed
             # with common endings are matched as well (discriminat* -> discrimin, discriminatori).
             prefix = tok[:-1].replace("\u204e", "")
+            if _LANG.get() == "fr":         # the French index stores words, not stems
+                parts.append(f"{prefix}*")
+                parts.append("OR" if broaden else "AND")
+                continue
             stems = sorted({_porter_stem(prefix + end) for end in _PREFIX_ENDINGS}
                            - {prefix.lower()})
             stems = [x for x in stems if x[:3] == prefix[:3].lower() and x.isalnum()
@@ -822,7 +860,7 @@ def _attach_citation_counts(cur: sqlite3.Cursor,
             cd["cites_count"] = max(cd.get("cites_count") or 0, n)
 
 
-_COLUMN_CACHE: dict[tuple[str, str], bool] = {}
+_COLUMN_CACHE: dict[tuple[str, str, str], bool] = {}
 
 
 def _has_column(cur: sqlite3.Cursor, table: str, column: str) -> bool:
@@ -832,7 +870,7 @@ def _has_column(cur: sqlite3.Cursor, table: str, column: str) -> bool:
     a rebuild is in progress.  Optional projections let new code read both the
     legacy and source-exact schemas without dropping the request.
     """
-    key = (table, column)
+    key = (_db_path(), table, column)
     if key not in _COLUMN_CACHE:
         cur.execute(f"PRAGMA table_info({table})")
         _COLUMN_CACHE[key] = any(r[1] == column for r in cur.fetchall())
@@ -862,7 +900,7 @@ def _case_projection(cur: sqlite3.Cursor, include_ecli: bool = False) -> str:
     ])
     for col in ("strasbourg_caselaw", "domestic_law",
                 "international_law", "rules_of_court", "separate_opinion",
-                "text_origin", "source_case_id"):
+                "text_origin", "source_case_id", "source_language", "title_en"):
         fields.append(_optional_column_expr(cur, "cases", col))
     return ", ".join(fields)
 
@@ -899,13 +937,14 @@ _FACETS_CACHE: dict[str, Any] = {}
 def _meaningful_counts(cur: sqlite3.Cursor) -> dict[str, Any]:
     """Citable judgment-body §§, total numbered rows, and a crc32 fingerprint
     of the sorted (case_id, §) set. Cached by DB (mtime, size)."""
+    slot = _MEANINGFUL_CACHE.setdefault(_db_path(), {})
     try:
-        st = Path(DB_PATH).stat()
+        st = Path(_db_path()).stat()
         key = (st.st_mtime_ns, st.st_size)
     except OSError:
         key = None
-    if key is not None and _MEANINGFUL_CACHE.get("key") == key:
-        return _MEANINGFUL_CACHE["val"]
+    if key is not None and slot.get("key") == key:
+        return slot["val"]
 
     citable_where = ("hudoc_para_no IS NOT NULL AND row_role='paragraph' "
                      "AND COALESCE(section,'') NOT IN ('Separate Opinion','Operative part')")
@@ -933,13 +972,35 @@ def _meaningful_counts(cur: sqlite3.Cursor) -> dict[str, Any]:
         "numbering_fingerprint": "%08x" % (h & 0xFFFFFFFF),
     }
     if key is not None:
-        _MEANINGFUL_CACHE["key"] = key
-        _MEANINGFUL_CACHE["val"] = val
+        slot["key"] = key
+        slot["val"] = val
     return val
 
 
+_FR_COUNT: dict[str, Any] = {}
+
+
+def _french_count() -> int:
+    """How many French originals the server holds (0 without echr_fr.db); cached by the file."""
+    try:
+        st = Path(FR_DB_PATH).stat()
+    except OSError:
+        return 0
+    key = (st.st_mtime_ns, st.st_size)
+    if _FR_COUNT.get("key") != key:
+        con = sqlite3.connect(f"file:{FR_DB_PATH}?mode=ro", uri=True)
+        try:
+            _FR_COUNT.update(key=key, val=con.execute("SELECT count(*) FROM cases").fetchone()[0])
+        finally:
+            con.close()
+    return _FR_COUNT["val"]
+
+
 @app.get("/api/stats")
-def stats():
+@_lang_aware
+def stats(
+    lang: str = Query("en", description="en = the English corpus; fr = the French originals of the judgments HUDOC publishes only in French"),
+):
     """Return high-level database statistics."""
     try:
         with get_cursor() as cur:
@@ -1012,7 +1073,7 @@ def stats():
 
         db_size_mb = 0.0
         try:
-            db_size_mb = round(Path(DB_PATH).stat().st_size / (1024 * 1024), 2)
+            db_size_mb = round(Path(_db_path()).stat().st_size / (1024 * 1024), 2)
         except OSError:
             pass
 
@@ -1031,6 +1092,7 @@ def stats():
             "date_from": date_from,
             "date_to": date_to,
             "db_size_mb": db_size_mb,
+            "french_originals": _french_count(),
             "version": "1.1",
         }
     except Exception as exc:
@@ -1041,12 +1103,14 @@ def stats():
 # ---- /api/facets -----------------------------------------------------------
 
 @app.get("/api/facets")
+@_lang_aware
 def facets(
     q: Optional[str] = Query(None, description="Optional full-text query "
                              "— when given, facet counts are scoped to "
                              "the matching cases instead of the whole corpus"),
     date_from: Optional[str] = Query(None),
     date_to: Optional[str] = Query(None),
+    lang: str = Query("en", description="en = the English corpus; fr = the French originals of the judgments HUDOC publishes only in French"),
 ):
     """Filter-rail facet values with counts.
 
@@ -1059,11 +1123,11 @@ def facets(
     _fc_key = None
     if not (q and q.strip()) and not date_from and not date_to:
         try:
-            _st = Path(DB_PATH).stat(); _fc_key = (_st.st_mtime_ns, _st.st_size)
+            _st = Path(_db_path()).stat(); _fc_key = (_db_path(), _st.st_mtime_ns, _st.st_size)
         except OSError:
             _fc_key = None
-        if _fc_key is not None and _FACETS_CACHE.get("key") == _fc_key:
-            return _FACETS_CACHE["val"]
+        if _fc_key is not None and _FACETS_CACHE.get(_fc_key[0], {}).get("key") == _fc_key:
+            return _FACETS_CACHE[_fc_key[0]]["val"]
     try:
         result: dict[str, Any] = {}
         # Strip inline field operators before the FTS scope (mirrors /api/search);
@@ -1234,8 +1298,7 @@ def facets(
             result["date_range"] = {"min": min_date, "max": max_date}
 
         if _fc_key is not None:
-            _FACETS_CACHE["key"] = _fc_key
-            _FACETS_CACHE["val"] = result
+            _FACETS_CACHE[_fc_key[0]] = {"key": _fc_key, "val": result}
         return result
     except Exception as exc:
         logger.exception("Facets query failed")
@@ -1362,6 +1425,7 @@ def _build_case_filter_sql(
 
 
 @app.get("/api/analytics")
+@_lang_aware
 def analytics(
     q: Optional[str] = Query(None, description="Full-text search query"),
     sections: Optional[str] = Query(None),
@@ -1375,6 +1439,7 @@ def analytics(
     date_to: Optional[str] = Query(None),
     include_mt: str = Query("false", description="Unofficial machine translations of judgments HUDOC publishes only "
                             "in French: false leaves them out, true adds them, only shows nothing else"),
+    lang: str = Query("en", description="en = the English corpus; fr = the French originals of the judgments HUDOC publishes only in French"),
 ):
     """Return aggregated analytics for the given query/filters over ALL matching cases."""
     t0 = time.perf_counter()
@@ -1534,6 +1599,7 @@ def analytics(
 # ---- /api/search -----------------------------------------------------------
 
 @app.get("/api/search")
+@_lang_aware
 def search(
     q: str = Query(..., min_length=1, description="Full-text search query"),
     page: int = Query(1, ge=1),
@@ -1555,6 +1621,7 @@ def search(
                        description="case = group hits by judgment; paragraph = flat list, every paragraph ranked independently"),
     exclude_roles: Optional[str] = Query(None, description="Comma-separated row_role values to drop (paragraph mode — e.g. headings)"),
     export: bool = Query(False, description="If true, allow large page_size for CSV export"),
+    lang: str = Query("en", description="en = the English corpus; fr = the French originals of the judgments HUDOC publishes only in French"),
 ):
     """Full-text search across case paragraphs using FTS5."""
     t0 = time.perf_counter()
@@ -2507,7 +2574,11 @@ def suggest(
 
 
 @app.get("/api/cases/{case_id}")
-def get_case(case_id: str):
+@_lang_aware
+def get_case(
+    case_id: str,
+    lang: str = Query("en", description="en = the English corpus; fr = the French originals of the judgments HUDOC publishes only in French"),
+):
     """Return full case detail with all paragraphs."""
     try:
         with get_cursor() as cur:
@@ -2569,12 +2640,55 @@ def get_case(case_id: str):
                 case["cites_count"] = 0
                 case["cited_by_count"] = 0
 
+        _add_language_versions(case)
         return case
     except HTTPException:
         raise
     except Exception as exc:
         logger.exception("Case retrieval failed")
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+def _add_language_versions(case: dict[str, Any]) -> None:
+    """Which other version of this judgment the API holds: the English machine translation of a French
+    original, or the French original of a translation (the two share the case_id). A French original
+    takes its citation counts from the main database: what it cites from HUDOC's metadata, and, when
+    it has been translated, the judgments citing the translation."""
+    cid = case["case_id"]
+    lang = _LANG.get()
+    case["language"] = lang
+    case["translation_available"] = False
+    case["original_available"] = False
+    if lang == "fr":
+        token = _LANG.set("en")
+        try:
+            with get_cursor() as cur:
+                row = cur.execute("SELECT COALESCE(text_origin, '') AS o FROM cases WHERE case_id = ?",
+                                  (cid,)).fetchone()
+                case["translation_available"] = bool(row and row["o"] == "machine_translation")
+                try:
+                    case["cites_count"] = cur.execute(
+                        "SELECT count(DISTINCT cited_case_id) FROM french_only_citations WHERE citing_case_id = ?",
+                        (cid,)).fetchone()[0] or 0
+                except sqlite3.OperationalError:
+                    pass
+                if case["translation_available"]:
+                    n = cur.execute("SELECT count(DISTINCT citing_case_id) FROM case_citations "
+                                    "WHERE cited_case_id = ?", (cid,)).fetchone()[0] or 0
+                    fo = _french_only_cited_by(cur, [cid]).get(cid, 0)
+                    case["cited_by_count"], case["cited_by_french_only"] = n + fo, fo
+                else:
+                    case["cited_by_count"] = None      # not a citation target in the corpus
+        finally:
+            _LANG.reset(token)
+    elif case.get("text_origin") == "machine_translation" and _french_available():
+        token = _LANG.set("fr")
+        try:
+            with get_cursor() as cur:
+                case["original_available"] = cur.execute(
+                    "SELECT 1 FROM cases WHERE case_id = ?", (cid,)).fetchone() is not None
+        finally:
+            _LANG.reset(token)
 
 
 # ---- /api/cases/{case_id}/cited_by -----------------------------------------
@@ -2678,6 +2792,7 @@ def case_cites(case_id: str, limit: int = Query(100, ge=1, le=500)):
 # ---- /api/browse -----------------------------------------------------------
 
 @app.get("/api/browse")
+@_lang_aware
 def browse(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
@@ -2693,6 +2808,7 @@ def browse(
     sort: str = Query("date_desc", pattern="^(date_desc|date_asc)$"),
     include_mt: str = Query("false", description="Unofficial machine translations of judgments HUDOC publishes only "
                             "in French: false leaves them out, true adds them, only shows nothing else"),
+    lang: str = Query("en", description="en = the English corpus; fr = the French originals of the judgments HUDOC publishes only in French"),
 ):
     """Browse / filter cases without full-text search."""
     t0 = time.perf_counter()
