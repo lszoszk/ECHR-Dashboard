@@ -128,6 +128,7 @@ const serverSearch = {
     if (serverOutcomes.length) p.set("outcomes", serverOutcomes.join(","));
     if (filters.docTypes.size) p.set("doc_types", [...filters.docTypes].join(","));
     if (filters.includeMt) p.set("include_mt", filters.includeMt === "only" ? "only" : "true");
+    if (searchLang() === "fr") { p.delete("include_mt"); p.set("lang", "fr"); }
     // filters.dateFrom/dateTo are epoch-ms (parseDateInput → getTime()).
     // The API compares against judgment_date, so send an ISO yyyy-mm-dd
     // string it can normalise — never the raw timestamp.
@@ -223,6 +224,11 @@ const serverSearch = {
       // Judgments HUDOC publishes only in French, machine-translated for this tool (unofficial).
       __isMt: apiCase.text_origin === "machine_translation",
       __sourceCaseId: apiCase.source_case_id || null,
+      // The authentic French text of a judgment HUDOC publishes only in French (lang=fr).
+      __isFrOriginal: apiCase.text_origin === "original",
+      __translationAvailable: !!apiCase.translation_available,   // a French original with an English MT
+      __originalAvailable: !!apiCase.original_available,         // an English MT with its French original
+      __titleEn: apiCase.title_en || "",
       __isGrandChamber: (apiCase.document_type || "").toLowerCase().includes("grand chamber") || (apiCase.originating_body || "").toLowerCase().includes("grand chamber"),
       document_type: apiCase.document_type || "",
       __judgmentDateTs: apiCase.judgment_date ? (() => { const p = apiCase.judgment_date.split("/"); return p.length === 3 ? new Date(`${p[2]}-${p[1]}-${p[0]}`).getTime() : new Date(apiCase.judgment_date).getTime(); })() : null,
@@ -248,8 +254,8 @@ const serverSearch = {
   },
 
   /** Fetch full case details from server. */
-  async getCase(caseId) {
-    const r = await fetch(`${API_BASE_URL}/cases/${encodeURIComponent(caseId)}`);
+  async getCase(caseId, lang = searchLang()) {
+    const r = await fetch(`${API_BASE_URL}/cases/${encodeURIComponent(caseId)}${lang === "fr" ? "?lang=fr" : ""}`);
     if (!r.ok) throw new Error(`API ${r.status}`);
     return r.json();
   },
@@ -261,6 +267,7 @@ const serverSearch = {
     if (opts.q) p.set("q", opts.q);
     if (opts.date_from) p.set("date_from", opts.date_from);
     if (opts.date_to) p.set("date_to", opts.date_to);
+    if (searchLang() === "fr") p.set("lang", "fr");
     const qs = p.toString();
     const r = await fetch(`${API_BASE_URL}/facets${qs ? `?${qs}` : ""}`);
     if (!r.ok) throw new Error(`API ${r.status}`);
@@ -702,6 +709,8 @@ const STOPWORDS = new Set([
 const fmtInt = new Intl.NumberFormat("en-US");
 
 const state = {
+  lang: "en",   // "fr": the French originals of the judgments HUDOC publishes only in French
+  readLang: new Map(),   // caseId -> "fr" | "en": the version read in the case pane, when both exist
   loaded: false,
   datasetKey: "",
   sourceLabel: "",
@@ -1469,7 +1478,8 @@ function buildOscolaCitation(caseObj, para) {
     : apps.length <= 3 ? `App nos ${apps.slice(0, -1).join(", ")} and ${apps[apps.length - 1]}`
     : `App no ${apps[0]} and ${apps.length - 1} others`;
   const date = oscolaDate(c.judgment_date);
-  let out = `${oscolaTitle(c.title || c.case_id)}${dec ? " (dec)" : ""}${gc ? " [GC]" : ""}${appPart ? " " + appPart : ""}` +
+  // A French original is cited by its English name, as the Court cites French-only judgments in English.
+  let out = `${oscolaTitle(c.__titleEn || c.title || c.case_id)}${dec ? " (dec)" : ""}${gc ? " [GC]" : ""}${appPart ? " " + appPart : ""}` +
     ` (ECtHR${date ? ", " + date : ""})`;
   const n = para ? (para.hudocParaNo != null ? para.hudocParaNo : para.displayParaNo) : null;
   if (n != null) {
@@ -1487,7 +1497,7 @@ function paraHoverActions(caseId, p) {
   const caseObj = state.caseById.get(caseId);
   const hudocUrl = caseObj ? paragraphHudocUrl(caseObj, p) : "";
   return `<span class="dossier-para-actions">
-    ${hudocUrl ? `<a href="${escapeHtml(hudocUrl)}" target="_blank" rel="noopener noreferrer" title="Open on HUDOC at this paragraph">HUDOC ↗</a>` : ""}
+    ${hudocUrl ? `<a href="${escapeHtml(hudocUrl)}" target="_blank" rel="noopener noreferrer" title="Open on HUDOC at this paragraph (its opening words are copied, for Find)">HUDOC ↗</a>` : ""}
     <button type="button" data-action="para-cite" ${data} title="Copy an OSCOLA citation of this paragraph">Cite</button>
     <button type="button" data-action="para-copy" ${data} title="Copy the text of this paragraph">Copy</button>
     ${window.ECHRWorkspace ? `<button type="button" data-action="para-bookmark" ${data} aria-pressed="${!!saved}"
@@ -1586,6 +1596,7 @@ function wsFilterSnapshot() {
   return {
     countries: arr(f.countries), articles: arr(f.articles), keywords: arr(f.keywords), importance: arr(f.importance),
     outcomes: arr(f.outcomes), docTypes: arr(f.docTypes), buckets: arr(f.buckets), includeMt: f.includeMt || false,
+    lang: searchLang(),
     includeExtra: !!f.includeMeta, includeAppendix: !!f.includeAppendix,
     dateFrom: el.dateFrom.value || "", dateTo: el.dateTo.value || "",
   };
@@ -1603,7 +1614,52 @@ function wsFilterSummary(s) {
   const allBuckets = document.querySelectorAll('#bucketScope input[data-name="buckets"]').length;
   if (s.buckets.length && s.buckets.length < allBuckets) parts.push(`in ${s.buckets.map((b) => SECTION_BUCKETS[b]?.label || b).join(", ")}`);
   if (s.includeMt) parts.push(s.includeMt === "only" ? "machine translations only" : "+ machine translations");
+  if (s.lang === "fr") parts.push("French originals");
   return parts.join(" · ");
+}
+
+/* Search language. "fr" searches the French originals of the judgments HUDOC publishes only in French;
+ * it is offered only when the API holds them (stats.french_originals), and the English collection
+ * options do not apply to it. */
+function searchLang() {
+  return state.lang === "fr" ? "fr" : "en";
+}
+
+function setSearchLang(lang) {
+  state.lang = lang === "fr" ? "fr" : "en";
+  state.readLang.clear();
+  const fr = state.lang === "fr";
+  document.querySelectorAll('input[name="searchLang"]').forEach((i) => { i.checked = i.value === state.lang; });
+  const en = document.getElementById("collectionEn");
+  if (en) en.hidden = fr;
+  const note = document.getElementById("frNote");
+  if (note) note.hidden = !fr;
+  if (el.searchInput) {
+    if (!el.searchInput.dataset.placeholderEn) el.searchInput.dataset.placeholderEn = el.searchInput.placeholder;
+    el.searchInput.placeholder = fr ? 'ex. "marge d\u2019appréciation" article:10' : el.searchInput.dataset.placeholderEn;
+  }
+}
+
+/* The version of a judgment read in the case pane: the search language unless the reader switched it. */
+function readLang(caseId) {
+  return state.readLang.get(caseId) || searchLang();
+}
+
+/* Case pane: a two-position switch between the French original and its English machine translation
+ * when both exist; the translation, when shown, is marked as unofficial in one line. */
+function caseLangHtml(c) {
+  const both = (c.__isFrOriginal && c.__translationAvailable) || (c.__isMt && c.__originalAvailable);
+  if (!both && !c.__isMt) return "";
+  const readingMt = both ? readLang(c.case_id) === "en" : true;
+  const src = c.__sourceCaseId || c.source_case_id;
+  const mtLine = readingMt ? `<p class="cn-mt-line">Unofficial machine translation, not the Court&rsquo;s text: quote the
+    French original${src ? ` (<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(src)}" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>)` : ""}.</p>` : "";
+  if (!both) return mtLine;
+  const id = escapeHtml(c.case_id);
+  return `<div class="cn-lang" role="group" aria-label="Version of the text">
+      <button type="button" class="cn-lang-btn${readingMt ? "" : " is-on"}" data-action="read-lang" data-lang="fr" data-case-id="${id}" aria-pressed="${!readingMt}">Français · original</button>
+      <button type="button" class="cn-lang-btn is-mt${readingMt ? " is-on" : ""}" data-action="read-lang" data-lang="en" data-case-id="${id}" aria-pressed="${readingMt}">English · machine translation</button>
+    </div>${mtLine}`;
 }
 
 /* Collection: the official English texts, the machine translations, or both. The official box
@@ -1629,6 +1685,7 @@ function wsApplySnapshot(s) {
   for (const name of ["countries", "articles", "keywords", "importance", "outcomes", "docTypes"]) setGroup(name, s[name]);
   const buckets = s.buckets && s.buckets.length ? s.buckets : null;
   document.querySelectorAll('#bucketScope input[data-name="buckets"]').forEach((i) => { i.checked = buckets ? buckets.includes(i.value) : true; });
+  setSearchLang(s.lang === "fr" && !document.getElementById("langSwitch")?.hidden ? "fr" : "en");
   const mt = document.getElementById("includeMachineTranslations");
   if (mt) mt.checked = !!s.includeMt && !document.getElementById("mtPill")?.hidden;
   const official = document.getElementById("includeOfficial");
@@ -1683,10 +1740,11 @@ function hudocPassage(para) {
 function paragraphHudocUrl(caseObj, para) {
   const base = caseObj.hudoc_url || "";
   if (!base) return "";
-  const id = caseObj.case_id || (/[?&]i=([\w-]+)/.exec(base) || [])[1];
+  const fr = !!caseObj.__isFrOriginal;     // the French HUDOC item, opened in French
+  const id = fr ? caseObj.__sourceCaseId : (caseObj.case_id || (/[?&]i=([\w-]+)/.exec(base) || [])[1]);
   const phrase = id && !caseObj.__isMt ? hudocPassage(para) : "";
   if (!phrase) return base;
-  return "https://hudoc.echr.coe.int/eng#" + encodeURI(JSON.stringify({ itemid: [id], fulltext: [`"${phrase}"`] }));
+  return `https://hudoc.echr.coe.int/${fr ? "fre" : "eng"}#` + encodeURI(JSON.stringify({ itemid: [id], fulltext: [`"${phrase}"`] }));
 }
 
 function copyToClipboardWithFeedback(text, buttonEl) {
@@ -2432,7 +2490,7 @@ async function refreshRailCounts(query, filters) {
     ? new Date(filters.dateFrom).toISOString().slice(0, 10) : "";
   const dTo = (filters && filters.dateTo)
     ? new Date(filters.dateTo).toISOString().slice(0, 10) : "";
-  if (!q && !dFrom && !dTo) {
+  if (!q && !dFrom && !dTo && searchLang() === "en") {
     // Whole-corpus view — restore the cached global counts.
     if (state.globalFacetCounts) {
       state.facetCounts = state.globalFacetCounts;
@@ -4968,7 +5026,7 @@ function citedByTitle(c) {
     : `${base} in this dataset${once}`;
 }
 
-function buildResearcherBars(c, row) {
+function buildResearcherBars(c) {
   const cited = Number(c.__citedByCount || 0);
   // Prefer the P29 server-computed count (covers every case, incl.
   // recent committee judgments absent from the JSONL feed); fall back
@@ -4979,8 +5037,7 @@ function buildResearcherBars(c, row) {
       ? c.__citesCountServer
       : (c.__citationRefs || []).length || 0
   );
-  const hits = Number(row.hitCount || row.paragraphs?.length || 0);
-  const max = Math.max(cited, cites, hits, 1);
+  const max = Math.max(cited, cites, 1);
   // `dimZero`: the citation graph (P29) has partial coverage, so a 0 is
   // ambiguous — "truly uncited" vs "not in our data". For landmark cases
   // a bare "0" is misleading and corrodes trust, so render it as "—".
@@ -5001,7 +5058,7 @@ function buildResearcherBars(c, row) {
   const fr = Number(c.__citedByFrenchOnly || 0);
   const frNote = fr > 0 && cited > 0
     ? `<div class="researcher-bar-note" title="${escapeHtml(citedByTitle(c))}">${fmtInt.format(fr)} only in French</div>` : "";
-  return `${bar("hits", hits, true)}${bar("cites", cites, false, true)}${bar("cited by", cited, false, true, citedByTitle(c))}${frNote}`;
+  return `${bar("cites", cites, false, true)}${bar("cited by", cited, false, true, citedByTitle(c))}${frNote}`;
 }
 
 /* The (i) next to "Influence" on a result card: what the three bars mean. One pop-up at a time;
@@ -5016,11 +5073,10 @@ function toggleInfluenceHelp(btn) {
   pop.className = "influence-help";
   pop.setAttribute("role", "note");
   pop.innerHTML = `
-    <p><b>Hits</b> — paragraphs of this judgment that match your search.</p>
     <p><b>Cites</b> — other judgments this one refers to.</p>
     <p><b>Cited by</b> — later judgments that refer to this one, including those HUDOC has only in French.</p>
     <p>Cites and Cited by count judgments, not mentions: a judgment that refers to the case in ten paragraphs counts once.</p>
-    <p class="ih-note">The bars compare the three numbers of this judgment. A dash means no citation data.
+    <p class="ih-note">The bars compare the two numbers of this judgment. A dash means no citation data.
       <a href="methodology.html#influence">How citations are found</a></p>`;
   pop.addEventListener("click", (ev) => ev.stopPropagation()); // reading it does not select the card
   btn.closest(".researcher-influence").appendChild(pop);
@@ -5388,20 +5444,11 @@ function caseFindingsHtml(c) {
   const chips = (list, cls) => list.map((t) => `<span class="cn-art ${cls}" title="${escapeHtml(t)}">${escapeHtml(formatArticleToken(t))}</span>`).join("");
   const findings = (v.length || nv.length) ? `
     <div class="cn-findings">
-      ${v.length ? `<div><span class="cnm-label">Violation</span> ${chips(v, "is-violation")}</div>` : ""}
-      ${nv.length ? `<div><span class="cnm-label">No violation</span> ${chips(nv, "is-no-violation")}</div>` : ""}
+      ${v.length ? `<div><span class="cnm-label">Violation</span><span class="cn-chips">${chips(v, "is-violation")}</span></div>` : ""}
+      ${nv.length ? `<div><span class="cnm-label">No violation</span><span class="cn-chips">${chips(nv, "is-no-violation")}</span></div>` : ""}
     </div>`
-    : `<div class="cn-findings"><div><span class="cnm-label">Articles</span> ${buildResearcherArticleChips(c.__articles, 8)}</div></div>`;
-  const isMt = c.__isMt || c.text_origin === "machine_translation";
-  const sourceId = c.__sourceCaseId || c.source_case_id;
-  const mtNotice = isMt ? `
-    <div class="mt-case-notice" role="note">
-      <strong>Unofficial machine translation.</strong> HUDOC publishes this judgment only in French; the English
-      text here was produced by machine translation for this tool and checked automatically. It is not a
-      translation by the Court and may contain errors.
-      ${sourceId ? `<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(sourceId)}" target="_blank" rel="noopener noreferrer">Read the French original on HUDOC ↗</a>` : ""}
-    </div>` : "";
-  return mtNotice + findings;
+    : `<div class="cn-findings"><div><span class="cnm-label">Articles</span><span class="cn-chips">${buildResearcherArticleChips(c.__articles, 8)}</span></div></div>`;
+  return caseLangHtml(c) + findings;
 }
 
 function caseMetadataHtml(c) {
@@ -5611,12 +5658,14 @@ function buildCaseCard(caseId, row, rank = 1) {
           <span class="chip" title="${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "")}">${escapeHtml(formationLabel(c) || "-")}</span>
           ${outcomeChipHtml(c)}
           ${c.__isMt ? `<span class="chip mt-chip" title="HUDOC publishes this judgment only in French. This English text is a machine translation made for this tool, not a translation by the Court.">Only in French on HUDOC · machine translation, unofficial</span>` : ""}
+          ${c.__isFrOriginal && c.__translationAvailable ? `<span class="chip lang-chip" title="An unofficial English machine translation of this judgment is available: switch to it in the case details.">EN translation</span>` : ""}
         </div>
 
+        <div class="researcher-foot">
         <div class="case-actions-inline compact-actions">
           ${c.__isMt && c.__sourceCaseId
             ? `<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(c.__sourceCaseId)}" class="card-act" target="_blank" rel="noopener noreferrer" title="The authentic French text on HUDOC">French original ↗</a>`
-            : (c.hudoc_url ? `<a href="${escapeHtml(primaryPara ? paragraphHudocUrl(c, primaryPara) : c.hudoc_url)}" class="card-act" target="_blank" rel="noopener noreferrer" title="${primaryPara ? "Open on HUDOC at this paragraph" : "Open this judgment on HUDOC"}">HUDOC ↗</a>` : "")}
+            : (c.hudoc_url ? `<a href="${escapeHtml(primaryPara ? paragraphHudocUrl(c, primaryPara) : c.hudoc_url)}" class="card-act" target="_blank" rel="noopener noreferrer" title="${primaryPara ? "Open on HUDOC at this paragraph (its opening words are copied, for Find)" : "Open this judgment on HUDOC"}">HUDOC ↗</a>` : "")}
           <button type="button" class="card-act" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}"
             data-para-idx="${escapeHtml(String(primaryPara && primaryPara.paraIdx != null ? primaryPara.paraIdx : ""))}"
             title="Copy an OSCOLA citation${primaryPara ? " with the paragraph shown" : ""}">Cite</button>
@@ -5633,13 +5682,12 @@ function buildCaseCard(caseId, row, rank = 1) {
             <span class="toggle-icon" id="icon-${escapeHtml(caseId)}">▶</span>
           </button>
         </div>
+        <aside class="researcher-influence">
+          <div class="folio-label">Influence <button type="button" class="info-dot" data-action="influence-help" aria-label="What Influence shows" title="What Influence shows">i</button></div>
+          ${buildResearcherBars(c)}
+        </aside>
+        </div>
       </div>
-
-      <aside class="researcher-influence">
-        <div class="folio-label">Influence <button type="button" class="info-dot" data-action="influence-help" aria-label="What Influence shows" title="What Influence shows">i</button></div>
-        ${buildResearcherBars(c, row)}
-        <div class="researcher-ecli">${escapeHtml(c.ecli || splitAppNos(c.case_no).join(", ") || "")}</div>
-      </aside>
 
       <div class="case-body" id="body-${escapeHtml(caseId)}">
         ${paraBlocks || `<div class="paragraph-item"><p class="para-text">${caseOnlyBrowse ? "Run a full-text query to load matched paragraphs for this case." : "No paragraphs for current filters."}</p></div>`}
@@ -6008,6 +6056,7 @@ async function fetchAndRenderServerAnalytics(query, filters) {
     if (serverOutcomes.length) p.set("outcomes", serverOutcomes.join(","));
     if (filters.docTypes.size) p.set("doc_types", [...filters.docTypes].join(","));
     if (filters.includeMt) p.set("include_mt", filters.includeMt === "only" ? "only" : "true");
+    if (searchLang() === "fr") { p.delete("include_mt"); p.set("lang", "fr"); }
     if (filters.dateFrom) p.set("date_from", filters.dateFrom);
     if (filters.dateTo) p.set("date_to", filters.dateTo);
 
@@ -6090,9 +6139,10 @@ function applySearch(resetPage = true) {
   // Keep the address bar shareable: the current query lives in ?q= (same
   // contract as semantic.html). Empty query → clean path.
   try {
-    history.replaceState(null, "", query
-      ? `${location.pathname}?q=${encodeURIComponent(query)}`
-      : location.pathname);
+    const url = new URLSearchParams();
+    if (query) url.set("q", query);
+    if (searchLang() === "fr") url.set("lang", "fr");
+    history.replaceState(null, "", url.toString() ? `${location.pathname}?${url}` : location.pathname);
   } catch (_) { /* sandboxed iframes may block history */ }
 
   if (serverSearch.available) {
@@ -6166,7 +6216,7 @@ async function renderNameMatches(query) {
   if (!el.nameMatches) return;
   const q = String(query || "").trim();
   // After "Show this case" (case:<no>) the case itself is the result.
-  if (!q || /^case:/i.test(q)) { clearNameMatches(); return; }
+  if (!q || /^case:/i.test(q) || searchLang() === "fr") { clearNameMatches(); return; }
   if (q === state.nameMatchQuery) return;           // pagination, sort and group changes keep the panel
   state.nameMatchQuery = q;
   const seq = (state.nameMatchSeq = (state.nameMatchSeq || 0) + 1);
@@ -6439,8 +6489,12 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
 function renderCorpusNote() {
   const c = state.corpusStats, node = el.resultsCorpus;
   if (!node) return;
-  if (!c || !state.defaultView || !c.total_machine_translations) { node.hidden = true; return; }
   const n = (v) => fmtInt.format(v);
+  if (c && state.defaultView && searchLang() === "fr" && c.french_originals) {
+    node.textContent = `${n(c.french_originals)} judgments that HUDOC publishes only in French, in their authentic French text.`;
+    node.hidden = false; return;
+  }
+  if (!c || !state.defaultView || !c.total_machine_translations) { node.hidden = true; return; }
   const parts = [`${n(c.total_judgments)} judgments in English`];
   if (c.total_decisions) parts.push(`${n(c.total_decisions)} Grand Chamber decisions`);
   parts.push(`${n(c.total_machine_translations)} unofficial translations of French-only judgments`);
@@ -6467,7 +6521,9 @@ function updateResultsHeaderServer(data, opts = {}) {
   el.resultsHits.textContent = fmtInt.format(defaultView ? totalCases : (data.total_hits || 0));
   if (el.resultsHitsLabel) el.resultsHitsLabel.textContent = defaultView ? "recent cases" : "passages";
   // Default view: the whole corpus (judgments, Grand Chamber decisions and machine translations), from /api/stats.
-  el.resultsCases.textContent = fmtInt.format(defaultView ? (state.corpusTotal || data.total_cases || totalCases) : totalCases);
+  // The default view counts the collection being browsed: the French originals under Français.
+  const corpusTotal = searchLang() === "fr" ? (state.corpusStats?.french_originals || 0) : state.corpusTotal;
+  el.resultsCases.textContent = fmtInt.format(defaultView ? (corpusTotal || data.total_cases || totalCases) : totalCases);
   if (el.resultsCasesLabel) el.resultsCasesLabel.textContent = defaultView ? "records in the corpus" : "judgments";
   el.resultsTime.textContent = `(${((data.search_time_ms || state.searchTimeMs) / 1000).toFixed(3)}s · page ${state.currentPage}/${totalPages} · ${serverTag})`;
   if (el.queryMatchCount) el.queryMatchCount.textContent = fmtInt.format(defaultView ? totalCases : (data.total_hits || 0));
@@ -6627,19 +6683,31 @@ async function exportResults() {
     }
   }
 
-  const suffix = state.query ? state.query.slice(0, 24).replace(/\s+/g, "_") : "all_cases";
+  // Letters, digits, - and _ only: quotes, colons and slashes are not allowed in Windows file names.
+  const suffix = state.query
+    ? state.query.slice(0, 24).replace(/\s+/g, "_").replace(/[^\p{L}\p{N}_-]/gu, "") || "search"
+    : "all_cases";
   const baseName = `echr_search_${suffix}`;
+  const about = window.HR_EXPORT ? window.HR_EXPORT.aboutRows(searchExportInfo(allCaseIds.length, rows.length - 1)) : null;
   try {
     const XLSX = await loadSheetJS();
     const ws = XLSX.utils.aoa_to_sheet(rows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "ECHR results");
+    if (about) {
+      // Second sheet: what was exported, when and from where, how to cite it and on what terms.
+      const aboutWs = XLSX.utils.aoa_to_sheet(about);
+      aboutWs["!cols"] = [{ wch: 28 }, { wch: 130 }];
+      XLSX.utils.book_append_sheet(wb, aboutWs, "About this export");
+    }
+    wb.Props = { Title: "HUDOC Researcher \u2014 search results", Subject: state.query || "Browse",
+      Author: "HUDOC Researcher (Szoszkiewicz & Marcisz)", CreatedDate: new Date() };
     XLSX.writeFile(wb, `${baseName}.xlsx`);
   } catch (err) {
     // SheetJS unavailable (offline / CDN blocked) \u2014 fall back to CSV so
     // the export never silently fails.
     console.warn("[Export] xlsx writer unavailable, exporting CSV:", err);
-    const csv = rows
+    const csv = rows.concat(about ? [[], ...about] : [])
       .map((row) =>
         row
           .map((cell) => `"${String(cell ?? "").replaceAll('"', '""')}"`)
@@ -6657,6 +6725,38 @@ async function exportResults() {
       "full set in one request. Add a search term or narrow the filters and export again."
     );
   }
+}
+
+/** What a search export holds, for its "About this export" sheet (cite.js, HR_EXPORT.aboutRows). */
+function searchExportInfo(nCases, nRows) {
+  const snap = wsFilterSnapshot();
+  const fr = searchLang() === "fr";
+  const st = state.corpusStats || {};
+  const collection = fr ? "French originals of the judgments HUDOC publishes only in French (authentic texts)"
+    : snap.includeMt === "only" ? "Unofficial English machine translations of judgments HUDOC publishes only in French"
+    : snap.includeMt ? "Official English texts, and unofficial English machine translations of judgments HUDOC publishes only in French"
+    : "Official English texts of the judgments";
+  const notes = [];
+  if (fr) notes.push(["French originals", "Titles and texts are the Court's French ones. In English writing the Court cites " +
+    "these judgments by the English form of the name (Flamenbaum and Others v. France)."]);
+  if (!fr && snap.includeMt) notes.push(["Machine translations", "The English text of a judgment HUDOC publishes only in French " +
+    "was made by machine for this tool and is not the Court's: quote the French original (HUDOC URL)."]);
+  return {
+    what: `Search results: ${fmtInt.format(nCases)} judgment(s), ${fmtInt.format(nRows)} paragraph(s), one row per paragraph`,
+    details: [
+      ["Search", state.query || "(none: the corpus, newest first)"],
+      ["Filters", wsFilterSummary({ ...snap, includeMt: false, lang: "en" }) || "none"],
+      ["Collection", collection],
+      ...(state.serverTotalCases > nCases ? [["Coverage", `${fmtInt.format(nCases)} of the ${fmtInt.format(state.serverTotalCases)} matching judgments`]] : []),
+      ["Columns", "One row per matched paragraph. \u201cParagraph (display)\u201d is the Court's paragraph number (\u00a7); " +
+        "an asterisk marks a row number where the paragraph has none. \u201cHUDOC URL\u201d opens the judgment on HUDOC."],
+    ],
+    url: location.href,
+    data: fr ? `HUDOC Researcher French originals: ${fmtInt.format(st.french_originals || 0)} judgments HUDOC publishes only in French`
+      : st.date_to ? `HUDOC Researcher corpus of ${fmtInt.format(st.total_judgments || st.total_cases || 0)} judgments, ` +
+        `up to ${oscolaDate(st.date_to)}` : "",
+    notes,
+  };
 }
 
 // Excel (.xlsx) export uses SheetJS, lazy-loaded from its CDN on first
@@ -6818,8 +6918,10 @@ const DOSSIER_DEFAULT_W = 440;
 const DOSSIER_LS_KEY = "echr.dossierWidth";
 
 async function loadDossierCase(caseId) {
-  if (dossierCaseCache.has(caseId)) return dossierCaseCache.get(caseId);
-  const data = await serverSearch.getCase(caseId);
+  const lang = readLang(caseId);
+  const cacheKey = `${lang}:${caseId}`;   // a French original and its translation share the id
+  if (dossierCaseCache.has(cacheKey)) return dossierCaseCache.get(cacheKey);
+  const data = await serverSearch.getCase(caseId, lang);
   const paras = (data.paragraphs || []).map((p) => {
     const sec = normalizeSectionKey(p.section);
     return {
@@ -6834,7 +6936,7 @@ async function loadDossierCase(caseId) {
       rowRole: p.row_role || null,
     };
   });
-  dossierCaseCache.set(caseId, paras);
+  dossierCaseCache.set(cacheKey, paras);
   return paras;
 }
 
@@ -7211,7 +7313,11 @@ function bindEvents() {
   // v1 bucket scope bar — bucket pills + headings/meta toggles sit
   // above the filters panel, outside its change listener.  Wire them
   // up to re-run the search on any change.
-  document.getElementById("bucketScope")?.addEventListener("change", () => {
+  document.getElementById("bucketScope")?.addEventListener("change", (e) => {
+    if (e.target && e.target.name === "searchLang") {
+      setSearchLang(e.target.value);
+      refreshRailCounts(el.searchInput.value, getCurrentFilters());
+    }
     syncCollectionBoxes();
     const mtNotice = document.getElementById("mtNotice");
     if (mtNotice) mtNotice.hidden = !document.getElementById("includeMachineTranslations")?.checked;
@@ -7579,6 +7685,13 @@ function bindEvents() {
       document.body.classList.remove("casenote-open");
       return;
     }
+    if (action === "read-lang" && caseId) {
+      // Same judgment, other version (French original / English machine translation), in place.
+      e.preventDefault();
+      state.readLang.set(caseId, clickable.dataset.lang === "en" ? "en" : "fr");
+      renderCaseContextRail(caseId);
+      return;
+    }
     if (action === "search-appno") {
       e.preventDefault();
       el.searchInput.value = `case:${clickable.getAttribute("data-appno")}`;
@@ -7786,12 +7899,18 @@ function init() {
         const mtN = statsData.total_machine_translations || 0;
         const mtPill = document.getElementById("mtPill");
         if (mtPill) mtPill.hidden = !mtN;
+        const frN = statsData.french_originals || 0;
+        const langSwitch = document.getElementById("langSwitch");
+        if (langSwitch) langSwitch.hidden = !frN;
+        const frNote = document.getElementById("frCountNote");
+        if (frNote) frNote.textContent = fmt.format(frN);
+        if (frN && new URLSearchParams(location.search).get("lang") === "fr") setSearchLang("fr");
         for (const id of ["mtCount", "mtCountRail"]) {
           const node = document.getElementById(id);
           if (node) node.textContent = fmt.format(mtN);
         }
-        state.corpusTotal = statsData.total_cases || 0;
         state.corpusStats = statsData;
+        state.corpusTotal = statsData.total_cases || 0;
         if (state.defaultView && state.corpusTotal && !el.resultsHeader.hidden) el.resultsCases.textContent = fmt.format(state.corpusTotal);
         renderCorpusNote();
         const officialCount = document.getElementById("officialCount");

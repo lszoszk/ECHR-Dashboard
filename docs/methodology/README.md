@@ -9,6 +9,7 @@ Figures of the live corpus on 11 October 2026:
 - **20,123 judgments** of the European Court of Human Rights in English and **31 Grand Chamber admissibility decisions** (14 November 1960 – **8 October 2026**), against **47 respondent States**
 - **3.32 million segmented text rows** — body paragraphs, headings, quoted passages and operative formulae — of which **1.26 million carry the Court's own paragraph numbering** (`¶ 1`, `¶ 2`…); **1.23 million** of these are paragraphs of the judgment itself, outside the operative part and the separate opinions
 - **2,460 judgments that HUDOC publishes only in French**, as unofficial English machine translations (390,000 rows, 174,000 numbered paragraphs), left out of every search unless switched on (see [Machine translations](#machine-translation))
+- **9,283 judgments that HUDOC publishes only in French**, in their authentic French text (1 April 1999 – 8 October 2026; 1.1 million rows, 460,490 numbered paragraphs), searched when *Français* is chosen in Search (see [French originals](#french-originals))
 - **245,467 citation links** between the judgments of the corpus, and **58,867** more from 8,356 French-only judgments to judgments of the corpus, which count in *Cited by* (see [Citation graph](#influence) below)
 
 > **Cut-off.** The corpus ends at the newest judgment listed above, not at
@@ -22,12 +23,12 @@ Figures of the live corpus on 11 October 2026:
 - **Source:** the official HUDOC portal (cases harvested by the Court itself)
 - **Coverage:** all 47 Council of Europe contracting parties plus their successor states
 
-### Scope: judgments, in English
+### Scope: judgments, in English and in French
 
 Two deliberate boundaries a HUDOC user should know about:
 
 - **Judgments, plus a few Grand Chamber decisions.** The corpus covers the Court's judgments (including ~6,500 Committee judgments, which HUDOC's default search omits) and 31 Grand Chamber admissibility decisions such as *Banković*, which appear when the *Decisions* filter is ticked. HUDOC's other collections — the other admissibility decisions, Communicated Cases, Legal Summaries, Advisory Opinions, Commission decisions — are not included; consult HUDOC for those.
-- **English texts only.** About 9,300 judgments were delivered only in French — a substantial share of Chamber and Committee output — and are not in the official English corpus; unofficial English machine translations of the 2,460 most-cited of them can be switched on in Search (see [Machine translations of French-only judgments](#machine-translation)). On the Semantic Search page, "describe your case in any language" refers to the *query* (the embedding model is multilingual); the retrieved paragraphs are always the English texts.
+- **English texts, and the French-only judgments in French.** About 9,300 judgments were delivered only in French — a substantial share of Chamber and Committee output. They are not in the English corpus; their authentic French texts can be searched by choosing *Français* (see [French originals](#french-originals)), and unofficial English machine translations of the 2,460 most-cited of them can be switched on in the English search (see [Machine translations of French-only judgments](#machine-translation)). On the Semantic Search page, "describe your case in any language" refers to the *query* (the embedding model is multilingual); the retrieved paragraphs are always the English texts.
 
 The Statistics page is a static snapshot (its build date is printed under its title) and can lag the live counts shown in the Search header.
 
@@ -221,14 +222,56 @@ On a judgment the Court published in both languages and that was kept out of the
 - The translations are not in Semantic Search. In the citation graph a translated judgment can be cited (a reference to it in an English judgment, by application number or by name and date, resolves to it, as to any judgment), but its own *Cites* come from HUDOC's metadata, never from the translated text, so that a translation slip cannot create a link. A French-only judgment that cites a case counts in that case's *Cited by* whether or not it has been translated; the cards show how many of the citing judgments exist only in French, and the Statistics page counts the same way.
 - Corrections are welcome: <l.szoszkiewicz@amu.edu.pl>.
 
+<a id="french-originals"></a>
+
+## French originals of French-only judgments
+
+HUDOC publishes about 9,300 judgments only in French. Their authentic texts form a second, separate
+collection: choosing *Français* above the filters searches it instead of the English corpus. Queries
+are written in French; accents are optional (*requerant* finds *requérant*), there is no stemming, so a
+word ending is matched with `*` (*discrimin\**), and the other operators work as in English. The
+filters (Article, State, years, formation, importance, outcome) use the same values as the English
+corpus, taken from HUDOC's records of these judgments.
+
+- **Which judgments:** the 9,283 judgments for which HUDOC holds a record in English but a text only in French
+  (1999–2026), downloaded as Word files from HUDOC's French items and split into
+  the Court's numbered paragraphs by the same parser as the English texts.
+- **Checks:** in 3,040 rows (0.3%) the text opens with a paragraph number the row does not carry, and
+  in 418 places the numbering of a judgment goes backwards, about the same rates as in the English
+  texts. These have not been corrected one by one: check the paragraph on HUDOC before citing it.
+- **Citations (83,084 links):** *Cites* and *Cited by* of a French original are built from three sources,
+  with the rules of the citation graph (a `(dec.)` or `(déc.)` reference is a decision, not the judgment;
+  no judgment cites a later one; where several judgments share an application number, the date and
+  the principal judgment decide):
+  - what it cites: the judgments of the corpus in HUDOC's records of it, and the French-only judgments
+    whose application numbers appear in its text;
+  - who cites it: English judgments whose text names its application number, or whose numbers extracted
+    by HUDOC include it (mostly references in footnotes), and French-only judgments that name it;
+  - a judgment that has been machine-translated keeps the links of its translation, so the counts are
+    the same in both languages.
+
+  4,577 French originals are cited by at least one judgment; the most cited is *Gencel c. Turquie* (196
+  citing judgments).
+- **Translations:** where an English machine translation exists, the result carries an *EN translation*
+  chip and the case details a switch, *Français · original | English · machine translation*, that
+  shows the other text at the same paragraphs. The translation is marked as unofficial while it is
+  shown. Cite produces the English form of the name (*Flamenbaum and Others v France*), as the Court
+  does when it cites a French-only judgment in English; quote the French text.
+- **Not yet in Semantic Search,** which covers the English texts only.
+
 ## How the tools use the data
 
-- **Search** is a full-text index (SQLite FTS5) over the rows described above, searched paragraph by paragraph; headings, signature blocks and procedural formulae without a § number are left out by default. A case name or application number typed as the query also finds the judgment itself, from the case titles and application numbers rather than the text, because the text index has no title for part of the corpus.
+- **Search** is a full-text index (SQLite FTS5) over the rows described above, searched paragraph by paragraph (the French originals have an index of their own: accents ignored, no stemming); headings, signature blocks and procedural formulae without a § number are left out by default. A case name or application number typed as the query also finds the judgment itself, from the case titles and application numbers rather than the text, because the text index has no title for part of the corpus.
 - **Semantic Search** (experimental) runs on its own index: 1,328,635 paragraphs of 20,150 English judgments and Grand Chamber decisions, as of 8 October 2026, embedded with Voyage voyage-4-large; the 100 closest are re-read against the query by Voyage rerank-3, and leading cases are nudged up. It is measured against the Court's 41 Case-Law Guides (the cited case is in the top 10 for about 89 % of items, the cited paragraph for about 75 %); the details are in the note on the Semantic Search page. Judgments added after its snapshot and the machine translations are not in it.
 - **Check** finds the citations in a pasted text in the browser and sends only what identifies each cited judgment (application numbers, the name, a date, the `[GC]` and `(dec.)` markers); the text itself never reaches the server. Each citation is resolved with the rules of the citation graph — the application number, then the date, then `[GC]`, then the principal judgment of the case — and, failing that, against HUDOC's French-only judgments. A pinpointed § is checked to exist, and a quotation is compared word by word with the judgment.
 - **AI assistant (MCP).** A hosted connector gives Claude or another assistant that takes MCP connectors seven tools over the same data (`echr_search`, `echr_get_case`, `echr_get_paragraphs`, `echr_cites`, `echr_cited_by`, `echr_facets`, `echr_stats`), so that it quotes paragraphs verbatim with their § numbers instead of from memory. Setup: [About](about.html#mcp).
 - **Workspace** keeps saved paragraphs, notes and searches in your browser only; nothing is sent to the server.
 - **Statistics** is a static snapshot of the corpus, rebuilt after an update; its build date is printed under its title.
+- **Downloads** say what they are and where they come from. The Excel export of a search has a second
+  sheet, *About this export*: the query, filters and collection, the number of judgments and
+  paragraphs, the time and address of the export, the corpus snapshot, how to cite the tool and the
+  judgments, the source and licences, and a disclaimer. CSV files end with the same rows, after an
+  empty row; a chart exported as PNG carries its title and the source as it is cited.
 
 ## Analytics & privacy
 

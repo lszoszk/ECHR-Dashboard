@@ -62,6 +62,9 @@ run_steps() {
   timed "case page: Kudla v. Poland"              /api/cases/001-58920
   timed "case: cited by"                          /api/cases/001-58920/cited_by
   timed "case: cites"                             /api/cases/001-58920/cites
+  timed "français: filters"                       /api/facets    --data-urlencode "lang=fr"
+  timed "français: \"délai raisonnable\""          /api/search    --data-urlencode 'q="délai raisonnable"' --data-urlencode "lang=fr" --data-urlencode "page_size=20"
+  timed "français: case page (Flamenbaum)"        /api/cases/001-115466 --data-urlencode "lang=fr"
 }
 
 echo "Pre-warming ${API} (pass 1 of 2; /api/stats can take minutes right after a restart) ..."

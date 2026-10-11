@@ -86,6 +86,7 @@
     const s = stats || {};
     const from = /(\d{4})$/.exec(s.date_from || "")?.[1] || "1960";
     const to = /(\d{4})$/.exec(s.date_to || "")?.[1] || "2026";
+    const frN = s.french_originals ?? 9283;     // French originals (0 where the server does not hold them)
     let spark = "";
     if (years && years.length) {
       const counts = years.filter((y) => Number(y.year) > 1900);
@@ -97,12 +98,13 @@
     return [
       `<div class="tour-kicker">First time here · a one-minute tour</div>
        <h2 class="tour-h">The Court's judgments, paragraph by paragraph.</h2>
-       <div class="tour-lead">Every judgment of the European Court of Human Rights in English, split into the Court's own
-         numbered paragraphs — so a search lands on the paragraph you will cite, with a link to HUDOC, the authoritative source.
-         The figures include unofficial English translations of ${fmt(s.total_machine_translations || 2460)} judgments that HUDOC has only in French;
-         Search leaves them out until you switch them on.</div>
+       <div class="tour-lead">Every judgment of the European Court of Human Rights in English${frN ? `, and the ${fmt(frN)} that HUDOC
+         publishes only in French, in their French text` : ""}, split into the Court's own numbered paragraphs — so a search lands on
+         the paragraph you will cite, with a link to HUDOC, the authoritative source. Unofficial English translations of
+         ${fmt(s.total_machine_translations || 2460)} French-only judgments can be switched on in the English search.</div>
        <div class="tour-stats">
-         <div><b>${fmt(s.total_cases || 22614)}</b><span>judgments and decisions</span></div>
+         <div><b>${fmt(s.total_judgments || 20123)}</b><span>judgments in English</span></div>
+         ${frN ? `<div><b>${fmt(frN)}</b><span>only in French, in French</span></div>` : ""}
          <div><b>${fmt(s.citable_paragraphs || 1404444)}</b><span>numbered paragraphs</span></div>
          <div><b>${fmt(s.total_countries || 47)}</b><span>respondent States</span></div>
          <div><b>${from}–${to}</b><span>years covered</span></div>
@@ -110,7 +112,7 @@
       `<div class="tour-kicker">The views</div>
        <h2 class="tour-h">Six ways in.</h2>
        <ul class="tour-list tour-views">
-         <li><span class="n">01</span><div><b>Search</b> <span class="s">— full text, paragraph by paragraph</span> <span class="d">— full text at paragraph level, with HUDOC's operators, the parts of
+         <li><span class="n">01</span><div><b>Search</b> <span class="s">— full text, paragraph by paragraph</span> <span class="d">— full text at paragraph level${frN ? ", in English or in French" : ""}, with HUDOC's operators, the parts of
            the judgment to search in, filters, and each judgment's Cites / Cited by; a case name or application number finds the case itself.</span></div></li>
          <li><span class="n">02</span><div><b>Semantic Search</b> <span class="x">experimental</span> <span class="s">— describe a case in plain words</span> <span class="d">— describe a case in plain language;
            it runs on its own index of English judgments.</span></div></li>
@@ -128,17 +130,22 @@
        <div class="tour-lead">Type words or a <code>"phrase"</code>, combine them with <code>OR</code> and <code>NOT</code>, and end a word
          with <code>*</code> for every word that begins so (<code>environment*</code>); HUDOC's own operators work too
          (<code>article:8</code>, <code>cites:hatton</code>, <code>NEAR</code>). Every result opens at the paragraph, with its
-         number and the judgment's other matches; Cite copies an OSCOLA citation and ☆ Bookmark saves it to your Workspace. Try one:</div>
+         number and the judgment's other matches; Cite copies an OSCOLA citation and ☆ Bookmark saves it to your Workspace.${frN ? `
+         <b>Français</b>, above the filters, searches the ${fmt(frN)} judgments HUDOC publishes only in French, in their French
+         text (accents optional).` : ""} Try one:</div>
        <div class="tour-chips">${EXAMPLES.map((q) => `<button type="button" data-tour-q="${q.replace(/"/g, "&quot;")}">${q.replace(/</g, "&lt;")}</button>`).join("")}</div>`,
       `<div class="tour-kicker">Built for research</div>
        <h2 class="tour-h">Honest about what it holds.</h2>
        <ul class="tour-list">
-         <li><span class="n">·</span><div><span><b>Judgments, in English.</b> Admissibility decisions are not included, except a few dozen Grand Chamber decisions.
-           Judgments that HUDOC publishes only in French are left out, except unofficial machine translations of those other judgments cite, which you can switch on.</span></div></li>
+         <li><span class="n">·</span><div><span><b>Judgments, in English${frN ? " and in French" : ""}.</b> ${frN ? `The ${fmt(frN)} judgments HUDOC publishes only in French
+           are searched in their authentic French text; unofficial English translations of the most-cited of them can be switched on in the English search.`
+           : "Judgments that HUDOC publishes only in French are left out, except unofficial machine translations of those other judgments cite, which you can switch on."}
+           Admissibility decisions are not included, except a few dozen Grand Chamber decisions.</span></div></li>
          <li><span class="n">·</span><div><span><b>The Court's own paragraph numbers</b>, as in HUDOC's text of each judgment, so a result can be cited as it stands.</span></div></li>
          <li><span class="n">·</span><div><span><b>Cites / Cited by</b> count judgments, found in the judgments' text and in HUDOC's metadata; every matching
            rule is documented in Methodology.</span></div></li>
-         <li><span class="n">·</span><div><span><b>HUDOC remains the authoritative source</b>: open the judgment there before you rely on a paragraph.</span></div></li>
+         <li><span class="n">·</span><div><span><b>HUDOC remains the authoritative source</b>: open the judgment there before you rely on a paragraph.
+           Every download (Excel, CSV, PNG) says where it came from and how to cite it.</span></div></li>
        </ul>`,
       `<div class="tour-kicker">Start anywhere</div>
        <h2 class="tour-h">Where to first?</h2>

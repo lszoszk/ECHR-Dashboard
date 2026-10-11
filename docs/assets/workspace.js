@@ -104,12 +104,22 @@
     toast,
 
     exportJSON() {
-      return JSON.stringify({ app: "HUDOC Researcher workspace", version: 1, exported: new Date().toISOString(), ...read() }, null, 2);
+      const cite = window.HR_CITATION;
+      return JSON.stringify({ app: "HUDOC Researcher workspace", version: 1, exported: new Date().toISOString(),
+        source: "https://lszoszk.github.io/ECHR-Dashboard/",
+        ...(cite ? { cite_as: cite.apa } : {}),
+        terms: "Judgments: \u00a9 Council of Europe / ECtHR, under the Court's terms for HUDOC content. Curated data: CC BY-NC-SA 4.0. Not legal advice; check every passage on HUDOC.",
+        ...read() }, null, 2);
     },
     exportMarkdown() {
       const d = read();
+      const cite = window.HR_CITATION;
       const lines = [`# HUDOC Researcher — workspace (${new Date().toISOString().slice(0, 10)})`, "",
-        "Paragraphs and searches saved in the browser. HUDOC (https://hudoc.echr.coe.int) is the authoritative source.", ""];
+        "Paragraphs and searches saved in the browser, exported from HUDOC Researcher (https://lszoszk.github.io/ECHR-Dashboard/). " +
+        "HUDOC (https://hudoc.echr.coe.int) is the authoritative source.", "",
+        ...(cite ? [`**Cite this tool as:** ${md(cite.apa)}`, ""] : []),
+        "_Judgments © Council of Europe / European Court of Human Rights, under the Court's terms for HUDOC content; " +
+        "curated data CC BY-NC-SA 4.0. Not legal advice: check every passage on HUDOC._", ""];
       lines.push(`## Saved paragraphs (${d.paragraphs.length})`, "");
       for (const p of d.paragraphs) {
         lines.push(`### ${md(p.title)}${p.paraNo != null ? `, § ${p.paraNo}` : ""}`, "");

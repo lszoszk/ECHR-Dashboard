@@ -1613,7 +1613,7 @@ mark.hl {
 
 .researcher-result {
   display: grid;
-  grid-template-columns: 64px minmax(0, 1fr) 142px;
+  grid-template-columns: 64px minmax(0, 1fr);
   gap: 24px;
   padding: 22px 0;
   border-bottom: 1px solid var(--rule-soft);
@@ -1739,11 +1739,33 @@ mark.hl {
 }
 
 .researcher-result .case-body {
-  grid-column: 2 / 4;
+  grid-column: 2 / -1;
 }
 
-.researcher-influence {
-  padding-top: 4px;
+/* Result card: the text takes the width of the results panel. Influence (Cites / Cited by) sits on the
+   button row while the panel is narrow (case details open, laptop, phone); when the panel is wide, the
+   text keeps a readable measure (~78 characters) and Influence stands beside it. The switch follows the
+   width of the results list itself (container query), so opening the case details changes it. */
+#casesList { container: results / inline-size; }
+.researcher-foot {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 8px 18px; margin-top: 12px;
+}
+.researcher-result .researcher-foot .case-actions-inline { margin-top: 0; }
+.researcher-influence { display: flex; align-items: center; gap: 14px; }
+.researcher-influence .folio-label { margin: 0; white-space: nowrap; }
+.researcher-influence .researcher-bar { width: 88px; margin-top: 0; }
+.researcher-influence .researcher-bar-note { display: none; }   /* in the Cited by tooltip */
+@container results (min-width: 940px) {
+  .researcher-result-body {
+    display: grid; grid-template-columns: minmax(0, 40rem) 150px; column-gap: 34px; align-items: start;
+  }
+  .researcher-result-body > * { grid-column: 1; }
+  .researcher-foot { display: contents; }
+  .researcher-result .researcher-foot .case-actions-inline { margin-top: 12px; }
+  .researcher-influence { display: block; grid-column: 2; grid-row: 1 / span 4; padding-top: 4px; }
+  .researcher-influence .researcher-bar { width: auto; margin-top: 7px; }
+  .researcher-influence .researcher-bar-note { display: block; }
 }
 
 .researcher-bar {
@@ -1789,15 +1811,6 @@ mark.hl {
 }
 .researcher-bar-na .researcher-bar-fill {
   opacity: 0.25;
-}
-
-.researcher-ecli {
-  margin-top: 12px;
-  color: var(--ink-4);
-  font-family: var(--font-mono);
-  font-size: 0.58rem;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
 }
 
 .researcher-result .hit-count {
@@ -1988,10 +2001,6 @@ mark.hl {
   .researcher-result {
     grid-template-columns: 46px minmax(0, 1fr);
     gap: 14px;
-  }
-
-  .researcher-influence {
-    display: none;
   }
 
   .researcher-result .case-body {
@@ -2211,8 +2220,12 @@ mark.hl {
 
 /* ── Case details: HUDOC metadata ─────────────────────────────── */
 .cn-meta { margin-top: 10px; }
-.cn-findings { display: grid; gap: 5px; margin-bottom: 8px; }
-.cn-findings .cnm-label { display: inline-block; min-width: 92px; }
+.cn-findings { display: grid; gap: 6px; margin-bottom: 8px; }
+/* Label in its own column, chips wrapping beside it (not under the label) */
+.cn-findings > div { display: grid; grid-template-columns: 104px minmax(0, 1fr); align-items: baseline; column-gap: 8px; }
+.cn-findings .cnm-label { padding-top: 3px; }
+.cn-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.cn-chips .cn-art { margin: 0; }
 .cn-art {
   display: inline-block; margin: 0 4px 3px 0; padding: 1px 6px;
   font-size: 0.78rem; border: 1px solid var(--rule); border-radius: 2px; color: var(--ink-2);
@@ -2275,13 +2288,12 @@ mark.hl {
   font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase;
   color: var(--mt-flag-fg, #7a4b00); border: 1px solid var(--mt-flag-fg, #b26b00);
 }
-.mt-notice, .mt-case-notice {
+.mt-notice {
   margin: 0.6rem 0 0; padding: 0.55rem 0.8rem; border-left: 3px solid var(--mt-flag-fg, #b26b00);
   background: var(--mt-flag-bg, #fbf3e2); color: inherit; font-size: 0.9rem; line-height: 1.45;
 }
 .results-main > .mt-notice { margin: 0 0 16px; }
-.mt-case-notice { margin: 0 0 0.8rem; }
-.mt-case-notice a, .mt-notice a { margin-left: 0.25rem; }
+.mt-notice a { margin-left: 0.25rem; }
 .chip.mt-chip { background: var(--mt-flag-bg, #fbf3e2); color: var(--mt-flag-fg, #7a4b00); border-color: var(--mt-flag-fg, #b26b00); }
 
 /* Scope chips above the results: removable */
@@ -2290,8 +2302,36 @@ mark.hl {
 .filter-chip.mt-scope-chip { color: var(--mt-flag-fg, #7a4b00); background: var(--mt-flag-bg, #fbf3e2); border: 1px dashed var(--mt-flag-fg, #b26b00); }
 
 [data-theme="dark"] .mt-scope, [data-theme="dark"] .mt-unofficial, [data-theme="dark"] .mt-notice,
-[data-theme="dark"] .mt-case-notice, [data-theme="dark"] .chip.mt-chip,
+[data-theme="dark"] .chip.mt-chip,
 [data-theme="dark"] .filter-chip.mt-scope-chip { --mt-flag-bg: #3a2c12; --mt-flag-fg: #e6b34f; }
+
+/* ── Search language: English corpus or the French originals ─────────────── */
+.lang-switch { display: inline-flex; margin: 2px 0 10px; border: 1px solid var(--rule); }
+.lang-switch[hidden], .lang-note[hidden], #collectionEn[hidden] { display: none; }
+.lang-switch label { display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; cursor: pointer;
+  font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-2); }
+.lang-switch label + label { border-left: 1px solid var(--rule); }
+.lang-switch input { position: absolute; opacity: 0; pointer-events: none; }
+.lang-switch label:has(input:checked) { background: var(--ink); color: var(--paper); }
+.lang-switch label:has(input:focus-visible) { outline: 2px solid var(--garnet); outline-offset: 1px; }
+.lang-switch .filter-count { margin-left: 4px; color: inherit; opacity: 0.75; }
+.lang-note { margin: 0 0 8px; font-size: 0.8rem; line-height: 1.45; color: var(--ink-2); }
+.lang-note code { font-size: 0.75rem; }
+/* A neutral chip (not an outcome colour) on French originals that have an English translation. */
+.chip.lang-chip { color: var(--ink-3); border-color: var(--rule); background: transparent;
+  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase; }
+/* Case pane: French original | English machine translation */
+.cn-lang { display: inline-flex; margin: 0 0 0.5rem; border: 1px solid var(--rule); }
+.cn-lang-btn { min-height: 30px; padding: 0 10px; border: 0; background: transparent; cursor: pointer;
+  font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-2); }
+.cn-lang-btn + .cn-lang-btn { border-left: 1px solid var(--rule); }
+.cn-lang-btn.is-on { background: var(--ink); color: var(--paper); }
+.cn-lang-btn.is-mt.is-on { background: var(--mt-flag-bg, #fbf3e2); color: var(--mt-flag-fg, #7a4b00); }
+.cn-lang-btn:focus-visible { outline: 2px solid var(--garnet); outline-offset: 1px; }
+.cn-mt-line { margin: 0 0 0.8rem; padding-left: 0.6rem; border-left: 3px solid var(--mt-flag-fg, #b26b00);
+  font-size: 0.82rem; line-height: 1.4; color: var(--mt-flag-fg, #7a4b00); }
+.cn-mt-line a { color: inherit; }
+[data-theme="dark"] .cn-lang-btn.is-mt.is-on, [data-theme="dark"] .cn-mt-line { --mt-flag-bg: #3a2c12; --mt-flag-fg: #e6b34f; }
 
 /* ── Judgments per year (Judgment Date filter) ──────────────────────────── */
 .year-histogram {
