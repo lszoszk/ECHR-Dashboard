@@ -125,9 +125,8 @@ Measured number by number with full text against HUDOC's pages on 300 judgments,
 
 ## Citation graph (Cites / Cited by)
 
-Each result card has an **Influence** panel with three numbers for that judgment:
+Each result card has an **Influence** panel with two numbers for that judgment (how many of its paragraphs match your search is on the button that opens them):
 
-- **Hits** — how many of its paragraphs match your search. It describes your search, not the judgment.
 - **Cites** — how many other judgments and decisions it refers to.
 - **Cited by** — how many later judgments and decisions refer to it, including judgments that HUDOC publishes only in French.
 
@@ -135,7 +134,7 @@ Search covers the English judgments by default, and a click in the left pane ext
 
 **Cites** and **Cited by** count judgments, not mentions: a judgment that refers to the case in ten paragraphs counts once. This is the usual measure in citation studies of courts, and it is what the data supports: the Court gives a precedent's application number once and then refers back to it in short form ("*Kudła*, cited above, § 152"), which is not detected, so the number of paragraphs that mention a case is only a minimum. Where it is shown, it is given as "at least N paragraphs" and is not part of the influence figures.
 
-The bars compare the three numbers of the same judgment: the largest fills the bar. Compare judgments by the numbers, not the bar lengths. A dash (—) means the citation graph has no data for that judgment, not that it has never been cited.
+The bars compare the two numbers of the same judgment: the largest fills the bar. Compare judgments by the numbers, not the bar lengths. A dash (—) means the citation graph has no data for that judgment, not that it has never been cited.
 
 **Cites** and **Cited by** come from a citation graph rebuilt after every corpus update, from three sources.
 

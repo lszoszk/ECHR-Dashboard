@@ -511,6 +511,8 @@ const OUTCOME_LABELS = {
   no_violation: "No violation",
   dec_inadmissible: "Decision: inadmissible",
   dec_partly: "Decision: partly admissible, partly inadmissible",
+  dec_partly_inadm: "Decision: partly inadmissible (the rest not decided in it)",
+  dec_struck_inadm: "Decision: partly struck out of the list, partly inadmissible",
   dec_admissible: "Decision: admissible",
   dec_struck: "Decision: struck out of the list",
 };
@@ -556,6 +558,8 @@ const OUTCOME_SHORT = {
   neither: ["dash", "No finding"],
   dec_inadmissible: ["", "Inadmissible"],
   dec_partly: ["", "Partly admissible"],
+  dec_partly_inadm: ["", "Partly inadmissible"],
+  dec_struck_inadm: ["", "Struck out / inadmissible"],
   dec_admissible: ["", "Admissible"],
   dec_struck: ["", "Struck out"],
 };
@@ -564,11 +568,12 @@ const OUTCOME_SHORT = {
  * admissible;Partly inadmissible", "Struck out of the list"...). */
 function decisionOutcome(conclusion) {
   const t = String(conclusion || "").toLowerCase();
-  const inadm = /inadmissible/.test(t), adm = /(^|[^n])admissible/.test(t);
+  const inadm = /inadmissible|irrecevable/.test(t), adm = /(^|[^n])admissible/.test(t), struck = /struck out/.test(t);
   if (adm && inadm) return "dec_partly";
   if (adm) return "dec_admissible";
-  if (inadm) return "dec_inadmissible";
-  if (/struck out/.test(t)) return "dec_struck";
+  if (inadm && struck) return "dec_struck_inadm";
+  if (inadm) return /partly inadmissible/.test(t) ? "dec_partly_inadm" : "dec_inadmissible";
+  if (struck) return "dec_struck";
   return "neither";
 }
 function outcomeIconSvg(kind) {
@@ -1468,7 +1473,7 @@ const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "Ju
   "October", "November", "December"];
 
 function oscolaTitle(raw) {
-  let t = String(raw || "").replace(/^CASE OF\s+/i, "")
+  let t = String(raw || "").replace(/^CASE OF\s+/i, "").replace(/\s*\[extracts?\]/gi, "")
     .replace(/\s*\((?:merits|just satisfaction|merits and just satisfaction|preliminary objections?|article 50)\)/gi, "").trim();
   const core = t.replace(/\sv\.?\s/g, " ").replace(/\(No\.?\s*\d+\)/gi, "");  // "v." and "(No. 2)" aside
   const capitals = core === core.toUpperCase();
@@ -3036,9 +3041,13 @@ function passesCaseFilters(c, filters, serverChecked = false) {
   if (!serverChecked && c.__isDecision && !filters.includeDecisions) return false;
   if (!serverChecked && c.__isMt && !filters.includeMt) return false;
   if (!serverChecked && !c.__isMt && filters.includeMt === "only") return false;
-  if (filters.docTypes.size) {
+  // The server applies the formation itself (to judgments and decisions alike), so its results are not
+  // filtered again; a decision has a formation too ("decision" alone hid every decision).
+  if (filters.docTypes.size && !serverChecked) {
+    const formation = c.__isGrandChamber ? "grand_chamber"
+      : (c.__isCommittee || /committee/i.test(String(c.__originatingBody || ""))) ? "committee" : "chamber";
     const dtKeys = c.__isDecision
-      ? ["decision"]
+      ? ["decision", formation]
       : c.__isPressRelease
       ? ["press_release"]
       : c.__isGrandChamber
@@ -5135,8 +5144,8 @@ function buildResearcherArticleChips(articles, maxVisible = 4) {
 function citedByTitle(c) {
   const n = Number(c.__citedByCount || 0);
   const fr = Number(c.__citedByFrenchOnly || 0);
-  const base = `Cited by ${fmtInt.format(n)} other judgment(s)`;
-  const once = ". Each judgment counts once, however many paragraphs refer to the case";
+  const base = `Cited by ${fmtInt.format(n)} other judgments and decisions`;
+  const once = ". Each counts once, however many paragraphs refer to the case";
   return fr > 0
     ? `${base}, ${fmtInt.format(fr)} of them published by HUDOC only in French${once}`
     : `${base} in this dataset${once}`;
@@ -5189,9 +5198,9 @@ function toggleInfluenceHelp(btn) {
   pop.className = "influence-help";
   pop.setAttribute("role", "note");
   pop.innerHTML = `
-    <p><b>Cites</b> — other judgments this one refers to.</p>
-    <p><b>Cited by</b> — later judgments that refer to this one, including those HUDOC has only in French.</p>
-    <p>Cites and Cited by count judgments, not mentions: a judgment that refers to the case in ten paragraphs counts once.</p>
+    <p><b>Cites</b> — other judgments and decisions this one refers to.</p>
+    <p><b>Cited by</b> — later judgments and decisions that refer to this one, including judgments HUDOC has only in French.</p>
+    <p>Cites and Cited by count documents, not mentions: a judgment that refers to the case in ten paragraphs counts once.</p>
     <p class="ih-note">The bars compare the two numbers of this judgment. A dash means no citation data.
       <a href="methodology.html#influence">How citations are found</a></p>`;
   pop.addEventListener("click", (ev) => ev.stopPropagation()); // reading it does not select the card
@@ -6239,7 +6248,7 @@ function updateResultsHeader() {
   el.resultsHits.textContent = fmtInt.format(browseMode ? totalCases : state.totalHits);
   if (el.resultsHitsLabel) el.resultsHitsLabel.textContent = browseMode ? "cases" : "passages";
   el.resultsCases.textContent = fmtInt.format(totalCases);
-  if (el.resultsCasesLabel) el.resultsCasesLabel.textContent = "judgments";
+  if (el.resultsCasesLabel) el.resultsCasesLabel.textContent = resultsNoun();
   el.resultsTime.textContent = `(${(state.searchTimeMs / 1000).toFixed(3)}s · page ${state.currentPage}/${totalPages} · ${modeLabel}${limitedNote})`;
   if (el.queryMatchCount) el.queryMatchCount.textContent = fmtInt.format(browseMode ? totalCases : state.totalHits);
   if (el.queryMatchLabel) el.queryMatchLabel.textContent = browseMode ? "cases shown" : "¶ matched";
@@ -6608,6 +6617,12 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
   }
 }
 
+/** What the results are: judgments, decisions, or both (the Decisions box). */
+function resultsNoun(filters = state.currentFilters || {}) {
+  if (!filters.includeDecisions || searchLang() === "fr") return "judgments";
+  return filters.includeJudgments === false && !collectionMode() ? "decisions" : "judgments and decisions";
+}
+
 /** Default view: what the "records in the corpus" figure is made of, and whether Search covers the translations. */
 function renderCorpusNote() {
   const c = state.corpusStats, node = el.resultsCorpus;
@@ -6619,10 +6634,11 @@ function renderCorpusNote() {
   }
   if (!c || !state.defaultView || !c.total_machine_translations) { node.hidden = true; return; }
   const parts = [`${n(c.total_judgments)} judgments in English`];
-  if (c.total_decisions) parts.push(`${n(c.total_decisions)} Grand Chamber decisions`);
+  if (c.total_decisions) parts.push(`${n(c.total_decisions)} decisions`);
   parts.push(`${n(c.total_machine_translations)} unofficial translations of French-only judgments`);
-  const mtOn = !!collectionMode();
-  node.textContent = `${parts.join(" · ")} — the translations are ${mtOn ? "included in" : "left out of"} the search${mtOn ? "" : " until you switch them on"}.`;
+  const f = state.currentFilters || {};
+  const off = [c.total_decisions && !f.includeDecisions ? "the decisions" : "", !collectionMode() ? "the translations" : ""].filter(Boolean);
+  node.textContent = `${parts.join(" · ")}${off.length ? ` — ${off.join(" and ")} are left out of the search until you switch them on` : ""}.`;
   node.hidden = false;
 }
 
@@ -6647,7 +6663,7 @@ function updateResultsHeaderServer(data, opts = {}) {
   // The default view counts the collection being browsed: the French originals under Français.
   const corpusTotal = searchLang() === "fr" ? (state.corpusStats?.french_originals || 0) : state.corpusTotal;
   el.resultsCases.textContent = fmtInt.format(defaultView ? (corpusTotal || data.total_cases || totalCases) : totalCases);
-  if (el.resultsCasesLabel) el.resultsCasesLabel.textContent = defaultView ? "records in the corpus" : "judgments";
+  if (el.resultsCasesLabel) el.resultsCasesLabel.textContent = defaultView ? "records in the corpus" : resultsNoun();
   el.resultsTime.textContent = `(${((data.search_time_ms || state.searchTimeMs) / 1000).toFixed(3)}s · page ${state.currentPage}/${totalPages} · ${serverTag})`;
   if (el.queryMatchCount) el.queryMatchCount.textContent = fmtInt.format(defaultView ? totalCases : (data.total_hits || 0));
   if (el.queryMatchLabel) el.queryMatchLabel.textContent = defaultView ? "recent cases" : "¶ matched";
@@ -6687,7 +6703,7 @@ async function exportResults() {
     "Originating Body",
     "Importance",
     "Document Type",
-    "Text",
+    "Text source",
     "Outcome Primary",
     "Inadmissibility",
     "Struck out",
@@ -6859,17 +6875,20 @@ function searchExportInfo(nCases, nRows) {
   const snap = wsFilterSnapshot();
   const fr = searchLang() === "fr";
   const st = state.corpusStats || {};
+  const parts = [
+    snap.includeMt !== "only" && snap.includeJudgments !== false ? "Official English texts of the judgments" : "",
+    snap.includeDecisions ? "Decisions of the Court in English (a selection: those cited in judgments, and key cases)" : "",
+    snap.includeMt ? "Unofficial English machine translations of judgments HUDOC publishes only in French" : "",
+  ].filter(Boolean);
   const collection = fr ? "French originals of the judgments HUDOC publishes only in French (authentic texts)"
-    : snap.includeMt === "only" ? "Unofficial English machine translations of judgments HUDOC publishes only in French"
-    : snap.includeMt ? "Official English texts, and unofficial English machine translations of judgments HUDOC publishes only in French"
-    : "Official English texts of the judgments";
+    : parts.join("; ") || "Official English texts of the judgments";
   const notes = [];
   if (fr) notes.push(["French originals", "Titles and texts are the Court's French ones. In English writing the Court cites " +
     "these judgments by the English form of the name (Flamenbaum and Others v. France)."]);
   if (!fr && snap.includeMt) notes.push(["Machine translations", "The English text of a judgment HUDOC publishes only in French " +
     "was made by machine for this tool and is not the Court's: quote the French original (HUDOC URL)."]);
   return {
-    what: `Search results: ${fmtInt.format(nCases)} judgment(s), ${fmtInt.format(nRows)} paragraph(s), one row per paragraph`,
+    what: `Search results: ${fmtInt.format(nCases)} ${resultsNoun().replace(/s\b/g, "(s)")}, ${fmtInt.format(nRows)} paragraph(s), one row per paragraph`,
     details: [
       ["Search", state.query || "(none: the corpus, newest first)"],
       ["Filters", wsFilterSummary({ ...snap, includeMt: false, lang: "en" }) || "none"],
