@@ -367,6 +367,11 @@ def _build_fts_query(raw: str, broaden: bool = False) -> str:
     # with how unicode61 tokenized them at index time.  Then split on
     # whitespace to get clean bare tokens.
     # A trailing * (prefix query) survives the character filter under a stand-in.
+    # HUDOC / web habits: "-word" (minus before a word) excludes it, like NOT; "?" inside a word is a
+    # single-character wildcard there, which FTS5 lacks, so it becomes a prefix query up to the "?"
+    # (detent?on -> detent*), slightly broader. A hyphen inside a word (ill-founded) is untouched.
+    remainder = re.sub(r"(^|\s)-(?=\w)", r"\1NOT ", remainder)
+    remainder = re.sub(r"(\w{3,})\?[\w?]*", "\\1*", remainder)
     remainder = re.sub(r"(\w{3,})\*", "\\1\u204e", remainder)
     normalised = _FTS5_DANGEROUS_CHARS.sub(" ", remainder).replace('"', " ")
     # Cap bare tokens — a pasted multi-page query would otherwise build a
@@ -1659,6 +1664,23 @@ def search(
                 fts_source = _nos
         except Exception:
             pass  # fall back to the raw identifier tokens
+    # cites:<name> — the citing paragraphs name the judgment in the Court's spelling (Kudła, with ł,
+    # which the index does not fold to l) and usually give its application number: look for the
+    # name OR the number. The citation graph filter below still decides which judgments are shown.
+    _cite_names = [v for v in q_prefix["cites"] if not re.fullmatch(r"\d{1,6}/\d{2}", v)]
+    if not q_text and _cite_names and not q_prefix["case"]:
+        try:
+            with get_cursor() as _cur:
+                _nos = []
+                for _v in _cite_names:
+                    for r in _cur.execute("SELECT case_no FROM cases WHERE title LIKE ? LIMIT 50", (f"%{_v}%",)):
+                        _no = (r["case_no"] or "").split(";")[0].strip()
+                        if _no and _no not in _nos:
+                            _nos.append(_no)
+            if _nos:
+                fts_source = " OR ".join(_cite_names + _nos[:5])
+        except Exception:
+            pass
     fts_expr = _build_fts_query(fts_source)
     if not fts_expr:
         # The query sanitised to nothing — only punctuation, FTS5

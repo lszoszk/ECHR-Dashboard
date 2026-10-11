@@ -27,6 +27,13 @@ class FtsQueryTests(unittest.TestCase):
         self.assertEqual(q('"margin of appreciation" data NEAR retention'),
                          '{text} : ("margin of appreciation" AND NEAR(data retention, 10))')
 
+    def test_minus_before_a_word_excludes_it(self):
+        self.assertEqual(q('"margin of appreciation" -terrorism'), '{text} : ("margin of appreciation" NOT terrorism)')
+        self.assertEqual(q("ill-founded"), "{text} : (ill AND founded)")   # a hyphen inside a word stays
+
+    def test_question_mark_is_a_prefix(self):
+        self.assertEqual(q("detent?on"), "{text} : ((detent* OR detenti))")
+
 
 class FrenchQueryTests(unittest.TestCase):
     """lang=fr: the French index stores words, not stems, and the language switch never sticks."""
