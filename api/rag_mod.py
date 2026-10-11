@@ -13,6 +13,7 @@ Endpoints (served under /echr-api/rag via nginx): / , /health , /respondents ,
 from __future__ import annotations
 import os, json, math, sqlite3, time, threading
 from pathlib import Path
+from array import array
 from collections import OrderedDict
 import numpy as np, faiss
 from fastapi import FastAPI, Query
@@ -95,7 +96,17 @@ def _load():
     comb, fr = None, None
     if (BASE / "ann_comb.index").exists() and (BASE / "fr_ids.jsonl").exists() and FR_DB.exists():
         comb = faiss.read_index(str(BASE / "ann_comb.index"), faiss.IO_FLAG_MMAP); comb.nprobe = NPROBE
-        fids = [json.loads(l) for l in open(BASE / "fr_ids.jsonl", encoding="utf-8")]
+        # Compact columns (half a million rows; lists of Python objects would take ~300 MB):
+        # case and section as indexes into short lists, § 0 where the row has none.
+        names, secs, ci, si = [], [], {}, {}
+        fcase, fsno, frid, fsec = array("I"), array("i"), array("I"), array("B")
+        with open(BASE / "fr_ids.jsonl", encoding="utf-8") as fh:
+            for line in fh:
+                r = json.loads(line)
+                c, sec = r["case_id"], r.get("section") or ""
+                if c not in ci: ci[c] = len(names); names.append(c)
+                if sec not in si: si[sec] = len(secs); secs.append(sec)
+                fcase.append(ci[c]); fsno.append(r["section_no"] or 0); frid.append(r["fr_rowid"]); fsec.append(si[sec])
         fcon = sqlite3.connect(f"file:{FR_DB}?mode=ro", uri=True, check_same_thread=False)
         fmeta = {}
         for r in fcon.execute("SELECT case_id, title, title_en, judgment_date, respondent_state, importance, "
@@ -104,10 +115,9 @@ def _load():
             except ValueError: viol = []
             fmeta[r[0]] = {"title": r[1], "title_en": r[2], "date": r[3], "state": r[4], "importance": r[5],
                            "body": r[6], "case_no": r[7], "hudoc": r[8], "violation": viol, "lang": "fr"}
-        fr = {"case": [r["case_id"] for r in fids], "sno": [r["section_no"] for r in fids],
-              "rid": [r["fr_rowid"] for r in fids], "sec": [r.get("section") or "" for r in fids],
+        fr = {"names": names, "secs": secs, "case": fcase, "sno": fsno, "rid": frid, "sec": fsec,
               "meta": fmeta, "db": fcon}
-        if comb.ntotal != len(ids) + len(fids):    # a mismatched pair would point at the wrong rows
+        if comb.ntotal != len(ids) + len(fcase):   # a mismatched pair would point at the wrong rows
             comb, fr = None, None
     _S.update(comb=comb, fr=fr, n_en=len(ids))
     _S.update(docfts=docfts,
@@ -145,7 +155,8 @@ def run_paragraph_search(q, respondent=None, article=None, section=None, include
         if p < ne:
             return case[p], sno[p], rid[p], rowsec.get(rid[p], ""), meta.get(case[p], {}) or {}
         j = p - ne
-        return F["case"][j], F["sno"][j], ("fr", F["rid"][j]), F["sec"][j], F["meta"].get(F["case"][j], {}) or {}
+        cid = F["names"][F["case"][j]]
+        return cid, F["sno"][j], ("fr", F["rid"][j]), F["secs"][F["sec"][j]], F["meta"].get(cid, {}) or {}
 
     pos = [int(i) for i in I[0] if i >= 0]
     cand = []; per_case = {}
