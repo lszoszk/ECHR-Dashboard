@@ -1496,7 +1496,7 @@ function paraHoverActions(caseId, p) {
   const caseObj = state.caseById.get(caseId);
   const hudocUrl = caseObj ? paragraphHudocUrl(caseObj, p) : "";
   return `<span class="dossier-para-actions">
-    ${hudocUrl ? `<a href="${escapeHtml(hudocUrl)}" target="_blank" rel="noopener noreferrer" title="Open on HUDOC at this paragraph">HUDOC ↗</a>` : ""}
+    ${hudocUrl ? `<a href="${escapeHtml(hudocUrl)}" target="_blank" rel="noopener noreferrer" title="Open on HUDOC at this paragraph (its opening words are copied, for Find)">HUDOC ↗</a>` : ""}
     <button type="button" data-action="para-cite" ${data} title="Copy an OSCOLA citation of this paragraph">Cite</button>
     <button type="button" data-action="para-copy" ${data} title="Copy the text of this paragraph">Copy</button>
     ${window.ECHRWorkspace ? `<button type="button" data-action="para-bookmark" ${data} aria-pressed="${!!saved}"
@@ -5665,7 +5665,7 @@ function buildCaseCard(caseId, row, rank = 1) {
         <div class="case-actions-inline compact-actions">
           ${c.__isMt && c.__sourceCaseId
             ? `<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(c.__sourceCaseId)}" class="card-act" target="_blank" rel="noopener noreferrer" title="The authentic French text on HUDOC">French original ↗</a>`
-            : (c.hudoc_url ? `<a href="${escapeHtml(primaryPara ? paragraphHudocUrl(c, primaryPara) : c.hudoc_url)}" class="card-act" target="_blank" rel="noopener noreferrer" title="${primaryPara ? "Open on HUDOC at this paragraph" : "Open this judgment on HUDOC"}">HUDOC ↗</a>` : "")}
+            : (c.hudoc_url ? `<a href="${escapeHtml(primaryPara ? paragraphHudocUrl(c, primaryPara) : c.hudoc_url)}" class="card-act" target="_blank" rel="noopener noreferrer" title="${primaryPara ? "Open on HUDOC at this paragraph (its opening words are copied, for Find)" : "Open this judgment on HUDOC"}">HUDOC ↗</a>` : "")}
           <button type="button" class="card-act" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}"
             data-para-idx="${escapeHtml(String(primaryPara && primaryPara.paraIdx != null ? primaryPara.paraIdx : ""))}"
             title="Copy an OSCOLA citation${primaryPara ? " with the paragraph shown" : ""}">Cite</button>
