@@ -114,10 +114,11 @@ const serverSearch = {
     if (!filters.includeHeadings) {
       p.set("exclude_roles", "heading,heading_h0,heading_h1,heading_h2,heading_h3,heading_h4,metadata,signature,footer");
     } else {
-      // Even with "+ Headings" on, procedural boilerplate (court-composition
-      // formulae, signature lines, elision rows — P60 relabelling) is never a
-      // useful search hit: it has no citable ¶ number.
-      p.set("exclude_roles", "metadata,signature,footer");
+      // "Cover page (judges) & headings" also searches the metadata rows: the cover page's
+      // list of judges is one ("Mr L. Wildhaber, President, …"), and searching a judge's name
+      // is what the box is for (there is no filter by judge). Signature lines and page footers
+      // stay out: they have no citable ¶ number and name only the Registrar and the President.
+      p.set("exclude_roles", "signature,footer");
     }
     if (filters.articles.size) p.set("articles", [...filters.articles].join(","));
     if (filters.countries.size) p.set("states", [...filters.countries].join(","));
