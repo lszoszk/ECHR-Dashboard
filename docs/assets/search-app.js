@@ -5025,7 +5025,7 @@ function citedByTitle(c) {
     : `${base} in this dataset${once}`;
 }
 
-function buildResearcherBars(c, row) {
+function buildResearcherBars(c) {
   const cited = Number(c.__citedByCount || 0);
   // Prefer the P29 server-computed count (covers every case, incl.
   // recent committee judgments absent from the JSONL feed); fall back
@@ -5036,8 +5036,7 @@ function buildResearcherBars(c, row) {
       ? c.__citesCountServer
       : (c.__citationRefs || []).length || 0
   );
-  const hits = Number(row.hitCount || row.paragraphs?.length || 0);
-  const max = Math.max(cited, cites, hits, 1);
+  const max = Math.max(cited, cites, 1);
   // `dimZero`: the citation graph (P29) has partial coverage, so a 0 is
   // ambiguous — "truly uncited" vs "not in our data". For landmark cases
   // a bare "0" is misleading and corrodes trust, so render it as "—".
@@ -5058,7 +5057,7 @@ function buildResearcherBars(c, row) {
   const fr = Number(c.__citedByFrenchOnly || 0);
   const frNote = fr > 0 && cited > 0
     ? `<div class="researcher-bar-note" title="${escapeHtml(citedByTitle(c))}">${fmtInt.format(fr)} only in French</div>` : "";
-  return `${bar("hits", hits, true)}${bar("cites", cites, false, true)}${bar("cited by", cited, false, true, citedByTitle(c))}${frNote}`;
+  return `${bar("cites", cites, false, true)}${bar("cited by", cited, false, true, citedByTitle(c))}${frNote}`;
 }
 
 /* The (i) next to "Influence" on a result card: what the three bars mean. One pop-up at a time;
@@ -5073,11 +5072,10 @@ function toggleInfluenceHelp(btn) {
   pop.className = "influence-help";
   pop.setAttribute("role", "note");
   pop.innerHTML = `
-    <p><b>Hits</b> — paragraphs of this judgment that match your search.</p>
     <p><b>Cites</b> — other judgments this one refers to.</p>
     <p><b>Cited by</b> — later judgments that refer to this one, including those HUDOC has only in French.</p>
     <p>Cites and Cited by count judgments, not mentions: a judgment that refers to the case in ten paragraphs counts once.</p>
-    <p class="ih-note">The bars compare the three numbers of this judgment. A dash means no citation data.
+    <p class="ih-note">The bars compare the two numbers of this judgment. A dash means no citation data.
       <a href="methodology.html#influence">How citations are found</a></p>`;
   pop.addEventListener("click", (ev) => ev.stopPropagation()); // reading it does not select the card
   btn.closest(".researcher-influence").appendChild(pop);
@@ -5662,6 +5660,7 @@ function buildCaseCard(caseId, row, rank = 1) {
           ${c.__isFrOriginal && c.__translationAvailable ? `<span class="chip lang-chip" title="An unofficial English machine translation of this judgment is available: switch to it in the case details.">EN translation</span>` : ""}
         </div>
 
+        <div class="researcher-foot">
         <div class="case-actions-inline compact-actions">
           ${c.__isMt && c.__sourceCaseId
             ? `<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(c.__sourceCaseId)}" class="card-act" target="_blank" rel="noopener noreferrer" title="The authentic French text on HUDOC">French original ↗</a>`
@@ -5682,12 +5681,12 @@ function buildCaseCard(caseId, row, rank = 1) {
             <span class="toggle-icon" id="icon-${escapeHtml(caseId)}">▶</span>
           </button>
         </div>
+        <aside class="researcher-influence">
+          <div class="folio-label">Influence <button type="button" class="info-dot" data-action="influence-help" aria-label="What Influence shows" title="What Influence shows">i</button></div>
+          ${buildResearcherBars(c)}
+        </aside>
+        </div>
       </div>
-
-      <aside class="researcher-influence">
-        <div class="folio-label">Influence <button type="button" class="info-dot" data-action="influence-help" aria-label="What Influence shows" title="What Influence shows">i</button></div>
-        ${buildResearcherBars(c, row)}
-      </aside>
 
       <div class="case-body" id="body-${escapeHtml(caseId)}">
         ${paraBlocks || `<div class="paragraph-item"><p class="para-text">${caseOnlyBrowse ? "Run a full-text query to load matched paragraphs for this case." : "No paragraphs for current filters."}</p></div>`}
