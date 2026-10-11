@@ -6662,19 +6662,31 @@ async function exportResults() {
     }
   }
 
-  const suffix = state.query ? state.query.slice(0, 24).replace(/\s+/g, "_") : "all_cases";
+  // Letters, digits, - and _ only: quotes, colons and slashes are not allowed in Windows file names.
+  const suffix = state.query
+    ? state.query.slice(0, 24).replace(/\s+/g, "_").replace(/[^\p{L}\p{N}_-]/gu, "") || "search"
+    : "all_cases";
   const baseName = `echr_search_${suffix}`;
+  const about = window.HR_EXPORT ? window.HR_EXPORT.aboutRows(searchExportInfo(allCaseIds.length, rows.length - 1)) : null;
   try {
     const XLSX = await loadSheetJS();
     const ws = XLSX.utils.aoa_to_sheet(rows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "ECHR results");
+    if (about) {
+      // Second sheet: what was exported, when and from where, how to cite it and on what terms.
+      const aboutWs = XLSX.utils.aoa_to_sheet(about);
+      aboutWs["!cols"] = [{ wch: 28 }, { wch: 130 }];
+      XLSX.utils.book_append_sheet(wb, aboutWs, "About this export");
+    }
+    wb.Props = { Title: "HUDOC Researcher \u2014 search results", Subject: state.query || "Browse",
+      Author: "HUDOC Researcher (Szoszkiewicz & Marcisz)", CreatedDate: new Date() };
     XLSX.writeFile(wb, `${baseName}.xlsx`);
   } catch (err) {
     // SheetJS unavailable (offline / CDN blocked) \u2014 fall back to CSV so
     // the export never silently fails.
     console.warn("[Export] xlsx writer unavailable, exporting CSV:", err);
-    const csv = rows
+    const csv = rows.concat(about ? [[], ...about] : [])
       .map((row) =>
         row
           .map((cell) => `"${String(cell ?? "").replaceAll('"', '""')}"`)
@@ -6692,6 +6704,38 @@ async function exportResults() {
       "full set in one request. Add a search term or narrow the filters and export again."
     );
   }
+}
+
+/** What a search export holds, for its "About this export" sheet (cite.js, HR_EXPORT.aboutRows). */
+function searchExportInfo(nCases, nRows) {
+  const snap = wsFilterSnapshot();
+  const fr = searchLang() === "fr";
+  const st = state.corpusStats || {};
+  const collection = fr ? "French originals of the judgments HUDOC publishes only in French (authentic texts)"
+    : snap.includeMt === "only" ? "Unofficial English machine translations of judgments HUDOC publishes only in French"
+    : snap.includeMt ? "Official English texts, and unofficial English machine translations of judgments HUDOC publishes only in French"
+    : "Official English texts of the judgments";
+  const notes = [];
+  if (fr) notes.push(["French originals", "Titles and texts are the Court's French ones. In English writing the Court cites " +
+    "these judgments by the English form of the name (Flamenbaum and Others v. France)."]);
+  if (!fr && snap.includeMt) notes.push(["Machine translations", "The English text of a judgment HUDOC publishes only in French " +
+    "was made by machine for this tool and is not the Court's: quote the French original (HUDOC URL)."]);
+  return {
+    what: `Search results: ${fmtInt.format(nCases)} judgment(s), ${fmtInt.format(nRows)} paragraph(s), one row per paragraph`,
+    details: [
+      ["Search", state.query || "(none: the corpus, newest first)"],
+      ["Filters", wsFilterSummary({ ...snap, includeMt: false, lang: "en" }) || "none"],
+      ["Collection", collection],
+      ...(state.serverTotalCases > nCases ? [["Coverage", `${fmtInt.format(nCases)} of the ${fmtInt.format(state.serverTotalCases)} matching judgments`]] : []),
+      ["Columns", "One row per matched paragraph. \u201cParagraph (display)\u201d is the Court's paragraph number (\u00a7); " +
+        "an asterisk marks a row number where the paragraph has none. \u201cHUDOC URL\u201d opens the judgment on HUDOC."],
+    ],
+    url: location.href,
+    data: fr ? `HUDOC Researcher French originals: ${fmtInt.format(st.french_originals || 0)} judgments HUDOC publishes only in French`
+      : st.date_to ? `HUDOC Researcher corpus of ${fmtInt.format(st.total_judgments || st.total_cases || 0)} judgments, ` +
+        `up to ${oscolaDate(st.date_to)}` : "",
+    notes,
+  };
 }
 
 // Excel (.xlsx) export uses SheetJS, lazy-loaded from its CDN on first
@@ -7837,15 +7881,14 @@ function init() {
         const frN = statsData.french_originals || 0;
         const langSwitch = document.getElementById("langSwitch");
         if (langSwitch) langSwitch.hidden = !frN;
-        for (const id of ["frCount", "frCountNote"]) {
-          const node = document.getElementById(id);
-          if (node) node.textContent = fmt.format(frN);
-        }
+        const frNote = document.getElementById("frCountNote");
+        if (frNote) frNote.textContent = fmt.format(frN);
         if (frN && new URLSearchParams(location.search).get("lang") === "fr") setSearchLang("fr");
         for (const id of ["mtCount", "mtCountRail"]) {
           const node = document.getElementById(id);
           if (node) node.textContent = fmt.format(mtN);
         }
+        state.corpusStats = statsData;
         state.corpusTotal = statsData.total_cases || 0;
         if (state.defaultView && state.corpusTotal && !el.resultsHeader.hidden) el.resultsCases.textContent = fmt.format(state.corpusTotal);
         const officialCount = document.getElementById("officialCount");
