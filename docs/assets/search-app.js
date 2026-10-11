@@ -6248,7 +6248,7 @@ function updateResultsHeader() {
   el.resultsHits.textContent = fmtInt.format(browseMode ? totalCases : state.totalHits);
   if (el.resultsHitsLabel) el.resultsHitsLabel.textContent = browseMode ? "cases" : "passages";
   el.resultsCases.textContent = fmtInt.format(totalCases);
-  if (el.resultsCasesLabel) el.resultsCasesLabel.textContent = resultsNoun();
+  if (el.resultsCasesLabel) el.resultsCasesLabel.textContent = countNoun(totalCases, resultsNoun());
   el.resultsTime.textContent = `(${(state.searchTimeMs / 1000).toFixed(3)}s · page ${state.currentPage}/${totalPages} · ${modeLabel}${limitedNote})`;
   if (el.queryMatchCount) el.queryMatchCount.textContent = fmtInt.format(browseMode ? totalCases : state.totalHits);
   if (el.queryMatchLabel) el.queryMatchLabel.textContent = browseMode ? "cases shown" : "¶ matched";
@@ -6365,7 +6365,6 @@ async function renderNameMatches(query) {
   const items = matches.map((m) => {
     const appNo = String(m.case_no || "").split(";")[0].trim();
     const url = safeHudocUrl(m.hudoc_url);
-    // A decision's own application number appears only in its header, so a case: lookup finds nothing.
     const isDecision = /^decision/i.test(m.document_type || "");
     const kind = isDecision ? ' <span class="nm-key">Decision</span>' : "";
     const key = kind + (m.importance === "Key cases" ? ' <span class="nm-key">Key case</span>' : "");
@@ -6374,7 +6373,7 @@ async function renderNameMatches(query) {
       <div class="nm-title">${escapeHtml(cleanCaseTitle(m.title))}${key}</div>
       <div class="nm-meta">${escapeHtml(meta)}</div>
       <div class="nm-actions">
-        ${appNo && !isDecision ? `<button type="button" class="nm-btn" data-nm-appno="${escapeHtml(appNo)}">Show this case</button>` : ""}
+        ${appNo ? `<button type="button" class="nm-btn" data-nm-appno="${escapeHtml(appNo)}">Show this case</button>` : ""}
         ${url ? `<a class="nm-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Open in HUDOC ↗</a>` : ""}
       </div>
     </li>`;
@@ -6619,8 +6618,20 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
 
 /** What the results are: judgments, decisions, or both (the Decisions box). */
 function resultsNoun(filters = state.currentFilters || {}) {
-  if (!filters.includeDecisions || searchLang() === "fr") return "judgments";
+  if (searchLang() === "fr") return "judgments";
+  if (!filters.includeDecisions) {
+    // a case:/hudoc: lookup finds a decision whatever the box says
+    const page = (state.currentOrderedCaseIds || []).map((id) => state.caseById.get(id)).filter(Boolean);
+    const dec = page.filter((c) => c.__isDecision).length;
+    return !dec ? "judgments" : dec === page.length ? "decisions" : "judgments and decisions";
+  }
   return filters.includeJudgments === false && !collectionMode() ? "decisions" : "judgments and decisions";
+}
+
+/** "1 decision", "2 decisions"; one result of either kind is "1 document". */
+function countNoun(n, noun) {
+  if (Number(n) !== 1) return noun;
+  return noun === "judgments and decisions" ? "document" : noun.replace(/s$/, "");
 }
 
 /** Default view: what the "records in the corpus" figure is made of, and whether Search covers the translations. */
@@ -6663,7 +6674,7 @@ function updateResultsHeaderServer(data, opts = {}) {
   // The default view counts the collection being browsed: the French originals under Français.
   const corpusTotal = searchLang() === "fr" ? (state.corpusStats?.french_originals || 0) : state.corpusTotal;
   el.resultsCases.textContent = fmtInt.format(defaultView ? (corpusTotal || data.total_cases || totalCases) : totalCases);
-  if (el.resultsCasesLabel) el.resultsCasesLabel.textContent = defaultView ? "records in the corpus" : resultsNoun();
+  if (el.resultsCasesLabel) el.resultsCasesLabel.textContent = defaultView ? "records in the corpus" : countNoun(totalCases, resultsNoun());
   el.resultsTime.textContent = `(${((data.search_time_ms || state.searchTimeMs) / 1000).toFixed(3)}s · page ${state.currentPage}/${totalPages} · ${serverTag})`;
   if (el.queryMatchCount) el.queryMatchCount.textContent = fmtInt.format(defaultView ? totalCases : (data.total_hits || 0));
   if (el.queryMatchLabel) el.queryMatchLabel.textContent = defaultView ? "recent cases" : "¶ matched";

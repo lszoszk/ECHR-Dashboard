@@ -2000,6 +2000,32 @@ def search(
                     else:
                         params[0] = fts_expr
 
+            # An identifier lookup (case: / hudoc: / ecli:, nothing else typed) looks for the
+            # application number in the text, and a decision often gives it only in its header,
+            # which is not searched (747 of 3,557 decisions). Then search that document for a long
+            # word of its own first paragraphs instead: the identifier filter keeps it to that document.
+            if total_cases == 0 and not q_text and (q_prefix["case"] or q_prefix["hudoc"] or q_prefix["ecli"]):
+                _conds, _p = [], []
+                for _k, _col in (("case", "case_no"), ("hudoc", "case_id"), ("ecli", "ecli")):
+                    for _v in q_prefix[_k]:
+                        _conds.append(f"c.{_col} LIKE ?")
+                        _p.append(f"%{_v}%")
+                _words: list[str] = []
+                for _r in cur.execute(f"SELECT c.case_id FROM cases c WHERE {' OR '.join(_conds)} LIMIT 5", _p).fetchall():
+                    _texts = cur.execute(
+                        "SELECT text FROM paragraphs WHERE case_id = ? AND COALESCE(row_role, '') <> 'heading' "
+                        "AND length(text) > 40 ORDER BY para_idx LIMIT 3", (_r["case_id"],)).fetchall()
+                    _cands = sorted({w for t in _texts for w in re.findall(r"\b[A-Za-z]{7,}\b", t["text"] or "")},
+                                    key=lambda w: (-len(w), w))
+                    if _cands:
+                        _words.append(f'"{_cands[0].lower()}"')
+                if _words:
+                    fts_expr = "{text} : (" + " OR ".join(_words) + ")"
+                    params[0] = fts_expr
+                    cur.execute(count_sql, [*params, *role_params])
+                    count_row = cur.fetchone()
+                    total_cases, total_hits = count_row["total_cases"], count_row["total_hits"]
+
             if total_cases == 0:
                 elapsed = (time.perf_counter() - t0) * 1000
                 return {
