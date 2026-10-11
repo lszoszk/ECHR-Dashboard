@@ -9,6 +9,7 @@ Figures of the live corpus on 11 October 2026:
 - **20,123 judgments** of the European Court of Human Rights in English and **31 Grand Chamber admissibility decisions** (14 November 1960 – **8 October 2026**), against **47 respondent States**
 - **3.32 million segmented text rows** — body paragraphs, headings, quoted passages and operative formulae — of which **1.26 million carry the Court's own paragraph numbering** (`¶ 1`, `¶ 2`…); **1.23 million** of these are paragraphs of the judgment itself, outside the operative part and the separate opinions
 - **2,460 judgments that HUDOC publishes only in French**, as unofficial English machine translations (390,000 rows, 174,000 numbered paragraphs), left out of every search unless switched on (see [Machine translations](#machine-translation))
+- **9,283 judgments that HUDOC publishes only in French**, in their authentic French text (1.1 million rows), searched when *Français* is chosen in Search (see [French originals](#french-originals))
 - **245,467 citation links** between the judgments of the corpus, and **58,867** more from 8,356 French-only judgments to judgments of the corpus, which count in *Cited by* (see [Citation graph](#influence) below)
 
 > **Cut-off.** The corpus ends at the newest judgment listed above, not at
@@ -22,12 +23,12 @@ Figures of the live corpus on 11 October 2026:
 - **Source:** the official HUDOC portal (cases harvested by the Court itself)
 - **Coverage:** all 47 Council of Europe contracting parties plus their successor states
 
-### Scope: judgments, in English
+### Scope: judgments, in English and in French
 
 Two deliberate boundaries a HUDOC user should know about:
 
 - **Judgments, plus a few Grand Chamber decisions.** The corpus covers the Court's judgments (including ~6,500 Committee judgments, which HUDOC's default search omits) and 31 Grand Chamber admissibility decisions such as *Banković*, which appear when the *Decisions* filter is ticked. HUDOC's other collections — the other admissibility decisions, Communicated Cases, Legal Summaries, Advisory Opinions, Commission decisions — are not included; consult HUDOC for those.
-- **English texts only.** About 9,300 judgments were delivered only in French — a substantial share of Chamber and Committee output — and are not in the official English corpus; unofficial English machine translations of the 2,460 most-cited of them can be switched on in Search (see [Machine translations of French-only judgments](#machine-translation)). On the Semantic Search page, "describe your case in any language" refers to the *query* (the embedding model is multilingual); the retrieved paragraphs are always the English texts.
+- **English texts, and the French-only judgments in French.** About 9,300 judgments were delivered only in French — a substantial share of Chamber and Committee output. They are not in the English corpus; their authentic French texts can be searched by choosing *Français* (see [French originals](#french-originals)), and unofficial English machine translations of the 2,460 most-cited of them can be switched on in the English search (see [Machine translations of French-only judgments](#machine-translation)). On the Semantic Search page, "describe your case in any language" refers to the *query* (the embedding model is multilingual); the retrieved paragraphs are always the English texts.
 
 The Statistics page is a static snapshot (its build date is printed under its title) and can lag the live counts shown in the Search header.
 
@@ -220,6 +221,31 @@ On a judgment the Court published in both languages and that was kept out of the
 - Errors remain possible, especially in legal terms of art, long quotations and tables. The human review of the listed paragraphs is not finished.
 - The translations are not in Semantic Search. In the citation graph a translated judgment can be cited (a reference to it in an English judgment, by application number or by name and date, resolves to it, as to any judgment), but its own *Cites* come from HUDOC's metadata, never from the translated text, so that a translation slip cannot create a link. A French-only judgment that cites a case counts in that case's *Cited by* whether or not it has been translated; the cards show how many of the citing judgments exist only in French, and the Statistics page counts the same way.
 - Corrections are welcome: <l.szoszkiewicz@amu.edu.pl>.
+
+<a id="french-originals"></a>
+
+## French originals of French-only judgments
+
+HUDOC publishes about 9,300 judgments only in French. Their authentic texts form a second, separate
+collection: choosing *Français* above the filters searches it instead of the English corpus. Queries
+are written in French; accents are optional (*requerant* finds *requérant*), there is no stemming, so a
+word ending is matched with `*` (*discrimin\**), and the other operators work as in English. The
+filters (Article, State, years, formation, importance, outcome) use the same values as the English
+corpus, taken from HUDOC's records of these judgments.
+
+- **Which judgments:** the 9,283 judgments for which HUDOC holds a record in English but a text only in French
+  (1999–2026), downloaded as Word files from HUDOC's French items and split into
+  the Court's numbered paragraphs by the same parser as the English texts.
+- **Checks:** in 3,040 rows (0.3%) the text opens with a paragraph number the row does not carry, and
+  in 418 places the numbering of a judgment goes backwards, about the same rates as in the English
+  texts. These have not been corrected one by one: check the paragraph on HUDOC before citing it.
+- **Citations:** a French original shows what it cites according to HUDOC's records. *Cited by* is
+  given where the judgment has been machine-translated, since only the translations are linked as
+  cited judgments so far.
+- **Moving between the two:** a translated judgment links to its French original and back. Cite
+  produces the English form of the name (*Flamenbaum and Others v France*), as the Court does when it
+  cites a French-only judgment in English; quote the French text.
+- **Not yet in Semantic Search,** which covers the English texts only.
 
 ## How the tools use the data
 

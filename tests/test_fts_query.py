@@ -28,5 +28,41 @@ class FtsQueryTests(unittest.TestCase):
                          '{text} : ("margin of appreciation" AND NEAR(data retention, 10))')
 
 
+class FrenchQueryTests(unittest.TestCase):
+    """lang=fr: the French index stores words, not stems, and the language switch never sticks."""
+
+    def test_prefix_is_a_plain_prefix(self):
+        token = main._LANG.set("fr")
+        try:
+            self.assertEqual(q("discrimin* Roms"), "{text} : (discrimin* AND Roms)")
+        finally:
+            main._LANG.reset(token)
+
+    def test_switch_is_reset_after_an_error(self):
+        @main._lang_aware
+        def fails(lang="en"):
+            self.assertEqual(main._db_path(), main.FR_DB_PATH)
+            raise RuntimeError("boom")
+
+        exists = main._french_available
+        main._french_available = lambda: True
+        try:
+            with self.assertRaises(RuntimeError):
+                fails(lang="fr")
+        finally:
+            main._french_available = exists
+        self.assertEqual(main._LANG.get(), "en")
+        self.assertEqual(main._db_path(), main.DB_PATH)
+
+    def test_unknown_language_refused(self):
+        @main._lang_aware
+        def ok(lang="en"):
+            return main._LANG.get()
+
+        with self.assertRaises(main.HTTPException):
+            ok(lang="de")
+        self.assertEqual(ok(lang="en"), "en")
+
+
 if __name__ == "__main__":
     unittest.main()

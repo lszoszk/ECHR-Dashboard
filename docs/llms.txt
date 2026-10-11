@@ -7,7 +7,7 @@
 - Grand Chamber, Chamber and Committee judgments that HUDOC publishes in English. Each row of text keeps the Court's paragraph number (§) and its section: Facts, Legal Framework, Admissibility, Merits, Just Satisfaction, Operative part, Separate Opinion.
 - HUDOC metadata for each judgment: application numbers, ECLI, respondent State, Convention Articles, violation / no-violation findings, importance level, HUDOC thesaurus keywords, separate opinions.
 - Cites / Cited by: which judgments a judgment cites and which later judgments cite it, found in the text (application numbers; for judgments before about 1999, case name and date) and in HUDOC's case-law lists.
-- Not included: HUDOC's other collections (admissibility decisions other than the 31 above, communicated cases, legal summaries, advisory opinions), footnotes, and the judgments HUDOC publishes only in French. Unofficial machine translations of some French-only judgments can be switched on in the search; they are marked as such and are not the Court's text.
+- Not included: HUDOC's other collections (admissibility decisions other than the 31 above, communicated cases, legal summaries, advisory opinions), and footnotes. The ~9,300 judgments HUDOC publishes only in French are a separate collection, searched in French (API parameter lang=fr; Search page: Français); unofficial English machine translations of 2,460 of them can be switched on in the English search, marked as such and not the Court's text.
 
 ## How to link
 

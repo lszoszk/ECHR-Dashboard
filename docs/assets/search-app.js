@@ -128,6 +128,7 @@ const serverSearch = {
     if (serverOutcomes.length) p.set("outcomes", serverOutcomes.join(","));
     if (filters.docTypes.size) p.set("doc_types", [...filters.docTypes].join(","));
     if (filters.includeMt) p.set("include_mt", filters.includeMt === "only" ? "only" : "true");
+    if (searchLang() === "fr") { p.delete("include_mt"); p.set("lang", "fr"); }
     // filters.dateFrom/dateTo are epoch-ms (parseDateInput → getTime()).
     // The API compares against judgment_date, so send an ISO yyyy-mm-dd
     // string it can normalise — never the raw timestamp.
@@ -223,6 +224,9 @@ const serverSearch = {
       // Judgments HUDOC publishes only in French, machine-translated for this tool (unofficial).
       __isMt: apiCase.text_origin === "machine_translation",
       __sourceCaseId: apiCase.source_case_id || null,
+      // The authentic French text of a judgment HUDOC publishes only in French (lang=fr).
+      __isFrOriginal: apiCase.text_origin === "original",
+      __titleEn: apiCase.title_en || "",
       __isGrandChamber: (apiCase.document_type || "").toLowerCase().includes("grand chamber") || (apiCase.originating_body || "").toLowerCase().includes("grand chamber"),
       document_type: apiCase.document_type || "",
       __judgmentDateTs: apiCase.judgment_date ? (() => { const p = apiCase.judgment_date.split("/"); return p.length === 3 ? new Date(`${p[2]}-${p[1]}-${p[0]}`).getTime() : new Date(apiCase.judgment_date).getTime(); })() : null,
@@ -248,8 +252,8 @@ const serverSearch = {
   },
 
   /** Fetch full case details from server. */
-  async getCase(caseId) {
-    const r = await fetch(`${API_BASE_URL}/cases/${encodeURIComponent(caseId)}`);
+  async getCase(caseId, lang = searchLang()) {
+    const r = await fetch(`${API_BASE_URL}/cases/${encodeURIComponent(caseId)}${lang === "fr" ? "?lang=fr" : ""}`);
     if (!r.ok) throw new Error(`API ${r.status}`);
     return r.json();
   },
@@ -261,6 +265,7 @@ const serverSearch = {
     if (opts.q) p.set("q", opts.q);
     if (opts.date_from) p.set("date_from", opts.date_from);
     if (opts.date_to) p.set("date_to", opts.date_to);
+    if (searchLang() === "fr") p.set("lang", "fr");
     const qs = p.toString();
     const r = await fetch(`${API_BASE_URL}/facets${qs ? `?${qs}` : ""}`);
     if (!r.ok) throw new Error(`API ${r.status}`);
@@ -702,6 +707,7 @@ const STOPWORDS = new Set([
 const fmtInt = new Intl.NumberFormat("en-US");
 
 const state = {
+  lang: "en",   // "fr": the French originals of the judgments HUDOC publishes only in French
   loaded: false,
   datasetKey: "",
   sourceLabel: "",
@@ -1468,7 +1474,8 @@ function buildOscolaCitation(caseObj, para) {
     : apps.length <= 3 ? `App nos ${apps.slice(0, -1).join(", ")} and ${apps[apps.length - 1]}`
     : `App no ${apps[0]} and ${apps.length - 1} others`;
   const date = oscolaDate(c.judgment_date);
-  let out = `${oscolaTitle(c.title || c.case_id)}${dec ? " (dec)" : ""}${gc ? " [GC]" : ""}${appPart ? " " + appPart : ""}` +
+  // A French original is cited by its English name, as the Court cites French-only judgments in English.
+  let out = `${oscolaTitle(c.__titleEn || c.title || c.case_id)}${dec ? " (dec)" : ""}${gc ? " [GC]" : ""}${appPart ? " " + appPart : ""}` +
     ` (ECtHR${date ? ", " + date : ""})`;
   const n = para ? (para.hudocParaNo != null ? para.hudocParaNo : para.displayParaNo) : null;
   if (n != null) {
@@ -1585,6 +1592,7 @@ function wsFilterSnapshot() {
   return {
     countries: arr(f.countries), articles: arr(f.articles), keywords: arr(f.keywords), importance: arr(f.importance),
     outcomes: arr(f.outcomes), docTypes: arr(f.docTypes), buckets: arr(f.buckets), includeMt: f.includeMt || false,
+    lang: searchLang(),
     includeExtra: !!f.includeMeta, includeAppendix: !!f.includeAppendix,
     dateFrom: el.dateFrom.value || "", dateTo: el.dateTo.value || "",
   };
@@ -1602,7 +1610,29 @@ function wsFilterSummary(s) {
   const allBuckets = document.querySelectorAll('#bucketScope input[data-name="buckets"]').length;
   if (s.buckets.length && s.buckets.length < allBuckets) parts.push(`in ${s.buckets.map((b) => SECTION_BUCKETS[b]?.label || b).join(", ")}`);
   if (s.includeMt) parts.push(s.includeMt === "only" ? "machine translations only" : "+ machine translations");
+  if (s.lang === "fr") parts.push("French originals");
   return parts.join(" · ");
+}
+
+/* Search language. "fr" searches the French originals of the judgments HUDOC publishes only in French;
+ * it is offered only when the API holds them (stats.french_originals), and the English collection
+ * options do not apply to it. */
+function searchLang() {
+  return state.lang === "fr" ? "fr" : "en";
+}
+
+function setSearchLang(lang) {
+  state.lang = lang === "fr" ? "fr" : "en";
+  const fr = state.lang === "fr";
+  document.querySelectorAll('input[name="searchLang"]').forEach((i) => { i.checked = i.value === state.lang; });
+  const en = document.getElementById("collectionEn");
+  if (en) en.hidden = fr;
+  const note = document.getElementById("frNote");
+  if (note) note.hidden = !fr;
+  if (el.searchInput) {
+    if (!el.searchInput.dataset.placeholderEn) el.searchInput.dataset.placeholderEn = el.searchInput.placeholder;
+    el.searchInput.placeholder = fr ? 'ex. "marge d\u2019appréciation" article:10' : el.searchInput.dataset.placeholderEn;
+  }
 }
 
 /* Collection: the official English texts, the machine translations, or both. The official box
@@ -1628,6 +1658,7 @@ function wsApplySnapshot(s) {
   for (const name of ["countries", "articles", "keywords", "importance", "outcomes", "docTypes"]) setGroup(name, s[name]);
   const buckets = s.buckets && s.buckets.length ? s.buckets : null;
   document.querySelectorAll('#bucketScope input[data-name="buckets"]').forEach((i) => { i.checked = buckets ? buckets.includes(i.value) : true; });
+  setSearchLang(s.lang === "fr" && !document.getElementById("langSwitch")?.hidden ? "fr" : "en");
   const mt = document.getElementById("includeMachineTranslations");
   if (mt) mt.checked = !!s.includeMt && !document.getElementById("mtPill")?.hidden;
   const official = document.getElementById("includeOfficial");
@@ -1682,10 +1713,11 @@ function hudocPassage(para) {
 function paragraphHudocUrl(caseObj, para) {
   const base = caseObj.hudoc_url || "";
   if (!base) return "";
-  const id = caseObj.case_id || (/[?&]i=([\w-]+)/.exec(base) || [])[1];
+  const fr = !!caseObj.__isFrOriginal;     // the French HUDOC item, opened in French
+  const id = fr ? caseObj.__sourceCaseId : (caseObj.case_id || (/[?&]i=([\w-]+)/.exec(base) || [])[1]);
   const phrase = id && !caseObj.__isMt ? hudocPassage(para) : "";
   if (!phrase) return base;
-  return "https://hudoc.echr.coe.int/eng#" + encodeURI(JSON.stringify({ itemid: [id], fulltext: [`"${phrase}"`] }));
+  return `https://hudoc.echr.coe.int/${fr ? "fre" : "eng"}#` + encodeURI(JSON.stringify({ itemid: [id], fulltext: [`"${phrase}"`] }));
 }
 
 function copyToClipboardWithFeedback(text, buttonEl) {
@@ -2431,7 +2463,7 @@ async function refreshRailCounts(query, filters) {
     ? new Date(filters.dateFrom).toISOString().slice(0, 10) : "";
   const dTo = (filters && filters.dateTo)
     ? new Date(filters.dateTo).toISOString().slice(0, 10) : "";
-  if (!q && !dFrom && !dTo) {
+  if (!q && !dFrom && !dTo && searchLang() === "en") {
     // Whole-corpus view — restore the cached global counts.
     if (state.globalFacetCounts) {
       state.facetCounts = state.globalFacetCounts;
@@ -5399,8 +5431,14 @@ function caseFindingsHtml(c) {
       text here was produced by machine translation for this tool and checked automatically. It is not a
       translation by the Court and may contain errors.
       ${sourceId ? `<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(sourceId)}" target="_blank" rel="noopener noreferrer">Read the French original on HUDOC ↗</a>` : ""}
+      ${c.case_no && !document.getElementById("langSwitch")?.hidden ? `<button type="button" class="link-btn" data-action="open-version" data-lang="fr" data-appno="${escapeHtml(String(c.case_no).split(";")[0].trim())}">Search the French original here</button>` : ""}
     </div>` : "";
-  return mtNotice + findings;
+  const frNotice = c.__isFrOriginal ? `
+    <div class="fr-case-notice" role="note">
+      <strong>Authentic French text.</strong> HUDOC publishes this judgment only in French; this is that text.
+      ${c.case_no ? `<button type="button" class="link-btn" data-action="open-version" data-lang="en" data-appno="${escapeHtml(String(c.case_no).split(";")[0].trim())}">Look for an English machine translation</button>` : ""}
+    </div>` : "";
+  return mtNotice + frNotice + findings;
 }
 
 function caseMetadataHtml(c) {
@@ -5610,6 +5648,7 @@ function buildCaseCard(caseId, row, rank = 1) {
           <span class="chip" title="${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "")}">${escapeHtml(formationLabel(c) || "-")}</span>
           ${outcomeChipHtml(c)}
           ${c.__isMt ? `<span class="chip mt-chip" title="HUDOC publishes this judgment only in French. This English text is a machine translation made for this tool, not a translation by the Court.">Only in French on HUDOC · machine translation, unofficial</span>` : ""}
+          ${c.__isFrOriginal ? `<span class="chip fr-chip" title="HUDOC publishes this judgment only in French: this is the authentic text.">Authentic French text</span>` : ""}
         </div>
 
         <div class="case-actions-inline compact-actions">
@@ -6007,6 +6046,7 @@ async function fetchAndRenderServerAnalytics(query, filters) {
     if (serverOutcomes.length) p.set("outcomes", serverOutcomes.join(","));
     if (filters.docTypes.size) p.set("doc_types", [...filters.docTypes].join(","));
     if (filters.includeMt) p.set("include_mt", filters.includeMt === "only" ? "only" : "true");
+    if (searchLang() === "fr") { p.delete("include_mt"); p.set("lang", "fr"); }
     if (filters.dateFrom) p.set("date_from", filters.dateFrom);
     if (filters.dateTo) p.set("date_to", filters.dateTo);
 
@@ -6089,9 +6129,10 @@ function applySearch(resetPage = true) {
   // Keep the address bar shareable: the current query lives in ?q= (same
   // contract as semantic.html). Empty query → clean path.
   try {
-    history.replaceState(null, "", query
-      ? `${location.pathname}?q=${encodeURIComponent(query)}`
-      : location.pathname);
+    const url = new URLSearchParams();
+    if (query) url.set("q", query);
+    if (searchLang() === "fr") url.set("lang", "fr");
+    history.replaceState(null, "", url.toString() ? `${location.pathname}?${url}` : location.pathname);
   } catch (_) { /* sandboxed iframes may block history */ }
 
   if (serverSearch.available) {
@@ -6165,7 +6206,7 @@ async function renderNameMatches(query) {
   if (!el.nameMatches) return;
   const q = String(query || "").trim();
   // After "Show this case" (case:<no>) the case itself is the result.
-  if (!q || /^case:/i.test(q)) { clearNameMatches(); return; }
+  if (!q || /^case:/i.test(q) || searchLang() === "fr") { clearNameMatches(); return; }
   if (q === state.nameMatchQuery) return;           // pagination, sort and group changes keep the panel
   state.nameMatchQuery = q;
   const seq = (state.nameMatchSeq = (state.nameMatchSeq || 0) + 1);
@@ -6802,7 +6843,8 @@ const DOSSIER_DEFAULT_W = 440;
 const DOSSIER_LS_KEY = "echr.dossierWidth";
 
 async function loadDossierCase(caseId) {
-  if (dossierCaseCache.has(caseId)) return dossierCaseCache.get(caseId);
+  const cacheKey = `${searchLang()}:${caseId}`;   // a French original and its translation share the id
+  if (dossierCaseCache.has(cacheKey)) return dossierCaseCache.get(cacheKey);
   const data = await serverSearch.getCase(caseId);
   const paras = (data.paragraphs || []).map((p) => {
     const sec = normalizeSectionKey(p.section);
@@ -6818,7 +6860,7 @@ async function loadDossierCase(caseId) {
       rowRole: p.row_role || null,
     };
   });
-  dossierCaseCache.set(caseId, paras);
+  dossierCaseCache.set(cacheKey, paras);
   return paras;
 }
 
@@ -7195,7 +7237,11 @@ function bindEvents() {
   // v1 bucket scope bar — bucket pills + headings/meta toggles sit
   // above the filters panel, outside its change listener.  Wire them
   // up to re-run the search on any change.
-  document.getElementById("bucketScope")?.addEventListener("change", () => {
+  document.getElementById("bucketScope")?.addEventListener("change", (e) => {
+    if (e.target && e.target.name === "searchLang") {
+      setSearchLang(e.target.value);
+      refreshRailCounts(el.searchInput.value, getCurrentFilters());
+    }
     syncCollectionBoxes();
     const mtNotice = document.getElementById("mtNotice");
     if (mtNotice) mtNotice.hidden = !document.getElementById("includeMachineTranslations")?.checked;
@@ -7563,6 +7609,15 @@ function bindEvents() {
       document.body.classList.remove("casenote-open");
       return;
     }
+    if (action === "open-version") {
+      // The same judgment in the other language: its application number, searched in that language.
+      e.preventDefault();
+      setSearchLang(clickable.dataset.lang);
+      el.searchInput.value = `case:${clickable.getAttribute("data-appno")}`;
+      refreshRailCounts(el.searchInput.value, getCurrentFilters());
+      applySearch(true);
+      return;
+    }
     if (action === "search-appno") {
       e.preventDefault();
       el.searchInput.value = `case:${clickable.getAttribute("data-appno")}`;
@@ -7770,6 +7825,14 @@ function init() {
         const mtN = statsData.total_machine_translations || 0;
         const mtPill = document.getElementById("mtPill");
         if (mtPill) mtPill.hidden = !mtN;
+        const frN = statsData.french_originals || 0;
+        const langSwitch = document.getElementById("langSwitch");
+        if (langSwitch) langSwitch.hidden = !frN;
+        for (const id of ["frCount", "frCountNote"]) {
+          const node = document.getElementById(id);
+          if (node) node.textContent = fmt.format(frN);
+        }
+        if (frN && new URLSearchParams(location.search).get("lang") === "fr") setSearchLang("fr");
         for (const id of ["mtCount", "mtCountRail"]) {
           const node = document.getElementById(id);
           if (node) node.textContent = fmt.format(mtN);

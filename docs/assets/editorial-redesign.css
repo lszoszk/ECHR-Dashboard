@@ -2293,6 +2293,24 @@ mark.hl {
 [data-theme="dark"] .mt-case-notice, [data-theme="dark"] .chip.mt-chip,
 [data-theme="dark"] .filter-chip.mt-scope-chip { --mt-flag-bg: #3a2c12; --mt-flag-fg: #e6b34f; }
 
+/* ── Search language: English corpus or the French originals ─────────────── */
+.lang-switch { display: inline-flex; margin: 2px 0 10px; border: 1px solid var(--rule); }
+.lang-switch[hidden], .lang-note[hidden], #collectionEn[hidden] { display: none; }
+.lang-switch label { display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; cursor: pointer;
+  font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-2); }
+.lang-switch label + label { border-left: 1px solid var(--rule); }
+.lang-switch input { position: absolute; opacity: 0; pointer-events: none; }
+.lang-switch label:has(input:checked) { background: var(--ink); color: var(--paper); }
+.lang-switch label:has(input:focus-visible) { outline: 2px solid var(--garnet); outline-offset: 1px; }
+.lang-switch .filter-count { margin-left: 4px; color: inherit; opacity: 0.75; }
+.lang-note { margin: 0 0 8px; font-size: 0.8rem; line-height: 1.45; color: var(--ink-2); }
+.lang-note code { font-size: 0.75rem; }
+.fr-case-notice { margin: 0 0 0.8rem; padding: 0.55rem 0.8rem; border-left: 3px solid var(--garnet);
+  background: var(--paper-2); font-size: 0.9rem; line-height: 1.45; }
+.chip.fr-chip { color: var(--garnet); border-color: var(--garnet); }
+.mt-case-notice .link-btn, .fr-case-notice .link-btn { margin-left: 0.25rem; padding: 0; border: 0; background: none;
+  color: var(--garnet); font: inherit; text-decoration: underline; cursor: pointer; }
+
 /* ── Judgments per year (Judgment Date filter) ──────────────────────────── */
 .year-histogram {
   display: flex; align-items: flex-end; gap: 1px; height: 54px; margin: 2px 0 4px;
