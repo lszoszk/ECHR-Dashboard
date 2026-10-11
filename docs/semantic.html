@@ -872,6 +872,10 @@ body.mode-natural .expert-only { display: none; }
   padding: 3px 9px; border: 1px solid var(--rule); background: var(--paper-2);
   color: var(--ink-2); border-radius: var(--r-pill); font-weight: 500;
 }
+.meta-tag.fr-original { background: transparent; color: var(--ink-3); }
+.fr-opt { display: flex; align-items: center; gap: 8px; margin: 8px 0 2px; font-size: 13px; color: var(--ink-2); cursor: pointer; }
+.fr-opt[hidden] { display: none; }
+.fr-opt small { color: var(--ink-3); font-size: 12px; }
 .meta-tag.article-detected { background: var(--garnet); color: var(--paper); border-color: var(--garnet); }
 .meta-tag.article-other { background: var(--paper-2); color: var(--ink-2); border-color: var(--rule); }
 .more-articles-btn {
@@ -1593,6 +1597,10 @@ footer {
         <div class="search-textarea-wrap">
           <textarea id="query" spellcheck="false" autocapitalize="off" autocorrect="off" placeholder="The applicant was held in pre-trial detention for eighteen months during criminal proceedings lasting over seven years…"></textarea>
         </div>
+        <label class="fr-opt" id="fr-opt" hidden title="Also search the authentic French texts of the judgments HUDOC publishes only in French. Your query can stay in English.">
+          <input type="checkbox" id="include-fr">
+          <span>Also judgments only in French <small>&middot; the authentic French texts</small></span>
+        </label>
 
         <details class="advanced-filters">
           <summary style="cursor:pointer;color:#7a1f2b;font-size:13px;font-weight:600;margin:4px 0;">Advanced options</summary>
@@ -1843,7 +1851,9 @@ try { if (window.name !== 'echr-search') window.name = 'echr-search'; } catch (_
 /* =========================================================
    STATE & CONSTANTS
    ========================================================= */
-const API = 'https://150.254.115.204/echr-api/rag';  // GitHub Pages page → VM API (CORS + LE cert)
+// GitHub Pages page → VM API (CORS + LE cert); on localhost, ?ragapi=http://localhost:8001/rag tests a local API.
+const API = (['localhost', '127.0.0.1'].includes(location.hostname) && new URLSearchParams(location.search).get('ragapi'))
+  || 'https://150.254.115.204/echr-api/rag';
 const SEED_KEYS = {
   desc:'echr_seed_description', lang:'echr_seed_language', articles:'echr_seed_articles',
   precedents:'echr_seed_precedents', rewritten:'echr_seed_rewritten', search:'echr_seed_search_query',
@@ -1944,6 +1954,11 @@ async function checkHealth() {
     $('status-dot').classList.add('green');
     $('status-text').textContent = 'Connected';
     state.geminiEnabled = !!d.gemini_enabled;
+    // The French originals are offered only where the API has their index (off by default).
+    if (d.french) {
+      $('fr-opt').hidden = false;
+      if (new URLSearchParams(location.search).get('fr') === '1') $('include-fr').checked = true;
+    }
 
     const countPill = $('count-pill');
     countPill.hidden = false;
@@ -2123,7 +2138,7 @@ function copyCite(ev, ci, para) {
   ev.stopPropagation();
   const c = ((state.results && state.results.results) || [])[ci];
   if (!c) return;
-  const title = (c.title || c.case_id || '').replace(/^CASE OF /i, '');
+  const title = (c.title_en || c.title || c.case_id || '').replace(/^CASE OF /i, '');
   const cite = `${title}${appnoLabel(c.case_no)}, § ${para}`;
   const btn = ev.currentTarget;
   const done = () => { const o = btn.innerHTML; btn.innerHTML = '&#10003; copied'; btn.classList.add('copied'); setTimeout(() => { btn.innerHTML = o; btn.classList.remove('copied'); }, 1300); };
@@ -2148,7 +2163,7 @@ function wsSemToggle(ev, ci, n) {
   const c = ((state.results && state.results.results) || [])[ci];
   if (!c || !window.ECHRWorkspace) return;
   const h = (c.hits || []).find((x) => String(x.para_idx) === String(n)) || {};
-  const title = (c.title || c.case_id || '').replace(/^CASE OF /i, '');
+  const title = (c.title_en || c.title || c.case_id || '').replace(/^CASE OF /i, '');
   const on = window.ECHRWorkspace.toggleParagraph({
     key: wsSemKey(c, n), caseId: c.case_id, title, appnos: c.case_no || '', date: c.judgment_date || '',
     machineTranslation: false, paraIdx: null, paraNo: Number(n) || n, section: h.section || '', text: h.text || '',
@@ -2181,6 +2196,7 @@ function renderViewA(data) {
           </div>
         </div>
         <div class="case-meta">
+          ${c.lang==='fr'?'<span class="meta-tag fr-original" title="Authentic French text: HUDOC publishes this judgment only in French">French original</span>':''}
           ${c.respondent?`<span class="meta-tag">${escapeHtml(c.respondent)}</span>`:''}
           ${c.judgment_date?`<span class="meta-tag">${escapeHtml(c.judgment_date)}</span>`:''}
           ${ah}
@@ -3290,6 +3306,7 @@ async function doSearch() {
   if (art)  params.append('article', art);
   if (sec)  params.append('section', sec);
   if (mode === 'natural') params.append('style', style);   // expert mode ignores it
+  if (!$('fr-opt').hidden && $('include-fr').checked) params.append('fr', '1');
   const endpoint = mode === 'natural' ? '/smart_search' : '/similar';
 
   const btn = $('search-btn'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Reading the corpus…';

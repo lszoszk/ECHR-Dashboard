@@ -20,7 +20,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import embed  # voyage HTTP client (ships alongside in backend/)
 
-BASE = Path("/data/rag")
+BASE = Path(os.environ.get("ECHR_RAG_DIR", "/data/rag"))
 STATIC = Path(__file__).resolve().parent / "rag_static"
 VOYAGE_MODEL = "voyage-4-large"; RERANK_MODEL = "rerank-3"
 NPROBE = 128; FETCH = 600; RERANK_POOL = 100; IMP_BOOST = 0.05
@@ -42,6 +42,11 @@ SEP_PENALTY = 0.12  # demote separate/dissenting-opinion paragraphs so the Court
 # they just must not outrank Merits at comparable relevance.
 LF_PENALTY = 0.06
 IMP = {"Key cases": 1.0, "1": 1.0, "2": 0.5, "3": 0.25, "Unspecified": 0.0}
+# The French originals (judgments HUDOC publishes only in French), searched only when asked for (fr=1):
+# a second index over the English rows followed by the French ones (ann_comb.index, same settings as
+# ann_index.index), with fr_ids.jsonl naming the French rows; their text and record come from the
+# French database the main API also reads. Without fr=1 the English index is used, unchanged.
+FR_DB = Path(os.environ.get("ECHR_FR_DB_PATH", "/data/echr_fr.db"))
 RANK_TOP, RANK_AVG, RANK_LOG = 0.60, 0.25, 0.15; LOGD = math.log(10)
 
 _S = {}  # lazy-loaded state
@@ -87,6 +92,24 @@ def _load():
     dfp = BASE / "docs_fts.db"
     if dfp.exists() and os.environ.get("ECHR_HYBRID", "1").lower() not in ("0", "false", "no"):
         docfts = sqlite3.connect(f"file:{dfp}?mode=ro", uri=True, check_same_thread=False)
+    comb, fr = None, None
+    if (BASE / "ann_comb.index").exists() and (BASE / "fr_ids.jsonl").exists() and FR_DB.exists():
+        comb = faiss.read_index(str(BASE / "ann_comb.index"), faiss.IO_FLAG_MMAP); comb.nprobe = NPROBE
+        fids = [json.loads(l) for l in open(BASE / "fr_ids.jsonl", encoding="utf-8")]
+        fcon = sqlite3.connect(f"file:{FR_DB}?mode=ro", uri=True, check_same_thread=False)
+        fmeta = {}
+        for r in fcon.execute("SELECT case_id, title, title_en, judgment_date, respondent_state, importance, "
+                              "originating_body, case_no, hudoc_url, violation FROM cases"):
+            try: viol = json.loads(r[9] or "[]")
+            except ValueError: viol = []
+            fmeta[r[0]] = {"title": r[1], "title_en": r[2], "date": r[3], "state": r[4], "importance": r[5],
+                           "body": r[6], "case_no": r[7], "hudoc": r[8], "violation": viol, "lang": "fr"}
+        fr = {"case": [r["case_id"] for r in fids], "sno": [r["section_no"] for r in fids],
+              "rid": [r["fr_rowid"] for r in fids], "sec": [r.get("section") or "" for r in fids],
+              "meta": fmeta, "db": fcon}
+        if comb.ntotal != len(ids) + len(fids):    # a mismatched pair would point at the wrong rows
+            comb, fr = None, None
+    _S.update(comb=comb, fr=fr, n_en=len(ids))
     _S.update(docfts=docfts,
               index=idx, case=[r["case_id"] for r in ids], sno=[r["section_no"] for r in ids],
               rid=[r["rowid"] for r in ids], meta=meta, rowsec=rowsec, artmap=art,
@@ -101,50 +124,68 @@ def _cit():
         S["citgraph"] = json.loads(f.read_text()) if f.exists() else {}
     return S["citgraph"]
 
-def _auth(cid): return IMP.get((_load()["meta"].get(cid, {}) or {}).get("importance"), 0.0)
 def _split(raw): return [p.strip() for p in (raw or "").split(",") if p.strip()]
 
-def run_paragraph_search(q, respondent=None, article=None, section=None):
+def french_available() -> bool:
+    return _load()["comb"] is not None
+
+def run_paragraph_search(q, respondent=None, article=None, section=None, include_fr=False):
     S = _load()
+    use_fr = bool(include_fr and S["comb"] is not None)
+    index = S["comb"] if use_fr else S["index"]
     qv = _embed_query(q)
-    if qv.shape[1] > S["index"].d:  # a smaller (Matryoshka) index: the query's leading dims, re-normalised
-        qv = np.ascontiguousarray(qv[:, :S["index"].d]); faiss.normalize_L2(qv)
+    if qv.shape[1] > index.d:  # a smaller (Matryoshka) index: the query's leading dims, re-normalised
+        qv = np.ascontiguousarray(qv[:, :index.d]); faiss.normalize_L2(qv)
     fetch = FETCH if not (respondent or article or section) else FETCH * 2
-    D, I = S["index"].search(qv, fetch)
+    D, I = index.search(qv, fetch)
     case, sno, rid, meta, rowsec, art, fts = S["case"], S["sno"], S["rid"], S["meta"], S["rowsec"], S["artmap"], S["fts"]
+    ne, F = S["n_en"], S["fr"]
+
+    def row(p):   # (case_id, §, text key, section, record) of an English or a French row
+        if p < ne:
+            return case[p], sno[p], rid[p], rowsec.get(rid[p], ""), meta.get(case[p], {}) or {}
+        j = p - ne
+        return F["case"][j], F["sno"][j], ("fr", F["rid"][j]), F["sec"][j], F["meta"].get(F["case"][j], {}) or {}
+
     pos = [int(i) for i in I[0] if i >= 0]
     cand = []; per_case = {}
     for scr, p in zip(D[0], pos):
-        cid = case[p]; s = sno[p]; m = meta.get(cid, {}) or {}
+        cid, s, key, sec, m = row(p)
         if s is None or s == 0: continue  # skip uncitable sub-fragments (no HUDOC § number → would render as ¶0)
         if respondent and respondent not in _split(m.get("state", "")): continue
         arts = [str(x) for x in (m.get("violation") or [])]
         if article and article not in arts and art.get((cid, s)) != article: continue
-        sec = rowsec.get(rid[p], "")
         if section and sec != section: continue
         if per_case.get(cid, 0) >= CASE_CAP: continue
         per_case[cid] = per_case.get(cid, 0) + 1
         cand.append((p, float(scr), sec, m, arts))
         if len(cand) >= RERANK_POOL: break
-    rids = [rid[p] for p, *_ in cand]; txt = {}
+    keys = [row(p)[2] for p, *_ in cand]; txt = {}
+    rids = [k for k in keys if not isinstance(k, tuple)]
     if rids:
         txt = {r: t for r, t in fts.execute("SELECT rid,text FROM para WHERE rid IN (%s)" % ",".join("?" * len(rids)), rids)}
+    frids = [k[1] for k in keys if isinstance(k, tuple)]
+    if frids:
+        txt.update({("fr", r): t for r, t in F["db"].execute(
+            "SELECT rowid, text FROM paragraphs WHERE rowid IN (%s)" % ",".join("?" * len(frids)), frids)})
     rr = None; src = cand
     if len(cand) > 1:
-        head = cand[:RERANK_POOL]; docs = [(txt.get(rid[p]) or "")[:1200] for p, *_ in head]
+        head = cand[:RERANK_POOL]; docs = [(txt.get(row(p)[2]) or "")[:1200] for p, *_ in head]
         try:
             rr = {i: sc for i, sc in embed.voyage_rerank(q, docs, model=RERANK_MODEL)}; src = head
         except SystemExit:
             rr = None; src = cand
     out = []
     for idx, (p, cos, sec, m, arts) in enumerate(src):
-        cid = case[p]; s = sno[p]; base = rr.get(idx, 0.0) if rr is not None else cos
+        cid, s, key, _, _ = row(p); base = rr.get(idx, 0.0) if rr is not None else cos
         pen = SEP_PENALTY if sec == "Separate Opinion" else LF_PENALTY if sec == "Legal Framework" else 0.0
-        out.append({"score": round(float(base) + IMP_BOOST * _auth(cid) - pen, 4), "case_id": cid,
+        auth = IMP.get(m.get("importance"), 0.0)
+        extra = {"lang": "fr", "title_en": m.get("title_en", "") or ""} if m.get("lang") == "fr" else {}
+        out.append({**extra, "score": round(float(base) + IMP_BOOST * auth - pen, 4), "case_id": cid,
             "case_no": m.get("case_no", "") or "", "title": m.get("title", "") or "", "hudoc_url": m.get("hudoc", "") or "",
             "judgment_date": m.get("date", "") or "", "respondent": m.get("state", "") or "", "articles": arts,
             "importance": m.get("importance", "") or "", "body": m.get("body", "") or "",
-            "section": sec, "para_idx": s if s is not None else 0, "text": txt.get(rid[p], "")})
+            "section": sec, "para_idx": s if s is not None else 0, "text": txt.get(key, "")})
     out.sort(key=lambda x: -x["score"]); return out
 
 _HSTOP = frozenset(("the a an and or not of to in for on with at by from as is are was were be been this "
@@ -204,6 +245,7 @@ def group_by_case(paras, k):
             g[cid] = {"case_id": cid, "case_no": p["case_no"], "title": p["title"], "hudoc_url": p["hudoc_url"],
                       "judgment_date": p["judgment_date"], "respondent": p["respondent"], "articles": list(p["articles"]),
                       "importance": p["importance"], "body": p["body"],
+                      **({"lang": "fr", "title_en": p.get("title_en", "")} if p.get("lang") == "fr" else {}),
                       "top_score": p["score"], "hits": []}
         c = g[cid]
         if p["score"] > c["top_score"]: c["top_score"] = p["score"]
@@ -229,7 +271,9 @@ def methodology(): return FileResponse(STATIC / "methodology.html")
 def health():
     S = _load()
     return {"status": "ok", "indexed_points": S["index"].ntotal, "respondents": len(S["respondents"]),
-            "sections": S["sections"], "gemini_enabled": False, "version": "rag-1.0"}
+            "sections": S["sections"], "gemini_enabled": False, "version": "rag-1.0",
+            "french": S["comb"] is not None,
+            "french_points": (S["comb"].ntotal - S["n_en"]) if S["comb"] is not None else 0}
 class CitReq(BaseModel):
     case_ids: list[str] = []
 
@@ -297,8 +341,9 @@ def respondents(): return {"respondents": _load()["respondents"]}
 def sections(): return {"sections": _load()["sections"]}
 @rag_app.get("/similar")
 def similar(q: str = Query(...), k: int = Query(10, ge=1, le=50),
-            respondent: str | None = Query(None), article: str | None = Query(None), section: str | None = Query(None)):
-    t0 = time.time(); paras = run_paragraph_search(q, respondent, article, section); cases = group_by_case(paras, k)
+            respondent: str | None = Query(None), article: str | None = Query(None), section: str | None = Query(None),
+            fr: bool = Query(False, description="also search the French originals of judgments HUDOC publishes only in French")):
+    t0 = time.time(); paras = run_paragraph_search(q, respondent, article, section, include_fr=fr); cases = group_by_case(paras, k)
     cases, hyb = hybrid_fuse(cases, q)
     return {"mode": "expert", "query": q, "count": len(cases), "hybrid": hyb, "results": cases,
             "stats": {"paragraphs_pooled": len(paras), "elapsed_ms": int((time.time() - t0) * 1000)}}
