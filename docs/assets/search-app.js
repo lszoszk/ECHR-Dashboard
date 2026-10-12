@@ -47,25 +47,28 @@ const serverSearch = {
   checking: false,
   serverStats: null,
 
-  /** Probe the API health endpoint once. */
-  async probe() {
+  /** Probe the API health endpoint: up to `attempts` tries of 12 s each, so a slow
+   *  connection (hotel Wi-Fi, a phone) is not taken for a server that is down. */
+  async probe(attempts = 2) {
     if (this.checking) return this.available;
     this.checking = true;
-    try {
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 4000);
-      const r = await fetch(API_HEALTH_URL, { signal: ctrl.signal });
-      clearTimeout(timer);
-      if (r.ok) {
-        const data = await r.json();
-        this.available = data.status === "ok";
-        if (this.available) {
-          console.log(`[Server Search] API available — ${data.cases} cases indexed`);
-          this.serverStats = data;
+    for (let i = 0; i < attempts && !this.available; i++) {
+      try {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 12000);
+        const r = await fetch(API_HEALTH_URL, { signal: ctrl.signal, cache: "no-store" });
+        clearTimeout(timer);
+        if (r.ok) {
+          const data = await r.json();
+          this.available = data.status === "ok";
+          if (this.available) {
+            console.log(`[Server Search] API available — ${data.cases} cases indexed`);
+            this.serverStats = data;
+          }
         }
+      } catch (_) {
+        this.available = false;
       }
-    } catch (_) {
-      this.available = false;
     }
     this.checking = false;
     return this.available;
@@ -8297,6 +8300,13 @@ function init() {
       const sourceActions = document.getElementById("sourceActions");
       if (sourceActions) sourceActions.classList.remove("hidden");
       document.getElementById("loadSampleBtn")?.click();
+      // Keep checking while the page is in view (and at once when it comes back into view);
+      // once the server answers, reload into the live view.
+      const recheck = async () => {
+        if (!document.hidden && await serverSearch.probe(1)) location.reload();
+      };
+      setInterval(recheck, 20000);
+      document.addEventListener("visibilitychange", recheck);
     }
   });
 }
