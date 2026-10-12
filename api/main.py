@@ -19,6 +19,7 @@ import sqlite3
 import threading
 import time
 import unicodedata
+from collections import OrderedDict
 import zlib
 from contextlib import contextmanager
 from pathlib import Path
@@ -67,6 +68,54 @@ def _lang_aware(fn):
         finally:
             _LANG.reset(token)
     return wrapper
+
+# Answers of /api/search, /api/facets and /api/analytics, by their parameters, kept until the database
+# changes (its file or write-ahead log): the example searches and a repeated search, page or Back then
+# answer at once instead of running the query again (1-5 s for a common phrase). A few hundred entries.
+_RESULT_CACHE: "OrderedDict[tuple, dict]" = OrderedDict()
+_RESULT_CACHE_MAX = 300
+_RESULT_CACHE_LOCK = threading.Lock()
+
+
+def _db_stamp() -> tuple:
+    out = []
+    for f in (_db_path(), _db_path() + "-wal"):
+        try:
+            st = os.stat(f)
+            out.append((st.st_mtime_ns, st.st_size))
+        except OSError:
+            out.append(None)
+    return tuple(out)
+
+
+def _cached(fn):
+    """Keep the endpoint's answer for the same parameters while the database is unchanged (inside
+    _lang_aware, so the stamp is that of the database the request reads). Errors, and exports with
+    a large page size, are not kept."""
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        if kwargs.get("export") or int(kwargs.get("page_size") or 0) > 100:
+            return fn(*args, **kwargs)
+        t0 = time.perf_counter()
+        key = (fn.__name__, _LANG.get(), tuple(sorted((k, str(v)) for k, v in kwargs.items())))
+        stamp = _db_stamp()
+        with _RESULT_CACHE_LOCK:
+            hit = _RESULT_CACHE.get(key)
+            if hit is not None and hit[0] == stamp:
+                _RESULT_CACHE.move_to_end(key)
+                if "search_time_ms" in hit[1]:   # the time of this answer, not of the first
+                    return {**hit[1], "search_time_ms": round((time.perf_counter() - t0) * 1000, 1), "cached": True}
+                return hit[1]
+        result = fn(*args, **kwargs)
+        if isinstance(result, dict):
+            with _RESULT_CACHE_LOCK:
+                _RESULT_CACHE[key] = (stamp, result)
+                _RESULT_CACHE.move_to_end(key)
+                while len(_RESULT_CACHE) > _RESULT_CACHE_MAX:
+                    _RESULT_CACHE.popitem(last=False)
+        return result
+    return wrapper
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -1156,6 +1205,7 @@ def stats(
 
 @app.get("/api/facets")
 @_lang_aware
+@_cached
 def facets(
     q: Optional[str] = Query(None, description="Optional full-text query "
                              "— when given, facet counts are scoped to "
@@ -1478,6 +1528,7 @@ def _build_case_filter_sql(
 
 @app.get("/api/analytics")
 @_lang_aware
+@_cached
 def analytics(
     q: Optional[str] = Query(None, description="Full-text search query"),
     sections: Optional[str] = Query(None),
@@ -1652,6 +1703,7 @@ def analytics(
 
 @app.get("/api/search")
 @_lang_aware
+@_cached
 def search(
     q: str = Query(..., min_length=1, description="Full-text search query"),
     page: int = Query(1, ge=1),

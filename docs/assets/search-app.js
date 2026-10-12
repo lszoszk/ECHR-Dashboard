@@ -249,10 +249,10 @@ const serverSearch = {
   },
 
   /** Full-text search via server API. */
-  async search(query, filters, page = 1, sort = null, group = null) {
+  async search(query, filters, page = 1, sort = null, group = null, signal = undefined) {
     const params = this._buildParams(query, filters, page, sort, group);
     const endpoint = query ? "search" : "browse";
-    const r = await fetch(`${API_BASE_URL}/${endpoint}?${params}`);
+    const r = await fetch(`${API_BASE_URL}/${endpoint}?${params}`, { signal });
     if (!r.ok) {
       const err = new Error(`API ${r.status}`);
       err.status = r.status;
@@ -278,7 +278,7 @@ const serverSearch = {
     if (opts.date_to) p.set("date_to", opts.date_to);
     if (searchLang() === "fr") p.set("lang", "fr");
     const qs = p.toString();
-    const r = await fetch(`${API_BASE_URL}/facets${qs ? `?${qs}` : ""}`);
+    const r = await fetch(`${API_BASE_URL}/facets${qs ? `?${qs}` : ""}`, { signal: opts.signal });
     if (!r.ok) throw new Error(`API ${r.status}`);
     return r.json();
   },
@@ -2599,7 +2599,7 @@ let _railCountSeq = 0;
  *  otherwise the counts are scoped to the matching cases via /api/facets.
  *  The checkbox filters are deliberately NOT applied — the rail shows a
  *  stable breakdown of the text search, not a self-narrowing facet view. */
-async function refreshRailCounts(query, filters) {
+async function refreshRailCounts(query, filters, signal = undefined) {
   if (!serverSearch.available) return;
   const q = (query || "").trim();
   const dFrom = (filters && filters.dateFrom)
@@ -2617,7 +2617,7 @@ async function refreshRailCounts(query, filters) {
   }
   const seq = ++_railCountSeq;
   try {
-    const facets = await serverSearch.getFacets({ q, date_from: dFrom, date_to: dTo });
+    const facets = await serverSearch.getFacets({ q, date_from: dFrom, date_to: dTo, signal });
     if (seq !== _railCountSeq) return; // a newer search superseded this one
     renderYearHistogram(facets.years || state.globalYears);
     const fc = buildFacetCounts(facets);
@@ -2635,6 +2635,7 @@ async function refreshRailCounts(query, filters) {
     state.facetCounts = fc;
     applyRailCounts();
   } catch (e) {
+    if (e.name === "AbortError") return;   // a newer search took over
     console.warn("[Rail Counts] scoped facets fetch failed:", e);
   }
 }
@@ -6170,7 +6171,7 @@ function _renderAnalyticsData(a) {
 }
 
 /** Fetch full analytics from server for current query/filters and render. */
-async function fetchAndRenderServerAnalytics(query, filters) {
+async function fetchAndRenderServerAnalytics(query, filters, signal = undefined) {
   try {
     const p = new URLSearchParams();
     if (query) p.set("q", query);
@@ -6191,7 +6192,7 @@ async function fetchAndRenderServerAnalytics(query, filters) {
     if (filters.dateFrom) p.set("date_from", filters.dateFrom);
     if (filters.dateTo) p.set("date_to", filters.dateTo);
 
-    const r = await fetch(`${API_BASE_URL}/analytics?${p}`);
+    const r = await fetch(`${API_BASE_URL}/analytics?${p}`, { signal });
     if (!r.ok) throw new Error(`API ${r.status}`);
     const data = await r.json();
 
@@ -6233,6 +6234,7 @@ async function fetchAndRenderServerAnalytics(query, filters) {
     });
     console.log(`[Server Analytics] Rendered (${data.analytics_time_ms}ms, ${data.total_cases} cases)`);
   } catch (e) {
+    if (e.name === "AbortError") return;   // a newer search took over
     console.warn("[Server Analytics] Failed, falling back to local:", e);
     renderAnalytics();
   }
@@ -6386,9 +6388,41 @@ async function renderNameMatches(query) {
   el.nameMatches.hidden = false;
 }
 
+/* One search at a time: a new one cancels the previous search and its filter counts and charts, which
+ * otherwise kept the API busy (one worker) while the new search waited, and could land after it. */
+let _searchCtrl = null;
+let _searchSeq = 0;
+
+/* While a search runs: a thin bar under the header, "Searching…" on the button, the list marked busy,
+ * and after a few seconds a word on why it may take long. */
+function setSearching(on, seq) {
+  if (seq !== _searchSeq) return;
+  document.body.classList.toggle("is-searching", on);
+  el.casesList.setAttribute("aria-busy", on ? "true" : "false");
+  if (el.searchBtn) el.searchBtn.textContent = on ? "Searching…" : "Run search";
+  clearTimeout(setSearching.slowTimer);
+  if (on) setSearching.slowTimer = setTimeout(() => {
+    const note = el.casesList.querySelector(".search-loading-slow");
+    if (note && seq === _searchSeq) note.hidden = false;
+  }, 4000);
+}
+
+/** What a search reads, for the loading line: "20,123 judgments", "23,680 judgments and decisions"… */
+function searchedCollectionLabel(filters) {
+  const c = state.corpusStats || {};
+  if (searchLang() === "fr") return c.french_originals ? `${fmtInt.format(c.french_originals)} judgments` : "the French originals";
+  const n = (filters.includeJudgments !== false && filters.includeMt !== "only" ? (c.total_judgments || 0) : 0)
+    + (filters.includeDecisions ? (c.total_decisions || 0) : 0)
+    + (filters.includeMt ? (c.total_machine_translations || 0) : 0);
+  return n ? `${fmtInt.format(n)} ${resultsNoun(filters)}` : "the judgments";
+}
+
 /** Server-side search — calls API and adapts results to local format. */
 async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
   const defaultView = !!opts.defaultView;
+  if (_searchCtrl) _searchCtrl.abort();
+  const ctrl = _searchCtrl = new AbortController();
+  const seq = ++_searchSeq;
   renderNameMatches(defaultView ? "" : query);
   // Sort + grouping are driven by the result-bar controls (state).
   // Relevance only makes sense with a query; paragraph (flat) mode
@@ -6401,18 +6435,17 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
   if (el.inlineSearchInput) el.inlineSearchInput.value = query;
   state.currentFilters = filters;
 
-  // Adapt the filter-rail counts to this search (fire-and-forget — runs
-  // in parallel with the search request, updates the rail when it lands).
-  refreshRailCounts(query, filters);
-
   if (resetPage) state.currentPage = 1;
 
   // Show loading state
   const loadingMsg = defaultView
     ? "Loading 100 most recent cases…"
-    : (query ? "Searching 18,000+ cases…" : "Browsing cases…");
+    : (query ? `Searching ${searchedCollectionLabel(filters)}…` : "Browsing cases…");
   hideSemanticHint();
-  el.casesList.innerHTML = `<div class="search-loading" style="text-align:center;padding:2rem;color:var(--text-secondary);">${loadingMsg}</div>`;
+  el.casesList.innerHTML = `<div class="search-loading" role="status" aria-live="polite">` +
+    `<span class="search-loading-msg">${escapeHtml(loadingMsg)}</span>` +
+    `<span class="search-loading-slow" hidden>Common words take a few seconds; a filter (Article, State, years) narrows the search.</span></div>`;
+  setSearching(true, seq);
   el.noResults.hidden = true;
   el.pagination.hidden = true;
   el.resultsHeader.hidden = false;
@@ -6422,7 +6455,9 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
 
   const t0 = performance.now();
   try {
-    const data = await serverSearch.search(query, filters, state.currentPage, sort, group);
+    const data = await serverSearch.search(query, filters, state.currentPage, sort, group, ctrl.signal);
+    if (seq !== _searchSeq) return;          // a newer search took over
+    setSearching(false, seq);
     const t1 = performance.now();
     maybeShowSemanticHint(query, data);
 
@@ -6477,7 +6512,9 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
       state.serverTotalPages = Math.ceil((data.total_hits || 0) / PAGE_SIZE) || 1;
       renderActiveFilters(filters);
       renderResultsPage();
-      fetchAndRenderServerAnalytics(query, filters);
+      // the filter counts and charts once the results are on screen, so they do not compete with them
+      refreshRailCounts(query, filters, ctrl.signal);
+      fetchAndRenderServerAnalytics(query, filters, ctrl.signal);
       updateResultsHeaderServer(data, { defaultView: false });
       return;
     }
@@ -6582,13 +6619,16 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
     // on the redesigned researcher layout.  Instead derive page-level
     // aggregates from the cases we already loaded.  This matches what
     // the user sees on screen.
+    refreshRailCounts(query, filters, ctrl.signal);
     if (!defaultView) {
-      fetchAndRenderServerAnalytics(query, filters);
+      fetchAndRenderServerAnalytics(query, filters, ctrl.signal);
     } else {
       try { renderAnalytics(); } catch (e) { console.warn("[Browse Analytics] local render failed:", e); }
     }
     updateResultsHeaderServer(data, { defaultView });
   } catch (err) {
+    if (err.name === "AbortError" || seq !== _searchSeq) return;   // replaced by a newer search
+    setSearching(false, seq);
     console.error("[Server Search] Error:", err);
     // Fall back to local search
     state.serverMode = false;
