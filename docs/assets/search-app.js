@@ -2594,20 +2594,39 @@ function applyRailCounts() {
 }
 
 let _railCountSeq = 0;
+/* Above this many matching passages the counts by filter take 20-60 s on the server (measured on
+ * 12 October 2026: 42,000 passages 23 s, 147,000 passages 25 s, 122,000 passages 52 s), so a broad
+ * search keeps the counts of the whole corpus, with a note saying so. */
+const RAIL_COUNTS_MAX_HITS = 20000;
+
+function setRailCountsNote(show) {
+  let note = document.getElementById("railCountsNote");
+  if (!note && show) {
+    note = document.createElement("p");
+    note.id = "railCountsNote"; note.className = "rail-counts-note";
+    note.textContent = `Counts are for the whole corpus: this search matches more than ${fmtInt.format(RAIL_COUNTS_MAX_HITS)} ` +
+      "passages, too many to count by filter quickly. The filters still apply.";
+    document.querySelector("#filtersPanel .filters-grid")?.prepend(note);
+  }
+  if (note) note.hidden = !show;
+}
 /** Refresh the filter-rail counts so they reflect the active search.
  *  No query and no date range → whole-corpus counts (cached on load);
  *  otherwise the counts are scoped to the matching cases via /api/facets.
  *  The checkbox filters are deliberately NOT applied — the rail shows a
  *  stable breakdown of the text search, not a self-narrowing facet view. */
-async function refreshRailCounts(query, filters, signal = undefined) {
+async function refreshRailCounts(query, filters, signal = undefined, totalHits = 0) {
   if (!serverSearch.available) return;
   const q = (query || "").trim();
+  const broad = totalHits > RAIL_COUNTS_MAX_HITS;
+  setRailCountsNote(broad);
   const dFrom = (filters && filters.dateFrom)
     ? new Date(filters.dateFrom).toISOString().slice(0, 10) : "";
   const dTo = (filters && filters.dateTo)
     ? new Date(filters.dateTo).toISOString().slice(0, 10) : "";
-  if (!q && !dFrom && !dTo && searchLang() === "en") {
+  if (broad || (!q && !dFrom && !dTo && searchLang() === "en")) {
     // Whole-corpus view — restore the cached global counts.
+    if (broad) ++_railCountSeq;          // a scoped count still on its way must not replace these
     if (state.globalFacetCounts) {
       state.facetCounts = state.globalFacetCounts;
       applyRailCounts();
@@ -6172,6 +6191,9 @@ function _renderAnalyticsData(a) {
 
 /** Fetch full analytics from server for current query/filters and render. */
 async function fetchAndRenderServerAnalytics(query, filters, signal = undefined) {
+  // The result statistics sit in a sidebar section the current layout hides; computing them took the
+  // server 8-42 s per broad search for nothing. Fetched only while the panel is on screen.
+  if (!el.analyticsArticles || el.analyticsArticles.offsetParent === null) return;
   try {
     const p = new URLSearchParams();
     if (query) p.set("q", query);
@@ -6513,7 +6535,7 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
       renderActiveFilters(filters);
       renderResultsPage();
       // the filter counts and charts once the results are on screen, so they do not compete with them
-      refreshRailCounts(query, filters, ctrl.signal);
+      refreshRailCounts(query, filters, ctrl.signal, data.total_hits || 0);
       fetchAndRenderServerAnalytics(query, filters, ctrl.signal);
       updateResultsHeaderServer(data, { defaultView: false });
       return;
@@ -6619,7 +6641,7 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
     // on the redesigned researcher layout.  Instead derive page-level
     // aggregates from the cases we already loaded.  This matches what
     // the user sees on screen.
-    refreshRailCounts(query, filters, ctrl.signal);
+    refreshRailCounts(query, filters, ctrl.signal, defaultView ? 0 : (data.total_hits || 0));
     if (!defaultView) {
       fetchAndRenderServerAnalytics(query, filters, ctrl.signal);
     } else {

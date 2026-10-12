@@ -44,14 +44,13 @@ timed() {
 }
 
 # The search page's example queries and the tour's, sent exactly as the page sends them, so that the
-# API's result cache holds their answers (search, filter counts, result charts) and a click is instant.
+# API's result cache holds their answers (search and filter counts) and a click is instant.
 PAGE_SECTIONS="Introduction,Procedure,Circumstances,Subject Matter,Facts Background,Facts Proceedings,Facts,Legal Framework,Legal Context,Relevant legal framework,Commission Proceedings,Summary,Admissibility,Merits,Final Submissions,Just Satisfaction,Article 46,Operative Part,Operative part,Separate Opinion"
 PAGE_EXCLUDE="heading,heading_h0,heading_h1,heading_h2,heading_h3,heading_h4,metadata,signature,footer"
 example() {
   timed "example: $1"            /api/search    --data-urlencode "q=$1" --data-urlencode "page=1" --data-urlencode "page_size=20" \
     --data-urlencode "sort=relevance" --data-urlencode "sections=${PAGE_SECTIONS}" --data-urlencode "exclude_roles=${PAGE_EXCLUDE}"
   timed "example counts: $1"     /api/facets    --data-urlencode "q=$1"
-  timed "example charts: $1"     /api/analytics --data-urlencode "q=$1"
 }
 
 run_steps() {
