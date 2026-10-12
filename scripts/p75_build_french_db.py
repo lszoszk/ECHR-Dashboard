@@ -57,6 +57,9 @@ CREATE TABLE french_only_cases (case_id TEXT PRIMARY KEY, source_id TEXT, title 
 INDEXES = """
 CREATE INDEX idx_paragraphs_case_id ON paragraphs(case_id);
 CREATE INDEX idx_paragraphs_case_para ON paragraphs(case_id, para_idx);
+-- covering indexes the search reads instead of whole rows (api/main.py, _par_hint)
+CREATE INDEX idx_par_meta ON paragraphs(rowid, case_id, section, row_role);
+CREATE INDEX idx_par_case_section ON paragraphs(case_id, section);
 CREATE INDEX idx_case_articles_article ON case_articles(article);
 CREATE INDEX idx_case_articles_case ON case_articles(case_id);
 CREATE INDEX idx_cases_respondent_state ON cases(respondent_state);
