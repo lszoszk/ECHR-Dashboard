@@ -2744,3 +2744,31 @@ body { padding-bottom: var(--bar-h); }
   :root { --bar-h: 44px; }
   .site-footer .sf-btn, .site-footer .api-status { height: 32px; }
 }
+
+/* While a search runs (body.is-searching, search-app.js): a thin moving bar under the header, a small
+   spinner on the button and in the list, and after a few seconds a word on why it may take long. */
+body.is-searching::before {
+  content: ""; position: fixed; top: var(--nav-h); left: 0; z-index: 150;
+  width: 30vw; height: 3px; background: var(--garnet);
+  animation: search-progress 1.2s ease-in-out infinite;
+}
+@keyframes search-progress { from { transform: translateX(-30vw); } to { transform: translateX(100vw); } }
+@keyframes search-spin { to { transform: rotate(360deg); } }
+.search-loading {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 2.5rem 1rem; color: var(--ink-2); text-align: center; font-family: var(--font-serif);
+}
+.search-loading-msg::before,
+body.is-searching #searchBtn::after {
+  content: ""; display: inline-block; width: 0.8em; height: 0.8em; vertical-align: -0.08em;
+  border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%;
+  animation: search-spin 0.8s linear infinite;
+}
+.search-loading-msg::before { margin-right: 0.55em; color: var(--garnet); }
+body.is-searching #searchBtn::after { margin-left: 0.5em; }
+.search-loading-slow { max-width: 34rem; font-size: 0.85rem; color: var(--ink-3); }
+.search-loading-slow[hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  body.is-searching::before { animation: none; width: 100vw; opacity: 0.5; }
+  .search-loading-msg::before, body.is-searching #searchBtn::after { animation-duration: 2.4s; }
+}
