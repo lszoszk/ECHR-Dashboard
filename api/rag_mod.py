@@ -162,6 +162,7 @@ def run_paragraph_search(q, respondent=None, article=None, section=None, include
     cand = []; per_case = {}
     for scr, p in zip(D[0], pos):
         cid, s, key, sec, m = row(p)
+        if not m: continue  # no longer in the corpus (cases_meta.json is rebuilt from it; the index is not)
         if s is None or s == 0: continue  # skip uncitable sub-fragments (no HUDOC § number → would render as ¶0)
         if respondent and respondent not in _split(m.get("state", "")): continue
         arts = [str(x) for x in (m.get("violation") or [])]
@@ -224,7 +225,8 @@ def keyword_cases(q, limit=20):
                            "WHERE doc_fts MATCH ? ORDER BY bm25(doc_fts) LIMIT ?", (m, limit)).fetchall()
     except sqlite3.OperationalError:
         return []
-    return [r[0] for r in rows]
+    meta = S["meta"]
+    return [r[0] for r in rows if r[0] in meta]   # not judgments since removed from the corpus
 
 def hybrid_fuse(cases, q, keep=HYBRID_KEEP, k_rrf=60):
     """RRF reorder WITHIN match tiers (badges keep their meaning) + flagged tail."""

@@ -6,10 +6,10 @@
 
 Figures of the live corpus on 11 October 2026:
 
-- **20,123 judgments** of the European Court of Human Rights in English (14 November 1960 – **8 October 2026**), against **47 respondent States**, and **3,557 decisions** (1986–2026), a selection for now: about 12 % of HUDOC's 29,001 English decisions of the Court (see [Scope](#scope-judgments-in-english))
+- **20,073 judgments** of the European Court of Human Rights in English (14 November 1960 – **8 October 2026**), against **47 respondent States**, and **3,557 decisions** (1986–2026), a selection for now: about 12 % of HUDOC's 29,001 English decisions of the Court (see [Scope](#scope-judgments-in-english))
 - **3.73 million segmented text rows** — body paragraphs, headings, quoted passages and operative formulae — of which **1.33 million carry the Court's own paragraph numbering** (`¶ 1`, `¶ 2`…); **1.23 million** of these are paragraphs of the judgments themselves, outside the operative part and the separate opinions, and 77,000 are paragraphs of the decisions (older decisions are not numbered)
 - **2,460 judgments that HUDOC publishes only in French**, as unofficial English machine translations (390,000 rows, 174,000 numbered paragraphs), left out of every search unless switched on (see [Machine translations](#machine-translation))
-- **9,283 judgments that HUDOC publishes only in French**, in their authentic French text (1 April 1999 – 8 October 2026; 1.1 million rows, 460,490 numbered paragraphs), searched when *Français* is chosen in Search (see [French originals](#french-originals))
+- **9,284 judgments that HUDOC publishes only in French**, in their authentic French text (1 April 1999 – 8 October 2026; 1.1 million rows, 460,490 numbered paragraphs), searched when *Français* is chosen in Search (see [French originals](#french-originals))
 - **287,316 citation links** between the judgments and decisions of the corpus, and **58,867** more from 8,356 French-only judgments to judgments of the corpus, which count in *Cited by* (see [Citation graph](#influence) below)
 
 > **Cut-off.** The corpus ends at the newest judgment listed above, not at
@@ -236,9 +236,10 @@ word ending is matched with `*` (*discrimin\**), and the other operators work as
 filters (Article, State, years, formation, importance, outcome) use the same values as the English
 corpus, taken from HUDOC's records of these judgments.
 
-- **Which judgments:** the 9,283 judgments for which HUDOC holds a record in English but a text only in French
+- **Which judgments:** the 9,284 judgments for which HUDOC holds a record in English but a text only in French
   (1999–2026), downloaded as Word files from HUDOC's French items and split into
   the Court's numbered paragraphs by the same parser as the English texts.
+  On 12 October 2026, 50 judgments of 2026 that earlier monthly updates had loaded into the English corpus with their French text (HUDOC's French item) were moved out of it: 49 were already here under HUDOC's English record of the same judgment, and one was added.
 - **Checks:** in 3,040 rows (0.3%) the text opens with a paragraph number the row does not carry, and
   in 418 places the numbering of a judgment goes backwards, about the same rates as in the English
   texts. These have not been corrected one by one: check the paragraph on HUDOC before citing it.
