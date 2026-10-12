@@ -86,7 +86,7 @@
     const s = stats || {};
     const from = /(\d{4})$/.exec(s.date_from || "")?.[1] || "1960";
     const to = /(\d{4})$/.exec(s.date_to || "")?.[1] || "2026";
-    const frN = s.french_originals ?? 9283;     // French originals (0 where the server does not hold them)
+    const frN = s.french_originals ?? 9284;     // French originals (0 where the server does not hold them)
     let spark = "";
     if (years && years.length) {
       const counts = years.filter((y) => Number(y.year) > 1900);
@@ -104,7 +104,7 @@
          ${fmt(s.total_machine_translations || 2460)} French-only judgments can be switched on in the English search${s.total_decisions ? `, and so can
          ${fmt(s.total_decisions)} of the Court's decisions` : ""}.</div>
        <div class="tour-stats">
-         <div><b>${fmt(s.total_judgments || 20123)}</b><span>judgments in English</span></div>
+         <div><b>${fmt(s.total_judgments || 20073)}</b><span>judgments in English</span></div>
          ${s.total_decisions ? `<div><b>${fmt(s.total_decisions)}</b><span>decisions, a selection</span></div>` : ""}
          ${frN ? `<div><b>${fmt(frN)}</b><span>only in French, in French</span></div>` : ""}
          <div><b>${fmt(s.citable_paragraphs || 1404444)}</b><span>numbered paragraphs</span></div>
