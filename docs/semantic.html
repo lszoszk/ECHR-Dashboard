@@ -1951,8 +1951,9 @@ function flattenCasesForDraft(cases, max=12, ppc=2) {
    ========================================================= */
 async function checkHealth() {
   try {
-    const r = await fetch(API + '/health');
+    const r = await fetch(API + '/health', { cache: 'no-store' });
     const d = await r.json();
+    $('status-dot').classList.remove('red');
     $('status-dot').classList.add('green');
     $('status-text').textContent = 'Connected';
     state.geminiEnabled = !!d.gemini_enabled;
@@ -1985,6 +1986,7 @@ async function checkHealth() {
   } catch (e) {
     $('status-dot').classList.add('red');
     $('status-text').textContent = 'Disconnected';
+    setTimeout(checkHealth, 15000);   // a slow or dropped connection: try again until the server answers
   }
 }
 async function loadRespondents() {
