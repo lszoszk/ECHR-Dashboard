@@ -175,6 +175,30 @@ def _par_hint() -> str:
     return " INDEXED BY idx_par_meta" if _PAR_META_IDX[path] else ""
 
 
+# Each judgment's sections (Header aside), for the filter counts: built once per database file (1.4 s
+# on the VM, about 160,000 pairs), rebuilt when the file changes.
+_CASE_SECTIONS: dict[str, tuple] = {}
+_CASE_SECTIONS_LOCK = threading.Lock()
+
+
+def _case_sections(cur) -> dict[str, tuple]:
+    path, stamp = _db_path(), _db_stamp()
+    hit = _CASE_SECTIONS.get(path)
+    if hit and hit[0] == stamp:
+        return hit[1]
+    with _CASE_SECTIONS_LOCK:
+        hit = _CASE_SECTIONS.get(path)
+        if hit and hit[0] == stamp:
+            return hit[1]
+        m: dict[str, list] = {}
+        for r in cur.execute("SELECT DISTINCT case_id, section FROM paragraphs "
+                             "WHERE section IS NOT NULL AND section != 'Header'"):
+            m.setdefault(r[0], []).append(r[1])
+        frozen = {k: tuple(v) for k, v in m.items()}
+        _CASE_SECTIONS[path] = (stamp, frozen)
+        return frozen
+
+
 @contextmanager
 def get_cursor(deadline_s: float = 0):
     """Yield a cursor from the thread-local connection.
@@ -1332,13 +1356,16 @@ def facets(
                     + " GROUP BY importance ORDER BY count DESC", scope_params)
                 result["importance"] = [_row_to_dict(r) for r in cur.fetchall()]
 
-                # Sections (exclude Header — case metadata, not content)
-                cur.execute(
-                    "SELECT section AS value, count(DISTINCT case_id) AS count "
-                    "FROM paragraphs WHERE section IS NOT NULL "
-                    "AND section != 'Header'" + scope_clause
-                    + " GROUP BY section ORDER BY count DESC", scope_params)
-                result["sections"] = [_row_to_dict(r) for r in cur.fetchall()]
+                # Sections (exclude Header — case metadata, not content): judgments per section, from
+                # the map of each judgment's sections (counting the paragraphs of every matching
+                # judgment took 2-3.5 s for a common word; the map answers in milliseconds)
+                case_sections = _case_sections(cur)
+                sec_counts: dict[str, int] = {}
+                for cid in (scope_ids if scoped else case_sections):
+                    for sec in case_sections.get(cid, ()):
+                        sec_counts[sec] = sec_counts.get(sec, 0) + 1
+                result["sections"] = [{"value": k, "count": v}
+                                      for k, v in sorted(sec_counts.items(), key=lambda kv: (-kv[1], kv[0]))]
 
                 # Originating bodies — translate raw HUDOC codes ("25"…"29")
                 # to their labels so the facet list and the body: operator
@@ -1482,7 +1509,7 @@ def _build_case_filter_sql(
 
     if sec_list and fts_expr:
         placeholders = ",".join("?" for _ in sec_list)
-        where_clauses.append(f"p.section IN ({placeholders})")
+        where_clauses.append(f"+p.section IN ({placeholders})")
         params.extend(sec_list)
 
     if art_list:
@@ -1846,7 +1873,7 @@ def search(
 
     if sec_list:
         placeholders = ",".join("?" for _ in sec_list)
-        where_clauses.append(f"p.section IN ({placeholders})")
+        where_clauses.append(f"+p.section IN ({placeholders})")
         params.extend(sec_list)
 
     if art_list:
@@ -2444,7 +2471,8 @@ def search(
             sec_where = ""
             if sec_list:
                 sec_ph = ",".join("?" for _ in sec_list)
-                sec_where = f"AND p.section IN ({sec_ph})"
+                # "+": a filter on each match, not an index lookup per listed section (see _par_hint)
+                sec_where = f"AND +p.section IN ({sec_ph})"
                 snippet_params.extend(sec_list)
 
             snippet_params.append(fts_expr)
@@ -2506,7 +2534,7 @@ def search(
                 "FROM paragraphs_fts pf "
                 f"JOIN paragraphs p{_par_hint()} ON p.rowid = pf.rowid "
                 f"WHERE pf.paragraphs_fts MATCH ? {sec_where}{role_where} "
-                "AND p.case_id IN (SELECT value FROM json_each(?) ) "
+                "AND +p.case_id IN (SELECT value FROM json_each(?) ) "
                 f"ORDER BY {adj_rank}"
             )
             cur.execute(pick_sql, snippet_params_final)
