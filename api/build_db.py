@@ -112,6 +112,9 @@ CREATE TABLE IF NOT EXISTS case_articles (
 
 _INDEXES_SQL = """
 CREATE INDEX IF NOT EXISTS idx_paragraphs_case_id      ON paragraphs(case_id);
+-- covering indexes the search reads instead of whole rows (api/main.py, _par_hint)
+CREATE INDEX IF NOT EXISTS idx_par_meta ON paragraphs(rowid, case_id, section, row_role);
+CREATE INDEX IF NOT EXISTS idx_par_case_section ON paragraphs(case_id, section);
 CREATE INDEX IF NOT EXISTS idx_paragraphs_case_para     ON paragraphs(case_id, para_idx);
 CREATE INDEX IF NOT EXISTS idx_case_articles_article    ON case_articles(article);
 CREATE INDEX IF NOT EXISTS idx_cases_respondent_state   ON cases(respondent_state);

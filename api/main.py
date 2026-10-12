@@ -154,6 +154,27 @@ def _get_connection() -> sqlite3.Connection:
     return conn
 
 
+# A search reads, for every matching paragraph, only its judgment, section and role. Without help SQLite
+# fetches the whole row by rowid, text included: for a common word some 150,000 rows from a slow disk.
+# idx_par_meta (rowid, case_id, section, row_role) holds just those, but the planner prefers the primary
+# key, so the queries that need nothing else name it (INDEXED BY). Only where the database has it,
+# looked up once per process: drop the index only together with a restart.
+_PAR_META_IDX: dict[str, bool] = {}
+
+
+def _par_hint() -> str:
+    path = _db_path()
+    if path not in _PAR_META_IDX:
+        try:
+            con = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+            _PAR_META_IDX[path] = bool(con.execute(
+                "SELECT 1 FROM sqlite_master WHERE type = 'index' AND name = 'idx_par_meta'").fetchone())
+            con.close()
+        except sqlite3.Error:
+            _PAR_META_IDX[path] = False
+    return " INDEXED BY idx_par_meta" if _PAR_META_IDX[path] else ""
+
+
 @contextmanager
 def get_cursor(deadline_s: float = 0):
     """Yield a cursor from the thread-local connection.
@@ -1453,7 +1474,7 @@ def _build_case_filter_sql(
 
     if fts_expr:
         joins.append(
-            "JOIN paragraphs p ON p.case_id = c.case_id "
+            f"JOIN paragraphs p{_par_hint()} ON p.case_id = c.case_id "
             "JOIN paragraphs_fts pf ON pf.rowid = p.rowid"
         )
         where_clauses.append("pf.paragraphs_fts MATCH ?")
@@ -2015,7 +2036,7 @@ def search(
             count_sql = (
                 "SELECT count(DISTINCT c.case_id) AS total_cases, count(*) AS total_hits "
                 "FROM paragraphs_fts pf "
-                "JOIN paragraphs p ON p.rowid = pf.rowid "
+                f"JOIN paragraphs p{_par_hint()} ON p.rowid = pf.rowid "
                 "JOIN cases c ON c.case_id = p.case_id "
                 f"{join_sql} "
                 f"WHERE {where_sql}{role_where}"
@@ -2067,7 +2088,7 @@ def search(
                 _found: set[str] = set()
                 if total_cases:
                     _found = {r[0] for r in cur.execute(
-                        "SELECT DISTINCT c.case_id FROM paragraphs_fts pf JOIN paragraphs p ON p.rowid = pf.rowid "
+                        f"SELECT DISTINCT c.case_id FROM paragraphs_fts pf JOIN paragraphs p{_par_hint()} ON p.rowid = pf.rowid "
                         f"JOIN cases c ON c.case_id = p.case_id {join_sql} WHERE {where_sql}{role_where}",
                         [*params, *role_params])}
                 _words: list[str] = []
@@ -2299,7 +2320,7 @@ def search(
                     "       count(*) AS hit_count, "
                     f"       max(-{adj_rank}) * (1.0 + 0.3 * ln(1.0 + count(*))) AS relevance_score "
                     "FROM paragraphs_fts pf "
-                    "JOIN paragraphs p ON p.rowid = pf.rowid "
+                    f"JOIN paragraphs p{_par_hint()} ON p.rowid = pf.rowid "
                     "JOIN cases c ON c.case_id = p.case_id "
                     f"{join_sql} "
                     f"WHERE {where_sql}{role_where} "
@@ -2360,7 +2381,7 @@ def search(
                     "       count(*) AS hit_count, "
                     f"       max(-{adj_rank}) * (1.0 + 0.3 * ln(1.0 + count(*))) AS relevance_score "
                     "FROM paragraphs_fts pf "
-                    "JOIN paragraphs p ON p.rowid = pf.rowid "
+                    f"JOIN paragraphs p{_par_hint()} ON p.rowid = pf.rowid "
                     "JOIN cases c ON c.case_id = p.case_id "
                     f"{join_sql} "
                     f"WHERE {where_sql}{role_where} "
@@ -2483,7 +2504,7 @@ def search(
             pick_sql = (
                 "SELECT p.rowid AS rid, p.case_id "
                 "FROM paragraphs_fts pf "
-                "JOIN paragraphs p ON p.rowid = pf.rowid "
+                f"JOIN paragraphs p{_par_hint()} ON p.rowid = pf.rowid "
                 f"WHERE pf.paragraphs_fts MATCH ? {sec_where}{role_where} "
                 "AND p.case_id IN (SELECT value FROM json_each(?) ) "
                 f"ORDER BY {adj_rank}"
