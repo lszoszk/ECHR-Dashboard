@@ -2772,3 +2772,7 @@ body.is-searching #searchBtn::after { margin-left: 0.5em; }
   body.is-searching::before { animation: none; width: 100vw; opacity: 0.5; }
   .search-loading-msg::before, body.is-searching #searchBtn::after { animation-duration: 2.4s; }
 }
+
+/* Broad search: the filter counts are the corpus-wide ones (search-app.js, RAIL_COUNTS_MAX_HITS) */
+.rail-counts-note { margin: 0 0 12px; padding: 8px 10px; font-size: 0.8rem; line-height: 1.45; color: var(--ink-2); background: var(--paper-2); border-left: 2px solid var(--rule); }
+.rail-counts-note[hidden] { display: none; }
