@@ -2,6 +2,9 @@
 #
 # run_monthly_update.sh — monthly incremental update of the ECHR corpus.
 #
+# Superseded by scripts/run_daily_update.sh, which also syncs HUDOC metadata and the French
+# citations. Kept for reference.
+#
 # Discovers ECHR judgments published since the corpus's newest case,
 # ingests them into the production database, and rebuilds the citation
 # graph.  Safe to re-run: cases already present are skipped.
