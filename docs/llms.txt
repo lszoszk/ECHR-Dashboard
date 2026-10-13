@@ -33,7 +33,7 @@
 - [Methodology: segmentation, sections, citation graph, translations, validation, limits](https://lszoszk.github.io/ECHR-Dashboard/methodology.html)
 - [Statistics](https://lszoszk.github.io/ECHR-Dashboard/analytics.html)
 - [About, licences, how to cite](https://lszoszk.github.io/ECHR-Dashboard/about.html)
-- [Source code](https://github.com/lszoszk/ECHR-Dashboard) · [Releases and DOI (Zenodo)](https://doi.org/10.5281/zenodo.21319703)
+- [Website code](https://github.com/lszoszk/ECHR-Dashboard) (the data pipeline and the API are not public) · [Releases and DOI (Zenodo)](https://doi.org/10.5281/zenodo.21319703)
 
 ## Licence
 

@@ -327,12 +327,12 @@ Methodology page.
 
 ## Reproducibility & citation
 
-All transformation scripts are versioned in the project repository under `scripts/`. Each script supports a default dry-run mode, an `--apply` flag, and writes a backup table before any change. The full per-pass change log, precision-audit reports, and per-sample LLM verdicts are maintained internally and available on request.
+All transformation scripts are versioned in a separate, non-public repository. Each script supports a default dry-run mode, an `--apply` flag, and writes a backup table before any change. The scripts, the full per-pass change log, precision-audit reports, and per-sample LLM verdicts are available for research on request.
 
 If you use the tool or its data in research, please cite (copy buttons on the [About](about.html#cite) page):
 
 > Szoszkiewicz, Ł., & Marcisz, S. (2026). *HUDOC Researcher — ECtHR case-law search and RAG* [Computer software]. Zenodo. <https://doi.org/10.5281/zenodo.21319703>
 
-The paragraph-level corpus is published as a dataset on Hugging Face: <https://huggingface.co/datasets/lszoszk/ecthr-judgments>. Code: <https://github.com/lszoszk/ECHR-Dashboard>.
+The paragraph-level corpus is published as a dataset on Hugging Face: <https://huggingface.co/datasets/lszoszk/ecthr-judgments>. Website code: <https://github.com/lszoszk/ECHR-Dashboard>.
 
 For methodology questions, validation reports, or access to internal documentation: **<l.szoszkiewicz@amu.edu.pl>**.

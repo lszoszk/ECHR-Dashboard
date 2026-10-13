@@ -1,79 +1,38 @@
-# HUDOC Researcher — ECtHR Case-Law Search & RAG
+# HUDOC Researcher
 
 [![License: PolyForm Noncommercial](https://img.shields.io/badge/license-PolyForm%20Noncommercial-blue.svg)](LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21319703.svg)](https://doi.org/10.5281/zenodo.21319703)
 
-Tools for searching and analysing European Court of Human Rights (ECtHR)
-case-law at the **paragraph level** — a public dashboard plus a semantic
-retrieval (RAG) system anchored on the Court's official Case-Law Guides.
+The judgments of the European Court of Human Rights, paragraph by paragraph: full-text and semantic search,
+citation checking, Cites / Cited by and statistics.
 
-**Live dashboard:** https://lszoszk.github.io/ECHR-Dashboard/
+**Live site:** https://lszoszk.github.io/ECHR-Dashboard/
 
-**Corpus:** 20,098 judgments · 3.31 M segmented rows · **cut-off 8 October 2026**.
-That date is a harvest boundary, not today: new judgments arrive by a monthly
-ingest, HUDOC renders their source documents some weeks after delivery, and the
-semantic index is rebuilt separately. So the last weeks before the cut-off are
-thinner than they will become, and anything decided after it is absent.
+This repository holds the website only (`docs/`, published by `.github/workflows/deploy-pages.yml`). The data
+pipeline, the search API and the deployment tools are kept in a separate, non-public repository; how the data
+was built and checked is set out in the [Methodology](https://lszoszk.github.io/ECHR-Dashboard/methodology.html).
+Questions, internal documentation and access for research: l.szoszkiewicz@amu.edu.pl.
 
 Developed by **Łukasz Szoszkiewicz** and **Sebastian Marcisz**.
 
----
+## Data
 
-## Repository layout
+The paragraph-level corpus (judgments, paragraphs with numbers and section labels, citation links) is published
+on Hugging Face: [lszoszk/ecthr-judgments](https://huggingface.co/datasets/lszoszk/ecthr-judgments).
 
-| Path | What it is |
-|------|------------|
-| **`docs/`** | The **live GitHub Pages dashboard** (HTML/CSS/JS). Auto-deployed from this folder on `main` (`.github/workflows/deploy-pages.yml`). Calls the API for live search. |
-| **`api/`** | **Backend API** (FastAPI) powering the dashboard's search — runs in Docker on the VM (`echr-api`). |
-| **`rag/`** | The **semantic retrieval system** (main research contribution): the search app, the embedding/index pipeline, and the evaluation benchmark. → [`rag/README.md`](rag/README.md) |
-| **`scripts/`** | Corpus extraction, data-pipeline and audit scripts. |
-| **`deploy/`** | Deployment helpers (`deploy.sh`, nginx config, `docker-compose.yml`). |
-| **`legacy/`** | Archived earlier prototype (old Flask dashboard). Reference only. |
-| **`notes-internal/`** | Working notes & methodology (sensitive audits are git-ignored). |
-| **`data/`** | Local & VM data (corpus DB, raw JSONL…). **Git-ignored** — rebuilt by the scripts, never committed. |
+## Licensing
 
-## The RAG system in one paragraph
-Query → **voyage-4-large** embedding → **FAISS** (compressed SQ8) over **1.32 M
-ECtHR paragraphs** → **rerank-2.5** on the top 100 → **authority boost** (HUDOC
-"importance") → results grouped into cases. Evaluated against the Court's 41
-official Case-Law Guides. Full method, accuracy and how-to-run in
-[`rag/README.md`](rag/README.md).
-
-## Quick start — RAG search app
-```bash
-cd rag/app
-pip install -r requirements.txt          # fastapi uvicorn faiss-cpu numpy certifi
-echo "YOUR_VOYAGE_KEY" > voyage_key       # https://dashboard.voyageai.com (free tier ok)
-# put the prebuilt index under rag/app/data/  (build it via rag/pipeline/ — see rag/README.md)
-python rag_api.py                         # → http://127.0.0.1:8000
-```
-
-## Data & reproducibility
-The paragraph-level corpus (judgments, paragraphs with numbers and section labels,
-citation links) is published on Hugging Face:
-[lszoszk/ecthr-judgments](https://huggingface.co/datasets/lszoszk/ecthr-judgments)
-(snapshot of 9 October 2026). Large artifacts — the corpus DB, the ~1.3 GB FAISS
-index, the 5 GB embeddings — are **not in git** (git-ignored); they are rebuildable
-from `rag/pipeline/` and `scripts/`.
-
-## Licensing / attribution
-- Dashboard, API, pipeline, and RAG code: PolyForm Noncommercial 1.0.0;
-  research, education, non-profit, and personal use are permitted. See
-  [`LICENSE`](LICENSE).
-- Curated dataset (segmentation, paragraph numbers, section labels, metadata,
-  citation links; on [Hugging Face](https://huggingface.co/datasets/lszoszk/ecthr-judgments)):
-  CC BY-NC-SA 4.0. See [`LICENSE-DATA`](LICENSE-DATA).
-- ECtHR judgments & Case-Law Guides are © Council of Europe / ECtHR, reused under
-  HUDOC terms and are not re-licensed by this project. See [`NOTICE`](NOTICE).
-  This project is **not affiliated with or endorsed by** the Court.
-- The search tool is a **research aid, not legal advice.**
+- Website code: PolyForm Noncommercial 1.0.0; research, education, non-profit and personal use are permitted.
+  See [`LICENSE`](LICENSE).
+- Curated dataset (segmentation, paragraph numbers, section labels, metadata, citation links): CC BY-NC-SA 4.0.
+  See [`LICENSE-DATA`](LICENSE-DATA).
+- The judgments are © Council of Europe / European Court of Human Rights, reused under the Court's terms for
+  HUDOC content and not re-licensed by this project. See [`NOTICE`](NOTICE). This project is **not affiliated
+  with or endorsed by** the Court, and the site is a **research aid, not legal advice**.
 
 ## Citation
 
-> Szoszkiewicz, Ł., & Marcisz, S. (2026). *HUDOC Researcher — ECtHR Case-Law
-> Search & RAG* (Version 1.0.0) [Computer software]. Zenodo.
-> https://doi.org/10.5281/zenodo.21319703
+> Szoszkiewicz, Ł., & Marcisz, S. (2026). *HUDOC Researcher — ECtHR Case-Law Search & RAG* [Computer software].
+> Zenodo. https://doi.org/10.5281/zenodo.21319703
 
-GitHub exposes machine-readable metadata from [`CITATION.cff`](CITATION.cff).
-When citing a legal proposition or judgment paragraph, cite the authoritative
-HUDOC record and paragraph in addition to the software used to locate it.
+When citing a judgment paragraph, cite the authoritative HUDOC record and paragraph as well.

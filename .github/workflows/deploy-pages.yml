@@ -16,6 +16,9 @@ concurrency:
 
 jobs:
   build:
+    # Pages is served from the public repository only; the private pipeline repository keeps this file
+    # as the source that deploy/publish_site.sh copies across.
+    if: github.repository == 'lszoszk/ECHR-Dashboard'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
