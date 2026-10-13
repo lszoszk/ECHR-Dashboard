@@ -135,7 +135,7 @@ def main() -> int:
              j(meta["non_violation"]), j(meta["violation_inferred"] or []), j(meta["non_violation_inferred"] or []),
              j(meta["keywords"]), j(meta["originating_body"]), meta["document_type"],
              j(meta["strasbourg_caselaw"]), None, None, meta["rules_of_court"], None,
-             "original", src, "FRE", meta["title"]))
+             "original", src, "FRE", p60.TRANSLATION_NOTE.sub("", meta["title"])))
         first = True
         for r in data["paragraphs"]:
             text = (r.get("text") or "").strip()

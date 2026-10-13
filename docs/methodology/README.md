@@ -4,24 +4,32 @@
 
 ## What's in the dataset
 
-Figures of the live corpus on 11 October 2026:
+Figures of the live corpus on 13 October 2026:
 
-- **20,073 judgments** of the European Court of Human Rights in English (14 November 1960 – **8 October 2026**), against **47 respondent States**, and **3,557 decisions** (1986–2026), a selection for now: about 12 % of HUDOC's 29,001 English decisions of the Court (see [Scope](#scope-judgments-in-english))
+- **20,060 judgments** of the European Court of Human Rights in English (14 November 1960 – **8 October 2026**), against **47 respondent States**, and **3,557 decisions** (1986–2026), a selection for now: about 12 % of HUDOC's 29,001 English decisions of the Court (see [Scope](#scope-judgments-in-english))
 - **3.73 million segmented text rows** — body paragraphs, headings, quoted passages and operative formulae — of which **1.33 million carry the Court's own paragraph numbering** (`¶ 1`, `¶ 2`…); **1.23 million** of these are paragraphs of the judgments themselves, outside the operative part and the separate opinions, and 77,000 are paragraphs of the decisions (older decisions are not numbered)
 - **2,460 judgments that HUDOC publishes only in French**, as unofficial English machine translations (390,000 rows, 174,000 numbered paragraphs), left out of every search unless switched on (see [Machine translations](#machine-translation))
 - **9,284 judgments that HUDOC publishes only in French**, in their authentic French text (1 April 1999 – 8 October 2026; 1.1 million rows, 460,490 numbered paragraphs), searched when *Français* is chosen in Search (see [French originals](#french-originals))
-- **287,316 citation links** between the judgments and decisions of the corpus, and **58,867** more from 8,356 French-only judgments to judgments of the corpus, which count in *Cited by* (see [Citation graph](#influence) below)
-
-> **Cut-off.** The corpus ends at the newest judgment listed above, not at
-> today's date. It is topped up by a monthly ingest, and the Court publishes
-> faster than HUDOC renders the source documents those passes read — so the
-> last few weeks before the cut-off are thinner than they will eventually be,
-> and anything decided after it is absent entirely. Charts with a time axis
-> therefore show a short final year; that is the harvest boundary, not a drop
-> in the Court's output. The live corpus size is shown on the Search page and in
-> the tour, and the Statistics page prints the build date of its own snapshot.
+- **286,825 citation links** between the judgments and decisions of the corpus, and **58,867** more from 8,356 French-only judgments to judgments of the corpus, which count in *Cited by* (see [Citation graph](#influence) below)
 - **Source:** the official HUDOC portal (cases harvested by the Court itself)
 - **Coverage:** all 47 Council of Europe contracting parties plus their successor states
+
+<a id="data-currency"></a>
+
+### How current the case-law is
+
+The corpus is a copy of HUDOC taken on a given day, not a live feed. The Search page shows its date in the bar at the bottom, *Case-law to …*, read from the database each time the page opens; hover it for both dates below.
+
+| | Date |
+|---|---|
+| Newest judgment in the corpus (the cut-off) | **8 October 2026** |
+| Last check against HUDOC (metadata: importance, outcome, keywords, citations listed by HUDOC) | **9 October 2026** |
+| Oldest judgment | 14 November 1960 |
+
+- **Anything delivered after the cut-off is not here.** Check HUDOC for later judgments and decisions, and for corrections HUDOC made after the last check (a rectified text, a changed importance level).
+- **Updates are run by hand**, not on a fixed schedule: each one fetches from HUDOC the judgments published since the cut-off, re-reads HUDOC's metadata, rebuilds the citation graph and moves both dates forward. The decisions, the French originals and the machine translations are added in separate batches (see their sections).
+- **The last weeks before the cut-off are thinner** than they will be: the Court publishes a judgment on HUDOC before HUDOC renders the Word file this tool reads, so a judgment whose text was not yet there on the day of the update comes in with the next one. Charts with a time axis therefore end with a short year; that is the edge of the copy, not a drop in the Court's output.
+- **Semantic Search** has its own index, a snapshot of 8 October 2026 that the updates do not extend automatically (see [How the tools use the data](#tools-data)), and the **Statistics** page prints the build date of its own.
 
 <a id="scope-judgments-in-english"></a>
 
@@ -31,6 +39,7 @@ Two deliberate boundaries a HUDOC user should know about:
 
 - **Judgments, and a selection of decisions.** The corpus covers the Court's judgments (including ~6,500 Committee judgments, which HUDOC's default search omits) and 3,557 of its decisions, which appear when *Decisions* is ticked in Search. The decisions are a selection for now, about 12 % of the 29,001 decisions of the Court that HUDOC has in English: those the judgments of the corpus cite (as `(dec.)` references) and those HUDOC rates as key cases or importance level 1, among them the Grand Chamber decisions such as *Banković*. Most are on admissibility; some strike an application out. More will be added. The other collections — Communicated Cases, Legal Summaries, Advisory Opinions, Commission decisions — are not included; consult HUDOC for those.
 - **English texts, and the French-only judgments in French.** About 9,300 judgments were delivered only in French — a substantial share of Chamber and Committee output. They are not in the English corpus; their authentic French texts can be searched by choosing *Français* (see [French originals](#french-originals)), and unofficial English machine translations of the 2,460 most-cited of them can be switched on in the English search (see [Machine translations of French-only judgments](#machine-translation)). On the Semantic Search page, "describe your case in any language" refers to the *query* (the embedding model is multilingual); the retrieved paragraphs are the English texts, and the French originals as well when *Also judgments only in French* is ticked.
+- **The Court's texts, not translations.** HUDOC also publishes translations of judgments by governments and NGOs, each as a document of its own (titled *[… Translation]*). They are not in the corpus: on 12 October 2026, 13 translations into Ukrainian, Turkish, Armenian, Lithuanian and Czech that monthly updates had loaded were removed (the Court's own text of each is here) and three titles taken from a translation were corrected. The one exception is five English translations by the European Roma Rights Centre of judgments HUDOC has only in French — *Wallová and Walla v. the Czech Republic*, *Sampanis and Others v. Greece*, *Paraskeva Todorova v. Bulgaria*, *Sampani and Others v. Greece* and *Lavida and Others v. Greece* — which HUDOC itself lists as English. They are kept, as the only English text of these judgments, and labelled *Only in French on HUDOC · third-party translation, unofficial*, with a link to the French original: quote that.
 
 The Statistics page is a static snapshot (its build date is printed under its title) and can lag the live counts shown in the Search header.
 
@@ -145,10 +154,10 @@ The bars compare the two numbers of the same judgment: the largest fills the bar
 | HUDOC: Strasbourg case-law list | items of the list the Court's documentalists compile for each judgment that our text pass did not find | 1.2 % |
 | HUDOC: extracted application numbers | numbers HUDOC extracted from the full document that do not occur in our text — mostly in footnotes, which our paragraph text does not include | 0.8 % |
 
-The figures count distinct links between a judgment and a cited case (287,316 in the current graph, of which 27,117 come from decisions and 24,340 point to decisions); a link found by more than one source is counted under the first source in the table. The last two sources are taken from HUDOC's own "Case details" metadata and are marked as such in the data (`extraction_method` `hudoc_caselaw` / `hudoc_extracted`); they have no paragraph attached.
+The figures count distinct links between a judgment and a cited case (286,825 in the current graph, of which 27,117 come from decisions and 24,340 point to decisions); a link found by more than one source is counted under the first source in the table. The last two sources are taken from HUDOC's own "Case details" metadata and are marked as such in the data (`extraction_method` `hudoc_caselaw` / `hudoc_extracted`); they have no paragraph attached.
 
 1. **Application numbers.** The `NNNNN/YY` identifier the Court uses when citing a precedent (e.g. *Kudła v. Poland*, no. 30210/96) is looked up in the case index; a number that does not resolve to a case in the corpus is ignored, which discards date-like false positives. When one number belongs to several documents of the same case (a Chamber and a Grand Chamber judgment, merits and just satisfaction, a revision), a date or an `ECHR 2005` year written next to the number decides, then the `[GC]` marker, then the principal judgment. A reference marked `(dec.)` counts only if that admissibility decision is itself in the corpus; it is never credited to a later judgment that happens to share the number.
-2. **Name and date.** Judgments before about 1999 are cited without a number — *Handyside v. the United Kingdom, 7 December 1976, Series A no. 24*. Such a reference is accepted only if exactly one judgment in the corpus was delivered on that date, the applicant's name is contained in its title and the respondent State matches. A number written in the reference that belongs to a different application rejects the match, as does a reference to a request for revision (its date belongs to the judgment under revision). The translations HUDOC hosts into other languages (titles marked *[… translation]*) are never cited or citing. Our machine translations of French-only judgments can be cited like any judgment, by number or by name and date, but their own *Cites* come from HUDOC's metadata (see [Machine translations](#machine-translation)). A judgment cannot cite a later one.
+2. **Name and date.** Judgments before about 1999 are cited without a number — *Handyside v. the United Kingdom, 7 December 1976, Series A no. 24*. Such a reference is accepted only if exactly one judgment in the corpus was delivered on that date, the applicant's name is contained in its title and the respondent State matches. A number written in the reference that belongs to a different application rejects the match, as does a reference to a request for revision (its date belongs to the judgment under revision). The translations HUDOC hosts into other languages (titles marked *[… translation]*) are never cited or citing; the five English translations by the European Roma Rights Centre, the only English text of their judgments, are cited and citing like any judgment. Our machine translations of French-only judgments can be cited like any judgment, by number or by name and date, but their own *Cites* come from HUDOC's metadata (see [Machine translations](#machine-translation)). A judgment cannot cite a later one.
 3. **HUDOC metadata.** Each item of the Strasbourg case-law list is resolved with the same rules as the text. An extracted number is used only when it does not occur in our text: where it does, the text pass has already decided (for example, it dropped a `(dec.)` reference whose decision is not in the corpus). A case the judgment already cites is never added twice, and a judgment cannot cite a later one.
 
 > **Example.** *Handyside v. the United Kingdom* (1976) is cited by about 250 later judgments. Counting application numbers alone found two of them, because nothing before 1999 was cited that way.
@@ -263,6 +272,8 @@ corpus, taken from HUDOC's records of these judgments.
   does when it cites a French-only judgment in English; quote the French text.
 - **In Semantic Search,** on request: ticking *Also judgments only in French* adds their 515,044 paragraphs to the
   English ones (an English query finds them too); see [How the tools use the data](#how-the-tools-use-the-data).
+
+<a id="tools-data"></a>
 
 ## How the tools use the data
 

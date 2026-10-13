@@ -1215,6 +1215,13 @@ def stats(
             row = cur.fetchone()
             date_to = row[0] if row else None
 
+            # When the corpus was last checked against HUDOC: the newest metadata fetch (p69, run after
+            # every update). Absent in a database without that table.
+            hudoc_checked = None
+            if _has_column(cur, "hudoc_metadata", "fetched_at"):
+                cur.execute("SELECT max(fetched_at) FROM hudoc_metadata")
+                hudoc_checked = (cur.fetchone()[0] or "")[:10] or None
+
             meaningful = _meaningful_counts(cur)
 
         db_size_mb = 0.0
@@ -1237,6 +1244,7 @@ def stats(
             "total_countries": total_countries,
             "date_from": date_from,
             "date_to": date_to,
+            "hudoc_checked": hudoc_checked,
             "db_size_mb": db_size_mb,
             "french_originals": _french_count(),
             "version": "1.1",
