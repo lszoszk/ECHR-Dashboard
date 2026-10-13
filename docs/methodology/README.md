@@ -4,12 +4,12 @@
 
 ## What's in the dataset
 
-Figures of the live corpus on 13 October 2026:
+Figures of the live corpus, read from the database as this page opens (the counts of text rows and citation links are those of 13 October 2026):
 
-- **20,067 judgments** of the European Court of Human Rights in English (14 November 1960 – **13 October 2026**), against **47 respondent States**, and **3,557 decisions** (1986–2026), a selection for now: about 12 % of HUDOC's 29,001 English decisions of the Court (see [Scope](#scope-judgments-in-english))
+- **<span data-live="judgments">20,067</span> judgments** of the European Court of Human Rights in English (14 November 1960 – **<span data-live="newest">13 October 2026</span>**), against **47 respondent States**, and **<span data-live="decisions">3,557</span> decisions** (1986–2026), a selection for now: about 12 % of HUDOC's 29,001 English decisions of the Court (see [Scope](#scope-judgments-in-english))
 - **3.73 million segmented text rows** — body paragraphs, headings, quoted passages and operative formulae — of which **1.33 million carry the Court's own paragraph numbering** (`¶ 1`, `¶ 2`…); **1.23 million** of these are paragraphs of the judgments themselves, outside the operative part and the separate opinions, and 77,000 are paragraphs of the decisions (older decisions are not numbered)
-- **2,460 judgments that HUDOC publishes only in French**, as unofficial English machine translations (390,000 rows, 174,000 numbered paragraphs), left out of every search unless switched on (see [Machine translations](#machine-translation))
-- **9,284 judgments that HUDOC publishes only in French**, in their authentic French text (1 April 1999 – 8 October 2026; 1.1 million rows, 460,490 numbered paragraphs), searched when *Français* is chosen in Search (see [French originals](#french-originals))
+- **<span data-live="translations">2,460</span> judgments that HUDOC publishes only in French**, as unofficial English machine translations (390,000 rows, 174,000 numbered paragraphs), left out of every search unless switched on (see [Machine translations](#machine-translation))
+- **<span data-live="french">9,284</span> judgments that HUDOC publishes only in French**, in their authentic French text (1 April 1999 – 8 October 2026; 1.1 million rows, 460,490 numbered paragraphs), searched when *Français* is chosen in Search (see [French originals](#french-originals))
 - **286,932 citation links** between the judgments and decisions of the corpus, and **59,385** more from 8,519 French-only judgments to judgments of the corpus, which count in *Cited by* (see [Citation graph](#influence) below)
 - **Source:** the official HUDOC portal (cases harvested by the Court itself)
 - **Coverage:** all 47 Council of Europe contracting parties plus their successor states

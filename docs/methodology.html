@@ -213,6 +213,29 @@
       if (target) target.scrollIntoView({ behavior: 'auto', block: 'start' });
     }
 
+    /* Corpus figures marked data-live in README.md: filled from the API when it answers; the text is the fallback. */
+    function fillLiveFigures() {
+      var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      var ctl = new AbortController(); setTimeout(function () { ctl.abort(); }, 6000);
+      fetch('https://150.254.115.204/echr-api/api/stats', { signal: ctl.signal })
+        .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function (d) {
+          var num = { judgments: d.total_judgments, decisions: d.total_decisions,
+                      translations: d.total_machine_translations, french: d.french_originals };
+          Object.keys(num).forEach(function (k) {
+            if (!num[k]) return;
+            document.querySelectorAll('[data-live="' + k + '"]').forEach(function (n) {
+              n.textContent = Number(num[k]).toLocaleString('en-GB');
+            });
+          });
+          var m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(d.date_to || ''));
+          if (m) document.querySelectorAll('[data-live="newest"]').forEach(function (n) {
+            n.textContent = Number(m[1]) + ' ' + MONTHS[Number(m[2]) - 1] + ' ' + m[3];
+          });
+        })
+        .catch(function () { /* keep the figures written in the text */ });
+    }
+
     fetch('methodology/README.md', { cache: 'no-store' })
       .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
       .then(md => {
@@ -220,6 +243,7 @@
         const root = document.getElementById('meth-md');
         root.innerHTML = marked.parse(md);
         assignHeadingIds(root);
+        fillLiveFigures();
         scrollToHashIfAny();
       })
       .catch(e => {
