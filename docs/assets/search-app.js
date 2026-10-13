@@ -132,6 +132,9 @@ const serverSearch = {
     if (serverOutcomes.length) p.set("outcomes", serverOutcomes.join(","));
     p.set("doc_types", docTypesParam(filters));
     if (!p.get("doc_types")) p.delete("doc_types");
+    // A word in nearly every judgment: the API says so at once instead of ranking a million paragraphs,
+    // unless the reader asked to run that search anyway (state.forceBroad holds its query).
+    if (query && state.forceBroad !== query) p.set("broad_guard", "1");
     if (filters.includeMt) p.set("include_mt", filters.includeMt === "only" ? "only" : "true");
     if (searchLang() === "fr") { p.delete("include_mt"); p.set("lang", "fr"); }
     // filters.dateFrom/dateTo are epoch-ms (parseDateInput → getTime()).
@@ -5921,6 +5924,16 @@ function renderPagination() {
 function renderNoResults() {
   const h = state.serverMode ? state.zeroHelp : null;
   const q = state.zeroQuery || el.searchInput.value || "";
+  const tb = state.serverMode ? state.tooBroad : null;
+  if (tb) {
+    const n = tb.paragraphs >= 1e6 ? `${(tb.paragraphs / 1e6).toFixed(1)} million` : fmtInt.format(tb.paragraphs);
+    el.noResults.innerHTML = `<div class="no-results-icon">§</div><h2>A very common search</h2>`
+      + `<ul class="nr-help"><li>Your words occur in ${n} paragraphs, in nearly every judgment, so a ranking of them says little.`
+      + ` Add another word, a <code>"phrase"</code> or a filter (Article, State, years) to narrow it down.</li>`
+      + `<li><a href="#" data-nr="broad">Show the results anyway</a> (this takes about 20 seconds).</li></ul>`
+      + `<a href="#" class="back-link" data-nr="back">← Back to search</a>`;
+    return;
+  }
   const items = [];
   const unknown = (h && h.unknown) || [];
   for (const u of unknown) {
@@ -6665,6 +6678,7 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
     state.searchTimeMs = data.search_time_ms || (t1 - t0);
     state.serverMode = true;
     state.zeroHelp = data.total_cases ? null : (data.help || null);
+    state.tooBroad = data.too_broad || null;
     state.zeroQuery = query;
     // P0 (Aug 2026): server retried with any-of-these-terms matching because
     // the exact all-terms query found nothing. Tell the user plainly.
@@ -7698,6 +7712,7 @@ function bindEvents() {
     const act = a.dataset.nr;
     if (act === "back") { resetFiltersAndQuery(); return; }
     if (act === "french") { document.querySelector('input[name="searchLang"][value="fr"]')?.click(); return; }
+    if (act === "broad") { state.forceBroad = state.zeroQuery || el.searchInput.value.trim(); applySearch(true); return; }
     if (act === "replace") {
       el.searchInput.value = el.searchInput.value.replace(
         new RegExp(`(^|[^\\p{L}])${escapeRegExp(a.dataset.from)}(?![\\p{L}])`, "iu"), `$1${a.dataset.to}`);
