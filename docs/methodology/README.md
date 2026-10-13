@@ -6,11 +6,11 @@
 
 Figures of the live corpus on 13 October 2026:
 
-- **20,060 judgments** of the European Court of Human Rights in English (14 November 1960 – **8 October 2026**), against **47 respondent States**, and **3,557 decisions** (1986–2026), a selection for now: about 12 % of HUDOC's 29,001 English decisions of the Court (see [Scope](#scope-judgments-in-english))
+- **20,067 judgments** of the European Court of Human Rights in English (14 November 1960 – **13 October 2026**), against **47 respondent States**, and **3,557 decisions** (1986–2026), a selection for now: about 12 % of HUDOC's 29,001 English decisions of the Court (see [Scope](#scope-judgments-in-english))
 - **3.73 million segmented text rows** — body paragraphs, headings, quoted passages and operative formulae — of which **1.33 million carry the Court's own paragraph numbering** (`¶ 1`, `¶ 2`…); **1.23 million** of these are paragraphs of the judgments themselves, outside the operative part and the separate opinions, and 77,000 are paragraphs of the decisions (older decisions are not numbered)
 - **2,460 judgments that HUDOC publishes only in French**, as unofficial English machine translations (390,000 rows, 174,000 numbered paragraphs), left out of every search unless switched on (see [Machine translations](#machine-translation))
 - **9,284 judgments that HUDOC publishes only in French**, in their authentic French text (1 April 1999 – 8 October 2026; 1.1 million rows, 460,490 numbered paragraphs), searched when *Français* is chosen in Search (see [French originals](#french-originals))
-- **286,825 citation links** between the judgments and decisions of the corpus, and **58,867** more from 8,356 French-only judgments to judgments of the corpus, which count in *Cited by* (see [Citation graph](#influence) below)
+- **286,932 citation links** between the judgments and decisions of the corpus, and **59,385** more from 8,519 French-only judgments to judgments of the corpus, which count in *Cited by* (see [Citation graph](#influence) below)
 - **Source:** the official HUDOC portal (cases harvested by the Court itself)
 - **Coverage:** all 47 Council of Europe contracting parties plus their successor states
 
@@ -18,18 +18,19 @@ Figures of the live corpus on 13 October 2026:
 
 ### How current the case-law is
 
-The corpus is a copy of HUDOC taken on a given day, not a live feed. The Search page shows its date in the bar at the bottom, *Case-law to …*, read from the database each time the page opens; hover it for both dates below.
+The corpus is a copy of HUDOC, updated once a day, not a live feed. The Search page shows how current it is in the bar at the bottom, *Case-law to …*, read from the database each time the page opens; hover it for the second date.
 
-| | Date |
+| | Where to see it |
 |---|---|
-| Newest judgment in the corpus (the cut-off) | **8 October 2026** |
-| Last check against HUDOC (metadata: importance, outcome, keywords, citations listed by HUDOC) | **9 October 2026** |
+| Newest judgment in the corpus (the cut-off) | *Case-law to …* in the bar at the bottom of Search |
+| Last update from HUDOC (new judgments and their metadata: importance, outcome, keywords, citations listed by HUDOC) | the same bar, on hover |
 | Oldest judgment | 14 November 1960 |
 
-- **Anything delivered after the cut-off is not here.** Check HUDOC for later judgments and decisions, and for corrections HUDOC made after the last check (a rectified text, a changed importance level).
-- **Updates are run by hand**, not on a fixed schedule: each one fetches from HUDOC the judgments published since the cut-off, re-reads HUDOC's metadata, rebuilds the citation graph and moves both dates forward. The decisions, the French originals and the machine translations are added in separate batches (see their sections).
-- **The last weeks before the cut-off are thinner** than they will be: the Court publishes a judgment on HUDOC before HUDOC renders the Word file this tool reads, so a judgment whose text was not yet there on the day of the update comes in with the next one. Charts with a time axis therefore end with a short year; that is the edge of the copy, not a drop in the Court's output.
-- **Semantic Search** has its own index, a snapshot of 8 October 2026 that the updates do not extend automatically (see [How the tools use the data](#tools-data)), and the **Statistics** page prints the build date of its own.
+- **A daily update.** Every evening (18:30, Central European time) a script asks HUDOC for the judgments published in the last days that the corpus does not hold, reads their text and HUDOC's metadata for them, rebuilds the citation graph and refreshes the counts. On a day with nothing new it changes nothing. It runs from the maintainers' machine, so a day can occasionally be missed; the next run catches up, because it looks back to a week before the newest judgment held.
+- **Judgments delivered only in French** come in by the same run: when HUDOC's English record of a judgment still has no text after three days and a French record of the same judgment has one, the French text is added to the [French originals](#french-originals), and the citations of every French original are linked so that it counts in *Cited by*. The three days leave HUDOC time to render an English text, which takes some days for a judgment delivered in English.
+- **Anything delivered after the cut-off is not here.** Check HUDOC for the latest judgments and decisions, and for corrections HUDOC made to judgments already held (a rectified text, a changed importance level): the daily run reads the metadata of new judgments only; the metadata of the whole corpus is re-read from HUDOC from time to time, by hand.
+- **The newest days are thinner** than they will be: the Court publishes a judgment on HUDOC before HUDOC renders the Word file this tool reads, so a judgment whose text was not yet there comes in with a later run. Charts with a time axis therefore end with a short year; that is the edge of the copy, not a drop in the Court's output.
+- **Not part of the daily run:** new decisions and new machine translations are added in separate batches (see their sections); **Semantic Search** has its own index, a snapshot of 8 October 2026 (see [How the tools use the data](#tools-data)); and the **Statistics** page is rebuilt separately and prints the build date of its own.
 
 <a id="scope-judgments-in-english"></a>
 
