@@ -5916,6 +5916,40 @@ function renderPagination() {
   `;
 }
 
+/* "No results": what the API found out about the query (its help block, sent only with an empty answer) and
+ * what to try next. Rebuilt every time, so a 503 message written into the box earlier does not stay. */
+function renderNoResults() {
+  const h = state.serverMode ? state.zeroHelp : null;
+  const q = state.zeroQuery || el.searchInput.value || "";
+  const items = [];
+  const unknown = (h && h.unknown) || [];
+  for (const u of unknown) {
+    let line = `No judgment contains <b>${escapeHtml(u.word)}</b>.`;
+    if (u.suggestion) {
+      line += ` Did you mean <a href="#" data-nr="replace" data-from="${escapeHtml(u.word)}" data-to="${escapeHtml(u.suggestion)}">${escapeHtml(u.suggestion)}</a>?`;
+    }
+    if (u.in_french) {
+      line += ` It occurs in ${u.in_french >= 1000 ? "1,000+" : fmtInt.format(u.in_french)} paragraphs of the French originals:`
+        + ` <a href="#" data-nr="french">search in French</a>.`;
+    }
+    items.push(line);
+  }
+  if (unknown.length && searchLang() !== "fr") {
+    items.push(`The judgments are in English. <a href="semantic.html?q=${encodeURIComponent(q)}">Semantic Search</a> also understands a description in another language.`);
+  }
+  if (h && h.any_words_query) {
+    items.push(`No paragraph contains all of your words. <a href="#" data-nr="query" data-q="${escapeHtml(h.any_words_query)}">Search for any of them</a>.`);
+  }
+  if (h && h.text_matches) {
+    items.push(`Your words occur in the judgments, but no paragraph passes the current filters or operators. <a href="#" data-nr="nofilters">Search without filters</a>.`);
+  }
+  el.noResults.innerHTML = `<div class="no-results-icon">§</div><h2>No results found</h2>`
+    + (items.length
+      ? `<ul class="nr-help">${items.map((t) => `<li>${t}</li>`).join("")}</ul>`
+      : `<p>Try different search terms, broader filters, or check your spelling.</p>`)
+    + `<a href="#" class="back-link" data-nr="back">← Back to search</a>`;
+}
+
 function renderResultsPage() {
   const totalCases = state.currentOrderedCaseIds.length;
   el.casesList.classList.toggle("card-mode-detailed", state.cardMode === "detailed");
@@ -5923,6 +5957,7 @@ function renderResultsPage() {
 
   if (totalCases === 0) {
     el.casesList.innerHTML = "";
+    renderNoResults();
     el.noResults.hidden = false;
     el.pagination.hidden = true;
     el.exportBtn.disabled = true;
@@ -6629,6 +6664,8 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
     state.limited = false;
     state.searchTimeMs = data.search_time_ms || (t1 - t0);
     state.serverMode = true;
+    state.zeroHelp = data.total_cases ? null : (data.help || null);
+    state.zeroQuery = query;
     // P0 (Aug 2026): server retried with any-of-these-terms matching because
     // the exact all-terms query found nothing. Tell the user plainly.
     renderFallbackNotice(data.fallback || null);
@@ -7653,9 +7690,27 @@ function bindEvents() {
     toggleCardMode();
   });
 
-  el.backToSearch.addEventListener("click", (e) => {
+  // The box is rebuilt for every empty result (renderNoResults), so its links are handled here, once.
+  el.noResults.addEventListener("click", (e) => {
+    const a = e.target.closest("[data-nr]");
+    if (!a) return;
     e.preventDefault();
-    resetFiltersAndQuery();
+    const act = a.dataset.nr;
+    if (act === "back") { resetFiltersAndQuery(); return; }
+    if (act === "french") { document.querySelector('input[name="searchLang"][value="fr"]')?.click(); return; }
+    if (act === "replace") {
+      el.searchInput.value = el.searchInput.value.replace(
+        new RegExp(`(^|[^\\p{L}])${escapeRegExp(a.dataset.from)}(?![\\p{L}])`, "iu"), `$1${a.dataset.to}`);
+    } else if (act === "query") {
+      el.searchInput.value = a.dataset.q;
+    } else if (act === "nofilters") {
+      el.searchInput.value = el.searchInput.value
+        .replace(/(^|\s)-?[a-z]+:("[^"]*"|\S+)/gi, " ").replace(/\s+/g, " ").trim();
+      el.dateFrom.value = "";
+      el.dateTo.value = "";
+      document.querySelectorAll("#filtersPanel input[type='checkbox']").forEach((c) => { c.checked = false; });
+    }
+    applySearch(true);
   });
 
   el.loadSampleBtn.addEventListener("click", loadSampleDataset);

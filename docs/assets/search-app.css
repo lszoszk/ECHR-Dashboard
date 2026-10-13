@@ -1423,3 +1423,9 @@ html[style*="--a11y-line-height"] .modal-para {
 
 /* Default view of Search: what the corpus count is made of */
 .results-lede p.results-corpus { margin: 0 0 6px; font-size: 0.86rem; line-height: 1.4; }
+
+/* "No results": what the API found out about the query, with links to try next */
+.no-results .nr-help { max-width: 620px; margin: 0 auto 1.5rem; padding: 0; list-style: none; text-align: left; }
+.no-results .nr-help li { margin: 0 0 0.7rem; padding-left: 1.1rem; position: relative; line-height: 1.5; color: var(--text-secondary); }
+.no-results .nr-help li::before { content: "·"; position: absolute; left: 0.2rem; color: var(--text-muted); }
+.no-results .nr-help a { color: var(--garnet, #8d2f2f); text-decoration: underline; }
