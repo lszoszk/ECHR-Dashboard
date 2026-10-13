@@ -45,6 +45,7 @@ import argparse
 import importlib.util
 import json
 import os
+import re
 import ssl
 import sqlite3
 import sys
@@ -118,6 +119,16 @@ DOCTYPE_BY_BRANCH = {
 }
 VALID_BRANCHES = set(DOCTYPE_BY_BRANCH)
 
+# HUDOC files the translations of a judgment by governments and NGOs as items of their own, titled e.g.
+# "CASE OF X v. Y - [Turkish Translation] by ...". Some are flagged "ENG" (English translations of
+# judgments HUDOC has only in French, and a few mislabelled ones), so the language check alone does not
+# keep them out of the corpus (p79 removed 13 and relabelled 8 on 12 October 2026).
+TRANSLATION_NOTE = re.compile(r"\s*-?\s*\[[^\]]*translation\].*$", re.IGNORECASE)
+
+
+def is_translation(cols: dict) -> bool:
+    return bool(TRANSLATION_NOTE.search(cols.get("docname") or ""))
+
 
 # ── reuse the existing pipeline ──────────────────────────────────────
 def _load_module(path: Path, name: str):
@@ -183,7 +194,7 @@ def discover(since: str, to: str) -> list[dict]:
             # The query already asks for ENG; re-check so a filter HUDOC stops
             # honouring cannot silently let other languages back in.
             english = (cols.get("languageisocode") or "").upper() == "ENG"
-            if iid.startswith("001-") and branch in VALID_BRANCHES and english:
+            if iid.startswith("001-") and branch in VALID_BRANCHES and english and not is_translation(cols):
                 rows.append(cols)
         total = data.get("resultcount", 0)
         start += page

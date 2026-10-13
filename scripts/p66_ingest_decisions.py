@@ -126,7 +126,8 @@ def discover_cited(cited: dict[str, dict], skip_ids: set[str]) -> tuple[dict[str
     chosen: dict[str, dict] = {}
     missing: list[str] = []
     for appno in appnos:
-        docs = {d["itemid"]: d for d in by_appno.get(appno, []) if d["itemid"].startswith("001-")}
+        docs = {d["itemid"]: d for d in by_appno.get(appno, [])
+                if d["itemid"].startswith("001-") and not p60.is_translation(d)}
         if not docs:
             missing.append(appno)
             continue
@@ -141,7 +142,7 @@ def discover_cited(cited: dict[str, dict], skip_ids: set[str]) -> tuple[dict[str
 def discover_key(skip_ids: set[str]) -> dict[str, dict]:
     q = BASE_QUERY + " AND (importance:1 OR importance:2)"
     return {d["itemid"]: d for d in hudoc_query(q)
-            if d["itemid"].startswith("001-") and d["itemid"] not in skip_ids}
+            if d["itemid"].startswith("001-") and d["itemid"] not in skip_ids and not p60.is_translation(d)}
 
 
 def main() -> int:
