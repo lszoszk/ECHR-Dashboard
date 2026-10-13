@@ -2783,7 +2783,7 @@ function renderViewC(data) {
   // 7 years") read as a title looks like a statement next to the big year.
   $('river-doctrine').textContent = 'Your results over time';
   const qShown = q.length > 110 ? q.slice(0, 110).trim() + '\u2026' : q;
-  $('river-blurb').textContent = `${q ? `For your query “${qShown}”: ` : ''}${data.results.length} judgments, placed by year of judgment. Click a dot to read one judgment, or a year to read all of that year's matching paragraphs.`;
+  $('river-blurb').textContent = `${q ? `For your query “${qShown}”: ` : ''}${data.results.length} judgments, placed by year of judgment (left to right). Judgments of the same year are stacked above and below the line, the closest match nearest it; the height means nothing else. Click a dot to read one judgment, or a year to read all of that year's matching paragraphs.`;
 
   // Build waypoints from result cases — one per case, sorted by year then score
   const waypoints = data.results
@@ -2873,12 +2873,11 @@ let riverDragging = false;   // module-level: drawRiver re-runs on every move, s
 function drawRiver(waypoints, minYr, maxYr, activeI, yearMode) {
   const W = 1500, H = 1040, padX = 100, padY = 90;
   const yearToX = (y) => padX + ((y - minYr) / Math.max(1, maxYr - minYr)) * (W - 2*padX);
-  const yAtX = (x) => {
-    const t = (x - padX) / (W - 2*padX);
-    return H/2 + Math.sin(t*6.5)*95 - t*40;
-  };
+  // A straight time axis: only left-right (the year) carries meaning. It used to be a decorative wave,
+  // which readers took for a trend.
+  const yAtX = () => H/2;
 
-  let path = `M ${padX} ${H/2 + 40}`;
+  let path = `M ${padX} ${H/2}`;
   for (let x = padX; x <= W - padX; x += 30) path += ` L ${x} ${yAtX(x)}`;
 
   let html = `
