@@ -234,6 +234,8 @@ const serverSearch = {
       __isDecision: (apiCase.document_type || "").toLowerCase().startsWith("decision"),
       // Judgments HUDOC publishes only in French, machine-translated for this tool (unofficial).
       __isMt: apiCase.text_origin === "machine_translation",
+      // An English translation by a third party (the ERRC) of a judgment HUDOC has only in French; HUDOC publishes it too.
+      __isThirdPartyTr: apiCase.text_origin === "third_party_translation",
       __sourceCaseId: apiCase.source_case_id || null,
       // The authentic French text of a judgment HUDOC publishes only in French (lang=fr).
       __isFrOriginal: apiCase.text_origin === "original",
@@ -1738,6 +1740,11 @@ function readLang(caseId) {
  * when both exist; the translation, when shown, is marked as unofficial in one line. */
 function caseLangHtml(c) {
   const both = (c.__isFrOriginal && c.__translationAvailable) || (c.__isMt && c.__originalAvailable);
+  if (c.__isThirdPartyTr) {
+    const fr = c.__sourceCaseId;
+    return `<p class="cn-mt-line">Unofficial translation by a third party, published on HUDOC, not the Court&rsquo;s text: quote the
+    French original${fr ? ` (<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(fr)}" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>)` : ""}.</p>`;
+  }
   if (!both && !c.__isMt) return "";
   const readingMt = both ? readLang(c.case_id) === "en" : true;
   const src = c.__sourceCaseId || c.source_case_id;
@@ -5811,6 +5818,7 @@ function buildCaseCard(caseId, row, rank = 1) {
           <span class="chip" title="${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "")}">${escapeHtml(formationLabel(c) || "-")}${c.__isDecision ? " decision" : ""}</span>
           ${outcomeChipHtml(c)}
           ${c.__isMt ? `<span class="chip mt-chip" title="HUDOC publishes this judgment only in French. This English text is a machine translation made for this tool, not a translation by the Court.">Only in French on HUDOC · machine translation, unofficial</span>` : ""}
+          ${c.__isThirdPartyTr ? `<span class="chip mt-chip" title="HUDOC publishes this judgment only in French. This English text is a translation by a third party, which HUDOC also publishes; it is not the Court's text.">Only in French on HUDOC · third-party translation, unofficial</span>` : ""}
           ${c.__isFrOriginal && c.__translationAvailable ? `<span class="chip lang-chip" title="An unofficial English machine translation of this judgment is available: switch to it in the case details.">EN translation</span>` : ""}
         </div>
 
@@ -6871,6 +6879,7 @@ async function exportResults() {
         data.case.__isPressRelease ? "Press Release" : (data.case.document_type || "Judgment"),
         // Which text the row quotes: the Court's English, our machine translation, or the French original.
         data.case.__isMt ? `Unofficial machine translation from French (original: HUDOC ${data.case.__sourceCaseId || data.case.case_id})`
+          : data.case.__isThirdPartyTr ? `Unofficial third-party translation from French (original: HUDOC ${data.case.__sourceCaseId || ""})`
           : data.case.__isFrOriginal ? "French original (authentic text)" : "Official English text",
         data.case.__outcomePrimary || "",
         data.case.__hasInadmissibility ? "yes" : "no",
@@ -8154,6 +8163,20 @@ function init() {
         for (const id of ["mtCount", "mtCountRail"]) {
           const node = document.getElementById(id);
           if (node) node.textContent = fmt.format(mtN);
+        }
+        // How current the case-law is: the newest judgment and the last check against HUDOC.
+        const asOf = document.getElementById("dataAsOf");
+        if (asOf && statsData.date_to) {
+          const day = (y, m, d) => new Date(Date.UTC(+y, +m - 1, +d));
+          const fmtDay = (dt, month) => dt.toLocaleDateString("en-GB", { day: "numeric", month, year: "numeric", timeZone: "UTC" });
+          const [d, m, y] = statsData.date_to.split("/");
+          const newest = day(y, m, d);
+          const checked = statsData.hudoc_checked ? day(...statsData.hudoc_checked.split("-")) : null;
+          asOf.textContent = `Case-law to ${fmtDay(newest, "short")}`;
+          asOf.title = `Newest judgment in the corpus: ${fmtDay(newest, "long")}`
+            + (checked ? `; checked against HUDOC on ${fmtDay(checked, "long")}` : "")
+            + ". Later judgments and decisions are not here yet: check HUDOC for them.";
+          asOf.hidden = false;
         }
         state.corpusStats = statsData;
         state.corpusTotal = statsData.total_cases || 0;

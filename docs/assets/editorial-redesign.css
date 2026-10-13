@@ -2405,6 +2405,8 @@ mark.hl {
   padding: 2px 9px; border: 1px solid var(--rule); border-radius: 999px;
   font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3);
 }
+.data-asof { text-decoration: none; }
+.data-asof:hover, .data-asof:focus-visible { color: var(--ink); border-color: var(--ink-3); }
 .api-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); }
 .api-status[data-state="live"] .api-dot { background: #2f9e5b; box-shadow: 0 0 0 3px rgba(47, 158, 91, 0.15); }
 .api-status[data-state="offline"] { color: var(--garnet); border-color: var(--garnet-edge, var(--garnet)); }

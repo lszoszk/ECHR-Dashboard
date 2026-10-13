@@ -1,6 +1,6 @@
 # HUDOC Researcher
 
-> Paragraph-level search over the judgments of the European Court of Human Rights (ECtHR), built at Adam Mickiewicz University, Poznań (Łukasz Szoszkiewicz, Sebastian Marcisz). It holds 20,073 judgments in English and 3,557 decisions (a selection for now: those cited in judgments and HUDOC's key cases; 14 November 1960 – 8 October 2026), split into the Court's own numbered paragraphs (1.33 million of them) with the part of the judgment each belongs to, plus 287,316 citation links between judgments and decisions. Free to use; an independent research tool, not affiliated with the Court and not legal advice.
+> Paragraph-level search over the judgments of the European Court of Human Rights (ECtHR), built at Adam Mickiewicz University, Poznań (Łukasz Szoszkiewicz, Sebastian Marcisz). It holds 20,060 judgments in English and 3,557 decisions (a selection for now: those cited in judgments and HUDOC's key cases; 14 November 1960 – 8 October 2026), split into the Court's own numbered paragraphs (1.33 million of them) with the part of the judgment each belongs to, plus 287,316 citation links between judgments and decisions. Free to use; an independent research tool, not affiliated with the Court and not legal advice.
 
 ## What is in it
 
