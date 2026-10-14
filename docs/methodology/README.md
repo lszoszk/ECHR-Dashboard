@@ -141,7 +141,9 @@ The notes come from the same HUDOC Word documents as the text. Each is placed by
 
 **Searching the footnotes.** Tick *Footnotes* under *Search in*: the judgments whose notes match the search, under the same filters (each note counts in the section of the paragraph that carries it), are listed under the results, apart from them, so they do not change the ranking of the text; a note opens the judgment at its paragraph, with the note shown. When the text has no match but the notes do, the search says so and offers to look there.
 
-Not yet: the notes are not part of copied or exported paragraphs, their citations are not in the citation graph (other than through HUDOC's extracted numbers), and the machine translations of French-only judgments have none.
+**Citations in the notes.** The references in the notes count in **Cites** and **Cited by** like those in the text, under the paragraph that carries the note ([Citation graph](#influence)). This added about 700 links between judgments, mostly from separate opinions, and gave a place in the text to about 2,350 links that were known only from HUDOC's metadata. Where a note names the exact document of a case (the 2004 Chamber judgment in *Hirst (No. 2)*, a judgment on just satisfaction, a revision), the link now goes to that document.
+
+Not yet: the notes are not part of copied or exported paragraphs, and the machine translations of French-only judgments have none.
 
 <a id="influence"></a>
 
@@ -158,16 +160,17 @@ Search covers the English judgments by default, and a click in the left pane ext
 
 The bars compare the two numbers of the same judgment: the largest fills the bar. Compare judgments by the numbers, not the bar lengths. A dash (—) means the citation graph has no data for that judgment, not that it has never been cited.
 
-**Cites** and **Cited by** come from a citation graph rebuilt after every corpus update, from three sources.
+**Cites** and **Cited by** come from a citation graph rebuilt after every corpus update, from our text, its footnotes and HUDOC's metadata.
 
 | Source | What it finds | Share of links (October 2026) |
 | --- | --- | ---: |
-| Our text: application numbers | `no. 30210/96` resolved to the judgment that carries it | 81.5 % |
-| Our text: name and date | references without a number, as pre-1999 judgments are cited | 16.5 % |
-| HUDOC: Strasbourg case-law list | items of the list the Court's documentalists compile for each judgment that our text pass did not find | 1.2 % |
-| HUDOC: extracted application numbers | numbers HUDOC extracted from the full document that do not occur in our text — mostly in footnotes, which our paragraph text does not include | 0.8 % |
+| Our text: application numbers | `no. 30210/96` resolved to the judgment that carries it | 81.3 % |
+| Our text: name and date | references without a number, as pre-1999 judgments are cited | 16.8 % |
+| Our text: footnotes | the same two kinds of reference in the judgment's footnotes ([Footnotes](#footnotes)) | 1.1 % |
+| HUDOC: Strasbourg case-law list | items of the list the Court's documentalists compile for each judgment that our text pass did not find | 0.8 % |
+| HUDOC: extracted application numbers | numbers HUDOC extracted from the full document that occur neither in our text nor in its footnotes | < 0.1 % |
 
-The figures count distinct links between a judgment and a cited case (286,825 in the current graph, of which 27,117 come from decisions and 24,340 point to decisions); a link found by more than one source is counted under the first source in the table. The last two sources are taken from HUDOC's own "Case details" metadata and are marked as such in the data (`extraction_method` `hudoc_caselaw` / `hudoc_extracted`); they have no paragraph attached.
+The figures count distinct links between a judgment and a cited case (287,620 in the current graph, of which 25,932 come from decisions and 22,926 point to decisions); a link found by more than one source is counted under the first source in the table. The last two sources are taken from HUDOC's own "Case details" metadata and are marked as such in the data (`extraction_method` `hudoc_caselaw` / `hudoc_extracted`); they have no paragraph attached.
 
 1. **Application numbers.** The `NNNNN/YY` identifier the Court uses when citing a precedent (e.g. *Kudła v. Poland*, no. 30210/96) is looked up in the case index; a number that does not resolve to a case in the corpus is ignored, which discards date-like false positives. When one number belongs to several documents of the same case (a Chamber and a Grand Chamber judgment, merits and just satisfaction, a revision), a date or an `ECHR 2005` year written next to the number decides, then the `[GC]` marker, then the principal judgment. A reference marked `(dec.)` counts only if that admissibility decision is itself in the corpus; it is never credited to a later judgment that happens to share the number.
 2. **Name and date.** Judgments before about 1999 are cited without a number — *Handyside v. the United Kingdom, 7 December 1976, Series A no. 24*. Such a reference is accepted only if exactly one judgment in the corpus was delivered on that date, the applicant's name is contained in its title and the respondent State matches. A number written in the reference that belongs to a different application rejects the match, as does a reference to a request for revision (its date belongs to the judgment under revision). The translations HUDOC hosts into other languages (titles marked *[… translation]*) are never cited or citing; the five English translations by the European Roma Rights Centre, the only English text of their judgments, are cited and citing like any judgment. Our machine translations of French-only judgments can be cited like any judgment, by number or by name and date, but their own *Cites* come from HUDOC's metadata (see [Machine translations](#machine-translation)). A judgment cannot cite a later one.
@@ -186,7 +189,7 @@ Measured on the October 2026 corpus at the level of cases (all documents sharing
 
 A random sample of 300 name-and-date matches was judged blind by a second model, mixed with 60 pairs that were wrong on purpose. All 60 wrong pairs were rejected, and 297 of the 300 matches were correct; the three errors (a same-day namesake with initials only, and two references to revision requests) were closed by the rules above. This is a precision check on a sample, not a guarantee.
 
-A reference that gives only a short name without a date (for example *Handyside, cited above* with no earlier full citation in the same judgment) is not counted from the text, so a figure can still be lower than the true number. Footnotes are shown in the reader and can be searched ([Footnotes](#footnotes)), but their references reach the graph only through HUDOC's extracted numbers.
+A reference that gives only a short name without a date (for example *Handyside, cited above* with no earlier full citation in the same judgment) is not counted from the text, so a figure can still be lower than the true number. The footnotes count as text: each note is read as part of the paragraph that carries it, with the same rules, and is marked in the data (`extraction_method` ending in `_footnote`).
 
 Citation coverage is necessarily partial: a case whose precedents fall outside the corpus shows fewer links than reality. A `—` (rather than `0`) marks cases with no recorded citations, so an absence of data is not mistaken for genuine legal isolation.
 
