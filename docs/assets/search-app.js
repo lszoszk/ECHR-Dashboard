@@ -236,6 +236,8 @@ const serverSearch = {
       __isPressRelease: (apiCase.document_type || "").toLowerCase().includes("press release"),
       __isCommittee: (apiCase.document_type || "").toLowerCase().includes("committee"),
       __isDecision: (apiCase.document_type || "").toLowerCase().startsWith("decision"),
+      // Advisory opinions (Protocol No. 16 / Article 47): HUDOC's request number in case_no, its type as document_type.
+      __isAdvisory: /^advisory opinion/i.test(apiCase.document_type || ""),
       // Judgments HUDOC publishes only in French, machine-translated for this tool (unofficial).
       __isMt: apiCase.text_origin === "machine_translation",
       // An English translation by a third party (the ERRC) of a judgment HUDOC has only in French; HUDOC publishes it too.
@@ -1458,7 +1460,7 @@ function splitAppNos(caseNo) {
 function formatAppNosCitation(caseNo) {
   const nos = splitAppNos(caseNo);
   if (!nos.length) return "";
-  if (nos.length === 1) return `no. ${nos[0]}`;
+  if (nos.length === 1) return /^(?:P16|A47)-\d{4}-\d{3}$/.test(nos[0]) ? `request no. ${nos[0]}` : `no. ${nos[0]}`;
   return `nos. ${nos.slice(0, -1).join(", ")} and ${nos[nos.length - 1]}`;
 }
 
@@ -1514,8 +1516,17 @@ function oscolaDate(value) {
 
 function buildOscolaCitation(caseObj, para) {
   const c = caseObj || {};
-  const gc = /grand chamber/i.test(String(c.__originatingBody || c.originating_body || ""));
+  const body = String(c.__originatingBody || c.originating_body || "");
+  const gc = /grand chamber/i.test(body) && !/panel/i.test(body);
   const dec = /^decision/i.test(String(c.document_type || ""));
+  if (/^advisory opinion/i.test(String(c.document_type || ""))) {
+    // As the Court cites them: "Advisory opinion … [GC], request no. P16-2018-001, 10 April 2019".
+    const no = String(c.case_no || "").trim();
+    const d = oscolaDate(c.judgment_date);
+    let a = `${oscolaTitle(c.title || c.case_id)}${gc ? " [GC]" : ""}${no ? " Request no " + no : ""} (ECtHR${d ? ", " + d : ""})`;
+    const pn = para ? (para.hudocParaNo != null ? para.hudocParaNo : para.displayParaNo) : null;
+    return pn != null ? `${a}, para ${pn}` : a;
+  }
   const apps = String(c.case_no || "").match(/\d+\/\d+/g) || [];
   const appPart = !apps.length ? ""
     : apps.length === 1 ? `App no ${apps[0]}`
@@ -1667,6 +1678,7 @@ function wsFilterSnapshot() {
     outcomes: arr(f.outcomes), docTypes: arr(f.docTypes), buckets: arr(f.buckets), includeMt: f.includeMt || false,
     lang: searchLang(),
     includeDecisions: !!f.includeDecisions, includeJudgments: f.includeJudgments !== false,
+    includeAdvisory: !!f.includeAdvisory,
     includeExtra: !!f.includeMeta, includeAppendix: !!f.includeAppendix,
     dateFrom: el.dateFrom.value || "", dateTo: el.dateTo.value || "",
   };
@@ -1691,6 +1703,7 @@ function searchUrl(query) {
   }
   if (s.includeMt) p.set("mt", s.includeMt === "only" ? "only" : "1");
   if (s.includeDecisions) p.set("dec", s.includeJudgments === false ? "only" : "1");
+  if (s.includeAdvisory) p.set("adv", s.includeJudgments === false ? "only" : "1");
   if (s.includeExtra) p.set("extra", "1");
   if (s.includeAppendix) p.set("appendix", "1");
   if (document.getElementById("scopeFootnotes")?.checked) p.set("fn", "1");
@@ -1706,7 +1719,8 @@ function snapshotFromUrl(p) {
   for (const [key, field] of Object.entries(URL_LISTS)) s[field] = (p.get(key) || "").split(",").map((x) => x.trim()).filter(Boolean);
   s.includeMt = p.get("mt") === "only" ? "only" : p.get("mt") ? "true" : false;
   s.includeDecisions = !!p.get("dec");
-  s.includeJudgments = p.get("dec") !== "only";
+  s.includeAdvisory = !!p.get("adv");
+  s.includeJudgments = p.get("dec") !== "only" && p.get("adv") !== "only";
   s.lang = p.get("lang") === "fr" ? "fr" : "en";
   s.includeExtra = p.get("extra") === "1";
   s.includeAppendix = p.get("appendix") === "1";
@@ -1737,6 +1751,7 @@ function wsFilterSummary(s) {
   if (s.buckets.length && s.buckets.length < allBuckets) parts.push(`in ${s.buckets.map((b) => SECTION_BUCKETS[b]?.label || b).join(", ")}`);
   if (s.includeMt) parts.push(s.includeMt === "only" ? "machine translations only" : "+ machine translations");
   if (s.includeDecisions) parts.push(s.includeJudgments === false ? "decisions only" : "+ decisions");
+  if (s.includeAdvisory) parts.push(s.includeJudgments === false ? "advisory opinions only" : "+ advisory opinions");
   if (s.lang === "fr") parts.push("French originals");
   return parts.join(" · ");
 }
@@ -1798,6 +1813,11 @@ function docTypesParam(filters) {
     types.add("decision");
     if (filters.includeJudgments !== false) types.add("judgment");
   }
+  // Advisory opinions: a collection of their own, as on HUDOC.
+  if (filters.includeAdvisory && searchLang() !== "fr") {
+    types.add("advisory");
+    if (filters.includeJudgments !== false) types.add("judgment");
+  }
   return [...types].join(",");
 }
 
@@ -1812,10 +1832,11 @@ function collectionMode() {
 function syncCollectionBoxes() {
   const mt = document.getElementById("includeMachineTranslations");
   const dec = document.getElementById("includeDecisions");
+  const adv = document.getElementById("includeAdvisory");
   const official = document.getElementById("includeOfficial");
   if (!official) return;
-  // Judgments can be unticked only while something else is searched (decisions or translations).
-  const other = (mt && mt.checked) || (dec && dec.checked);
+  // Judgments can be unticked only while something else is searched (decisions, advisory opinions or translations).
+  const other = (mt && mt.checked) || (dec && dec.checked) || (adv && adv.checked);
   if (!other) official.checked = true;
   official.disabled = !other;
 }
@@ -1830,10 +1851,12 @@ function wsApplySnapshot(s) {
   setSearchLang(s.lang === "fr" && !document.getElementById("langSwitch")?.hidden ? "fr" : "en");
   const decBox = document.getElementById("includeDecisions");
   if (decBox) decBox.checked = !!s.includeDecisions && !document.getElementById("decisionsPill")?.hidden;
+  const advBox = document.getElementById("includeAdvisory");
+  if (advBox) advBox.checked = !!s.includeAdvisory && !document.getElementById("advisoryPill")?.hidden;
   const mt = document.getElementById("includeMachineTranslations");
   if (mt) mt.checked = !!s.includeMt && !document.getElementById("mtPill")?.hidden;
   const official = document.getElementById("includeOfficial");
-  if (official) official.checked = !(mt && mt.checked && s.includeMt === "only") && !(decBox && decBox.checked && s.includeJudgments === false);
+  if (official) official.checked = !(mt && mt.checked && s.includeMt === "only") && !(((decBox && decBox.checked) || (advBox && advBox.checked)) && s.includeJudgments === false);
   syncCollectionBoxes();
   const mtNotice = document.getElementById("mtNotice");
   if (mtNotice) mtNotice.hidden = !(mt && mt.checked);
@@ -3036,6 +3059,7 @@ function getCurrentFilters() {
     docTypes: collectChecked("docTypes"),
     includeMt: collectionMode(),
     includeDecisions: !!document.getElementById("includeDecisions")?.checked,
+    includeAdvisory: !!document.getElementById("includeAdvisory")?.checked,
     includeJudgments: document.getElementById("includeOfficial")?.checked !== false,
     presence: collectChecked("presence"),
     dateFrom: parseDateInput(el.dateFrom.value),
@@ -3104,6 +3128,7 @@ function passesCaseFilters(c, filters, serverChecked = false) {
   // applies this itself (and lets case:/hudoc: lookups through), so its results
   // are not hidden again here.
   if (!serverChecked && c.__isDecision && !filters.includeDecisions) return false;
+  if (!serverChecked && c.__isAdvisory && !filters.includeAdvisory) return false;
   if (!serverChecked && c.__isMt && !filters.includeMt) return false;
   if (!serverChecked && !c.__isMt && filters.includeMt === "only") return false;
   // The server applies the formation itself (to judgments and decisions alike), so its results are not
@@ -3546,6 +3571,10 @@ function renderActiveFilters(filters) {
   if (filters.includeDecisions && searchLang() !== "fr") {
     chips.push(`<button type="button" class="filter-chip scope-chip" data-clear-scope="decisions"
       title="Back to judgments only">${filters.includeJudgments === false ? "Only decisions" : "+ decisions"} <span aria-hidden="true">✕</span></button>`);
+  }
+  if (filters.includeAdvisory && searchLang() !== "fr") {
+    chips.push(`<button type="button" class="filter-chip scope-chip" data-clear-scope="advisory"
+      title="Leave the advisory opinions out">+ advisory opinions <span aria-hidden="true">✕</span></button>`);
   }
   const bucketKeys = [...document.querySelectorAll('#bucketScope input[data-name="buckets"]')].map((i) => i.value);
   if (!filters.sections.size && filters.buckets.size && filters.buckets.size < bucketKeys.length) {
@@ -5452,7 +5481,8 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
   const subline = [
     escapeHtml((shortBodyLabel(c.__originatingBody) || chamberLabel || "") + (c.__isDecision ? " decision" : "")),
     escapeHtml(formatCaseDateForDisplay(c)),
-    appNos.length ? escapeHtml(`no. ${appNos[0]}${appNos.length > 1 ? ` +${appNos.length - 1}` : ""}`) : "",
+    c.__isAdvisory ? escapeHtml(c.case_no || "")
+      : appNos.length ? escapeHtml(`no. ${appNos[0]}${appNos.length > 1 ? ` +${appNos.length - 1}` : ""}`) : "",
     isKey ? '<span class="cn-key">Key case</span>' : "",
   ].filter(Boolean).join('<span class="cn-dot">·</span>');
   const headHtml = `
@@ -5629,6 +5659,10 @@ function metaSectionHtml(label, items, renderItem = escapeHtml, open = false) {
 
 /* The findings by Article, or the Articles when HUDOC lists no finding; plus the MT notice. */
 function caseFindingsHtml(c) {
+  if (c.__isAdvisory) {
+    return caseLangHtml(c) + `<div class="cn-findings"><div><span class="cnm-label">Type</span><span class="cn-chips">` +
+      `<span class="cn-art">${escapeHtml(c.document_type)}</span></span></div></div>`;
+  }
   const v = mostSpecificTokens(c.violation);
   const nv = mostSpecificTokens(c.non_violation || c["non-violation"]);
   const chips = (list, cls) => list.map((t) => `<span class="cn-art ${cls}" title="${escapeHtml(t)}">${escapeHtml(formatArticleToken(t))}</span>`).join("");
@@ -5848,9 +5882,11 @@ function buildCaseCard(caseId, row, rank = 1) {
         <p class="para-text researcher-primary-text">${primaryText}</p>
 
         <div class="researcher-chip-row">
-          ${buildResearcherArticleChips(c.__articles, 3)}
+          ${c.__isAdvisory
+            ? `<span class="chip">${escapeHtml(c.case_no || "")}</span><span class="chip">${escapeHtml(c.document_type)}</span>`
+            : buildResearcherArticleChips(c.__articles, 3)}
           <span class="chip" title="${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "")}">${escapeHtml(formationLabel(c) || "-")}${c.__isDecision ? " decision" : ""}</span>
-          ${outcomeChipHtml(c)}
+          ${c.__isAdvisory ? "" : outcomeChipHtml(c)}
           ${c.__isMt ? `<span class="chip mt-chip" title="HUDOC publishes this judgment only in French. This English text is a machine translation made for this tool, not a translation by the Court.">Only in French on HUDOC · machine translation, unofficial</span>` : ""}
           ${c.__isThirdPartyTr ? `<span class="chip mt-chip" title="HUDOC publishes this judgment only in French. This English text is a translation by a third party, which HUDOC also publishes; it is not the Court's text.">Only in French on HUDOC · third-party translation, unofficial</span>` : ""}
           ${c.__isFrOriginal && c.__translationAvailable ? `<span class="chip lang-chip" title="An unofficial English machine translation of this judgment is available: switch to it in the case details.">EN translation</span>` : ""}
@@ -5986,7 +6022,12 @@ function renderNoResults() {
   const fnOn = !!document.getElementById("scopeFootnotes")?.checked;
   if (fnOn && state.fnBlock && state.fnBlock.total_cases) {
     items.unshift(`No paragraph of the text matches, but the footnotes below do.`);
-  } else if (!fnOn && state.fnZeroCases) {
+  }
+  if (state.advisoryCases && !document.getElementById("includeAdvisory")?.checked) {
+    items.unshift(`Your words occur in ${fmtInt.format(state.advisoryCases)} advisory opinion${state.advisoryCases === 1 ? "" : "s"} of the Court. `
+      + `<a href="#" data-advisory-on>Include the advisory opinions</a>.`);
+  }
+  if (!fnOn && state.fnZeroCases) {
     items.unshift(`Your words occur in the footnotes of ${fmtInt.format(state.fnZeroCases)} judgment${state.fnZeroCases === 1 ? "" : "s"}. `
       + `<a href="#" data-nr="footnotes">Search the footnotes too</a>.`);
   }
@@ -6516,9 +6557,12 @@ async function renderNameMatches(query) {
     const appNo = String(m.case_no || "").split(";")[0].trim();
     const url = safeHudocUrl(m.hudoc_url);
     const isDecision = /^decision/i.test(m.document_type || "");
+    const isAdvisory = /^advisory opinion/i.test(m.document_type || "");
     const kind = isDecision ? ' <span class="nm-key">Decision</span>' : "";
     const key = kind + (m.importance === "Key cases" ? ' <span class="nm-key">Key case</span>' : "");
-    const meta = [m.respondent_state, formatCaseDateForDisplay(m), appNo ? `no. ${appNo}` : ""].filter(Boolean).join(" · ");
+    // an advisory opinion: HUDOC's request number and type, as HUDOC shows them
+    const meta = [m.respondent_state, formatCaseDateForDisplay(m), appNo ? (isAdvisory ? appNo : `no. ${appNo}`) : "",
+      isAdvisory ? m.document_type : ""].filter(Boolean).join(" · ");
     return `<li class="nm-item">
       <div class="nm-title">${escapeHtml(cleanCaseTitle(m.title))}${key}</div>
       <div class="nm-meta">${escapeHtml(meta)}</div>
@@ -6560,6 +6604,7 @@ function searchedCollectionLabel(filters) {
   if (searchLang() === "fr") return c.french_originals ? `${fmtInt.format(c.french_originals)} judgments` : "the French originals";
   const n = (filters.includeJudgments !== false && filters.includeMt !== "only" ? (c.total_judgments || 0) : 0)
     + (filters.includeDecisions ? (c.total_decisions || 0) : 0)
+    + (filters.includeAdvisory ? (c.total_advisory_opinions || 0) : 0)
     + (filters.includeMt ? (c.total_machine_translations || 0) : 0);
   return n ? `${fmtInt.format(n)} ${resultsNoun(filters)}` : "the judgments";
 }
@@ -6605,7 +6650,8 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
     const data = await serverSearch.search(query, filters, state.currentPage, sort, group, ctrl.signal);
     if (seq !== _searchSeq) return;          // a newer search took over
     state.fnBlock = data.footnotes || null;          // footnote search: its own block under the results
-    state.fnZeroCases = data.footnote_cases || 0;    // the text found nothing; the footnotes of N judgments did
+    state.fnZeroCases = data.footnote_cases || 0;
+    state.advisoryCases = data.advisory_cases || 0;  // matching advisory opinions, left out (their own collection)    // the text found nothing; the footnotes of N judgments did
     setSearching(false, seq);
     const t1 = performance.now();
     maybeShowSemanticHint(query, data);
@@ -6809,23 +6855,47 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
   }
 }
 
-/** What the results are: judgments, decisions, or both (the Decisions box). */
+/** What the results are: judgments, decisions, advisory opinions, or a mix (the Collection boxes). A box that is
+ *  off still counts when the page holds such a document (a case:/hudoc: lookup finds it whatever the box says). */
 function resultsNoun(filters = state.currentFilters || {}) {
   if (searchLang() === "fr") return "judgments";
-  if (!filters.includeDecisions) {
-    // a case:/hudoc: lookup finds a decision whatever the box says
-    const page = (state.currentOrderedCaseIds || []).map((id) => state.caseById.get(id)).filter(Boolean);
-    const dec = page.filter((c) => c.__isDecision).length;
-    return !dec ? "judgments" : dec === page.length ? "decisions" : "judgments and decisions";
-  }
-  return filters.includeJudgments === false && !collectionMode() ? "decisions" : "judgments and decisions";
+  const page = (state.currentOrderedCaseIds || []).map((id) => state.caseById.get(id)).filter(Boolean);
+  const has = (pred) => page.some(pred);
+  const kinds = [];
+  const judgmentsOn = filters.includeJudgments !== false || !!collectionMode();
+  const anyOther = filters.includeDecisions || filters.includeAdvisory;
+  if (anyOther ? judgmentsOn : (!page.length || has((c) => !c.__isDecision && !c.__isAdvisory))) kinds.push("judgments");
+  if (filters.includeDecisions || has((c) => c.__isDecision)) kinds.push("decisions");
+  if (filters.includeAdvisory || has((c) => c.__isAdvisory)) kinds.push("advisory opinions");
+  if (!kinds.length) return "judgments";
+  return kinds.length === 1 ? kinds[0] : `${kinds.slice(0, -1).join(", ")} and ${kinds[kinds.length - 1]}`;
 }
 
 /** "1 decision", "2 decisions"; one result of either kind is "1 document". */
 function countNoun(n, noun) {
   if (Number(n) !== 1) return noun;
-  return noun === "judgments and decisions" ? "document" : noun.replace(/s$/, "");
+  return noun.includes(" and ") ? "document" : noun.replace(/s$/, "");
 }
+
+/** "Also in N advisory opinions": they are a collection of their own (as on HUDOC), off by default. */
+function renderAdvisoryHint(defaultView) {
+  const node = document.getElementById("advisoryHint");
+  if (!node) return;
+  const n = state.advisoryCases || 0;
+  const on = !!document.getElementById("includeAdvisory")?.checked;
+  node.hidden = defaultView || on || !n || searchLang() === "fr";
+  if (!node.hidden) {
+    node.innerHTML = `Also in ${fmtInt.format(n)} advisory opinion${n === 1 ? "" : "s"} of the Court. `
+      + `<a href="#" data-advisory-on>Include them</a>`;
+  }
+}
+document.addEventListener("click", (e) => {
+  const a = e.target.closest("[data-advisory-on]");
+  if (!a) return;
+  e.preventDefault();
+  const box = document.getElementById("includeAdvisory");
+  if (box && !box.checked) { box.checked = true; box.dispatchEvent(new Event("change", { bubbles: true })); }
+});
 
 /** Default view: what the "records in the corpus" figure is made of, and whether Search covers the translations. */
 function renderCorpusNote() {
@@ -6839,10 +6909,14 @@ function renderCorpusNote() {
   if (!c || !state.defaultView || !c.total_machine_translations) { node.hidden = true; return; }
   const parts = [`${n(c.total_judgments)} judgments in English`];
   if (c.total_decisions) parts.push(`${n(c.total_decisions)} decisions`);
+  if (c.total_advisory_opinions) parts.push(`${n(c.total_advisory_opinions)} advisory opinions`);
   parts.push(`${n(c.total_machine_translations)} unofficial translations of French-only judgments`);
   const f = state.currentFilters || {};
-  const off = [c.total_decisions && !f.includeDecisions ? "the decisions" : "", !collectionMode() ? "the translations" : ""].filter(Boolean);
-  node.textContent = `${parts.join(" · ")}${off.length ? ` — ${off.join(" and ")} are left out of the search until you switch them on` : ""}.`;
+  const off = [c.total_decisions && !f.includeDecisions ? "the decisions" : "",
+    c.total_advisory_opinions && !f.includeAdvisory ? "the advisory opinions" : "",
+    !collectionMode() ? "the translations" : ""].filter(Boolean);
+  const list = off.length > 1 ? `${off.slice(0, -1).join(", ")} and ${off[off.length - 1]}` : off[0];
+  node.textContent = `${parts.join(" · ")}${off.length ? ` — ${list} are left out of the search until you switch them on` : ""}.`;
   node.hidden = false;
 }
 
@@ -6873,6 +6947,7 @@ function updateResultsHeaderServer(data, opts = {}) {
   if (el.queryMatchLabel) el.queryMatchLabel.textContent = defaultView ? "recent cases" : "¶ matched";
   if (!defaultView) announceResults();
   renderCorpusNote();
+  renderAdvisoryHint(defaultView);
 
   el.exportBtn.disabled = !state.currentOrderedCaseIds.length;
   if (el.clearBtn) el.clearBtn.disabled = false;
@@ -7086,6 +7161,7 @@ function searchExportInfo(nCases, nRows) {
   const parts = [
     snap.includeMt !== "only" && snap.includeJudgments !== false ? "Official English texts of the judgments" : "",
     snap.includeDecisions ? "Decisions of the Court in English (a selection: those cited in judgments, and key cases)" : "",
+    snap.includeAdvisory ? "Advisory opinions of the Court in English (HUDOC's Advisory Opinions collection)" : "",
     snap.includeMt ? "Unofficial English machine translations of judgments HUDOC publishes only in French" : "",
   ].filter(Boolean);
   const collection = fr ? "French originals of the judgments HUDOC publishes only in French (authentic texts)"
@@ -7875,21 +7951,25 @@ function bindEvents() {
       const dec = document.getElementById("includeDecisions");
       if (dec) dec.checked = false;
       syncCollectionBoxes();
+    } else if (chip.dataset.clearScope === "advisory") {
+      const adv = document.getElementById("includeAdvisory");
+      if (adv) adv.checked = false;
+      syncCollectionBoxes();
     } else {
       scope?.querySelectorAll('input[data-name="buckets"]').forEach((i) => { i.checked = true; });
     }
     scope?.dispatchEvent(new Event("change", { bubbles: true }));
   });
 
-  // The "i" beside the translations option: hover or focus shows it (CSS); a click pins it open
+  // The "i" beside the translations and advisory-opinion options: hover or focus shows it (CSS); a click pins it open
   // (touch screens), a click elsewhere or Escape closes it.
-  const mtInfo = document.getElementById("mtInfoTip");
-  if (mtInfo) {
-    const btn = mtInfo.querySelector(".info-tip-btn");
-    const setOpen = (open) => { mtInfo.classList.toggle("open", open); btn.setAttribute("aria-expanded", String(open)); };
-    btn.addEventListener("click", () => setOpen(!mtInfo.classList.contains("open")));
-    document.addEventListener("click", (e) => { if (!mtInfo.contains(e.target)) setOpen(false); });
-    mtInfo.addEventListener("keydown", (e) => { if (e.key === "Escape") { setOpen(false); btn.focus(); } });
+  for (const tip of [document.getElementById("mtInfoTip"), document.getElementById("advInfoTip")]) {
+    if (!tip) continue;
+    const btn = tip.querySelector(".info-tip-btn");
+    const setOpen = (open) => { tip.classList.toggle("open", open); btn.setAttribute("aria-expanded", String(open)); };
+    btn.addEventListener("click", () => setOpen(!tip.classList.contains("open")));
+    document.addEventListener("click", (e) => { if (!tip.contains(e.target)) setOpen(false); });
+    tip.addEventListener("keydown", (e) => { if (e.key === "Escape") { setOpen(false); btn.focus(); } });
   }
 
   // "Save search" keeps the query and its filters in the Workspace.
@@ -8481,6 +8561,13 @@ function init() {
         if (decPill) decPill.hidden = !decN;
         const decCount = document.getElementById("decisionCount");
         if (decCount) decCount.textContent = fmt.format(decN);
+        const advN = statsData.total_advisory_opinions || 0;
+        const advPill = document.getElementById("advisoryPill");
+        if (advPill) advPill.hidden = !advN;
+        const advCount = document.getElementById("advisoryCount");
+        if (advCount) advCount.textContent = fmt.format(advN);
+        const advInfoCount = document.getElementById("advInfoCount");
+        if (advInfoCount && advN) advInfoCount.textContent = fmt.format(advN);
         // English decisions of the Court on HUDOC (Commission decisions aside), counted 11 October 2026.
         const decNote = document.getElementById("decNote");
         if (decNote) decNote.hidden = !decN;

@@ -44,7 +44,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css?v=20261014-a11y">
   <link rel="stylesheet" href="assets/search-app.css?v=20261014-rss">
-  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261014-a11y">
+  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261014-advtip">
   <link rel="stylesheet" href="assets/judgment-hudoc.css?v=20260706-deadmodal">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
@@ -177,6 +177,21 @@
             </label>
             <p class="lang-note dec-note" id="decNote" hidden><span id="decShare"></span> of HUDOC&rsquo;s English decisions:
               those cited in judgments, and key cases. More to come.</p>
+            <div class="mt-option-row" id="advisoryPill" hidden>
+              <label class="cb-label mt-option" title="Advisory opinions of the Court under Protocol No. 16 and Article 47, with the panel refusals and the decisions on competence. HUDOC keeps them in a collection of their own; they are not in the default search.">
+                <input type="checkbox" id="includeAdvisory">
+                <span>Advisory opinions <span class="filter-count" id="advisoryCount"></span></span>
+              </label>
+              <span class="info-tip" id="advInfoTip">
+                <button type="button" class="info-tip-btn" aria-label="Why HUDOC shows more advisory opinions"
+                        aria-expanded="false" aria-controls="advInfoPop">i</button>
+                <span class="info-tip-pop" id="advInfoPop" role="tooltip">
+                  All <span id="advInfoCount">17</span> in English, as the Court delivered them. HUDOC&rsquo;s count (90) also
+                  includes the French versions, translations into other languages and the Registry&rsquo;s legal summaries.
+                  <a href="methodology.html#scope-judgments-in-english">What is included &rarr;</a>
+                </span>
+              </span>
+            </div>
             <div class="mt-scope" id="mtPill" hidden>
               <div class="mt-scope-head">Not in the default search</div>
               <div class="mt-option-row">
@@ -329,6 +344,7 @@
             <div class="folio-label garnet">Results · Paragraph-Level</div>
             <h2 id="resultsHeading"><strong id="resultsHits">0</strong> <span id="resultsHitsLabel">passages</span> from <strong id="resultsCases">0</strong> <span id="resultsCasesLabel">judgments</span></h2>
             <p class="results-corpus" id="resultsCorpus" hidden></p>
+            <p class="results-corpus" id="advisoryHint" hidden></p>
             <p>Sorted by relevance and recency. <span id="resultsTime">(0.000s)</span></p>
           </div>
           <div class="results-display-controls">
@@ -593,6 +609,6 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
-  <script src="assets/search-app.js?v=20261014-rsscopy"></script>
+  <script src="assets/search-app.js?v=20261014-advtip"></script>
 </body>
 </html>
