@@ -143,7 +143,7 @@ The notes come from the same HUDOC Word documents as the text. Each is placed by
 
 **Citations in the notes.** The references in the notes count in **Cites** and **Cited by** like those in the text, under the paragraph that carries the note ([Citation graph](#influence)). This added about 700 links between judgments, mostly from separate opinions, and gave a place in the text to about 2,350 links that were known only from HUDOC's metadata. Where a note names the exact document of a case (the 2004 Chamber judgment in *Hirst (No. 2)*, a judgment on just satisfaction, a revision), the link now goes to that document.
 
-**Copying and exporting.** *Copy* in the reader gives the paragraph with each note's number in brackets where its reference stands, and the notes after it ("[12] …"); the Excel export has a *Footnotes* column with the notes of each exported paragraph. Saved paragraphs in the Workspace keep the text without its notes.
+**Copying and exporting.** *Copy* in the reader gives the paragraph with each note's number in brackets where its reference stands, and the notes after it ("[12] …"); the Excel export has a *Footnotes* column with the notes of each exported paragraph. A paragraph saved to the Workspace keeps its notes the same way, and they go into the Workspace's Markdown and JSON exports.
 
 Not yet: the machine translations of French-only judgments have no notes.
 

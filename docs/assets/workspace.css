@@ -34,6 +34,9 @@ a.ws-item-title:hover { color: var(--garnet); }
   text-transform: uppercase; color: var(--mt-flag-fg, #7a4b00); border: 1px solid var(--mt-flag-fg, #b26b00); background: var(--mt-flag-bg, #fbf3e2); }
 .ws-text { margin: 10px 0 0; padding: 4px 0 4px 12px; border-left: 2px solid var(--rule); font-family: var(--font-serif); font-size: 0.95rem;
   line-height: 1.6; color: var(--ink-2); white-space: pre-wrap; max-height: 16em; overflow: auto; }
+.ws-fn { margin: 8px 0 0 14px; padding: 0; list-style: none; font-family: var(--font-serif); font-size: 0.82rem; line-height: 1.45; color: var(--ink-2); }
+.ws-fn li { margin: 2px 0; }
+.ws-fn-label { font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-3); }
 .ws-cite { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 10px; }
 .ws-cite code { flex: 1 1 100%; font-family: var(--font-mono); font-size: 0.74rem; color: var(--ink); }
 .ws-note-label { display: block; margin-top: 10px; font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }

@@ -23,6 +23,8 @@
       <div class="ws-meta">${[p.section, p.date, p.appnos ? `no. ${p.appnos}` : "", `saved ${day(p.addedAt)}`].filter(Boolean).map(esc).join(" · ")}</div>
       ${p.machineTranslation ? `<div class="ws-mt">Only in French on HUDOC · machine translation, unofficial</div>` : ""}
       <blockquote class="ws-text">${esc(p.text)}</blockquote>
+      ${p.footnotes && p.footnotes.length ? `<ul class="ws-fn" aria-label="Footnotes">${p.footnotes.map((f) =>
+        `<li><span class="ws-fn-label">[${esc(f.label)}]</span> ${esc(f.text)}</li>`).join("")}</ul>` : ""}
       <div class="ws-cite"><code>${esc((p.citation || "").split("\n")[0])}</code>
         <button type="button" class="ws-btn" data-copy-cite="${esc(p.key)}">Copy citation</button>
         ${p.url ? `<a class="ws-btn" href="${esc(p.url)}" target="_blank" rel="noopener">HUDOC ↗</a>` : ""}

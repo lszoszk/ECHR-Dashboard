@@ -1630,7 +1630,32 @@ function wsItemFor(c, p) {
     paraNo: p.hudocParaNo != null ? p.hudocParaNo : (p.displayParaNo != null ? p.displayParaNo : null),
     section: SECTION_LABELS[p.section] || p.section || "", text: p.text || "",
     citation: buildOscolaCitation(c, p), url: paragraphHudocUrl(c, p) || c.hudoc_url || "",
+    ...wsFootnotes(readerParagraph(caseId, p.paraIdx) || (p.notes ? p : null)),
   };
+}
+
+/** The paragraph as the reader holds it (full text and footnotes), when the judgment has been opened. */
+function readerParagraph(caseId, paraIdx) {
+  const paras = dossierCaseCache.get(`${readLang(caseId)}:${caseId}`);
+  return (Array.isArray(paras) && paras.find((r) => String(r.paraIdx) === String(paraIdx))) || null;
+}
+
+/** What a saved paragraph keeps of its notes: the text with "[label]" markers and the notes themselves.
+ *  Nothing when the notes are not known yet (wsFillFootnotes fetches them). */
+function wsFootnotes(rp) {
+  if (!rp) return {};
+  return { text: textWithFnMarkers(rp), footnotes: (rp.notes || []).map((n) => ({ label: n.label, text: n.text })) };
+}
+
+/** A paragraph saved from a result card before its judgment was opened: fetch the judgment (as the
+ *  reader does) and add the notes to the saved item. */
+async function wsFillFootnotes(item) {
+  if (!item || item.footnotes || item.paraIdx == null || !window.ECHRWorkspace) return;
+  try {
+    await loadDossierCase(item.caseId);
+    const extra = wsFootnotes(readerParagraph(item.caseId, item.paraIdx));
+    if (extra.footnotes) window.ECHRWorkspace.setFootnotes(item.key, extra.text, extra.footnotes);
+  } catch (_) { /* offline: the item stays without notes */ }
 }
 
 /** The filters of the current search, as a saved search keeps them. */
@@ -7328,21 +7353,21 @@ function fnMarkerHtml(n) {
 /** Plain text of paragraph rows for Copy: each note's number in brackets where its reference stands, and the
  *  notes themselves after the text, as "[12] text" (notes whose place is unknown are listed, not placed). */
 function paraTextWithNotes(rows) {
-  const all = [];
-  const body = rows.map((p) => {
-    const text = String(p.text || "");
-    const notes = p.notes || [];
-    all.push(...notes);
-    const placed = notes.filter((n) => n.anchored && n.offset != null).sort((a, b) => a.offset - b.offset || a.seq - b.seq);
-    let out = "", at = 0;
-    for (const n of placed) {
-      const o = Math.min(Math.max(Number(n.offset), at), text.length);
-      out += text.slice(at, o) + `[${n.label}]`;
-      at = o;
-    }
-    return out + text.slice(at);
-  }).join("\n");
+  const all = rows.flatMap((p) => p.notes || []);
+  const body = rows.map(textWithFnMarkers).join("\n");
   return all.length ? `${body}\n\n${all.map(fnPlainLine).join("\n")}` : body;
+}
+/** A paragraph's text with "[label]" where each placed note's reference stands. */
+function textWithFnMarkers(p) {
+  const text = String(p.text || "");
+  const placed = (p.notes || []).filter((n) => n.anchored && n.offset != null).sort((a, b) => a.offset - b.offset || a.seq - b.seq);
+  let out = "", at = 0;
+  for (const n of placed) {
+    const o = Math.min(Math.max(Number(n.offset), at), text.length);
+    out += text.slice(at, o) + `[${n.label}]`;
+    at = o;
+  }
+  return out + text.slice(at);
 }
 const fnPlainLine = (n) => `[${n.label}] ${String(n.text || "").replace(/\s*\n\s*/g, " ")}`;
 
@@ -8072,6 +8097,7 @@ function bindEvents() {
       const item = wsParagraphItem(caseId, clickable.dataset.paraIdx, clickable.dataset.paraKey);
       if (item && window.ECHRWorkspace) {
         const on = window.ECHRWorkspace.toggleParagraph(item);
+        if (on) wsFillFootnotes(item);
         clickable.classList.toggle("on", on);
         clickable.textContent = clickable.classList.contains("ws-bookmark-btn") ? (on ? "★ Bookmarked" : "☆ Bookmark") : (on ? "★" : "☆");
         clickable.setAttribute("aria-pressed", String(on));

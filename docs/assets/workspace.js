@@ -83,6 +83,15 @@
       if (write(d)) firstSave();
       return true;
     },
+    /** Add a saved paragraph's footnotes (fetched after it was saved) and its text with note markers. */
+    setFootnotes(key, text, footnotes) {
+      const d = read();
+      const p = d.paragraphs.find((x) => x.key === key);
+      if (!p) return;
+      if (text) p.text = text;
+      p.footnotes = footnotes;
+      write(d);
+    },
     removeParagraph(key) { const d = read(); d.paragraphs = d.paragraphs.filter((p) => p.key !== key); write(d); },
     setNote(key, note) {
       const d = read();
@@ -125,6 +134,7 @@
         lines.push(`### ${md(p.title)}${p.paraNo != null ? `, § ${p.paraNo}` : ""}`, "");
         if (p.citation) lines.push(md(p.citation.split("\n")[0]), "");
         if (p.text) lines.push(`> ${md(p.text)}`, "");
+        if (p.footnotes && p.footnotes.length) lines.push(...p.footnotes.map((f) => `- [${f.label}] ${md(f.text)}`), "");
         if (p.machineTranslation) lines.push("_Unofficial machine translation of a judgment HUDOC publishes only in French._", "");
         if (p.note) lines.push(`**Note.** ${md(p.note)}`, "");
         if (p.url) lines.push(p.url, "");
