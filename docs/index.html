@@ -43,13 +43,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css?v=20261014-a11y">
-  <link rel="stylesheet" href="assets/search-app.css?v=20261014-a11y">
+  <link rel="stylesheet" href="assets/search-app.css?v=20261014-rss">
   <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261014-a11y">
   <link rel="stylesheet" href="assets/judgment-hudoc.css?v=20260706-deadmodal">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
   <script src="assets/tour.js?v=20261012-counts" defer></script>
-  <script src="assets/workspace.js?v=20261014-wsfn"></script>
+  <script src="assets/workspace.js?v=20261014-rss"></script>
   <script src="assets/cite.js?v=20261011-hlink" defer></script>
 </head>
 <body>
@@ -345,6 +345,8 @@
             </div>
             <div class="rdc-actions">
               <button type="button" class="export-btn" id="saveSearchBtn" title="Save this query and its filters to your Workspace">☆ Save search</button>
+              <a class="export-btn rss-link" id="rssLink" href="#" target="_blank" rel="noopener" hidden
+                 title="RSS feed of the newest judgments matching this search and its filters: add the address to a feed reader to hear of new ones">RSS</a>
               <button type="button" class="export-btn" id="exportBtn" title="Export results to Excel (.xlsx)" disabled>Export Excel</button>
             </div>
           </div>
@@ -591,6 +593,6 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
-  <script src="assets/search-app.js?v=20261014-wsfn"></script>
+  <script src="assets/search-app.js?v=20261014-rss"></script>
 </body>
 </html>

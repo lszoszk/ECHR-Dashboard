@@ -141,7 +141,7 @@
       }
       lines.push(`## Saved searches (${d.searches.length})`, "");
       for (const s of d.searches) {
-        lines.push(`- **${md(s.name)}** — \`${md(s.q) || "(no query)"}\`${s.summary ? ` · ${md(s.summary)}` : ""} — ${SITE}?q=${encodeURIComponent(s.q || "")}`);
+        lines.push(`- **${md(s.name)}** — \`${md(s.q) || "(no query)"}\`${s.summary ? ` · ${md(s.summary)}` : ""} — ${SITE}?q=${encodeURIComponent(s.q || "")}${s.feed ? ` — RSS: ${s.feed}` : ""}`);
       }
       return lines.join("\n") + "\n";
     },

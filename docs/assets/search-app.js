@@ -6366,10 +6366,24 @@ async function fetchAndRenderServerAnalytics(query, filters, signal = undefined)
 /* Screen readers hear the result count once a search ends (WCAG 4.1.3): the heading is copied into a polite
  * status region outside the results, emptied first so that the same count is announced again. */
 function announceResults() {
+  updateFeedLink();
   if (!el.srStatus) return;
   const text = (byId("resultsHeading")?.textContent || "").replace(/\s+/g, " ").trim();
   el.srStatus.textContent = "";
   setTimeout(() => { el.srStatus.textContent = text; }, 50);
+}
+
+/** The RSS feed of a search (api /feed): the newest judgments matching the query and filters. */
+function feedUrl(query, filters) {
+  const p = serverSearch._buildParams(query, filters, 1);
+  for (const k of ["page", "page_size", "sort", "group", "broad_guard", "footnotes", "date_to"]) p.delete(k);
+  return `${API_BASE_URL}/feed?${p}`;
+}
+function updateFeedLink() {
+  const a = document.getElementById("rssLink");
+  if (!a) return;
+  a.hidden = !state.serverMode;
+  if (state.serverMode) a.href = feedUrl(state.query, state.currentFilters || getCurrentFilters());
 }
 
 function updateResultsHeader() {
@@ -7886,7 +7900,8 @@ function bindEvents() {
     const summary = wsFilterSummary(filters);
     const name = window.prompt("Name this search", [q || "All judgments", summary].filter(Boolean).join(" — ").slice(0, 120));
     if (name === null) return;
-    window.ECHRWorkspace.saveSearch({ name: name.trim() || q || "Search", q, filters, summary });
+    const feed = state.serverMode ? feedUrl(q, getCurrentFilters()) : "";
+    window.ECHRWorkspace.saveSearch({ name: name.trim() || q || "Search", q, filters, summary, ...(feed ? { feed } : {}) });
   });
 
   // "Try" examples under the search box run their query.
