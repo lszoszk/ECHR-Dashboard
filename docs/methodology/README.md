@@ -132,6 +132,15 @@ An audit against fresh copies of the HUDOC documents found the text itself essen
 
 Measured number by number with full text against HUDOC's pages on 300 judgments, **98.6 %** of paragraph numbers match after the repairs (98.4 % before). Verify a pinpoint on HUDOC before citing it.
 
+<a id="footnotes"></a>
+### Footnotes (October 2026)
+
+The paragraph text is the body of each judgment; its footnotes, and the endnotes of older judgments, are kept beside it. About a third of the judgments have notes, and nearly half of those with separate opinions: about **25,000 notes in some 6,600 judgments and decisions**. In the reader a small number marks the place of each note; clicking it shows the note (on a phone, at the bottom of the screen), with the words searched for highlighted.
+
+The notes come from the same HUDOC Word documents as the text. Each is placed by the letters that stand just before its reference, compared letter by letter with our paragraph, so line breaks and spacing do not matter, and checked against the letters that follow it. **99.9 %** are placed in the text; a note whose place cannot be found, or that would break the order of the notes, is listed under the paragraph of the note before it rather than placed by guess. Numbers are the ones Word prints, restarting where the judgment restarts them (often in a separate opinion).
+
+Not yet: footnote text is not searchable, the notes are not part of copied or exported paragraphs, and the machine translations of French-only judgments have none.
+
 <a id="influence"></a>
 
 ## Citation graph (Cites / Cited by)
@@ -175,7 +184,7 @@ Measured on the October 2026 corpus at the level of cases (all documents sharing
 
 A random sample of 300 name-and-date matches was judged blind by a second model, mixed with 60 pairs that were wrong on purpose. All 60 wrong pairs were rejected, and 297 of the 300 matches were correct; the three errors (a same-day namesake with initials only, and two references to revision requests) were closed by the rules above. This is a precision check on a sample, not a guarantee.
 
-A reference that gives only a short name without a date (for example *Handyside, cited above* with no earlier full citation in the same judgment) is not counted from the text, so a figure can still be lower than the true number. Footnotes are not part of the searchable text; their references reach the graph only through HUDOC's extracted numbers.
+A reference that gives only a short name without a date (for example *Handyside, cited above* with no earlier full citation in the same judgment) is not counted from the text, so a figure can still be lower than the true number. Footnotes are shown in the reader ([Footnotes](#footnotes)) but are not yet searchable, and their references reach the graph only through HUDOC's extracted numbers.
 
 Citation coverage is necessarily partial: a case whose precedents fall outside the corpus shows fewer links than reality. A `—` (rather than `0`) marks cases with no recorded citations, so an absence of data is not mistaken for genuine legal isolation.
 

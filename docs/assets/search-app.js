@@ -1552,7 +1552,7 @@ function handleParaAction(action, btn) {
   if (!["para-cite", "para-copy", "para-bookmark"].includes(action)) return false;
   const caseId = btn.dataset.caseId;
   const caseObj = state.caseById.get(caseId);
-  const paras = dossierCaseCache.get(caseId) || [];
+  const paras = dossierCaseCache.get(`${readLang(caseId)}:${caseId}`) || [];
   const at = paras.findIndex((r) => String(r.paraIdx) === btn.dataset.paraIdx);
   if (!caseObj || at < 0) return true;
   const para = paras[at];
@@ -5330,7 +5330,7 @@ function caseNoteContextHtml(ctx, paras, activeIdx) {
                || g.rows[0];
     const inner = g.rows.map((r) => {
       const isQuote = (r.rowRole || "") === "quote";
-      const html = dossierHighlight(r.text, terms);
+      const html = paraTextHtml(r, terms);
       return isQuote
         ? `<div class="dossier-ctx-quote">${html}</div>`
         : `<div class="dossier-ctx-body">${html}</div>`;
@@ -7206,6 +7206,15 @@ async function loadDossierCase(caseId) {
   const cacheKey = `${lang}:${caseId}`;   // a French original and its translation share the id
   if (dossierCaseCache.has(cacheKey)) return dossierCaseCache.get(cacheKey);
   const data = await serverSearch.getCase(caseId, lang);
+  // p82 footnotes, grouped by the paragraph whose text carries the reference.
+  const notesByPara = new Map();
+  for (const n of (data.footnotes || [])) {
+    const note = { caseId, seq: n.seq, label: String(n.label), kind: n.kind || "footnote",
+                   offset: n.char_offset, anchored: !!n.anchored, text: String(n.text || "") };
+    if (!notesByPara.has(n.para_idx)) notesByPara.set(n.para_idx, []);
+    notesByPara.get(n.para_idx).push(note);
+    FN_NOTES.set(`${caseId}:${n.seq}`, note);
+  }
   const paras = (data.paragraphs || []).map((p) => {
     const sec = normalizeSectionKey(p.section);
     return {
@@ -7218,6 +7227,7 @@ async function loadDossierCase(caseId) {
       logicalParaIdx: (p.logical_para_idx != null) ? Number(p.logical_para_idx) : null,
       numberingBlock: p.numbering_block || null,
       rowRole: p.row_role || null,
+      notes: notesByPara.get(p.para_idx) || [],
     };
   });
   dossierCaseCache.set(cacheKey, paras);
@@ -7271,6 +7281,98 @@ function dossierHighlight(text, terms) {
   return html;
 }
 
+// ── Footnotes (p82) ─────────────────────────────────────────────────────────────────────────────
+// The paragraph text itself carries no marker: each note has the character offset where its reference
+// stands. The text is cut at those offsets, each piece highlighted as before, and a superscript button put
+// between them; a note whose reference was not found is listed under its paragraph. One popover shows the
+// note (a bottom sheet on a phone), with the search terms highlighted in it too.
+const FN_NOTES = new Map();               // `${caseId}:${seq}` -> note
+let fnTerms = [];
+function fnMarkerHtml(n) {
+  const kind = n.kind === "endnote" ? "Endnote" : "Footnote";
+  return `<button type="button" class="fn-marker" data-fn="${escapeHtml(`${n.caseId}:${n.seq}`)}" aria-expanded="false"`
+    + ` aria-label="${escapeHtml(`${kind} ${n.label}: ${n.text.slice(0, 80)}`)}"><sup>${escapeHtml(n.label)}</sup></button>`;
+}
+function paraTextHtml(p, terms) {
+  const text = String((p && p.text) || "");
+  const notes = (p && p.notes) || [];
+  if (!notes.length) return dossierHighlight(text, terms);
+  fnTerms = terms || [];
+  const placed = notes.filter((n) => n.anchored && n.offset != null)
+    .sort((a, b) => a.offset - b.offset || a.seq - b.seq);
+  let html = "", at = 0;
+  for (const n of placed) {
+    const o = Math.min(Math.max(Number(n.offset), at), text.length);
+    html += dossierHighlight(text.slice(at, o), terms) + fnMarkerHtml(n);
+    at = o;
+  }
+  html += dossierHighlight(text.slice(at), terms);
+  const loose = notes.filter((n) => !(n.anchored && n.offset != null));
+  if (loose.length) {
+    html += `<span class="fn-loose" title="The reference to these notes could not be located in the text">Note${loose.length > 1 ? "s" : ""}: ${loose.map(fnMarkerHtml).join(" ")}</span>`;
+  }
+  return html;
+}
+let fnOpen = null;
+function closeFnPopover(returnFocus) {
+  const pop = document.getElementById("fn-popover");
+  if (pop) pop.hidden = true;
+  if (fnOpen) {
+    fnOpen.setAttribute("aria-expanded", "false");
+    fnOpen.classList.remove("is-open");
+    if (returnFocus) fnOpen.focus();
+  }
+  fnOpen = null;
+}
+function openFnPopover(btn) {
+  const note = FN_NOTES.get(btn.getAttribute("data-fn"));
+  if (!note) return;
+  if (fnOpen === btn) { closeFnPopover(); return; }
+  closeFnPopover();
+  let pop = document.getElementById("fn-popover");
+  if (!pop) {
+    pop = document.createElement("div");
+    pop.id = "fn-popover";
+    pop.className = "fn-popover";
+    pop.setAttribute("role", "dialog");
+    document.body.appendChild(pop);
+  }
+  const kind = note.kind === "endnote" ? "Endnote" : "Footnote";
+  pop.setAttribute("aria-label", `${kind} ${note.label}`);
+  pop.innerHTML = `<div class="fn-popover-head">${kind} ${escapeHtml(note.label)}`
+    + `<button type="button" class="fn-popover-close" aria-label="Close">×</button></div>`
+    + `<div class="fn-popover-text">${note.text.split("\n").map((t) => dossierHighlight(t, fnTerms)).join("<br>")}</div>`;
+  pop.hidden = false;
+  fnOpen = btn;
+  btn.setAttribute("aria-expanded", "true");
+  btn.classList.add("is-open");
+  if (window.matchMedia("(max-width: 600px)").matches) {
+    pop.classList.add("is-sheet");
+    pop.style.left = pop.style.top = "";
+  } else {
+    pop.classList.remove("is-sheet");
+    const r = btn.getBoundingClientRect(), w = Math.min(380, window.innerWidth - 24);
+    pop.style.width = `${w}px`;
+    pop.style.left = `${Math.max(12, Math.min(r.left - 24, window.innerWidth - w - 12))}px`;
+    const below = r.bottom + 8, h = pop.offsetHeight;
+    pop.style.top = `${(below + h > window.innerHeight - 12 && r.top - h - 8 > 12) ? r.top - h - 8 : below}px`;
+  }
+}
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".fn-marker");
+  if (btn) { e.preventDefault(); e.stopPropagation(); openFnPopover(btn); return; }
+  if (e.target.closest(".fn-popover-close")) { closeFnPopover(true); return; }
+  if (fnOpen && !e.target.closest("#fn-popover")) closeFnPopover();
+}, true);
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && fnOpen) closeFnPopover(true); });
+// A popover next to its marker would drift on scroll or resize, so it closes; the phone's bottom sheet stays
+// (a phone fires resize whenever its address bar shows or hides) until ×, Escape or a tap outside it.
+const fnIsSheet = () => !!document.querySelector("#fn-popover.is-sheet:not([hidden])");
+window.addEventListener("resize", () => { if (!fnIsSheet()) closeFnPopover(); });
+document.addEventListener("scroll", (e) => {
+  if (fnOpen && !fnIsSheet() && !(e.target.closest && e.target.closest("#fn-popover"))) closeFnPopover();
+}, true);
+
 function dossierParaNumLabel(p) {
   const n = (p.displayParaNo != null) ? p.displayParaNo
           : (p.hudocParaNo != null) ? p.hudocParaNo : null;
@@ -7315,7 +7417,7 @@ function closeDossier() {
 function paintDossier() {
   const d = state.dossier;
   if (!d || !d.caseId) return;
-  const paras = dossierCaseCache.get(d.caseId);
+  const paras = dossierCaseCache.get(`${readLang(d.caseId)}:${d.caseId}`);   // keyed as loadDossierCase stores it
   if (!paras) return;
   const activeIdx = paras.findIndex((p) => p.paraIdx === d.paraIdx);
   if (activeIdx < 0) {
@@ -7341,11 +7443,11 @@ function paintDossier() {
 
   const renderCtx = (p) => `
     <div class="dossier-ctx-para" tabindex="0">
-      <div class="dossier-ctx-head"><span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(p))}</span>${paraHoverActions(d.caseId, p)}</div>${escapeHtml(p.text)}
+      <div class="dossier-ctx-head"><span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(p))}</span>${paraHoverActions(d.caseId, p)}</div>${paraTextHtml(p, [])}
     </div>`;
   const activeHtml = `
     <div class="dossier-ctx-para dossier-ctx-active" tabindex="0">
-      <div class="dossier-ctx-head"><span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(ctx.active))}</span>${paraHoverActions(d.caseId, ctx.active)}</div>${dossierHighlight(ctx.active.text, terms)}
+      <div class="dossier-ctx-head"><span class="dossier-ctx-num">${escapeHtml(dossierParaNumLabel(ctx.active))}</span>${paraHoverActions(d.caseId, ctx.active)}</div>${paraTextHtml(ctx.active, terms)}
     </div>`;
 
   let expander = "";
@@ -7974,7 +8076,7 @@ function bindEvents() {
       const d = state.dossier;
       if (!d) return;
       const caseObj = state.caseById.get(d.caseId);
-      const active = (dossierCaseCache.get(d.caseId) || [])
+      const active = (dossierCaseCache.get(`${readLang(d.caseId)}:${d.caseId}`) || [])
         .find((p) => p.paraIdx === d.paraIdx);
       if (caseObj && active) {
         copyToClipboardWithFeedback(buildOscolaCitation(caseObj, active), btn);
