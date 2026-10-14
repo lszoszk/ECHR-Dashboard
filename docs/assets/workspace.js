@@ -112,6 +112,14 @@
     onChange(fn) { listeners.add(fn); },
     toast,
 
+    /** A click on an RSS link copies the feed's address (a browser would show raw XML) and says where it goes. */
+    copyFeed(url) {
+      const done = () => toast("RSS address copied. Paste it into a feed reader (Feedly, Inoreader, Thunderbird…) " +
+        "to be told of new judgments that match this search.", 6000);
+      if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, () => window.open(url, "_blank", "noopener"));
+      else window.open(url, "_blank", "noopener");
+    },
+
     exportJSON() {
       const cite = window.HR_CITATION;
       return JSON.stringify({ app: "HUDOC Researcher workspace", version: 1, exported: new Date().toISOString(),

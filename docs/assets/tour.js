@@ -120,8 +120,8 @@
            it runs on its own index of English judgments, and adds the judgments only in French when you tick the box under the query.</span></div></li>
          <li><span class="n">03</span><div><b>Check</b> <span class="s">— verify the citations in a text</span> <span class="d">— paste a text: every citation, paragraph number and quotation is checked
            against the judgments.</span></div></li>
-         <li><span class="n">04</span><div><b>Workspace</b> <span class="s">— your saved paragraphs and searches</span> <span class="d">— the paragraphs you save (☆), with your notes, and your saved searches;
-           kept in your browser only, exportable.</span></div></li>
+         <li><span class="n">04</span><div><b>Workspace</b> <span class="s">— your saved paragraphs and searches</span> <span class="d">— the paragraphs you save (☆), with your notes, and your saved searches,
+           each with an RSS feed of new judgments; kept in your browser only, exportable.</span></div></li>
          <li><span class="n">05</span><div><b>Statistics</b> <span class="s">— the corpus in charts</span> <span class="d">— the corpus in charts: judgments and outcomes by year, article and State, the most cited judgments, HUDOC topics.</span></div></li>
          <li><span class="n">06</span><div><b>AI assistant</b> <span class="s">— the same search from Claude</span> <span class="d">— a connector (MCP) for Claude or another assistant:
            it searches these judgments and quotes paragraphs verbatim with their § numbers.</span></div></li>

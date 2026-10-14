@@ -7904,6 +7904,13 @@ function bindEvents() {
     window.ECHRWorkspace.saveSearch({ name: name.trim() || q || "Search", q, filters, summary, ...(feed ? { feed } : {}) });
   });
 
+  // RSS: a click copies the feed's address (opening it would show raw XML); right-click still copies the link.
+  document.getElementById("rssLink")?.addEventListener("click", (e) => {
+    if (!window.ECHRWorkspace) return;
+    e.preventDefault();
+    window.ECHRWorkspace.copyFeed(e.currentTarget.href);
+  });
+
   // "Try" examples under the search box run their query.
   document.getElementById("searchTry")?.addEventListener("click", (e) => {
     const btn = e.target.closest(".try-q[data-q]");

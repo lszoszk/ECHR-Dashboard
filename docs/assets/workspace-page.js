@@ -41,7 +41,7 @@
         <button type="button" class="ws-del" data-del-search="${esc(s.id)}" title="Remove from the Workspace" aria-label="Remove">×</button></div>
       <div class="ws-meta"><code>${esc(s.q || "(no query)")}</code>${s.summary ? ` · ${esc(s.summary)}` : ""} · saved ${esc(day(s.savedAt))}</div>
       <a class="ws-btn ws-run" href="./?q=${encodeURIComponent(s.q || "")}&run=${encodeURIComponent(s.id)}">Run this search →</a>
-      ${s.feed ? `<a class="ws-btn" href="${esc(s.feed)}" target="_blank" rel="noopener" title="Add this address to a feed reader to hear of new judgments matching the search">RSS feed</a>` : ""}
+      ${s.feed ? `<a class="ws-btn" data-feed href="${esc(s.feed)}" target="_blank" rel="noopener" title="Copy the address of this search's RSS feed, for a feed reader">RSS feed</a>` : ""}
     </li>`;
   }
 
@@ -71,6 +71,7 @@
       const t = e.target;
       if (t.dataset.delPara) { ws.removeParagraph(t.dataset.delPara); return; }
       if (t.dataset.delSearch) { ws.removeSearch(t.dataset.delSearch); return; }
+      if (t.hasAttribute("data-feed")) { e.preventDefault(); ws.copyFeed(t.href); return; }
       if (t.dataset.copyCite) {
         const p = ws.data().paragraphs.find((x) => x.key === t.dataset.copyCite);
         if (p) navigator.clipboard?.writeText(p.citation || "").then(() => {
