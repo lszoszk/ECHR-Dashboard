@@ -135,6 +135,7 @@ const serverSearch = {
     // A word in nearly every judgment: the API says so at once instead of ranking a million paragraphs,
     // unless the reader asked to run that search anyway (state.forceBroad holds its query).
     if (query && state.forceBroad !== query) p.set("broad_guard", "1");
+    if (query && document.getElementById("scopeFootnotes")?.checked) p.set("footnotes", "1");
     if (filters.includeMt) p.set("include_mt", filters.includeMt === "only" ? "only" : "true");
     if (searchLang() === "fr") { p.delete("include_mt"); p.set("lang", "fr"); }
     // filters.dateFrom/dateTo are epoch-ms (parseDateInput → getTime()).
@@ -1666,6 +1667,7 @@ function searchUrl(query) {
   if (s.includeDecisions) p.set("dec", s.includeJudgments === false ? "only" : "1");
   if (s.includeExtra) p.set("extra", "1");
   if (s.includeAppendix) p.set("appendix", "1");
+  if (document.getElementById("scopeFootnotes")?.checked) p.set("fn", "1");
   if (s.dateFrom) p.set("from", s.dateFrom);
   if (s.dateTo) p.set("to", s.dateTo);
   if (state.resultSort && state.resultSort !== "relevance") p.set("sort", state.resultSort);
@@ -1682,6 +1684,7 @@ function snapshotFromUrl(p) {
   s.lang = p.get("lang") === "fr" ? "fr" : "en";
   s.includeExtra = p.get("extra") === "1";
   s.includeAppendix = p.get("appendix") === "1";
+  s.footnotes = p.get("fn") === "1";
   s.dateFrom = p.get("from") || "";
   s.dateTo = p.get("to") || "";
   return s;
@@ -1812,6 +1815,8 @@ function wsApplySnapshot(s) {
   if (extra) extra.checked = !!s.includeExtra;
   const appendix = document.getElementById("scopeIncludeAppendix");
   if (appendix) appendix.checked = !!s.includeAppendix;
+  const fnBox = document.getElementById("scopeFootnotes");
+  if (fnBox && "footnotes" in s) fnBox.checked = !!s.footnotes;
   el.dateFrom.value = s.dateFrom || "";
   el.dateTo.value = s.dateTo || "";
   markYearRange();
@@ -5935,7 +5940,9 @@ function renderNoResults() {
     return;
   }
   const items = [];
-  const unknown = (h && h.unknown) || [];
+  // A word the text does not know may still be in the footnotes: then "no judgment contains it" is wrong.
+  const inNotes = state.fnZeroCases || (state.fnBlock && state.fnBlock.total_cases);
+  const unknown = (h && h.unknown && !inNotes) ? h.unknown : [];
   for (const u of unknown) {
     let line = `No judgment contains <b>${escapeHtml(u.word)}</b>.`;
     if (u.suggestion) {
@@ -5949,6 +5956,13 @@ function renderNoResults() {
   }
   if (unknown.length && searchLang() !== "fr") {
     items.push(`The judgments are in English. <a href="semantic.html?q=${encodeURIComponent(q)}">Semantic Search</a> also understands a description in another language.`);
+  }
+  const fnOn = !!document.getElementById("scopeFootnotes")?.checked;
+  if (fnOn && state.fnBlock && state.fnBlock.total_cases) {
+    items.unshift(`No paragraph of the text matches, but the footnotes below do.`);
+  } else if (!fnOn && state.fnZeroCases) {
+    items.unshift(`Your words occur in the footnotes of ${fmtInt.format(state.fnZeroCases)} judgment${state.fnZeroCases === 1 ? "" : "s"}. `
+      + `<a href="#" data-nr="footnotes">Search the footnotes too</a>.`);
   }
   if (h && h.any_words_query) {
     items.push(`No paragraph contains all of your words. <a href="#" data-nr="query" data-q="${escapeHtml(h.any_words_query)}">Search for any of them</a>.`);
@@ -5964,6 +5978,7 @@ function renderNoResults() {
 }
 
 function renderResultsPage() {
+  renderFootnoteResults();
   const totalCases = state.currentOrderedCaseIds.length;
   el.casesList.classList.toggle("card-mode-detailed", state.cardMode === "detailed");
   el.casesList.classList.toggle("card-mode-compact", state.cardMode !== "detailed");
@@ -6069,6 +6084,7 @@ function renderFlatResults() {
   }
   renderCaseContextRail(state.activeCaseId);
   renderPagination();
+  renderFootnoteResults();
 }
 
 /* Sync the Sort / Group segmented controls with state, and disable the
@@ -6538,6 +6554,8 @@ async function applyServerSearch(query, filters, resetPage = true, opts = {}) {
   try {
     const data = await serverSearch.search(query, filters, state.currentPage, sort, group, ctrl.signal);
     if (seq !== _searchSeq) return;          // a newer search took over
+    state.fnBlock = data.footnotes || null;          // footnote search: its own block under the results
+    state.fnZeroCases = data.footnote_cases || 0;    // the text found nothing; the footnotes of N judgments did
     setSearching(false, seq);
     const t1 = performance.now();
     maybeShowSemanticHint(query, data);
@@ -7373,6 +7391,49 @@ document.addEventListener("scroll", (e) => {
   if (fnOpen && !fnIsSheet() && !(e.target.closest && e.target.closest("#fn-popover"))) closeFnPopover();
 }, true);
 
+/* Footnote search: the judgments whose notes match, apart from the text results (the API ranks and filters
+ * them; up to 30 judgments, 3 notes each). A note opens the reader at its paragraph with the note shown. */
+function renderFootnoteResults() {
+  const box = document.getElementById("fnResults");
+  if (!box) return;
+  const b = state.fnBlock;
+  if (!b || !b.total_cases || (state.currentPage || 1) > 1 || !document.getElementById("scopeFootnotes")?.checked) {
+    box.hidden = true;
+    box.innerHTML = "";
+    return;
+  }
+  const snip = (s) => escapeHtml(s || "").replace(/&lt;b&gt;/g, '<mark class="hl">').replace(/&lt;\/b&gt;/g, "</mark>");
+  const more = b.total_cases > b.cases.length ? ` · the first ${b.cases.length} shown` : "";
+  box.innerHTML = `<header class="fn-res-head"><h2>In footnotes</h2>`
+    + `<span class="fn-res-count">${fmtInt.format(b.total_notes)} note${b.total_notes === 1 ? "" : "s"} in ${fmtInt.format(b.total_cases)} judgment${b.total_cases === 1 ? "" : "s"}${more}</span></header>`
+    + `<p class="fn-res-hint">Matches in the judgments' footnotes, under the same filters. They are listed apart and do not change the ranking above.</p>`
+    + b.cases.map((c) => {
+      state.caseById.has(c.case_id) || state.caseById.set(c.case_id, serverSearch._adaptCase(c));
+      const date = c.judgment_date ? `<span class="fn-res-date">${escapeHtml(c.judgment_date)}</span>` : "";
+      return `<article class="fn-res-case"><div class="fn-res-title">${escapeHtml(c.title || c.case_id)}${date}</div><ul>`
+        + c.notes.map((n) => {
+          const no = n.display_para_no ?? n.hudoc_para_no;
+          const where = [no != null ? `¶ ${no}` : "", SECTION_LABELS[normalizeSectionKey(n.section)] || n.section || ""].filter(Boolean).join(" · ");
+          return `<li><button type="button" class="fn-res-note" data-fnres-case="${escapeHtml(c.case_id)}" data-fnres-para="${n.para_idx}" data-fnres-seq="${n.seq}">`
+            + `<span class="fn-res-label">${n.kind === "endnote" ? "Endnote" : "Footnote"} ${escapeHtml(n.label)}</span>`
+            + `<span class="fn-res-where">${escapeHtml(where)}</span></button>`
+            + `<div class="fn-res-snippet">${snip(n.snippet)}</div></li>`;
+        }).join("") + `</ul></article>`;
+    }).join("");
+  box.hidden = false;
+}
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest(".fn-res-note");
+  if (!btn) return;
+  const caseId = btn.dataset.fnresCase, seq = btn.dataset.fnresSeq;
+  await openDossier(caseId, btn.dataset.fnresPara);
+  const marker = document.querySelector(`#dossierContent .fn-marker[data-fn="${CSS.escape(`${caseId}:${seq}`)}"]`);
+  if (marker) {
+    marker.scrollIntoView({ block: "center" });
+    setTimeout(() => openFnPopover(marker), 250);
+  }
+});
+
 function dossierParaNumLabel(p) {
   const n = (p.displayParaNo != null) ? p.displayParaNo
           : (p.hudocParaNo != null) ? p.hudocParaNo : null;
@@ -7815,6 +7876,7 @@ function bindEvents() {
     if (act === "back") { resetFiltersAndQuery(); return; }
     if (act === "french") { document.querySelector('input[name="searchLang"][value="fr"]')?.click(); return; }
     if (act === "broad") { state.forceBroad = state.zeroQuery || el.searchInput.value.trim(); applySearch(true); return; }
+    if (act === "footnotes") { const cb = document.getElementById("scopeFootnotes"); if (cb) cb.checked = true; applySearch(true); return; }
     if (act === "replace") {
       el.searchInput.value = el.searchInput.value.replace(
         new RegExp(`(^|[^\\p{L}])${escapeRegExp(a.dataset.from)}(?![\\p{L}])`, "iu"), `$1${a.dataset.to}`);

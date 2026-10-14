@@ -1766,3 +1766,23 @@ body.is-resizing-dossier { cursor: col-resize; user-select: none; }
 .fn-popover mark.hl { background: var(--highlight); }
 .fn-popover.is-sheet { left: 0 !important; right: 0; bottom: 0; top: auto !important; width: auto !important; border-radius: 12px 12px 0 0; border-left: 0; border-top: 3px solid var(--garnet); max-height: 55vh; }
 @media print { .fn-popover { display: none; } }
+
+/* Footnote search (renderFootnoteResults) */
+.cb-footnotes { margin-top: 6px; }
+.cb-aside { color: var(--ink-4, var(--text-secondary)); font-size: 0.85em; }
+.fn-results { margin: 18px 0 8px; padding-top: 14px; border-top: 1px solid var(--rule, var(--border)); }
+.fn-res-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.fn-res-head h2 { margin: 0; font-family: var(--font-mono, monospace); font-size: 0.72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--garnet); }
+.fn-res-count { font-size: 0.8rem; color: var(--ink-4, var(--text-secondary)); }
+.fn-res-hint { margin: 4px 0 10px; font-size: 0.78rem; color: var(--ink-4, var(--text-secondary)); }
+.fn-res-case { padding: 10px 0; border-bottom: 1px solid var(--rule, var(--border)); }
+.fn-res-title { font-family: var(--font-serif); font-style: italic; font-size: 0.95rem; color: var(--ink, var(--text-primary)); }
+.fn-res-date { margin-left: 10px; font-style: normal; font-family: var(--font-mono, monospace); font-size: 0.7rem; color: var(--ink-4, var(--text-secondary)); }
+.fn-res-case ul { list-style: none; margin: 6px 0 0; padding: 0; }
+.fn-res-case li { margin: 6px 0 0 0; padding-left: 12px; border-left: 2px solid var(--rule, var(--border)); }
+.fn-res-note { all: unset; cursor: pointer; display: inline-flex; gap: 10px; font-family: var(--font-mono, monospace); font-size: 0.7rem; letter-spacing: .03em; }
+.fn-res-label { color: var(--garnet); }
+.fn-res-where { color: var(--ink-4, var(--text-secondary)); }
+.fn-res-note:hover .fn-res-label, .fn-res-note:focus-visible .fn-res-label { text-decoration: underline; }
+.fn-res-snippet { font-family: var(--font-serif); font-size: 0.86rem; line-height: 1.5; color: var(--ink-2, var(--text-primary)); margin-top: 2px; }
+.fn-res-snippet mark.hl { background: var(--highlight); }
