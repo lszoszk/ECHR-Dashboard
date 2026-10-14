@@ -862,6 +862,7 @@ function cacheElements() {
   el.inlineSearchInput = byId("inlineSearchInput");
   el.inlineSearchBtn = byId("inlineSearchBtn");
   el.resultsHits = byId("resultsHits");
+  el.srStatus = byId("srStatus");
   el.resultsHitsLabel = byId("resultsHitsLabel");
   el.resultsCases = byId("resultsCases");
   el.resultsCasesLabel = byId("resultsCasesLabel");
@@ -1563,7 +1564,7 @@ function handleParaAction(action, btn) {
     const no = para.hudocParaNo != null ? para.hudocParaNo : para.displayParaNo;
     const rows = [para];
     for (let k = at + 1; k < paras.length && no != null && paras[k].hudocParaNo == null && paras[k].displayParaNo === no; k++) rows.push(paras[k]);
-    copyToClipboardWithFeedback(rows.map((r) => r.text).join("\n"), btn);
+    copyToClipboardWithFeedback(paraTextWithNotes(rows), btn);
   } else if (window.ECHRWorkspace) {
     const on = window.ECHRWorkspace.toggleParagraph(wsItemFor(caseObj, para));
     btn.textContent = on ? "★ Saved" : "☆ Bookmark";
@@ -5851,10 +5852,10 @@ function buildCaseCard(caseId, row, rank = 1) {
             <span class="toggle-icon" id="icon-${escapeHtml(caseId)}">▶</span>
           </button>
         </div>
-        <aside class="researcher-influence">
+        <div class="researcher-influence">
           <div class="folio-label">Influence <button type="button" class="info-dot" data-action="influence-help" aria-label="What Influence shows" title="What Influence shows">i</button></div>
           ${buildResearcherBars(c)}
-        </aside>
+        </div>
         </div>
       </div>
 
@@ -6337,6 +6338,15 @@ async function fetchAndRenderServerAnalytics(query, filters, signal = undefined)
   }
 }
 
+/* Screen readers hear the result count once a search ends (WCAG 4.1.3): the heading is copied into a polite
+ * status region outside the results, emptied first so that the same count is announced again. */
+function announceResults() {
+  if (!el.srStatus) return;
+  const text = (byId("resultsHeading")?.textContent || "").replace(/\s+/g, " ").trim();
+  el.srStatus.textContent = "";
+  setTimeout(() => { el.srStatus.textContent = text; }, 50);
+}
+
 function updateResultsHeader() {
   const totalCases = state.currentOrderedCaseIds.length;
   const totalPages = Math.ceil(totalCases / PAGE_SIZE) || 1;
@@ -6352,6 +6362,7 @@ function updateResultsHeader() {
   el.resultsTime.textContent = `(${(state.searchTimeMs / 1000).toFixed(3)}s · page ${state.currentPage}/${totalPages} · ${modeLabel}${limitedNote})`;
   if (el.queryMatchCount) el.queryMatchCount.textContent = fmtInt.format(browseMode ? totalCases : state.totalHits);
   if (el.queryMatchLabel) el.queryMatchLabel.textContent = browseMode ? "cases shown" : "¶ matched";
+  announceResults();
 
   el.exportBtn.disabled = !totalCases;
   if (el.clearBtn) el.clearBtn.disabled = !state.loaded;
@@ -6821,6 +6832,7 @@ function updateResultsHeaderServer(data, opts = {}) {
   el.resultsTime.textContent = `(${((data.search_time_ms || state.searchTimeMs) / 1000).toFixed(3)}s · page ${state.currentPage}/${totalPages} · ${serverTag})`;
   if (el.queryMatchCount) el.queryMatchCount.textContent = fmtInt.format(defaultView ? totalCases : (data.total_hits || 0));
   if (el.queryMatchLabel) el.queryMatchLabel.textContent = defaultView ? "recent cases" : "¶ matched";
+  if (!defaultView) announceResults();
   renderCorpusNote();
 
   el.exportBtn.disabled = !state.currentOrderedCaseIds.length;
@@ -6879,7 +6891,7 @@ async function exportResults() {
   if (includeClassifierLabels) {
     header.push("Assigned Labels");
   }
-  header.push("Text");
+  header.push("Text", "Footnotes");
 
   const rows = [header];
 
@@ -6888,7 +6900,8 @@ async function exportResults() {
   let allResultsById = state.currentResultsById;
   let exportFellBackToPage = false;
 
-  if (state.serverMode && state.serverTotalCases > state.currentOrderedCaseIds.length) {
+  // Server mode always fetches the export (one request): it carries every result and each paragraph's footnotes.
+  if (state.serverMode) {
     el.exportBtn.disabled = true;
     el.exportBtn.textContent = "⏳ Exporting…";
     try {
@@ -6915,6 +6928,7 @@ async function exportResults() {
             numberingBlock: p.numbering_block || null,
             rowRole: p.row_role || null,
             rawText: serverSnippetToPlainText(p.snippet, p.text),
+            notes: p.notes || [],
           };
         });
         allCaseIds.push(c.case_id);
@@ -6976,7 +6990,7 @@ async function exportResults() {
       if (includeClassifierLabels) {
         row.push(getCombinedParagraphLabels(p.key).map((x) => x.label).join("; "));
       }
-      row.push(p.rawText);
+      row.push(p.rawText, (p.notes || []).map(fnPlainLine).join("\n"));
       rows.push(row);
     }
   }
@@ -7016,7 +7030,7 @@ async function exportResults() {
     _triggerDownload(blob, `${baseName}.csv`);
   }
 
-  if (exportFellBackToPage) {
+  if (exportFellBackToPage && state.serverTotalCases > allCaseIds.length) {
     alert(
       `Only the ${allCaseIds.length} cases on this page were exported, not all ` +
       `${state.serverTotalCases.toLocaleString("en-US")} results: the server could not return the ` +
@@ -7311,6 +7325,27 @@ function fnMarkerHtml(n) {
   return `<button type="button" class="fn-marker" data-fn="${escapeHtml(`${n.caseId}:${n.seq}`)}" aria-expanded="false"`
     + ` aria-label="${escapeHtml(`${kind} ${n.label}: ${n.text.slice(0, 80)}`)}"><sup>${escapeHtml(n.label)}</sup></button>`;
 }
+/** Plain text of paragraph rows for Copy: each note's number in brackets where its reference stands, and the
+ *  notes themselves after the text, as "[12] text" (notes whose place is unknown are listed, not placed). */
+function paraTextWithNotes(rows) {
+  const all = [];
+  const body = rows.map((p) => {
+    const text = String(p.text || "");
+    const notes = p.notes || [];
+    all.push(...notes);
+    const placed = notes.filter((n) => n.anchored && n.offset != null).sort((a, b) => a.offset - b.offset || a.seq - b.seq);
+    let out = "", at = 0;
+    for (const n of placed) {
+      const o = Math.min(Math.max(Number(n.offset), at), text.length);
+      out += text.slice(at, o) + `[${n.label}]`;
+      at = o;
+    }
+    return out + text.slice(at);
+  }).join("\n");
+  return all.length ? `${body}\n\n${all.map(fnPlainLine).join("\n")}` : body;
+}
+const fnPlainLine = (n) => `[${n.label}] ${String(n.text || "").replace(/\s*\n\s*/g, " ")}`;
+
 function paraTextHtml(p, terms) {
   const text = String((p && p.text) || "");
   const notes = (p && p.notes) || [];
@@ -7353,6 +7388,20 @@ function openFnPopover(btn) {
     pop.id = "fn-popover";
     pop.className = "fn-popover";
     pop.setAttribute("role", "dialog");
+    pop.tabIndex = -1;
+    // keyboard users: Tab past × (or Shift+Tab from the note) closes it and returns to the marker, so the
+    // reader keeps their place in the text; focus moved elsewhere (a click) closes it where it went
+    pop.addEventListener("keydown", (e) => {
+      if (e.key !== "Tab" || !fnOpen) return;
+      const last = pop.querySelector(".fn-popover-close");
+      if ((!e.shiftKey && document.activeElement === last) || (e.shiftKey && document.activeElement === pop)) {
+        e.preventDefault();
+        closeFnPopover(true);
+      }
+    });
+    pop.addEventListener("focusout", (e) => {
+      if (fnOpen && e.relatedTarget && !pop.contains(e.relatedTarget) && e.relatedTarget !== fnOpen) closeFnPopover();
+    });
     document.body.appendChild(pop);
   }
   const kind = note.kind === "endnote" ? "Endnote" : "Footnote";
@@ -7375,6 +7424,7 @@ function openFnPopover(btn) {
     const below = r.bottom + 8, h = pop.offsetHeight;
     pop.style.top = `${(below + h > window.innerHeight - 12 && r.top - h - 8 > 12) ? r.top - h - 8 : below}px`;
   }
+  pop.focus({ preventScroll: true });            // a screen reader reads the note; Escape or × returns to the marker
 }
 document.addEventListener("click", (e) => {
   const btn = e.target.closest(".fn-marker");

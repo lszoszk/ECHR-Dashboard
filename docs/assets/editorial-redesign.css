@@ -17,7 +17,7 @@
   --ink: #242328;
   --ink-2: #48464c;
   --ink-3: #706d72;
-  --ink-4: #969197;
+  --ink-4: #6e6b70;     /* 4.6:1 on --paper-2; was #969197 (2.7:1, below WCAG AA) */
   --garnet: #8d2f2f;
   --garnet-2: #6f2427;
   --garnet-soft: #f4e0dd;
@@ -68,7 +68,7 @@
   --ink: #f3efe6;
   --ink-2: #d4cec3;
   --ink-3: #aca59b;
-  --ink-4: #807a73;
+  --ink-4: #908a83;     /* 4.8:1 on --paper-2; was #807a73 */
   --garnet: #d08178;
   --garnet-2: #e0a19b;
   --garnet-soft: #3b2224;

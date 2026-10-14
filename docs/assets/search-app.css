@@ -269,16 +269,13 @@
   color: var(--text-muted);
   font-size: 0.72rem;
   font-variant-numeric: tabular-nums;
-  opacity: 0.75;
 }
 
 /* A facet value with no hits in the current search — kept visible (the
-   value still exists in the corpus) but de-emphasised so the eye skips it. */
-.filter-count.is-zero {
-  opacity: 0.4;
-}
+   value still exists in the corpus and can be ticked) but de-emphasised so the eye skips it: by a lighter
+   colour that still reads at 4.5:1 (WCAG 1.4.3), not by opacity, which took it to about 2:1. */
 .cb-label:has(.filter-count.is-zero) {
-  opacity: 0.55;
+  color: var(--text-muted);
 }
 
 /* Loading placeholder shown in filter groups while facets API is in-flight.

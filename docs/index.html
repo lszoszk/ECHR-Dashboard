@@ -42,9 +42,9 @@
   <script src="assets/who.js?v=20261013" data-tool="hudoc-researcher" data-endpoint="https://hudoc-researcher.goatcounter.com/count" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/dashboard.css?v=20261014-fnsearch">
-  <link rel="stylesheet" href="assets/search-app.css?v=20261013-nores">
-  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261012-light">
+  <link rel="stylesheet" href="assets/dashboard.css?v=20261014-a11y">
+  <link rel="stylesheet" href="assets/search-app.css?v=20261014-a11y">
+  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261014-a11y">
   <link rel="stylesheet" href="assets/judgment-hudoc.css?v=20260706-deadmodal">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
@@ -76,6 +76,7 @@
   </nav>
 
   <main class="main-content editorial-app">
+    <h1 class="visually-hidden">HUDOC Researcher: paragraph-level search of the judgments of the European Court of Human Rights</h1>
     <section class="editorial-search-band">
       <div class="editorial-search-inner">
         <!-- Shown only when the server is unreachable (sample data / file upload); the connection
@@ -101,7 +102,7 @@
 
         <form id="searchForm" class="search-form search-disabled editorial-query-form">
           <div class="editorial-query-row">
-            <span class="editorial-query-label">Search<span>.</span></span>
+            <label class="editorial-query-label" for="searchInput">Search<span>.</span></label>
             <input
               type="text"
               id="searchInput"
@@ -147,6 +148,7 @@
 
     <div class="results-layout editorial-workspace">
       <aside class="editorial-filter-rail" id="filterRail" aria-label="Search filters">
+        <h2 class="visually-hidden">Search filters</h2>
         <!-- Phones and small tablets: the rail opens as a full-screen sheet from #filtersSheetBtn. -->
         <div class="rail-sheet-head">
           <span class="rail-sheet-title">Filters</span>
@@ -239,8 +241,10 @@
                 <h3 class="filter-title">Judgment Date</h3>
                 <div class="year-histogram" id="yearHistogram" hidden></div>
                 <div class="date-range">
+                  <label for="dateFrom" class="visually-hidden">Judgments from</label>
                   <input type="date" id="dateFrom" class="date-input" required disabled>
                   <span class="date-sep">to</span>
+                  <label for="dateTo" class="visually-hidden">Judgments to</label>
                   <input type="date" id="dateTo" class="date-input" required disabled>
                 </div>
               </div>
@@ -319,10 +323,11 @@
           translation, unofficial</em>. They are not translations by the Court and may contain errors: check and
           quote the French original on HUDOC.
         </p>
+        <p id="srStatus" class="visually-hidden" role="status"></p>
         <div class="results-header" id="resultsHeader" hidden>
           <div class="results-lede">
             <div class="folio-label garnet">Results · Paragraph-Level</div>
-            <h2><strong id="resultsHits">0</strong> <span id="resultsHitsLabel">passages</span> from <strong id="resultsCases">0</strong> <span id="resultsCasesLabel">judgments</span></h2>
+            <h2 id="resultsHeading"><strong id="resultsHits">0</strong> <span id="resultsHitsLabel">passages</span> from <strong id="resultsCases">0</strong> <span id="resultsCasesLabel">judgments</span></h2>
             <p class="results-corpus" id="resultsCorpus" hidden></p>
             <p>Sorted by relevance and recency. <span id="resultsTime">(0.000s)</span></p>
           </div>
@@ -586,6 +591,6 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
-  <script src="assets/search-app.js?v=20261014-fnsearch"></script>
+  <script src="assets/search-app.js?v=20261014-fncopy"></script>
 </body>
 </html>
