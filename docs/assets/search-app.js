@@ -6528,7 +6528,9 @@ function applySearch(resetPage = true) {
 /* Case-name matches.  Full-text search cannot find a case by NAME when the
  * title column of the index is empty for it (about 44% of the corpus), so a
  * search for "Kudla" lists the judgments that cite Kudla v. Poland but not
- * the judgment itself.  /suggest matches cases.title and application numbers. */
+ * the judgment itself.  /suggest matches cases.title and application numbers.
+ * Since October 2026 the search itself puts a named case first (api/main.py, _name_query); the panel still
+ * shows it when the filters or the collection (decisions) leave it out of the list. */
 function clearNameMatches() {
   state.nameMatchSeq = (state.nameMatchSeq || 0) + 1;
   state.nameMatchQuery = "";
@@ -6575,7 +6577,7 @@ async function renderNameMatches(query) {
   el.nameMatches.innerHTML =
     `<div class="folio-label garnet">Case name match</div>` +
     `<ul class="nm-list">${items}</ul>` +
-    `<p class="nm-note">The judgments below are the full-text hits; they may only cite the case.</p>`;
+    `<p class="nm-note">The judgments below are the full-text hits: the named case first when it is among them, then those that cite or discuss it.</p>`;
   el.nameMatches.hidden = false;
 }
 
