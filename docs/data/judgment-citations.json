@@ -1,9 +1,9 @@
 {
   "schema_version": "judgment-citations-v1",
-  "generated_at": "2026-10-15T17:54:27.769635+00:00",
+  "generated_at": "2026-10-15T22:53:18.910172+00:00",
   "cutoff": "2026-10-15",
   "catalog_sha256": "5b132311cb21a1dde8da5f3efd202ffd804d76f9fe27eaa9d4b4e54ff25ae2fe",
-  "catalog_content_sha256": "21bcd8dc8161af6ce43b3bb657ed8ead8c7ef8a1b65835d6c33ac24975a5d030",
+  "catalog_content_sha256": "2ea27724654ec3310205cffa31179c09b3a6c6228b8a787c189af3fee2349262",
   "edges_sha256": "a310b40a049d89b344f4844219e8bc33a0bd7d5cf97dc6d2e57b0b1b6a07bd88",
   "statistics_scope_sha256": "06e50b56dfe036c29a74f3f557a3a8b7a788a86923a35872703c7420d12c5feb",
   "scope": "Judgments only, English-flagged catalog identities with verified French ECLI aliases. Counts use bilingual HUDOC citation metadata, not full-text extraction.",
