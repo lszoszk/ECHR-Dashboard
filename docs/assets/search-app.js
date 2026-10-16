@@ -7162,7 +7162,7 @@ function searchExportInfo(nCases, nRows) {
   const st = state.corpusStats || {};
   const parts = [
     snap.includeMt !== "only" && snap.includeJudgments !== false ? "Official English texts of the judgments" : "",
-    snap.includeDecisions ? "Decisions of the Court in English (a selection: those cited in judgments, and key cases)" : "",
+    snap.includeDecisions ? "Decisions of the Court in English (every Grand Chamber and Chamber decision; not Committee decisions)" : "",
     snap.includeAdvisory ? "Advisory opinions of the Court in English (HUDOC's Advisory Opinions collection)" : "",
     snap.includeMt ? "Unofficial English machine translations of judgments HUDOC publishes only in French" : "",
   ].filter(Boolean);

@@ -142,7 +142,7 @@
          <li><span class="n">·</span><div><span><b>Judgments, in English${frN ? " and in French" : ""}.</b> ${frN ? `The ${fmt(frN)} judgments HUDOC publishes only in French
            are searched in their authentic French text; unofficial English translations of all of them can be switched on in the English search.`
            : "Judgments that HUDOC publishes only in French are left out, except unofficial machine translations of those other judgments cite, which you can switch on."}
-           Decisions are a selection for now (those cited in judgments, and key cases), shown when <i>Decisions</i> is ticked.</span></div></li>
+           Decisions of the Grand Chamber and the Chambers (not of Committees) are shown when <i>Decisions</i> is ticked.</span></div></li>
          <li><span class="n">·</span><div><span><b>The Court's own paragraph numbers</b>, as in HUDOC's text of each judgment, so a result can be cited as it stands.</span></div></li>
          <li><span class="n">·</span><div><span><b>Cites / Cited by</b> count judgments and decisions, found in their text and in HUDOC's metadata; every matching
            rule is documented in Methodology.</span></div></li>
