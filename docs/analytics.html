@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="assets/dashboard.css">
   <link rel="stylesheet" href="assets/search-app.css">
   <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261014-advtip">
-  <link rel="stylesheet" href="assets/analytics-page.css?v=20261011-cited">
+  <link rel="stylesheet" href="assets/analytics-page.css?v=20261019-decisions">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1"></script>
   <script src="assets/tour.js?v=20261016-dec2" defer></script>
@@ -65,9 +65,15 @@
           <span id="metaGenerated">Generated: -</span>
         </div>
         <div class="statistics-scope" aria-label="Scope of statistics">
-          <p><strong>Judgments only.</strong> Grand Chamber, Chamber and Committee. Decisions, Commission reports and press releases are excluded.</p>
+          <p><strong>Judgments only.</strong> Grand Chamber, Chamber and Committee. Decisions, Commission reports and press releases are excluded from every chart below.</p>
           <p>Counts are judgment records, not applications. English metadata; English and French texts counted once.</p>
+          <p id="scopeVsCorpus" class="scope-reconcile">Reconciling this page against Search&hellip;</p>
           <p id="scopeCutoff" class="scope-date">Loading audited snapshot...</p>
+          <details>
+            <summary>Why these charts cover less than Search does</summary>
+            <p>A decision reaches no finding on the merits, so it cannot carry a violation or an article outcome. Counting decisions here would grow the denominator of every rate on the page by 96% while the numerator did not move &mdash; each rate would roughly halve, and nothing about the Court would have changed. They are counted on their own terms instead.</p>
+            <p><a href="#stats-decisions">Go to the Decisions section</a> &middot; <a href="methodology.html#why-statistics-counts-fewer-documents-than-search">Full explanation in the methodology</a></p>
+          </details>
           <details><summary>Catalog identity and language limits</summary><p id="scopeCaveat"></p></details>
         </div>
         <p class="snapshot-warning">Snapshot, not live Search. French source bundles await deployment.</p>
@@ -120,6 +126,7 @@
               <span class="sidebar-category-label">Procedure</span>
               <a class="sidebar-link" data-target="stats-judgment-types" href="#stats-judgment-types">Judgment types</a>
               <a class="sidebar-link" data-target="stats-inadmissibility" href="#stats-inadmissibility">Inadmissibility and strike-outs</a>
+              <a class="sidebar-link" data-target="stats-decisions" href="#stats-decisions">Decisions (separate scope)</a>
             </div>
 
             <div class="sidebar-category">
@@ -358,11 +365,36 @@
           <section class="chart-section" id="stats-inadmissibility">
             <h2 class="chart-section-title">Inadmissibility and strike-outs in judgments</h2>
             <p class="chart-section-desc">Judgments whose conclusion declares part of the application inadmissible or strikes it out of the list, and the inadmissibility grounds the conclusion names.</p>
-            <p class="chart-caveat">This counts judgments only, so it is <strong>not</strong> the Court's filtering rate: most applications are declared inadmissible or struck out by a decision and never reach a judgment. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
+            <p class="chart-caveat">This counts judgments only, so it is <strong>not</strong> the Court's filtering rate: most applications are declared inadmissible or struck out by a decision and never reach a judgment. Those decisions are counted in <a href="#stats-decisions">Decisions</a>, on their own denominators. <a href="methodology.html#scope-judgments-in-english">How to read this</a></p>
             <p class="chart-takeaway" id="inadmissibilityTakeaway"></p>
             <div class="chart-canvas-wrap" style="height:420px">
               <canvas id="inadmissibilityGroundsChart"></canvas>
             </div>
+          </section>
+
+          <!-- 7b · Decisions: its own corpus, its own denominators -->
+          <section class="chart-section" id="stats-decisions">
+            <h2 class="chart-section-title">Decisions &mdash; a separate scope</h2>
+            <p class="chart-section-desc">Every chart above this point counts judgments. This section counts HUDOC&rsquo;s admissibility and strike-out <em>decisions</em>. They are searchable in this tool, but share none of the denominators used above: a decision reaches no finding on the merits, so it carries no violation and no article outcome. Read from the live corpus, so its cut-off differs from the snapshot date above. <a href="methodology.html#why-statistics-counts-fewer-documents-than-search">Methodology</a></p>
+            <p class="chart-caveat"><strong>Read this first.</strong> These are the decisions HUDOC <em>publishes</em> &mdash; not the Court&rsquo;s filtering of applications. The single-judge formation that disposes of most of the docket publishes nothing, and this record shows it from the inside: <span id="decisionFormationNote"></span></p>
+            <div id="decisionKpiGrid" class="kpi-row compact-metrics"></div>
+
+            <h3 class="chart-section-subtitle">What a published decision actually decides</h3>
+            <p class="chart-takeaway" id="decisionOutcomeTakeaway"></p>
+            <div class="chart-canvas-wrap" style="height:380px"><canvas id="decisionOutcomeChart"></canvas></div>
+            <p class="chart-note">Conclusions are compound, so the mixed categories are their own buckets rather than being split across the single ones. Alternative phrasings of one outcome are folded together; HUDOC&rsquo;s own misspellings are not corrected and stay under &ldquo;Other&rdquo;.</p>
+
+            <h3 class="chart-section-subtitle">Strike-outs and inadmissibility over time</h3>
+            <p class="chart-note">This tracks publishing practice as much as caseload: separate admissibility decisions became rare once the Court began joining admissibility to the merits, which is why the <em>Admissible</em> line all but disappears rather than the Court becoming stricter. Pre-1999 records are sparse (<span id="decisionEarlyNote"></span>) because admissibility was the former Commission&rsquo;s task until Protocol 11, and its decisions are a HUDOC collection this corpus does not hold. The final year is partial.</p>
+            <div class="chart-canvas-wrap" style="height:360px"><canvas id="decisionOutcomeTrendChart"></canvas></div>
+
+            <h3 class="chart-section-subtitle">Published decisions by respondent State</h3>
+            <p class="chart-note">Volume, not performance. A high count tracks application numbers and population rather than a State&rsquo;s compliance record &mdash; and half of these documents are strike-outs, which include friendly settlements resolved in the applicant&rsquo;s favour.</p>
+            <div class="chart-canvas-wrap" style="height:440px"><canvas id="decisionStateChart"></canvas></div>
+
+            <h3 class="chart-section-subtitle">Article 35 grounds, and why there is no chart of them</h3>
+            <p class="chart-caveat" id="decisionGroundsNote"></p>
+            <div id="decisionGroundsTable" class="coverage-table-wrap"></div>
           </section>
 
           <!-- 8 · About the data -->

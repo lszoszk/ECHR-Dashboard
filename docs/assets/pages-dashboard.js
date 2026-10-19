@@ -1059,6 +1059,160 @@ function renderCoverage(data) {
     {horizontal: true, colors: ["#395d7f", "#43705a", "#969197"]});
 }
 
+// Presentational only — the payload's own labels are the record; these are
+// short enough to read on a bar axis.
+const DECISION_OUTCOME_SHORT = {
+  "Struck out of the list, in whole or in part": "Struck out (whole or part)",
+  "Partly struck out, partly inadmissible": "Partly struck out / inadmissible",
+  "Partly admissible, partly inadmissible": "Partly admissible / inadmissible",
+};
+
+function decisionOutcomeColor(label) {
+  const text = String(label).toLowerCase();
+  if (/\bstruck out\b/.test(text) && /\binadmissible\b/.test(text)) return "#6c5db5";
+  if (/\bstruck out\b/.test(text)) return "#3c8d5a";
+  if (/\badmissible\b/.test(text) && /\binadmissible\b/.test(text)) return "#6c5db5";
+  if (/\binadmissible\b/.test(text)) return "#b03e45";
+  if (/\badmissible\b/.test(text)) return "#245ea8";
+  return "#8c8c8c";
+}
+
+/**
+ * The Decisions section.
+ *
+ * Statistics stays judgments-only: a decision reaches no finding on the merits,
+ * so counting the 28,241 of them in these charts would grow every rate's
+ * denominator from 29,357 to 57,615 while the numerator stayed put. Decisions
+ * get their own section with their own denominators rather than a scope toggle
+ * that would imply each chart is valid in every mode.
+ *
+ * The data is a sidecar rather than part of stats.json because stats.json is
+ * rebuilt nightly from the reconciled HUDOC *catalog*, which is judgments-only
+ * by construction — keys added there would not survive. This follows
+ * judgment-citations.json, which already works that way.
+ *
+ * Returns the snapshot so the caller can reconcile the page header against it,
+ * or null on any failure; `pruneEmptyCharts()` then removes the empty section
+ * and its sidebar link, which is why this must run before the prune.
+ */
+async function renderDecisions() {
+  if (!document.getElementById("stats-decisions")) return null;
+  try {
+    const response = await fetch("data/decisions.json", { cache: "no-store" });
+    if (!response.ok) throw new Error(`Decisions snapshot unavailable (${response.status})`);
+    const snap = await response.json();
+    if (snap.schema_version !== "decisions-v1") {
+      throw new Error(`Unexpected decisions schema: ${snap.schema_version}`);
+    }
+    const t = snap.totals || {};
+    const decisions = Number(t.decisions || 0);
+    if (!decisions) throw new Error("Decisions snapshot has no decisions");
+
+    const formations = (snap.by_formation || [])
+      .map(([label, count]) => `${label.replace(/^Court \((.*)\)$/, "$1")} (${fmtInt.format(count)})`);
+    document.getElementById("decisionFormationNote").textContent =
+      `all ${fmtInt.format(decisions)} are ` +
+      (formations.length > 1
+        ? `${formations.slice(0, -1).join(", ")} and ${formations[formations.length - 1]}`
+        : formations.join("")) + " decisions.";
+
+    const mix = snap.outcome_mix || [];
+    const struck = (mix.find(([label]) => /^struck out/i.test(label)) || [0, 0])[1];
+    document.getElementById("decisionKpiGrid").innerHTML = [
+      makeKpi("Published decisions", fmtInt.format(decisions),
+        `of ${fmtInt.format(t.cases_all || 0)} documents in the searchable corpus`),
+      makeKpi("Struck out, not refused", pct(struck, decisions, 1),
+        `${fmtInt.format(struck)} end with the application removed from the list`),
+      makeKpi("Decision text rows", fmtInt.format(t.decision_paragraphs || 0),
+        `median ${fmtInt.format(t.paragraphs_median || 0)} rows per decision`),
+      makeKpi("Cut-off", snap.cutoff || "Unavailable",
+        `${t.first_year}–${t.last_year}; read from the live corpus`),
+    ].join("");
+
+    document.getElementById("decisionOutcomeTakeaway").textContent =
+      `Half of the published record is a strike-out rather than a refusal: ${fmtInt.format(struck)} decisions ` +
+      `(${pct(struck, decisions, 1)}) end with the application removed from the list — a friendly settlement, a ` +
+      `unilateral declaration or a withdrawal — not with a ruling that it was inadmissible.`;
+    createBarChart(
+      document.getElementById("decisionOutcomeChart"),
+      mix.map(([label]) => DECISION_OUTCOME_SHORT[label] || label),
+      mix.map(([, count]) => count),
+      { horizontal: true, colors: mix.map(([label]) => decisionOutcomeColor(label)) }
+    );
+
+    const early = (snap.by_year || []).filter(([year]) => year < 1999).reduce((sum, [, n]) => sum + n, 0);
+    document.getElementById("decisionEarlyNote").textContent =
+      `${fmtInt.format(early)} of ${fmtInt.format(decisions)} predate 1999`;
+
+    // The yearly totals ride along as a fourth line: upstream dropped
+    // createLineChart in the October redesign, and a second chart for one
+    // series would not have earned its space here anyway.
+    const trend = snap.outcome_by_year || [];
+    const byYear = new Map(snap.by_year || []);
+    createMultiLineChart(
+      document.getElementById("decisionOutcomeTrendChart"),
+      trend.map((row) => row[0]),
+      [
+        { label: "All published decisions", data: trend.map((r) => byYear.get(r[0]) || 0),
+          borderColor: "#8c8c8c", backgroundColor: "transparent", borderDash: [4, 3], tension: 0.2, pointRadius: 0 },
+        { label: "Struck out", data: trend.map((r) => r[1]),
+          borderColor: "#3c8d5a", backgroundColor: "#3c8d5a22", tension: 0.2, pointRadius: 2 },
+        { label: "Inadmissible", data: trend.map((r) => r[2]),
+          borderColor: "#b03e45", backgroundColor: "#b03e4522", tension: 0.2, pointRadius: 2 },
+        { label: "Admissible", data: trend.map((r) => r[3]),
+          borderColor: "#245ea8", backgroundColor: "#245ea822", tension: 0.2, pointRadius: 2 },
+      ]
+    );
+
+    const byState = (snap.by_state || []).slice(0, 15);
+    createBarChart(
+      document.getElementById("decisionStateChart"),
+      byState.map(([label]) => truncateLabel(label, 28)),
+      byState.map(([, count]) => count),
+      { horizontal: true, colors: ["#4f7ca6"] }
+    );
+
+    // Deliberately a table, not a chart. HUDOC codes a specific Article 35
+    // sub-ground for 3% of published decisions; drawn as bars, those 850
+    // records would read as a profile of all 28,241.
+    const grounds = snap.article35 || {};
+    const coded = grounds.with_subground || 0;
+    document.getElementById("decisionGroundsNote").textContent =
+      `HUDOC records a specific Article 35 sub-ground for ${fmtInt.format(coded)} of the ` +
+      `${fmtInt.format(decisions)} published decisions (${pct(coded, decisions, 1)}); a further ` +
+      `${fmtInt.format((grounds.with_any_tag || 0) - coded)} carry only an unqualified “Admissibility criteria” ` +
+      `tag. That is why the grounds below are a table with their own denominator and not a chart: as bars they ` +
+      `would read as a profile of all ${fmtInt.format(decisions)}.`;
+    const groundRows = grounds.subgrounds || [];
+    if (groundRows.length && coded) {
+      const table = document.createElement("table");
+      table.className = "coverage-table";
+      const head = table.createTHead().insertRow();
+      ["Article 35 ground", "Decisions", `Share of the ${fmtInt.format(coded)} coded`].forEach((label) => {
+        const th = document.createElement("th");
+        th.scope = "col";
+        th.textContent = label;
+        head.appendChild(th);
+      });
+      const body = table.createTBody();
+      groundRows.forEach(([label, count]) => {
+        const row = body.insertRow();
+        const header = document.createElement("th");
+        header.scope = "row";
+        header.textContent = label;
+        row.appendChild(header);
+        [fmtInt.format(count), pct(count, coded, 1)].forEach((value) => { row.insertCell().textContent = value; });
+      });
+      document.getElementById("decisionGroundsTable").replaceChildren(table);
+    }
+    return snap;
+  } catch (err) {
+    // Not fatal: the judgment statistics are complete without this section.
+    console.warn("Decisions section not rendered:", err.message);
+    return null;
+  }
+}
+
 function pruneEmptyCharts() {
   document.querySelectorAll(".stats-main canvas").forEach((canvas) => {
     if (Chart.getChart(canvas) || canvas.dataset.keepEmptyView === "true") return;
@@ -1581,6 +1735,28 @@ async function loadDashboard() {
       `<tr><td>${i + 1}</td><td>${c.title.replace("CASE OF ", "")}</td><td>${c.year}</td><td>${c.state}</td><td>${c.pagerank.toLocaleString()}</td><td>${fmtInt.format(c.cited_by)}</td><td>#${c.rank_by_citations}</td></tr>`
     ).join("");
     prTableEl.innerHTML = `<details><summary style="cursor:pointer;font-weight:600;margin-bottom:8px;">PageRank vs Citation Rank — Full Table (click to expand)</summary><table class="compare-summary-table"><thead>${hdr}</thead><tbody>${rows}</tbody></table></details>`;
+  }
+
+  // Must precede the prune: it strips canvases that hold no Chart instance, so
+  // a section rendered after it would be removed from under itself.
+  const decisions = await renderDecisions();
+  const reconcile = document.getElementById("scopeVsCorpus");
+  if (reconcile) {
+    // The question a reader actually arrives with — why is this smaller than
+    // the number in the Search header? Answered here, with the figures, rather
+    // than left to a methodology page nobody opens first. The snapshot and the
+    // live corpus do not hold the same judgment count, and a reader adding the
+    // numbers up would find the gap, so it is stated instead of smoothed over.
+    const live = decisions && decisions.totals;
+    const lag = live ? Number(live.judgments || 0) - total : 0;
+    reconcile.textContent = live
+      ? `These charts cover ${fmtInt.format(total)} judgments. Search covers ${fmtInt.format(live.cases_all)} documents: ` +
+        `${fmtInt.format(live.judgments)} judgments` +
+        (lag > 0 ? ` (this snapshot lags the live corpus by ${fmtInt.format(lag)})` : "") +
+        `, ${fmtInt.format(live.decisions)} decisions and ${fmtInt.format(live.advisory_opinions)} advisory opinions. ` +
+        `Decisions are counted separately below and nowhere above.`
+      : `These charts cover ${fmtInt.format(total)} judgments. Search also covers admissibility decisions and ` +
+        `advisory opinions, which are excluded here.`;
   }
 
   pruneEmptyCharts();

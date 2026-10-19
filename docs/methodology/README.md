@@ -45,6 +45,27 @@ Two deliberate boundaries a HUDOC user should know about:
 
 The Statistics page is a static snapshot (its build date is printed under its title) and can lag the live counts shown in the Search header.
 
+### Why Statistics counts fewer documents than Search
+
+The Search header counts the whole corpus; the Statistics page counts judgments. Both numbers are right, and they are not the same number:
+
+| | documents | where it is counted |
+|---|---:|---|
+| Judgments (Grand Chamber, Chamber, Committee) | 29,357 | Search, and every chart on Statistics |
+| Admissibility and strike-out decisions | 28,241 | Search, and the **Decisions** section only |
+| Advisory opinions | 17 | Search only |
+| **Total** | **57,615** | |
+
+This is not a judgment that decisions matter less. It is that a decision reaches no finding on the merits, so for most of what Statistics measures it brings no numerator — only a denominator:
+
+- **Violation rates and outcomes.** Every one of the 28,241 decisions carries an empty violation list, because a decision cannot violate or not violate the Convention. Counting them would grow the denominator of every rate on the page from 29,357 to 57,615 — a 96% increase — while the numerator did not move at all. Each rate would roughly halve, and nothing about the Court would have changed.
+- **Outcomes by article.** Decisions do carry article tags (28,178 of them do), but no outcome tag. They would enter every article's denominator contributing zero violations to its numerator.
+- **The most-cited ranking.** Decisions are genuinely cited — 52,858 inbound references, 10.8% of all citation edges in the corpus — but mostly for propositions about admissibility. A combined ranking would merge two different kinds of authority into one list rather than measuring either.
+
+So there is no judgments / decisions / both switch on Statistics. A switch would imply that every chart is valid in every mode, and most of these are not. Decisions are counted in their own section instead, against their own denominators, on the questions they can answer: what a published decision decides, when, against which State, and in which formation.
+
+**What the Decisions section is not.** It is HUDOC's *published* decision record, not the Court's filtering of applications. The single-judge formation that disposes of most of the docket publishes nothing, and the corpus shows this from the inside: all 28,241 records are Committee, Chamber or Grand Chamber decisions — not one single-judge decision among them. HUDOC also rarely codes *why* an application failed: a specific Article 35 sub-ground is recorded for 850 of the 28,241, which is why that breakdown appears as a table with its denominator attached and not as a chart.
+
 ### Press releases excluded
 
 The HUDOC portal indexes ~4,949 press releases alongside the actual court rulings — short journalistic summaries the Registry issues for chamber judgments. These were excluded from the dashboard corpus on 2026-05-09 because:

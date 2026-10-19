@@ -293,6 +293,14 @@
   font-size: 0.68rem;
   margin: 10px 0;
 }
+/* The judgments/corpus reconciliation. Readers arrive asking why this page
+   counts fewer documents than the Search header does, so the answer carries
+   weight here instead of being folded into the surrounding caveats. */
+.statistics-scope .scope-reconcile {
+  margin: 10px 0 8px;
+  color: var(--ink);
+  font-weight: 500;
+}
 .statistics-scope details { color: var(--ink-3); font-size: 0.8rem; }
 .statistics-scope summary { cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 .statistics-scope details p { margin-top: 6px; }

@@ -1,0 +1,968 @@
+{
+  "schema_version": "decisions-v1",
+  "generated_at": "2026-10-19T21:05:54.517384+00:00",
+  "source_db": "echr_search.db",
+  "cutoff": "24/09/2026",
+  "totals": {
+    "cases_all": 57615,
+    "judgments": 29357,
+    "decisions": 28241,
+    "advisory_opinions": 17,
+    "decisions_with_text": 28241,
+    "decision_paragraphs": 2002864,
+    "paragraphs_median": 46,
+    "paragraphs_mean": 70.9,
+    "first_year": 1986,
+    "last_year": 2026
+  },
+  "outcome_mix": [
+    [
+      "Struck out of the list, in whole or in part",
+      14101
+    ],
+    [
+      "Inadmissible",
+      9276
+    ],
+    [
+      "Partly inadmissible",
+      1540
+    ],
+    [
+      "Partly struck out, partly inadmissible",
+      1259
+    ],
+    [
+      "Admissible",
+      1148
+    ],
+    [
+      "Partly admissible, partly inadmissible",
+      826
+    ],
+    [
+      "Partly admissible",
+      46
+    ],
+    [
+      "Not labelled",
+      26
+    ],
+    [
+      "Other",
+      19
+    ]
+  ],
+  "outcome_by_year": [
+    [
+      1986,
+      3,
+      10,
+      0
+    ],
+    [
+      1987,
+      5,
+      11,
+      1
+    ],
+    [
+      1988,
+      1,
+      13,
+      3
+    ],
+    [
+      1989,
+      3,
+      16,
+      4
+    ],
+    [
+      1990,
+      11,
+      6,
+      2
+    ],
+    [
+      1991,
+      3,
+      7,
+      0
+    ],
+    [
+      1992,
+      4,
+      8,
+      1
+    ],
+    [
+      1993,
+      2,
+      3,
+      1
+    ],
+    [
+      1995,
+      0,
+      1,
+      0
+    ],
+    [
+      1997,
+      0,
+      1,
+      0
+    ],
+    [
+      1998,
+      0,
+      15,
+      6
+    ],
+    [
+      1999,
+      34,
+      256,
+      108
+    ],
+    [
+      2000,
+      48,
+      219,
+      156
+    ],
+    [
+      2001,
+      67,
+      191,
+      169
+    ],
+    [
+      2002,
+      164,
+      206,
+      177
+    ],
+    [
+      2003,
+      128,
+      188,
+      128
+    ],
+    [
+      2004,
+      127,
+      209,
+      143
+    ],
+    [
+      2005,
+      206,
+      252,
+      85
+    ],
+    [
+      2006,
+      315,
+      287,
+      55
+    ],
+    [
+      2007,
+      461,
+      232,
+      41
+    ],
+    [
+      2008,
+      750,
+      373,
+      25
+    ],
+    [
+      2009,
+      539,
+      246,
+      10
+    ],
+    [
+      2010,
+      634,
+      310,
+      8
+    ],
+    [
+      2011,
+      817,
+      274,
+      9
+    ],
+    [
+      2012,
+      752,
+      394,
+      5
+    ],
+    [
+      2013,
+      650,
+      415,
+      7
+    ],
+    [
+      2014,
+      803,
+      383,
+      0
+    ],
+    [
+      2015,
+      778,
+      296,
+      0
+    ],
+    [
+      2016,
+      752,
+      385,
+      1
+    ],
+    [
+      2017,
+      674,
+      475,
+      1
+    ],
+    [
+      2018,
+      688,
+      469,
+      0
+    ],
+    [
+      2019,
+      665,
+      436,
+      0
+    ],
+    [
+      2020,
+      548,
+      323,
+      0
+    ],
+    [
+      2021,
+      721,
+      397,
+      0
+    ],
+    [
+      2022,
+      675,
+      461,
+      1
+    ],
+    [
+      2023,
+      656,
+      423,
+      1
+    ],
+    [
+      2024,
+      604,
+      380,
+      0
+    ],
+    [
+      2025,
+      474,
+      416,
+      0
+    ],
+    [
+      2026,
+      339,
+      289,
+      0
+    ]
+  ],
+  "by_year": [
+    [
+      1986,
+      13
+    ],
+    [
+      1987,
+      17
+    ],
+    [
+      1988,
+      18
+    ],
+    [
+      1989,
+      26
+    ],
+    [
+      1990,
+      23
+    ],
+    [
+      1991,
+      13
+    ],
+    [
+      1992,
+      16
+    ],
+    [
+      1993,
+      7
+    ],
+    [
+      1995,
+      1
+    ],
+    [
+      1997,
+      1
+    ],
+    [
+      1998,
+      27
+    ],
+    [
+      1999,
+      507
+    ],
+    [
+      2000,
+      686
+    ],
+    [
+      2001,
+      608
+    ],
+    [
+      2002,
+      809
+    ],
+    [
+      2003,
+      674
+    ],
+    [
+      2004,
+      703
+    ],
+    [
+      2005,
+      824
+    ],
+    [
+      2006,
+      891
+    ],
+    [
+      2007,
+      926
+    ],
+    [
+      2008,
+      1363
+    ],
+    [
+      2009,
+      989
+    ],
+    [
+      2010,
+      1182
+    ],
+    [
+      2011,
+      1271
+    ],
+    [
+      2012,
+      1319
+    ],
+    [
+      2013,
+      1215
+    ],
+    [
+      2014,
+      1291
+    ],
+    [
+      2015,
+      1135
+    ],
+    [
+      2016,
+      1207
+    ],
+    [
+      2017,
+      1212
+    ],
+    [
+      2018,
+      1211
+    ],
+    [
+      2019,
+      1171
+    ],
+    [
+      2020,
+      928
+    ],
+    [
+      2021,
+      1157
+    ],
+    [
+      2022,
+      1152
+    ],
+    [
+      2023,
+      1104
+    ],
+    [
+      2024,
+      1003
+    ],
+    [
+      2025,
+      906
+    ],
+    [
+      2026,
+      635
+    ]
+  ],
+  "by_state": [
+    [
+      "Poland",
+      3138
+    ],
+    [
+      "Russia",
+      3107
+    ],
+    [
+      "Turkey",
+      2805
+    ],
+    [
+      "Romania",
+      2036
+    ],
+    [
+      "Ukraine",
+      1722
+    ],
+    [
+      "United Kingdom",
+      1314
+    ],
+    [
+      "Hungary",
+      1299
+    ],
+    [
+      "Serbia",
+      1048
+    ],
+    [
+      "Croatia",
+      1000
+    ],
+    [
+      "Slovakia",
+      860
+    ],
+    [
+      "Italy",
+      727
+    ],
+    [
+      "Bulgaria",
+      718
+    ],
+    [
+      "Netherlands",
+      643
+    ],
+    [
+      "North Macedonia",
+      605
+    ],
+    [
+      "Azerbaijan",
+      578
+    ],
+    [
+      "Slovenia",
+      575
+    ],
+    [
+      "Germany",
+      568
+    ],
+    [
+      "Austria",
+      490
+    ],
+    [
+      "Moldova",
+      462
+    ],
+    [
+      "Sweden",
+      422
+    ],
+    [
+      "Finland",
+      419
+    ],
+    [
+      "Czech Republic",
+      381
+    ],
+    [
+      "Georgia",
+      369
+    ],
+    [
+      "Greece",
+      297
+    ],
+    [
+      "Portugal",
+      277
+    ],
+    [
+      "Latvia",
+      241
+    ],
+    [
+      "Lithuania",
+      236
+    ],
+    [
+      "Albania",
+      201
+    ],
+    [
+      "Cyprus",
+      177
+    ],
+    [
+      "Bosnia and Herzegovina",
+      177
+    ],
+    [
+      "Armenia",
+      165
+    ],
+    [
+      "Denmark",
+      163
+    ],
+    [
+      "Norway",
+      126
+    ],
+    [
+      "Malta",
+      121
+    ],
+    [
+      "Estonia",
+      120
+    ],
+    [
+      "Spain",
+      116
+    ],
+    [
+      "Montenegro",
+      105
+    ],
+    [
+      "France",
+      85
+    ],
+    [
+      "Switzerland",
+      75
+    ],
+    [
+      "Ireland",
+      73
+    ],
+    [
+      "Iceland",
+      58
+    ],
+    [
+      "San Marino",
+      37
+    ],
+    [
+      "Russia, Ukraine",
+      13
+    ],
+    [
+      "Liechtenstein",
+      10
+    ],
+    [
+      "Italy, Netherlands",
+      8
+    ],
+    [
+      "Moldova, Russia",
+      6
+    ],
+    [
+      "Belgium",
+      6
+    ],
+    [
+      "SCG",
+      2
+    ],
+    [
+      "Luxembourg",
+      2
+    ],
+    [
+      "Italy, Switzerland",
+      2
+    ],
+    [
+      "Greece, Netherlands",
+      2
+    ],
+    [
+      "Germany, United Kingdom",
+      2
+    ],
+    [
+      "Germany, Slovakia",
+      2
+    ],
+    [
+      "CSK",
+      2
+    ],
+    [
+      "Bosnia and Herzegovina, Montenegro, Serbia",
+      2
+    ],
+    [
+      "Austria, Italy",
+      2
+    ],
+    [
+      "Austria, Belgium, Denmark, Spain, Finland, France, Germany, Greece, Ireland, Italy, Luxembourg, Netherlands, Portugal, Sweden, United Kingdom",
+      2
+    ],
+    [
+      "Türkiye",
+      1
+    ],
+    [
+      "Sweden, Turkey",
+      1
+    ],
+    [
+      "Spain, Poland",
+      1
+    ],
+    [
+      "Romania, Russia",
+      1
+    ],
+    [
+      "Republic of Moldova, Russia",
+      1
+    ],
+    [
+      "Portugal, United Kingdom",
+      1
+    ],
+    [
+      "Moldova, Ukraine",
+      1
+    ],
+    [
+      "Moldova, Romania",
+      1
+    ],
+    [
+      "Malta, Netherlands",
+      1
+    ],
+    [
+      "Lithuania, Russia",
+      1
+    ],
+    [
+      "Ireland, United Kingdom",
+      1
+    ],
+    [
+      "Hungary, United Kingdom",
+      1
+    ],
+    [
+      "Hungary, Romania",
+      1
+    ],
+    [
+      "Hungary, Ireland",
+      1
+    ],
+    [
+      "Greece, Sweden",
+      1
+    ],
+    [
+      "Greece, North Macedonia",
+      1
+    ],
+    [
+      "Germany, Poland",
+      1
+    ],
+    [
+      "Germany, Italy",
+      1
+    ],
+    [
+      "Germany, Greece",
+      1
+    ],
+    [
+      "Georgia, Russia",
+      1
+    ],
+    [
+      "Georgia, Netherlands",
+      1
+    ],
+    [
+      "France, Germany, Norway",
+      1
+    ],
+    [
+      "France, Germany",
+      1
+    ],
+    [
+      "Finland, Sweden",
+      1
+    ],
+    [
+      "Denmark, Sweden",
+      1
+    ],
+    [
+      "Denmark, Greece",
+      1
+    ],
+    [
+      "Cyprus, Turkey",
+      1
+    ],
+    [
+      "Cyprus, Greece, Turkey, United Kingdom",
+      1
+    ],
+    [
+      "Cyprus, Greece",
+      1
+    ],
+    [
+      "Bulgaria, Russia",
+      1
+    ],
+    [
+      "Bosnia and Herzegovina, Serbia",
+      1
+    ],
+    [
+      "Bosnia and Herzegovina, Croatia, North Macedonia, Serbia, Slovenia",
+      1
+    ],
+    [
+      "Belgium, Czech Republic, Denmark, Spain, France, Germany, Greece, Hungary, Iceland, Italy, Luxembourg, Netherlands, Norway, Poland, Portugal, Türkiye, United Kingdom",
+      1
+    ],
+    [
+      "Azerbaijan, Ukraine",
+      1
+    ],
+    [
+      "Austria, Sweden",
+      1
+    ],
+    [
+      "Austria, Romania",
+      1
+    ],
+    [
+      "Austria, Belgium, Cyprus, Czech Republic, Denmark, Estonia, Finland, France, Germany, Hungary, Ireland, Italy, Lithuania, Luxembourg, Latvia, Malta, Netherlands, Poland, Portugal, Slovakia, Slovenia, Sweden",
+      1
+    ],
+    [
+      "Austria, Belgium, Bulgaria, Croatia, Cyprus, CSK, Denmark, Spain, Estonia, Finland, France, Germany, Greece, Hungary, Ireland, Italy, Lithuania, Luxembourg, Latvia, Malta, Netherlands, Poland, Portugal, Romania, Slovakia, Slovenia, Sweden, United Kingdom",
+      1
+    ],
+    [
+      "Andorra",
+      1
+    ],
+    [
+      "Albania, Italy",
+      1
+    ],
+    [
+      "Albania, Bulgaria, Croatia, Czech Republic, Denmark, Estonia, Hungary, Ireland, Iceland, Italy, Lithuania, Latvia, Netherlands, Poland, Portugal, Romania, Slovakia, Slovenia, Turkey, United Kingdom, Ukraine",
+      1
+    ],
+    [
+      "Albania, Austria, Belgium, Bulgaria, Bosnia and Herzegovina, Croatia, Cyprus, Czech Republic, Denmark, Spain, Finland, France, Germany, Greece, Hungary, Ireland, Italy, Luxembourg, Moldova, North Macedonia, Malta, Netherlands, Norway, Poland, Portugal, Romania, SCG, Switzerland, Slovakia, Slovenia, Sweden, Turkey, United Kingdom, Ukraine",
+      1
+    ]
+  ],
+  "by_formation": [
+    [
+      "Court (Committee)",
+      15630
+    ],
+    [
+      "Court (Chamber)",
+      12579
+    ],
+    [
+      "Court (Grand Chamber)",
+      32
+    ]
+  ],
+  "sections": [
+    [
+      "Merits",
+      868153
+    ],
+    [
+      "Circumstances",
+      527050
+    ],
+    [
+      "Header",
+      258641
+    ],
+    [
+      "Just Satisfaction",
+      231806
+    ],
+    [
+      "Subject Matter",
+      75347
+    ],
+    [
+      "Appendix",
+      14111
+    ],
+    [
+      "Legal Framework",
+      12400
+    ],
+    [
+      "Procedure",
+      11373
+    ],
+    [
+      "Facts",
+      2259
+    ],
+    [
+      "Operative part",
+      1722
+    ],
+    [
+      "Introduction",
+      1
+    ],
+    [
+      "Admissibility",
+      1
+    ]
+  ],
+  "article35": {
+    "with_any_tag": 7733,
+    "with_subground": 850,
+    "subgrounds": [
+      [
+        "Art. 35-1 Exhaustion of domestic remedies",
+        545
+      ],
+      [
+        "Art. 35-1 Six-month / four-month period",
+        209
+      ],
+      [
+        "Art. 35-3-a Manifestly ill-founded",
+        124
+      ],
+      [
+        "Art. 35-3-a Ratione personae",
+        62
+      ],
+      [
+        "Art. 35-3-a Abuse of the right of application",
+        21
+      ],
+      [
+        "Art. 35-3-b No significant disadvantage",
+        13
+      ],
+      [
+        "Art. 35-3-a Ratione materiae",
+        4
+      ],
+      [
+        "Art. 35-3-a Ratione loci",
+        4
+      ],
+      [
+        "Art. 35-3-a Ratione temporis",
+        3
+      ],
+      [
+        "Art. 35-1 Effective domestic remedy",
+        2
+      ],
+      [
+        "Art. 35-2-b Matter already examined by the Court",
+        1
+      ]
+    ]
+  },
+  "caveats": {
+    "published_only": "HUDOC's published decisions, not the Court's filtering of applications. Single-judge decisions, which dispose of most of the docket, are not published: every record here is a Committee, Chamber or Grand Chamber decision.",
+    "grounds_coverage": "A specific Article 35 sub-ground is coded for 850 of 28241 decisions. The grounds list is not a profile of all of them.",
+    "unit": "HUDOC decision record, not an application or applicant.",
+    "live_db": "Built from the live search corpus, not from the judgment catalog snapshot the rest of this page uses, so the two carry different build dates."
+  }
+}
