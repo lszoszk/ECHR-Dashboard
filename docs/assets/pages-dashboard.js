@@ -1749,14 +1749,26 @@ async function loadDashboard() {
     // numbers up would find the gap, so it is stated instead of smoothed over.
     const live = decisions && decisions.totals;
     const lag = live ? Number(live.judgments || 0) - total : 0;
-    reconcile.textContent = live
-      ? `These charts cover ${fmtInt.format(total)} judgments. Search covers ${fmtInt.format(live.cases_all)} documents: ` +
-        `${fmtInt.format(live.judgments)} judgments` +
+    if (live) {
+      // Two true counts of the same corpus, stated together on purpose. The
+      // Search header reports the machine-translated French-only judgments as
+      // a category of their own, so it shows 20,073 judgments where these
+      // charts count 29,357 records. Printing one figure and leaving the other
+      // to be discovered is how a reader loses trust in both.
+      const mt = Number(live.machine_translations || 0);
+      reconcile.textContent =
+        `These charts cover ${fmtInt.format(total)} judgment records` +
+        (mt ? `, including the ${fmtInt.format(mt)} delivered only in French and read here through unofficial machine translation` : "") +
         (lag > 0 ? ` (this snapshot lags the live corpus by ${fmtInt.format(lag)})` : "") +
-        `, ${fmtInt.format(live.decisions)} decisions and ${fmtInt.format(live.advisory_opinions)} advisory opinions. ` +
-        `Decisions are counted separately below and nowhere above.`
-      : `These charts cover ${fmtInt.format(total)} judgments. Search also covers admissibility decisions and ` +
+        `. Search covers ${fmtInt.format(live.cases_all)} documents — those judgments, ` +
+        `${fmtInt.format(live.decisions)} decisions and ${fmtInt.format(live.advisory_opinions)} advisory opinions` +
+        (mt ? `; its header counts the translations apart, as ${fmtInt.format(live.judgments_official_english)} judgments and ${fmtInt.format(mt)} translations` : "") +
+        `. Decisions are counted separately below and nowhere above.`;
+    } else {
+      reconcile.textContent =
+        `These charts cover ${fmtInt.format(total)} judgment records. Search also covers admissibility decisions and ` +
         `advisory opinions, which are excluded here.`;
+    }
   }
 
   pruneEmptyCharts();

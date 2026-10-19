@@ -151,7 +151,8 @@
   "@context": "https://schema.org",
   "@type": "Dataset",
   "name": "ECtHR Judgments — paragraph level (HUDOC Researcher)",
-  "description": "The judgments of the European Court of Human Rights in English, split into the Court's own numbered paragraphs with the part of the judgment each belongs to, with case metadata from HUDOC and the citation links between judgments. 20,060 judgments and 3,557 decisions (1960–2026), 3.7 million text rows, 287,316 citation links.",
+  "description": "The judgments of the European Court of Human Rights in English, split into the Court's own numbered paragraphs with the part of the judgment each belongs to, with case metadata from HUDOC and the citation links between judgments. Snapshot of 9 October 2026: 20,123 judgments and 31 Grand Chamber admissibility decisions (14 November 1960 – 8 October 2026), 3,323,788 text rows of which 1,259,906 carry the Court's paragraph number, and 247,436 citation links. The live site has grown since this release and covers more; its About page gives the current figures.",
+  "dateModified": "2026-10-09",
   "url": "https://huggingface.co/datasets/lszoszk/ecthr-judgments",
   "sameAs": [
     "https://lszoszk.github.io/ECHR-Dashboard/",
@@ -240,10 +241,18 @@
         <h2>What is this?</h2>
         <p>
           <strong>HUDOC Researcher is a paragraph-level companion to the European Court of Human Rights.</strong>
-          It indexes every paragraph of <span data-live="cases">20,060</span> judgments (up to
-          <span data-live="newest">8&nbsp;October&nbsp;2026</span>), each with the Court&rsquo;s own paragraph number
+          It indexes every paragraph of <span data-live="cases">29,357</span> judgments (up to
+          <span data-live="newest">15&nbsp;October&nbsp;2026</span>), each with the Court&rsquo;s own paragraph number
           and the part of the judgment it belongs to, so that a search lands on the passage you will cite &mdash; and
           then sends you to HUDOC, the authoritative source, for the full text.
+        </p>
+        <p>
+          That figure counts judgment records. <span data-live="mt">9,284</span> of them are judgments HUDOC
+          publishes only in French, whose English text here is an unofficial machine translation, so the Search
+          header lists those apart and shows <span data-live="official">20,073</span> judgments alongside them.
+          Beyond the judgments, Search also covers <span data-live="decisions">28,241</span> admissibility and
+          strike-out decisions and <span data-live="advisory">17</span> advisory opinions, each a collection of
+          its own &mdash; <span data-live="all">57,615</span> documents in all.
         </p>
         <ul>
           <li><a href="./"><strong>Search</strong></a> &mdash; full text with HUDOC&rsquo;s operators, the parts of the
@@ -475,10 +484,26 @@ npm install</code></pre></li>
         .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
         .then(function (d) {
           var m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(d.date_to || ''));
-          document.querySelectorAll('[data-live="cases"]').forEach(function (n) {
-            var judgments = d.total_judgments || d.total_cases;
-            if (judgments) n.textContent = Number(judgments).toLocaleString('en-GB');
-          });
+          // /api/stats reports judgments WITHOUT the machine-translated
+          // French-only ones (api/main.py subtracts them and returns them as
+          // total_machine_translations). The single figure quoted on this page
+          // is the judgment-record count, so add them back; both numbers are
+          // then shown, which is why the header's 20,073 needs no explaining.
+          var mt = Number(d.total_machine_translations || 0);
+          var official = Number(d.total_judgments || 0);
+          var records = official ? official + mt : Number(d.total_cases || 0);
+          var fill = function (key, value) {
+            if (!value) return;
+            document.querySelectorAll('[data-live="' + key + '"]').forEach(function (n) {
+              n.textContent = Number(value).toLocaleString('en-GB');
+            });
+          };
+          fill('cases', records);
+          fill('official', official);
+          fill('mt', mt);
+          fill('decisions', d.total_decisions);
+          fill('advisory', d.total_advisory_opinions);
+          fill('all', d.total_cases);
           document.querySelectorAll('[data-live="newest"]').forEach(function (n) {
             if (m) n.textContent = Number(m[1]) + '\u00a0' + MONTHS[Number(m[2]) - 1] + '\u00a0' + m[3];
           });
