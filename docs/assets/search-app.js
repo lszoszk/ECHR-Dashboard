@@ -5310,7 +5310,7 @@ function buildResearcherBars(c) {
     const open = !na && value > 0 && dir;
     const tag = open ? "button" : "div";
     const attrs = open
-      ? ` type="button" data-action="cite-graph" data-case-id="${escapeHtml(c.case_id || "")}" data-dir="${dir}"`
+      ? ` type="button" data-action="cite-graph" data-case-id="${escapeHtml(c.case_id || "")}" data-dir="${dir}" data-total="${value}"`
         + ` aria-expanded="false" aria-label="${escapeHtml(`Show the ${fmtInt.format(value)} ${label}`)}"`
       : "";
     return `
@@ -5347,11 +5347,19 @@ function citeRowLabel(title, limit = 62) {
   return t.length > limit ? `${t.slice(0, limit - 1)}\u2026` : t;
 }
 
-function renderCitationRows(rows, dir) {
+function renderCitationRows(rows, dir, total = 0) {
   if (!rows.length) {
     return `<p class="cite-graph-empty">No ${dir === "cites" ? "cited judgments" : "citing judgments"} recorded.</p>`;
   }
-  return `<ul class="cite-graph-rows">` + rows.map((r) => {
+  // The bar says 152 and the API caps the list at 50, so without this the
+  // list quietly contradicts the number that opened it. The two endpoints
+  // order differently -- cited_by by date, cites by how many paragraphs
+  // carry the reference -- so the line has to say which.
+  const more = total > rows.length
+    ? `<p class="cite-graph-empty">Showing the ${fmtInt.format(rows.length)} `
+      + `${dir === "cites" ? "most often referred to" : "most recent"} of ${fmtInt.format(total)}.</p>`
+    : "";
+  return more + `<ul class="cite-graph-rows">` + rows.map((r) => {
     const label = citeRowLabel(r.title);
     const meta = [r.judgment_date, r.respondent_state].filter(Boolean).join(" \u00b7 ");
     const n = Number(r.para_count || 0);
@@ -5378,12 +5386,13 @@ async function toggleCiteGraph(btn) {
   box.hidden = false;
   btn.setAttribute("aria-expanded", "true");
   const key = `${caseId}|${dir}`;
-  if (_citeGraphCache.has(key)) { box.innerHTML = renderCitationRows(_citeGraphCache.get(key), dir); return; }
+  const total = Number(btn.dataset.total || 0);
+  if (_citeGraphCache.has(key)) { box.innerHTML = renderCitationRows(_citeGraphCache.get(key), dir, total); return; }
   box.innerHTML = `<p class="cite-graph-empty">Loading\u2026</p>`;
   try {
     const rows = await serverSearch.getCitations(caseId, dir, 50);
     _citeGraphCache.set(key, rows);
-    if (box.dataset.dir === dir) box.innerHTML = renderCitationRows(rows, dir);
+    if (box.dataset.dir === dir) box.innerHTML = renderCitationRows(rows, dir, total);
   } catch (e) {
     box.innerHTML = `<p class="cite-graph-empty">Could not load the citations (${escapeHtml(e.message)}).</p>`;
   }
