@@ -410,6 +410,16 @@ body {
   text-transform: uppercase;
 }
 
+/* One line under a filter title, for a caveat that must not hide in a tooltip:
+   Court Formation narrows decisions as well as judgments, which its labels
+   used to deny. .filter-hint was in the markup but had never been styled. */
+.filter-hint {
+  margin: 0 0 6px;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: var(--ink-3);
+}
+
 .data-source-panel {
   border: 1px solid var(--rule);
   border-radius: 0;

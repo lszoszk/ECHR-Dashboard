@@ -44,7 +44,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css?v=20261014-a11y">
   <link rel="stylesheet" href="assets/search-app.css?v=20261014-rss">
-  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261014-advtip">
+  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261020-railorder">
   <link rel="stylesheet" href="assets/judgment-hudoc.css?v=20260706-deadmodal">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
@@ -270,10 +270,12 @@
                 <div class="checkbox-grid scrollable" id="countriesFilters"></div>
               </div>
 
-              <!-- Convention Articles — primary what-dimension -->
+              <!-- Court Formation — the bench that decided the case. It narrows whichever collections are
+                   switched on above, decisions included, so the hint is part of the group, not a tooltip. -->
               <div class="filter-group">
-                <h3 class="filter-title">Convention Articles</h3>
-                <div class="checkbox-grid scrollable" id="articlesFilters"></div>
+                <h3 class="filter-title">Court Formation</h3>
+                <p class="filter-hint">Applies to whichever collections are switched on above.</p>
+                <div class="checkbox-grid compact" id="docTypeFilters"></div>
               </div>
 
               <!-- Importance — HUDOC's four-tier classification. -->
@@ -300,11 +302,11 @@
                 <div class="checkbox-grid scrollable" id="keywordsFilters"></div>
               </div>
 
-              <!-- Court Formation — the bench that decided the case (Chamber / Grand Chamber / Committee),
-                   and the Grand Chamber decisions. -->
+              <!-- Convention Articles — also available as the article: operator, which is how it is
+                   actually used (11.9% of searches carry a field prefix; this rail had none in October). -->
               <div class="filter-group filter-advanced">
-                <h3 class="filter-title">Court Formation</h3>
-                <div class="checkbox-grid compact" id="docTypeFilters"></div>
+                <h3 class="filter-title">Convention Articles</h3>
+                <div class="checkbox-grid scrollable" id="articlesFilters"></div>
               </div>
 
               <!-- Extra search scope (and the granular sections, hidden: they overlap with "Search in") -->
@@ -609,6 +611,6 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Back to top" hidden>&uarr;</button>
 
-  <script src="assets/search-app.js?v=20261020-railcounts"></script>
+  <script src="assets/search-app.js?v=20261020-railorder"></script>
 </body>
 </html>

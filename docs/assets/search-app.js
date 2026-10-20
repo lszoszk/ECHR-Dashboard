@@ -2493,11 +2493,11 @@ function renderFiltersSkeleton() {
   if (el.docTypeFilters) {
     el.docTypeFilters.innerHTML = [
       makeCheckbox("Chamber", "chamber", "docTypes", null,
-        { tooltip: "Standard 7-judge Chamber judgments — the typical post-1998 format." }),
+        { tooltip: "The 7-judge Chamber — the typical post-1998 bench. Narrows whichever collections are switched on, decisions included." }),
       makeCheckbox("Grand Chamber", "grand_chamber", "docTypes", null,
-        { tooltip: "17-judge Grand Chamber judgments — major principles and inter-state cases." }),
+        { tooltip: "The 17-judge Grand Chamber — major principles and inter-state cases. Narrows decisions too when they are switched on." }),
       makeCheckbox("Committee", "committee", "docTypes", null,
-        { tooltip: "3-judge Committee judgments — repetitive cases following well-established case-law." }),
+        { tooltip: "The 3-judge Committee — repetitive cases following well-established case-law. Narrows decisions too when they are switched on." }),
     ].join("");
   }
   if (el.outcomeFilters) {
@@ -2552,11 +2552,11 @@ function renderFilters() {
 
   el.docTypeFilters.innerHTML = [
     makeCheckbox("Chamber", "chamber", "docTypes", fc.docTypes.chamber,
-      { tooltip: "Standard 7-judge Chamber judgments — the typical post-1998 format." }),
+      { tooltip: "The 7-judge Chamber — the typical post-1998 bench. Narrows whichever collections are switched on, decisions included." }),
     makeCheckbox("Grand Chamber", "grand_chamber", "docTypes", fc.docTypes.grand_chamber,
-      { tooltip: "17-judge Grand Chamber judgments — major principles and inter-state cases." }),
+      { tooltip: "The 17-judge Grand Chamber — major principles and inter-state cases. Narrows decisions too when they are switched on." }),
     makeCheckbox("Committee", "committee", "docTypes", fc.docTypes.committee,
-      { tooltip: "3-judge Committee judgments — repetitive cases following well-established case-law. Often have applicant tables in Introduction." }),
+      { tooltip: "The 3-judge Committee — repetitive cases following well-established case-law. Narrows decisions too when they are switched on; most published decisions are its." }),
   ].join("");
 
   el.outcomeFilters.innerHTML = outcomeCheckboxes();
