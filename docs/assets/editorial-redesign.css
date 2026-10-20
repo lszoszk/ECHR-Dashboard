@@ -1767,6 +1767,12 @@ mark.hl {
 .researcher-influence .folio-label { margin: 0; white-space: nowrap; }
 .researcher-influence .researcher-bar { width: 88px; margin-top: 0; }
 .researcher-influence .researcher-bar-note { display: none; }   /* in the Cited by tooltip */
+/* The citation list is a child of this row, which on a narrow screen is a flex
+   line of 88px bars: without wrapping it is squeezed into what is left and runs
+   off the card (375px: 171px wide and clipped at the viewport edge). Its own
+   full-width line fixes that, and is a no-op in the wider block layout below. */
+.researcher-influence { flex-wrap: wrap; }
+.researcher-influence .cite-graph-list { flex: 1 0 100%; }
 /* On the button row: the bar's line hangs below its label, so the label sits on the buttons' centre line. */
 .researcher-influence .researcher-bar { position: relative; }
 .researcher-influence .researcher-bar-track { position: absolute; left: 0; right: 0; bottom: -4px; margin: 0; }
