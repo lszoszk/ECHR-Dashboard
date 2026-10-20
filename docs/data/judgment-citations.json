@@ -1,39 +1,39 @@
 {
   "schema_version": "judgment-citations-v1",
-  "generated_at": "2026-10-20T01:05:18.481077+00:00",
+  "generated_at": "2026-10-20T16:25:07.549698+00:00",
   "cutoff": "2026-10-20",
-  "catalog_sha256": "5b132311cb21a1dde8da5f3efd202ffd804d76f9fe27eaa9d4b4e54ff25ae2fe",
-  "catalog_content_sha256": "8b8a7b789c2a9cabcfcd1ad3153f11b954b97a3f5fa1680e4fef7b413916f656",
-  "edges_sha256": "a310b40a049d89b344f4844219e8bc33a0bd7d5cf97dc6d2e57b0b1b6a07bd88",
-  "statistics_scope_sha256": "06e50b56dfe036c29a74f3f557a3a8b7a788a86923a35872703c7420d12c5feb",
+  "catalog_sha256": "41153fbec7748cb1610592ecdbf9ff7534fc011b1b135dc6babad98f8d6d48d5",
+  "catalog_content_sha256": "8a6b2a467a955f58e15a93734d3623fc5f23f4c86d8f0ef702478721415f8b5a",
+  "edges_sha256": "96dc9852fe9a1bdb611f3572748cf52ec37ce437bfbbb7d7931ffd6611cae886",
+  "statistics_scope_sha256": "3d3fff03de86b47f7dc7e61e3067e2e61c6905542c044ec2512fc4c492ac7e1c",
   "scope": "Judgments only, English-flagged catalog identities with verified French ECLI aliases. Counts use bilingual HUDOC citation metadata, not full-text extraction.",
   "coverage": {
-    "judgments": 29357,
-    "judgments_with_metadata": 12539,
+    "judgments": 29364,
+    "judgments_with_metadata": 12541,
     "metadata_versions_by_language": {
-      "ENG": 12068,
-      "FRE": 12326
+      "ENG": 12070,
+      "FRE": 12328
     },
-    "reference_observations": 346126,
+    "reference_observations": 346234,
     "by_status": {
-      "ambiguous": 21651,
+      "ambiguous": 21657,
       "chronology_conflict": 7,
-      "excluded_document_type": 30527,
-      "identifier_conflict": 699,
-      "resolved": 275266,
+      "excluded_document_type": 30541,
+      "identifier_conflict": 700,
+      "resolved": 275351,
       "self_reference": 4,
-      "unresolved": 17972
+      "unresolved": 17974
     },
     "by_method": {
-      "application_date": 141894,
-      "application_title": 95528,
-      "explicit_non_judgment": 30527,
+      "application_date": 141964,
+      "application_title": 95552,
+      "explicit_non_judgment": 30541,
       "insufficient_identifiers": 848,
       "multiple_reference_dates": 318,
       "title_date": 77011
     },
-    "unique_edges": 140192,
-    "judgments_with_resolved_citations": 12197,
+    "unique_edges": 140235,
+    "judgments_with_resolved_citations": 12199,
     "identity_issues": [
       {
         "reason": "unpaired_french_identity",
@@ -343,7 +343,7 @@
         "ENG",
         "FRE"
       ],
-      "cited_by_count": 339
+      "cited_by_count": 340
     },
     {
       "judgment_id": "ECLI:CE:ECHR:1996:1115JUD002241493",
@@ -10448,6 +10448,7 @@
       "001-58587"
     ],
     "001-142199": [
+      "001-252936",
       "001-252740",
       "001-253091",
       "001-252642",
@@ -46021,28 +46022,33 @@
       "title": "ZAKUTNIY AND OTHERS v. UKRAINE",
       "date": "2026-10-15",
       "ecli": "ECLI:CE:ECHR:2026:1015JUD005265220"
+    },
+    "001-252936": {
+      "title": "KAPLLANAJ v. ALBANIA",
+      "date": "2026-10-20",
+      "ecli": "ECLI:CE:ECHR:2026:1020JUD003485924"
     }
   },
   "with_extracted_appno": {
     "scope": "As above, plus application numbers HUDOC extracted from the full text of each judgment. A number resolves only when one earlier judgment in the catalog has that application; the citing judgment's own numbers are skipped and several judgments of one application stay ambiguous. Counts are lower bounds and the numbers carry no citation context.",
-    "edges_sha256": "bc2021f32f779036907318e1cc7dd178e2f808afada4f60067f4320ed0fc951c",
+    "edges_sha256": "4681ba3eec2f8a434678914903a91a5a92a49dcf3d09d028548cdc1bb0e9ce18",
     "coverage": {
-      "judgments": 29357,
-      "judgments_with_metadata": 29322,
-      "judgments_with_extracted_application_numbers": 29286,
-      "reference_observations": 453209,
+      "judgments": 29364,
+      "judgments_with_metadata": 29329,
+      "judgments_with_extracted_application_numbers": 29293,
+      "reference_observations": 453317,
       "by_status": {
-        "ambiguous": 53812,
+        "ambiguous": 53837,
         "chronology_conflict": 1349,
-        "resolved": 256576,
-        "self_reference": 73496,
-        "unresolved": 67976
+        "resolved": 256644,
+        "self_reference": 73504,
+        "unresolved": 67983
       },
-      "unique_edges": 280648,
-      "edges_from_curated_list": 140192,
-      "edges_from_extracted_application": 233098,
-      "edges_in_both": 92642,
-      "judgments_with_resolved_citations": 27720,
+      "unique_edges": 280718,
+      "edges_from_curated_list": 140235,
+      "edges_from_extracted_application": 233160,
+      "edges_in_both": 92677,
+      "judgments_with_resolved_citations": 27726,
       "full_text_analyzed": false
     },
     "ranking": [
@@ -46170,9 +46176,9 @@
           "ENG",
           "FRE"
         ],
-        "cited_by_count": 1007,
-        "cited_by_curated_list": 292,
-        "cited_by_extracted_application": 996
+        "cited_by_count": 1008,
+        "cited_by_curated_list": 293,
+        "cited_by_extracted_application": 997
       },
       {
         "judgment_id": "ECLI:CE:ECHR:2002:0507JUD005949800",
@@ -59487,6 +59493,7 @@
         "001-111837"
       ],
       "001-145577": [
+        "001-252936",
         "001-252744",
         "001-252737",
         "001-252660",
@@ -139619,6 +139626,11 @@
         "title": "ZAKUTNIY AND OTHERS v. UKRAINE",
         "date": "2026-10-15",
         "ecli": "ECLI:CE:ECHR:2026:1015JUD005265220"
+      },
+      "001-252936": {
+        "title": "KAPLLANAJ v. ALBANIA",
+        "date": "2026-10-20",
+        "ecli": "ECLI:CE:ECHR:2026:1020JUD003485924"
       }
     }
   },
@@ -293794,32 +293806,32 @@
       }
     },
     "coverage": {
-      "judgments": 29357,
-      "judgments_with_metadata": 12539,
+      "judgments": 29364,
+      "judgments_with_metadata": 12541,
       "metadata_versions_by_language": {
-        "ENG": 12068,
-        "FRE": 12326
+        "ENG": 12070,
+        "FRE": 12328
       },
-      "reference_observations": 346126,
+      "reference_observations": 346234,
       "by_status": {
-        "ambiguous": 21651,
+        "ambiguous": 21657,
         "chronology_conflict": 7,
-        "excluded_document_type": 30527,
-        "identifier_conflict": 699,
-        "resolved": 275266,
+        "excluded_document_type": 30541,
+        "identifier_conflict": 700,
+        "resolved": 275351,
         "self_reference": 4,
-        "unresolved": 17972
+        "unresolved": 17974
       },
       "by_method": {
-        "application_date": 141894,
-        "application_title": 95528,
-        "explicit_non_judgment": 30527,
+        "application_date": 141964,
+        "application_title": 95552,
+        "explicit_non_judgment": 30541,
         "insufficient_identifiers": 848,
         "multiple_reference_dates": 318,
         "title_date": 77011
       },
-      "unique_edges": 140192,
-      "judgments_with_resolved_citations": 12197,
+      "unique_edges": 140235,
+      "judgments_with_resolved_citations": 12199,
       "identity_issues": [
         {
           "reason": "unpaired_french_identity",
