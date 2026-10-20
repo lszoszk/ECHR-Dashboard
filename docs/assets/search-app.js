@@ -5986,6 +5986,45 @@ function renderPagination() {
   `;
 }
 
+/* The search-field prefixes the API understands (_QUERY_PREFIX_RX in api/main.py).
+ * A `word:` outside this set is not a misspelt word but a field that does not
+ * exist, and the API's spelling guess for it is noise: `sekcja:merits` comes
+ * back as "No judgment contains sekcja. Did you mean sekcia?". */
+const SEARCH_FIELDS = ["case", "ecli", "hudoc", "article", "state", "body",
+  "keyword", "violation", "nonviolation", "cites"];
+
+/* What the user typed, as opposed to what the API found out about their words:
+ * the two together decide which way out of a dead end is worth offering. */
+function zeroQueryShape(raw) {
+  const text = String(raw || "");
+  const bad = [];
+  let withoutBad = text;
+  for (const m of text.matchAll(/(^|\s)(-?)([A-Za-z]{2,})\s*:(?:"[^"]*"|\S*)/g)) {
+    if (SEARCH_FIELDS.includes(m[3].toLowerCase())) continue;
+    bad.push(m[3]);
+    withoutBad = withoutBad.replace(m[0], " ");
+  }
+  return {
+    badFields: [...new Set(bad)],
+    withoutBadFields: withoutBad.replace(/\s+/g, " ").trim(),
+    phrase: /"[^"]{2,}"/.test(text),
+    withoutQuotes: text.replace(/"/g, " ").replace(/\s+/g, " ").trim(),
+    // Anything that can narrow a search on its own, so "no paragraph passes the
+    // current filters or operators" is a claim we can actually stand behind.
+    hasOperators: /(^|\s)-?[A-Za-z]{2,}\s*:|[*"]|\b(AND|OR|NOT|NEAR)\b/.test(text),
+  };
+}
+
+function zeroFiltersActive() {
+  let f = null;
+  try { f = getCurrentFilters(); } catch (_) { return false; }
+  if (!f) return false;
+  const size = (s) => (s && typeof s.size === "number" ? s.size : 0);
+  return !!(size(f.sections) || size(f.articles) || size(f.countries) || size(f.keywords)
+    || size(f.importance) || size(f.bodies) || size(f.outcomes) || size(f.docTypes)
+    || f.dateFrom || f.dateTo);
+}
+
 /* "No results": what the API found out about the query (its help block, sent only with an empty answer) and
  * what to try next. Rebuilt every time, so a 503 message written into the box earlier does not stay. */
 function renderNoResults() {
@@ -6002,9 +6041,15 @@ function renderNoResults() {
     return;
   }
   const items = [];
+  const shape = zeroQueryShape(q);
+  const badSet = new Set(shape.badFields.map((f) => f.toLowerCase()));
   // A word the text does not know may still be in the footnotes: then "no judgment contains it" is wrong.
   const inNotes = state.fnZeroCases || (state.fnBlock && state.fnBlock.total_cases);
-  const unknown = (h && h.unknown && !inNotes) ? h.unknown : [];
+  // A bad field prefix is reported as an unknown word; drop it here so it is
+  // explained as the typing mistake it is, rather than guessed at as a word.
+  const unknown = (h && h.unknown && !inNotes)
+    ? h.unknown.filter((u) => !badSet.has(String(u.word || "").toLowerCase()))
+    : [];
   for (const u of unknown) {
     let line = `No judgment contains <b>${escapeHtml(u.word)}</b>.`;
     if (u.suggestion) {
@@ -6034,8 +6079,35 @@ function renderNoResults() {
   if (h && h.any_words_query) {
     items.push(`No paragraph contains all of your words. <a href="#" data-nr="query" data-q="${escapeHtml(h.any_words_query)}">Search for any of them</a>.`);
   }
-  if (h && h.text_matches) {
+  // Only when something is actually narrowing the search. Without this, a bare
+  // misspelling ("gurantees", which happens to occur once in the corpus) was
+  // answered with filters that are not set and a link that changes nothing.
+  if (h && h.text_matches && (zeroFiltersActive() || shape.hasOperators)) {
     items.push(`Your words occur in the judgments, but no paragraph passes the current filters or operators. <a href="#" data-nr="nofilters">Search without filters</a>.`);
+  }
+  if (shape.badFields.length) {
+    const names = shape.badFields.map((f) => `<code>${escapeHtml(f)}:</code>`).join(", ");
+    // Three fields, not ten: the ones a reader is most likely to have reached
+    // for, with the rest a click away in the operators panel that already
+    // documents them. Someone who mistyped a rare field needs that list, but
+    // not in the middle of a sentence about their mistake.
+    const common = ["article", "state", "case"].map((f) => `<code>${f}:</code>`).join(" ");
+    items.unshift(`There is no search field called ${names}, so it was searched as ordinary words.`
+      + ` The common ones are ${common}, and there are`
+      + ` <a href="#" data-nr="operators">seven others</a>.`
+      + (shape.withoutBadFields
+        ? ` <a href="#" data-nr="query" data-q="${escapeHtml(shape.withoutBadFields)}">Search without it</a>.`
+        : ""));
+  }
+  if (shape.phrase && shape.withoutQuotes && shape.withoutQuotes !== q.trim()) {
+    items.push(`No paragraph contains that exact wording.`
+      + ` <a href="#" data-nr="query" data-q="${escapeHtml(shape.withoutQuotes)}">Search the same words without the quotation marks</a>.`);
+  }
+  // Last resort, and the only one that cannot come back empty: Semantic Search
+  // ranks by meaning rather than matching words. A dead end with no other way
+  // out used to end at "Try different search terms", which is not a way out.
+  if (q.trim() && !items.some((t) => t.includes("semantic.html"))) {
+    items.push(`Nothing here matches those words. <a href="semantic.html?q=${encodeURIComponent(q)}">Describe the case in Semantic Search</a> instead \u2014 it ranks by meaning, so it always returns something.`);
   }
   el.noResults.innerHTML = `<div class="no-results-icon">§</div><h2>No results found</h2>`
     + (items.length
@@ -8053,6 +8125,11 @@ function bindEvents() {
     e.preventDefault();
     const act = a.dataset.nr;
     if (act === "back") { resetFiltersAndQuery(); return; }
+    if (act === "operators") {
+      const ops = document.getElementById("opsMore");
+      if (ops) { ops.open = true; ops.scrollIntoView({ behavior: "smooth", block: "center" }); }
+      return;
+    }
     if (act === "french") { document.querySelector('input[name="searchLang"][value="fr"]')?.click(); return; }
     if (act === "broad") { state.forceBroad = state.zeroQuery || el.searchInput.value.trim(); applySearch(true); return; }
     if (act === "footnotes") { const cb = document.getElementById("scopeFootnotes"); if (cb) cb.checked = true; applySearch(true); return; }
