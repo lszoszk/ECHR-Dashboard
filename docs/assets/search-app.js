@@ -2682,8 +2682,34 @@ function setRailCountsNote(show) {
  *  otherwise the counts are scoped to the matching cases via /api/facets.
  *  The checkbox filters are deliberately NOT applied — the rail shows a
  *  stable breakdown of the text search, not a self-narrowing facet view. */
+/* Below 860px the whole filter rail sits behind a closed sheet, so the scoped
+ * /api/facets call computes counts nobody can see. It is already fired after
+ * the results are painted, so it costs the reader nothing in waiting -- but it
+ * is ~1.4s at p95 of server work per search, and the rail it feeds is shut.
+ * Hold the last one until the sheet opens or the viewport widens. On a wide
+ * screen the rail is on screen and the counts stay live, as before. */
+let _railCountsPending = null;
+
+function railCountsHidden() {
+  return filtersSheetMq.matches
+    && !document.documentElement.classList.contains("filters-sheet-open");
+}
+
+function flushPendingRailCounts() {
+  const p = _railCountsPending;
+  if (!p) return;
+  _railCountsPending = null;
+  // No signal: the controller that came with it belongs to a finished search.
+  refreshRailCounts(p.query, p.filters, undefined, p.totalHits);
+}
+
 async function refreshRailCounts(query, filters, signal = undefined, totalHits = 0) {
   if (!serverSearch.available) return;
+  if (railCountsHidden()) {
+    _railCountsPending = { query, filters, totalHits };
+    return;
+  }
+  _railCountsPending = null;
   const q = (query || "").trim();
   const broad = totalHits > RAIL_COUNTS_MAX_HITS;
   setRailCountsNote(broad);
@@ -2970,6 +2996,7 @@ function setFiltersSheet(open) {
   if (open === root.classList.contains("filters-sheet-open")) return;
   root.classList.toggle("filters-sheet-open", open);
   btn.setAttribute("aria-expanded", String(open));
+  if (open) flushPendingRailCounts();
   if (open) {
     rail.setAttribute("role", "dialog");
     rail.setAttribute("aria-modal", "true");
@@ -2988,7 +3015,10 @@ function initFiltersSheet() {
   if (!rail || !btn) return;
   btn.addEventListener("click", () => setFiltersSheet(true));
   document.getElementById("filtersSheetDone")?.addEventListener("click", () => setFiltersSheet(false));
-  filtersSheetMq.addEventListener("change", () => setFiltersSheet(false));
+  filtersSheetMq.addEventListener("change", (e) => {
+    setFiltersSheet(false);
+    if (!e.matches) flushPendingRailCounts();   // rail is on screen again
+  });
   // Escape closes; Tab stays inside the sheet while it is open
   rail.addEventListener("keydown", (e) => {
     if (!document.documentElement.classList.contains("filters-sheet-open")) return;
