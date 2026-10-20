@@ -2629,6 +2629,50 @@ body { padding-bottom: var(--bar-h); }
 /* "802 only in French" under the Cited-by bar */
 .researcher-bar-note { margin-top: 2px; text-align: right; font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.04em; color: var(--ink-3); }
 
+/* The citation list behind a count on a result card. The bar becomes a button
+   when there is something to open, so it needs the button reset; the list sits
+   under both bars and only one direction is shown at a time. */
+.researcher-bar-open {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.researcher-bar-open:hover .researcher-bar-head strong,
+.researcher-bar-open:focus-visible .researcher-bar-head strong { color: var(--garnet); }
+.researcher-bar-open:hover .researcher-bar-fill { background: var(--garnet); }
+.researcher-bar-open[aria-expanded="true"] .researcher-bar-head strong { color: var(--garnet); }
+
+.cite-graph-list { margin-top: 8px; border-top: 1px solid var(--rule); padding-top: 6px; }
+.cite-graph-rows { list-style: none; margin: 0; padding: 0; max-height: 220px; overflow-y: auto; }
+.cite-graph-rows li { margin-bottom: 6px; line-height: 1.3; }
+.cite-graph-rows button,
+.cite-graph-rows a {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.72rem;
+  color: var(--ink-2);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.cite-graph-rows button:hover, .cite-graph-rows a:hover { color: var(--garnet); text-decoration: underline; }
+.cite-graph-meta, .cite-graph-n {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+}
+.cite-graph-n { margin-left: 6px; }
+.cite-graph-empty { margin: 0; font-size: 0.68rem; color: var(--ink-3); }
+
 /* ── Phones and small tablets (mobile audit, Oct 2026) ─────────────────────
    Everything below sits inside max-width queries: the desktop layout is untouched. */
 @media (max-width: 860px) {

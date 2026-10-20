@@ -294,6 +294,17 @@ const serverSearch = {
     return r.json();
   },
 
+  /** The judgments and decisions citing this one, or cited by it.
+   *  /api/cases/{id}/cited_by and /cites have existed and been served since
+   *  the citation graph was built; until now nothing in the web app called
+   *  them, so the cards showed the counts with no way to open the list. */
+  async getCitations(caseId, dir, limit = 50) {
+    const r = await fetch(`${API_BASE_URL}/cases/${encodeURIComponent(caseId)}/${dir}?limit=${limit}`);
+    if (!r.ok) throw new Error(`API ${r.status}`);
+    const data = await r.json();
+    return data[dir] || [];
+  },
+
   /** Fetch stats from server. */
   async getStats() {
     const r = await fetch(`${API_BASE_URL}/stats`);
@@ -5290,24 +5301,92 @@ function buildResearcherBars(c) {
   // `dimZero`: the citation graph (P29) has partial coverage, so a 0 is
   // ambiguous — "truly uncited" vs "not in our data". For landmark cases
   // a bare "0" is misleading and corrodes trust, so render it as "—".
-  const bar = (label, value, accent = false, dimZero = false, title = "") => {
+  const bar = (label, value, accent = false, dimZero = false, title = "", dir = "") => {
     const na = dimZero && !value;
     const width = Math.max(4, Math.round((value / max) * 100));
     const tip = na ? "Citation-graph coverage is partial — no citation data recorded for this case" : title;
+    // A count with something behind it is a button; a zero or an unknown is
+    // not, so nothing invites a click that would open an empty list.
+    const open = !na && value > 0 && dir;
+    const tag = open ? "button" : "div";
+    const attrs = open
+      ? ` type="button" data-action="cite-graph" data-case-id="${escapeHtml(c.case_id || "")}" data-dir="${dir}"`
+        + ` aria-expanded="false" aria-label="${escapeHtml(`Show the ${fmtInt.format(value)} ${label}`)}"`
+      : "";
     return `
-      <div class="researcher-bar${na ? " researcher-bar-na" : ""}"${tip ? ` title="${escapeHtml(tip)}"` : ""}>
+      <${tag} class="researcher-bar${na ? " researcher-bar-na" : ""}${open ? " researcher-bar-open" : ""}"${tip ? ` title="${escapeHtml(tip)}"` : ""}${attrs}>
         <div class="researcher-bar-head">
           <span>${escapeHtml(label)}</span>
           <strong>${na ? "—" : fmtInt.format(value)}</strong>
         </div>
         <div class="researcher-bar-track"><div class="researcher-bar-fill${accent ? " accent" : ""}" style="width:${width}%"></div></div>
-      </div>
+      </${tag}>
     `;
   };
   const fr = Number(c.__citedByFrenchOnly || 0);
   const frNote = fr > 0 && cited > 0
     ? `<div class="researcher-bar-note" title="${escapeHtml(citedByTitle(c))}">${fmtInt.format(fr)} only in French</div>` : "";
-  return `${bar("cites", cites, false, true)}${bar("cited by", cited, false, true, citedByTitle(c))}${frNote}`;
+  return `${bar("cites", cites, false, true, "", "cites")}`
+    + `${bar("cited by", cited, false, true, citedByTitle(c), "cited_by")}`
+    + `${frNote}`
+    + `<div class="cite-graph-list" id="cg-${escapeHtml(c.case_id || "")}" hidden></div>`;
+}
+
+/* The list behind a citation count. Lazily fetched, then kept on the node, so
+ * reopening costs nothing and a second click just closes it. A row opens that
+ * judgment here through the hudoc: operator, which finds a case whatever the
+ * current result set holds -- selectCase() only reaches cases already on the
+ * page. Judgments HUDOC publishes only in French are not in this corpus, so
+ * those rows go to HUDOC instead of nowhere. */
+const _citeGraphCache = new Map();
+
+/* "CASE OF X v. STATE" is how HUDOC writes a title and how the row would waste
+   its width; the state is already in the line below it. */
+function citeRowLabel(title, limit = 62) {
+  const t = String(title || "").replace(/^CASE OF\s+/i, "").trim();
+  return t.length > limit ? `${t.slice(0, limit - 1)}\u2026` : t;
+}
+
+function renderCitationRows(rows, dir) {
+  if (!rows.length) {
+    return `<p class="cite-graph-empty">No ${dir === "cites" ? "cited judgments" : "citing judgments"} recorded.</p>`;
+  }
+  return `<ul class="cite-graph-rows">` + rows.map((r) => {
+    const label = citeRowLabel(r.title);
+    const meta = [r.judgment_date, r.respondent_state].filter(Boolean).join(" \u00b7 ");
+    const n = Number(r.para_count || 0);
+    const paras = n ? `<span class="cite-graph-n" title="${n} paragraph${n === 1 ? "" : "s"} refer to it">${fmtInt.format(n)}\u00b6</span>` : "";
+    return r.in_corpus === false
+      ? `<li><a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(r.case_id)}" target="_blank" rel="noopener"
+             title="Only in French on HUDOC — not in this corpus">${escapeHtml(label)}</a>
+           <span class="cite-graph-meta">${escapeHtml(meta)} \u00b7 only in French</span>${paras}</li>`
+      : `<li><button type="button" data-action="cite-graph-open" data-case-id="${escapeHtml(r.case_id)}">${escapeHtml(label)}</button>
+           <span class="cite-graph-meta">${escapeHtml(meta)}</span>${paras}</li>`;
+  }).join("") + `</ul>`;
+}
+
+async function toggleCiteGraph(btn) {
+  const caseId = btn.dataset.caseId;
+  const dir = btn.dataset.dir;
+  const box = document.getElementById(`cg-${caseId}`);
+  if (!box || !caseId) return;
+  const openNow = box.dataset.dir === dir && !box.hidden;
+  box.parentElement?.querySelectorAll('[data-action="cite-graph"]')
+    .forEach((b) => b.setAttribute("aria-expanded", "false"));
+  if (openNow) { box.hidden = true; box.dataset.dir = ""; return; }
+  box.dataset.dir = dir;
+  box.hidden = false;
+  btn.setAttribute("aria-expanded", "true");
+  const key = `${caseId}|${dir}`;
+  if (_citeGraphCache.has(key)) { box.innerHTML = renderCitationRows(_citeGraphCache.get(key), dir); return; }
+  box.innerHTML = `<p class="cite-graph-empty">Loading\u2026</p>`;
+  try {
+    const rows = await serverSearch.getCitations(caseId, dir, 50);
+    _citeGraphCache.set(key, rows);
+    if (box.dataset.dir === dir) box.innerHTML = renderCitationRows(rows, dir);
+  } catch (e) {
+    box.innerHTML = `<p class="cite-graph-empty">Could not load the citations (${escapeHtml(e.message)}).</p>`;
+  }
 }
 
 /* The (i) next to "Influence" on a result card: what the three bars mean. One pop-up at a time;
@@ -8314,6 +8393,21 @@ function bindEvents() {
         clickable.setAttribute("aria-pressed", String(on));
         clickable.title = on ? "Remove from your Workspace" : "Save this paragraph to your Workspace";
       }
+      return;
+    }
+
+    if (action === "cite-graph" && caseId) {
+      e.preventDefault();
+      e.stopPropagation();          // the whole card is a select-case target
+      toggleCiteGraph(clickable);
+      return;
+    }
+
+    if (action === "cite-graph-open" && caseId) {
+      e.preventDefault();
+      e.stopPropagation();
+      el.searchInput.value = `hudoc:${caseId}`;
+      applySearch(true);
       return;
     }
 
