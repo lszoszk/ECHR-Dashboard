@@ -2180,6 +2180,19 @@ mark.hl {
   padding: 1px 5px; border-radius: 3px; white-space: nowrap;
 }
 .ops-pop .ops-note { padding-top: 8px; font-size: 0.76rem; color: var(--text-muted, var(--ink-3)); font-style: italic; }
+/* The two examples the row no longer has space for. They stay clickable here
+   rather than being hidden markup: the panel already documents both operators,
+   so this is where someone looking for them arrives. */
+.ops-pop .ops-try { flex-wrap: wrap; gap: 8px; }
+.ops-pop .ops-try > span {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.ops-pop .ops-try .try-q { padding: 0; border: 0; background: none; font: inherit; cursor: pointer; }
+.ops-pop .ops-try .try-q:hover code { color: var(--garnet); border-color: var(--garnet-edge); }
 
 /* ── Concept-query nudge (semantic handoff) ─────────────────────────────── */
 .semantic-hint {

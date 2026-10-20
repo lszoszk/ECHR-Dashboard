@@ -44,7 +44,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css?v=20261014-a11y">
   <link rel="stylesheet" href="assets/search-app.css?v=20261014-rss">
-  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261020-citegraph3">
+  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261020-try3">
   <link rel="stylesheet" href="assets/judgment-hudoc.css?v=20260706-deadmodal">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
@@ -118,13 +118,12 @@
           <div class="search-tips search-try" id="searchTry">
             <span class="tip">Try</span>
             <button type="button" class="try-q" data-q="surveillance OR interception NOT terrorism" title="Either word, leaving out paragraphs that mention terrorism"><code>surveillance OR interception NOT terrorism</code></button>
-            <button type="button" class="try-q" data-q="environment* pollution" title="A trailing * matches every word that begins so: environment, environmental"><code>environment* pollution</code></button>
-            <button type="button" class="try-q" data-q='"margin of appreciation" article:10' title="Exact phrase, limited to one Convention article"><code>"margin of appreciation" article:10</code></button>
             <button type="button" class="try-q" data-q="&quot;real risk&quot; expulsion article:3" title="Exact phrase and one Convention article: the non-refoulement test under Article 3"><code>"real risk" expulsion article:3</code></button>
-            <button type="button" class="try-q" data-q="cites:hatton" title="Judgments that cite Hatton and Others v. the United Kingdom"><code>cites:hatton</code></button>
+            <button type="button" class="try-q" data-q='"margin of appreciation" article:10' title="Exact phrase, limited to one Convention article"><code>"margin of appreciation" article:10</code></button>
             <details class="ops-more" id="opsMore">
               <summary>all operators</summary>
               <div class="ops-pop" role="list">
+                <div role="listitem" class="ops-try"><span>Try</span><button type="button" class="try-q" data-q="environment* pollution" title="A trailing * matches every word that begins so: environment, environmental"><code>environment* pollution</code></button><button type="button" class="try-q" data-q="cites:hatton" title="Judgments that cite Hatton and Others v. the United Kingdom"><code>cites:hatton</code></button></div>
                 <div role="listitem"><code>"exact phrase"</code><span>exact word order</span></div>
                 <div role="listitem"><code>torture OR inhuman</code><span>either term &mdash; <code>AND</code> is implicit between words</span></div>
                 <div role="listitem"><code>expulsion NOT asylum</code> <code>-asylum</code><span>leave out paragraphs with a word &mdash; <code>a OR b NOT c</code> leaves <code>c</code> out of both</span></div>
