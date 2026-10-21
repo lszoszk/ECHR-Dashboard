@@ -1,9 +1,9 @@
 {
   "schema_version": "judgment-citations-v1",
-  "generated_at": "2026-10-20T16:25:07.549698+00:00",
-  "cutoff": "2026-10-20",
+  "generated_at": "2026-10-21T01:04:29.932156+00:00",
+  "cutoff": "2026-10-21",
   "catalog_sha256": "41153fbec7748cb1610592ecdbf9ff7534fc011b1b135dc6babad98f8d6d48d5",
-  "catalog_content_sha256": "8a6b2a467a955f58e15a93734d3623fc5f23f4c86d8f0ef702478721415f8b5a",
+  "catalog_content_sha256": "4da089726afe9a7b73ed441712315a3c0fa2035b8a41a2372ff81e172a495edc",
   "edges_sha256": "96dc9852fe9a1bdb611f3572748cf52ec37ce437bfbbb7d7931ffd6611cae886",
   "statistics_scope_sha256": "3d3fff03de86b47f7dc7e61e3067e2e61c6905542c044ec2512fc4c492ac7e1c",
   "scope": "Judgments only, English-flagged catalog identities with verified French ECLI aliases. Counts use bilingual HUDOC citation metadata, not full-text extraction.",
@@ -139742,7 +139742,7 @@
         "date": "2014-07-17",
         "ecli": "ECLI:CE:ECHR:2014:0717JUD004784808",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 1117,
+        "cited_by_count": 1118,
         "cited_by_french_only": 109
       },
       {
@@ -139796,7 +139796,7 @@
         "date": "2014-03-25",
         "ecli": "ECLI:CE:ECHR:2014:0325JUD001715311",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 949,
+        "cited_by_count": 950,
         "cited_by_french_only": 157
       },
       {
@@ -161692,6 +161692,7 @@
         "001-75476"
       ],
       "001-145577": [
+        "001-252936",
         "001-252744",
         "001-252737",
         "001-253090",
@@ -168057,6 +168058,7 @@
         "001-22555"
       ],
       "001-142199": [
+        "001-252936",
         "001-252740",
         "001-253091",
         "001-252642",
@@ -246122,6 +246124,12 @@
         "ecli": "ECLI:CE:ECHR:2026:0910DEC000827621",
         "french_only": false
       },
+      "001-252936": {
+        "title": "KAPLLANAJ v. ALBANIA",
+        "date": "2026-10-20",
+        "ecli": "ECLI:CE:ECHR:2026:1020JUD003485924",
+        "french_only": false
+      },
       "001-253029": {
         "title": "MANAVIDIS v. GREECE",
         "date": "2026-09-15",
@@ -293889,8 +293897,8 @@
         }
       ],
       "full_text_analyzed": false,
-      "cited_judgments": 15770,
-      "citation_pairs": 353789,
+      "cited_judgments": 15779,
+      "citation_pairs": 353883,
       "french_only_pairs": 59405
     }
   }
