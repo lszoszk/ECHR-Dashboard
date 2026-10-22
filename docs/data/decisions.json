@@ -1,18 +1,18 @@
 {
   "schema_version": "decisions-v1",
-  "generated_at": "2026-10-21T01:05:04.980791+00:00",
+  "generated_at": "2026-10-22T17:15:22.191011+00:00",
   "source_db": "echr_search.db",
-  "cutoff": "24/09/2026",
+  "cutoff": "01/10/2026",
   "totals": {
-    "cases_all": 57622,
-    "judgments": 29364,
-    "judgments_official_english": 20080,
+    "cases_all": 57683,
+    "judgments": 29388,
+    "judgments_official_english": 20104,
     "machine_translations": 9284,
-    "decisions": 28241,
+    "decisions": 28278,
     "advisory_opinions": 17,
-    "decisions_with_text": 28241,
-    "decision_paragraphs": 2002864,
-    "paragraphs_median": 46,
+    "decisions_with_text": 28278,
+    "decision_paragraphs": 2005900,
+    "paragraphs_median": 47,
     "paragraphs_mean": 70.9,
     "first_year": 1986,
     "last_year": 2026
@@ -20,11 +20,11 @@
   "outcome_mix": [
     [
       "Struck out of the list, in whole or in part",
-      14101
+      14125
     ],
     [
       "Inadmissible",
-      9276
+      9288
     ],
     [
       "Partly inadmissible",
@@ -32,7 +32,7 @@
     ],
     [
       "Partly struck out, partly inadmissible",
-      1259
+      1260
     ],
     [
       "Admissible",
@@ -286,8 +286,8 @@
     ],
     [
       2026,
-      339,
-      289,
+      363,
+      301,
       0
     ]
   ],
@@ -446,29 +446,29 @@
     ],
     [
       2026,
-      635
+      672
     ]
   ],
   "by_state": [
     [
       "Poland",
-      3138
+      3141
     ],
     [
       "Russia",
-      3107
+      3110
     ],
     [
       "Turkey",
-      2805
+      2808
     ],
     [
       "Romania",
-      2036
+      2039
     ],
     [
       "Ukraine",
-      1722
+      1724
     ],
     [
       "United Kingdom",
@@ -476,11 +476,11 @@
     ],
     [
       "Hungary",
-      1299
+      1303
     ],
     [
       "Serbia",
-      1048
+      1049
     ],
     [
       "Croatia",
@@ -488,7 +488,7 @@
     ],
     [
       "Slovakia",
-      860
+      868
     ],
     [
       "Italy",
@@ -500,7 +500,7 @@
     ],
     [
       "Netherlands",
-      643
+      644
     ],
     [
       "North Macedonia",
@@ -508,7 +508,7 @@
     ],
     [
       "Azerbaijan",
-      578
+      579
     ],
     [
       "Slovenia",
@@ -516,7 +516,7 @@
     ],
     [
       "Germany",
-      568
+      569
     ],
     [
       "Austria",
@@ -544,11 +544,11 @@
     ],
     [
       "Greece",
-      297
+      300
     ],
     [
       "Portugal",
-      277
+      278
     ],
     [
       "Latvia",
@@ -596,7 +596,7 @@
     ],
     [
       "Montenegro",
-      105
+      106
     ],
     [
       "France",
@@ -620,7 +620,7 @@
     ],
     [
       "Russia, Ukraine",
-      13
+      15
     ],
     [
       "Liechtenstein",
@@ -850,11 +850,11 @@
   "by_formation": [
     [
       "Court (Committee)",
-      15630
+      15666
     ],
     [
       "Court (Chamber)",
-      12579
+      12580
     ],
     [
       "Court (Grand Chamber)",
@@ -864,7 +864,7 @@
   "sections": [
     [
       "Merits",
-      868153
+      869836
     ],
     [
       "Circumstances",
@@ -872,11 +872,11 @@
     ],
     [
       "Header",
-      258641
+      258999
     ],
     [
       "Just Satisfaction",
-      231806
+      232446
     ],
     [
       "Subject Matter",
@@ -884,11 +884,11 @@
     ],
     [
       "Appendix",
-      14111
+      14152
     ],
     [
       "Legal Framework",
-      12400
+      12431
     ],
     [
       "Procedure",
@@ -896,11 +896,11 @@
     ],
     [
       "Facts",
-      2259
+      2537
     ],
     [
       "Operative part",
-      1722
+      1727
     ],
     [
       "Introduction",
@@ -912,7 +912,7 @@
     ]
   ],
   "article35": {
-    "with_any_tag": 7733,
+    "with_any_tag": 7746,
     "with_subground": 850,
     "subgrounds": [
       [
@@ -963,7 +963,7 @@
   },
   "caveats": {
     "published_only": "HUDOC's published decisions, not the Court's filtering of applications. Single-judge decisions, which dispose of most of the docket, are not published: every record here is a Committee, Chamber or Grand Chamber decision.",
-    "grounds_coverage": "A specific Article 35 sub-ground is coded for 850 of 28241 decisions. The grounds list is not a profile of all of them.",
+    "grounds_coverage": "A specific Article 35 sub-ground is coded for 850 of 28278 decisions. The grounds list is not a profile of all of them.",
     "unit": "HUDOC decision record, not an application or applicant.",
     "live_db": "Built from the live search corpus, not from the judgment catalog snapshot the rest of this page uses, so the two carry different build dates."
   }
