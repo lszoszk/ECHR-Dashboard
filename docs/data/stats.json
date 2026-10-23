@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-23T01:03:54.774019+00:00",
+  "generated_at": "2026-10-23T17:14:57.336592+00:00",
   "source_file": "Verified HUDOC catalog + production text inventory + local ENG/FRE bundles",
   "schema_version": "echr-dashboard-v2",
   "parser_version": "2.0.0",
@@ -183,14 +183,14 @@
       },
       {
         "article": "13",
-        "referenced": 4180,
-        "violation_only": 3389,
+        "referenced": 4179,
+        "violation_only": 3388,
         "non_violation_only": 238,
         "mixed": 70,
         "without_outcome": 483,
-        "with_outcome": 3697,
-        "with_violation": 3459,
-        "violation_share": 0.9356234784960779
+        "with_outcome": 3696,
+        "with_violation": 3458,
+        "violation_share": 0.9356060606060606
       },
       {
         "article": "14",
@@ -8125,7 +8125,7 @@
       ],
       [
         "13",
-        4180
+        4179
       ],
       [
         "35",
@@ -8385,9 +8385,9 @@
       ],
       [
         "13",
-        3459,
+        3458,
         308,
-        3767
+        3766
       ],
       [
         "8",
@@ -8463,9 +8463,9 @@
       ],
       [
         "13+3",
-        803,
+        802,
         53,
-        856
+        855
       ],
       [
         "11-1",
@@ -9679,8 +9679,8 @@
             ],
             [
               "13",
-              307,
-              312
+              306,
+              311
             ],
             [
               "3",
@@ -16893,7 +16893,7 @@
       ],
       [
         "(Art. 13) Right to an effective remedy",
-        4179
+        4178
       ],
       [
         "(Art. 6) Criminal proceedings",
@@ -16909,7 +16909,7 @@
       ],
       [
         "(Art. 13) Effective remedy",
-        3266
+        3265
       ],
       [
         "(Art. 3) Degrading treatment",
@@ -17032,7 +17032,7 @@
           "(Art. 13) Effective remedy",
           "(Art. 13) Right to an effective remedy"
         ],
-        3266
+        3265
       ],
       [
         [
@@ -17359,11 +17359,11 @@
         ],
         [
           "(Art. 13) Right to an effective remedy",
-          342
+          341
         ],
         [
           "(Art. 13) Effective remedy",
-          251
+          250
         ],
         [
           "#13",
@@ -19857,7 +19857,7 @@
         134,
         94,
         124,
-        61,
+        60,
         90,
         71
       ]
@@ -20441,7 +20441,7 @@
           152,
           203,
           132,
-          61
+          60
         ],
         "(Art. 6) Criminal proceedings": [
           0,
@@ -20693,7 +20693,7 @@
           152,
           203,
           132,
-          61
+          60
         ],
         "(Art. 3) Degrading treatment": [
           0,
@@ -36515,7 +36515,7 @@
     "clause_breakdown": [
       [
         "Violation finding",
-        38875
+        38874
       ],
       [
         "Non-pecuniary damage awarded",
@@ -37053,9 +37053,9 @@
     "unit": "HUDOC judgment record, not an application or applicant",
     "since": "1959-01-01",
     "cutoff": "2026-10-23",
-    "catalog_verified_at": "2026-10-23T01:02:45.049725+00:00",
+    "catalog_verified_at": "2026-10-23T17:12:36.404355+00:00",
     "catalog_sha256": "ec1613ae8c1a6ebd4a0d7b3482872c546e0afb583015ce3e6c7e8e27378b2a10",
-    "catalog_content_sha256": "2de0ef308831d9d09c103f760be720dcdfc5b294088b1af2e8ea1e668b555807",
+    "catalog_content_sha256": "b70cb4ed26dc8025bdfcf9020f28b5dad872d679315eac2cb6f7a42b0f678773",
     "translation_title_warnings": [
       "001-115493",
       "001-120188",
@@ -37078,7 +37078,7 @@
       "Production inventory": 29387,
       "Unavailable": 3
     },
-    "inventory_exported_at": "2026-10-23T01:03:23.664724+00:00",
+    "inventory_exported_at": "2026-10-23T17:14:26.647822+00:00",
     "paragraph_roles": {
       "footer": 28998,
       "signature": 35287,
