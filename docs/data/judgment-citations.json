@@ -1,9 +1,9 @@
 {
   "schema_version": "judgment-citations-v1",
-  "generated_at": "2026-10-25T02:04:21.269813+00:00",
+  "generated_at": "2026-10-25T17:14:20.231844+00:00",
   "cutoff": "2026-10-25",
   "catalog_sha256": "6e21f7a3b1fac7359799dc5543cadde0dd2449300dcfef480b689a30ed7d455e",
-  "catalog_content_sha256": "10aefb895b572f26c0a8b3fa85ea17c8c70b0281efb072f57f539966fe512034",
+  "catalog_content_sha256": "e8051ff1023b9cedd50a952bb93df9d86bd6cc67cc6cd7faacd7e2bdf2ff19cc",
   "edges_sha256": "4e282a5ecf5bf4046e5b8285b68f5e7dc54067a2d00c111a66db2bf1dd6d05f5",
   "statistics_scope_sha256": "ec1613ae8c1a6ebd4a0d7b3482872c546e0afb583015ce3e6c7e8e27378b2a10",
   "scope": "Judgments only, English-flagged catalog identities with verified French ECLI aliases. Counts use bilingual HUDOC citation metadata, not full-text extraction.",
@@ -139738,8 +139738,8 @@
         "date": "2000-06-27",
         "ecli": "ECLI:CE:ECHR:2000:0627JUD003097996",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 4287,
-        "cited_by_french_only": 1036
+        "cited_by_count": 4288,
+        "cited_by_french_only": 1037
       },
       {
         "case_id": "001-58920",
@@ -139828,8 +139828,8 @@
         "date": "2006-03-29",
         "ecli": "ECLI:CE:ECHR:2006:0329JUD006488601",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 1158,
-        "cited_by_french_only": 244
+        "cited_by_count": 1159,
+        "cited_by_french_only": 245
       },
       {
         "case_id": "001-145577",
@@ -139855,8 +139855,8 @@
         "date": "2018-03-20",
         "ecli": "ECLI:CE:ECHR:2018:0320JUD003768510",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 1104,
-        "cited_by_french_only": 198
+        "cited_by_count": 1105,
+        "cited_by_french_only": 199
       },
       {
         "case_id": "001-58227",
@@ -144201,7 +144201,8 @@
         "001-5430",
         "001-5429",
         "001-58789",
-        "001-5390"
+        "001-5390",
+        "001-253321"
       ],
       "001-58920": [
         "001-252962",
@@ -161799,7 +161800,8 @@
         "001-75939",
         "001-75671",
         "001-75431",
-        "001-75476"
+        "001-75476",
+        "001-253321"
       ],
       "001-145577": [
         "001-252957",
@@ -165150,7 +165152,8 @@
         "001-183122",
         "001-184112",
         "001-183118",
-        "001-182871"
+        "001-182871",
+        "001-253315"
       ],
       "001-58227": [
         "001-252897",
@@ -246440,6 +246443,18 @@
         "ecli": "ECLI:CE:ECHR:2026:0924DEC001792520",
         "french_only": false
       },
+      "001-253315": {
+        "title": "",
+        "date": "",
+        "ecli": "",
+        "french_only": true
+      },
+      "001-253321": {
+        "title": "",
+        "date": "",
+        "ecli": "",
+        "french_only": true
+      },
       "001-253326": {
         "title": "REPORTERS WITHOUT BORDERS, GERMAN SECTION AND H\u00c4RTING v. GERMANY",
         "date": "2026-09-29",
@@ -294153,9 +294168,9 @@
         }
       ],
       "full_text_analyzed": false,
-      "cited_judgments": 15794,
+      "cited_judgments": 15798,
       "citation_pairs": 354174,
-      "french_only_pairs": 59405
+      "french_only_pairs": 59444
     }
   }
 }
