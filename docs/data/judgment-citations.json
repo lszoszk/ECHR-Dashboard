@@ -1,14 +1,14 @@
 {
   "schema_version": "judgment-citations-v1",
-  "generated_at": "2026-10-27T02:04:35.895034+00:00",
+  "generated_at": "2026-10-27T17:14:54.571026+00:00",
   "cutoff": "2026-10-27",
-  "catalog_sha256": "6e21f7a3b1fac7359799dc5543cadde0dd2449300dcfef480b689a30ed7d455e",
-  "catalog_content_sha256": "7fb6bb790fdf00eae76147ee8566024669d55a34b1aac52e6ab124acb6428c13",
+  "catalog_sha256": "11ee6e4186c393c5d50ad289c50075055fdbbe252980a047a0e5f7c99bf53b8b",
+  "catalog_content_sha256": "c40f318b09467ac46cf83d1a9894501c9d0e457d773c034671779512408bd6ea",
   "edges_sha256": "4e282a5ecf5bf4046e5b8285b68f5e7dc54067a2d00c111a66db2bf1dd6d05f5",
-  "statistics_scope_sha256": "ec1613ae8c1a6ebd4a0d7b3482872c546e0afb583015ce3e6c7e8e27378b2a10",
+  "statistics_scope_sha256": "c2aead6683f4d3e65749222648385c628c2044be6329f32dc3d2f11ba5641555",
   "scope": "Judgments only, English-flagged catalog identities with verified French ECLI aliases. Counts use bilingual HUDOC citation metadata, not full-text extraction.",
   "coverage": {
-    "judgments": 29390,
+    "judgments": 29392,
     "judgments_with_metadata": 12544,
     "metadata_versions_by_language": {
       "ENG": 12073,
@@ -80,6 +80,13 @@
         "ids": [
           "001-250443",
           "001-250818"
+        ]
+      },
+      {
+        "reason": "unpaired_french_identity",
+        "key": "ECLI:CE:ECHR:2026:1015JUD003276117",
+        "ids": [
+          "001-253205"
         ]
       },
       {
@@ -46043,24 +46050,24 @@
   },
   "with_extracted_appno": {
     "scope": "As above, plus application numbers HUDOC extracted from the full text of each judgment. A number resolves only when one earlier judgment in the catalog has that application; the citing judgment's own numbers are skipped and several judgments of one application stay ambiguous. Counts are lower bounds and the numbers carry no citation context.",
-    "edges_sha256": "a79c2d400f46abb3ffc8ad7b152892d94f2f5a7f0bceb9b1a4187de861bfb390",
+    "edges_sha256": "9b08fc967c083251a6ade9aecc9d7e41093b470045fd90f1d7f737f536703ec5",
     "coverage": {
-      "judgments": 29390,
-      "judgments_with_metadata": 29355,
-      "judgments_with_extracted_application_numbers": 29319,
-      "reference_observations": 453691,
+      "judgments": 29392,
+      "judgments_with_metadata": 29357,
+      "judgments_with_extracted_application_numbers": 29321,
+      "reference_observations": 453718,
       "by_status": {
         "ambiguous": 53898,
         "chronology_conflict": 1349,
-        "resolved": 256825,
-        "self_reference": 73585,
-        "unresolved": 68034
+        "resolved": 256847,
+        "self_reference": 73589,
+        "unresolved": 68035
       },
-      "unique_edges": 280904,
+      "unique_edges": 280923,
       "edges_from_curated_list": 140305,
-      "edges_from_extracted_application": 233327,
+      "edges_from_extracted_application": 233346,
       "edges_in_both": 92728,
-      "judgments_with_resolved_citations": 27752,
+      "judgments_with_resolved_citations": 27754,
       "full_text_analyzed": false
     },
     "ranking": [
@@ -46220,9 +46227,9 @@
           "ENG",
           "FRE"
         ],
-        "cited_by_count": 844,
+        "cited_by_count": 843,
         "cited_by_curated_list": 408,
-        "cited_by_extracted_application": 836
+        "cited_by_extracted_application": 835
       },
       {
         "judgment_id": "ECLI:CE:ECHR:1999:0121JUD003054496",
@@ -61380,7 +61387,6 @@
         "001-60975"
       ],
       "001-58735": [
-        "001-252746",
         "001-252660",
         "001-252381",
         "001-251027",
@@ -139642,11 +139648,6 @@
         "date": "2026-10-13",
         "ecli": "ECLI:CE:ECHR:2026:1013JUD004035917"
       },
-      "001-252746": {
-        "title": "STADNYK v. UKRAINE",
-        "date": "2026-10-15",
-        "ecli": "ECLI:CE:ECHR:2026:1015JUD003276117"
-      },
       "001-252744": {
         "title": "GENDERDOC-M v. THE REPUBLIC OF MOLDOVA",
         "date": "2026-10-15",
@@ -139810,7 +139811,7 @@
         "date": "2006-03-29",
         "ecli": "ECLI:CE:ECHR:2006:0329JUD003681397",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 1268,
+        "cited_by_count": 1269,
         "cited_by_french_only": 258
       },
       {
@@ -158118,6 +158119,7 @@
         "001-58067"
       ],
       "001-72925": [
+        "001-253152",
         "001-252750",
         "001-252745",
         "001-253112",
@@ -246419,6 +246421,12 @@
         "ecli": "ECLI:CE:ECHR:2026:0917DEC003088423",
         "french_only": false
       },
+      "001-253152": {
+        "title": "SANDU AND OTHERS v. ROMANIA",
+        "date": "2026-10-27",
+        "ecli": "ECLI:CE:ECHR:2026:1027JUD002090621",
+        "french_only": false
+      },
       "001-253159": {
         "title": "",
         "date": "",
@@ -294085,7 +294093,7 @@
       }
     },
     "coverage": {
-      "judgments": 29390,
+      "judgments": 29392,
       "judgments_with_metadata": 12544,
       "metadata_versions_by_language": {
         "ENG": 12073,
@@ -294160,6 +294168,13 @@
           ]
         },
         {
+          "reason": "unpaired_french_identity",
+          "key": "ECLI:CE:ECHR:2026:1015JUD003276117",
+          "ids": [
+            "001-253205"
+          ]
+        },
+        {
           "reason": "missing_ecli_unpaired",
           "key": "HUDOC:001-208317",
           "ids": [
@@ -294168,8 +294183,8 @@
         }
       ],
       "full_text_analyzed": false,
-      "cited_judgments": 15798,
-      "citation_pairs": 354174,
+      "cited_judgments": 15799,
+      "citation_pairs": 354200,
       "french_only_pairs": 59444
     }
   }
