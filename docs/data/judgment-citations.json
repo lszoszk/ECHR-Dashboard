@@ -1,14 +1,14 @@
 {
   "schema_version": "judgment-citations-v1",
-  "generated_at": "2026-10-28T02:06:28.386114+00:00",
+  "generated_at": "2026-10-28T17:15:59.804919+00:00",
   "cutoff": "2026-10-28",
-  "catalog_sha256": "11ee6e4186c393c5d50ad289c50075055fdbbe252980a047a0e5f7c99bf53b8b",
-  "catalog_content_sha256": "b498d0c2d26ae266160b051b30e5288b19ceb3e954c7ea7d1005f57c7a9a640c",
+  "catalog_sha256": "6139608cacadba37bd76e7b52d79f98c687a3fd3454c10c4881feaf3760f966e",
+  "catalog_content_sha256": "8a2393e3d63ad0d5ecf75ad3f94e98a2b5af9e97deba9e39b67b9c78cc8bc6a4",
   "edges_sha256": "4e282a5ecf5bf4046e5b8285b68f5e7dc54067a2d00c111a66db2bf1dd6d05f5",
-  "statistics_scope_sha256": "c2aead6683f4d3e65749222648385c628c2044be6329f32dc3d2f11ba5641555",
+  "statistics_scope_sha256": "72629c94b9ed9e2ab35d45952c2c1b052543f16441ff9c85e068b8b86e07727a",
   "scope": "Judgments only, English-flagged catalog identities with verified French ECLI aliases. Counts use bilingual HUDOC citation metadata, not full-text extraction.",
   "coverage": {
-    "judgments": 29392,
+    "judgments": 29393,
     "judgments_with_metadata": 12544,
     "metadata_versions_by_language": {
       "ENG": 12073,
@@ -80,13 +80,6 @@
         "ids": [
           "001-250443",
           "001-250818"
-        ]
-      },
-      {
-        "reason": "unpaired_french_identity",
-        "key": "ECLI:CE:ECHR:2026:1015JUD003276117",
-        "ids": [
-          "001-253205"
         ]
       },
       {
@@ -46050,24 +46043,24 @@
   },
   "with_extracted_appno": {
     "scope": "As above, plus application numbers HUDOC extracted from the full text of each judgment. A number resolves only when one earlier judgment in the catalog has that application; the citing judgment's own numbers are skipped and several judgments of one application stay ambiguous. Counts are lower bounds and the numbers carry no citation context.",
-    "edges_sha256": "9b08fc967c083251a6ade9aecc9d7e41093b470045fd90f1d7f737f536703ec5",
+    "edges_sha256": "6202efcfe526510b7980360376b659d5dde9252d2ef93495184961054bb5b859",
     "coverage": {
-      "judgments": 29392,
-      "judgments_with_metadata": 29357,
-      "judgments_with_extracted_application_numbers": 29321,
-      "reference_observations": 453718,
+      "judgments": 29393,
+      "judgments_with_metadata": 29358,
+      "judgments_with_extracted_application_numbers": 29322,
+      "reference_observations": 453734,
       "by_status": {
-        "ambiguous": 53898,
+        "ambiguous": 53902,
         "chronology_conflict": 1349,
-        "resolved": 256847,
-        "self_reference": 73589,
+        "resolved": 256858,
+        "self_reference": 73590,
         "unresolved": 68035
       },
-      "unique_edges": 280923,
+      "unique_edges": 280934,
       "edges_from_curated_list": 140305,
-      "edges_from_extracted_application": 233346,
+      "edges_from_extracted_application": 233357,
       "edges_in_both": 92728,
-      "judgments_with_resolved_citations": 27754,
+      "judgments_with_resolved_citations": 27755,
       "full_text_analyzed": false
     },
     "ranking": [
@@ -46227,9 +46220,9 @@
           "ENG",
           "FRE"
         ],
-        "cited_by_count": 843,
+        "cited_by_count": 844,
         "cited_by_curated_list": 408,
-        "cited_by_extracted_application": 835
+        "cited_by_extracted_application": 836
       },
       {
         "judgment_id": "ECLI:CE:ECHR:1999:0121JUD003054496",
@@ -61387,6 +61380,7 @@
         "001-60975"
       ],
       "001-58735": [
+        "001-252746",
         "001-252660",
         "001-252381",
         "001-251027",
@@ -139647,6 +139641,11 @@
         "title": "RAHMANZADA AND OTHERS v. AZERBAIJAN",
         "date": "2026-10-13",
         "ecli": "ECLI:CE:ECHR:2026:1013JUD004035917"
+      },
+      "001-252746": {
+        "title": "STADNYK v. UKRAINE",
+        "date": "2026-10-15",
+        "ecli": "ECLI:CE:ECHR:2026:1015JUD003276117"
       },
       "001-252744": {
         "title": "GENDERDOC-M v. THE REPUBLIC OF MOLDOVA",
@@ -294093,7 +294092,7 @@
       }
     },
     "coverage": {
-      "judgments": 29392,
+      "judgments": 29393,
       "judgments_with_metadata": 12544,
       "metadata_versions_by_language": {
         "ENG": 12073,
@@ -294165,13 +294164,6 @@
           "ids": [
             "001-250443",
             "001-250818"
-          ]
-        },
-        {
-          "reason": "unpaired_french_identity",
-          "key": "ECLI:CE:ECHR:2026:1015JUD003276117",
-          "ids": [
-            "001-253205"
           ]
         },
         {
