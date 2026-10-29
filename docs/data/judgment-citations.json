@@ -1,39 +1,39 @@
 {
   "schema_version": "judgment-citations-v1",
-  "generated_at": "2026-10-29T02:05:52.608252+00:00",
+  "generated_at": "2026-10-29T17:14:29.937038+00:00",
   "cutoff": "2026-10-29",
-  "catalog_sha256": "6139608cacadba37bd76e7b52d79f98c687a3fd3454c10c4881feaf3760f966e",
-  "catalog_content_sha256": "bd942cc5ed3944854f9a8c9c70c73c05310122c724488e0c5bd3dd5eaeb437f0",
-  "edges_sha256": "4e282a5ecf5bf4046e5b8285b68f5e7dc54067a2d00c111a66db2bf1dd6d05f5",
-  "statistics_scope_sha256": "72629c94b9ed9e2ab35d45952c2c1b052543f16441ff9c85e068b8b86e07727a",
+  "catalog_sha256": "cc266c545c12fe6da1398c84d8652cf158dd9b0fc02ae08eb9de39b4e3db0e74",
+  "catalog_content_sha256": "b245b40fa806326f656c8ca87840d9d14dd5724401f29695d831c388b3e8b3cf",
+  "edges_sha256": "f3f26c9eaf3b53ffce6929a889ea3c773f068fc4a4b4e920b613609fb4f4b496",
+  "statistics_scope_sha256": "99785b00cc13578be6cbf18ff38db7dc700e4f60228b136933da3984324a2f71",
   "scope": "Judgments only, English-flagged catalog identities with verified French ECLI aliases. Counts use bilingual HUDOC citation metadata, not full-text extraction.",
   "coverage": {
-    "judgments": 29393,
-    "judgments_with_metadata": 12544,
+    "judgments": 29400,
+    "judgments_with_metadata": 12547,
     "metadata_versions_by_language": {
-      "ENG": 12073,
-      "FRE": 12331
+      "ENG": 12076,
+      "FRE": 12334
     },
-    "reference_observations": 346450,
+    "reference_observations": 346576,
     "by_status": {
-      "ambiguous": 21675,
+      "ambiguous": 21685,
       "chronology_conflict": 7,
-      "excluded_document_type": 30595,
+      "excluded_document_type": 30601,
       "identifier_conflict": 701,
-      "resolved": 275490,
+      "resolved": 275598,
       "self_reference": 4,
-      "unresolved": 17978
+      "unresolved": 17980
     },
     "by_method": {
-      "application_date": 142088,
-      "application_title": 95582,
-      "explicit_non_judgment": 30595,
+      "application_date": 142178,
+      "application_title": 95608,
+      "explicit_non_judgment": 30601,
       "insufficient_identifiers": 848,
       "multiple_reference_dates": 318,
-      "title_date": 77019
+      "title_date": 77023
     },
-    "unique_edges": 140305,
-    "judgments_with_resolved_citations": 12202,
+    "unique_edges": 140359,
+    "judgments_with_resolved_citations": 12205,
     "identity_issues": [
       {
         "reason": "unpaired_french_identity",
@@ -105,7 +105,7 @@
         "ENG",
         "FRE"
       ],
-      "cited_by_count": 1215
+      "cited_by_count": 1216
     },
     {
       "judgment_id": "ECLI:CE:ECHR:2000:1026JUD003021096",
@@ -119,7 +119,7 @@
         "ENG",
         "FRE"
       ],
-      "cited_by_count": 1204
+      "cited_by_count": 1205
     },
     {
       "judgment_id": "ECLI:CE:ECHR:1999:0728JUD003488497",
@@ -245,7 +245,7 @@
         "ENG",
         "FRE"
       ],
-      "cited_by_count": 416
+      "cited_by_count": 417
     },
     {
       "judgment_id": "ECLI:CE:ECHR:1998:0609JUD002267893",
@@ -273,7 +273,7 @@
         "ENG",
         "FRE"
       ],
-      "cited_by_count": 410
+      "cited_by_count": 411
     },
     {
       "judgment_id": "ECLI:CE:ECHR:2000:0627JUD002198693",
@@ -343,7 +343,7 @@
         "ENG",
         "FRE"
       ],
-      "cited_by_count": 341
+      "cited_by_count": 342
     },
     {
       "judgment_id": "ECLI:CE:ECHR:1996:1115JUD002241493",
@@ -376,6 +376,7 @@
   ],
   "citing_by_target": {
     "001-58762": [
+      "001-253157",
       "001-250110",
       "001-245813",
       "001-245109",
@@ -1593,6 +1594,7 @@
       "001-58789"
     ],
     "001-58920": [
+      "001-253157",
       "001-253091",
       "001-252442",
       "001-252190",
@@ -7690,6 +7692,7 @@
       "001-58039"
     ],
     "001-181591": [
+      "001-253543",
       "001-253315",
       "001-252750",
       "001-252656",
@@ -8525,6 +8528,7 @@
       "001-58233"
     ],
     "001-59087": [
+      "001-253158",
       "001-250157",
       "001-249818",
       "001-248598",
@@ -10449,6 +10453,7 @@
       "001-58587"
     ],
     "001-142199": [
+      "001-253543",
       "001-252962",
       "001-252936",
       "001-252740",
@@ -46039,28 +46044,43 @@
       "title": "B.K. v. SWITZERLAND",
       "date": "2026-10-22",
       "ecli": "ECLI:CE:ECHR:2026:1022JUD002426821"
+    },
+    "001-253543": {
+      "title": "LO SICCO v. ITALY",
+      "date": "2026-10-29",
+      "ecli": "ECLI:CE:ECHR:2026:1029JUD001441709"
+    },
+    "001-253158": {
+      "title": "FI\u0160I\u0106 v. CROATIA",
+      "date": "2026-10-29",
+      "ecli": "ECLI:CE:ECHR:2026:1029JUD001878822"
+    },
+    "001-253157": {
+      "title": "ANDREANI AND OTHERS v. ITALY",
+      "date": "2026-10-29",
+      "ecli": "ECLI:CE:ECHR:2026:1029JUD004459618"
     }
   },
   "with_extracted_appno": {
     "scope": "As above, plus application numbers HUDOC extracted from the full text of each judgment. A number resolves only when one earlier judgment in the catalog has that application; the citing judgment's own numbers are skipped and several judgments of one application stay ambiguous. Counts are lower bounds and the numbers carry no citation context.",
-    "edges_sha256": "6202efcfe526510b7980360376b659d5dde9252d2ef93495184961054bb5b859",
+    "edges_sha256": "133b4b1292278f7ee6afd79b633d907fe726f5df0956d03818e3c3fae089e801",
     "coverage": {
-      "judgments": 29393,
-      "judgments_with_metadata": 29358,
-      "judgments_with_extracted_application_numbers": 29322,
-      "reference_observations": 453734,
+      "judgments": 29400,
+      "judgments_with_metadata": 29365,
+      "judgments_with_extracted_application_numbers": 29329,
+      "reference_observations": 453861,
       "by_status": {
-        "ambiguous": 53902,
+        "ambiguous": 53925,
         "chronology_conflict": 1349,
-        "resolved": 256858,
-        "self_reference": 73590,
-        "unresolved": 68035
+        "resolved": 256930,
+        "self_reference": 73602,
+        "unresolved": 68055
       },
-      "unique_edges": 280934,
-      "edges_from_curated_list": 140305,
-      "edges_from_extracted_application": 233357,
-      "edges_in_both": 92728,
-      "judgments_with_resolved_citations": 27755,
+      "unique_edges": 281014,
+      "edges_from_curated_list": 140359,
+      "edges_from_extracted_application": 233422,
+      "edges_in_both": 92767,
+      "judgments_with_resolved_citations": 27762,
       "full_text_analyzed": false
     },
     "ranking": [
@@ -46076,9 +46096,9 @@
           "ENG",
           "FRE"
         ],
-        "cited_by_count": 3588,
-        "cited_by_curated_list": 1215,
-        "cited_by_extracted_application": 3578
+        "cited_by_count": 3589,
+        "cited_by_curated_list": 1216,
+        "cited_by_extracted_application": 3579
       },
       {
         "judgment_id": "ECLI:CE:ECHR:2000:1026JUD003021096",
@@ -46092,9 +46112,9 @@
           "ENG",
           "FRE"
         ],
-        "cited_by_count": 3114,
-        "cited_by_curated_list": 1204,
-        "cited_by_extracted_application": 3094
+        "cited_by_count": 3115,
+        "cited_by_curated_list": 1205,
+        "cited_by_extracted_application": 3095
       },
       {
         "judgment_id": "ECLI:CE:ECHR:2000:0406JUD002677295",
@@ -46188,9 +46208,9 @@
           "ENG",
           "FRE"
         ],
-        "cited_by_count": 1015,
+        "cited_by_count": 1016,
         "cited_by_curated_list": 293,
-        "cited_by_extracted_application": 1004
+        "cited_by_extracted_application": 1005
       },
       {
         "judgment_id": "ECLI:CE:ECHR:2002:0507JUD005949800",
@@ -46387,6 +46407,7 @@
     ],
     "citing_by_target": {
       "001-58762": [
+        "001-253157",
         "001-252888",
         "001-252894",
         "001-253162",
@@ -49977,6 +49998,7 @@
         "001-58789"
       ],
       "001-58920": [
+        "001-253157",
         "001-252962",
         "001-253091",
         "001-252632",
@@ -59515,6 +59537,7 @@
         "001-111837"
       ],
       "001-145577": [
+        "001-253155",
         "001-252897",
         "001-252957",
         "001-252896",
@@ -139726,6 +139749,16 @@
         "title": "IVANOVA AND OTHERS v. RUSSIA",
         "date": "2026-10-22",
         "ecli": "ECLI:CE:ECHR:2026:1022JUD005707417"
+      },
+      "001-253155": {
+        "title": "GENDERDOC-M v. THE REPUBLIC OF MOLDOVA",
+        "date": "2026-10-29",
+        "ecli": "ECLI:CE:ECHR:2026:1029JUD002390715"
+      },
+      "001-253157": {
+        "title": "ANDREANI AND OTHERS v. ITALY",
+        "date": "2026-10-29",
+        "ecli": "ECLI:CE:ECHR:2026:1029JUD004459618"
       }
     }
   },
@@ -139738,7 +139771,7 @@
         "date": "2000-06-27",
         "ecli": "ECLI:CE:ECHR:2000:0627JUD003097996",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 4288,
+        "cited_by_count": 4289,
         "cited_by_french_only": 1037
       },
       {
@@ -139747,7 +139780,7 @@
         "date": "2000-10-26",
         "ecli": "ECLI:CE:ECHR:2000:1026JUD003021096",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 3610,
+        "cited_by_count": 3611,
         "cited_by_french_only": 802
       },
       {
@@ -139828,7 +139861,7 @@
         "date": "2006-03-29",
         "ecli": "ECLI:CE:ECHR:2006:0329JUD006488601",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 1159,
+        "cited_by_count": 1160,
         "cited_by_french_only": 245
       },
       {
@@ -139837,7 +139870,7 @@
         "date": "2014-07-17",
         "ecli": "ECLI:CE:ECHR:2014:0717JUD004784808",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 1126,
+        "cited_by_count": 1127,
         "cited_by_french_only": 109
       },
       {
@@ -139855,7 +139888,7 @@
         "date": "2018-03-20",
         "ecli": "ECLI:CE:ECHR:2018:0320JUD003768510",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 1105,
+        "cited_by_count": 1108,
         "cited_by_french_only": 199
       },
       {
@@ -139891,7 +139924,7 @@
         "date": "2014-03-25",
         "ecli": "ECLI:CE:ECHR:2014:0325JUD001715311",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 952,
+        "cited_by_count": 953,
         "cited_by_french_only": 157
       },
       {
@@ -139915,6 +139948,7 @@
     ],
     "citing_by_target": {
       "001-58762": [
+        "001-253157",
         "001-253162",
         "001-252894",
         "001-252888",
@@ -144205,6 +144239,7 @@
         "001-253321"
       ],
       "001-58920": [
+        "001-253157",
         "001-252962",
         "001-253091",
         "001-252632",
@@ -160644,6 +160679,7 @@
         "001-111837"
       ],
       "001-72929": [
+        "001-253157",
         "001-253112",
         "001-253091",
         "001-253210",
@@ -161805,6 +161841,7 @@
         "001-253321"
       ],
       "001-145577": [
+        "001-253155",
         "001-252957",
         "001-252901",
         "001-252900",
@@ -164054,6 +164091,9 @@
         "001-252750",
         "001-252656",
         "001-252649",
+        "001-253525",
+        "001-253470",
+        "001-253466",
         "001-252631",
         "001-252627",
         "001-252624",
@@ -168184,6 +168224,7 @@
         "001-22555"
       ],
       "001-142199": [
+        "001-253476",
         "001-252962",
         "001-252936",
         "001-252740",
@@ -246426,6 +246467,18 @@
         "ecli": "ECLI:CE:ECHR:2026:1027JUD002090621",
         "french_only": false
       },
+      "001-253155": {
+        "title": "GENDERDOC-M v. THE REPUBLIC OF MOLDOVA",
+        "date": "2026-10-29",
+        "ecli": "ECLI:CE:ECHR:2026:1029JUD002390715",
+        "french_only": false
+      },
+      "001-253157": {
+        "title": "ANDREANI AND OTHERS v. ITALY",
+        "date": "2026-10-29",
+        "ecli": "ECLI:CE:ECHR:2026:1029JUD004459618",
+        "french_only": false
+      },
       "001-253159": {
         "title": "",
         "date": "",
@@ -246514,6 +246567,30 @@
         "title": "KONDOR AND OTHERS v. HUNGARY",
         "date": "2026-10-01",
         "ecli": "ECLI:CE:ECHR:2026:1001DEC003598925",
+        "french_only": false
+      },
+      "001-253466": {
+        "title": "CORREIA CARTAGENO v. PORTUGAL",
+        "date": "2026-10-06",
+        "ecli": "ECLI:CE:ECHR:2026:1006DEC000465619",
+        "french_only": false
+      },
+      "001-253470": {
+        "title": "MARTINS VARA v. PORTUGAL",
+        "date": "2026-10-06",
+        "ecli": "ECLI:CE:ECHR:2026:1006DEC000386226",
+        "french_only": false
+      },
+      "001-253476": {
+        "title": "SCHIAVO S.R.L. v. ITALY",
+        "date": "2026-10-22",
+        "ecli": "ECLI:CE:ECHR:2026:1022DEC006025813",
+        "french_only": false
+      },
+      "001-253525": {
+        "title": "NEAG v. ROMANIA",
+        "date": "2026-10-06",
+        "ecli": "ECLI:CE:ECHR:2026:1006DEC001692624",
         "french_only": false
       },
       "001-4527": {
@@ -294092,32 +294169,32 @@
       }
     },
     "coverage": {
-      "judgments": 29393,
-      "judgments_with_metadata": 12544,
+      "judgments": 29400,
+      "judgments_with_metadata": 12547,
       "metadata_versions_by_language": {
-        "ENG": 12073,
-        "FRE": 12331
+        "ENG": 12076,
+        "FRE": 12334
       },
-      "reference_observations": 346450,
+      "reference_observations": 346576,
       "by_status": {
-        "ambiguous": 21675,
+        "ambiguous": 21685,
         "chronology_conflict": 7,
-        "excluded_document_type": 30595,
+        "excluded_document_type": 30601,
         "identifier_conflict": 701,
-        "resolved": 275490,
+        "resolved": 275598,
         "self_reference": 4,
-        "unresolved": 17978
+        "unresolved": 17980
       },
       "by_method": {
-        "application_date": 142088,
-        "application_title": 95582,
-        "explicit_non_judgment": 30595,
+        "application_date": 142178,
+        "application_title": 95608,
+        "explicit_non_judgment": 30601,
         "insufficient_identifiers": 848,
         "multiple_reference_dates": 318,
-        "title_date": 77019
+        "title_date": 77023
       },
-      "unique_edges": 140305,
-      "judgments_with_resolved_citations": 12202,
+      "unique_edges": 140359,
+      "judgments_with_resolved_citations": 12205,
       "identity_issues": [
         {
           "reason": "unpaired_french_identity",
@@ -294175,8 +294252,8 @@
         }
       ],
       "full_text_analyzed": false,
-      "cited_judgments": 15799,
-      "citation_pairs": 354200,
+      "cited_judgments": 15802,
+      "citation_pairs": 354293,
       "french_only_pairs": 59444
     }
   }
