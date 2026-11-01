@@ -1,9 +1,9 @@
 {
   "schema_version": "judgment-citations-v1",
-  "generated_at": "2026-11-01T02:04:15.419771+00:00",
+  "generated_at": "2026-11-01T17:14:26.156646+00:00",
   "cutoff": "2026-11-01",
   "catalog_sha256": "be56ae1186951e7251cda71b969e37256836df903197a372d89132408cba14be",
-  "catalog_content_sha256": "2ed5c7a105abbebade4473fb8b8f34ff80b72e42a9782ffe991bf0bd5a737cca",
+  "catalog_content_sha256": "e30de62621b5a0b1d4f1ce71c3a81f61262d6ef618b1cd2c2d1545f9443fcd2f",
   "edges_sha256": "edd24207d8d92fe12ad9bcd4bd7e7d4141b2c8968aec25a5783336681d238f23",
   "statistics_scope_sha256": "4a5fb81aef591ce401aa53876d02b41d4859c8bfe58b3d8ba7ffe04079b833c5",
   "scope": "Judgments only, English-flagged catalog identities with verified French ECLI aliases. Counts use bilingual HUDOC citation metadata, not full-text extraction.",
@@ -139850,8 +139850,8 @@
         "date": "2006-03-29",
         "ecli": "ECLI:CE:ECHR:2006:0329JUD003681397",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 1269,
-        "cited_by_french_only": 258
+        "cited_by_count": 1270,
+        "cited_by_french_only": 259
       },
       {
         "case_id": "001-108465",
@@ -139868,8 +139868,8 @@
         "date": "2006-03-29",
         "ecli": "ECLI:CE:ECHR:2006:0329JUD006488601",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 1160,
-        "cited_by_french_only": 245
+        "cited_by_count": 1161,
+        "cited_by_french_only": 246
       },
       {
         "case_id": "001-145577",
@@ -139895,8 +139895,8 @@
         "date": "2018-03-20",
         "ecli": "ECLI:CE:ECHR:2018:0320JUD003768510",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 1108,
-        "cited_by_french_only": 199
+        "cited_by_count": 1109,
+        "cited_by_french_only": 200
       },
       {
         "case_id": "001-58227",
@@ -139931,8 +139931,8 @@
         "date": "2014-03-25",
         "ecli": "ECLI:CE:ECHR:2014:0325JUD001715311",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 953,
-        "cited_by_french_only": 157
+        "cited_by_count": 954,
+        "cited_by_french_only": 158
       },
       {
         "case_id": "001-58337",
@@ -159428,6 +159428,7 @@
         "001-75867",
         "001-75431",
         "001-75476",
+        "001-253519",
         "001-253159"
       ],
       "001-108465": [
@@ -161845,6 +161846,7 @@
         "001-75671",
         "001-75431",
         "001-75476",
+        "001-253519",
         "001-253321"
       ],
       "001-145577": [
@@ -165201,6 +165203,7 @@
         "001-184112",
         "001-183118",
         "001-182871",
+        "001-253543",
         "001-253315"
       ],
       "001-58227": [
@@ -169183,7 +169186,8 @@
         "001-145451",
         "001-144661",
         "001-144363",
-        "001-144138"
+        "001-144138",
+        "001-253543"
       ],
       "001-58337": [
         "001-252627",
@@ -246594,11 +246598,23 @@
         "ecli": "ECLI:CE:ECHR:2026:1022DEC006025813",
         "french_only": false
       },
+      "001-253519": {
+        "title": "",
+        "date": "",
+        "ecli": "",
+        "french_only": true
+      },
       "001-253525": {
         "title": "NEAG v. ROMANIA",
         "date": "2026-10-06",
         "ecli": "ECLI:CE:ECHR:2026:1006DEC001692624",
         "french_only": false
+      },
+      "001-253543": {
+        "title": "",
+        "date": "",
+        "ecli": "",
+        "french_only": true
       },
       "001-4527": {
         "title": "BIFL v. SWITZERLAND",
@@ -294266,9 +294282,9 @@
         }
       ],
       "full_text_analyzed": false,
-      "cited_judgments": 15803,
+      "cited_judgments": 15804,
       "citation_pairs": 354293,
-      "french_only_pairs": 59452
+      "french_only_pairs": 59507
     }
   }
 }
