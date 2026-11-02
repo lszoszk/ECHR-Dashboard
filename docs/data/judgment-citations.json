@@ -1,39 +1,39 @@
 {
   "schema_version": "judgment-citations-v1",
-  "generated_at": "2026-11-02T02:04:18.209717+00:00",
+  "generated_at": "2026-11-02T17:14:33.685054+00:00",
   "cutoff": "2026-11-02",
-  "catalog_sha256": "be56ae1186951e7251cda71b969e37256836df903197a372d89132408cba14be",
-  "catalog_content_sha256": "0f3d9814a414eae669d177d01d4ba525e520d1a8b5ef288c0581c6ae4786f09d",
-  "edges_sha256": "edd24207d8d92fe12ad9bcd4bd7e7d4141b2c8968aec25a5783336681d238f23",
-  "statistics_scope_sha256": "4a5fb81aef591ce401aa53876d02b41d4859c8bfe58b3d8ba7ffe04079b833c5",
+  "catalog_sha256": "f0c2ccf94beb6466064c3bfbb5735d731bcf017bff6909806e1a83167918babc",
+  "catalog_content_sha256": "5355bda3b04959ae6c50c44b74b10aa5b5e0a6548545eb9ae5aafb17790b3387",
+  "edges_sha256": "f3f26c9eaf3b53ffce6929a889ea3c773f068fc4a4b4e920b613609fb4f4b496",
+  "statistics_scope_sha256": "4c0da77e7d3fd297066cc2639f78c4fa581dcaaca77cda82bfe7ff09f0500e05",
   "scope": "Judgments only, English-flagged catalog identities with verified French ECLI aliases. Counts use bilingual HUDOC citation metadata, not full-text extraction.",
   "coverage": {
-    "judgments": 29399,
-    "judgments_with_metadata": 12546,
+    "judgments": 29400,
+    "judgments_with_metadata": 12547,
     "metadata_versions_by_language": {
-      "ENG": 12075,
-      "FRE": 12333
+      "ENG": 12076,
+      "FRE": 12334
     },
-    "reference_observations": 346500,
+    "reference_observations": 346576,
     "by_status": {
-      "ambiguous": 21683,
+      "ambiguous": 21686,
       "chronology_conflict": 7,
-      "excluded_document_type": 30599,
+      "excluded_document_type": 30601,
       "identifier_conflict": 701,
-      "resolved": 275526,
+      "resolved": 275598,
       "self_reference": 4,
-      "unresolved": 17980
+      "unresolved": 17979
     },
     "by_method": {
-      "application_date": 142114,
-      "application_title": 95604,
-      "explicit_non_judgment": 30599,
+      "application_date": 142178,
+      "application_title": 95608,
+      "explicit_non_judgment": 30601,
       "insufficient_identifiers": 848,
       "multiple_reference_dates": 318,
-      "title_date": 77017
+      "title_date": 77023
     },
-    "unique_edges": 140323,
-    "judgments_with_resolved_citations": 12204,
+    "unique_edges": 140359,
+    "judgments_with_resolved_citations": 12205,
     "identity_issues": [
       {
         "reason": "unpaired_french_identity",
@@ -72,13 +72,6 @@
         "ids": [
           "001-159773",
           "001-159836"
-        ]
-      },
-      {
-        "reason": "unpaired_french_identity",
-        "key": "ECLI:CE:ECHR:2026:0528JUD002618714",
-        "ids": [
-          "001-250526"
         ]
       },
       {
@@ -7739,7 +7732,7 @@
       "001-248597",
       "001-248598",
       "001-248603",
-      "001-248082",
+      "001-253564",
       "001-247555",
       "001-247860",
       "001-247549",
@@ -45622,7 +45615,7 @@
       "date": "2025-12-18",
       "ecli": "ECLI:CE:ECHR:2025:1218JUD003381822"
     },
-    "001-248082": {
+    "001-253564": {
       "title": "FINANZIARIA D'INVESTIMENTO FININVEST S.P.A. AND BERLUSCONI v. ITALY",
       "date": "2026-01-08",
       "ecli": "ECLI:CE:ECHR:2026:0108JUD002353814"
@@ -46070,24 +46063,24 @@
   },
   "with_extracted_appno": {
     "scope": "As above, plus application numbers HUDOC extracted from the full text of each judgment. A number resolves only when one earlier judgment in the catalog has that application; the citing judgment's own numbers are skipped and several judgments of one application stay ambiguous. Counts are lower bounds and the numbers carry no citation context.",
-    "edges_sha256": "fa1aa78c4c6add14a80d551eaa9ac461bb43305b9e33bad3b9983ce4b2fae793",
+    "edges_sha256": "d7ffec51d1f8a153b3dc787b35d5bd3c737331874e18b99aedabfef8d2b88bd8",
     "coverage": {
-      "judgments": 29399,
-      "judgments_with_metadata": 29364,
-      "judgments_with_extracted_application_numbers": 29328,
-      "reference_observations": 453819,
+      "judgments": 29400,
+      "judgments_with_metadata": 29365,
+      "judgments_with_extracted_application_numbers": 29329,
+      "reference_observations": 453862,
       "by_status": {
-        "ambiguous": 53922,
+        "ambiguous": 53925,
         "chronology_conflict": 1349,
-        "resolved": 256894,
-        "self_reference": 73599,
+        "resolved": 256931,
+        "self_reference": 73602,
         "unresolved": 68055
       },
-      "unique_edges": 280977,
-      "edges_from_curated_list": 140323,
-      "edges_from_extracted_application": 233390,
-      "edges_in_both": 92736,
-      "judgments_with_resolved_citations": 27761,
+      "unique_edges": 281015,
+      "edges_from_curated_list": 140359,
+      "edges_from_extracted_application": 233423,
+      "edges_in_both": 92767,
+      "judgments_with_resolved_citations": 27762,
       "full_text_analyzed": false
     },
     "ranking": [
@@ -62266,7 +62259,7 @@
         "001-248284",
         "001-247917",
         "001-248132",
-        "001-248082",
+        "001-253564",
         "001-247554",
         "001-247442",
         "001-247429",
@@ -138427,7 +138420,7 @@
         "date": "2026-01-08",
         "ecli": "ECLI:CE:ECHR:2026:0108JUD001806222"
       },
-      "001-248082": {
+      "001-253564": {
         "title": "FINANZIARIA D'INVESTIMENTO FININVEST S.P.A. AND BERLUSCONI v. ITALY",
         "date": "2026-01-08",
         "ecli": "ECLI:CE:ECHR:2026:0108JUD002353814"
@@ -294192,32 +294185,32 @@
       }
     },
     "coverage": {
-      "judgments": 29399,
-      "judgments_with_metadata": 12546,
+      "judgments": 29400,
+      "judgments_with_metadata": 12547,
       "metadata_versions_by_language": {
-        "ENG": 12075,
-        "FRE": 12333
+        "ENG": 12076,
+        "FRE": 12334
       },
-      "reference_observations": 346500,
+      "reference_observations": 346576,
       "by_status": {
-        "ambiguous": 21683,
+        "ambiguous": 21686,
         "chronology_conflict": 7,
-        "excluded_document_type": 30599,
+        "excluded_document_type": 30601,
         "identifier_conflict": 701,
-        "resolved": 275526,
+        "resolved": 275598,
         "self_reference": 4,
-        "unresolved": 17980
+        "unresolved": 17979
       },
       "by_method": {
-        "application_date": 142114,
-        "application_title": 95604,
-        "explicit_non_judgment": 30599,
+        "application_date": 142178,
+        "application_title": 95608,
+        "explicit_non_judgment": 30601,
         "insufficient_identifiers": 848,
         "multiple_reference_dates": 318,
-        "title_date": 77017
+        "title_date": 77023
       },
-      "unique_edges": 140323,
-      "judgments_with_resolved_citations": 12204,
+      "unique_edges": 140359,
+      "judgments_with_resolved_citations": 12205,
       "identity_issues": [
         {
           "reason": "unpaired_french_identity",
@@ -294256,13 +294249,6 @@
           "ids": [
             "001-159773",
             "001-159836"
-          ]
-        },
-        {
-          "reason": "unpaired_french_identity",
-          "key": "ECLI:CE:ECHR:2026:0528JUD002618714",
-          "ids": [
-            "001-250526"
           ]
         },
         {
