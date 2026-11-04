@@ -50,6 +50,11 @@
     .about-section {
       margin-bottom: 2.5rem;
     }
+    .about-film { margin: 1.2rem 0 0; }
+    .about-film video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: var(--paper-3, #ebe6dc); border: 1px solid var(--rule, #d8d0c3); }
+    .about-film figcaption { margin-top: 6px; font-size: .88rem; line-height: 1.5; color: var(--ink-3, #706d72); }
+    .about-film summary { cursor: pointer; color: var(--garnet, #8d2f2f); }
+    .about-film details p { font-size: .95rem; line-height: 1.6; margin: .5rem 0 0; }
     .about-section code { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.85em; }
     .about-section ol.mcp-steps { padding-left: 1.5rem; margin-bottom: 1rem; }
     .mcp-code { margin: 8px 0 12px; padding: 10px 12px; overflow-x: auto; white-space: pre; font-size: 0.82rem; line-height: 1.5; color: var(--ink, #242328); background: var(--paper-2, #f4f1ea); border: 1px solid var(--rule, #d8d0c3); }
@@ -143,7 +148,7 @@
     .badge-primary { background: var(--paper-2); color: var(--blue-ink); }
     .badge-enrichment { background: var(--paper-2); color: var(--green-ink); }
   </style>
-  <script src="assets/tour.js?v=20261016-dec2" defer></script>
+  <script src="assets/tour.js?v=20261104-film" defer></script>
   <script src="assets/workspace.js?v=20261014-rsscopy"></script>
   <script src="assets/cite.js?v=20261011-hlink" defer></script>
   <script type="application/ld+json">
@@ -268,6 +273,18 @@
             assistant, quoting paragraphs verbatim.</li>
         </ul>
         <p>How the data was built and checked is set out in the <a href="methodology.html">Methodology</a>.</p>
+        <figure class="about-film" id="film">
+          <video controls preload="none" playsinline poster="assets/film-poster.jpg" src="https://lszoszk.github.io/assets/video/hudoc-researcher-film.mp4"></video>
+          <figcaption>HUDOC Researcher in 100 seconds (English subtitles; the narration is voiced with AI, ElevenLabs). The film
+            shows the counts of 12&nbsp;October&nbsp;2026; the current ones are given above.
+            <details><summary>Transcript</summary>
+              <p>Working with the tens of thousands of judgments of the European Court of Human Rights usually means a database search and then other tools (PDFs, spreadsheets, notes, reference managers) to organize the results by hand. HUDOC Researcher, an independent toolkit built on HUDOC data, brings that work into one place.</p>
+              <p>Every judgment is split into the Court's own paragraphs, each labelled with the part of the judgment it belongs to. Search takes keywords, phrases and Boolean operators, as in HUDOC, and a side drawer shows the paragraph in its context, with a link to the same paragraph in HUDOC and a ready OSCOLA citation. The beta holds all the judgments in English (over 20,000) and the judgments HUDOC publishes only in French (over 9,000), the most-cited also in unofficial English translation.</p>
+              <p>When you know only the facts, Semantic Search lets you describe the case in plain words (in any language), and its citation network shows which judgments the Court builds on. Statistics present the whole corpus by year, formation, State, Article and outcome. Research in the age of AI brings new risks, such as invented case names and quotations, and HUDOC Researcher answers them with three tools.</p>
+              <p>Check compares every citation and quotation in your draft with the text of the judgment. Through the MCP server and the Claude skill, your own AI assistant quotes the Court verbatim, with the case, application number and paragraph, instead of paraphrasing from memory. HUDOC remains the authoritative source, and HUDOC Researcher is built to keep it one click away from every paragraph.</p>
+            </details>
+          </figcaption>
+        </figure>
       </section>
 
       <section class="about-section">

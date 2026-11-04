@@ -17,6 +17,9 @@
   const DONE_KEY = "echr-tour-done";
   const onSearchPage = !!document.getElementById("searchInput");
   const fmt = (n) => Number(n).toLocaleString("en-GB");
+  // the film plays from the author's site (GitHub Pages, as this site), only when pressed
+  const FILM = { src: "https://lszoszk.github.io/assets/video/hudoc-researcher-film.mp4",
+                 poster: new URL("film-poster.jpg", document.currentScript.src).href };
   const EXAMPLES = ["surveillance OR interception NOT terrorism", "environment* pollution", '"margin of appreciation" article:10'];
 
   const CSS = `
@@ -58,6 +61,14 @@
   .tour-dots{display:flex;gap:8px}
   .tour-dots .tdot{width:7px;height:7px;padding:0;border-radius:50%;background:var(--rule,#d8d0c3)}
   .tour-dots .tdot.on{background:var(--garnet,#8d2f2f)}
+  .tour-film{margin-top:16px}
+  .tour-film button{display:flex;align-items:center;gap:14px;cursor:pointer;background:none;border:1px solid var(--rule,#d8d0c3);padding:6px 14px 6px 6px;
+    text-align:left;color:var(--ink,#242328)}
+  .tour-film button:hover{border-color:var(--garnet,#8d2f2f)}
+  .tour-film img{display:block;width:160px;height:90px;object-fit:cover}
+  .tour-film b{display:block;font-family:var(--font-serif,'Source Serif 4',Georgia,serif);font-weight:600;color:var(--garnet,#8d2f2f)}
+  .tour-film span span{font-family:var(--font-mono,monospace);font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3,#706d72)}
+  .tour-film video{display:block;width:100%;height:auto;aspect-ratio:16/9;background:var(--paper-3,#ebe6dc)}
   .tour-views .s{display:none}
   @media (max-width:600px){.tour-slides{padding:22px 18px 14px}.tour-h{font-size:1.35rem}.tour-nav{padding:10px 18px}}
   /* phones: every slide fits a 375 x 667 screen without scrolling, Skip / Next always in view */
@@ -76,6 +87,9 @@
     .tour-list{margin-top:8px}
     .tour-list li{grid-template-columns:22px 1fr;padding:6px 0;font-size:.88rem;line-height:1.4}
     .tour-views .d{display:none}.tour-views .s{display:inline}
+    .tour-film{margin-top:10px}.tour-film button{gap:10px;padding:4px 10px 4px 4px}
+    .tour-film img{width:80px;height:45px}.tour-film span span{display:none}
+    .tour-spark,.tour-spark+.tour-cap{display:none}  /* on a phone the year chart makes room for the film */
     .tour-chips{margin-top:10px;gap:6px}
     .tour-chips button{padding:6px 8px;font-size:.7rem}
     .tour-go{gap:8px;margin-top:12px}
@@ -110,7 +124,10 @@
          <div><b>${fmt(s.citable_paragraphs || 1404444)}</b><span>numbered paragraphs</span></div>
          <div><b>${fmt(s.total_countries || 47)}</b><span>respondent States</span></div>
          <div><b>${from}–${to}</b><span>years covered</span></div>
-       </div>${spark}`,
+       </div>${spark}
+       <div class="tour-film"><button type="button" data-tour-film>
+         <img src="${FILM.poster}" alt="" width="160" height="90"><span><b>▶ HUDOC Researcher in 100 seconds</b><span>a short film, with subtitles</span></span>
+       </button></div>`,
       `<div class="tour-kicker">The views</div>
        <h2 class="tour-h">Six ways in.</h2>
        <ul class="tour-list tour-views">
@@ -190,6 +207,11 @@
       if (dot) return go(Number(dot.dataset.i));
       if (e.target.id === "tour-skip") return close();
       if (e.target.id === "tour-next") return index >= html.length - 1 ? close() : go(index + 1);
+      const film = e.target.closest("[data-tour-film]");
+      if (film) {
+        film.parentElement.innerHTML = `<video controls autoplay playsinline poster="${FILM.poster}" src="${FILM.src}"></video>`;
+        return;
+      }
       const q = e.target.closest("[data-tour-q]");
       if (q) return runQuery(q.dataset.tourQ);
       const goSearch = e.target.closest('[data-tour-go="search"]');
@@ -204,6 +226,7 @@
   function go(i) {
     const n = wrap.querySelectorAll(".tslide").length;
     index = Math.max(0, Math.min(n - 1, i));
+    wrap.querySelectorAll("video").forEach((v) => v.pause());
     wrap.querySelectorAll(".tslide").forEach((s, k) => s.classList.toggle("on", k === index));
     wrap.querySelectorAll(".tdot").forEach((d, k) => d.classList.toggle("on", k === index));
     wrap.querySelector("#tour-next").textContent = index === n - 1 ? "Start exploring" : "Next →";
@@ -234,6 +257,7 @@
   function close() {
     if (!wrap) return;
     wrap.classList.remove("open");
+    wrap.querySelectorAll("video").forEach((v) => v.pause());
     document.documentElement.style.overflow = "";
     try { localStorage.setItem(DONE_KEY, "1"); } catch (_) { /* private mode */ }
     lastFocus?.focus?.();
