@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-03T17:13:47.166619+00:00",
+  "generated_at": "2026-11-04T02:03:49.080889+00:00",
   "source_file": "Verified HUDOC catalog + production text inventory + local ENG/FRE bundles",
   "schema_version": "echr-dashboard-v2",
   "parser_version": "2.0.0",
@@ -30,8 +30,8 @@
     "other_cases": 0,
     "key_cases": 1112,
     "separate_opinion_cases": 3934,
-    "cases_with_strasbourg_caselaw": 12079,
-    "avg_strasbourg_citations_per_case": 5.897102829162133,
+    "cases_with_strasbourg_caselaw": 12080,
+    "avg_strasbourg_citations_per_case": 5.897510881392818,
     "cases_with_domestic_law": 0,
     "cases_with_international_law": 0,
     "cases_with_rules_of_court": 880,
@@ -16838,7 +16838,7 @@
       "ecli": 0.9999659956474428,
       "hudoc_url": 1.0,
       "represented_by": 0.8566,
-      "strasbourg_caselaw": 0.4107385745375408,
+      "strasbourg_caselaw": 0.41077257889009794,
       "domestic_law": 0.0,
       "international_law": 0.0,
       "rules_of_court": 0.029923830250272034,
@@ -16849,7 +16849,7 @@
       "chamber_composed_of": 0.0,
       "article_no": 0.9854461371055495,
       "hudoc_kpthesaurus": 0.9848340587595212,
-      "strasbourg_caselaw_any_language": 0.4267546245919478,
+      "strasbourg_caselaw_any_language": 0.4267886289445049,
       "extracted_application_numbers": 0.9973816648531012
     },
     "field_counts": {
@@ -16860,10 +16860,10 @@
       "originating_body": 29408,
       "importance": 29408,
       "hudoc_kpthesaurus": 28962,
-      "strasbourg_caselaw": 12079,
+      "strasbourg_caselaw": 12080,
       "rules_of_court": 880,
       "separate_opinion": 29344,
-      "strasbourg_caselaw_any_language": 12550,
+      "strasbourg_caselaw_any_language": 12551,
       "extracted_application_numbers": 29331
     }
   },
@@ -37060,10 +37060,10 @@
     ],
     "unit": "HUDOC judgment record, not an application or applicant",
     "since": "1959-01-01",
-    "cutoff": "2026-11-03",
-    "catalog_verified_at": "2026-11-03T17:12:46.694097+00:00",
+    "cutoff": "2026-11-04",
+    "catalog_verified_at": "2026-11-04T02:02:39.767130+00:00",
     "catalog_sha256": "42d480f2da3bde0445ec887c33f2254ea18467fea6da28ccee44b63d9e866e84",
-    "catalog_content_sha256": "1fb5a4d22ea6b070d4ec0d1eb140ce7898ad92f857a99326ed77f96e1cf5250a",
+    "catalog_content_sha256": "8c9b74cd6479192579dcd39822bfc7017c1f55b074f57ef4761257b1b40c45b2",
     "translation_title_warnings": [
       "001-115493",
       "001-120188",
@@ -37086,7 +37086,7 @@
       "Production inventory": 29401,
       "Unavailable": 7
     },
-    "inventory_exported_at": "2026-11-03T17:13:14.202018+00:00",
+    "inventory_exported_at": "2026-11-04T02:03:17.015531+00:00",
     "paragraph_roles": {
       "footer": 29012,
       "signature": 35301,

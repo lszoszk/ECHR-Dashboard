@@ -1,39 +1,39 @@
 {
   "schema_version": "judgment-citations-v1",
-  "generated_at": "2026-11-03T17:14:28.875228+00:00",
-  "cutoff": "2026-11-03",
+  "generated_at": "2026-11-04T02:04:30.619412+00:00",
+  "cutoff": "2026-11-04",
   "catalog_sha256": "9da43d908cc7527eb468c73631ecfecbe49b9b6f5aa86a8231a6b29f4a4b5b7f",
-  "catalog_content_sha256": "1fb5a4d22ea6b070d4ec0d1eb140ce7898ad92f857a99326ed77f96e1cf5250a",
-  "edges_sha256": "93ffcb4732ad531bc852bf143764e7d461c5935a164f24fdf9af8e6347828872",
+  "catalog_content_sha256": "8c9b74cd6479192579dcd39822bfc7017c1f55b074f57ef4761257b1b40c45b2",
+  "edges_sha256": "f1d7773ce7d2b8525838e4fba7f0f6fcc2664ebd022610b26bff5d3787da6713",
   "statistics_scope_sha256": "42d480f2da3bde0445ec887c33f2254ea18467fea6da28ccee44b63d9e866e84",
   "scope": "Judgments only, English-flagged catalog identities with verified French ECLI aliases. Counts use bilingual HUDOC citation metadata, not full-text extraction.",
   "coverage": {
     "judgments": 29408,
-    "judgments_with_metadata": 12550,
+    "judgments_with_metadata": 12551,
     "metadata_versions_by_language": {
-      "ENG": 12079,
-      "FRE": 12337
+      "ENG": 12080,
+      "FRE": 12338
     },
-    "reference_observations": 346766,
+    "reference_observations": 346790,
     "by_status": {
       "ambiguous": 21696,
       "chronology_conflict": 7,
-      "excluded_document_type": 30637,
+      "excluded_document_type": 30639,
       "identifier_conflict": 701,
-      "resolved": 275742,
+      "resolved": 275761,
       "self_reference": 4,
-      "unresolved": 17979
+      "unresolved": 17982
     },
     "by_method": {
-      "application_date": 142306,
-      "application_title": 95632,
-      "explicit_non_judgment": 30637,
+      "application_date": 142322,
+      "application_title": 95636,
+      "explicit_non_judgment": 30639,
       "insufficient_identifiers": 848,
       "multiple_reference_dates": 318,
-      "title_date": 77025
+      "title_date": 77027
     },
-    "unique_edges": 140431,
-    "judgments_with_resolved_citations": 12208,
+    "unique_edges": 140441,
+    "judgments_with_resolved_citations": 12209,
     "identity_issues": [
       {
         "reason": "unpaired_french_identity",
@@ -343,7 +343,7 @@
         "ENG",
         "FRE"
       ],
-      "cited_by_count": 344
+      "cited_by_count": 345
     },
     {
       "judgment_id": "ECLI:CE:ECHR:1996:1115JUD002241493",
@@ -10457,6 +10457,7 @@
     "001-142199": [
       "001-253220",
       "001-253221",
+      "001-253222",
       "001-253543",
       "001-252962",
       "001-252936",
@@ -46069,6 +46070,11 @@
       "date": "2026-11-03",
       "ecli": "ECLI:CE:ECHR:2026:1103JUD000787025"
     },
+    "001-253222": {
+      "title": "H\u00c1TT\u00c9R T\u00c1RSAS\u00c1G AND AMNESTY INTERNATIONAL MAGYARORSZ\u00c1G v. HUNGARY",
+      "date": "2026-11-03",
+      "ecli": "ECLI:CE:ECHR:2026:1103JUD004390122"
+    },
     "001-253221": {
       "title": "G\u00d6K\u00c7E AND OTHERS v. T\u00dcRK\u0130YE",
       "date": "2026-11-03",
@@ -46082,7 +46088,7 @@
   },
   "with_extracted_appno": {
     "scope": "As above, plus application numbers HUDOC extracted from the full text of each judgment. A number resolves only when one earlier judgment in the catalog has that application; the citing judgment's own numbers are skipped and several judgments of one application stay ambiguous. Counts are lower bounds and the numbers carry no citation context.",
-    "edges_sha256": "9142c57d5c391c79771b2295c1e4f4c695da9d4b281471eace8f0ad2f1246bbb",
+    "edges_sha256": "a9e36ce3f7db8dcd33657831f1db2deebb72a38b52a3eb334462985f3bfd1b02",
     "coverage": {
       "judgments": 29408,
       "judgments_with_metadata": 29373,
@@ -46095,10 +46101,10 @@
         "self_reference": 73615,
         "unresolved": 68112
       },
-      "unique_edges": 281129,
-      "edges_from_curated_list": 140431,
+      "unique_edges": 281136,
+      "edges_from_curated_list": 140441,
       "edges_from_extracted_application": 233522,
-      "edges_in_both": 92824,
+      "edges_in_both": 92827,
       "judgments_with_resolved_citations": 27770,
       "full_text_analyzed": false
     },
@@ -294248,31 +294254,31 @@
     },
     "coverage": {
       "judgments": 29408,
-      "judgments_with_metadata": 12550,
+      "judgments_with_metadata": 12551,
       "metadata_versions_by_language": {
-        "ENG": 12079,
-        "FRE": 12337
+        "ENG": 12080,
+        "FRE": 12338
       },
-      "reference_observations": 346766,
+      "reference_observations": 346790,
       "by_status": {
         "ambiguous": 21696,
         "chronology_conflict": 7,
-        "excluded_document_type": 30637,
+        "excluded_document_type": 30639,
         "identifier_conflict": 701,
-        "resolved": 275742,
+        "resolved": 275761,
         "self_reference": 4,
-        "unresolved": 17979
+        "unresolved": 17982
       },
       "by_method": {
-        "application_date": 142306,
-        "application_title": 95632,
-        "explicit_non_judgment": 30637,
+        "application_date": 142322,
+        "application_title": 95636,
+        "explicit_non_judgment": 30639,
         "insufficient_identifiers": 848,
         "multiple_reference_dates": 318,
-        "title_date": 77025
+        "title_date": 77027
       },
-      "unique_edges": 140431,
-      "judgments_with_resolved_citations": 12208,
+      "unique_edges": 140441,
+      "judgments_with_resolved_citations": 12209,
       "identity_issues": [
         {
           "reason": "unpaired_french_identity",
