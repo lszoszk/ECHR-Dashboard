@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-04T02:03:49.080889+00:00",
+  "generated_at": "2026-11-04T17:14:45.182206+00:00",
   "source_file": "Verified HUDOC catalog + production text inventory + local ENG/FRE bundles",
   "schema_version": "echr-dashboard-v2",
   "parser_version": "2.0.0",
@@ -21,7 +21,7 @@
     "p90_paragraphs_per_case": 259.0,
     "min_paragraphs_per_case": 2,
     "max_paragraphs_per_case": 51650,
-    "violation_cases": 24123,
+    "violation_cases": 24124,
     "non_violation_cases": 4534,
     "grand_chamber_share": 1.785228509249184,
     "grand_chamber_cases": 525,
@@ -39,10 +39,10 @@
     "struck_out_cases": 1320,
     "procedural_aspect_cases": 2138,
     "substantive_aspect_cases": 3872,
-    "outcome_violation_only": 21897,
+    "outcome_violation_only": 21898,
     "outcome_non_violation_only": 2308,
     "outcome_both": 2226,
-    "outcome_neither": 2977,
+    "outcome_neither": 2976,
     "cases_with_text": 29401
   },
   "article_analytics": {
@@ -107,13 +107,13 @@
       {
         "article": "6",
         "referenced": 15528,
-        "violation_only": 12783,
+        "violation_only": 12784,
         "non_violation_only": 1063,
         "mixed": 364,
-        "without_outcome": 1318,
-        "with_outcome": 14210,
-        "with_violation": 13147,
-        "violation_share": 0.9251935256861366
+        "without_outcome": 1317,
+        "with_outcome": 14211,
+        "with_violation": 13148,
+        "violation_share": 0.9251987896699739
       },
       {
         "article": "7",
@@ -5279,7 +5279,7 @@
     "outcome_breakdown": [
       [
         "Violation only",
-        21897
+        21898
       ],
       [
         "Non-violation only",
@@ -5291,7 +5291,7 @@
       ],
       [
         "Neither",
-        2977
+        2976
       ]
     ],
     "separate_opinion_share_by_body": [
@@ -5744,10 +5744,10 @@
       ],
       [
         "2026",
-        586,
+        587,
         55,
         43,
-        20
+        19
       ]
     ],
     "outcomes_by_year_formation": {
@@ -6617,10 +6617,10 @@
         ],
         [
           "2026",
-          118,
+          119,
           52,
           31,
-          4
+          3
         ]
       ],
       "Committee": [
@@ -8369,15 +8369,15 @@
     "article_outcomes_top": [
       [
         "6",
-        13147,
+        13148,
         1427,
-        14574
+        14575
       ],
       [
         "6-1",
-        11413,
+        11414,
         1229,
-        12642
+        12643
       ],
       [
         "3",
@@ -8874,11 +8874,11 @@
       [
         "North Macedonia",
         228,
-        188,
+        189,
         14,
         15,
-        11,
-        89.04,
+        10,
+        89.47,
         3
       ],
       [
@@ -9176,11 +9176,11 @@
       [
         "North Macedonia",
         228,
-        188,
+        189,
         14,
         15,
-        11,
-        89.04,
+        10,
+        89.47,
         3
       ],
       [
@@ -9585,7 +9585,7 @@
     "outcomes": [
       [
         "Violation only",
-        21897
+        21898
       ],
       [
         "Non-violation only",
@@ -9597,7 +9597,7 @@
       ],
       [
         "Neither",
-        2977
+        2976
       ]
     ]
   },
@@ -14456,19 +14456,19 @@
         "North Macedonia": {
           "code": "MKD",
           "total": 228,
-          "violation_rate": 89.0,
+          "violation_rate": 89.5,
           "outcomes": {
-            "violation_only": 188,
+            "violation_only": 189,
             "non_violation_only": 14,
             "both": 15,
-            "neither": 11
+            "neither": 10
           },
           "settled": 3,
           "articles": [
             [
               "6",
-              129,
-              135
+              130,
+              136
             ],
             [
               "P1-1",
@@ -16845,7 +16845,7 @@
       "violation": 0.8203,
       "non-violation": 0.1542,
       "applicability": 0.0,
-      "conclusion": 0.9910908596300326,
+      "conclusion": 0.9911248639825898,
       "chamber_composed_of": 0.0,
       "article_no": 0.9854461371055495,
       "hudoc_kpthesaurus": 0.9848340587595212,
@@ -16856,7 +16856,7 @@
       "respondent_state": 29408,
       "ecli": 29407,
       "article_no": 28980,
-      "conclusion": 29146,
+      "conclusion": 29147,
       "originating_body": 29408,
       "importance": 29408,
       "hudoc_kpthesaurus": 28962,
@@ -36523,7 +36523,7 @@
     "clause_breakdown": [
       [
         "Violation finding",
-        38892
+        38893
       ],
       [
         "Non-pecuniary damage awarded",
@@ -37039,7 +37039,7 @@
       ],
       [
         "2026",
-        629,
+        630,
         98,
         117,
         51
@@ -37061,9 +37061,9 @@
     "unit": "HUDOC judgment record, not an application or applicant",
     "since": "1959-01-01",
     "cutoff": "2026-11-04",
-    "catalog_verified_at": "2026-11-04T02:02:39.767130+00:00",
+    "catalog_verified_at": "2026-11-04T17:12:23.918442+00:00",
     "catalog_sha256": "42d480f2da3bde0445ec887c33f2254ea18467fea6da28ccee44b63d9e866e84",
-    "catalog_content_sha256": "8c9b74cd6479192579dcd39822bfc7017c1f55b074f57ef4761257b1b40c45b2",
+    "catalog_content_sha256": "bb548e7971a2313d6f52256bed4eadc7da909266e949a220e90ec4b25f36fc41",
     "translation_title_warnings": [
       "001-115493",
       "001-120188",
@@ -37086,7 +37086,7 @@
       "Production inventory": 29401,
       "Unavailable": 7
     },
-    "inventory_exported_at": "2026-11-04T02:03:17.015531+00:00",
+    "inventory_exported_at": "2026-11-04T17:14:14.168015+00:00",
     "paragraph_roles": {
       "footer": 29012,
       "signature": 35301,

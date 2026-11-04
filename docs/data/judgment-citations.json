@@ -1,9 +1,9 @@
 {
   "schema_version": "judgment-citations-v1",
-  "generated_at": "2026-11-04T02:04:30.619412+00:00",
+  "generated_at": "2026-11-04T17:15:28.097301+00:00",
   "cutoff": "2026-11-04",
   "catalog_sha256": "9da43d908cc7527eb468c73631ecfecbe49b9b6f5aa86a8231a6b29f4a4b5b7f",
-  "catalog_content_sha256": "8c9b74cd6479192579dcd39822bfc7017c1f55b074f57ef4761257b1b40c45b2",
+  "catalog_content_sha256": "bb548e7971a2313d6f52256bed4eadc7da909266e949a220e90ec4b25f36fc41",
   "edges_sha256": "f1d7773ce7d2b8525838e4fba7f0f6fcc2664ebd022610b26bff5d3787da6713",
   "statistics_scope_sha256": "42d480f2da3bde0445ec887c33f2254ea18467fea6da28ccee44b63d9e866e84",
   "scope": "Judgments only, English-flagged catalog identities with verified French ECLI aliases. Counts use bilingual HUDOC citation metadata, not full-text extraction.",
@@ -139457,7 +139457,7 @@
         "ecli": "ECLI:CE:ECHR:2026:0901JUD005182921"
       },
       "001-252036": {
-        "title": "BELOUS v. UKRAINE",
+        "title": "BILOUS v. UKRAINE",
         "date": "2026-09-03",
         "ecli": "ECLI:CE:ECHR:2026:0903JUD002006821"
       },
