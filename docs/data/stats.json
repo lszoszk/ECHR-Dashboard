@@ -1,49 +1,49 @@
 {
-  "generated_at": "2026-11-05T02:05:22.331558+00:00",
+  "generated_at": "2026-11-05T17:13:44.989832+00:00",
   "source_file": "Verified HUDOC catalog + production text inventory + local ENG/FRE bundles",
   "schema_version": "echr-dashboard-v2",
   "parser_version": "2.0.0",
   "summary": {
-    "total_cases": 29408,
+    "total_cases": 29412,
     "total_press_releases": 0,
     "total_other_documents": 0,
-    "input_record_count": 29408,
+    "input_record_count": 29412,
     "schema_version": "echr-dashboard-v2",
     "parser_version": "2.0.0",
-    "total_paragraphs": 4407301,
-    "dated_cases": 29408,
+    "total_paragraphs": 4408414,
+    "dated_cases": 29412,
     "undated_cases": 0,
-    "date_range_label": "14 Nov 1960 \u2013 03 Nov 2026",
+    "date_range_label": "14 Nov 1960 \u2013 05 Nov 2026",
     "unique_countries": 47,
     "unique_articles": 287,
-    "avg_paragraphs_per_case": 149.90309853406347,
+    "avg_paragraphs_per_case": 149.92055772827752,
     "median_paragraphs_per_case": 109.0,
     "p90_paragraphs_per_case": 259.0,
     "min_paragraphs_per_case": 2,
     "max_paragraphs_per_case": 51650,
-    "violation_cases": 24124,
-    "non_violation_cases": 4534,
-    "grand_chamber_share": 1.785228509249184,
+    "violation_cases": 24127,
+    "non_violation_cases": 4535,
+    "grand_chamber_share": 1.7849857201142392,
     "grand_chamber_cases": 525,
-    "chamber_cases": 21199,
-    "committee_cases": 7684,
+    "chamber_cases": 21202,
+    "committee_cases": 7685,
     "other_cases": 0,
     "key_cases": 1113,
     "separate_opinion_cases": 3934,
-    "cases_with_strasbourg_caselaw": 12080,
-    "avg_strasbourg_citations_per_case": 5.897510881392818,
+    "cases_with_strasbourg_caselaw": 12083,
+    "avg_strasbourg_citations_per_case": 5.898646810825514,
     "cases_with_domestic_law": 0,
     "cases_with_international_law": 0,
-    "cases_with_rules_of_court": 880,
-    "inadmissible_cases": 3095,
+    "cases_with_rules_of_court": 881,
+    "inadmissible_cases": 3096,
     "struck_out_cases": 1320,
-    "procedural_aspect_cases": 2138,
-    "substantive_aspect_cases": 3872,
-    "outcome_violation_only": 21898,
-    "outcome_non_violation_only": 2308,
+    "procedural_aspect_cases": 2139,
+    "substantive_aspect_cases": 3873,
+    "outcome_violation_only": 21901,
+    "outcome_non_violation_only": 2309,
     "outcome_both": 2226,
     "outcome_neither": 2976,
-    "cases_with_text": 29401
+    "cases_with_text": 29405
   },
   "article_analytics": {
     "method": "Primary article families; one judgment record per article and outcome bucket. Includes conjunction-related HUDOC tags, not necessarily standalone findings. Violation share = (violation-only + mixed) / judgments with either outcome tag. Untagged outcomes are excluded, not classified as non-violations.",
@@ -62,25 +62,25 @@
       },
       {
         "article": "2",
-        "referenced": 1476,
-        "violation_only": 983,
+        "referenced": 1477,
+        "violation_only": 984,
         "non_violation_only": 174,
         "mixed": 195,
         "without_outcome": 124,
-        "with_outcome": 1352,
-        "with_violation": 1178,
-        "violation_share": 0.871301775147929
+        "with_outcome": 1353,
+        "with_violation": 1179,
+        "violation_share": 0.8713968957871396
       },
       {
         "article": "3",
-        "referenced": 4892,
-        "violation_only": 3680,
+        "referenced": 4893,
+        "violation_only": 3681,
         "non_violation_only": 463,
         "mixed": 502,
         "without_outcome": 247,
-        "with_outcome": 4645,
-        "with_violation": 4182,
-        "violation_share": 0.9003229278794402
+        "with_outcome": 4646,
+        "with_violation": 4183,
+        "violation_share": 0.9003443822643133
       },
       {
         "article": "4",
@@ -128,14 +128,14 @@
       },
       {
         "article": "8",
-        "referenced": 3310,
+        "referenced": 3311,
         "violation_only": 2270,
-        "non_violation_only": 601,
+        "non_violation_only": 602,
         "mixed": 146,
         "without_outcome": 293,
-        "with_outcome": 3017,
+        "with_outcome": 3018,
         "with_violation": 2416,
-        "violation_share": 0.8007954922108055
+        "violation_share": 0.8005301524188204
       },
       {
         "article": "9",
@@ -150,25 +150,25 @@
       },
       {
         "article": "10",
-        "referenced": 1866,
-        "violation_only": 1369,
+        "referenced": 1867,
+        "violation_only": 1370,
         "non_violation_only": 258,
         "mixed": 27,
         "without_outcome": 212,
-        "with_outcome": 1654,
-        "with_violation": 1396,
-        "violation_share": 0.8440145102781137
+        "with_outcome": 1655,
+        "with_violation": 1397,
+        "violation_share": 0.8441087613293051
       },
       {
         "article": "11",
-        "referenced": 985,
-        "violation_only": 838,
+        "referenced": 986,
+        "violation_only": 839,
         "non_violation_only": 76,
         "mixed": 12,
         "without_outcome": 59,
-        "with_outcome": 926,
-        "with_violation": 850,
-        "violation_share": 0.91792656587473
+        "with_outcome": 927,
+        "with_violation": 851,
+        "violation_share": 0.918015102481122
       },
       {
         "article": "12",
@@ -194,14 +194,14 @@
       },
       {
         "article": "14",
-        "referenced": 1077,
+        "referenced": 1078,
         "violation_only": 383,
-        "non_violation_only": 319,
+        "non_violation_only": 320,
         "mixed": 27,
         "without_outcome": 348,
-        "with_outcome": 729,
+        "with_outcome": 730,
         "with_violation": 410,
-        "violation_share": 0.5624142661179699
+        "violation_share": 0.5616438356164384
       },
       {
         "article": "15",
@@ -359,11 +359,11 @@
       },
       {
         "article": "35",
-        "referenced": 3800,
+        "referenced": 3802,
         "violation_only": 0,
         "non_violation_only": 0,
         "mixed": 0,
-        "without_outcome": 3800,
+        "without_outcome": 3802,
         "with_outcome": 0,
         "with_violation": 0,
         "violation_share": null
@@ -414,11 +414,11 @@
       },
       {
         "article": "41",
-        "referenced": 10396,
+        "referenced": 10398,
         "violation_only": 0,
         "non_violation_only": 0,
         "mixed": 0,
-        "without_outcome": 10396,
+        "without_outcome": 10398,
         "with_outcome": 0,
         "with_violation": 0,
         "violation_share": null
@@ -2839,7 +2839,7 @@
       ],
       [
         "2026-11",
-        8
+        12
       ]
     ],
     "cases_by_year": [
@@ -3089,7 +3089,7 @@
       ],
       [
         "2026",
-        704
+        708
       ]
     ],
     "paragraphs_by_month": [
@@ -5219,7 +5219,7 @@
       ],
       [
         "2026-11",
-        1640
+        2753
       ]
     ],
     "chamber_breakdown": [
@@ -5229,11 +5229,11 @@
       ],
       [
         "Chamber",
-        21199
+        21202
       ],
       [
         "Committee",
-        7684
+        7685
       ],
       [
         "Other",
@@ -5251,7 +5251,7 @@
       ],
       [
         "P90",
-        258.2999999999993
+        259.0
       ],
       [
         "Max",
@@ -5261,11 +5261,11 @@
     "importance_breakdown": [
       [
         "3",
-        21088
+        21089
       ],
       [
         "2",
-        6123
+        6126
       ],
       [
         "Key cases",
@@ -5279,11 +5279,11 @@
     "outcome_breakdown": [
       [
         "Violation only",
-        21898
+        21901
       ],
       [
         "Non-violation only",
-        2308
+        2309
       ],
       [
         "Both",
@@ -5298,13 +5298,13 @@
       [
         "Chamber",
         16.53,
-        21199,
+        21202,
         3504
       ],
       [
         "Committee",
         0.0,
-        7684,
+        7685,
         0
       ],
       [
@@ -5744,8 +5744,8 @@
       ],
       [
         "2026",
-        587,
-        55,
+        590,
+        56,
         43,
         19
       ]
@@ -6617,8 +6617,8 @@
         ],
         [
           "2026",
-          119,
-          52,
+          121,
+          53,
           31,
           3
         ]
@@ -7053,7 +7053,7 @@
         ],
         [
           "2026",
-          465,
+          466,
           2,
           12,
           15
@@ -7208,8 +7208,8 @@
       ],
       [
         "2026",
-        84,
-        120
+        85,
+        121
       ]
     ],
     "chambers_by_year": [
@@ -7582,8 +7582,8 @@
       [
         "2026",
         5,
-        205,
-        494
+        208,
+        495
       ]
     ],
     "text_languages_by_year": [
@@ -8018,7 +8018,7 @@
         "2026",
         0,
         107,
-        590,
+        594,
         7
       ]
     ]
@@ -8039,7 +8039,7 @@
       ],
       [
         "Ukraine",
-        2411
+        2412
       ],
       [
         "Romania",
@@ -8059,7 +8059,7 @@
       ],
       [
         "Bulgaria",
-        883
+        884
       ],
       [
         "Hungary",
@@ -8117,11 +8117,11 @@
       ],
       [
         "41",
-        10396
+        10398
       ],
       [
         "3",
-        4892
+        4893
       ],
       [
         "P1-1",
@@ -8137,7 +8137,7 @@
       ],
       [
         "35",
-        3800
+        3802
       ],
       [
         "P1-1-1",
@@ -8145,11 +8145,11 @@
       ],
       [
         "8",
-        3310
+        3311
       ],
       [
         "8-1",
-        2943
+        2944
       ],
       [
         "29",
@@ -8161,7 +8161,7 @@
       ],
       [
         "35-1",
-        2370
+        2371
       ],
       [
         "5-1",
@@ -8173,15 +8173,15 @@
       ],
       [
         "10",
-        1866
+        1867
       ],
       [
         "10-1",
-        1674
+        1675
       ],
       [
         "2",
-        1476
+        1477
       ],
       [
         "5-4",
@@ -8191,7 +8191,7 @@
     "sections": [
       [
         "Merits",
-        1080275
+        1080627
       ],
       [
         "Circumstances of the Case",
@@ -8199,23 +8199,23 @@
       ],
       [
         "Appendix",
-        843833
+        843889
       ],
       [
         "Header",
-        434561
+        434646
       ],
       [
         "Legal Framework",
-        309829
+        310083
       ],
       [
         "Just Satisfaction",
-        287934
+        287962
       ],
       [
         "Operative Part",
-        251594
+        251625
       ],
       [
         "Procedure",
@@ -8243,7 +8243,7 @@
       ],
       [
         "Facts (unsegmented)",
-        1495
+        1802
       ],
       [
         "Article 46 (Execution)",
@@ -8253,11 +8253,11 @@
     "originating_bodies_top": [
       [
         "Chamber",
-        21199
+        21202
       ],
       [
         "Committee",
-        7684
+        7685
       ],
       [
         "Grand Chamber",
@@ -8267,11 +8267,11 @@
     "importance_distribution": [
       [
         "3",
-        21088
+        21089
       ],
       [
         "2",
-        6123
+        6126
       ],
       [
         "Key cases",
@@ -8381,9 +8381,9 @@
       ],
       [
         "3",
-        4182,
+        4183,
         965,
-        5147
+        5148
       ],
       [
         "5",
@@ -8400,8 +8400,8 @@
       [
         "8",
         2416,
-        747,
-        3163
+        748,
+        3164
       ],
       [
         "P1-1",
@@ -8418,8 +8418,8 @@
       [
         "8-1",
         1613,
-        468,
-        2081
+        469,
+        2082
       ],
       [
         "5-3",
@@ -8435,15 +8435,15 @@
       ],
       [
         "10",
-        1396,
+        1397,
         285,
-        1681
+        1682
       ],
       [
         "2",
-        1178,
+        1179,
         369,
-        1547
+        1548
       ],
       [
         "5-4",
@@ -8453,21 +8453,21 @@
       ],
       [
         "10-1",
-        937,
+        938,
         176,
-        1113
+        1114
       ],
       [
         "2-1",
-        748,
+        749,
         213,
-        961
+        962
       ],
       [
         "11",
-        850,
+        851,
         88,
-        938
+        939
       ],
       [
         "13+3",
@@ -8477,15 +8477,15 @@
       ],
       [
         "11-1",
-        728,
+        729,
         48,
-        776
+        777
       ],
       [
         "14",
         410,
-        346,
-        756
+        347,
+        757
       ]
     ],
     "article_violation_rates_top": [
@@ -8643,8 +8643,8 @@
       ],
       [
         "Ukraine",
-        2411,
-        2176,
+        2412,
+        2177,
         31,
         151,
         53,
@@ -8693,12 +8693,12 @@
       ],
       [
         "Bulgaria",
-        883,
-        675,
+        884,
+        676,
         57,
         94,
         57,
-        87.09,
+        87.1,
         7
       ],
       [
@@ -8853,22 +8853,22 @@
       ],
       [
         "Switzerland",
-        262,
-        143,
+        263,
+        144,
         91,
         18,
         10,
-        61.45,
+        61.6,
         5
       ],
       [
         "Spain",
-        235,
+        236,
         146,
-        67,
+        68,
         13,
         9,
-        67.66,
+        67.37,
         5
       ],
       [
@@ -8945,8 +8945,8 @@
       ],
       [
         "Ukraine",
-        2411,
-        2176,
+        2412,
+        2177,
         31,
         151,
         53,
@@ -8995,12 +8995,12 @@
       ],
       [
         "Bulgaria",
-        883,
-        675,
+        884,
+        676,
         57,
         94,
         57,
-        87.09,
+        87.1,
         7
       ],
       [
@@ -9155,22 +9155,22 @@
       ],
       [
         "Switzerland",
-        262,
-        143,
+        263,
+        144,
         91,
         18,
         10,
-        61.45,
+        61.6,
         5
       ],
       [
         "Spain",
-        235,
+        236,
         146,
-        67,
+        68,
         13,
         9,
-        67.66,
+        67.37,
         5
       ],
       [
@@ -9407,7 +9407,7 @@
       ],
       [
         "Ratione materiae",
-        163
+        164
       ],
       [
         "Non-exhaustion of domestic remedies",
@@ -9585,11 +9585,11 @@
     "outcomes": [
       [
         "Violation only",
-        21898
+        21901
       ],
       [
         "Non-violation only",
-        2308
+        2309
       ],
       [
         "Both",
@@ -11448,10 +11448,10 @@
         },
         "Switzerland": {
           "code": "CHE",
-          "total": 262,
-          "violation_rate": 61.5,
+          "total": 263,
+          "violation_rate": 61.6,
           "outcomes": {
-            "violation_only": 143,
+            "violation_only": 144,
             "non_violation_only": 91,
             "both": 18,
             "neither": 10
@@ -11500,8 +11500,8 @@
             ],
             [
               "11",
-              3,
-              3
+              4,
+              4
             ],
             [
               "P7-4",
@@ -11596,7 +11596,7 @@
             9,
             9,
             10,
-            11
+            12
           ]
         },
         "Romania": {
@@ -12416,10 +12416,10 @@
         },
         "Bulgaria": {
           "code": "BGR",
-          "total": 883,
+          "total": 884,
           "violation_rate": 87.1,
           "outcomes": {
-            "violation_only": 675,
+            "violation_only": 676,
             "non_violation_only": 57,
             "both": 94,
             "neither": 57
@@ -12448,8 +12448,8 @@
             ],
             [
               "3",
-              119,
-              136
+              120,
+              137
             ],
             [
               "8",
@@ -12594,15 +12594,15 @@
             30,
             15,
             24,
-            14
+            15
           ]
         },
         "Ukraine": {
           "code": "UKR",
-          "total": 2411,
+          "total": 2412,
           "violation_rate": 96.5,
           "outcomes": {
-            "violation_only": 2176,
+            "violation_only": 2177,
             "non_violation_only": 31,
             "both": 151,
             "neither": 53
@@ -12641,8 +12641,8 @@
             ],
             [
               "2",
-              115,
-              119
+              116,
+              120
             ],
             [
               "34",
@@ -12656,8 +12656,8 @@
             ],
             [
               "10",
-              29,
-              34
+              30,
+              35
             ],
             [
               "11",
@@ -12777,7 +12777,7 @@
             130,
             158,
             164,
-            119
+            120
           ]
         },
         "Germany": {
@@ -13527,11 +13527,11 @@
         },
         "Spain": {
           "code": "ESP",
-          "total": 235,
-          "violation_rate": 67.7,
+          "total": 236,
+          "violation_rate": 67.4,
           "outcomes": {
             "violation_only": 146,
-            "non_violation_only": 67,
+            "non_violation_only": 68,
             "both": 13,
             "neither": 9
           },
@@ -13545,7 +13545,7 @@
             [
               "8",
               27,
-              44
+              45
             ],
             [
               "3",
@@ -13570,7 +13570,7 @@
             [
               "14",
               6,
-              12
+              13
             ],
             [
               "7",
@@ -13690,7 +13690,7 @@
             7,
             6,
             11,
-            5
+            6
           ]
         },
         "United Kingdom": {
@@ -16834,41 +16834,41 @@
       "originating_body": 1.0,
       "importance": 1.0,
       "keywords": 0.0,
-      "separate_opinion": 0.9978237214363439,
-      "ecli": 0.9999659956474428,
+      "separate_opinion": 0.9978240174078608,
+      "ecli": 0.9999660002719978,
       "hudoc_url": 1.0,
       "represented_by": 0.8566,
-      "strasbourg_caselaw": 0.41077257889009794,
+      "strasbourg_caselaw": 0.4108187134502924,
       "domestic_law": 0.0,
       "international_law": 0.0,
-      "rules_of_court": 0.029923830250272034,
+      "rules_of_court": 0.02995376036991704,
       "violation": 0.8203,
       "non-violation": 0.1542,
       "applicability": 0.0,
-      "conclusion": 0.9911248639825898,
+      "conclusion": 0.991126070991432,
       "chamber_composed_of": 0.0,
-      "article_no": 0.9854461371055495,
-      "hudoc_kpthesaurus": 0.9848340587595212,
-      "strasbourg_caselaw_any_language": 0.4267886289445049,
-      "extracted_application_numbers": 0.9973816648531012
+      "article_no": 0.9854481164150687,
+      "hudoc_kpthesaurus": 0.9848361213110295,
+      "strasbourg_caselaw_any_language": 0.4268325853393173,
+      "extracted_application_numbers": 0.9973820209438324
     },
     "field_counts": {
-      "respondent_state": 29408,
-      "ecli": 29407,
-      "article_no": 28980,
-      "conclusion": 29147,
-      "originating_body": 29408,
-      "importance": 29408,
-      "hudoc_kpthesaurus": 28962,
-      "strasbourg_caselaw": 12080,
-      "rules_of_court": 880,
-      "separate_opinion": 29344,
-      "strasbourg_caselaw_any_language": 12551,
-      "extracted_application_numbers": 29331
+      "respondent_state": 29412,
+      "ecli": 29411,
+      "article_no": 28984,
+      "conclusion": 29151,
+      "originating_body": 29412,
+      "importance": 29412,
+      "hudoc_kpthesaurus": 28966,
+      "strasbourg_caselaw": 12083,
+      "rules_of_court": 881,
+      "separate_opinion": 29348,
+      "strasbourg_caselaw_any_language": 12554,
+      "extracted_application_numbers": 29335
     }
   },
   "thesaurus_analytics": {
-    "cases_with_thesaurus": 28962,
+    "cases_with_thesaurus": 28966,
     "unique_terms": 492,
     "top_terms": [
       [
@@ -16877,7 +16877,7 @@
       ],
       [
         "(Art. 41) Just satisfaction",
-        10396
+        10398
       ],
       [
         "(Art. 6-1) Reasonable time",
@@ -16889,7 +16889,7 @@
       ],
       [
         "(Art. 3) Prohibition of torture",
-        4889
+        4890
       ],
       [
         "(Art. P1-1) Protection of property",
@@ -16909,11 +16909,11 @@
       ],
       [
         "(Art. 35) Admissibility criteria",
-        3800
+        3802
       ],
       [
         "(Art. 8) Right to respect for private and family life",
-        3310
+        3311
       ],
       [
         "(Art. 13) Effective remedy",
@@ -16937,15 +16937,15 @@
       ],
       [
         "(Art. 41) Non-pecuniary damage \u2013 award",
-        2428
+        2430
       ],
       [
         "(Art. 41) Non-pecuniary damage",
-        2382
+        2384
       ],
       [
         "(Art. 41) Pecuniary damage",
-        2294
+        2295
       ],
       [
         "(Art. 3) Inhuman treatment",
@@ -16953,7 +16953,7 @@
       ],
       [
         "(Art. 35-1) Exhaustion of domestic remedies",
-        1952
+        1953
       ],
       [
         "(Art. 5-1) Lawful arrest or detention",
@@ -16961,11 +16961,11 @@
       ],
       [
         "(Art. 10) Freedom of expression",
-        1866
+        1867
       ],
       [
         "(Art. 41) Costs and expenses",
-        1810
+        1811
       ],
       [
         "(Art. 8-1) Respect for private life",
@@ -16973,11 +16973,11 @@
       ],
       [
         "(Art. 10-1) Freedom of expression",
-        1576
+        1577
       ],
       [
         "(Art. 2) Right to life",
-        1473
+        1474
       ],
       [
         "(Art. 6) Enforcement proceedings",
@@ -17061,7 +17061,7 @@
           "(Art. 35) Admissibility criteria",
           "(Art. 41) Just satisfaction"
         ],
-        3012
+        3014
       ],
       [
         [
@@ -17096,7 +17096,7 @@
           "(Art. 41) Just satisfaction",
           "(Art. 41) Non-pecuniary damage \u2013 award"
         ],
-        2428
+        2430
       ]
     ],
     "top_terms_by_country": {
@@ -17249,7 +17249,7 @@
         ],
         [
           "(Art. 41) Just satisfaction",
-          511
+          512
         ],
         [
           "(Art. 5) Right to liberty and security",
@@ -17463,7 +17463,7 @@
         ],
         [
           "(Art. 3) Prohibition of torture",
-          142
+          143
         ],
         [
           "(Art. 8) Right to respect for private and family life",
@@ -18111,7 +18111,7 @@
       "Switzerland": [
         [
           "(Art. 41) Just satisfaction",
-          104
+          105
         ],
         [
           "(Art. 8) Right to respect for private and family life",
@@ -18127,7 +18127,7 @@
         ],
         [
           "(Art. 35) Admissibility criteria",
-          56
+          57
         ],
         [
           "(Art. 8-1) Respect for family life",
@@ -18135,7 +18135,7 @@
         ],
         [
           "(Art. 41) Costs and expenses",
-          47
+          48
         ],
         [
           "(Art. 8-1) Respect for private life",
@@ -18164,16 +18164,16 @@
           50
         ],
         [
+          "(Art. 8) Right to respect for private and family life",
+          50
+        ],
+        [
           "(Art. 35) Admissibility criteria",
           50
         ],
         [
-          "(Art. 8) Right to respect for private and family life",
-          49
-        ],
-        [
           "(Art. 41) Pecuniary damage",
-          48
+          49
         ],
         [
           "(Art. 6) Criminal proceedings",
@@ -19859,15 +19859,15 @@
       [
         "2026",
         288,
-        141,
+        143,
         75,
         85,
-        138,
+        139,
         95,
         124,
         61,
         92,
-        75
+        77
       ]
     ],
     "terms_by_year_labels": [
@@ -20071,7 +20071,7 @@
           180,
           140,
           163,
-          141
+          143
         ],
         "(Art. 6-1) Reasonable time": [
           0,
@@ -20260,7 +20260,7 @@
           240,
           291,
           150,
-          138
+          139
         ],
         "(Art. P1-1) Protection of property": [
           0,
@@ -20575,7 +20575,7 @@
           103,
           89,
           95,
-          75
+          77
         ],
         "(Art. 8) Right to respect for private and family life": [
           0,
@@ -20638,7 +20638,7 @@
           194,
           198,
           170,
-          96
+          97
         ],
         "(Art. 13) Effective remedy": [
           0,
@@ -21016,7 +21016,7 @@
           177,
           140,
           158,
-          140
+          142
         ],
         "(Art. 41) Non-pecuniary damage": [
           0,
@@ -21079,7 +21079,7 @@
           169,
           134,
           155,
-          134
+          136
         ],
         "(Art. 41) Pecuniary damage": [
           0,
@@ -21142,7 +21142,7 @@
           143,
           104,
           119,
-          95
+          96
         ],
         "(Art. 3) Inhuman treatment": [
           0,
@@ -21268,7 +21268,7 @@
           45,
           35,
           35,
-          32
+          33
         ],
         "(Art. 5-1) Lawful arrest or detention": [
           0,
@@ -21394,7 +21394,7 @@
           85,
           130,
           113,
-          64
+          65
         ],
         "(Art. 41) Costs and expenses": [
           0,
@@ -21457,7 +21457,7 @@
           69,
           60,
           55,
-          47
+          48
         ],
         "(Art. 8-1) Respect for private life": [
           0,
@@ -21583,7 +21583,7 @@
           78,
           125,
           103,
-          62
+          63
         ],
         "(Art. 2) Right to life": [
           0,
@@ -21646,7 +21646,7 @@
           41,
           41,
           44,
-          46
+          47
         ],
         "(Art. 6) Enforcement proceedings": [
           0,
@@ -21898,7 +21898,7 @@
           72,
           58,
           53,
-          33
+          34
         ],
         "(Art. 34) Individual applications": [
           0,
@@ -22087,7 +22087,7 @@
           35,
           32,
           26,
-          24
+          25
         ],
         "(Art. 3) Effective investigation \u2013 procedural": [
           0,
@@ -22339,7 +22339,7 @@
           131,
           195,
           81,
-          50
+          51
         ],
         "#138": [
           0,
@@ -22465,7 +22465,7 @@
           38,
           26,
           34,
-          37
+          38
         ],
         "(Art. 10) Press freedom": [
           0,
@@ -22591,7 +22591,7 @@
           20,
           22,
           24,
-          22
+          23
         ],
         "#165": [
           0,
@@ -22780,7 +22780,7 @@
           32,
           30,
           23,
-          24
+          25
         ],
         "#268": [
           0,
@@ -22843,7 +22843,7 @@
           31,
           25,
           24,
-          17
+          18
         ],
         "(Art. 11-1) Freedom of peaceful assembly": [
           0,
@@ -22906,7 +22906,7 @@
           116,
           189,
           76,
-          45
+          46
         ],
         "(Art. 5-4) Speediness of review": [
           0,
@@ -24733,7 +24733,7 @@
           26,
           23,
           25,
-          13
+          14
         ],
         "#376": [
           0,
@@ -24796,7 +24796,7 @@
           15,
           14,
           11,
-          8
+          9
         ],
         "(Art. 6-2) Presumption of innocence": [
           0,
@@ -24922,7 +24922,7 @@
           3,
           3,
           3,
-          1
+          2
         ],
         "#337": [
           0,
@@ -25363,7 +25363,7 @@
           7,
           13,
           7,
-          4
+          5
         ],
         "#509": [
           0,
@@ -25867,7 +25867,7 @@
           8,
           7,
           12,
-          7
+          8
         ],
         "Respondent State to take measures": [
           0,
@@ -26182,7 +26182,7 @@
           16,
           7,
           5,
-          4
+          5
         ],
         "(Art. 6-1) Tribunal established by law": [
           1,
@@ -28135,7 +28135,7 @@
           5,
           3,
           7,
-          5
+          6
         ],
         "#150": [
           0,
@@ -36523,15 +36523,15 @@
     "clause_breakdown": [
       [
         "Violation finding",
-        38893
+        38899
       ],
       [
         "Non-pecuniary damage awarded",
-        7919
+        7921
       ],
       [
         "No violation finding",
-        6191
+        6193
       ],
       [
         "Costs & expenses awarded",
@@ -36543,15 +36543,15 @@
       ],
       [
         "Inadmissible",
-        3162
+        3163
       ],
       [
         "Just satisfaction other",
-        3126
+        3128
       ],
       [
         "Preliminary objection rejected",
-        1979
+        1980
       ],
       [
         "Non-pecuniary: violation sufficient",
@@ -36603,7 +36603,7 @@
       ]
     ],
     "preliminary_objections": {
-      "rejected": 1979,
+      "rejected": 1980,
       "accepted": 127,
       "joined_to_merits": 82
     },
@@ -37039,10 +37039,10 @@
       ],
       [
         "2026",
-        630,
-        98,
-        117,
-        51
+        633,
+        99,
+        119,
+        52
       ]
     ]
   },
@@ -37061,9 +37061,9 @@
     "unit": "HUDOC judgment record, not an application or applicant",
     "since": "1959-01-01",
     "cutoff": "2026-11-05",
-    "catalog_verified_at": "2026-11-05T02:02:45.100712+00:00",
-    "catalog_sha256": "42d480f2da3bde0445ec887c33f2254ea18467fea6da28ccee44b63d9e866e84",
-    "catalog_content_sha256": "4f80028e61e58f37226221366c116f44ca6c6af1007ee4720aa3609e60f65fd6",
+    "catalog_verified_at": "2026-11-05T17:12:44.175341+00:00",
+    "catalog_sha256": "2d08f420ecc7e34c45978e295e8e7e33242a012effa874e9617ab4f813900048",
+    "catalog_content_sha256": "311cefacde2bc0f63d0b8026c3a1a92dc58c449c30582f6adc6afa45bf14fa11",
     "translation_title_warnings": [
       "001-115493",
       "001-120188",
@@ -37080,27 +37080,27 @@
   "text_coverage": {
     "by_language": {
       "FRE": 9287,
-      "Unknown": 20114
+      "Unknown": 20118
     },
     "by_origin": {
-      "Production inventory": 29401,
+      "Production inventory": 29405,
       "Unavailable": 7
     },
-    "inventory_exported_at": "2026-11-05T02:04:52.448959+00:00",
+    "inventory_exported_at": "2026-11-05T17:13:12.548117+00:00",
     "paragraph_roles": {
-      "footer": 29012,
-      "signature": 35301,
-      "heading": 307189,
-      "paragraph": 1974716,
-      "metadata": 217681,
-      "quote": 412467,
-      "operative_list": 205473,
+      "footer": 29016,
+      "signature": 35305,
+      "heading": 307321,
+      "paragraph": 1975301,
+      "metadata": 217717,
+      "quote": 412748,
+      "operative_list": 205499,
       "heading_h0": 95614,
       "heading_h1": 90956,
       "heading_h2": 132914,
       "heading_h3": 65906,
       "heading_h4": 49219,
-      "table_cell": 790853
+      "table_cell": 790898
     },
     "note": "Production text language is unknown unless explicitly recorded. Counts include nonempty parser/index rows, not only numbered paragraphs. Local French section labels still require source-exact QA."
   }

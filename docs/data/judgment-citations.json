@@ -1,39 +1,39 @@
 {
   "schema_version": "judgment-citations-v1",
-  "generated_at": "2026-11-05T02:06:04.836798+00:00",
+  "generated_at": "2026-11-05T17:14:27.241132+00:00",
   "cutoff": "2026-11-05",
-  "catalog_sha256": "9da43d908cc7527eb468c73631ecfecbe49b9b6f5aa86a8231a6b29f4a4b5b7f",
-  "catalog_content_sha256": "4f80028e61e58f37226221366c116f44ca6c6af1007ee4720aa3609e60f65fd6",
-  "edges_sha256": "f1d7773ce7d2b8525838e4fba7f0f6fcc2664ebd022610b26bff5d3787da6713",
-  "statistics_scope_sha256": "42d480f2da3bde0445ec887c33f2254ea18467fea6da28ccee44b63d9e866e84",
+  "catalog_sha256": "35507901d35240f8dd70b0fdf060dea5cf808a7913542dc8d486218373597489",
+  "catalog_content_sha256": "311cefacde2bc0f63d0b8026c3a1a92dc58c449c30582f6adc6afa45bf14fa11",
+  "edges_sha256": "882c7d4437bfb6a5fb06f1759847b44dc517607637a1592dc8c426a0d7e7e44c",
+  "statistics_scope_sha256": "2d08f420ecc7e34c45978e295e8e7e33242a012effa874e9617ab4f813900048",
   "scope": "Judgments only, English-flagged catalog identities with verified French ECLI aliases. Counts use bilingual HUDOC citation metadata, not full-text extraction.",
   "coverage": {
-    "judgments": 29408,
-    "judgments_with_metadata": 12551,
+    "judgments": 29412,
+    "judgments_with_metadata": 12554,
     "metadata_versions_by_language": {
-      "ENG": 12080,
-      "FRE": 12338
+      "ENG": 12083,
+      "FRE": 12341
     },
-    "reference_observations": 346790,
+    "reference_observations": 346904,
     "by_status": {
-      "ambiguous": 21696,
+      "ambiguous": 21704,
       "chronology_conflict": 7,
-      "excluded_document_type": 30639,
+      "excluded_document_type": 30663,
       "identifier_conflict": 701,
-      "resolved": 275761,
+      "resolved": 275839,
       "self_reference": 4,
-      "unresolved": 17982
+      "unresolved": 17986
     },
     "by_method": {
-      "application_date": 142322,
-      "application_title": 95636,
-      "explicit_non_judgment": 30639,
+      "application_date": 142388,
+      "application_title": 95654,
+      "explicit_non_judgment": 30663,
       "insufficient_identifiers": 848,
       "multiple_reference_dates": 318,
-      "title_date": 77027
+      "title_date": 77033
     },
-    "unique_edges": 140441,
-    "judgments_with_resolved_citations": 12209,
+    "unique_edges": 140480,
+    "judgments_with_resolved_citations": 12212,
     "identity_issues": [
       {
         "reason": "unpaired_french_identity",
@@ -46088,24 +46088,24 @@
   },
   "with_extracted_appno": {
     "scope": "As above, plus application numbers HUDOC extracted from the full text of each judgment. A number resolves only when one earlier judgment in the catalog has that application; the citing judgment's own numbers are skipped and several judgments of one application stay ambiguous. Counts are lower bounds and the numbers carry no citation context.",
-    "edges_sha256": "a9e36ce3f7db8dcd33657831f1db2deebb72a38b52a3eb334462985f3bfd1b02",
+    "edges_sha256": "7118331932199f77e948adfe1ead4e3a53de118ed24e667068ec673eefae5772",
     "coverage": {
-      "judgments": 29408,
-      "judgments_with_metadata": 29373,
-      "judgments_with_extracted_application_numbers": 29337,
-      "reference_observations": 454078,
+      "judgments": 29412,
+      "judgments_with_metadata": 29377,
+      "judgments_with_extracted_application_numbers": 29341,
+      "reference_observations": 454182,
       "by_status": {
-        "ambiguous": 53969,
+        "ambiguous": 53981,
         "chronology_conflict": 1349,
-        "resolved": 257033,
-        "self_reference": 73615,
-        "unresolved": 68112
+        "resolved": 257101,
+        "self_reference": 73621,
+        "unresolved": 68130
       },
-      "unique_edges": 281136,
-      "edges_from_curated_list": 140441,
-      "edges_from_extracted_application": 233522,
-      "edges_in_both": 92827,
-      "judgments_with_resolved_citations": 27770,
+      "unique_edges": 281207,
+      "edges_from_curated_list": 140480,
+      "edges_from_extracted_application": 233587,
+      "edges_in_both": 92860,
+      "judgments_with_resolved_citations": 27774,
       "full_text_analyzed": false
     },
     "ranking": [
@@ -139856,7 +139856,7 @@
         "date": "1999-01-21",
         "ecli": "ECLI:CE:ECHR:1999:0121JUD003054496",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 1416,
+        "cited_by_count": 1417,
         "cited_by_french_only": 285
       },
       {
@@ -139874,7 +139874,7 @@
         "date": "2006-03-29",
         "ecli": "ECLI:CE:ECHR:2006:0329JUD003681397",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 1271,
+        "cited_by_count": 1272,
         "cited_by_french_only": 259
       },
       {
@@ -139919,7 +139919,7 @@
         "date": "2018-03-20",
         "ecli": "ECLI:CE:ECHR:2018:0320JUD003768510",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 1111,
+        "cited_by_count": 1113,
         "cited_by_french_only": 200
       },
       {
@@ -139955,7 +139955,7 @@
         "date": "2014-03-25",
         "ecli": "ECLI:CE:ECHR:2014:0325JUD001715311",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 957,
+        "cited_by_count": 958,
         "cited_by_french_only": 158
       },
       {
@@ -155379,6 +155379,7 @@
       ],
       "001-58907": [
         "001-253160",
+        "001-253571",
         "001-253085",
         "001-253084",
         "001-252814",
@@ -158188,6 +158189,7 @@
         "001-253152",
         "001-252750",
         "001-252745",
+        "001-253621",
         "001-253112",
         "001-253091",
         "001-253029",
@@ -164128,6 +164130,8 @@
         "001-252750",
         "001-252656",
         "001-252649",
+        "001-253624",
+        "001-253571",
         "001-253525",
         "001-253470",
         "001-253466",
@@ -168270,6 +168274,7 @@
         "001-252936",
         "001-252740",
         "001-253091",
+        "001-253618",
         "001-252642",
         "001-252631",
         "001-252624",
@@ -246677,6 +246682,30 @@
         "ecli": "",
         "french_only": true
       },
+      "001-253571": {
+        "title": "MEL\u0130ZC\u0130 v. T\u00dcRK\u0130YE",
+        "date": "2026-10-06",
+        "ecli": "ECLI:CE:ECHR:2026:1006DEC000247726",
+        "french_only": false
+      },
+      "001-253618": {
+        "title": "TUNCAL v. T\u00dcRK\u0130YE",
+        "date": "2026-10-06",
+        "ecli": "ECLI:CE:ECHR:2026:1006DEC001725926",
+        "french_only": false
+      },
+      "001-253621": {
+        "title": "M.\u00d6. v. THE NETHERLANDS",
+        "date": "2026-10-13",
+        "ecli": "ECLI:CE:ECHR:2026:1013DEC004503618",
+        "french_only": false
+      },
+      "001-253624": {
+        "title": "SUPREME RELIGIOUS ADMINISTRATION OF MUSLIMS OF ALL GEORGIA v. GEORGIA",
+        "date": "2026-10-06",
+        "ecli": "ECLI:CE:ECHR:2026:1006DEC004278923",
+        "french_only": false
+      },
       "001-4527": {
         "title": "BIFL v. SWITZERLAND",
         "date": "1999-02-23",
@@ -294253,32 +294282,32 @@
       }
     },
     "coverage": {
-      "judgments": 29408,
-      "judgments_with_metadata": 12551,
+      "judgments": 29412,
+      "judgments_with_metadata": 12554,
       "metadata_versions_by_language": {
-        "ENG": 12080,
-        "FRE": 12338
+        "ENG": 12083,
+        "FRE": 12341
       },
-      "reference_observations": 346790,
+      "reference_observations": 346904,
       "by_status": {
-        "ambiguous": 21696,
+        "ambiguous": 21704,
         "chronology_conflict": 7,
-        "excluded_document_type": 30639,
+        "excluded_document_type": 30663,
         "identifier_conflict": 701,
-        "resolved": 275761,
+        "resolved": 275839,
         "self_reference": 4,
-        "unresolved": 17982
+        "unresolved": 17986
       },
       "by_method": {
-        "application_date": 142322,
-        "application_title": 95636,
-        "explicit_non_judgment": 30639,
+        "application_date": 142388,
+        "application_title": 95654,
+        "explicit_non_judgment": 30663,
         "insufficient_identifiers": 848,
         "multiple_reference_dates": 318,
-        "title_date": 77027
+        "title_date": 77033
       },
-      "unique_edges": 140441,
-      "judgments_with_resolved_citations": 12209,
+      "unique_edges": 140480,
+      "judgments_with_resolved_citations": 12212,
       "identity_issues": [
         {
           "reason": "unpaired_french_identity",
@@ -294336,8 +294365,8 @@
         }
       ],
       "full_text_analyzed": false,
-      "cited_judgments": 15812,
-      "citation_pairs": 354444,
+      "cited_judgments": 15820,
+      "citation_pairs": 354620,
       "french_only_pairs": 59507
     }
   }
