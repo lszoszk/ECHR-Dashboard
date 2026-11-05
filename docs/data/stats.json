@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-04T17:14:45.182206+00:00",
+  "generated_at": "2026-11-05T02:05:22.331558+00:00",
   "source_file": "Verified HUDOC catalog + production text inventory + local ENG/FRE bundles",
   "schema_version": "echr-dashboard-v2",
   "parser_version": "2.0.0",
@@ -28,7 +28,7 @@
     "chamber_cases": 21199,
     "committee_cases": 7684,
     "other_cases": 0,
-    "key_cases": 1112,
+    "key_cases": 1113,
     "separate_opinion_cases": 3934,
     "cases_with_strasbourg_caselaw": 12080,
     "avg_strasbourg_citations_per_case": 5.897510881392818,
@@ -5265,11 +5265,11 @@
       ],
       [
         "2",
-        6124
+        6123
       ],
       [
         "Key cases",
-        1112
+        1113
       ],
       [
         "1",
@@ -8271,11 +8271,11 @@
       ],
       [
         "2",
-        6124
+        6123
       ],
       [
         "Key cases",
-        1112
+        1113
       ],
       [
         "1",
@@ -37060,10 +37060,10 @@
     ],
     "unit": "HUDOC judgment record, not an application or applicant",
     "since": "1959-01-01",
-    "cutoff": "2026-11-04",
-    "catalog_verified_at": "2026-11-04T17:12:23.918442+00:00",
+    "cutoff": "2026-11-05",
+    "catalog_verified_at": "2026-11-05T02:02:45.100712+00:00",
     "catalog_sha256": "42d480f2da3bde0445ec887c33f2254ea18467fea6da28ccee44b63d9e866e84",
-    "catalog_content_sha256": "bb548e7971a2313d6f52256bed4eadc7da909266e949a220e90ec4b25f36fc41",
+    "catalog_content_sha256": "4f80028e61e58f37226221366c116f44ca6c6af1007ee4720aa3609e60f65fd6",
     "translation_title_warnings": [
       "001-115493",
       "001-120188",
@@ -37086,7 +37086,7 @@
       "Production inventory": 29401,
       "Unavailable": 7
     },
-    "inventory_exported_at": "2026-11-04T17:14:14.168015+00:00",
+    "inventory_exported_at": "2026-11-05T02:04:52.448959+00:00",
     "paragraph_roles": {
       "footer": 29012,
       "signature": 35301,
