@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-09T02:04:53.632977+00:00",
+  "generated_at": "2026-11-09T17:14:54.495630+00:00",
   "source_file": "Verified HUDOC catalog + production text inventory + local ENG/FRE bundles",
   "schema_version": "echr-dashboard-v2",
   "parser_version": "2.0.0",
@@ -16881,7 +16881,7 @@
       ],
       [
         "(Art. 6-1) Reasonable time",
-        5988
+        5987
       ],
       [
         "(Art. 6) Civil proceedings",
@@ -17005,7 +17005,7 @@
           "(Art. 6) Right to a fair trial",
           "(Art. 6-1) Reasonable time"
         ],
-        5988
+        5987
       ],
       [
         [
@@ -17195,7 +17195,7 @@
         ],
         [
           "(Art. 6-1) Reasonable time",
-          1375
+          1374
         ],
         [
           "(Art. 6) Civil proceedings",
@@ -19847,7 +19847,7 @@
         "2025",
         431,
         163,
-        134,
+        133,
         134,
         150,
         137,
@@ -20133,7 +20133,7 @@
           117,
           110,
           139,
-          134,
+          133,
           75
         ],
         "(Art. 6) Civil proceedings": [
@@ -36523,7 +36523,7 @@
     "clause_breakdown": [
       [
         "Violation finding",
-        38899
+        38900
       ],
       [
         "Non-pecuniary damage awarded",
@@ -37061,9 +37061,9 @@
     "unit": "HUDOC judgment record, not an application or applicant",
     "since": "1959-01-01",
     "cutoff": "2026-11-09",
-    "catalog_verified_at": "2026-11-09T02:02:34.594833+00:00",
+    "catalog_verified_at": "2026-11-09T17:12:41.069393+00:00",
     "catalog_sha256": "2d08f420ecc7e34c45978e295e8e7e33242a012effa874e9617ab4f813900048",
-    "catalog_content_sha256": "7f834b8e0a35cb4a0283d7d01ae038aff92c15dd801456ee485ad4da9b60aed0",
+    "catalog_content_sha256": "8c2cb8da8401ae00e070b6d3bd78cb74854d377eded082fe40705e774c83a618",
     "translation_title_warnings": [
       "001-115493",
       "001-120188",
@@ -37086,7 +37086,7 @@
       "Production inventory": 29405,
       "Unavailable": 7
     },
-    "inventory_exported_at": "2026-11-09T02:04:23.261107+00:00",
+    "inventory_exported_at": "2026-11-09T17:14:23.152232+00:00",
     "paragraph_roles": {
       "footer": 29016,
       "signature": 35305,
