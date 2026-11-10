@@ -1,39 +1,39 @@
 {
   "schema_version": "judgment-citations-v1",
-  "generated_at": "2026-11-10T02:06:02.006557+00:00",
+  "generated_at": "2026-11-10T17:15:39.713006+00:00",
   "cutoff": "2026-11-10",
-  "catalog_sha256": "35507901d35240f8dd70b0fdf060dea5cf808a7913542dc8d486218373597489",
-  "catalog_content_sha256": "f6996759d1370de30444143178267b615dfeff4818f1f8d796af32841c31011d",
-  "edges_sha256": "882c7d4437bfb6a5fb06f1759847b44dc517607637a1592dc8c426a0d7e7e44c",
-  "statistics_scope_sha256": "2d08f420ecc7e34c45978e295e8e7e33242a012effa874e9617ab4f813900048",
+  "catalog_sha256": "321ceaae21221e54b8426f7cf2c19a3659f350c78fce0e5ac22ab37ef0c1326a",
+  "catalog_content_sha256": "aedc31b117c8539c109ee6a75181102de0b4ca60d94ed94fc3c488849c219698",
+  "edges_sha256": "b98bd3a96ef315a38db599dc1f32fd5d7a59d1d7e322c31b4e71a53d5f6d7e0d",
+  "statistics_scope_sha256": "61075d4d1e22c11852a8d522bd0df517d6c90e2a63d14a6c25ac9a98957fa500",
   "scope": "Judgments only, English-flagged catalog identities with verified French ECLI aliases. Counts use bilingual HUDOC citation metadata, not full-text extraction.",
   "coverage": {
-    "judgments": 29412,
-    "judgments_with_metadata": 12554,
+    "judgments": 29417,
+    "judgments_with_metadata": 12555,
     "metadata_versions_by_language": {
-      "ENG": 12083,
-      "FRE": 12341
+      "ENG": 12084,
+      "FRE": 12342
     },
-    "reference_observations": 346904,
+    "reference_observations": 346956,
     "by_status": {
       "ambiguous": 21704,
       "chronology_conflict": 7,
-      "excluded_document_type": 30663,
+      "excluded_document_type": 30669,
       "identifier_conflict": 701,
-      "resolved": 275839,
+      "resolved": 275883,
       "self_reference": 4,
-      "unresolved": 17986
+      "unresolved": 17988
     },
     "by_method": {
-      "application_date": 142388,
-      "application_title": 95654,
-      "explicit_non_judgment": 30663,
+      "application_date": 142428,
+      "application_title": 95660,
+      "explicit_non_judgment": 30669,
       "insufficient_identifiers": 848,
       "multiple_reference_dates": 318,
       "title_date": 77033
     },
-    "unique_edges": 140480,
-    "judgments_with_resolved_citations": 12212,
+    "unique_edges": 140502,
+    "judgments_with_resolved_citations": 12213,
     "identity_issues": [
       {
         "reason": "unpaired_french_identity",
@@ -46088,24 +46088,24 @@
   },
   "with_extracted_appno": {
     "scope": "As above, plus application numbers HUDOC extracted from the full text of each judgment. A number resolves only when one earlier judgment in the catalog has that application; the citing judgment's own numbers are skipped and several judgments of one application stay ambiguous. Counts are lower bounds and the numbers carry no citation context.",
-    "edges_sha256": "7118331932199f77e948adfe1ead4e3a53de118ed24e667068ec673eefae5772",
+    "edges_sha256": "d88503c3ea66ad654f9951ffc5fe5d057f6b26777c2ba6b0ca063d649ef88fdc",
     "coverage": {
-      "judgments": 29412,
-      "judgments_with_metadata": 29377,
-      "judgments_with_extracted_application_numbers": 29341,
-      "reference_observations": 454182,
+      "judgments": 29417,
+      "judgments_with_metadata": 29382,
+      "judgments_with_extracted_application_numbers": 29346,
+      "reference_observations": 454276,
       "by_status": {
-        "ambiguous": 53981,
+        "ambiguous": 53998,
         "chronology_conflict": 1349,
-        "resolved": 257101,
-        "self_reference": 73621,
-        "unresolved": 68130
+        "resolved": 257159,
+        "self_reference": 73628,
+        "unresolved": 68142
       },
-      "unique_edges": 281207,
-      "edges_from_curated_list": 140480,
-      "edges_from_extracted_application": 233587,
-      "edges_in_both": 92860,
-      "judgments_with_resolved_citations": 27774,
+      "unique_edges": 281265,
+      "edges_from_curated_list": 140502,
+      "edges_from_extracted_application": 233640,
+      "edges_in_both": 92877,
+      "judgments_with_resolved_citations": 27779,
       "full_text_analyzed": false
     },
     "ranking": [
@@ -46137,9 +46137,9 @@
           "ENG",
           "FRE"
         ],
-        "cited_by_count": 3115,
+        "cited_by_count": 3116,
         "cited_by_curated_list": 1205,
-        "cited_by_extracted_application": 3095
+        "cited_by_extracted_application": 3096
       },
       {
         "judgment_id": "ECLI:CE:ECHR:2000:0406JUD002677295",
@@ -46153,9 +46153,9 @@
           "ENG",
           "FRE"
         ],
-        "cited_by_count": 1662,
+        "cited_by_count": 1663,
         "cited_by_curated_list": 793,
-        "cited_by_extracted_application": 1640
+        "cited_by_extracted_application": 1641
       },
       {
         "judgment_id": "ECLI:CE:ECHR:1999:0325JUD002544494",
@@ -46233,9 +46233,9 @@
           "ENG",
           "FRE"
         ],
-        "cited_by_count": 1016,
-        "cited_by_curated_list": 293,
-        "cited_by_extracted_application": 1005
+        "cited_by_count": 1017,
+        "cited_by_curated_list": 294,
+        "cited_by_extracted_application": 1006
       },
       {
         "judgment_id": "ECLI:CE:ECHR:2002:0507JUD005949800",
@@ -50023,6 +50023,7 @@
         "001-58789"
       ],
       "001-58920": [
+        "001-253447",
         "001-253157",
         "001-252962",
         "001-253091",
@@ -53140,6 +53141,7 @@
         "001-59096"
       ],
       "001-58559": [
+        "001-253447",
         "001-252629",
         "001-252381",
         "001-252190",
@@ -59563,6 +59565,7 @@
         "001-111837"
       ],
       "001-145577": [
+        "001-253445",
         "001-253155",
         "001-252897",
         "001-252957",
@@ -139790,6 +139793,16 @@
         "title": "G\u00d6K\u00c7E AND OTHERS v. T\u00dcRK\u0130YE",
         "date": "2026-11-03",
         "ecli": "ECLI:CE:ECHR:2026:1103JUD005111019"
+      },
+      "001-253445": {
+        "title": "TRIFUNOVSKI AND JAKSHOVSKI v. NORTH MACEDONIA",
+        "date": "2026-11-10",
+        "ecli": "ECLI:CE:ECHR:2026:1110JUD000507420"
+      },
+      "001-253447": {
+        "title": "BELERI v. ALBANIA",
+        "date": "2026-11-10",
+        "ecli": "ECLI:CE:ECHR:2026:1110JUD002807023"
       }
     }
   },
@@ -139811,7 +139824,7 @@
         "date": "2000-10-26",
         "ecli": "ECLI:CE:ECHR:2000:1026JUD003021096",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 3611,
+        "cited_by_count": 3612,
         "cited_by_french_only": 802
       },
       {
@@ -139829,7 +139842,7 @@
         "date": "2000-04-06",
         "ecli": "ECLI:CE:ECHR:2000:0406JUD002677295",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 1786,
+        "cited_by_count": 1787,
         "cited_by_french_only": 427
       },
       {
@@ -139901,7 +139914,7 @@
         "date": "2014-07-17",
         "ecli": "ECLI:CE:ECHR:2014:0717JUD004784808",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 1127,
+        "cited_by_count": 1128,
         "cited_by_french_only": 109
       },
       {
@@ -144270,6 +144283,7 @@
         "001-253321"
       ],
       "001-58920": [
+        "001-253447",
         "001-253157",
         "001-252962",
         "001-253091",
@@ -150617,6 +150631,7 @@
         "001-141417"
       ],
       "001-58559": [
+        "001-253447",
         "001-252629",
         "001-253088",
         "001-252381",
@@ -161878,6 +161893,7 @@
         "001-253321"
       ],
       "001-145577": [
+        "001-253445",
         "001-253155",
         "001-252957",
         "001-252901",
@@ -246646,6 +246662,18 @@
         "ecli": "ECLI:CE:ECHR:2026:1001DEC003598925",
         "french_only": false
       },
+      "001-253445": {
+        "title": "TRIFUNOVSKI AND JAKSHOVSKI v. NORTH MACEDONIA",
+        "date": "2026-11-10",
+        "ecli": "ECLI:CE:ECHR:2026:1110JUD000507420",
+        "french_only": false
+      },
+      "001-253447": {
+        "title": "BELERI v. ALBANIA",
+        "date": "2026-11-10",
+        "ecli": "ECLI:CE:ECHR:2026:1110JUD002807023",
+        "french_only": false
+      },
       "001-253466": {
         "title": "CORREIA CARTAGENO v. PORTUGAL",
         "date": "2026-10-06",
@@ -294282,32 +294310,32 @@
       }
     },
     "coverage": {
-      "judgments": 29412,
-      "judgments_with_metadata": 12554,
+      "judgments": 29417,
+      "judgments_with_metadata": 12555,
       "metadata_versions_by_language": {
-        "ENG": 12083,
-        "FRE": 12341
+        "ENG": 12084,
+        "FRE": 12342
       },
-      "reference_observations": 346904,
+      "reference_observations": 346956,
       "by_status": {
         "ambiguous": 21704,
         "chronology_conflict": 7,
-        "excluded_document_type": 30663,
+        "excluded_document_type": 30669,
         "identifier_conflict": 701,
-        "resolved": 275839,
+        "resolved": 275883,
         "self_reference": 4,
-        "unresolved": 17986
+        "unresolved": 17988
       },
       "by_method": {
-        "application_date": 142388,
-        "application_title": 95654,
-        "explicit_non_judgment": 30663,
+        "application_date": 142428,
+        "application_title": 95660,
+        "explicit_non_judgment": 30669,
         "insufficient_identifiers": 848,
         "multiple_reference_dates": 318,
         "title_date": 77033
       },
-      "unique_edges": 140480,
-      "judgments_with_resolved_citations": 12212,
+      "unique_edges": 140502,
+      "judgments_with_resolved_citations": 12213,
       "identity_issues": [
         {
           "reason": "unpaired_french_identity",
@@ -294365,8 +294393,8 @@
         }
       ],
       "full_text_analyzed": false,
-      "cited_judgments": 15820,
-      "citation_pairs": 354620,
+      "cited_judgments": 15826,
+      "citation_pairs": 354701,
       "french_only_pairs": 59507
     }
   }
