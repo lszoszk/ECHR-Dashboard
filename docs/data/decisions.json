@@ -1,12 +1,12 @@
 {
   "schema_version": "decisions-v1",
-  "generated_at": "2026-11-12T17:16:28.025185+00:00",
+  "generated_at": "2026-11-17T17:15:09.140347+00:00",
   "source_db": "echr_search.db",
   "cutoff": "22/10/2026",
   "totals": {
-    "cases_all": 57768,
-    "judgments": 29421,
-    "judgments_official_english": 20137,
+    "cases_all": 57774,
+    "judgments": 29427,
+    "judgments_official_english": 20143,
     "machine_translations": 9284,
     "decisions": 28330,
     "advisory_opinions": 17,
