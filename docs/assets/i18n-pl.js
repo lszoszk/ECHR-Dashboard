@@ -231,6 +231,8 @@
     "Relevant Law": "Właściwe prawo",
     "Complaints": "Zarzuty",
     "Questions to the Parties": "Pytania do stron",
+    "Polish translation": "Tłumaczenie",
+    "Polish summary": "Streszczenie",
     "Status": "Status",
     "Pending (as of HUDOC)": "W toku (według HUDOC)",
     "Decided by judgment": "Zakończona wyrokiem",

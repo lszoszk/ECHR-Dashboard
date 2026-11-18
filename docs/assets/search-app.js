@@ -144,6 +144,7 @@ const serverSearch = {
     if (filters.includeMt) p.set("include_mt", filters.includeMt === "only" ? "only" : "true");
     if (searchLang() === "fr") { p.delete("include_mt"); p.set("lang", "fr"); }
     commParams(p);
+    plParams(p);
     // filters.dateFrom/dateTo are epoch-ms (parseDateInput → getTime()).
     // The API compares against judgment_date, so send an ISO yyyy-mm-dd
     // string it can normalise — never the raw timestamp.
@@ -246,6 +247,9 @@ const serverSearch = {
       __isAdvisory: /^advisory opinion/i.test(apiCase.document_type || ""),
       // A notice of communication (collection=communicated, Polish beta page): no case-law, a status instead.
       __isCommunicated: apiCase.document_type === "Communicated Case",
+      // A Polish translation or summary HUDOC publishes (lang=pl, Polish beta page).
+      __isPolish: /^polish_/.test(apiCase.text_origin || ""),
+      __polish: apiCase.polish || null,
       __comm: apiCase.communicated || null,
       // Judgments HUDOC publishes only in French, machine-translated for this tool (unofficial).
       __isMt: apiCase.text_origin === "machine_translation",
@@ -284,7 +288,7 @@ const serverSearch = {
 
   /** Fetch full case details from server. */
   async getCase(caseId, lang = searchLang()) {
-    const r = await fetch(`${API_BASE_URL}/cases/${encodeURIComponent(caseId)}${lang === "fr" ? "?lang=fr" : isComm() ? "?collection=communicated" : ""}`);
+    const r = await fetch(`${API_BASE_URL}/cases/${encodeURIComponent(caseId)}${lang === "fr" ? "?lang=fr" : isComm() ? "?collection=communicated" : isPl() ? "?lang=pl" : ""}`);
     if (!r.ok) throw new Error(`API ${r.status}`);
     return r.json();
   },
@@ -298,6 +302,7 @@ const serverSearch = {
     if (opts.date_to) p.set("date_to", opts.date_to);
     if (searchLang() === "fr") p.set("lang", "fr");
     if (isComm()) p.set("collection", "communicated");
+    if (isPl()) p.set("lang", "pl");
     const qs = p.toString();
     const r = await fetch(`${API_BASE_URL}/facets${qs ? `?${qs}` : ""}`, { signal: opts.signal });
     if (!r.ok) throw new Error(`API ${r.status}`);
@@ -415,6 +420,9 @@ const SECTION_LABELS = {
   relevant_law: "Relevant Law",
   complaints: "Complaints",
   questions_to_the_parties: "Questions to the Parties",
+  // Polish translations and summaries (lang=pl)
+  polish_translation: "Polish translation",
+  polish_summary: "Polish summary",
 };
 
 const SECTION_COLORS = {
@@ -1732,7 +1740,7 @@ function wsFilterSnapshot() {
   return {
     countries: arr(f.countries), articles: arr(f.articles), keywords: arr(f.keywords), importance: arr(f.importance),
     outcomes: arr(f.outcomes), docTypes: arr(f.docTypes), buckets: arr(f.buckets), includeMt: f.includeMt || false,
-    lang: isComm() ? "comm" : searchLang(),
+    lang: isComm() ? "comm" : isPl() ? "pl" : searchLang(),
     includeDecisions: !!f.includeDecisions, includeJudgments: f.includeJudgments !== false,
     includeAdvisory: !!f.includeAdvisory,
     includeExtra: !!f.includeMeta, includeAppendix: !!f.includeAppendix,
@@ -1751,6 +1759,7 @@ function searchUrl(query) {
   if (query) p.set("q", query);
   if (searchLang() === "fr") p.set("lang", "fr");
   if (isComm()) p.set("collection", "communicated");
+  if (isPl()) p.set("lang", "pl");
   const s = wsFilterSnapshot();
   const allBuckets = document.querySelectorAll('#bucketScope input[data-name="buckets"]').length;
   for (const [key, field] of Object.entries(URL_LISTS)) {
@@ -1778,7 +1787,8 @@ function snapshotFromUrl(p) {
   s.includeDecisions = !!p.get("dec");
   s.includeAdvisory = !!p.get("adv");
   s.includeJudgments = p.get("dec") !== "only" && p.get("adv") !== "only";
-  s.lang = p.get("collection") === "communicated" && COMM_ENABLED ? "comm" : p.get("lang") === "fr" ? "fr" : "en";
+  s.lang = p.get("collection") === "communicated" && COMM_ENABLED ? "comm" : p.get("lang") === "pl" && COMM_ENABLED ? "pl"
+    : p.get("lang") === "fr" ? "fr" : "en";
   s.includeExtra = p.get("extra") === "1";
   s.includeAppendix = p.get("appendix") === "1";
   s.footnotes = p.get("fn") === "1";
@@ -1828,6 +1838,37 @@ function isComm() {
   return COMM_ENABLED && state.lang === "comm";
 }
 
+/* Polish page: the Polish translations and summaries HUDOC publishes (lang=pl, echr_pl.db), a fourth position of
+ * the collection switch. searchLang() stays "en" in that mode, as for the communicated cases. */
+function isPl() {
+  return COMM_ENABLED && state.lang === "pl";
+}
+
+function plParams(p) {
+  if (!isPl()) return;
+  p.set("lang", "pl");
+  p.set("doc_types", "judgment,decision");
+  for (const k of ["sections", "include_mt", "footnotes"]) p.delete(k);
+}
+
+/* A Polish version on its card: translation or summary, who made it, how its § numbers match the original's,
+ * and the original in the corpus. */
+function plChipsHtml(c) {
+  const m = c.__polish || {};
+  const kind = m.summary ? "Streszczenie PL" : "Tłumaczenie PL";
+  const by = m.translator ? ` · ${escapeHtml(m.translator)}` : "";
+  const align = m.summary ? "" : m.alignment === "partial" ? " · część paragrafów"
+    : m.alignment === "extract" ? " · wyciąg" : m.alignment === "unnumbered" ? " · bez numeracji" : "";
+  const tip = `${m.summary ? "Streszczenie" : "Nieoficjalne tłumaczenie"} opublikowane w HUDOC${m.translator ? ` (${m.translator})` : ""}; `
+    + "tekstem autentycznym jest wersja angielska lub francuska. Numery paragrafów odtworzono według oryginału.";
+  let orig = "";
+  if (m.original_case_id) {
+    const href = `${location.pathname}?q=${encodeURIComponent(`hudoc:${m.original_case_id}`)}${m.original_lang === "fr" ? "&lang=fr" : ""}`;
+    orig = `<a class="chip comm-status comm-decided" href="${escapeHtml(href)}" title="${escapeHtml(m.original_title || "")}">Oryginał ${m.original_lang === "fr" ? "(FR) " : ""}→</a>`;
+  }
+  return `<span class="chip comm-badge" title="${escapeHtml(tip)}">${kind}${by}${align}</span>${orig}`;
+}
+
 /* API parameters of the communicated-cases mode: its own database, every notice (the French ones are
  * machine-translated), no section scope or document types of the judgments, results by case. */
 function commParams(p) {
@@ -1855,7 +1896,7 @@ if (UI_PL) {
 }
 
 function plTranslationLink(c, cls) {
-  if (!PL_TRANSLATIONS || !c || c.__isCommunicated) return "";
+  if (!PL_TRANSLATIONS || !c || c.__isCommunicated || c.__isPolish) return "";
   // the exact original (case_id, from the aligned translations) first, else application number + date
   const keys = [c.case_id, ...String(c.case_no || "").split(/[;,]/).map((a) => {
     const m = /^\s*(\d{1,6})\/(\d{2,4})\s*$/.exec(a);
@@ -1913,19 +1954,23 @@ function commChipsHtml(c) {
 }
 
 function setSearchLang(lang) {
-  state.lang = lang === "fr" ? "fr" : (lang === "comm" && COMM_ENABLED) ? "comm" : "en";
+  state.lang = lang === "fr" ? "fr" : (lang === "comm" && COMM_ENABLED) ? "comm" : (lang === "pl" && COMM_ENABLED) ? "pl" : "en";
   state.readLang.clear();
   const fr = state.lang === "fr";
   const comm = state.lang === "comm";
+  const pl = state.lang === "pl";
   document.querySelectorAll('input[name="searchLang"]').forEach((i) => { i.checked = i.value === state.lang; });
   const en = document.getElementById("collectionEn");
-  if (en) en.hidden = fr || comm;
+  if (en) en.hidden = fr || comm || pl;
   const note = document.getElementById("frNote");
   if (note) note.hidden = !fr;
   if (COMM_ENABLED) {
     const cnote = document.getElementById("commNote");
     if (cnote) cnote.hidden = !comm;
+    const pnote = document.getElementById("plNote");
+    if (pnote) pnote.hidden = !pl;
     document.body.classList.toggle("comm-mode", comm);
+    document.body.classList.toggle("pl-mode", pl);
     const outcomeTitle = el && el.outcomeFilters && el.outcomeFilters.closest(".filter-group")?.querySelector(".filter-title");
     if (outcomeTitle) {
       if (!outcomeTitle.dataset.label) outcomeTitle.dataset.label = outcomeTitle.textContent;
@@ -2027,7 +2072,8 @@ function wsApplySnapshot(s) {
   const buckets = s.buckets && s.buckets.length ? s.buckets : null;
   document.querySelectorAll('#bucketScope input[data-name="buckets"]').forEach((i) => { i.checked = buckets ? buckets.includes(i.value) : true; });
   setSearchLang(s.lang === "fr" && !document.getElementById("langSwitch")?.hidden ? "fr"
-    : s.lang === "comm" && !document.getElementById("commOption")?.hidden ? "comm" : "en");
+    : s.lang === "comm" && !document.getElementById("commOption")?.hidden ? "comm"
+    : s.lang === "pl" && !document.getElementById("plOption")?.hidden ? "pl" : "en");
   const decBox = document.getElementById("includeDecisions");
   if (decBox) decBox.checked = !!s.includeDecisions && !document.getElementById("decisionsPill")?.hidden;
   const advBox = document.getElementById("includeAdvisory");
@@ -6185,6 +6231,7 @@ function buildCaseCard(caseId, row, rank = 1) {
         <p class="para-text researcher-primary-text">${primaryText}</p>
 
         <div class="researcher-chip-row">
+          ${c.__isPolish ? plChipsHtml(c) : ""}
           ${c.__isCommunicated ? commChipsHtml(c) + buildResearcherArticleChips(c.__articles, 3) : `${c.__isAdvisory
             ? `<span class="chip">${escapeHtml(c.case_no || "")}</span><span class="chip">${escapeHtml(c.document_type)}</span>`
             : buildResearcherArticleChips(c.__articles, 3)}
@@ -6731,6 +6778,7 @@ async function fetchAndRenderServerAnalytics(query, filters, signal = undefined)
     if (filters.includeMt) p.set("include_mt", filters.includeMt === "only" ? "only" : "true");
     if (searchLang() === "fr") { p.delete("include_mt"); p.set("lang", "fr"); }
     commParams(p);
+    plParams(p);
     if (filters.dateFrom) p.set("date_from", filters.dateFrom);
     if (filters.dateTo) p.set("date_to", filters.dateTo);
 
@@ -7321,7 +7369,8 @@ function updateResultsHeaderServer(data, opts = {}) {
   if (el.resultsHitsLabel) el.resultsHitsLabel.textContent = defaultView ? "recent cases" : casesOnly ? "cases" : "passages";
   // Default view: the whole corpus (judgments, Grand Chamber decisions and machine translations), from /api/stats.
   // The default view counts the collection being browsed: the French originals under Français.
-  const corpusTotal = searchLang() === "fr" ? (state.corpusStats?.french_originals || 0) : state.corpusTotal;
+  const corpusTotal = searchLang() === "fr" ? (state.corpusStats?.french_originals || 0)
+    : isPl() ? (state.corpusStats?.polish_translations || 0) : state.corpusTotal;
   el.resultsCases.textContent = fmtInt.format(defaultView ? (corpusTotal || data.total_cases || totalCases) : totalCases);
   if (el.resultsCasesLabel) el.resultsCasesLabel.textContent = defaultView ? "records in the corpus" : countNoun(totalCases, resultsNoun());
   el.resultsTime.textContent = `(${((data.search_time_ms || state.searchTimeMs) / 1000).toFixed(3)}s · page ${state.currentPage}/${totalPages} · ${serverTag})`;
@@ -8978,8 +9027,9 @@ function init() {
         if (decShare) decShare.textContent = `${Math.max(1, Math.round(decN / 29001 * 100))}%`;
         const frN = statsData.french_originals || 0;
         const commN = COMM_ENABLED ? (statsData.communicated_cases || 0) : 0;
+        const plN = COMM_ENABLED ? (statsData.polish_translations || 0) : 0;
         const langSwitch = document.getElementById("langSwitch");
-        if (langSwitch) langSwitch.hidden = !frN && !commN;
+        if (langSwitch) langSwitch.hidden = !frN && !commN && !plN;
         if (COMM_ENABLED) {
           const commOption = document.getElementById("commOption");
           if (commOption) commOption.hidden = !commN;
@@ -8988,6 +9038,11 @@ function init() {
           const commAsOf = document.getElementById("commAsOf");
           if (commAsOf && statsData.communicated_as_of) commAsOf.textContent = commDate(statsData.communicated_as_of);
           if (commN && new URLSearchParams(location.search).get("collection") === "communicated") setSearchLang("comm");
+          const plOption = document.getElementById("plOption");
+          if (plOption) plOption.hidden = !plN;
+          const plCount = document.getElementById("plCount");
+          if (plCount) plCount.textContent = plN ? new Intl.NumberFormat("pl-PL").format(plN) : "";
+          if (plN && new URLSearchParams(location.search).get("lang") === "pl") setSearchLang("pl");
         }
         const frNote = document.getElementById("frCountNote");
         if (frNote) frNote.textContent = fmt.format(frN);

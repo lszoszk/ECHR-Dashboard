@@ -46,8 +46,8 @@
     /* Collection switch: English | Français on one row, the communicated cases on a row of their own. */
     #langSwitch { flex-wrap: wrap; width: 100%; }
     #langSwitch label { flex: 1 1 0; justify-content: center; }
-    #langSwitch #commOption { flex: 1 0 100%; border-left: 0; border-top: 1px solid var(--rule, #d8d0c3); white-space: nowrap; }
-    #langSwitch #commOption[hidden] { display: none; }
+    #langSwitch #commOption, #langSwitch #plOption { flex: 1 0 100%; border-left: 0; border-top: 1px solid var(--rule, #d8d0c3); white-space: nowrap; }
+    #langSwitch #commOption[hidden], #langSwitch #plOption[hidden] { display: none; }
     .comm-note { font-size: 0.85em; }
     #commInfoTip .info-tip-pop { right: auto; left: -8px; width: 220px; }
     /* Header: the Polish labels are longer; never scroll sideways. */
@@ -65,6 +65,9 @@
     .researcher-para-no { font-size: 1.05rem; white-space: nowrap; }
     .nav-link { white-space: nowrap; }
     .nav-en { margin-left: 3px; font-size: 0.6em; letter-spacing: 0.06em; vertical-align: super; opacity: 0.6; }
+    .pl-mode section[aria-labelledby="searchInTitle"],
+    .pl-mode .filter-group:has(#docTypeFilters),
+    .pl-mode .researcher-influence,
     .comm-mode section[aria-labelledby="searchInTitle"],
     .comm-mode .filter-group:has(#docTypeFilters),
     .comm-mode .filter-group:has(#importanceFilters),
@@ -203,6 +206,7 @@
               <label><input type="radio" name="searchLang" value="en" checked> <span>English</span></label>
               <label><input type="radio" name="searchLang" value="fr"> <span>Français</span></label>
               <label id="commOption" hidden><input type="radio" name="searchLang" value="comm"> <span>Sprawy zakomunikowane <span class="filter-count" id="commCount"></span></span></label>
+              <label id="plOption" hidden><input type="radio" name="searchLang" value="pl"> <span>Tłumaczenia PL <span class="filter-count" id="plCount"></span></span></label>
             </div>
             <p class="lang-note" id="frNote" hidden>Autentyczne francuskie teksty <span id="frCountNote"></span>
               wyroków, które HUDOC publikuje tylko po francusku. Wyszukiwanie po francusku: akcenty są opcjonalne, a <code>*</code>
@@ -217,6 +221,7 @@
                   HUDOC nie publikuje wszystkich zakomunikowanych skarg. Teksty francuskie przetłumaczono maszynowo (nieoficjalnie).
                 </span>
               </span></p>
+            <p class="lang-note comm-note" id="plNote" hidden>Polskie tłumaczenia i streszczenia wyroków i decyzji publikowane w HUDOC (nieoficjalne). Wyszukiwanie obejmuje odmiany wyrazów; fraza w cudzysłowie szuka dokładnie.</p>
             <div id="collectionEn">
             <label class="cb-label scope-fixed" title="Angielskie teksty wyroków w brzmieniu opublikowanym w HUDOC. Odznacz to pole, gdy zaznaczone są decyzje lub tłumaczenia, aby przeszukiwać wyłącznie je">
               <input type="checkbox" id="includeOfficial" checked disabled>
@@ -662,8 +667,8 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Powrót na górę" hidden>&uarr;</button>
 
-  <script src="assets/i18n-pl.js?v=20261118c"></script>
-  <script src="assets/search-app.js?v=20261118-comm5"></script>
+  <script src="assets/i18n-pl.js?v=20261118d"></script>
+  <script src="assets/search-app.js?v=20261118-pl1"></script>
   <script src="assets/service-notice.js?v=20261022" charset="utf-8" data-app="HUDOC Researcher"
           data-effect="Do czasu przywrócenia dostępu wyszukiwanie nie obejmuje pełnego zbioru wyroków i decyzji: strona wyszukiwania pokazuje niewielką próbkę offline, a wyszukiwanie semantyczne i konektor MCP są niedostępne."
           data-probe="https://150.254.115.204/echr-api/health"></script>
