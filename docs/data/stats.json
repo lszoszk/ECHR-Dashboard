@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-18T02:03:55.321191+00:00",
+  "generated_at": "2026-11-18T17:13:58.268007+00:00",
   "source_file": "Verified HUDOC catalog + production text inventory + local ENG/FRE bundles",
   "schema_version": "echr-dashboard-v2",
   "parser_version": "2.0.0",
@@ -10,13 +10,13 @@
     "input_record_count": 29435,
     "schema_version": "echr-dashboard-v2",
     "parser_version": "2.0.0",
-    "total_paragraphs": 4410754,
+    "total_paragraphs": 4411317,
     "dated_cases": 29435,
     "undated_cases": 0,
     "date_range_label": "14 Nov 1960 \u2013 17 Nov 2026",
     "unique_countries": 47,
     "unique_articles": 287,
-    "avg_paragraphs_per_case": 149.89818181818183,
+    "avg_paragraphs_per_case": 149.91222048528513,
     "median_paragraphs_per_case": 109.0,
     "p90_paragraphs_per_case": 259.0,
     "min_paragraphs_per_case": 2,
@@ -43,7 +43,7 @@
     "outcome_non_violation_only": 2311,
     "outcome_both": 2228,
     "outcome_neither": 2977,
-    "cases_with_text": 29425
+    "cases_with_text": 29426
   },
   "article_analytics": {
     "method": "Primary article families; one judgment record per article and outcome bucket. Includes conjunction-related HUDOC tags, not necessarily standalone findings. Violation share = (violation-only + mixed) / judgments with either outcome tag. Untagged outcomes are excluded, not classified as non-violations.",
@@ -5179,7 +5179,7 @@
       ],
       [
         "2026-01",
-        12887
+        13452
       ],
       [
         "2026-02",
@@ -5199,7 +5199,7 @@
       ],
       [
         "2026-06",
-        17166
+        17164
       ],
       [
         "2026-07",
@@ -8017,9 +8017,9 @@
       [
         "2026",
         0,
-        107,
-        614,
-        10
+        105,
+        617,
+        9
       ]
     ]
   },
@@ -8191,39 +8191,39 @@
     "sections": [
       [
         "Merits",
-        1081277
+        1081345
       ],
       [
         "Circumstances of the Case",
-        897003
+        896758
       ],
       [
         "Appendix",
-        844180
+        844197
       ],
       [
         "Header",
-        434983
+        435009
       ],
       [
         "Legal Framework",
-        310279
+        310463
       ],
       [
         "Just Satisfaction",
-        288069
+        288087
       ],
       [
         "Operative Part",
-        251771
+        252099
       ],
       [
         "Procedure",
-        145838
+        145835
       ],
       [
         "Separate Opinion",
-        78012
+        78020
       ],
       [
         "Admissibility",
@@ -8235,7 +8235,7 @@
       ],
       [
         "Facts (unsegmented)",
-        2393
+        2555
       ],
       [
         "Summary",
@@ -29838,69 +29838,6 @@
           6,
           8
         ],
-        "#89": [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          2,
-          1,
-          0,
-          0,
-          1,
-          1,
-          0,
-          2,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          3,
-          1,
-          1,
-          0,
-          0,
-          0,
-          1,
-          0,
-          1,
-          0,
-          0,
-          0,
-          0,
-          1,
-          1,
-          0,
-          3,
-          1,
-          0,
-          1,
-          4,
-          3,
-          6,
-          3,
-          2,
-          2,
-          0,
-          5,
-          1,
-          4,
-          2,
-          2,
-          10,
-          3,
-          6
-        ],
         "#44": [
           0,
           0,
@@ -30026,6 +29963,69 @@
           4,
           4,
           0
+        ],
+        "#89": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2,
+          1,
+          0,
+          0,
+          1,
+          1,
+          0,
+          2,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          3,
+          1,
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          3,
+          1,
+          0,
+          1,
+          4,
+          3,
+          6,
+          3,
+          2,
+          2,
+          0,
+          5,
+          1,
+          4,
+          2,
+          2,
+          10,
+          3,
+          5
         ],
         "#99": [
           0,
@@ -37061,9 +37061,9 @@
     "unit": "HUDOC judgment record, not an application or applicant",
     "since": "1959-01-01",
     "cutoff": "2026-11-18",
-    "catalog_verified_at": "2026-11-18T02:02:32.828168+00:00",
+    "catalog_verified_at": "2026-11-18T17:12:39.793531+00:00",
     "catalog_sha256": "89a2f047a21c482dee04d01172138630dbf1f2c7975f3a1f2e7e05376a7f80ce",
-    "catalog_content_sha256": "f5504695301857d63e50622054f5950bc9b2419600d0c94f7554109b40bc3165",
+    "catalog_content_sha256": "281c213a082700a242c4ed8251d83399c85e0bca12edc1c7bebd00ebe36bb20e",
     "translation_title_warnings": [
       "001-115493",
       "001-120188",
@@ -37079,28 +37079,28 @@
   },
   "text_coverage": {
     "by_language": {
-      "FRE": 9287,
-      "Unknown": 20138
+      "FRE": 9285,
+      "Unknown": 20141
     },
     "by_origin": {
-      "Production inventory": 29425,
-      "Unavailable": 10
+      "Production inventory": 29426,
+      "Unavailable": 9
     },
-    "inventory_exported_at": "2026-11-18T02:03:23.994039+00:00",
+    "inventory_exported_at": "2026-11-18T17:13:27.114937+00:00",
     "paragraph_roles": {
-      "footer": 29036,
-      "signature": 35327,
-      "heading": 307663,
-      "paragraph": 1976490,
-      "metadata": 217894,
-      "quote": 412975,
-      "operative_list": 205626,
+      "footer": 29037,
+      "signature": 35328,
+      "heading": 307724,
+      "paragraph": 1976901,
+      "metadata": 217905,
+      "quote": 413007,
+      "operative_list": 205659,
       "heading_h0": 95614,
       "heading_h1": 90956,
       "heading_h2": 132914,
       "heading_h3": 65906,
       "heading_h4": 49219,
-      "table_cell": 791134
+      "table_cell": 791147
     },
     "note": "Production text language is unknown unless explicitly recorded. Counts include nonempty parser/index rows, not only numbered paragraphs. Local French section labels still require source-exact QA."
   }
