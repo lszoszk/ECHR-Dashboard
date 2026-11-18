@@ -1864,9 +1864,13 @@ function plTranslationLink(c, cls) {
   for (const key of keys) {
     const hit = key && PL_TRANSLATIONS[key];
     if (hit) {
-      const [itemid, by] = hit;
-      const title = `Nieoficjalne tłumaczenie na język polski opublikowane w HUDOC${by ? ` (${by})` : ""}; tekstem autentycznym jest wersja angielska lub francuska.`;
-      return `<a href="https://hudoc.echr.coe.int/?i=${encodeURIComponent(itemid)}" class="${cls} pl-tr-link" target="_blank" rel="noopener noreferrer" title="${escapeHtml(title)}">Tłumaczenie PL ↗</a>`;
+      const [itemid, by, , align, summary] = hit;
+      const part = !summary && (align === "partial" || align === "extract");
+      const label = summary ? "Streszczenie PL ↗" : part ? "Tłumaczenie PL (część) ↗" : "Tłumaczenie PL ↗";
+      const what = summary ? "Streszczenie po polsku" : part ? "Nieoficjalne tłumaczenie części orzeczenia na język polski"
+        : "Nieoficjalne tłumaczenie na język polski";
+      const title = `${what} opublikowane w HUDOC${by ? ` (${by})` : ""}; tekstem autentycznym jest wersja angielska lub francuska.`;
+      return `<a href="https://hudoc.echr.coe.int/?i=${encodeURIComponent(itemid)}" class="${cls} pl-tr-link" target="_blank" rel="noopener noreferrer" title="${escapeHtml(title)}">${label}</a>`;
     }
   }
   return "";
