@@ -1,4 +1,4 @@
-/* A one-minute tour of HUDOC Researcher (five slides), as on the HRC voting dashboard.
+/* A one-minute tour of HUDOC Researcher (five slides; six, in Polish, on the Polish page), as on the HRC voting dashboard.
    Opens by itself on the first visit to the Search page; the "✦ tour" button of the bottom
    bar (#tourBtn) reopens it on any page. Self-contained: its own styles, live figures from the
    API with static fallbacks. */
@@ -14,9 +14,17 @@
       return ls ? ls.replace(/\/+$/, "") : `http://${location.hostname}:8000/api`;
     } catch (_) { return PRODUCTION; }
   })();
-  const DONE_KEY = "echr-tour-done";
+  // The Polish beta page (docs/pl/, <html lang="pl">) gets the tour in Polish, with a step on the communicated
+  // cases where that page offers them (data-comm="1"); its own "seen" key, and links back to the Polish page.
+  const PL = document.documentElement.lang === "pl";
+  const COMM = PL && document.documentElement.dataset.comm === "1";
+  const T = (en, pl) => (PL ? pl : en);
+  const DONE_KEY = PL ? "echr-tour-done-pl" : "echr-tour-done";
+  const HOME = PL ? "pl/" : "./";   // the Search page; the Polish page's <base> is the site root
   const onSearchPage = !!document.getElementById("searchInput");
-  const fmt = (n) => Number(n).toLocaleString("en-GB");
+  const fmt = (n) => Number(n).toLocaleString(PL ? "pl-PL" : "en-GB");
+  // Polish noun after a number: 1 sprawa, 2–4 sprawy (but 12–14 spraw), otherwise spraw
+  const plN = (n, one, few, many) => (n === 1 ? one : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? few : many);
   // the film plays from the author's site (GitHub Pages, as this site), only when pressed
   const FILM = { src: "https://lszoszk.github.io/assets/video/hudoc-researcher-film.mp4",
                  poster: new URL("film-poster.jpg", document.currentScript.src).href };
@@ -107,8 +115,9 @@
       const max = Math.max(...counts.map((y) => y.count));
       spark = `<div class="tour-spark" aria-hidden="true">${counts.map((y) =>
         `<i style="height:${Math.max(2, Math.round((y.count / max) * 100))}%" title="${y.year}: ${fmt(y.count)}"></i>`).join("")}</div>
-        <div class="tour-cap">Judgments per year, ${counts[0].year}–${counts[counts.length - 1].year}.</div>`;
+        <div class="tour-cap">${T("Judgments per year", "Wyroki w kolejnych latach")}, ${counts[0].year}–${counts[counts.length - 1].year}.</div>`;
     }
+    if (PL) return slidesPl(s, frN, from, to, spark);
     return [
       `<div class="tour-kicker">First time here · a one-minute tour</div>
        <h2 class="tour-h">The Court's judgments, paragraph by paragraph.</h2>
@@ -178,6 +187,106 @@
     ];
   }
 
+  /* The same tour in Polish (the Polish beta page), with the communicated cases as its second step. Links to the
+     Search page go to pl/; the other pages are in English, marked (EN). */
+  function slidesPl(s, frN, from, to, spark) {
+    const mtN = s.total_machine_translations || 2460;
+    const commN = Number(s.communicated_cases) || 0;
+    const asOfDate = new Date(`${s.communicated_as_of}T00:00:00Z`);
+    const asOf = Number.isNaN(asOfDate.getTime()) ? ""
+      : asOfDate.toLocaleDateString("pl-PL", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" });
+    const stat = (n, one, few, many) => `<div><b>${fmt(n)}</b><span>${plN(Number(n), one, few, many)}</span></div>`;
+    const comm = !COMM ? [] : [
+      `<div class="tour-kicker">Nowa kolekcja</div>
+       <h2 class="tour-h">Sprawy zakomunikowane.</h2>
+       <div class="tour-lead">Komunikacje skarg opublikowane przez Trybunał w HUDOC (kolekcja „Communicated cases”): przedmiot
+         sprawy lub stan faktyczny w ujęciu skarżącego, zarzuty i pytania Trybunału do stron. To nie są orzeczenia;
+         zakomunikowanie nie przesądza o dopuszczalności skargi.</div>
+       <ul class="tour-list">
+         <li><span class="n">·</span><div><span><b>Jak korzystać.</b> Przełącznik „Sprawy zakomunikowane” w bloku <i>Kolekcja</i>.
+           Status: w toku (według HUDOC na dzień pobrania) albo zakończona wyrokiem lub decyzją, z odnośnikiem;
+           filtr „Status sprawy”.</span></div></li>
+         <li><span class="n">·</span><div><span><b>Numeracja.</b> Numery mają tylko pytania Trybunału („Pyt. 2”), według
+           jego numeracji.</span></div></li>
+         <li><span class="n">·</span><div><span><b>Zastrzeżenia.</b> Teksty francuskie przetłumaczono maszynowo (nieoficjalnie);
+           HUDOC nie publikuje wszystkich komunikacji.</span></div></li>
+       </ul>
+       ${commN > 0 ? `<div class="tour-stats">${stat(commN, "sprawa zakomunikowana", "sprawy zakomunikowane", "spraw zakomunikowanych")}
+         ${asOf ? `<div><b>${asOf}</b><span>status według HUDOC</span></div>` : ""}</div>
+       <div class="tour-go"><a href="${HOME}?collection=communicated&amp;state=Poland" data-tour-go="comm">→ Pokaż sprawy przeciwko Polsce</a></div>`
+         : `<div class="tour-cap" style="margin-top:14px">Kolekcja jest w przygotowaniu.</div>`}`,
+    ];
+    return [
+      `<div class="tour-kicker">Pierwsza wizyta · minutowy przewodnik</div>
+       <h2 class="tour-h">Wyroki Trybunału, paragraf po paragrafie.</h2>
+       <div class="tour-lead">Wszystkie wyroki Europejskiego Trybunału Praw Człowieka po angielsku${frN ? `, a także francuskie
+         teksty ${fmt(frN)} wyroków, które HUDOC publikuje tylko po francusku` : ""}, podzielone na numerowane paragrafy Trybunału:
+         wynik wyszukiwania prowadzi wprost do paragrafu, który można zacytować, z odnośnikiem do HUDOC, źródła miarodajnego.
+         W wyszukiwaniu angielskim można włączyć nieoficjalne tłumaczenia angielskie ${fmt(mtN)} wyroków dostępnych tylko
+         po francusku${s.total_decisions ? `, a także zbiór ${fmt(s.total_decisions)} decyzji` : ""}.</div>
+       <div class="tour-stats">
+         ${stat(s.total_judgments || 20073, "wyrok po angielsku", "wyroki po angielsku", "wyroków po angielsku")}
+         ${s.total_decisions ? stat(s.total_decisions, "wybrana decyzja", "wybrane decyzje", "wybranych decyzji") : ""}
+         ${frN ? `<div><b>${fmt(frN)}</b><span>tylko po francusku</span></div>` : ""}
+         ${stat(s.citable_paragraphs || 1404444, "numerowany paragraf", "numerowane paragrafy", "numerowanych paragrafów")}
+         ${stat(s.total_countries || 47, "pozwane państwo", "pozwane państwa", "pozwanych państw")}
+         <div><b>${from}–${to}</b><span>zakres lat</span></div>
+       </div>${spark}
+       <div class="tour-film"><button type="button" data-tour-film>
+         <img src="${FILM.poster}" alt="" width="160" height="90"><span><b>▶ HUDOC Researcher w 100 sekund</b><span>krótki film, napisy po angielsku</span></span>
+       </button></div>`,
+      ...comm,
+      `<div class="tour-kicker">Widoki</div>
+       <h2 class="tour-h">Sześć sposobów pracy.</h2>
+       <ul class="tour-list tour-views">
+         <li><span class="n">01</span><div><b>Wyszukiwanie</b> <span class="s">— pełny tekst, paragraf po paragrafie</span> <span class="d">— pełny tekst na poziomie paragrafów${frN ? ", po angielsku lub po francusku" : ""}, z operatorami HUDOC,
+           wyborem przeszukiwanych części wyroku, filtrami oraz listami Cytuje / Cytowany w dla każdego wyroku; nazwa sprawy lub numer skargi prowadzi wprost do sprawy.</span></div></li>
+         <li><span class="n">02</span><div><b>Semantyczne</b> (EN) <span class="x">eksperymentalne</span> <span class="s">— opisz sprawę własnymi słowami</span> <span class="d">— opisz sprawę zwykłym językiem;
+           działa na osobnym indeksie wyroków angielskich, a wyroki dostępne tylko po francusku dołącza po zaznaczeniu pola pod zapytaniem.</span></div></li>
+         <li><span class="n">03</span><div><b>Weryfikacja</b> (EN) <span class="s">— sprawdzanie cytowań w tekście</span> <span class="d">— wklej tekst: każde cytowanie, numer paragrafu i cytat
+           zostaną sprawdzone z treścią wyroków.</span></div></li>
+         <li><span class="n">04</span><div><b>Obszar roboczy</b> (EN) <span class="s">— zapisane paragrafy i wyszukiwania</span> <span class="d">— zapisane paragrafy (☆) z Twoimi notatkami
+           oraz zapisane wyszukiwania, każde z kanałem RSS nowych wyroków; przechowywane tylko w Twojej przeglądarce, z możliwością eksportu.</span></div></li>
+         <li><span class="n">05</span><div><b>Statystyki</b> (EN) <span class="s">— zbiór na wykresach</span> <span class="d">— zbiór na wykresach: wyroki i rozstrzygnięcia według lat, artykułów i państw, najczęściej cytowane wyroki, tematy HUDOC.</span></div></li>
+         <li><span class="n">06</span><div><b>Asystent AI</b> <span class="s">— to samo wyszukiwanie z poziomu Claude</span> <span class="d">— konektor (MCP) dla Claude lub innego asystenta:
+           przeszukuje te wyroki i cytuje paragrafy dosłownie, z ich numerami §.</span></div></li>
+       </ul>
+       <div class="tour-cap" style="margin-top:12px">Jak teksty podzielono, opisano i sprawdzono: Metodologia (EN), na dolnym pasku.</div>`,
+      `<div class="tour-kicker">Wyszukiwanie</div>
+       <h2 class="tour-h">Od frazy do paragrafu.</h2>
+       <div class="tour-lead">Wpisz słowa lub <code>"frazę"</code> (w języku tekstów, czyli po angielsku), połącz je operatorami
+         <code>OR</code> i <code>NOT</code>, a gwiazdka na końcu słowa obejmie wszystkie słowa o tym początku (<code>environment*</code>);
+         działają też operatory HUDOC (<code>article:8</code>, <code>cites:hatton</code>, <code>NEAR</code>). Każdy wynik otwiera się
+         na paragrafie, z jego numerem i pozostałymi trafieniami w wyroku; <b>Cytuj</b> kopiuje cytowanie OSCOLA, a <b>☆ Zapisz</b>
+         dodaje paragraf do Obszaru roboczego.${frN ? `
+         <b>Français</b>, w bloku Kolekcja, przeszukuje francuskie teksty ${fmt(frN)} wyroków, które HUDOC publikuje tylko po francusku
+         (akcenty są opcjonalne).` : ""} <b>Decyzje</b>, w lewym panelu, dołączają do wyników decyzje Trybunału. Wypróbuj:</div>
+       <div class="tour-chips">${EXAMPLES.map((q) => `<button type="button" data-tour-q="${q.replace(/"/g, "&quot;")}">${q.replace(/</g, "&lt;")}</button>`).join("")}</div>`,
+      `<div class="tour-kicker">Do pracy z orzecznictwem</div>
+       <h2 class="tour-h">Co obejmuje zbiór.</h2>
+       <ul class="tour-list">
+         <li><span class="n">·</span><div><span><b>Wyroki po angielsku${frN ? " i po francusku" : ""}.</b> ${frN ? `Francuskie teksty ${fmt(frN)} wyroków, które HUDOC
+           publikuje tylko po francusku, przeszukuje się w autentycznym brzmieniu; ich nieoficjalne tłumaczenia angielskie można włączyć w wyszukiwaniu angielskim.`
+           : "Wyroki, które HUDOC publikuje tylko po francusku, są pominięte, z wyjątkiem nieoficjalnych tłumaczeń maszynowych tych, które cytują inne wyroki; można je włączyć."}
+           Decyzje Wielkiej Izby, Izb i Komitetów pojawiają się po zaznaczeniu pola <i>Decyzje</i>.</span></div></li>
+         <li><span class="n">·</span><div><span><b>Numeracja paragrafów Trybunału</b>, jak w tekście każdego wyroku w HUDOC, więc wynik można zacytować bez zmian.</span></div></li>
+         <li><span class="n">·</span><div><span><b>Cytuje / Cytowany w</b> obejmują wyroki i decyzje, odnalezione w ich tekście i w metadanych HUDOC;
+           każdą regułę dopasowania opisano w Metodologii (EN).</span></div></li>
+         <li><span class="n">·</span><div><span><b>Źródłem miarodajnym pozostaje HUDOC</b>: przed powołaniem się na paragraf należy otworzyć wyrok w HUDOC.
+           Każdy plik do pobrania (Excel, CSV, PNG) wskazuje swoje źródło i sposób cytowania.</span></div></li>
+       </ul>`,
+      `<div class="tour-kicker">Od czego zacząć</div>
+       <h2 class="tour-h">Dokąd najpierw?</h2>
+       <div class="tour-go">
+         <a href="${HOME}" data-tour-go="search">→ Wyszukaj frazę</a>
+         <a href="check.html">→ Sprawdź cytowania w tekście (EN)</a>
+         <a href="analytics.html">→ Zobacz zbiór na wykresach (EN)</a>
+         <a href="about.html#mcp">→ Korzystaj z Claude lub innego asystenta AI: konektor i skill (EN)</a>
+       </div>
+       <div class="tour-cap" style="margin-top:18px">Przewodnik można otworzyć ponownie w każdej chwili: dolny pasek → ✦ przewodnik.</div>`,
+    ];
+  }
+
   let wrap = null, index = 0, lastFocus = null;
 
   function build(stats, years) {
@@ -194,12 +303,12 @@
     wrap.id = "tour-wrap";
     wrap.setAttribute("role", "dialog");
     wrap.setAttribute("aria-modal", "true");
-    wrap.setAttribute("aria-label", "Introduction tour");
+    wrap.setAttribute("aria-label", T("Introduction tour", "Przewodnik wprowadzający"));
     wrap.innerHTML = `<div class="tour-box" tabindex="-1">
       <div class="tour-slides">${html.map((h, i) => `<div class="tslide" data-i="${i}">${h}</div>`).join("")}</div>
-      <div class="tour-nav"><button type="button" id="tour-skip">Skip tour</button>
-        <div class="tour-dots">${html.map((_, i) => `<button type="button" class="tdot" data-i="${i}" aria-label="Slide ${i + 1}"></button>`).join("")}</div>
-        <button type="button" id="tour-next">Next →</button></div></div>`;
+      <div class="tour-nav"><button type="button" id="tour-skip">${T("Skip tour", "Pomiń")}</button>
+        <div class="tour-dots">${html.map((_, i) => `<button type="button" class="tdot" data-i="${i}" aria-label="${T("Slide", "Slajd")} ${i + 1}"></button>`).join("")}</div>
+        <button type="button" id="tour-next">${T("Next →", "Dalej →")}</button></div></div>`;
     document.body.appendChild(wrap);
     wrap.addEventListener("click", (e) => {
       if (e.target === wrap) return close();
@@ -214,6 +323,8 @@
       }
       const q = e.target.closest("[data-tour-q]");
       if (q) return runQuery(q.dataset.tourQ);
+      // the link reloads the Search page in that collection: mark the tour seen, or it would open again
+      if (e.target.closest('[data-tour-go="comm"]')) return close();
       const goSearch = e.target.closest('[data-tour-go="search"]');
       if (goSearch && onSearchPage) {
         e.preventDefault();
@@ -229,7 +340,7 @@
     wrap.querySelectorAll("video").forEach((v) => v.pause());
     wrap.querySelectorAll(".tslide").forEach((s, k) => s.classList.toggle("on", k === index));
     wrap.querySelectorAll(".tdot").forEach((d, k) => d.classList.toggle("on", k === index));
-    wrap.querySelector("#tour-next").textContent = index === n - 1 ? "Start exploring" : "Next →";
+    wrap.querySelector("#tour-next").textContent = index === n - 1 ? T("Start exploring", "Zaczynamy") : T("Next →", "Dalej →");
   }
 
   function runQuery(q) {
@@ -239,7 +350,7 @@
       input.value = q;
       document.getElementById("searchForm")?.requestSubmit();
     } else {
-      location.href = `./?q=${encodeURIComponent(q)}`;
+      location.href = `${HOME}?q=${encodeURIComponent(q)}`;
     }
   }
 
@@ -287,6 +398,8 @@
   "use strict";
   const MCP_URL = "https://150.254.115.204/echr-api/mcp";
   const SKILL_URL = "https://github.com/lszoszk/mcp-echr/raw/main/skills/echr-research.zip";
+  const PL = document.documentElement.lang === "pl";   // the Polish beta page: the card in Polish
+  const T = (en, pl) => (PL ? pl : en);
 
   const CSS = `
   html.filters-sheet-open .ai-card{display:none}
@@ -317,14 +430,27 @@
     const tour = document.getElementById("tourBtn");
     if (!tour) return;
     const fab = document.createElement("button");
-    fab.type = "button"; fab.className = "sf-btn sf-ai"; fab.textContent = "Use with AI";
-    fab.setAttribute("aria-label", "Use HUDOC Researcher from your AI assistant");
+    fab.type = "button"; fab.className = "sf-btn sf-ai"; fab.textContent = T("Use with AI", "Użyj z AI");
+    fab.setAttribute("aria-label", T("Use HUDOC Researcher from your AI assistant", "Korzystaj z HUDOC Researcher przez asystenta AI"));
     fab.setAttribute("aria-expanded", "false"); fab.setAttribute("aria-controls", "aiCard");
-    fab.title = "Use it from your AI assistant";
+    fab.title = T("Use it from your AI assistant", "Korzystaj z asystenta AI");
     const card = document.createElement("section");
     card.className = "ai-card"; card.id = "aiCard"; card.hidden = true;
-    card.setAttribute("role", "dialog"); card.setAttribute("aria-label", "Use HUDOC Researcher from your AI assistant");
-    card.innerHTML = `
+    card.setAttribute("role", "dialog"); card.setAttribute("aria-label", T("Use HUDOC Researcher from your AI assistant", "Korzystaj z HUDOC Researcher przez asystenta AI"));
+    card.innerHTML = PL ? `
+      <button type="button" class="ai-x" aria-label="Zamknij">×</button>
+      <h2>Korzystaj z asystenta AI</h2>
+      <p>Claude lub inny asystent obsługujący konektory MCP może przeszukiwać te wyroki, cytować paragrafy dosłownie,
+        z numerami §, i sprawdzać cytowania z orzecznictwa strasburskiego.</p>
+      <ol>
+        <li><b>Dodaj konektor</b> — w Claude: Settings → Connectors → Add custom connector, z adresem:
+          <span class="ai-url"><code>${MCP_URL}</code><button type="button" class="ai-copy">Kopiuj</button></span></li>
+        <li><b>Dodaj skill</b> (opcjonalnie, dla Claude) — uczy kolejnych kroków wyszukiwania i cytowania OSCOLA:
+          <a class="ai-btn" href="${SKILL_URL}">Pobierz</a>, następnie Settings → Capabilities → Skills → Upload.</li>
+      </ol>
+      <p>Nie trzeba niczego instalować ani zakładać u nas konta. Odpowiedzi asystenta nie są poradą prawną — każdy
+        fragment należy sprawdzić w HUDOC.</p>
+      <div class="ai-foot"><a href="about.html#mcp">Konfiguracja dla Claude Code i innych klientów (EN)</a></div>` : `
       <button type="button" class="ai-x" aria-label="Close">×</button>
       <h2>Use it from your AI assistant</h2>
       <p>Ask Claude, or another assistant that takes MCP connectors, about Strasbourg case-law: it searches these
@@ -350,8 +476,8 @@
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !card.hidden) setOpen(false); });
     card.querySelector(".ai-copy").addEventListener("click", (e) => {
       const b = e.currentTarget;
-      navigator.clipboard?.writeText(MCP_URL).then(() => { b.textContent = "Copied"; setTimeout(() => { b.textContent = "Copy"; }, 1400); },
-        () => window.prompt("Copy the connector address:", MCP_URL));
+      navigator.clipboard?.writeText(MCP_URL).then(() => { b.textContent = T("Copied", "Skopiowano"); setTimeout(() => { b.textContent = T("Copy", "Kopiuj"); }, 1400); },
+        () => window.prompt(T("Copy the connector address:", "Skopiuj adres konektora:"), MCP_URL));
     });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", build); else build();

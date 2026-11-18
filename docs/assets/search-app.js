@@ -410,6 +410,11 @@ const SECTION_LABELS = {
   operative_part: "Operative Part",
   separate_opinion: "Separate Opinion",
   appendix: "Appendix",
+  // notices of communication (collection=communicated)
+  statement_of_facts: "Statement of Facts",
+  relevant_law: "Relevant Law",
+  complaints: "Complaints",
+  questions_to_the_parties: "Questions to the Parties",
 };
 
 const SECTION_COLORS = {
@@ -1829,7 +1834,7 @@ function commParams(p) {
   if (!isComm()) return;
   p.set("collection", "communicated");
   p.set("include_mt", "true");
-  for (const k of ["sections", "doc_types", "group", "lang", "footnotes"]) p.delete(k);
+  for (const k of ["sections", "doc_types", "lang", "footnotes"]) p.delete(k);
 }
 
 function commDate(iso) {
@@ -1837,6 +1842,34 @@ function commDate(iso) {
   const d = new Date(`${iso}T00:00:00Z`);
   return Number.isNaN(d.getTime()) ? iso
     : d.toLocaleDateString(UI_PL ? "pl-PL" : "en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+}
+
+/* Polish page: the Polish translations HUDOC publishes (made by Polish institutions, unofficial), by application
+ * number and date (scripts/build_pl_translations_map.py -> data/pl-translations.json). */
+let PL_TRANSLATIONS = null;
+if (UI_PL) {
+  fetch("data/pl-translations.json", { cache: "force-cache" }).then((r) => (r.ok ? r.json() : null)).then((m) => {
+    PL_TRANSLATIONS = m;
+    if (m && state.currentOrderedCaseIds && state.currentOrderedCaseIds.length) renderResultsPage();
+  }).catch(() => { /* the links are an extra */ });
+}
+
+function plTranslationLink(c, cls) {
+  if (!PL_TRANSLATIONS || !c || c.__isCommunicated) return "";
+  // the exact original (case_id, from the aligned translations) first, else application number + date
+  const keys = [c.case_id, ...String(c.case_no || "").split(/[;,]/).map((a) => {
+    const m = /^\s*(\d{1,6})\/(\d{2,4})\s*$/.exec(a);
+    return m ? `${Number(m[1])}/${m[2].slice(-2)}|${c.judgment_date}` : "";
+  })];
+  for (const key of keys) {
+    const hit = key && PL_TRANSLATIONS[key];
+    if (hit) {
+      const [itemid, by] = hit;
+      const title = `Nieoficjalne tłumaczenie na język polski opublikowane w HUDOC${by ? ` (${by})` : ""}; tekstem autentycznym jest wersja angielska lub francuska.`;
+      return `<a href="https://hudoc.echr.coe.int/?i=${encodeURIComponent(itemid)}" class="${cls} pl-tr-link" target="_blank" rel="noopener noreferrer" title="${escapeHtml(title)}">Tłumaczenie PL ↗</a>`;
+    }
+  }
+  return "";
 }
 
 const COMM_SECTION_CITE = {
@@ -1854,7 +1887,7 @@ function commChipsHtml(c) {
     const part = m.status === "partly_decided" ? tr(" (in part)", " (częściowo)") : "";
     status = `<span class="chip comm-status comm-pending" title="${escapeHtml(tr(
       `HUDOC had published no judgment or decision on this application after its communication, as of ${asOf}.`,
-      `Do ${asOf} HUDOC nie opublikował wyroku ani decyzji w tej sprawie po jej zakomunikowaniu.`))}">${tr("Pending", "W toku")}${part} · ${escapeHtml(tr("HUDOC as of", "HUDOC na"))} ${escapeHtml(asOf)}</span>`;
+      `Do ${asOf} HUDOC nie opublikował wyroku ani decyzji w tej sprawie po jej zakomunikowaniu.`))}">${tr("Pending", "W toku")}${part} · ${escapeHtml(tr("HUDOC as of", "stan w HUDOC na"))} ${escapeHtml(asOf)}${UI_PL ? " r." : ""}</span>`;
   }
   if (m.outcome_kind) {
     const kind = m.outcome_kind === "judgment" ? tr("Judgment", "Wyrok") : tr("Decision", "Decyzja");
@@ -1871,7 +1904,7 @@ function commChipsHtml(c) {
     : (c.language === "fr" ? `<span class="chip lang-chip">FR</span>` : "");
   return `<span class="chip comm-badge" title="${escapeHtml(tr(
     "A notice of communication: the applicant's case and the Court's questions to the parties. Not a decision of the Court.",
-    "Komunikacja skargi: sprawa w ujęciu skarżącego i pytania Trybunału do stron. To nie jest orzeczenie Trybunału."))}">${tr("Communicated case", "Sprawa zakomunikowana")}</span>${status}${
+    "Skarga zakomunikowana rządowi: sprawa w ujęciu skarżącego i pytania Trybunału do stron. To nie jest orzeczenie Trybunału."))}">${tr("Communicated case", "Sprawa zakomunikowana")}</span>${status}${
     c.__originatingBody ? `<span class="chip">${escapeHtml(c.__originatingBody)}</span>` : ""}${mt}`;
 }
 
@@ -1906,6 +1939,11 @@ function setSearchLang(lang) {
     if (dateTitle) {
       if (!dateTitle.dataset.label) dateTitle.dataset.label = dateTitle.textContent;
       dateTitle.textContent = comm ? tr("Date of communication", "Data zakomunikowania") : dateTitle.dataset.label;
+    }
+    for (const [input, en, pl] of [[el && el.dateFrom, "Communicated from", "Zakomunikowane od"], [el && el.dateTo, "Communicated to", "Zakomunikowane do"]]) {
+      if (!input) continue;
+      if (input.dataset.aria == null) input.dataset.aria = input.getAttribute("aria-label") || "";
+      if (comm) input.setAttribute("aria-label", tr(en, pl)); else if (input.dataset.aria) input.setAttribute("aria-label", input.dataset.aria);
     }
   }
   if (el.searchInput) {
@@ -2267,6 +2305,11 @@ function normalizeSectionKey(rawSection) {
     "separate opinion": "separate_opinion",
     separate_opinion: "separate_opinion",
     appendix: "appendix",
+    // notices of communication (collection=communicated)
+    "statement of facts": "statement_of_facts",
+    "relevant law": "relevant_law",
+    complaints: "complaints",
+    "questions to the parties": "questions_to_the_parties",
   };
 
   if (aliases[key]) {
@@ -2658,7 +2701,13 @@ function renderFilters() {
     ))
     .join("");
 
-  el.countriesFilters.innerHTML = state.countries
+  const countryName = (code) => {
+    const en = COUNTRY_NAMES[code] || code;
+    return UI_PL && window.I18N_PL ? window.I18N_PL.t(en) : en;
+  };
+  const countryOrder = UI_PL ? [...state.countries].sort((a, b) => countryName(a).localeCompare(countryName(b), "pl"))
+    : state.countries;
+  el.countriesFilters.innerHTML = countryOrder
     .map((code) => makeCheckbox(COUNTRY_NAMES[code] || code, code, "countries", fc.countries[code]))
     .join("");
 
@@ -2902,8 +2951,9 @@ function renderYearHistogram(years) {
   const bars = [];
   for (let y = first; y <= last; y++) {
     const n = counts.get(y) || 0;
-    bars.push(`<button type="button" class="year-bar" data-year="${y}" title="${y}: ${fmtInt.format(n)} judgment${n === 1 ? "" : "s"}"
-      aria-label="${y}, ${fmtInt.format(n)} judgments"><span style="height:${n ? Math.max(2, Math.round((n / max) * 100)) : 0}%"></span></button>`);
+    const unit = isComm() ? ["case", "cases"] : ["judgment", "judgments"];
+    bars.push(`<button type="button" class="year-bar" data-year="${y}" title="${y}: ${fmtInt.format(n)} ${n === 1 ? unit[0] : unit[1]}"
+      aria-label="${y}, ${fmtInt.format(n)} ${unit[1]}"><span style="height:${n ? Math.max(2, Math.round((n / max) * 100)) : 0}%"></span></button>`);
   }
   box.innerHTML = bars.join("");
   box.hidden = false;
@@ -5746,6 +5796,7 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
     <p class="cn-subline">${subline}
       <span class="cn-subline-actions">
         ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="cn-action" target="_blank" rel="noopener noreferrer" title="Open this judgment on HUDOC">HUDOC ↗</a>` : ""}
+        ${UI_PL ? plTranslationLink(c, "cn-action") : ""}
         <button type="button" class="cn-action" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}" title="Copy an OSCOLA citation of the judgment">Cite</button>
       </span>
     </p>
@@ -6051,7 +6102,7 @@ function buildCaseCard(caseId, row, rank = 1) {
     const hudocUrl = paragraphHudocUrl(c, p);
     const paraLabel = formatParaNum(p);
     const hudocLink = hudocUrl
-      ? `<a class="hudoc-para-link" data-action="open-hudoc" href="${escapeHtml(hudocUrl)}"${passageAttr(c, p)} target="_blank" rel="noopener noreferrer" title="Open on HUDOC at ${escapeHtml(paraLabel)}">HUDOC ↗</a>`
+      ? `<a class="hudoc-para-link" data-action="open-hudoc" href="${escapeHtml(hudocUrl)}"${passageAttr(c, p)} target="_blank" rel="noopener noreferrer" title="${paraLabel ? `Open on HUDOC at ${escapeHtml(paraLabel)}` : "Open on HUDOC"}">HUDOC ↗</a>`
       : "";
     // Whole row → show this paragraph in the Case Note. Nested
     // buttons/links carry their own data-action so the delegated
@@ -6145,6 +6196,7 @@ function buildCaseCard(caseId, row, rank = 1) {
           ${c.__isMt && c.__sourceCaseId
             ? `<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(c.__sourceCaseId)}" class="card-act" target="_blank" rel="noopener noreferrer" title="The authentic French text on HUDOC">French original ↗</a>`
             : (c.hudoc_url ? `<a href="${escapeHtml(primaryPara ? paragraphHudocUrl(c, primaryPara) : c.hudoc_url)}"${primaryPara ? passageAttr(c, primaryPara) : ""} class="card-act" target="_blank" rel="noopener noreferrer" title="${primaryPara ? "Open on HUDOC at this paragraph (its opening words are copied, for Find)" : "Open this judgment on HUDOC"}">HUDOC ↗</a>` : "")}
+          ${UI_PL ? plTranslationLink(c, "card-act") : ""}
           <button type="button" class="card-act" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}"
             data-para-idx="${escapeHtml(String(primaryPara && primaryPara.paraIdx != null ? primaryPara.paraIdx : ""))}"
             title="Copy an OSCOLA citation${primaryPara ? " with the paragraph shown" : ""}">Cite</button>
@@ -7259,15 +7311,17 @@ function updateResultsHeaderServer(data, opts = {}) {
     : "server · full dataset";
 
   el.resultsHeader.hidden = false;
-  el.resultsHits.textContent = fmtInt.format(defaultView ? totalCases : (data.total_hits || 0));
-  if (el.resultsHitsLabel) el.resultsHitsLabel.textContent = defaultView ? "recent cases" : "passages";
+  // Polish page: a filter without a query lists cases; "0 passages" there read as "nothing found".
+  const casesOnly = UI_PL && !defaultView && !(data.total_hits || 0) && !String(el.searchInput?.value || "").trim();
+  el.resultsHits.textContent = fmtInt.format(defaultView || casesOnly ? totalCases : (data.total_hits || 0));
+  if (el.resultsHitsLabel) el.resultsHitsLabel.textContent = defaultView ? "recent cases" : casesOnly ? "cases" : "passages";
   // Default view: the whole corpus (judgments, Grand Chamber decisions and machine translations), from /api/stats.
   // The default view counts the collection being browsed: the French originals under Français.
   const corpusTotal = searchLang() === "fr" ? (state.corpusStats?.french_originals || 0) : state.corpusTotal;
   el.resultsCases.textContent = fmtInt.format(defaultView ? (corpusTotal || data.total_cases || totalCases) : totalCases);
   if (el.resultsCasesLabel) el.resultsCasesLabel.textContent = defaultView ? "records in the corpus" : countNoun(totalCases, resultsNoun());
   el.resultsTime.textContent = `(${((data.search_time_ms || state.searchTimeMs) / 1000).toFixed(3)}s · page ${state.currentPage}/${totalPages} · ${serverTag})`;
-  if (el.queryMatchCount) el.queryMatchCount.textContent = fmtInt.format(defaultView ? totalCases : (data.total_hits || 0));
+  if (el.queryMatchCount) el.queryMatchCount.textContent = fmtInt.format(defaultView || casesOnly ? totalCases : (data.total_hits || 0));
   if (el.queryMatchLabel) el.queryMatchLabel.textContent = defaultView ? "recent cases" : "¶ matched";
   if (!defaultView) announceResults();
   renderCorpusNote();

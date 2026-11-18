@@ -20,7 +20,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>§</text></svg>">
   <!-- Analytics: cookie-free GoatCounter; GA4 only after consent. See assets/analytics-consent.js -->
   <script src="assets/analytics-consent.js?v=20261010-gc" defer></script>
-  <script src="assets/who.js?v=20261013" data-tool="hudoc-researcher" data-endpoint="https://hudoc-researcher.goatcounter.com/count" defer></script>
+  <script src="assets/who.js?v=20261118-pl" data-tool="hudoc-researcher" data-endpoint="https://hudoc-researcher.goatcounter.com/count" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/dashboard.css?v=20261014-a11y">
@@ -49,6 +49,20 @@
     #langSwitch #commOption { flex: 1 0 100%; border-left: 0; border-top: 1px solid var(--rule, #d8d0c3); white-space: nowrap; }
     #langSwitch #commOption[hidden] { display: none; }
     .comm-note { font-size: 0.85em; }
+    #commInfoTip .info-tip-pop { right: auto; left: -8px; width: 220px; }
+    /* Header: the Polish labels are longer; never scroll sideways. */
+    .nav-brand .brand-text { white-space: nowrap; }
+    .nav-brand::after { content: "Orzecznictwo ETPC na poziomie paragrafów"; }
+    @media (max-width: 1439px) { .nav-brand::after { display: none; } }
+    @media (max-width: 1279px) { .nav-links { gap: 12px; } .nav-link { font-size: 0.88rem; } }
+    @media (max-width: 1100px) { .nav-links { gap: 8px; } .nav-link { font-size: 0.82rem; } .nav-en { margin-left: 1px; } }
+    @media (max-width: 960px) { .nav-links { gap: 6px; } .nav-en { display: none; } }
+    @media (max-width: 860px) { .site-footer #themeToggle::after { content: "Motyw"; } }
+    /* The texts are English: no Polish hyphenation inside them ("wo-uld", "se-arch"). */
+    .para-text, .researcher-primary-text, .para-context-lead, .dossier-body, .dossier-ctx-para,
+    .cn-zoom-wrap, .case-title, .dossier-case-title { -webkit-hyphens: manual; hyphens: manual; }
+    /* "SPRAWA" and "Pyt. 11" in the left margin of a card */
+    .researcher-para-no { font-size: 1.05rem; white-space: nowrap; }
     .nav-link { white-space: nowrap; }
     .nav-en { margin-left: 3px; font-size: 0.6em; letter-spacing: 0.06em; vertical-align: super; opacity: 0.6; }
     .comm-mode section[aria-labelledby="searchInTitle"],
@@ -72,7 +86,7 @@
     .researcher-chip-row a.comm-decided:hover { text-decoration: underline; }
   </style>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
-  <!-- the one-minute tour (assets/tour.js) is English only and returns to the English page: not loaded here -->
+  <script src="assets/tour.js?v=20261118-pl2" defer></script>
   <script src="assets/workspace.js?v=20261014-rsscopy"></script>
   <script src="assets/cite.js?v=20261011-hlink" defer></script>
 </head>
@@ -193,14 +207,14 @@
             <p class="lang-note" id="frNote" hidden>Autentyczne francuskie teksty <span id="frCountNote"></span>
               wyroków, które HUDOC publikuje tylko po francusku. Wyszukiwanie po francusku: akcenty są opcjonalne, a <code>*</code>
               dopasowuje końcówki słów (<code>discrimin*</code>).</p>
-            <p class="lang-note comm-note" id="commNote" hidden>Wersja skarżącego i pytania Trybunału do stron, nie orzeczenia. Status według HUDOC na <span id="commAsOf"></span>.
+            <p class="lang-note comm-note" id="commNote" hidden>Sprawa w ujęciu skarżącego i pytania Trybunału do stron, nie orzeczenia. Status według HUDOC na <span id="commAsOf"></span>&nbsp;r.
               <span class="info-tip" id="commInfoTip">
                 <button type="button" class="info-tip-btn" aria-label="Więcej o sprawach zakomunikowanych"
                         aria-expanded="false" aria-controls="commInfoPop">i</button>
                 <span class="info-tip-pop" id="commInfoPop" role="tooltip">
-                  Komunikacje skarg opublikowane przez Trybunał w HUDOC (kolekcja „Communicated cases”): stan faktyczny
+                  Skargi zakomunikowane rządowi, opublikowane przez Trybunał w HUDOC (kolekcja „Communicated cases”): stan faktyczny
                   lub przedmiot sprawy, zarzuty i pytania do stron. Zakomunikowanie nie przesądza o dopuszczalności skargi.
-                  HUDOC nie publikuje wszystkich komunikacji. Teksty francuskie przetłumaczono maszynowo (nieoficjalnie).
+                  HUDOC nie publikuje wszystkich zakomunikowanych skarg. Teksty francuskie przetłumaczono maszynowo (nieoficjalnie).
                 </span>
               </span></p>
             <div id="collectionEn">
@@ -399,10 +413,10 @@
               <button type="button" class="rdc-opt" data-group="paragraph">Według paragrafów</button>
             </div>
             <div class="rdc-actions">
-              <button type="button" class="export-btn" id="saveSearchBtn" title="Zapisz to zapytanie i jego filtry w obszarze roboczym">☆ Zapisz wyszukiwanie</button>
+              <button type="button" class="export-btn" id="saveSearchBtn" title="Zapisz to zapytanie i jego filtry w obszarze roboczym">☆ Zapisz</button>
               <a class="export-btn rss-link" id="rssLink" href="#" target="_blank" rel="noopener" hidden
                  title="Skopiuj adres kanału RSS z nowymi wyrokami pasującymi do tego wyszukiwania i jego filtrów (do czytnika kanałów)">RSS</a>
-              <button type="button" class="export-btn" id="exportBtn" title="Eksportuj wyniki do Excela (.xlsx)" disabled>Eksport do Excela</button>
+              <button type="button" class="export-btn" id="exportBtn" title="Eksportuj wyniki do Excela (.xlsx)" disabled>↓ Excel</button>
             </div>
           </div>
           <div class="active-filters" id="activeFilters"></div>
@@ -508,7 +522,7 @@
       <button class="sf-btn" id="accessibilityBtn" type="button" title="Rozmiar tekstu, odstępy, kontrast (Alt+A)" aria-label="Ustawienia dostępności">Aa</button>
       <a class="sf-btn" href="methodology.html">Metodologia (EN)</a>
       <button class="sf-btn" id="citeSiteBtn" type="button" title="Skopiuj cytowanie HUDOC Researcher (APA); BibTeX na stronie „O projekcie”">Cytuj</button>
-      <button class="sf-btn sf-tour" id="tourBtn" type="button" hidden title="Minutowy przewodnik po stronie (po angielsku)">&#10022; przewodnik</button>
+      <button class="sf-btn sf-tour" id="tourBtn" type="button" title="Minutowy przewodnik po stronie">&#10022; przewodnik</button>
     </div>
   </footer>
 
@@ -648,8 +662,8 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Powrót na górę" hidden>&uarr;</button>
 
-  <script src="assets/i18n-pl.js?v=20261118b"></script>
-  <script src="assets/search-app.js?v=20261118-comm2"></script>
+  <script src="assets/i18n-pl.js?v=20261118c"></script>
+  <script src="assets/search-app.js?v=20261118-comm4"></script>
   <script src="assets/service-notice.js?v=20261022" charset="utf-8" data-app="HUDOC Researcher"
           data-effect="Do czasu przywrócenia dostępu wyszukiwanie nie obejmuje pełnego zbioru wyroków i decyzji: strona wyszukiwania pokazuje niewielką próbkę offline, a wyszukiwanie semantyczne i konektor MCP są niedostępne."
           data-probe="https://150.254.115.204/echr-api/health"></script>

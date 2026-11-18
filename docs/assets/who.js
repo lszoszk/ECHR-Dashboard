@@ -19,9 +19,13 @@
   var ENDPOINT = me.getAttribute('data-endpoint') || 'https://lszoszk.goatcounter.com/count';
   var BOTTOM = me.getAttribute('data-bottom');           // optional; by default it sits above any bar fixed to the bottom
   var KEY = 'who-v1:' + TOOL;
-  var ROLES = [['practitioner', 'Lawyer / practitioner'], ['researcher', 'Researcher / academic'],
-               ['student', 'Student'], ['ngo', 'NGO / civil society'],
-               ['institution', 'Court / public institution'], ['other', 'Other']];
+  var PL = document.documentElement.lang === 'pl';
+  var ROLES = PL
+    ? [['practitioner', 'Prawnik / praktyk'], ['researcher', 'Naukowiec'], ['student', 'Student'],
+       ['ngo', 'Organizacja pozarządowa'], ['institution', 'Sąd / instytucja publiczna'], ['other', 'Inne']]
+    : [['practitioner', 'Lawyer / practitioner'], ['researcher', 'Researcher / academic'],
+       ['student', 'Student'], ['ngo', 'NGO / civil society'],
+       ['institution', 'Court / public institution'], ['other', 'Other']];
   var force = /[?&]who=1\b/.test(location.search);
 
   function suppressed() {
@@ -93,9 +97,10 @@
     var card = document.createElement('div');
     card.id = 'who-card';
     card.setAttribute('role', 'dialog');
-    card.setAttribute('aria-label', 'Who are you? An optional, anonymous question');
-    card.innerHTML = '<button type="button" class="who-x" aria-label="Close, do not ask again">×</button>' +
-      '<h2>Who are you?</h2><p>One anonymous click helps us show funders who uses this tool. Nothing else is recorded.</p>' +
+    card.setAttribute('aria-label', PL ? 'Kim jesteś? Pytanie opcjonalne i anonimowe' : 'Who are you? An optional, anonymous question');
+    card.innerHTML = '<button type="button" class="who-x" aria-label="' + (PL ? 'Zamknij, nie pytaj ponownie' : 'Close, do not ask again') + '">×</button>' +
+      (PL ? '<h2>Kim jesteś?</h2><p>Jedno anonimowe kliknięcie pomoże nam pokazać grantodawcom, kto korzysta z narzędzia. Nic więcej nie jest zapisywane.</p>'
+          : '<h2>Who are you?</h2><p>One anonymous click helps us show funders who uses this tool. Nothing else is recorded.</p>') +
       '<div class="who-roles"></div>';
     var roles = card.querySelector('.who-roles');
     ROLES.forEach(function (r) {
