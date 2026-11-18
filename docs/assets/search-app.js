@@ -7356,6 +7356,14 @@ function renderCorpusNote() {
   const c = state.corpusStats, node = el.resultsCorpus;
   if (!node) return;
   const n = (v) => fmtInt.format(v);
+  if (c && state.defaultView && (isComm() || isPl())) {
+    // Polish page: the collection browsed, not the composition of the judgments' corpus
+    const npl = (v) => new Intl.NumberFormat("pl-PL").format(v);
+    node.textContent = isComm()
+      ? `${npl(c.communicated_cases || 0)} spraw zakomunikowanych opublikowanych w HUDOC; status według HUDOC na ${commDate(c.communicated_as_of)} r.`
+      : `${npl(c.polish_translations || 0)} polskich tłumaczeń i streszczeń wyroków i decyzji publikowanych w HUDOC (nieoficjalne).`;
+    node.hidden = false; return;
+  }
   if (c && state.defaultView && searchLang() === "fr" && c.french_originals) {
     node.textContent = `${n(c.french_originals)} judgments that HUDOC publishes only in French, in their authentic French text.`;
     node.hidden = false; return;
@@ -7396,7 +7404,8 @@ function updateResultsHeaderServer(data, opts = {}) {
   // Default view: the whole corpus (judgments, Grand Chamber decisions and machine translations), from /api/stats.
   // The default view counts the collection being browsed: the French originals under Français.
   const corpusTotal = searchLang() === "fr" ? (state.corpusStats?.french_originals || 0)
-    : isPl() ? (state.corpusStats?.polish_translations || 0) : state.corpusTotal;
+    : isPl() ? (state.corpusStats?.polish_translations || 0)
+    : isComm() ? (state.corpusStats?.communicated_cases || 0) : state.corpusTotal;
   el.resultsCases.textContent = fmtInt.format(defaultView ? (corpusTotal || data.total_cases || totalCases) : totalCases);
   if (el.resultsCasesLabel) el.resultsCasesLabel.textContent = defaultView ? "records in the corpus" : countNoun(totalCases, resultsNoun());
   el.resultsTime.textContent = `(${((data.search_time_ms || state.searchTimeMs) / 1000).toFixed(3)}s · page ${state.currentPage}/${totalPages} · ${serverTag})`;

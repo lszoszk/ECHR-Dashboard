@@ -65,6 +65,9 @@
     .researcher-para-no { font-size: 1.05rem; white-space: nowrap; }
     .nav-link { white-space: nowrap; }
     .nav-en { margin-left: 3px; font-size: 0.6em; letter-spacing: 0.06em; vertical-align: super; opacity: 0.6; }
+    /* "wszystkie operatory": Polish examples in the Polish translations, English queries elsewhere */
+    body:not(.pl-mode) .ops-pop[data-mode="pl"], body:not(.comm-mode) .ops-pop[data-mode="comm"],
+    .pl-mode .ops-pop:not([data-mode="pl"]), .comm-mode .ops-pop:not([data-mode="comm"]) { display: none !important; }
     .pl-mode section[aria-labelledby="searchInTitle"],
     .pl-mode .filter-group:has(#docTypeFilters),
     .pl-mode .researcher-influence,
@@ -163,23 +166,52 @@
             <span id="tryChips"><button type="button" class="try-q" data-q="&quot;gravity of the charges cannot by itself&quot; state:Poland" title="Zapytanie: &quot;gravity of the charges cannot by itself&quot; state:Poland"><code data-no-i18n>Areszt a waga zarzutów</code></button><button type="button" class="try-q" data-q="&quot;dangerous detainee&quot; state:Poland" title="Zapytanie: &quot;dangerous detainee&quot; state:Poland"><code data-no-i18n>Więzień „niebezpieczny”</code></button><button type="button" class="try-q" data-q="&quot;length of the proceedings&quot; state:Poland article:6" title="Zapytanie: &quot;length of the proceedings&quot; state:Poland article:6"><code data-no-i18n>Przewlekłość postępowania</code></button></span>
             <details class="ops-more" id="opsMore">
               <summary>wszystkie operatory</summary>
-              <div class="ops-pop" role="list">
-                <div role="listitem" class="ops-try"><span>Spróbuj</span><button type="button" class="try-q" data-q="environment* pollution" title="Końcowy * dopasowuje każde słowo o tym początku: environment, environmental"><code>environment* pollution</code></button><button type="button" class="try-q" data-q="cites:hatton" title="Wyroki cytujące sprawę Hatton and Others v. the United Kingdom"><code>cites:hatton</code></button></div>
-                <div role="listitem"><code>"exact phrase"</code><span>dokładna kolejność słów</span></div>
-                <div role="listitem"><code>torture OR inhuman</code><span>którekolwiek z określeń &mdash; <code>AND</code> jest domyślny między słowami; <code>OR</code>, <code>NOT</code> i <code>NEAR</code> pisz wielkimi literami (pisane małymi są zwykłymi słowami)</span></div>
-                <div role="listitem"><code>expulsion NOT asylum</code> <code>-asylum</code><span>pomija paragrafy zawierające dane słowo &mdash; <code>a OR b NOT c</code> wyklucza <code>c</code> z obu</span></div>
-                <div role="listitem"><code>environment*</code><span>każde słowo o tym początku &mdash; environment, environmental&hellip; (co najmniej 3 litery przed <code>*</code>); <code>detent?on</code> jest odczytywane jako <code>detent*</code></span></div>
-                <div role="listitem"><code>data NEAR retention</code><span>określenia blisko siebie &mdash; jak w HUDOC</span></div>
-                <div role="listitem"><code>article:8</code><span>artykuł Konwencji &mdash; także <code>article:P1-1</code></span></div>
-                <div role="listitem"><code>violation:8</code> <code>nonviolation:8</code><span>rozstrzygnięcie co do konkretnego artykułu &mdash; jak w HUDOC; <code>violation:3+14</code> wymaga obu</span></div>
-                <div role="listitem"><code>article:3+14</code><span>sprawy dotyczące obu artykułów (AND)</span></div>
-                <div role="listitem"><code>cites:hatton</code> <code>cites:36022/97</code><span>sprawy cytujące dany wyrok &mdash; pole &bdquo;Strasbourg Case-Law&rdquo; w HUDOC</span></div>
+              <div class="ops-pop" role="list" data-mode="default">
+                <div role="listitem" class="ops-try"><span>Spróbuj</span><button type="button" class="try-q" data-q="&quot;pilot judgment&quot; state:Poland" title="Wyroki pilotażowe w sprawach przeciwko Polsce"><code>&quot;pilot judgment&quot; state:Poland</code></button><button type="button" class="try-q" data-q="cites:kudla" title="Wyroki cytujące sprawę Kudła przeciwko Polsce"><code>cites:kudla</code></button></div>
+                <div role="listitem"><code>"reasonable time"</code><span>dokładna fraza &mdash; słowa w tej kolejności</span></div>
+                <div role="listitem"><code>surveillance OR interception</code><span>którekolwiek z określeń &mdash; <code>AND</code> jest domyślny między słowami; <code>OR</code>, <code>NOT</code> i <code>NEAR</code> pisz wielkimi literami (pisane małymi są zwykłymi słowami)</span></div>
+                <div role="listitem"><code>detention NOT psychiatric</code> <code>-psychiatric</code><span>pomija paragrafy zawierające dane słowo &mdash; <code>a OR b NOT c</code> wyklucza <code>c</code> z obu</span></div>
+                <div role="listitem"><code>discriminat*</code><span>każde słowo o tym początku &mdash; discrimination, discriminatory&hellip; (co najmniej 3 litery przed <code>*</code>); <code>detent?on</code> jest odczytywane jako <code>detent*</code></span></div>
+                <div role="listitem"><code>judges NEAR independence</code><span>określenia blisko siebie &mdash; jak w HUDOC</span></div>
+                <div role="listitem"><code>article:6</code><span>artykuł Konwencji &mdash; także <code>article:P1-1</code> (ochrona własności)</span></div>
+                <div role="listitem"><code>violation:5</code> <code>nonviolation:5</code><span>rozstrzygnięcie co do konkretnego artykułu &mdash; jak w HUDOC; <code>violation:6+13</code> wymaga obu</span></div>
+                <div role="listitem"><code>article:6+13</code><span>sprawy dotyczące obu artykułów</span></div>
+                <div role="listitem"><code>cites:kudla</code> <code>cites:30210/96</code><span>sprawy cytujące dany wyrok &mdash; tu Kudła przeciwko Polsce (pole &bdquo;Strasbourg Case-Law&rdquo; w HUDOC)</span></div>
                 <div role="listitem"><code>state:Poland</code><span>pozwane państwo</span></div>
                 <div role="listitem"><code>case:30210/96</code><span>numer skargi</span></div>
                 <div role="listitem"><code>keyword:"positive obligations"</code><span>słowo kluczowe z tezaurusa HUDOC</span></div>
-                <div role="listitem"><code>body:"Grand Chamber"</code><span>skład orzekający / organ</span></div>
+                <div role="listitem"><code>body:"Grand Chamber"</code><span>skład orzekający</span></div>
                 <div role="listitem"><code>ecli:&hellip;</code> <code>hudoc:001-&hellip;</code><span>identyfikatory sprawy</span></div>
-                <div class="ops-note">Operatory można łączyć ze sobą, z dowolnym tekstem i z filtrami w panelu bocznym.</div>
+                <div class="ops-note">Teksty w tej kolekcji są po angielsku (lub po francusku), więc szuka się w nich angielskimi słowami; po polsku &mdash; w kolekcji &bdquo;Tłumaczenia PL&rdquo;. Operatory można łączyć ze sobą, z tekstem i z filtrami w panelu bocznym.</div>
+              </div>
+              <div class="ops-pop" role="list" data-mode="comm">
+                <div role="listitem" class="ops-try"><span>Spróbuj</span><button type="button" class="try-q" data-q="judges NEAR disciplinary" title="Postępowania dyscyplinarne wobec sędziów"><code>judges NEAR disciplinary</code></button><button type="button" class="try-q" data-q="abortion OR pregnancy" title="Sprawy dotyczące przerywania ciąży"><code>abortion OR pregnancy</code></button></div>
+                <div role="listitem"><code>"disciplinary proceedings"</code><span>dokładna fraza &mdash; słowa w tej kolejności</span></div>
+                <div role="listitem"><code>abortion OR pregnancy</code><span>którekolwiek z określeń &mdash; <code>AND</code> jest domyślny między słowami; <code>OR</code>, <code>NOT</code> i <code>NEAR</code> pisz wielkimi literami</span></div>
+                <div role="listitem"><code>asylum NOT Belarus</code> <code>-Belarus</code><span>pomija paragrafy zawierające dane słowo</span></div>
+                <div role="listitem"><code>surveill*</code><span>każde słowo o tym początku &mdash; surveillance, surveilled&hellip;</span></div>
+                <div role="listitem"><code>border NEAR Belarus</code><span>określenia blisko siebie</span></div>
+                <div role="listitem"><code>article:8</code><span>artykuł Konwencji wskazany przy komunikacji; <code>article:6+13</code> &mdash; oba</span></div>
+                <div role="listitem"><code>state:Poland</code><span>pozwane państwo</span></div>
+                <div role="listitem"><code>case:43176/21</code><span>numer skargi</span></div>
+                <div role="listitem"><code>hudoc:001-&hellip;</code><span>identyfikator komunikacji w HUDOC</span></div>
+                <div class="ops-note">Komunikacje są po angielsku (francuskie przetłumaczono maszynowo), więc szuka się w nich angielskimi słowami. Status sprawy wybiera się filtrem &bdquo;Status sprawy&rdquo;; <code>cites:</code> i <code>violation:</code> nie dotyczą komunikacji.</div>
+              </div>
+              <div class="ops-pop" role="list" data-mode="pl">
+                <div role="listitem" class="ops-try"><span>Spróbuj</span><button type="button" class="try-q" data-q="&quot;tymczasowe aresztowanie&quot; state:Poland" title="Dokładna fraza w sprawach przeciwko Polsce"><code>&quot;tymczasowe aresztowanie&quot; state:Poland</code></button><button type="button" class="try-q" data-q="dyskryminac*" title="Dyskryminacja, dyskryminacyjny, dyskryminacji…"><code>dyskryminac*</code></button></div>
+                <div role="listitem"><code>przewlekłość postępowania</code><span>słowa bez cudzysłowu obejmują odmiany &mdash; także &bdquo;przewlekłości postępowań&rdquo;; <code>areszt</code> znajdzie też &bdquo;aresztu&rdquo; i &bdquo;areszcie&rdquo;</span></div>
+                <div role="listitem"><code>"wolność wyrażania opinii"</code><span>dokładna fraza &mdash; dokładnie te formy wyrazów, w tej kolejności</span></div>
+                <div role="listitem"><code>inwigilacja OR podsłuch</code><span>którekolwiek z określeń &mdash; <code>AND</code> jest domyślny między słowami; <code>OR</code>, <code>NOT</code> i <code>NEAR</code> pisz wielkimi literami</span></div>
+                <div role="listitem"><code>wydalenie NOT azyl</code> <code>-azyl</code><span>pomija paragrafy zawierające dane słowo</span></div>
+                <div role="listitem"><code>aresztow*</code><span>każde słowo o tym początku &mdash; aresztowanie, aresztowany, aresztowano&hellip;</span></div>
+                <div role="listitem"><code>sędzia NEAR niezawisłość</code><span>określenia blisko siebie</span></div>
+                <div role="listitem"><code>article:5</code><span>artykuł Konwencji (według oryginału) &mdash; także <code>article:P1-1</code></span></div>
+                <div role="listitem"><code>violation:5</code> <code>nonviolation:5</code><span>rozstrzygnięcie oryginału co do artykułu; <code>violation:6+13</code> wymaga obu</span></div>
+                <div role="listitem"><code>article:6+13</code><span>sprawy dotyczące obu artykułów</span></div>
+                <div role="listitem"><code>state:Poland</code><span>pozwane państwo</span></div>
+                <div role="listitem"><code>case:30210/96</code><span>numer skargi oryginału</span></div>
+                <div role="listitem"><code>hudoc:001-&hellip;</code><span>identyfikator tłumaczenia w HUDOC</span></div>
+                <div class="ops-note">Przeszukiwane są nieoficjalne polskie tłumaczenia i streszczenia orzeczeń publikowane w HUDOC. Litera &bdquo;ł&rdquo; nie jest zamieniana na &bdquo;l&rdquo;, a słowa krótsze niż 4 litery są szukane w dokładnej formie.</div>
               </div>
             </details>
           </div>
@@ -666,7 +698,7 @@
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Powrót na górę" hidden>&uarr;</button>
 
   <script src="assets/i18n-pl.js?v=20261118d"></script>
-  <script src="assets/search-app.js?v=20261118-pl2"></script>
+  <script src="assets/search-app.js?v=20261118-pl3"></script>
   <script src="assets/service-notice.js?v=20261022" charset="utf-8" data-app="HUDOC Researcher"
           data-effect="Do czasu przywrócenia dostępu wyszukiwanie nie obejmuje pełnego zbioru wyroków i decyzji: strona wyszukiwania pokazuje niewielką próbkę offline, a wyszukiwanie semantyczne i konektor MCP są niedostępne."
           data-probe="https://150.254.115.204/echr-api/health"></script>
