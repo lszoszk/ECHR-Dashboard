@@ -1844,6 +1844,31 @@ function isPl() {
   return COMM_ENABLED && state.lang === "pl";
 }
 
+/* Polish page: the "Spróbuj" examples of each collection, a Polish label for an English query where the texts are
+ * English (the query goes into the search box on a click, and shows on hover). */
+const TRY_CHIPS = {
+  en: [["Areszt a waga zarzutów", '"gravity of the charges cannot by itself" state:Poland'],
+       ["Więzień „niebezpieczny”", '"dangerous detainee" state:Poland'],
+       ["Przewlekłość postępowania", '"length of the proceedings" state:Poland article:6']],
+  fr: [["Rozsądny termin (FR)", '"délai raisonnable"'],
+       ["Tymczasowe aresztowanie (FR)", '"détention provisoire"'],
+       ["Margines swobody (FR)", '"marge d\'appréciation"']],
+  comm: [["Krajowa Rada Sądownictwa", '"National Council of the Judiciary"'],
+         ["Granica z Białorusią", "Belarus border"],
+         ["Kontrole osobiste w więzieniu", '"strip search"']],
+  pl: [["tymczasowe aresztowanie", "tymczasowe aresztowanie"],
+       ["przewlekłość postępowania", "przewlekłość postępowania"],
+       ["„wolność wyrażania opinii”", '"wolność wyrażania opinii"']],
+};
+
+function renderTryChips() {
+  const box = COMM_ENABLED && document.getElementById("tryChips");
+  if (!box) return;
+  const mode = isComm() ? "comm" : isPl() ? "pl" : searchLang() === "fr" ? "fr" : "en";
+  box.innerHTML = TRY_CHIPS[mode].map(([label, q]) => `<button type="button" class="try-q" data-q="${escapeHtml(q)}" `
+    + `title="${escapeHtml(`Zapytanie: ${q}`)}"><code data-no-i18n>${escapeHtml(label)}</code></button>`).join("");
+}
+
 function plParams(p) {
   if (!isPl()) return;
   p.set("lang", "pl");
@@ -1971,6 +1996,7 @@ function setSearchLang(lang) {
     if (pnote) pnote.hidden = !pl;
     document.body.classList.toggle("comm-mode", comm);
     document.body.classList.toggle("pl-mode", pl);
+    renderTryChips();
     const outcomeTitle = el && el.outcomeFilters && el.outcomeFilters.closest(".filter-group")?.querySelector(".filter-title");
     if (outcomeTitle) {
       if (!outcomeTitle.dataset.label) outcomeTitle.dataset.label = outcomeTitle.textContent;
