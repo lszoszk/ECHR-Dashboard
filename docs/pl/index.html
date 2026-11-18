@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="pl" data-theme="light" data-comm="1">
+<head>
+  <base href="../">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HUDOC Researcher — wersja polska (beta)</title>
+  <meta name="description" content="Wyszukiwanie w każdym paragrafie wyroków Europejskiego Trybunału Praw Człowieka: około 20 000 wyroków podzielonych na numerowane paragrafy Trybunału, z operatorami HUDOC, filtrami, cytowaniami OSCOLA oraz informacją, co dany wyrok cytuje i przez kogo jest cytowany.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta property="og:site_name" content="HUDOC Researcher">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="HUDOC Researcher — wersja polska (beta)">
+  <meta property="og:description" content="Wyszukiwanie w każdym paragrafie wyroków Europejskiego Trybunału Praw Człowieka: około 20 000 wyroków podzielonych na numerowane paragrafy Trybunału, z operatorami HUDOC, filtrami, cytowaniami OSCOLA oraz informacją, co dany wyrok cytuje i przez kogo jest cytowany.">
+  <meta property="og:url" content="https://lszoszk.github.io/ECHR-Dashboard/pl/">
+  <meta property="og:image" content="https://lszoszk.github.io/ECHR-Dashboard/assets/social-card.png?v=20261011">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="HUDOC Researcher — wyroki Europejskiego Trybunału Praw Człowieka, paragraf po paragrafie">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>§</text></svg>">
+  <!-- Analytics: cookie-free GoatCounter; GA4 only after consent. See assets/analytics-consent.js -->
+  <script src="assets/analytics-consent.js?v=20261010-gc" defer></script>
+  <script src="assets/who.js?v=20261013" data-tool="hudoc-researcher" data-endpoint="https://hudoc-researcher.goatcounter.com/count" defer></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/dashboard.css?v=20261014-a11y">
+  <link rel="stylesheet" href="assets/search-app.css?v=20261014-rss">
+  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261020-try3">
+  <link rel="stylesheet" href="assets/judgment-hudoc.css?v=20260706-deadmodal">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
+  <style>
+    /* Polish beta: one slim line under the masthead (theme variables from editorial-redesign.css). */
+    .beta-notice {
+      margin: 0;
+      padding: 5px 16px;
+      background: var(--paper-2, #f3efe6);
+      color: var(--ink-3, #6b665e);
+      border-bottom: 1px solid var(--rule-soft, #e8e0d4);
+      font-family: var(--font-sans, Georgia, serif);
+      font-size: 0.78rem;
+      line-height: 1.4;
+      text-align: center;
+    }
+    /* Communicated cases (search-app.js puts .comm-mode on <body>): a notice has no parts of a judgment to
+       scope, no footnotes and no citation graph, so those controls are hidden; its badge and status stand out. */
+    .comm-mode section[aria-labelledby="searchInTitle"],
+    .comm-mode .filter-group:has(#docTypeFilters),
+    .comm-mode .filter-group:has(#importanceFilters),
+    .comm-mode .researcher-influence { display: none; }
+    .researcher-chip-row .comm-badge,
+    .researcher-chip-row .comm-status {
+      display: inline-block;
+      padding: 1px 7px;
+      margin-right: 4px;
+      border-radius: 3px;
+      font-size: 0.8em;
+      line-height: 1.5;
+      border: 1px solid var(--rule, #d8d0c3);
+      text-decoration: none;
+    }
+    .researcher-chip-row .comm-badge { background: var(--garnet-soft, #f4e0dd); border-color: var(--garnet-edge, #d9aaa4); color: var(--garnet, #8d2f2f); }
+    .researcher-chip-row .comm-pending { color: var(--blue-ink, #395d7f); }
+    .researcher-chip-row .comm-decided { color: var(--green-ink, #43705a); }
+    .researcher-chip-row a.comm-decided:hover { text-decoration: underline; }
+  </style>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
+  <!-- the one-minute tour (assets/tour.js) is English only and returns to the English page: not loaded here -->
+  <script src="assets/workspace.js?v=20261014-rsscopy"></script>
+  <script src="assets/cite.js?v=20261011-hlink" defer></script>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="pl/" class="nav-brand">
+        <span class="brand-icon">§</span>
+        <span class="brand-text">HUDOC Researcher</span>
+        <span class="beta-badge" title="Wersja beta: funkcje i dane mogą się jeszcze zmieniać. Prosimy o zgłaszanie problemów.">Beta</span>
+      </a>
+      <button class="nav-hamburger" id="navHamburger" type="button" aria-label="Pokaż lub ukryj nawigację" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="nav-links">
+        <a href="pl/" class="nav-link active">Wyszukiwanie</a>
+        <a href="semantic.html" class="nav-link" title="Eksperymentalne" id="ragLink">Wyszukiwanie semantyczne (EN) <svg class="exp-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 1.5h4M6.7 1.5v4.2L2.6 13a1.2 1.2 0 0 0 1 1.8h8.8a1.2 1.2 0 0 0 1-1.8L9.3 5.7V1.5M4.4 10h7.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="visually-hidden"> (eksperymentalne)</span></a>
+        <a href="check.html" class="nav-link">Weryfikacja cytowań (EN)</a>
+        <a href="workspace.html" class="nav-link">Obszar roboczy (EN) <span class="ws-count" data-ws-count hidden></span></a>
+        <a href="analytics.html" class="nav-link">Statystyki (EN)</a>
+        <a href="about.html" class="nav-link">O projekcie (EN)</a>
+        <a href="about.html#scope" class="nav-disclaimer">Niezwiązane z ETPC &middot; to nie jest porada prawna</a>
+        <a href="./" class="nav-link" lang="en">English</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="main-content editorial-app">
+    <p class="beta-notice" id="betaNotice">Wersja polska (beta). Część opisów pomocy i pozostałe podstrony są dostępne tylko po angielsku.</p>
+    <h1 class="visually-hidden">HUDOC Researcher: wyszukiwanie na poziomie paragrafów w wyrokach Europejskiego Trybunału Praw Człowieka</h1>
+    <section class="editorial-search-band">
+      <div class="editorial-search-inner">
+        <!-- Shown only when the server is unreachable (sample data / file upload); the connection
+             state otherwise sits in the navbar badge (#apiStatus). -->
+        <section class="data-source-panel collapsible collapsed" id="dataSourcePanel" aria-labelledby="dataSourceTitle" hidden>
+          <h2 id="dataSourceTitle" class="data-source-title">Źródło danych <span id="serverBadgeHeader" class="server-badge-header"></span></h2>
+
+          <div class="source-actions hidden" id="sourceActions">
+            <button type="button" id="loadSampleBtn" class="source-btn">Wczytaj przykładowy zbiór (50)</button>
+            <label class="source-upload-btn" for="fileInput">Wybierz plik JSONL</label>
+            <button type="button" id="openClassifierBtn" class="source-btn" disabled>Otwórz klasyfikator</button>
+            <input id="fileInput" type="file" accept=".jsonl,application/json,text/plain" hidden>
+          </div>
+
+          <div id="dropZone" class="drop-zone hidden" tabindex="0" role="button" aria-label="Upuść tutaj plik JSONL lub kliknij, aby go wybrać">
+            Przeciągnij i upuść tutaj plik `.jsonl`
+          </div>
+
+          <p id="datasetStatus" class="dataset-status">Łączenie z serwerem...</p>
+          <p id="datasetMeta" class="dataset-note hidden">Zbiór danych: nie wybrano</p>
+          <p id="classifierResumeNote" class="dataset-note hidden">Postęp klasyfikatora: nie wczytano</p>
+        </section>
+
+        <form id="searchForm" class="search-form search-disabled editorial-query-form">
+          <div class="editorial-query-row">
+            <label class="editorial-query-label" for="searchInput">Szukaj<span>.</span></label>
+            <input
+              type="text"
+              id="searchInput"
+              class="search-input"
+              placeholder='np. "necessary in a democratic society" article:8'
+              autocomplete="off"
+              disabled
+            >
+            <span class="editorial-query-count" id="queryMatchShell"><strong id="queryMatchCount">0</strong> <span id="queryMatchLabel">¶ trafień</span></span>
+            <button type="submit" class="search-btn" id="searchBtn" disabled>Szukaj</button>
+          </div>
+
+          <div class="search-tips search-try" id="searchTry">
+            <span class="tip">Spróbuj</span>
+            <button type="button" class="try-q" data-q="surveillance OR interception NOT terrorism" title="Jedno lub drugie słowo, z pominięciem paragrafów, w których mowa o terroryzmie"><code>surveillance OR interception NOT terrorism</code></button>
+            <button type="button" class="try-q" data-q="&quot;real risk&quot; expulsion article:3" title="Dokładna fraza i jeden artykuł Konwencji: test non-refoulement na gruncie art. 3"><code>"real risk" expulsion article:3</code></button>
+            <button type="button" class="try-q" data-q='"margin of appreciation" article:10' title="Dokładna fraza, zawężona do jednego artykułu Konwencji"><code>"margin of appreciation" article:10</code></button>
+            <details class="ops-more" id="opsMore">
+              <summary>wszystkie operatory</summary>
+              <div class="ops-pop" role="list">
+                <div role="listitem" class="ops-try"><span>Spróbuj</span><button type="button" class="try-q" data-q="environment* pollution" title="Końcowy * dopasowuje każde słowo o tym początku: environment, environmental"><code>environment* pollution</code></button><button type="button" class="try-q" data-q="cites:hatton" title="Wyroki cytujące sprawę Hatton and Others v. the United Kingdom"><code>cites:hatton</code></button></div>
+                <div role="listitem"><code>"exact phrase"</code><span>dokładna kolejność słów</span></div>
+                <div role="listitem"><code>torture OR inhuman</code><span>którekolwiek z określeń &mdash; <code>AND</code> jest domyślny między słowami; <code>OR</code>, <code>NOT</code> i <code>NEAR</code> pisz wielkimi literami (pisane małymi są zwykłymi słowami)</span></div>
+                <div role="listitem"><code>expulsion NOT asylum</code> <code>-asylum</code><span>pomija paragrafy zawierające dane słowo &mdash; <code>a OR b NOT c</code> wyklucza <code>c</code> z obu</span></div>
+                <div role="listitem"><code>environment*</code><span>każde słowo o tym początku &mdash; environment, environmental&hellip; (co najmniej 3 litery przed <code>*</code>); <code>detent?on</code> jest odczytywane jako <code>detent*</code></span></div>
+                <div role="listitem"><code>data NEAR retention</code><span>określenia blisko siebie &mdash; jak w HUDOC</span></div>
+                <div role="listitem"><code>article:8</code><span>artykuł Konwencji &mdash; także <code>article:P1-1</code></span></div>
+                <div role="listitem"><code>violation:8</code> <code>nonviolation:8</code><span>rozstrzygnięcie co do konkretnego artykułu &mdash; jak w HUDOC; <code>violation:3+14</code> wymaga obu</span></div>
+                <div role="listitem"><code>article:3+14</code><span>sprawy dotyczące obu artykułów (AND)</span></div>
+                <div role="listitem"><code>cites:hatton</code> <code>cites:36022/97</code><span>sprawy cytujące dany wyrok &mdash; pole &bdquo;Strasbourg Case-Law&rdquo; w HUDOC</span></div>
+                <div role="listitem"><code>state:Poland</code><span>pozwane państwo</span></div>
+                <div role="listitem"><code>case:30210/96</code><span>numer skargi</span></div>
+                <div role="listitem"><code>keyword:"positive obligations"</code><span>słowo kluczowe z tezaurusa HUDOC</span></div>
+                <div role="listitem"><code>body:"Grand Chamber"</code><span>skład orzekający / organ</span></div>
+                <div role="listitem"><code>ecli:&hellip;</code> <code>hudoc:001-&hellip;</code><span>identyfikatory sprawy</span></div>
+                <div class="ops-note">Operatory można łączyć ze sobą, z dowolnym tekstem i z filtrami w panelu bocznym.</div>
+              </div>
+            </details>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <div class="results-layout editorial-workspace">
+      <aside class="editorial-filter-rail" id="filterRail" aria-label="Filtry wyszukiwania">
+        <h2 class="visually-hidden">Filtry wyszukiwania</h2>
+        <!-- Phones and small tablets: the rail opens as a full-screen sheet from #filtersSheetBtn. -->
+        <div class="rail-sheet-head">
+          <span class="rail-sheet-title">Filtry</span>
+          <button type="button" class="rail-sheet-done" id="filtersSheetDone">Gotowe</button>
+        </div>
+        <!-- What is searched: which texts (collection), then which parts of them.
+             Outside #filtersPanel: its own change listener re-runs the search. -->
+        <div class="rail-scope" id="bucketScope">
+          <section class="scope-block" aria-labelledby="collectionTitle">
+            <h3 class="filter-title" id="collectionTitle">Kolekcja</h3>
+            <div class="lang-switch" id="langSwitch" role="radiogroup" aria-label="Język przeszukiwanych tekstów" hidden>
+              <label><input type="radio" name="searchLang" value="en" checked> <span>English</span></label>
+              <label><input type="radio" name="searchLang" value="fr"> <span>Français</span></label>
+              <label id="commOption" hidden><input type="radio" name="searchLang" value="comm"> <span>Sprawy zakomunikowane <span class="filter-count" id="commCount"></span></span></label>
+            </div>
+            <p class="lang-note" id="frNote" hidden>Autentyczne francuskie teksty <span id="frCountNote"></span>
+              wyroków, które HUDOC publikuje tylko po francusku. Wyszukiwanie po francusku: akcenty są opcjonalne, a <code>*</code>
+              dopasowuje końcówki słów (<code>discrimin*</code>).</p>
+            <p class="lang-note" id="commNote" hidden>Komunikacje skarg przeciwko państwom, opublikowane przez Trybunał w bazie HUDOC (kolekcja „Communicated cases”): stan faktyczny lub przedmiot sprawy w ujęciu skarżącego, zarzuty i pytania Trybunału do stron. To nie są orzeczenia, a zakomunikowanie skargi nie przesądza o jej dopuszczalności. HUDOC nie publikuje wszystkich komunikacji. Teksty francuskie przetłumaczono maszynowo (nieoficjalnie). Status sprawy (w toku / wyrok / decyzja) według HUDOC na dzień pobrania danych: <span id="commAsOf"></span>.</p>
+            <div id="collectionEn">
+            <label class="cb-label scope-fixed" title="Angielskie teksty wyroków w brzmieniu opublikowanym w HUDOC. Odznacz to pole, gdy zaznaczone są decyzje lub tłumaczenia, aby przeszukiwać wyłącznie je">
+              <input type="checkbox" id="includeOfficial" checked disabled>
+              <span>Wyroki &mdash; oficjalne teksty angielskie <span class="filter-count" id="officialCount"></span></span>
+            </label>
+            <label class="cb-label" id="decisionsPill" hidden title="Decyzje Trybunału: głównie w przedmiocie dopuszczalności (czy skarga w ogóle może zostać rozpoznana) oraz o skreśleniu skargi z listy. HUDOC przechowuje je w odrębnej kolekcji; domyślne wyszukiwanie ich nie obejmuje.">
+              <input type="checkbox" id="includeDecisions">
+              <span>Decyzje <span class="filter-count" id="decisionCount"></span></span>
+            </label>
+            <p class="lang-note dec-note" id="decNote" hidden><span id="decShare"></span> angielskich decyzji z HUDOC:
+              Wielkiej Izby, Izb i Komitetów.</p>
+            <div class="mt-option-row" id="advisoryPill" hidden>
+              <label class="cb-label mt-option" title="Opinie doradcze Trybunału na podstawie Protokołu nr 16 i art. 47 Konwencji, wraz z odmowami kolegium i decyzjami w przedmiocie właściwości. HUDOC przechowuje je w odrębnej kolekcji; domyślne wyszukiwanie ich nie obejmuje.">
+                <input type="checkbox" id="includeAdvisory">
+                <span>Opinie doradcze <span class="filter-count" id="advisoryCount"></span></span>
+              </label>
+              <span class="info-tip" id="advInfoTip">
+                <button type="button" class="info-tip-btn" aria-label="Dlaczego HUDOC pokazuje więcej opinii doradczych"
+                        aria-expanded="false" aria-controls="advInfoPop">i</button>
+                <span class="info-tip-pop" id="advInfoPop" role="tooltip">
+                  Wszystkie (<span id="advInfoCount">17</span>) po angielsku, w brzmieniu wydanym przez Trybunał. Liczba podawana przez HUDOC (90)
+                  obejmuje także wersje francuskie, tłumaczenia na inne języki i streszczenia prawne Kancelarii Trybunału.
+                  <a href="methodology.html#scope-judgments-in-english">Co obejmuje zbiór (EN) &rarr;</a>
+                </span>
+              </span>
+            </div>
+            <div class="mt-scope" id="mtPill" hidden>
+              <div class="mt-scope-head">Poza domyślnym wyszukiwaniem</div>
+              <div class="mt-option-row">
+                <label class="cb-label mt-option">
+                  <input type="checkbox" id="includeMachineTranslations">
+                  <span>Angielskie tłumaczenia wyroków dostępnych tylko po francusku <span class="filter-count" id="mtCountRail"></span></span>
+                </label>
+                <span class="info-tip" id="mtInfoTip">
+                  <button type="button" class="info-tip-btn" aria-label="Jak powstały te tłumaczenia"
+                          aria-expanded="false" aria-controls="mtInfoPop">i</button>
+                  <span class="info-tip-pop" id="mtInfoPop" role="tooltip">
+                    HUDOC publikuje te wyroki tylko po francusku. Tekst angielski przygotowano maszynowo na potrzeby tego
+                    narzędzia i sprawdzono automatycznie; nie jest to tekst Trybunału, dlatego należy cytować oryginał francuski.
+                    <a href="methodology.html#machine-translation">Jak powstały tłumaczenia (EN) &rarr;</a>
+                  </span>
+                </span>
+              </div>
+              <p class="mt-scope-note"><span class="mt-unofficial">Tłumaczenie maszynowe · nieoficjalne</span></p>
+            </div>
+            </div>
+          </section>
+          <section class="scope-block" aria-labelledby="searchInTitle">
+            <h3 class="filter-title" id="searchInTitle">Szukaj w</h3>
+            <div class="checkbox-grid compact">
+              <label class="cb-label" title="Stan faktyczny sprawy, ramy prawne, postępowanie">
+                <input type="checkbox" data-name="buckets" value="facts" checked> <span>Stan faktyczny</span>
+              </label>
+              <label class="cb-label" title="Rozumowanie Trybunału co do dopuszczalności i meritum">
+                <input type="checkbox" data-name="buckets" value="adm_merits" checked> <span>Dopuszczalność + meritum</span>
+              </label>
+              <label class="cb-label" title="Art. 41 — odszkodowanie, koszty i wydatki">
+                <input type="checkbox" data-name="buckets" value="just_satisfaction" checked> <span>Słuszne zadośćuczynienie</span>
+              </label>
+              <label class="cb-label" title="Sentencja — „Stwierdza…”, „Orzeka…”">
+                <input type="checkbox" data-name="buckets" value="operative_part" checked> <span>Sentencja</span>
+              </label>
+              <label class="cb-label" title="Zdania zbieżne i odrębne">
+                <input type="checkbox" data-name="buckets" value="individual_opinions" checked> <span>Zdania odrębne</span>
+              </label>
+            </div>
+            <label class="cb-label cb-footnotes" title="Przeszukuj także przypisy do wyroków. Trafienia w przypisach są wyświetlane osobno, pod wynikami, i nie wpływają na kolejność wyników z tekstu">
+              <input type="checkbox" id="scopeFootnotes"> <span>Przypisy <small class="cb-aside">osobno</small></span>
+            </label>
+          </section>
+        </div>
+
+        <div class="filter-rail-head">
+          <span class="folio-label">Filtry</span>
+          <div class="filter-mode" role="group" aria-label="Które filtry pokazać">
+            <button type="button" data-filter-mode="basic" aria-pressed="true" title="Pięć najczęściej używanych filtrów">Podstawowe</button>
+            <button type="button" data-filter-mode="advanced" aria-pressed="false" title="Także słowa kluczowe, artykuły Konwencji i dodatkowe części tekstu">Zaawansowane <span class="fold-count" id="advancedCount" hidden></span></button>
+          </div>
+        </div>
+
+        <div class="filters-panel" id="filtersPanel">
+          <div class="filters-grid">
+
+              <!-- ── Common filters — always visible ─────────────────────── -->
+
+              <!-- Judgment Date — temporal scope: judgments per year (click a bar, shift-click to extend) -->
+              <div class="filter-group">
+                <h3 class="filter-title">Data wyroku</h3>
+                <div class="year-histogram" id="yearHistogram" hidden></div>
+                <div class="date-range">
+                  <label for="dateFrom" class="visually-hidden">Wyroki od</label>
+                  <input type="date" id="dateFrom" class="date-input" required disabled>
+                  <span class="date-sep">do</span>
+                  <label for="dateTo" class="visually-hidden">Wyroki do</label>
+                  <input type="date" id="dateTo" class="date-input" required disabled>
+                </div>
+              </div>
+
+              <!-- Respondent State — primary who-dimension -->
+              <div class="filter-group">
+                <h3 class="filter-title">Pozwane państwo</h3>
+                <div class="checkbox-grid scrollable" id="countriesFilters"></div>
+              </div>
+
+              <!-- Court Formation — the bench that decided the case. It narrows whichever collections are
+                   switched on above, decisions included, so the hint is part of the group, not a tooltip. -->
+              <div class="filter-group">
+                <h3 class="filter-title">Skład orzekający</h3>
+                <p class="filter-hint">Dotyczy kolekcji włączonych powyżej.</p>
+                <div class="checkbox-grid compact" id="docTypeFilters"></div>
+              </div>
+
+              <!-- Importance — HUDOC's four-tier classification. -->
+              <div class="filter-group">
+                <h3 class="filter-title">Znaczenie</h3>
+                <div class="checkbox-grid compact" id="importanceFilters"></div>
+              </div>
+
+              <!-- Outcome — result of proceedings -->
+              <div class="filter-group">
+                <h3 class="filter-title">Rozstrzygnięcie</h3>
+                <div class="checkbox-grid compact" id="outcomeFilters"></div>
+              </div>
+
+              <!-- Advanced filters: shown when the rail is switched to Advanced. In Basic the switch
+                   counts the boxes ticked here, so a hidden selection is never invisible. -->
+              <div class="filter-advanced-head" aria-hidden="true">Filtry zaawansowane</div>
+
+              <!-- Keywords — HUDOC thesaurus, several hundred labels the Court applies to every case
+                   ("(Art. 3) Prohibition of torture", "(Art. 6-1) Reasonable time"); ticks combine with OR
+                   (HUDOC convention).  Also available as the keyword: operator. -->
+              <div class="filter-group filter-advanced">
+                <h3 class="filter-title">Słowa kluczowe</h3>
+                <div class="checkbox-grid scrollable" id="keywordsFilters"></div>
+              </div>
+
+              <!-- Convention Articles — also available as the article: operator, which is how it is
+                   actually used (11.9% of searches carry a field prefix; this rail had none in October). -->
+              <div class="filter-group filter-advanced">
+                <h3 class="filter-title">Artykuły Konwencji</h3>
+                <div class="checkbox-grid scrollable" id="articlesFilters"></div>
+              </div>
+
+              <!-- Extra search scope (and the granular sections, hidden: they overlap with "Search in") -->
+              <div class="filter-group filter-advanced">
+                <h3 class="filter-title">Szukaj także w</h3>
+                <details class="filter-disclosure" hidden>
+                  <summary><h3 class="filter-title inline">Części wyroku (zaawansowane)</h3></summary>
+                  <p class="filter-hint">Zastępuje zakres wyszukiwania szczegółowymi podsekcjami HUDOC. Gdy zaznaczone jest którekolwiek pole w tej grupie, pola &bdquo;Szukaj w&rdquo; powyżej są pomijane.</p>
+                  <div class="checkbox-grid compact" id="sectionsFilters"></div>
+                </details>
+                <div class="checkbox-grid compact">
+                  <label class="cb-label" title="Przeszukuj także stronę tytułową (oznaczenie sprawy, numer skargi, sędziowie orzekający) i nagłówki części (np. &bdquo;PROCEDURE&rdquo;, &bdquo;THE LAW&rdquo;): nazwisko sędziego wyszukuje wyroki, w których orzekał">
+                    <input type="checkbox" id="scopeIncludeExtra"> <span>Strona tytułowa (sędziowie) i nagłówki</span>
+                  </label>
+                  <label class="cb-label" title="Przeszukuj także załączniki — tabele odszkodowań i listy skarżących — następujące po sentencji">
+                    <input type="checkbox" id="scopeIncludeAppendix"> <span>Załącznik</span>
+                  </label>
+                </div>
+                <input type="checkbox" id="scopeIncludeOpinions" hidden>
+              </div>
+
+          </div>
+        </div>
+      </aside>
+
+      <div class="results-main">
+        <button type="button" class="filters-sheet-btn" id="filtersSheetBtn" aria-controls="filterRail" aria-expanded="false">Filtry<span id="filtersSheetCount"></span></button>
+        <p class="mt-notice" id="mtNotice" role="status" hidden>
+          Wyszukiwanie obejmuje <strong>angielskie tłumaczenia maszynowe</strong> wyroków (<span id="mtCount">część</span>),
+          które HUDOC publikuje tylko po francusku. Są oznaczone etykietą <em>Tylko po francusku w HUDOC · tłumaczenie
+          maszynowe, nieoficjalne</em>. Nie są to tłumaczenia Trybunału i mogą zawierać błędy: należy sprawdzić i cytować
+          oryginał francuski w HUDOC.
+        </p>
+        <p id="srStatus" class="visually-hidden" role="status"></p>
+        <div class="results-header" id="resultsHeader" hidden>
+          <div class="results-lede">
+            <div class="folio-label garnet">Wyniki · poziom paragrafów</div>
+            <h2 id="resultsHeading"><strong id="resultsHits">0</strong> <span id="resultsHitsLabel">fragmentów</span> z <strong id="resultsCases">0</strong> <span id="resultsCasesLabel">wyroków</span></h2>
+            <p class="results-corpus" id="resultsCorpus" hidden></p>
+            <p class="results-corpus" id="advisoryHint" hidden></p>
+            <p>Kolejność według trafności i daty. <span id="resultsTime">(0,000 s)</span></p>
+          </div>
+          <div class="results-display-controls">
+            <div class="rdc-group" id="resultSortControls" role="group" aria-label="Sortuj wyniki">
+              <span class="rdc-label">Sortuj</span>
+              <button type="button" class="rdc-opt" data-sort="relevance">Trafność</button>
+              <button type="button" class="rdc-opt" data-sort="date_desc">Najnowsze</button>
+              <button type="button" class="rdc-opt" data-sort="date_asc">Najstarsze</button>
+            </div>
+            <div class="rdc-group" id="resultGroupControls" role="group" aria-label="Grupuj wyniki">
+              <span class="rdc-label">Grupuj</span>
+              <button type="button" class="rdc-opt" data-group="case">Według spraw</button>
+              <button type="button" class="rdc-opt" data-group="paragraph">Według paragrafów</button>
+            </div>
+            <div class="rdc-actions">
+              <button type="button" class="export-btn" id="saveSearchBtn" title="Zapisz to zapytanie i jego filtry w obszarze roboczym">☆ Zapisz wyszukiwanie</button>
+              <a class="export-btn rss-link" id="rssLink" href="#" target="_blank" rel="noopener" hidden
+                 title="Skopiuj adres kanału RSS z nowymi wyrokami pasującymi do tego wyszukiwania i jego filtrów (do czytnika kanałów)">RSS</a>
+              <button type="button" class="export-btn" id="exportBtn" title="Eksportuj wyniki do Excela (.xlsx)" disabled>Eksport do Excela</button>
+            </div>
+          </div>
+          <div class="active-filters" id="activeFilters"></div>
+        </div>
+
+        <section class="case-context-card mobile-case-context" id="caseContextRailMobile">
+          <div class="folio-label garnet">Szczegóły sprawy</div>
+          <h3>Oczekiwanie na wyniki</h3>
+          <p class="case-context-empty">Uruchom wyszukiwanie lub wybierz wynik, aby zobaczyć tu kontekst orzeczenia.</p>
+        </section>
+
+        <div class="no-results" id="noResults" hidden>
+          <div class="no-results-icon">§</div>
+          <h2>Brak wyników</h2>
+          <p>Spróbuj innych słów lub szerszych filtrów albo sprawdź pisownię.</p>
+          <a href="#" class="back-link" id="backToSearch">← Powrót do wyszukiwania</a>
+        </div>
+
+        <section class="name-matches" id="nameMatches" aria-live="polite" aria-label="Sprawy pasujące do tej nazwy" hidden></section>
+        <div class="cases-list" id="casesList"></div>
+        <section class="fn-results" id="fnResults" hidden aria-label="Trafienia w przypisach"></section>
+        <div class="pagination" id="pagination" hidden></div>
+      </div>
+
+      <aside class="results-sidebar" id="sidebar">
+        <div class="sidebar-resizer" id="sidebarResizer" role="separator"
+             aria-orientation="vertical" tabindex="0"
+             title="Przeciągnij, aby zmienić szerokość · dwuklik przywraca domyślną"></div>
+        <div class="sidebar-scroll">
+        <section class="case-context-card" id="caseContextRail">
+          <div class="folio-label garnet">Szczegóły sprawy</div>
+          <h3>Oczekiwanie na wyniki</h3>
+          <p class="case-context-empty">Uruchom wyszukiwanie lub wybierz wynik, aby zobaczyć tu kontekst orzeczenia.</p>
+        </section>
+
+        <h3 class="sidebar-title">Statystyki wyszukiwania</h3>
+
+        <div class="sidebar-section">
+          <h4>Artykuły Konwencji</h4>
+          <div class="bar-list" id="analyticsArticles"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <h4>Pozwane państwa</h4>
+          <div class="bar-list" id="analyticsCountries"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <h4>Części wyroku</h4>
+          <div class="bar-list" id="analyticsSections"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <h4>Organ orzekający</h4>
+          <div class="bar-list" id="analyticsBodies"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <h4>Znaczenie</h4>
+          <div class="bar-list" id="analyticsImportance"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <h4>Rozstrzygnięcia</h4>
+          <div class="bar-list" id="analyticsOutcomes"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <h4>Rodzaj dokumentu</h4>
+          <div class="bar-list" id="analyticsDocTypes"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <h4>Częste słowa</h4>
+          <div class="word-cloud" id="analyticsWords"></div>
+        </div>
+        </div>
+      </aside>
+
+      <aside class="dossier-panel" id="dossier" aria-label="Paragraf w kontekście">
+        <div class="dossier-resizer" id="dossierResizer" role="separator"
+             aria-orientation="vertical" tabindex="0"
+             title="Przeciągnij, aby zmienić szerokość · dwuklik przywraca domyślną"></div>
+        <div class="dossier-inner" id="dossierContent"></div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer site-footer site-bar">
+    <div class="sf-left">
+      <span class="sf-name">HUDOC Researcher</span>
+      <span>autorzy: <a href="https://lszoszk.github.io/" target="_blank" rel="noopener"><b>&#321;. Szoszkiewicz</b></a> i <a href="https://prawo.amu.edu.pl/c/administracja/bow/biuro-ds-informatyzacji-wydzialu/p/inz-sebastian-marcisz/" target="_blank" rel="noopener"><b>S. Marcisz</b></a></span>
+      <span class="sf-label">Przy wsparciu</span><span class="sf-sup" title="Uniwersytet im. Adama Mickiewicza w Poznaniu &mdash; instytucja goszcząca projekt">Uniwersytetu im. Adama Mickiewicza</span>
+      <span class="sf-sep">&middot;</span>
+      <span>Dane: <a href="https://hudoc.echr.coe.int" target="_blank" rel="noopener">HUDOC</a></span>
+      <span class="sf-sep">&middot;</span>
+      <span class="sf-fine" title="Niezależny projekt badawczy, niezwiązany z Europejskim Trybunałem Praw Człowieka ani z Radą Europy. To nie jest porada prawna.">Niezwiązane z ETPC &middot; to nie jest porada prawna &middot; <a href="about.html#scope">o projekcie</a></span>
+    </div>
+    <div class="sf-right">
+      <span class="api-status" id="apiStatus" data-state="checking" role="status" title="Łączenie z serwerem wyszukiwania…"><span class="api-dot" aria-hidden="true"></span><span class="api-label">Łączenie</span></span>
+      <a class="api-status data-asof" id="dataAsOf" href="methodology.html#data-currency" hidden></a>
+      <button class="sf-btn" id="themeToggle" type="button" title="Przełącz między motywem jasnym a ciemnym" aria-label="Przełącz tryb ciemny"><span class="theme-icon-light">Motyw: jasny</span><span class="theme-icon-dark">Motyw: ciemny</span></button>
+      <button class="sf-btn" id="accessibilityBtn" type="button" title="Rozmiar tekstu, odstępy, kontrast (Alt+A)" aria-label="Ustawienia dostępności">Aa</button>
+      <a class="sf-btn" href="methodology.html">Metodologia (EN)</a>
+      <button class="sf-btn" id="citeSiteBtn" type="button" title="Skopiuj cytowanie HUDOC Researcher (APA); BibTeX na stronie „O projekcie”">Cytuj</button>
+      <button class="sf-btn sf-tour" id="tourBtn" type="button" hidden title="Minutowy przewodnik po stronie (po angielsku)">&#10022; przewodnik</button>
+    </div>
+  </footer>
+
+  <div class="classifier-pane" id="classifierPane">
+    <div class="classifier-pane-header">
+      <h2>Eksperymentalne tagowanie paragrafów</h2>
+      <button type="button" id="closeClassifierBtn" class="classifier-pane-close" aria-label="Zamknij klasyfikator">×</button>
+    </div>
+
+    <div class="classifier-pane-body">
+      <section class="classifier-section">
+        <h3><span class="step-number">1</span> Etykiety</h3>
+        <p class="classifier-help">Zdefiniuj własne etykiety. Jednemu paragrafowi można przypisać kilka etykiet.</p>
+        <div class="classifier-row">
+          <input type="text" id="newClassifierLabelInput" placeholder="Nazwa nowej etykiety" class="classifier-input">
+          <button type="button" id="addClassifierLabelBtn" class="classifier-btn primary">Dodaj</button>
+        </div>
+        <div id="classifierLabelsList" class="classifier-chip-list"></div>
+      </section>
+
+      <section class="classifier-section">
+        <h3><span class="step-number">2</span> Próbka treningowa</h3>
+        <p class="classifier-help">Wybierz części wyroku, z których zostanie wylosowana próbka. Próbka treningowa liczy zawsze 30 paragrafów.</p>
+        <div id="classifierTrainingSections" class="classifier-check-grid"></div>
+        <div class="classifier-row">
+          <button type="button" id="refreshClassifierSampleBtn" class="classifier-btn secondary">Wygeneruj / odśwież próbkę (30)</button>
+        </div>
+        <div class="classifier-sample-nav">
+          <button type="button" id="classifierPrevSampleBtn" class="classifier-btn secondary">← Poprzedni</button>
+          <span id="classifierSampleCounter">Nie wczytano próbki</span>
+          <button type="button" id="classifierNextSampleBtn" class="classifier-btn secondary">Następny →</button>
+        </div>
+        <div id="classifierSampleCard" class="classifier-sample-card">
+          <p class="classifier-empty">Najpierw wygeneruj próbkę.</p>
+        </div>
+      </section>
+
+      <section class="classifier-section">
+        <h3><span class="step-number">3</span> Trenowanie i predykcja</h3>
+        <p class="classifier-warning">Funkcja eksperymentalna: tagi modelu mają charakter pomocniczy i mogą być nietrafne z prawnego punktu widzenia. Zawsze weryfikuj je z pełnym tekstem orzeczenia i w HUDOC.</p>
+        <div class="classifier-method-row">
+          <label for="classifierMethod" class="classifier-method-label">Metoda klasyfikacji</label>
+          <select id="classifierMethod" class="classifier-select">
+            <option value="tfidf_centroid">TF-IDF Centroid (zrównoważona)</option>
+            <option value="char_ngram_centroid">Char N-Gram Centroid (krótkie teksty)</option>
+            <option value="keyword_overlap">Keyword Overlap (szybka, interpretowalna)</option>
+          </select>
+          <p id="classifierMethodHint" class="classifier-help">Zrównoważona precyzja i czułość dzięki centroidom TF-IDF słów.</p>
+        </div>
+        <div class="classifier-row">
+          <label class="classifier-threshold-label" for="classifierThresholdRange">Próg</label>
+          <input type="range" id="classifierThresholdRange" min="0.05" max="0.8" step="0.01" value="0.22">
+          <span id="classifierThresholdValue" class="classifier-threshold-value">0.22</span>
+        </div>
+        <p class="classifier-help">Wyższy próg oznacza mniej, ale pewniejszych sugestii modelu.</p>
+        <div class="classifier-row">
+          <button type="button" id="trainClassifierBtn" class="classifier-btn primary">Trenuj model</button>
+        </div>
+        <p id="classifierModelStatus" class="classifier-help">Model nie został jeszcze wytrenowany.</p>
+
+        <h4 class="classifier-subtitle">Tagowanie części za pomocą modelu</h4>
+        <div id="classifierPredictionSections" class="classifier-check-grid"></div>
+        <div class="classifier-row">
+          <button type="button" id="applyClassifierModelBtn" class="classifier-btn success">Zastosuj model do wybranych części</button>
+        </div>
+      </section>
+
+      <section class="classifier-section">
+        <h3><span class="step-number">4</span> Zapis postępu</h3>
+        <p class="classifier-help">Postęp jest zapisywany automatycznie w pamięci lokalnej przeglądarki, osobno dla każdego zbioru danych. Możesz też wyeksportować lub zaimportować plik kopii zapasowej.</p>
+        <div class="classifier-row">
+          <button type="button" id="exportClassifierProgressBtn" class="classifier-btn secondary">Eksportuj postęp (JSON)</button>
+          <label for="importClassifierProgressInput" class="classifier-import-label">Importuj postęp (JSON)</label>
+          <input id="importClassifierProgressInput" type="file" accept=".json,application/json" hidden>
+        </div>
+        <div class="classifier-row">
+          <button type="button" id="clearClassifierProgressBtn" class="classifier-btn danger">Wyczyść postęp klasyfikatora</button>
+        </div>
+        <p id="classifierPersistStatus" class="classifier-help">Nie wczytano zapisanego stanu.</p>
+      </section>
+    </div>
+  </div>
+
+  <div class="classifier-backdrop" id="classifierBackdrop" hidden></div>
+
+  <!-- Accessibility Settings Panel -->
+  <div class="a11y-backdrop" id="a11yBackdrop" hidden></div>
+  <div class="a11y-panel" id="accessibilityPanel" hidden>
+    <div class="a11y-panel-header">
+      <h2>Ustawienia dostępności</h2>
+      <button type="button" id="a11yCloseBtn" class="a11y-panel-close" aria-label="Zamknij">&times;</button>
+    </div>
+    <div class="a11y-panel-body">
+      <div class="a11y-group">
+        <label for="a11yTheme">Motyw</label>
+        <select id="a11yTheme" class="a11y-select">
+          <option value="light">Jasny</option>
+          <option value="dark">Ciemny</option>
+        </select>
+      </div>
+      <div class="a11y-group">
+        <label for="a11yFontSize">Rozmiar czcionki</label>
+        <div class="a11y-row">
+          <input type="range" id="a11yFontSize" min="80" max="150" step="5" value="100">
+          <span id="a11yFontSizeValue" class="a11y-value">100%</span>
+        </div>
+      </div>
+      <div class="a11y-group">
+        <label for="a11yLineHeight">Odstęp między wierszami</label>
+        <select id="a11yLineHeight" class="a11y-select">
+          <option value="normal">Normalny</option>
+          <option value="1.6">Wygodny (1,6)</option>
+          <option value="1.8">Swobodny (1,8)</option>
+          <option value="2.0">Szeroki (2,0)</option>
+        </select>
+      </div>
+      <div class="a11y-group">
+        <label class="a11y-check-label">
+          <input type="checkbox" id="a11yHighContrast"> Wysoki kontrast
+        </label>
+      </div>
+      <div class="a11y-group">
+        <label class="a11y-check-label">
+          <input type="checkbox" id="a11yDyslexia"> Czcionka dla osób z dysleksją
+        </label>
+      </div>
+      <div class="a11y-group">
+        <label class="a11y-check-label">
+          <input type="checkbox" id="a11yUnderlineLinks"> Podkreślaj wszystkie linki
+        </label>
+      </div>
+      <div class="a11y-group">
+        <button type="button" id="a11yResetBtn" class="a11y-reset-btn">Przywróć ustawienia domyślne</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Powrót na górę" hidden>&uarr;</button>
+
+  <script src="assets/i18n-pl.js?v=20261118"></script>
+  <script src="assets/search-app.js?v=20261118-comm"></script>
+  <script src="assets/service-notice.js?v=20261022" charset="utf-8" data-app="HUDOC Researcher"
+          data-effect="Do czasu przywrócenia dostępu wyszukiwanie nie obejmuje pełnego zbioru wyroków i decyzji: strona wyszukiwania pokazuje niewielką próbkę offline, a wyszukiwanie semantyczne i konektor MCP są niedostępne."
+          data-probe="https://150.254.115.204/echr-api/health"></script>
+</body>
+</html>

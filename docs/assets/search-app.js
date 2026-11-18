@@ -34,6 +34,11 @@ const API_BASE_URL = (() => {
   return PRODUCTION;
 })();
 const API_HEALTH_URL = API_BASE_URL.replace(/\/api$/, "/health");
+// The Polish beta page (docs/pl/, <html lang="pl" data-comm="1">) offers the communicated cases; tr() picks its
+// Polish wording for the few strings of that mode (the rest of its interface is translated by assets/i18n-pl.js).
+const COMM_ENABLED = document.documentElement.dataset.comm === "1";
+const UI_PL = document.documentElement.lang === "pl";
+const tr = (en, pl) => (UI_PL ? pl : en);
 
 // hudoc_url is written into href attributes, where escapeHtml does not stop a
 // javascript: URL or an off-site link, so only real HUDOC addresses pass.
@@ -138,6 +143,7 @@ const serverSearch = {
     if (query && document.getElementById("scopeFootnotes")?.checked) p.set("footnotes", "1");
     if (filters.includeMt) p.set("include_mt", filters.includeMt === "only" ? "only" : "true");
     if (searchLang() === "fr") { p.delete("include_mt"); p.set("lang", "fr"); }
+    commParams(p);
     // filters.dateFrom/dateTo are epoch-ms (parseDateInput → getTime()).
     // The API compares against judgment_date, so send an ISO yyyy-mm-dd
     // string it can normalise — never the raw timestamp.
@@ -238,6 +244,9 @@ const serverSearch = {
       __isDecision: (apiCase.document_type || "").toLowerCase().startsWith("decision"),
       // Advisory opinions (Protocol No. 16 / Article 47): HUDOC's request number in case_no, its type as document_type.
       __isAdvisory: /^advisory opinion/i.test(apiCase.document_type || ""),
+      // A notice of communication (collection=communicated, Polish beta page): no case-law, a status instead.
+      __isCommunicated: apiCase.document_type === "Communicated Case",
+      __comm: apiCase.communicated || null,
       // Judgments HUDOC publishes only in French, machine-translated for this tool (unofficial).
       __isMt: apiCase.text_origin === "machine_translation",
       // An English translation by a third party (the ERRC) of a judgment HUDOC has only in French; HUDOC publishes it too.
@@ -275,7 +284,7 @@ const serverSearch = {
 
   /** Fetch full case details from server. */
   async getCase(caseId, lang = searchLang()) {
-    const r = await fetch(`${API_BASE_URL}/cases/${encodeURIComponent(caseId)}${lang === "fr" ? "?lang=fr" : ""}`);
+    const r = await fetch(`${API_BASE_URL}/cases/${encodeURIComponent(caseId)}${lang === "fr" ? "?lang=fr" : isComm() ? "?collection=communicated" : ""}`);
     if (!r.ok) throw new Error(`API ${r.status}`);
     return r.json();
   },
@@ -288,6 +297,7 @@ const serverSearch = {
     if (opts.date_from) p.set("date_from", opts.date_from);
     if (opts.date_to) p.set("date_to", opts.date_to);
     if (searchLang() === "fr") p.set("lang", "fr");
+    if (isComm()) p.set("collection", "communicated");
     const qs = p.toString();
     const r = await fetch(`${API_BASE_URL}/facets${qs ? `?${qs}` : ""}`, { signal: opts.signal });
     if (!r.ok) throw new Error(`API ${r.status}`);
@@ -674,7 +684,8 @@ const SECTION_HINTS = {
 /** Outcome values that map to __outcomePrimary (sent to server API).
  *  Flag-based values (has_inadmissibility, is_struck_out) match the HUDOC conclusion text. */
 const PRIMARY_OUTCOMES = new Set(["violation_only", "non_violation_only", "both", "neither", "press_release"]);
-const SERVER_OUTCOMES = new Set([...PRIMARY_OUTCOMES, "has_inadmissibility", "is_struck_out"]);
+const SERVER_OUTCOMES = new Set([...PRIMARY_OUTCOMES, "has_inadmissibility", "is_struck_out",
+  "comm_pending", "comm_judgment", "comm_decision"]);
 
 /** The four outcome options of the filter rail; `primary` lists the __outcomePrimary values an option covers. */
 const OUTCOME_OPTIONS = {
@@ -693,7 +704,23 @@ function serverOutcomeValues(outcomes) {
   return [...outcomes].flatMap((v) => OUTCOME_OPTIONS[v]?.primary || [v]).filter((v) => SERVER_OUTCOMES.has(v));
 }
 
+const COMM_OUTCOME_OPTIONS = {
+  comm_pending: { label: tr("Pending (as of HUDOC)", "W toku (według HUDOC)"),
+    tooltip: tr("No judgment or decision published on HUDOC after the communication (as of the harvest date).",
+      "HUDOC nie opublikował wyroku ani decyzji po zakomunikowaniu (stan na dzień pobrania danych).") },
+  comm_judgment: { label: tr("Decided by judgment", "Zakończona wyrokiem"),
+    tooltip: tr("The Court gave a judgment after the communication.", "Po zakomunikowaniu Trybunał wydał wyrok.") },
+  comm_decision: { label: tr("Decided by decision", "Zakończona decyzją"),
+    tooltip: tr("Ended by a decision: struck out (friendly settlement, unilateral declaration) or inadmissible.",
+      "Zakończona decyzją: skreślenie z listy (ugoda, jednostronna deklaracja) lub niedopuszczalność.") },
+};
+
 function outcomeCheckboxes() {
+  if (isComm()) {
+    return Object.entries(COMM_OUTCOME_OPTIONS)
+      .map(([value, o]) => makeCheckbox(o.label, value, "outcomes", null, { tooltip: o.tooltip }))
+      .join("");
+  }
   return Object.entries(OUTCOME_OPTIONS)
     .map(([value, o]) => makeCheckbox(o.label, value, "outcomes", null, { tooltip: o.tooltip }))
     .join("");
@@ -1527,6 +1554,19 @@ function oscolaDate(value) {
 
 function buildOscolaCitation(caseObj, para) {
   const c = caseObj || {};
+  if (c.document_type === "Communicated Case") {
+    // No paragraph numbers: the Court's question number, else the part of the notice.
+    const apps = String(c.case_no || "").match(/\d+\/\d+/g) || [];
+    const appPart = !apps.length ? "" : apps.length === 1 ? ` App no ${apps[0]}` : ` App no ${apps[0]} and ${apps.length - 1} others`;
+    const d = oscolaDate(c.judgment_date);
+    // "X v. POLAND and 7 other applications": the other applications are counted in appPart
+    const name = String(c.__titleEn || c.title_en || c.title || c.case_id)
+      .replace(/\s+(?:and \d+ other applications?|et \d+ autres? (?:affaires?|requêtes?))\s*$/i, "");
+    let a = `${oscolaTitle(name)} (communicated case)${appPart} (ECtHR${d ? ", communicated " + d : ""})`;
+    if (para && para.numberingBlock === "questions" && para.displayParaNo != null) a += `, question ${para.displayParaNo}`;
+    else if (para && COMM_SECTION_CITE[para.section]) a += `, ${COMM_SECTION_CITE[para.section]}`;
+    return a;
+  }
   const body = String(c.__originatingBody || c.originating_body || "");
   const gc = /grand chamber/i.test(body) && !/panel/i.test(body);
   const dec = /^decision/i.test(String(c.document_type || ""));
@@ -1687,7 +1727,7 @@ function wsFilterSnapshot() {
   return {
     countries: arr(f.countries), articles: arr(f.articles), keywords: arr(f.keywords), importance: arr(f.importance),
     outcomes: arr(f.outcomes), docTypes: arr(f.docTypes), buckets: arr(f.buckets), includeMt: f.includeMt || false,
-    lang: searchLang(),
+    lang: isComm() ? "comm" : searchLang(),
     includeDecisions: !!f.includeDecisions, includeJudgments: f.includeJudgments !== false,
     includeAdvisory: !!f.includeAdvisory,
     includeExtra: !!f.includeMeta, includeAppendix: !!f.includeAppendix,
@@ -1705,6 +1745,7 @@ function searchUrl(query) {
   const p = new URLSearchParams();
   if (query) p.set("q", query);
   if (searchLang() === "fr") p.set("lang", "fr");
+  if (isComm()) p.set("collection", "communicated");
   const s = wsFilterSnapshot();
   const allBuckets = document.querySelectorAll('#bucketScope input[data-name="buckets"]').length;
   for (const [key, field] of Object.entries(URL_LISTS)) {
@@ -1732,7 +1773,7 @@ function snapshotFromUrl(p) {
   s.includeDecisions = !!p.get("dec");
   s.includeAdvisory = !!p.get("adv");
   s.includeJudgments = p.get("dec") !== "only" && p.get("adv") !== "only";
-  s.lang = p.get("lang") === "fr" ? "fr" : "en";
+  s.lang = p.get("collection") === "communicated" && COMM_ENABLED ? "comm" : p.get("lang") === "fr" ? "fr" : "en";
   s.includeExtra = p.get("extra") === "1";
   s.includeAppendix = p.get("appendix") === "1";
   s.footnotes = p.get("fn") === "1";
@@ -1774,15 +1815,99 @@ function searchLang() {
   return state.lang === "fr" ? "fr" : "en";
 }
 
+/* The communicated cases (the Court's notices of communication, HUDOC "Communicated cases") are a third
+ * position of the same switch, offered only on the Polish beta page (<html data-comm="1">) and only when
+ * the API holds them (stats.communicated_cases). searchLang() stays "en" in that mode: the notices are read
+ * in English (French ones machine-translated), and the API is asked with collection=communicated. */
+function isComm() {
+  return COMM_ENABLED && state.lang === "comm";
+}
+
+/* API parameters of the communicated-cases mode: its own database, every notice (the French ones are
+ * machine-translated), no section scope or document types of the judgments, results by case. */
+function commParams(p) {
+  if (!isComm()) return;
+  p.set("collection", "communicated");
+  p.set("include_mt", "true");
+  for (const k of ["sections", "doc_types", "group", "lang", "footnotes"]) p.delete(k);
+}
+
+function commDate(iso) {
+  if (!iso) return "";
+  const d = new Date(`${iso}T00:00:00Z`);
+  return Number.isNaN(d.getTime()) ? iso
+    : d.toLocaleDateString(UI_PL ? "pl-PL" : "en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+}
+
+const COMM_SECTION_CITE = {
+  "Statement of Facts": "statement of facts", "Subject Matter": "subject matter of the case",
+  "Relevant Law": "relevant law", "Complaints": "complaints", "Questions to the Parties": "questions to the parties",
+};
+
+/* Status of a notice on its card: pending (as of the harvest date) or the judgment / decision that ended
+ * it, linked to the corpus when the corpus holds it, else to HUDOC. */
+function commChipsHtml(c) {
+  const m = c.__comm || {};
+  const asOf = commDate(m.as_of);
+  let status;
+  if (m.status === "pending" || m.status === "partly_decided" || !m.outcome_kind) {
+    const part = m.status === "partly_decided" ? tr(" (in part)", " (częściowo)") : "";
+    status = `<span class="chip comm-status comm-pending" title="${escapeHtml(tr(
+      `HUDOC had published no judgment or decision on this application after its communication, as of ${asOf}.`,
+      `Do ${asOf} HUDOC nie opublikował wyroku ani decyzji w tej sprawie po jej zakomunikowaniu.`))}">${tr("Pending", "W toku")}${part} · ${escapeHtml(tr("HUDOC as of", "HUDOC na"))} ${escapeHtml(asOf)}</span>`;
+  }
+  if (m.outcome_kind) {
+    const kind = m.outcome_kind === "judgment" ? tr("Judgment", "Wyrok") : tr("Decision", "Decyzja");
+    const id = m.outcome_case_id || "";
+    const href = m.outcome_in_corpus ? `${location.pathname}?q=${encodeURIComponent(`hudoc:${id}`)}`
+      : `https://hudoc.echr.coe.int/?i=${encodeURIComponent(id)}`;
+    const ext = m.outcome_in_corpus ? "" : ' target="_blank" rel="noopener noreferrer"';
+    status = (status || "") + `<a class="chip comm-status comm-decided" href="${escapeHtml(href)}"${ext} title="${escapeHtml(
+      (m.outcome_title || "") + (m.outcome_in_corpus ? "" : tr(" — on HUDOC (not in this tool)", " — w HUDOC (poza tym narzędziem)")))}">${kind} ${escapeHtml(commDate(m.outcome_date))} ${m.outcome_in_corpus ? "→" : "↗"}</a>`;
+  }
+  const mt = c.__isMt ? `<span class="chip mt-chip" title="${escapeHtml(tr(
+    "HUDOC publishes this notice only in French. This English text is a machine translation made for this tool.",
+    "HUDOC publikuje tę komunikację tylko po francusku. Tekst angielski to tłumaczenie maszynowe wykonane dla tego narzędzia."))}">${tr("French on HUDOC · machine translation, unofficial", "Po francusku w HUDOC · tłumaczenie maszynowe, nieoficjalne")}</span>`
+    : (c.language === "fr" ? `<span class="chip lang-chip">FR</span>` : "");
+  return `<span class="chip comm-badge" title="${escapeHtml(tr(
+    "A notice of communication: the applicant's case and the Court's questions to the parties. Not a decision of the Court.",
+    "Komunikacja skargi: sprawa w ujęciu skarżącego i pytania Trybunału do stron. To nie jest orzeczenie Trybunału."))}">${tr("Communicated case", "Sprawa zakomunikowana")}</span>${status}${
+    c.__originatingBody ? `<span class="chip">${escapeHtml(c.__originatingBody)}</span>` : ""}${mt}`;
+}
+
 function setSearchLang(lang) {
-  state.lang = lang === "fr" ? "fr" : "en";
+  state.lang = lang === "fr" ? "fr" : (lang === "comm" && COMM_ENABLED) ? "comm" : "en";
   state.readLang.clear();
   const fr = state.lang === "fr";
+  const comm = state.lang === "comm";
   document.querySelectorAll('input[name="searchLang"]').forEach((i) => { i.checked = i.value === state.lang; });
   const en = document.getElementById("collectionEn");
-  if (en) en.hidden = fr;
+  if (en) en.hidden = fr || comm;
   const note = document.getElementById("frNote");
   if (note) note.hidden = !fr;
+  if (COMM_ENABLED) {
+    const cnote = document.getElementById("commNote");
+    if (cnote) cnote.hidden = !comm;
+    document.body.classList.toggle("comm-mode", comm);
+    const outcomeTitle = el && el.outcomeFilters && el.outcomeFilters.closest(".filter-group")?.querySelector(".filter-title");
+    if (outcomeTitle) {
+      if (!outcomeTitle.dataset.label) outcomeTitle.dataset.label = outcomeTitle.textContent;
+      outcomeTitle.textContent = comm ? tr("Status", "Status sprawy") : outcomeTitle.dataset.label;
+    }
+    if (el && el.outcomeFilters) {
+      // The options differ between the two modes: keep what is ticked, and take the address's statuses (a link
+      // to "pending" cases arrives before the options of this mode exist).
+      const keep = new Set([...el.outcomeFilters.querySelectorAll("input:checked")].map((i) => i.value));
+      (new URLSearchParams(location.search).get("outcome") || "").split(",").forEach((v) => v && keep.add(v.trim()));
+      el.outcomeFilters.innerHTML = outcomeCheckboxes();
+      el.outcomeFilters.querySelectorAll("input").forEach((i) => { i.checked = keep.has(i.value); });
+    }
+    const dateTitle = el && el.dateFrom && el.dateFrom.closest(".filter-group")?.querySelector(".filter-title");
+    if (dateTitle) {
+      if (!dateTitle.dataset.label) dateTitle.dataset.label = dateTitle.textContent;
+      dateTitle.textContent = comm ? tr("Date of communication", "Data zakomunikowania") : dateTitle.dataset.label;
+    }
+  }
   if (el.searchInput) {
     if (!el.searchInput.dataset.placeholderEn) el.searchInput.dataset.placeholderEn = el.searchInput.placeholder;
     el.searchInput.placeholder = fr ? 'ex. "marge d\u2019appréciation" article:10' : el.searchInput.dataset.placeholderEn;
@@ -1859,7 +1984,8 @@ function wsApplySnapshot(s) {
   for (const name of ["countries", "articles", "keywords", "importance", "outcomes", "docTypes"]) setGroup(name, s[name]);
   const buckets = s.buckets && s.buckets.length ? s.buckets : null;
   document.querySelectorAll('#bucketScope input[data-name="buckets"]').forEach((i) => { i.checked = buckets ? buckets.includes(i.value) : true; });
-  setSearchLang(s.lang === "fr" && !document.getElementById("langSwitch")?.hidden ? "fr" : "en");
+  setSearchLang(s.lang === "fr" && !document.getElementById("langSwitch")?.hidden ? "fr"
+    : s.lang === "comm" && !document.getElementById("commOption")?.hidden ? "comm" : "en");
   const decBox = document.getElementById("includeDecisions");
   if (decBox) decBox.checked = !!s.includeDecisions && !document.getElementById("decisionsPill")?.hidden;
   const advBox = document.getElementById("includeAdvisory");
@@ -3153,7 +3279,8 @@ function passesCaseFilters(c, filters, serverChecked = false) {
     return false;
   }
 
-  if (filters.outcomes.size) {
+  // A notice's status (comm_*) is filtered by the server (communicated_meta); nothing to check here.
+  if (filters.outcomes.size && !c.__isCommunicated) {
     // OR semantics across all outcome options.
     // Primary outcomes (violation_only etc.) match __outcomePrimary;
     // flag-based options (has_inadmissibility, is_struck_out) match boolean fields.
@@ -3234,6 +3361,9 @@ function passesCaseFilters(c, filters, serverChecked = false) {
  */
 function formatParaNum(p) {
   if (!p) return "¶ ?";
+  // A notice of communication: the Court numbers only its questions to the parties; nothing else gets a label.
+  if (p.numberingBlock === "questions") return p.displayParaNo != null ? `${tr("Q", "Pyt.")} ${p.displayParaNo}` : "";
+  if (isComm() && p.hudocParaNo == null && p.displayParaNo == null) return "";
   // Priority: hudocParaNo > inheritedParaNo (continuation row of most-recent
   // numbered ¶) > "—" placeholder.  paraIdx is NOT used as a label fallback:
   // post-P23 every Pop C row carries an in-document position, but rendering
@@ -3645,7 +3775,7 @@ function renderActiveFilters(filters) {
     chips.push(`<span class="filter-chip">Importance: ${escapeHtml(level)}</span>`);
   }
   for (const outcome of filters.outcomes) {
-    const label = OUTCOME_LABELS[outcome] || outcome;
+    const label = COMM_OUTCOME_OPTIONS[outcome]?.label || OUTCOME_LABELS[outcome] || outcome;
     chips.push(`<span class="filter-chip">${escapeHtml(label)}</span>`);
   }
   for (const dt of filters.docTypes) {
@@ -6000,11 +6130,11 @@ function buildCaseCard(caseId, row, rank = 1) {
         <p class="para-text researcher-primary-text">${primaryText}</p>
 
         <div class="researcher-chip-row">
-          ${c.__isAdvisory
+          ${c.__isCommunicated ? commChipsHtml(c) + buildResearcherArticleChips(c.__articles, 3) : `${c.__isAdvisory
             ? `<span class="chip">${escapeHtml(c.case_no || "")}</span><span class="chip">${escapeHtml(c.document_type)}</span>`
             : buildResearcherArticleChips(c.__articles, 3)}
           <span class="chip" title="${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "")}">${escapeHtml(formationLabel(c) || "-")}${c.__isDecision ? " decision" : ""}</span>
-          ${c.__isAdvisory ? "" : outcomeChipHtml(c)}
+          ${c.__isAdvisory ? "" : outcomeChipHtml(c)}`}
           ${c.__isMt ? `<span class="chip mt-chip" title="HUDOC publishes this judgment only in French. This English text is a machine translation made for this tool, not a translation by the Court.">Only in French on HUDOC · machine translation, unofficial</span>` : ""}
           ${c.__isThirdPartyTr ? `<span class="chip mt-chip" title="HUDOC publishes this judgment only in French. This English text is a translation by a third party, which HUDOC also publishes; it is not the Court's text.">Only in French on HUDOC · third-party translation, unofficial</span>` : ""}
           ${c.__isFrOriginal && c.__translationAvailable ? `<span class="chip lang-chip" title="An unofficial English machine translation of this judgment is available: switch to it in the case details.">EN translation</span>` : ""}
@@ -6297,7 +6427,8 @@ function buildParagraphCard(h, rank) {
   const c = h.case;
   const title = cleanCaseTitle(c.title);
   const date = formatCaseDateForDisplay(c);
-  const num = (h.displayParaNo != null) ? `¶ ${h.displayParaNo}`
+  const num = (h.numberingBlock === "questions" || isComm()) ? formatParaNum(h)
+            : (h.displayParaNo != null) ? `¶ ${h.displayParaNo}`
             : (h.hudocParaNo != null) ? `¶ ${h.hudocParaNo}` : "¶ —";
   // #6 parity for by-paragraph results: when the hit is a fragment
   // (quote / bullet) show its parent body ¶ as a muted lead-in, then
@@ -6543,6 +6674,7 @@ async function fetchAndRenderServerAnalytics(query, filters, signal = undefined)
     if (docTypesParam(filters)) p.set("doc_types", docTypesParam(filters));
     if (filters.includeMt) p.set("include_mt", filters.includeMt === "only" ? "only" : "true");
     if (searchLang() === "fr") { p.delete("include_mt"); p.set("lang", "fr"); }
+    commParams(p);
     if (filters.dateFrom) p.set("date_from", filters.dateFrom);
     if (filters.dateTo) p.set("date_to", filters.dateTo);
 
@@ -7792,6 +7924,7 @@ document.addEventListener("click", async (e) => {
 });
 
 function dossierParaNumLabel(p) {
+  if (p.numberingBlock === "questions" || isComm()) return formatParaNum(p);   // notices: only the Court's questions are numbered
   const n = (p.displayParaNo != null) ? p.displayParaNo
           : (p.hudocParaNo != null) ? p.hudocParaNo : null;
   return n != null ? `¶ ${n}` : "¶ —";
@@ -8786,8 +8919,18 @@ function init() {
         const decShare = document.getElementById("decShare");
         if (decShare) decShare.textContent = `${Math.max(1, Math.round(decN / 29001 * 100))}%`;
         const frN = statsData.french_originals || 0;
+        const commN = COMM_ENABLED ? (statsData.communicated_cases || 0) : 0;
         const langSwitch = document.getElementById("langSwitch");
-        if (langSwitch) langSwitch.hidden = !frN;
+        if (langSwitch) langSwitch.hidden = !frN && !commN;
+        if (COMM_ENABLED) {
+          const commOption = document.getElementById("commOption");
+          if (commOption) commOption.hidden = !commN;
+          const commCount = document.getElementById("commCount");
+          if (commCount) commCount.textContent = commN ? new Intl.NumberFormat(UI_PL ? "pl-PL" : "en-US").format(commN) : "";
+          const commAsOf = document.getElementById("commAsOf");
+          if (commAsOf && statsData.communicated_as_of) commAsOf.textContent = commDate(statsData.communicated_as_of);
+          if (commN && new URLSearchParams(location.search).get("collection") === "communicated") setSearchLang("comm");
+        }
         const frNote = document.getElementById("frCountNote");
         if (frNote) frNote.textContent = fmt.format(frN);
         if (frN && new URLSearchParams(location.search).get("lang") === "fr") setSearchLang("fr");
