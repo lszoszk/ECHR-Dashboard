@@ -1847,17 +1847,18 @@ function isPl() {
 /* Polish page: the "Spróbuj" examples of each collection, a Polish label for an English query where the texts are
  * English (the query goes into the search box on a click, and shows on hover). */
 const TRY_CHIPS = {
-  en: [["Areszt a waga zarzutów", '"gravity of the charges cannot by itself" state:Poland'],
-       ["Więzień „niebezpieczny”", '"dangerous detainee" state:Poland'],
+  // the first example of each set shows an operator as it is typed; the others a Polish label for the query
+  en: [["surveillance OR interception NOT terrorism state:Poland", "surveillance OR interception NOT terrorism state:Poland"],
+       ["Areszt a waga zarzutów", '"gravity of the charges cannot by itself" state:Poland'],
        ["Przewlekłość postępowania", '"length of the proceedings" state:Poland article:6']],
-  fr: [["Rozsądny termin (FR)", '"délai raisonnable"'],
-       ["Tymczasowe aresztowanie (FR)", '"détention provisoire"'],
+  fr: [['"détention provisoire" OR "garde à vue"', '"détention provisoire" OR "garde à vue"'],
+       ["Rozsądny termin (FR)", '"délai raisonnable"'],
        ["Margines swobody (FR)", '"marge d\'appréciation"']],
-  comm: [["Krajowa Rada Sądownictwa", '"National Council of the Judiciary"'],
-         ["Granica z Białorusią", "Belarus border"],
+  comm: [["abortion OR pregnancy", "abortion OR pregnancy"],
+         ["Krajowa Rada Sądownictwa", '"National Council of the Judiciary"'],
          ["Kontrole osobiste w więzieniu", '"strip search"']],
-  pl: [["tymczasowe aresztowanie", "tymczasowe aresztowanie"],
-       ["przewlekłość postępowania", "przewlekłość postępowania"],
+  pl: [["wydalenie OR ekstradycja NOT azyl", "wydalenie OR ekstradycja NOT azyl"],
+       ["tymczasowe aresztowanie", "tymczasowe aresztowanie"],
        ["„wolność wyrażania opinii”", '"wolność wyrażania opinii"']],
 };
 
