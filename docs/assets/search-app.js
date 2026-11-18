@@ -8288,7 +8288,7 @@ function bindEvents() {
 
   // The "i" beside the translations and advisory-opinion options: hover or focus shows it (CSS); a click pins it open
   // (touch screens), a click elsewhere or Escape closes it.
-  for (const tip of [document.getElementById("mtInfoTip"), document.getElementById("advInfoTip")]) {
+  for (const tip of [document.getElementById("mtInfoTip"), document.getElementById("advInfoTip"), document.getElementById("commInfoTip")]) {
     if (!tip) continue;
     const btn = tip.querySelector(".info-tip-btn");
     const setOpen = (open) => { tip.classList.toggle("open", open); btn.setAttribute("aria-expanded", String(open)); };

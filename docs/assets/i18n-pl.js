@@ -332,7 +332,7 @@
     "How citations are found": "Jak ustalane są cytowania (EN)",
     "Run a full-text query to load matched paragraphs for this case.": "Wpisz zapytanie pełnotekstowe, aby wczytać pasujące paragrafy tej sprawy.",
     "No paragraphs for current filters.": "Brak paragrafów przy bieżących filtrach.",
-    "Case record only in recent-cases browse mode. Enter a full-text query to surface matched paragraphs from this judgment.": "W trybie przeglądania najnowszych spraw widoczna jest tylko metryka sprawy. Wpisz zapytanie pełnotekstowe, aby zobaczyć pasujące paragrafy tego wyroku.",
+    "Case record only in recent-cases browse mode. Enter a full-text query to surface matched paragraphs from this judgment.": "W trybie przeglądania widoczna jest tylko metryka sprawy. Wpisz zapytanie, aby zobaczyć pasujące fragmenty.",
     "Case record": "Metryka sprawy",
     "CASE": "SPRAWA",
     "No articles listed": "Brak wskazanych artykułów",

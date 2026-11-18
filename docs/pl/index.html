@@ -43,6 +43,14 @@
     }
     /* Communicated cases (search-app.js puts .comm-mode on <body>): a notice has no parts of a judgment to
        scope, no footnotes and no citation graph, so those controls are hidden; its badge and status stand out. */
+    /* Collection switch: English | Français on one row, the communicated cases on a row of their own. */
+    #langSwitch { flex-wrap: wrap; width: 100%; }
+    #langSwitch label { flex: 1 1 0; justify-content: center; }
+    #langSwitch #commOption { flex: 1 0 100%; border-left: 0; border-top: 1px solid var(--rule, #d8d0c3); white-space: nowrap; }
+    #langSwitch #commOption[hidden] { display: none; }
+    .comm-note { font-size: 0.85em; }
+    .nav-link { white-space: nowrap; }
+    .nav-en { margin-left: 3px; font-size: 0.6em; letter-spacing: 0.06em; vertical-align: super; opacity: 0.6; }
     .comm-mode section[aria-labelledby="searchInTitle"],
     .comm-mode .filter-group:has(#docTypeFilters),
     .comm-mode .filter-group:has(#importanceFilters),
@@ -81,11 +89,11 @@
       </button>
       <div class="nav-links">
         <a href="pl/" class="nav-link active">Wyszukiwanie</a>
-        <a href="semantic.html" class="nav-link" title="Eksperymentalne" id="ragLink">Wyszukiwanie semantyczne (EN) <svg class="exp-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 1.5h4M6.7 1.5v4.2L2.6 13a1.2 1.2 0 0 0 1 1.8h8.8a1.2 1.2 0 0 0 1-1.8L9.3 5.7V1.5M4.4 10h7.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="visually-hidden"> (eksperymentalne)</span></a>
-        <a href="check.html" class="nav-link">Weryfikacja cytowań (EN)</a>
-        <a href="workspace.html" class="nav-link">Obszar roboczy (EN) <span class="ws-count" data-ws-count hidden></span></a>
-        <a href="analytics.html" class="nav-link">Statystyki (EN)</a>
-        <a href="about.html" class="nav-link">O projekcie (EN)</a>
+        <a href="semantic.html" class="nav-link" title="Eksperymentalne; strona po angielsku" id="ragLink">Semantyczne<span class="nav-en">EN</span> <svg class="exp-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 1.5h4M6.7 1.5v4.2L2.6 13a1.2 1.2 0 0 0 1 1.8h8.8a1.2 1.2 0 0 0 1-1.8L9.3 5.7V1.5M4.4 10h7.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="visually-hidden"> (eksperymentalne)</span></a>
+        <a href="check.html" class="nav-link" title="Weryfikacja cytowań; strona po angielsku">Weryfikacja<span class="nav-en">EN</span></a>
+        <a href="workspace.html" class="nav-link" title="Strona po angielsku">Obszar roboczy<span class="nav-en">EN</span> <span class="ws-count" data-ws-count hidden></span></a>
+        <a href="analytics.html" class="nav-link" title="Strona po angielsku">Statystyki<span class="nav-en">EN</span></a>
+        <a href="about.html" class="nav-link" title="Strona po angielsku">O projekcie<span class="nav-en">EN</span></a>
         <a href="about.html#scope" class="nav-disclaimer">Niezwiązane z ETPC &middot; to nie jest porada prawna</a>
         <a href="./" class="nav-link" lang="en">English</a>
       </div>
@@ -185,7 +193,16 @@
             <p class="lang-note" id="frNote" hidden>Autentyczne francuskie teksty <span id="frCountNote"></span>
               wyroków, które HUDOC publikuje tylko po francusku. Wyszukiwanie po francusku: akcenty są opcjonalne, a <code>*</code>
               dopasowuje końcówki słów (<code>discrimin*</code>).</p>
-            <p class="lang-note" id="commNote" hidden>Komunikacje skarg przeciwko państwom, opublikowane przez Trybunał w bazie HUDOC (kolekcja „Communicated cases”): stan faktyczny lub przedmiot sprawy w ujęciu skarżącego, zarzuty i pytania Trybunału do stron. To nie są orzeczenia, a zakomunikowanie skargi nie przesądza o jej dopuszczalności. HUDOC nie publikuje wszystkich komunikacji. Teksty francuskie przetłumaczono maszynowo (nieoficjalnie). Status sprawy (w toku / wyrok / decyzja) według HUDOC na dzień pobrania danych: <span id="commAsOf"></span>.</p>
+            <p class="lang-note comm-note" id="commNote" hidden>Wersja skarżącego i pytania Trybunału do stron, nie orzeczenia. Status według HUDOC na <span id="commAsOf"></span>.
+              <span class="info-tip" id="commInfoTip">
+                <button type="button" class="info-tip-btn" aria-label="Więcej o sprawach zakomunikowanych"
+                        aria-expanded="false" aria-controls="commInfoPop">i</button>
+                <span class="info-tip-pop" id="commInfoPop" role="tooltip">
+                  Komunikacje skarg opublikowane przez Trybunał w HUDOC (kolekcja „Communicated cases”): stan faktyczny
+                  lub przedmiot sprawy, zarzuty i pytania do stron. Zakomunikowanie nie przesądza o dopuszczalności skargi.
+                  HUDOC nie publikuje wszystkich komunikacji. Teksty francuskie przetłumaczono maszynowo (nieoficjalnie).
+                </span>
+              </span></p>
             <div id="collectionEn">
             <label class="cb-label scope-fixed" title="Angielskie teksty wyroków w brzmieniu opublikowanym w HUDOC. Odznacz to pole, gdy zaznaczone są decyzje lub tłumaczenia, aby przeszukiwać wyłącznie je">
               <input type="checkbox" id="includeOfficial" checked disabled>
@@ -631,8 +648,8 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Powrót na górę" hidden>&uarr;</button>
 
-  <script src="assets/i18n-pl.js?v=20261118"></script>
-  <script src="assets/search-app.js?v=20261118-comm"></script>
+  <script src="assets/i18n-pl.js?v=20261118b"></script>
+  <script src="assets/search-app.js?v=20261118-comm2"></script>
   <script src="assets/service-notice.js?v=20261022" charset="utf-8" data-app="HUDOC Researcher"
           data-effect="Do czasu przywrócenia dostępu wyszukiwanie nie obejmuje pełnego zbioru wyroków i decyzji: strona wyszukiwania pokazuje niewielką próbkę offline, a wyszukiwanie semantyczne i konektor MCP są niedostępne."
           data-probe="https://150.254.115.204/echr-api/health"></script>
