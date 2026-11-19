@@ -49,7 +49,10 @@
     #langSwitch #commOption, #langSwitch #plOption { flex: 1 0 100%; border-left: 0; border-top: 1px solid var(--rule, #d8d0c3); white-space: nowrap; }
     #langSwitch #commOption[hidden], #langSwitch #plOption[hidden] { display: none; }
     .comm-note { font-size: 0.85em; }
-    #commInfoTip .info-tip-pop { right: auto; left: -8px; width: 220px; }
+    /* The "i" ends the note: its box spans the note's width, under it, so it stays inside the left rail. */
+    #commNote { position: relative; }
+    #commInfoTip { position: static; }
+    #commInfoTip .info-tip-pop { left: 0; right: 0; width: auto; }
     /* Header: the Polish labels are longer; never scroll sideways. */
     .nav-brand .brand-text { white-space: nowrap; }
     .nav-brand::after { content: "Orzecznictwo ETPC na poziomie paragrafów"; }
