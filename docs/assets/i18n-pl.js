@@ -32,11 +32,14 @@
   var RX_DAY_SHORT = new RegExp("\\b(\\d{1,2}) (" + SHORT + ")\\.? (\\d{4})\\b", "g");
   var RX_MON_LONG = new RegExp("\\b(" + LONG + ") (\\d{4})\\b", "g");
   var RX_MON_SHORT = new RegExp("\\b(" + SHORT + ")\\.? (\\d{4})\\b", "g");
-  /* "12 March 2024" -> "12 marca 2024", "12 Mar 2024" -> "12 mar 2024", "March 2024" -> "marzec 2024". */
+  var SHORT_LONG = { Jan: "January", Feb: "February", Mar: "March", Apr: "April", May: "May", Jun: "June", Jul: "July",
+    Aug: "August", Sep: "September", Sept: "September", Oct: "October", Nov: "November", Dec: "December" };
+  /* One form of date on the page: "12 March 2024" and "12 Mar 2024" -> "12 marca 2024" (a leading zero dropped);
+   * "March 2024" -> "marzec 2024", "Mar 2024" -> "mar 2024". */
   function plDates(s) {
     return String(s)
-      .replace(RX_DAY_LONG, function (m, d, mo, y) { return d + " " + MONTH_GEN[mo] + " " + y; })
-      .replace(RX_DAY_SHORT, function (m, d, mo, y) { return d + " " + MONTH_SHORT[mo] + " " + y; })
+      .replace(RX_DAY_LONG, function (m, d, mo, y) { return +d + " " + MONTH_GEN[mo] + " " + y; })
+      .replace(RX_DAY_SHORT, function (m, d, mo, y) { return +d + " " + MONTH_GEN[SHORT_LONG[mo]] + " " + y; })
       .replace(RX_MON_LONG, function (m, mo, y) { return MONTH_NOM[mo] + " " + y; })
       .replace(RX_MON_SHORT, function (m, mo, y) { return MONTH_SHORT[mo] + " " + y; });
   }

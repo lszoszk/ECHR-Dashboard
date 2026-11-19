@@ -1950,7 +1950,7 @@ const COMM_SECTION_CITE = {
 
 /* Status of a notice on its card: pending (as of the harvest date) or the judgment / decision that ended
  * it, linked to the corpus when the corpus holds it, else to HUDOC. */
-function commChipsHtml(c) {
+function commChipsHtml(c, statusOnly = false) {
   const m = c.__comm || {};
   const asOf = commDate(m.as_of);
   let status;
@@ -1958,7 +1958,7 @@ function commChipsHtml(c) {
     const part = m.status === "partly_decided" ? tr(" (in part)", " (częściowo)") : "";
     status = `<span class="chip comm-status comm-pending" title="${escapeHtml(tr(
       `HUDOC had published no judgment or decision on this application after its communication, as of ${asOf}.`,
-      `Do ${asOf} HUDOC nie opublikował wyroku ani decyzji w tej sprawie po jej zakomunikowaniu.`))}">${tr("Pending", "W toku")}${part} · ${escapeHtml(tr("HUDOC as of", "stan w HUDOC na"))} ${escapeHtml(asOf)}${UI_PL ? " r." : ""}</span>`;
+      `Do ${asOf} HUDOC nie opublikował wyroku ani decyzji w tej sprawie po jej zakomunikowaniu.`))}">${tr("Pending", "W toku")}${part} · ${escapeHtml(tr("HUDOC as of", "stan w HUDOC na"))} ${escapeHtml(asOf)}</span>`;
   }
   if (m.outcome_kind) {
     const kind = m.outcome_kind === "judgment" ? tr("Judgment", "Wyrok") : tr("Decision", "Decyzja");
@@ -1976,6 +1976,7 @@ function commChipsHtml(c) {
       `Rule 44 § 3 (b) of the Rules of Court: twelve weeks from the publication on HUDOC (${commDate(m.published_on)}); the President may fix another time-limit.`,
       `Art. 44 § 3 lit. b Regulaminu Trybunału: 12 tygodni od publikacji w HUDOC (${commDate(m.published_on)}); Przewodniczący może wyznaczyć inny termin.`))}">${escapeHtml(tr("Third-party intervention until", "Interwencja strony trzeciej do"))} ${escapeHtml(commDate(m.intervention_deadline))}</span>`;
   }
+  if (statusOnly) return (status || "") + deadline;
   const mt = c.__isMt ? `<span class="chip mt-chip" title="${escapeHtml(tr(
     "HUDOC publishes this notice only in French. This English text is a machine translation made for this tool.",
     "HUDOC publikuje tę komunikację tylko po francusku. Tekst angielski to tłumaczenie maszynowe wykonane dla tego narzędzia."))}">${tr("French on HUDOC · machine translation, unofficial", "Po francusku w HUDOC · tłumaczenie maszynowe, nieoficjalne")}</span>`
@@ -2837,6 +2838,105 @@ function renderFilters() {
   attachFilterGroupClearButtons();
   // Update toggle button "Advanced Filters (N active)" badge
   updateActiveFilterCount();
+}
+
+/* The universe of filter values (countries, Articles, keywords, ...) and their counts over the whole collection,
+ * from /api/facets with no query. Built at start-up; the Polish page rebuilds it when the collection changes,
+ * so that a list never offers values the collection does not hold. */
+function applyFacetUniverse(facets, keep = null) {
+  // Whole-corpus facet counts.  Cached as globalFacetCounts so the
+  // rail can fall back to them whenever there is no active search
+  // (see refreshRailCounts); facetCounts is the currently-shown set.
+  state.globalFacetCounts = buildFacetCounts(facets);
+  state.facetCounts = state.globalFacetCounts;
+  state.globalYears = facets.years || null;
+  renderYearHistogram(state.globalYears);
+
+  // Build the stable filter option lists — the universe of values.
+  // These never change; only the counts beside them do (per search).
+  // Reverse map: DB section name → normalized key. Multiple DB values
+  // may point at the same key (e.g. both "Facts Background" and
+  // "Facts Proceedings" → "facts"), so expand the arrays.
+  const DB_TO_NORM = {};
+  for (const [norm, dbArr] of Object.entries(SECTION_DB_NAMES)) {
+    for (const db of dbArr) DB_TO_NORM[db] = norm;
+  }
+  if (facets.sections) {
+    // Dedupe: two raw DB values may collapse into the same normalized
+    // key, which would otherwise render a duplicate filter checkbox.
+    const normalized = facets.sections
+      .map((f) => DB_TO_NORM[f.value] || f.value)
+      .filter((s) => SECTION_LABELS[s]);
+    state.sectionsInDataset = [...new Set(normalized)]
+      .sort((a, b) => {
+        const ai = SECTION_ORDER.indexOf(a);
+        const bi = SECTION_ORDER.indexOf(b);
+        if (ai !== -1 && bi !== -1) return ai - bi;
+        if (ai !== -1) return -1;
+        if (bi !== -1) return 1;
+        return a.localeCompare(b);
+      });
+  }
+  if (facets.states) {
+    state.countries = facets.states
+      .filter((f) => f.value)
+      .map((f) => f.value)
+      .sort((a, b) => a.localeCompare(b));
+  }
+  if (facets.articles) {
+    state.articles = facets.articles
+      .map((f) => f.value)
+      .sort((a, b) => (a.length - b.length) || a.localeCompare(b));
+  }
+  if (facets.keywords) {
+    // Preserve server order (descending by case count) — most-cited
+    // HUDOC keywords come first, which is what a researcher wants.
+    state.keywords = facets.keywords.map((f) => f.value).filter(Boolean);
+  }
+  if (facets.bodies) {
+    state.bodies = facets.bodies
+      .map((f) => f.value)
+      .sort((a, b) => a.localeCompare(b));
+  }
+  if (facets.importance) {
+    state.importanceLevels = sortImportanceLevels(
+      facets.importance.filter((f) => f.value).map((f) => f.value)
+    );
+  }
+  // A value ticked before the collection changed stays offered (and ticked): it still filters.
+  if (keep) {
+    for (const [name, list] of [["countries", state.countries], ["articles", state.articles], ["keywords", state.keywords]]) {
+      for (const v of keep.get(name) || []) if (!list.includes(v)) list.push(v);
+    }
+  }
+  renderFilters();
+  if (keep) {
+    for (const [name, values] of keep) {
+      for (const v of values) {
+        const box = [...document.querySelectorAll(`input[type="checkbox"][data-name="${name}"]`)].find((i) => i.value === v);
+        if (box) box.checked = true;
+      }
+    }
+    updateActiveFilterCount();
+  }
+}
+
+/* Polish page: the filter lists of the collection just chosen (cached per collection), so that the notices or
+ * the Polish translations are not offered the 46 States and 500 keywords of the English judgments at count 0. */
+async function switchFacetUniverse() {
+  const mode = state.lang;
+  const cache = state.facetUniverse || (state.facetUniverse = {});
+  if (!cache[mode]) {
+    try { cache[mode] = await serverSearch.getFacets(); } catch (e) { console.warn("[Server Facets] collection switch:", e); return; }
+  }
+  if (state.lang !== mode) return;   // switched again meanwhile
+  const keep = new Map();
+  document.querySelectorAll('#filtersPanel input[type="checkbox"][data-name]:checked').forEach((i) => {
+    const name = i.getAttribute("data-name");
+    if (!keep.has(name)) keep.set(name, []);
+    keep.get(name).push(i.value);
+  });
+  applyFacetUniverse(cache[mode], keep);
 }
 
 /** Transform a raw /api/facets response into the value→count maps that
@@ -5440,7 +5540,7 @@ function groupArticleTokens(articles) {
       if (!Number.isNaN(an) && !Number.isNaN(bn) && an !== bn) return an - bn;
       return String(a).localeCompare(String(b));
     });
-    const label = subs.length ? `Art ${base} §§ ${subs.join(", ")}` : `Art ${base}`;
+    const label = subs.length ? `Art ${base} ${subs.length > 1 ? "§§" : "§"} ${subs.join(", ")}` : `Art ${base}`;
     const entry = { label, base, subs };
     if (PROCEDURAL_ARTICLE_BASES.has(base)) out.procedural.push(entry);
     else out.substantive.push(entry);
@@ -5496,20 +5596,29 @@ function buildLegalStatusChips(caseObj) {
   return chips.join("");
 }
 
+/* A respondent State's name; in Polish on the Polish page (a list of several is not one dictionary entry). */
+function stateDisplayName(code) {
+  const en = COUNTRY_NAMES[code] || code;
+  return UI_PL && window.I18N_PL ? window.I18N_PL.t(en) : en;
+}
+
 function formatCaseDateForDisplay(c) {
   const raw = c?.judgment_date || "";
   if (!raw) return "-";
+  // Polish page: one form of date everywhere ("29 września 2026").
+  const fmt = UI_PL ? ["pl-PL", { day: "numeric", month: "long", year: "numeric" }]
+    : ["en-GB", { day: "2-digit", month: "short", year: "numeric" }];
   const parts = raw.split("/");
   if (parts.length === 3) {
     const iso = `${parts[2]}-${parts[1]}-${parts[0]}`;
     const d = new Date(iso);
     if (!Number.isNaN(d.getTime())) {
-      return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+      return d.toLocaleDateString(...fmt);
     }
   }
   const d = new Date(raw);
   if (!Number.isNaN(d.getTime())) {
-    return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+    return d.toLocaleDateString(...fmt);
   }
   return raw;
 }
@@ -5732,6 +5841,25 @@ function getCaseNoteContext(paras, activeIdx, before, after) {
   };
 }
 
+/* Polish page: the headings every notice and judgment shares ("STATEMENT OF FACTS", "QUESTIONS TO THE PARTIES",
+ * "THE LAW") read in Polish in the breadcrumb; the case's own headings stay as the Court wrote them. */
+const PL_TEMPLATE_HEADINGS = {
+  "STATEMENT OF FACTS": "Stan faktyczny", "THE FACTS": "Stan faktyczny",
+  "SUBJECT MATTER OF THE CASE": "Przedmiot sprawy", "REVISED SUBJECT MATTER OF THE CASE": "Przedmiot sprawy (zmieniony)",
+  "COMPLAINTS": "Zarzuty", "THE COMPLAINTS": "Zarzuty", "COMPLAINT": "Zarzut",
+  "QUESTIONS TO THE PARTIES": "Pytania do stron", "QUESTIONS": "Pytania do stron",
+  "QUESTION TO THE PARTIES": "Pytanie do stron", "QUESTION": "Pytanie do stron",
+  "COMMON QUESTIONS": "Pytania wspólne", "COMMON QUESTIONS FOR ALL APPLICATIONS": "Pytania wspólne",
+  "CASE-SPECIFIC QUESTIONS": "Pytania szczegółowe", "CASE SPECIFIC QUESTIONS": "Pytania szczegółowe",
+  "CASE-SPECIFIC QUESTION": "Pytanie szczegółowe",
+  "PROCEDURE": "Postępowanie", "THE LAW": "Prawo", "THE CIRCUMSTANCES OF THE CASE": "Okoliczności sprawy",
+  "RELEVANT LEGAL FRAMEWORK": "Właściwe ramy prawne", "RELEVANT LEGAL FRAMEWORK AND PRACTICE": "Właściwe ramy prawne i praktyka",
+};
+function plTemplateHeading(t) {
+  if (!UI_PL) return t;
+  return PL_TEMPLATE_HEADINGS[t.toUpperCase().replace(/[:.]\s*$/, "").replace(/\s+/g, " ").trim()] || t;
+}
+
 /* Context block for the Case Note: the matched paragraph plus its
  * neighbours within the section, a section breadcrumb, and incremental
  * ↑/↓ expanders.  Reuses the .dossier-ctx-* paragraph CSS. */
@@ -5757,7 +5885,7 @@ function caseNoteContextHtml(ctx, paras, activeIdx) {
     const t = (paras[i].text || "").trim();
     if (t && t.length <= 140) segs.unshift(t);
   }
-  const bcParts = segs.length ? segs : [activeSec.sectionLabel || "—"];
+  const bcParts = segs.length ? segs.map(plTemplateHeading) : [activeSec.sectionLabel || "—"];
   const breadcrumb = bcParts.map(escapeHtml).join('<span class="dossier-bc-sep">›</span>');
 
   // #5 — the matched row's role, to flag a match inside quoted material.
@@ -5845,7 +5973,7 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
   const c = row.case;
   const primaryPara = row.paragraphs[0] || null;
   const title = cleanCaseTitle(c.title);
-  const states = (c.__states || []).map((d) => COUNTRY_NAMES[d] || d).filter(Boolean).join(", ") || "-";
+  const states = (c.__states || []).map(stateDisplayName).filter(Boolean).join(", ") || "-";
   const outcomeLabel = OUTCOME_LABELS[c.__outcomePrimary] || c.__outcomePrimary || "-";
   const outcomeToneClass = getOutcomeToneClass(c.__outcomePrimary);
   const chamberLabel = getChamberLabel(c.__chamberCategory);
@@ -5892,7 +6020,7 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
         <div><dt>Respondent State</dt><dd>${escapeHtml(states)}</dd></div>
         ${appNos.length > 1 ? `<div><dt>Applications</dt><dd>${escapeHtml(appNos.join(", "))}</dd></div>` : ""}
         <div><dt>Formation</dt><dd>${escapeHtml(formatBodyLabel(c.__originatingBody) || chamberLabel || "—")}</dd></div>
-        <div><dt>Outcome</dt><dd class="${escapeHtml(outcomeToneClass)}">${escapeHtml(outcomeLabel)}</dd></div>
+        ${c.__isCommunicated ? "" : `<div><dt>Outcome</dt><dd class="${escapeHtml(outcomeToneClass)}">${escapeHtml(outcomeLabel)}</dd></div>`}
         ${c.document_type ? `<div><dt>Document</dt><dd>${escapeHtml(c.document_type)}</dd></div>` : ""}
         <div><dt>Importance</dt><dd${importanceShortLabel(c.__importance) ? ` title="${escapeHtml(importanceTooltip(c.__importance))}"` : ""}>${escapeHtml(IMPORTANCE_LABELS[c.__importance] || importanceShortLabel(c.__importance) || "—")}</dd></div>
         <div><dt>Cites</dt><dd${citations > 0 ? "" : ` title="${c.__importance === "3" ? "No citations recorded. HUDOC does not analyse cited case-law for importance-3 judgments (HUDOC FAQ §12); our text-extracted graph also found none here" : "Citation-graph coverage is partial — no citation data recorded for this case"}"`}>${citations > 0 ? `${fmtInt.format(citations)} judgments` : "—"}</dd></div>
@@ -6059,7 +6187,10 @@ function caseFindingsHtml(c) {
   const decision = c.__isDecision ? `<div class="cn-findings"><div><span class="cnm-label">Decision</span>` +
     `<span class="cn-chips"><span class="cn-art" title="${escapeHtml(Array.isArray(c.conclusion) ? c.conclusion.join("; ") : String(c.conclusion || ""))}">` +
     `${escapeHtml((OUTCOME_SHORT[c.__outcomePrimary] || ["", OUTCOME_LABELS[c.__outcomePrimary] || "—"])[1])}</span></span></div></div>` : "";
-  return caseLangHtml(c) + decision + findings;
+  // A notice: its status (pending, or the judgment or decision that ended it) and the intervention deadline.
+  const comm = c.__isCommunicated ? `<div class="cn-findings"><div><span class="cnm-label">${tr("Status", "Status sprawy")}</span>` +
+    `<span class="cn-chips researcher-chip-row">${commChipsHtml(c, true)}</span></div></div>` : "";
+  return caseLangHtml(c) + comm + decision + findings;
 }
 
 function caseMetadataHtml(c) {
@@ -6071,7 +6202,7 @@ function caseMetadataHtml(c) {
   const keywords = (c.keywords || []).map(String).filter(Boolean);
   return opinion
     + metaSectionHtml("Strasbourg case-law cited", c.strasbourg_caselaw, caselawItemHtml)
-    + metaSectionHtml("HUDOC conclusion", conclusion)
+    + (c.__isCommunicated ? "" : metaSectionHtml("HUDOC conclusion", conclusion))
     + metaSectionHtml("Keywords", keywords)
     + metaSectionHtml("Domestic law", c.domestic_law)
     + metaSectionHtml("International law", c.international_law)
@@ -6869,9 +7000,9 @@ async function fetchAndRenderServerAnalytics(query, filters, signal = undefined)
 function announceResults() {
   updateFeedLink();
   if (!el.srStatus) return;
-  const text = (byId("resultsHeading")?.textContent || "").replace(/\s+/g, " ").trim();
   el.srStatus.textContent = "";
-  setTimeout(() => { el.srStatus.textContent = text; }, 50);
+  // Read when announced, not now: the Polish page words the heading after this call (i18n-pl.js).
+  setTimeout(() => { el.srStatus.textContent = (byId("resultsHeading")?.textContent || "").replace(/\s+/g, " ").trim(); }, 50);
 }
 
 /** The RSS feed of a search (api /feed): the newest judgments matching the query and filters. */
@@ -7711,7 +7842,7 @@ function buildCaseMeta(caseObj) {
   parts.push(`Case no: ${escapeHtml(caseObj.case_no || "-")}`);
   parts.push(`Judgment: ${escapeHtml(caseObj.judgment_date || "-")}`);
 
-  const states = (caseObj.__states || []).map((d) => COUNTRY_NAMES[d] || d).join(", ") || "-";
+  const states = (caseObj.__states || []).map(stateDisplayName).join(", ") || "-";
   parts.push(`Respondent State: ${escapeHtml(states)}`);
   parts.push(`Originating Body: ${escapeHtml(formatBodyLabel(caseObj.__originatingBody) || "-")}`);
   parts.push(`Importance: ${escapeHtml(caseObj.__importance || "-")}`);
@@ -8403,7 +8534,8 @@ function bindEvents() {
   document.getElementById("bucketScope")?.addEventListener("change", (e) => {
     if (e.target && e.target.name === "searchLang") {
       setSearchLang(e.target.value);
-      refreshRailCounts(el.searchInput.value, getCurrentFilters());
+      if (COMM_ENABLED) switchFacetUniverse().then(() => refreshRailCounts(el.searchInput.value, getCurrentFilters()));
+      else refreshRailCounts(el.searchInput.value, getCurrentFilters());
     }
     syncCollectionBoxes();
     const mtNotice = document.getElementById("mtNotice");
@@ -9143,67 +9275,8 @@ function init() {
       // Fetch full facets from server and override local sample filters
       try {
         const facets = await serverSearch.getFacets();
-
-        // Whole-corpus facet counts.  Cached as globalFacetCounts so the
-        // rail can fall back to them whenever there is no active search
-        // (see refreshRailCounts); facetCounts is the currently-shown set.
-        state.globalFacetCounts = buildFacetCounts(facets);
-        state.facetCounts = state.globalFacetCounts;
-        state.globalYears = facets.years || null;
-        renderYearHistogram(state.globalYears);
-
-        // Build the stable filter option lists — the universe of values.
-        // These never change; only the counts beside them do (per search).
-        // Reverse map: DB section name → normalized key. Multiple DB values
-        // may point at the same key (e.g. both "Facts Background" and
-        // "Facts Proceedings" → "facts"), so expand the arrays.
-        const DB_TO_NORM = {};
-        for (const [norm, dbArr] of Object.entries(SECTION_DB_NAMES)) {
-          for (const db of dbArr) DB_TO_NORM[db] = norm;
-        }
-        if (facets.sections) {
-          // Dedupe: two raw DB values may collapse into the same normalized
-          // key, which would otherwise render a duplicate filter checkbox.
-          const normalized = facets.sections
-            .map((f) => DB_TO_NORM[f.value] || f.value)
-            .filter((s) => SECTION_LABELS[s]);
-          state.sectionsInDataset = [...new Set(normalized)]
-            .sort((a, b) => {
-              const ai = SECTION_ORDER.indexOf(a);
-              const bi = SECTION_ORDER.indexOf(b);
-              if (ai !== -1 && bi !== -1) return ai - bi;
-              if (ai !== -1) return -1;
-              if (bi !== -1) return 1;
-              return a.localeCompare(b);
-            });
-        }
-        if (facets.states) {
-          state.countries = facets.states
-            .filter((f) => f.value)
-            .map((f) => f.value)
-            .sort((a, b) => a.localeCompare(b));
-        }
-        if (facets.articles) {
-          state.articles = facets.articles
-            .map((f) => f.value)
-            .sort((a, b) => (a.length - b.length) || a.localeCompare(b));
-        }
-        if (facets.keywords) {
-          // Preserve server order (descending by case count) — most-cited
-          // HUDOC keywords come first, which is what a researcher wants.
-          state.keywords = facets.keywords.map((f) => f.value).filter(Boolean);
-        }
-        if (facets.bodies) {
-          state.bodies = facets.bodies
-            .map((f) => f.value)
-            .sort((a, b) => a.localeCompare(b));
-        }
-        if (facets.importance) {
-          state.importanceLevels = sortImportanceLevels(
-            facets.importance.filter((f) => f.value).map((f) => f.value)
-          );
-        }
-        renderFilters();
+        if (COMM_ENABLED) state.facetUniverse = { [state.lang]: facets };
+        applyFacetUniverse(facets);
         console.log("[Server Facets] Filters updated from server:", {
           sections: state.sectionsInDataset.length,
           countries: state.countries.length,

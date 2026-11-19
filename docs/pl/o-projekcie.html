@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pl" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <base href="../">
+  <title>O projekcie — HUDOC Researcher (wersja polska)</title>
+  <meta name="description" content="HUDOC Researcher: wyszukiwanie w orzecznictwie Europejskiego Trybunału Praw Człowieka na poziomie paragrafów. Wersja polska (beta): sprawy zakomunikowane Polsce i polskie tłumaczenia z HUDOC.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>§</text></svg>">
+  <!-- Analytics: cookie-free GoatCounter; GA4 only after consent. See assets/analytics-consent.js -->
+  <script src="assets/analytics-consent.js?v=20261010-gc" defer></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/dashboard.css">
+  <link rel="stylesheet" href="assets/search-app.css">
+  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261020-try3">
+  <style>
+    .about-content { max-width: 820px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+    .about-section { margin-bottom: 2.5rem; }
+    .about-section h2 {
+      font-family: 'Source Serif 4', Georgia, serif; font-size: 1.5rem; font-weight: 600; color: var(--text-primary);
+      margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border, #e2e8f0);
+    }
+    .about-section h3 { font-family: 'Source Serif 4', Georgia, serif; font-size: 1.1rem; font-weight: 600; margin: 1.4rem 0 0.5rem; }
+    .about-section p, .about-section li {
+      font-family: 'Source Serif 4', Georgia, serif; font-size: 1.02rem; line-height: 1.75; color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+    }
+    .about-section ul { padding-left: 1.5rem; margin-bottom: 1rem; }
+    .about-section li { margin-bottom: 0.5rem; }
+    .about-section a { color: var(--primary-accent, #2c5282); text-decoration: underline; text-underline-offset: 2px; }
+    .about-section a:hover { color: var(--garnet-2, #1a365d); }
+    .author-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-top: 1rem; }
+    .author-card { background: var(--bg-card, #fff); border: 1px solid var(--border, #e2e8f0); border-radius: 12px; padding: 1.5rem; }
+    .author-card h3 { margin: 0 0 0.25rem; }
+    .author-card .author-role { font-size: 0.9rem; color: var(--text-muted, #718096); }
+    .cite-box { margin: 10px 0 12px; padding: 14px 16px; border: 1px solid var(--rule, #d8d0c3); border-left: 3px solid var(--garnet, #8d2f2f); background: var(--paper-2, #f4f1ea); }
+    .cite-box p { margin: 0; }
+    .nav-brand::after { content: "Orzecznictwo ETPC na poziomie paragrafów"; }
+    @media (max-width: 1439px) { .nav-brand::after { display: none; } }
+    .hero::before { content: "Wersja polska · beta"; }
+    .nav-link { white-space: nowrap; }
+    .nav-en { margin-left: 3px; font-size: 0.6em; letter-spacing: 0.06em; vertical-align: super; opacity: 0.6; }
+    @media (max-width: 1100px) { .nav-links { gap: 8px; } .nav-link { font-size: 0.82rem; } }
+  </style>
+  <script src="assets/workspace.js?v=20261014-rsscopy"></script>
+  <script src="assets/cite.js?v=20261011-hlink" defer></script>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="pl/" class="nav-brand">
+        <span class="brand-icon">§</span>
+        <span class="brand-text">HUDOC Researcher</span>
+        <span class="beta-badge" title="Wersja beta: funkcje i dane mogą się jeszcze zmieniać. Prosimy o zgłaszanie problemów.">Beta</span>
+      </a>
+      <button class="nav-hamburger" id="navHamburger" type="button" aria-label="Pokaż lub ukryj nawigację" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="nav-links">
+        <a href="pl/" class="nav-link">Wyszukiwanie</a>
+        <a href="semantic.html" class="nav-link" title="Eksperymentalne; strona po angielsku">Semantyczne<span class="nav-en">EN</span></a>
+        <a href="check.html" class="nav-link" title="Weryfikacja cytowań; strona po angielsku">Weryfikacja<span class="nav-en">EN</span></a>
+        <a href="workspace.html" class="nav-link" title="Strona po angielsku">Obszar roboczy<span class="nav-en">EN</span> <span class="ws-count" data-ws-count hidden></span></a>
+        <a href="analytics.html" class="nav-link" title="Strona po angielsku">Statystyki<span class="nav-en">EN</span></a>
+        <a href="pl/o-projekcie.html" class="nav-link active" aria-current="page">O projekcie</a>
+        <a href="pl/o-projekcie.html#zakres" class="nav-disclaimer">Niezwiązane z ETPC &middot; to nie jest porada prawna</a>
+        <a href="about.html" class="nav-link" lang="en">English</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <section class="hero">
+      <div class="hero-inner">
+        <h1 class="hero-title">O projekcie</h1>
+        <p class="hero-subtitle">HUDOC Researcher &mdash; orzecznictwo Europejskiego Trybunału Praw Człowieka na poziomie paragrafów</p>
+      </div>
+    </section>
+
+    <div class="about-content">
+
+      <section class="about-section">
+        <h2>Czym jest HUDOC Researcher</h2>
+        <p>
+          <strong>HUDOC Researcher dzieli orzeczenia Europejskiego Trybunału Praw Człowieka na paragrafy</strong>, z numeracją
+          Trybunału i oznaczeniem części orzeczenia, do której paragraf należy. Wyszukiwanie prowadzi więc wprost do fragmentu,
+          który można zacytować, a link otwiera ten sam paragraf w HUDOC, autorytatywnej bazie Trybunału.
+        </p>
+        <p>
+          W wyszukiwarce są wyroki, które HUDOC publikuje po angielsku (ponad 20 tys.), wyroki publikowane tylko po francusku
+          (ponad 9 tys., także w nieoficjalnym tłumaczeniu maszynowym na angielski), ponad 28 tys. decyzji oraz opinie doradcze.
+          Zbiór jest aktualizowany codziennie. Sposób przygotowania i sprawdzenia danych opisuje
+          <a href="methodology.html">Metodologia</a> (po angielsku).
+        </p>
+      </section>
+
+      <section class="about-section">
+        <h2>Wersja polska (beta)</h2>
+        <p>
+          Interfejs wyszukiwarki jest po polsku. Część opisów pomocy i pozostałe podstrony (wyszukiwanie semantyczne,
+          weryfikacja cytowań, obszar roboczy, statystyki, metodologia) są na razie tylko po angielsku. Wersja polska ma dwie
+          kolekcje, których nie ma w wersji angielskiej:
+        </p>
+        <h3>Sprawy zakomunikowane Polsce</h3>
+        <p>
+          Komunikacje skarg przeciwko Polsce opublikowane w HUDOC: przedmiot sprawy albo stan faktyczny w ujęciu skarżącego,
+          zarzuty i pytania Trybunału do stron. Przy każdej sprawie widać jej status według HUDOC (w toku albo zakończona
+          wyrokiem lub decyzją, z linkiem do rozstrzygnięcia) i, dopóki biegnie, termin na interwencję strony trzeciej
+          (art. 44 § 3 lit. b Regulaminu Trybunału: 12 tygodni od publikacji komunikacji w HUDOC). Kolekcja jest aktualizowana
+          co tydzień, a nowe komunikacje można śledzić przez kanał RSS. Komunikacje, które HUDOC publikuje tylko po francusku,
+          mają nieoficjalne tłumaczenie maszynowe na angielski.
+        </p>
+        <h3>Polskie tłumaczenia</h3>
+        <p>
+          Polskie tłumaczenia i streszczenia wyroków i decyzji publikowane w HUDOC, przygotowane przez polskie instytucje
+          (m.in. Ministerstwo Sprawiedliwości), z linkiem do oryginału. Wyszukiwanie uwzględnia odmianę wyrazów i działa także
+          bez polskich znaków; fraza w cudzysłowie jest wyszukiwana dokładnie.
+        </p>
+      </section>
+
+      <section class="about-section" id="zakres">
+        <h2>Zakres i zastrzeżenia</h2>
+        <ul>
+          <li><strong>Narzędzie niezależne, to nie jest porada prawna.</strong> HUDOC Researcher jest narzędziem akademickim,
+            niezwiązanym z Europejskim Trybunałem Praw Człowieka ani Radą Europy i przez nie niezatwierdzonym. Źródłem
+            autorytatywnym jest <a href="https://hudoc.echr.coe.int" target="_blank" rel="noopener noreferrer">HUDOC</a>:
+            każdy fragment, na którym się opierasz, sprawdź w HUDOC.</li>
+          <li><strong>Komunikacja nie jest orzeczeniem.</strong> To zawiadomienie rządu o skardze i pytania Trybunału do stron;
+            stan faktyczny przedstawia wersję skarżącego. HUDOC publikuje komunikacje tylko części zakomunikowanych skarg,
+            więc kolekcja nie obejmuje wszystkich spraw zakomunikowanych Polsce. Status sprawy odpowiada temu, co HUDOC
+            opublikował do dnia ostatniej aktualizacji.</li>
+          <li><strong>Tłumaczenia są nieoficjalne.</strong> Dotyczy to zarówno tłumaczeń maszynowych, jak i polskich tłumaczeń
+            publikowanych w HUDOC. Cytuj tekst autentyczny orzeczenia (angielski lub francuski).</li>
+        </ul>
+      </section>
+
+      <section class="about-section">
+        <h2>Autorzy</h2>
+        <div class="author-cards">
+          <div class="author-card">
+            <h3>Łukasz Szoszkiewicz</h3>
+            <p class="author-role">Uniwersytet im. Adama Mickiewicza w Poznaniu</p>
+          </div>
+          <div class="author-card">
+            <h3>Sebastian Marcisz</h3>
+            <p class="author-role">Uniwersytet im. Adama Mickiewicza w Poznaniu</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="about-section">
+        <h2>Jak cytować</h2>
+        <div class="cite-box">
+          <p>Szoszkiewicz, Ł., &amp; Marcisz, S. (2026). <em>HUDOC Researcher — ECtHR case-law search and RAG</em> [Computer software].
+            Zenodo. <a href="https://doi.org/10.5281/zenodo.21319703" target="_blank" rel="noopener noreferrer">https://doi.org/10.5281/zenodo.21319703</a></p>
+        </div>
+        <p>
+          Opierając się na fragmencie orzeczenia, cytuj także samo orzeczenie: jego rekord w HUDOC i numer paragrafu (przycisk
+          „Cytuj” przy każdym wyniku). Cytowanie w formacie BibTeX jest na stronie <a href="about.html">About</a> (po angielsku).
+        </p>
+      </section>
+
+      <section class="about-section">
+        <h2>Dane, licencje i kontakt</h2>
+        <p>
+          Orzeczenia, komunikacje i ich metadane pochodzą z
+          <a href="https://hudoc.echr.coe.int" target="_blank" rel="noopener noreferrer">HUDOC</a>. Same orzeczenia pozostają
+          utworami © Rada Europy / Europejski Trybunał Praw Człowieka, na warunkach HUDOC.
+        </p>
+        <p>
+          Oprogramowanie jest udostępnione na licencji
+          <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/" target="_blank" rel="noopener noreferrer">PolyForm Noncommercial 1.0.0</a>
+          (użytek badawczy, edukacyjny, niekomercyjny i osobisty). Przetworzony zbiór danych (podział na paragrafy, numery
+          paragrafów, oznaczenia części, metadane i powiązania cytowań) jest dostępny w serwisie
+          <a href="https://huggingface.co/datasets/lszoszk/ecthr-judgments" target="_blank" rel="noopener noreferrer">Hugging Face</a>
+          na licencji <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.pl" target="_blank" rel="noopener noreferrer">CC BY-NC-SA 4.0</a>.
+        </p>
+        <p>
+          Uwagi i zgłoszenia błędów są mile widziane; dane kontaktowe, informacje o serwerze MCP dla asystentów AI i pełny
+          opis zakresu są na stronie <a href="about.html">About</a> (po angielsku).
+        </p>
+      </section>
+
+    </div>
+  </main>
+</body>
+</html>
