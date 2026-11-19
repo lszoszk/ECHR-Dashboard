@@ -1,17 +1,17 @@
 {
   "schema_version": "decisions-v1",
-  "generated_at": "2026-11-18T17:15:13.187756+00:00",
+  "generated_at": "2026-11-19T17:15:54.357449+00:00",
   "source_db": "echr_search.db",
   "cutoff": "22/10/2026",
   "totals": {
-    "cases_all": 57773,
-    "judgments": 29426,
-    "judgments_official_english": 20146,
+    "cases_all": 57779,
+    "judgments": 29429,
+    "judgments_official_english": 20149,
     "machine_translations": 9280,
-    "decisions": 28330,
+    "decisions": 28333,
     "advisory_opinions": 17,
-    "decisions_with_text": 28330,
-    "decision_paragraphs": 2008962,
+    "decisions_with_text": 28333,
+    "decision_paragraphs": 2009212,
     "paragraphs_median": 46,
     "paragraphs_mean": 70.9,
     "first_year": 1986,
@@ -24,7 +24,7 @@
     ],
     [
       "Inadmissible",
-      9316
+      9319
     ],
     [
       "Partly inadmissible",
@@ -287,7 +287,7 @@
     [
       2026,
       387,
-      329,
+      332,
       0
     ]
   ],
@@ -446,13 +446,13 @@
     ],
     [
       2026,
-      724
+      727
     ]
   ],
   "by_state": [
     [
       "Poland",
-      3146
+      3147
     ],
     [
       "Russia",
@@ -460,7 +460,7 @@
     ],
     [
       "Turkey",
-      2815
+      2816
     ],
     [
       "Romania",
@@ -596,7 +596,7 @@
     ],
     [
       "Montenegro",
-      109
+      110
     ],
     [
       "France",
@@ -850,11 +850,11 @@
   "by_formation": [
     [
       "Court (Committee)",
-      15715
+      15717
     ],
     [
       "Court (Chamber)",
-      12583
+      12584
     ],
     [
       "Court (Grand Chamber)",
@@ -864,7 +864,7 @@
   "sections": [
     [
       "Merits",
-      870857
+      870946
     ],
     [
       "Circumstances",
@@ -872,7 +872,7 @@
     ],
     [
       "Header",
-      259485
+      259514
     ],
     [
       "Just Satisfaction",
@@ -888,7 +888,7 @@
     ],
     [
       "Legal Framework",
-      12484
+      12549
     ],
     [
       "Procedure",
@@ -896,7 +896,7 @@
     ],
     [
       "Facts",
-      3169
+      3236
     ],
     [
       "Operative part",
@@ -912,7 +912,7 @@
     ]
   ],
   "article35": {
-    "with_any_tag": 7774,
+    "with_any_tag": 7777,
     "with_subground": 850,
     "subgrounds": [
       [
@@ -963,7 +963,7 @@
   },
   "caveats": {
     "published_only": "HUDOC's published decisions, not the Court's filtering of applications. Single-judge decisions, which dispose of most of the docket, are not published: every record here is a Committee, Chamber or Grand Chamber decision.",
-    "grounds_coverage": "A specific Article 35 sub-ground is coded for 850 of 28330 decisions. The grounds list is not a profile of all of them.",
+    "grounds_coverage": "A specific Article 35 sub-ground is coded for 850 of 28333 decisions. The grounds list is not a profile of all of them.",
     "unit": "HUDOC decision record, not an application or applicant.",
     "live_db": "Built from the live search corpus, not from the judgment catalog snapshot the rest of this page uses, so the two carry different build dates."
   }
