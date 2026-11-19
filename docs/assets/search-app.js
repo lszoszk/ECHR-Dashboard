@@ -1969,13 +1969,20 @@ function commChipsHtml(c) {
     status = (status || "") + `<a class="chip comm-status comm-decided" href="${escapeHtml(href)}"${ext} title="${escapeHtml(
       (m.outcome_title || "") + (m.outcome_in_corpus ? "" : tr(" — on HUDOC (not in this tool)", " — w HUDOC (poza tym narzędziem)")))}">${kind} ${escapeHtml(commDate(m.outcome_date))} ${m.outcome_in_corpus ? "→" : "↗"}</a>`;
   }
+  // Rule 44 § 3 (b): twelve weeks from the publication on HUDOC; shown while it runs
+  let deadline = "";
+  if (m.intervention_deadline && m.intervention_deadline >= new Date().toISOString().slice(0, 10)) {
+    deadline = `<span class="chip comm-status comm-deadline" title="${escapeHtml(tr(
+      `Rule 44 § 3 (b) of the Rules of Court: twelve weeks from the publication on HUDOC (${commDate(m.published_on)}); the President may fix another time-limit.`,
+      `Art. 44 § 3 lit. b Regulaminu Trybunału: 12 tygodni od publikacji w HUDOC (${commDate(m.published_on)}); Przewodniczący może wyznaczyć inny termin.`))}">${escapeHtml(tr("Third-party intervention until", "Interwencja strony trzeciej do"))} ${escapeHtml(commDate(m.intervention_deadline))}</span>`;
+  }
   const mt = c.__isMt ? `<span class="chip mt-chip" title="${escapeHtml(tr(
     "HUDOC publishes this notice only in French. This English text is a machine translation made for this tool.",
     "HUDOC publikuje tę komunikację tylko po francusku. Tekst angielski to tłumaczenie maszynowe wykonane dla tego narzędzia."))}">${tr("French on HUDOC · machine translation, unofficial", "Po francusku w HUDOC · tłumaczenie maszynowe, nieoficjalne")}</span>`
     : (c.language === "fr" ? `<span class="chip lang-chip">FR</span>` : "");
   return `<span class="chip comm-badge" title="${escapeHtml(tr(
     "A notice of communication: the applicant's case and the Court's questions to the parties. Not a decision of the Court.",
-    "Skarga zakomunikowana rządowi: sprawa w ujęciu skarżącego i pytania Trybunału do stron. To nie jest orzeczenie Trybunału."))}">${tr("Communicated case", "Sprawa zakomunikowana")}</span>${status}${
+    "Skarga zakomunikowana rządowi: sprawa w ujęciu skarżącego i pytania Trybunału do stron. To nie jest orzeczenie Trybunału."))}">${tr("Communicated case", "Sprawa zakomunikowana")}</span>${status}${deadline}${
     c.__originatingBody ? `<span class="chip">${escapeHtml(c.__originatingBody)}</span>` : ""}${mt}`;
 }
 

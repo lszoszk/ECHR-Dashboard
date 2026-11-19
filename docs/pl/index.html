@@ -89,6 +89,7 @@
     .researcher-chip-row .comm-badge { background: var(--garnet-soft, #f4e0dd); border-color: var(--garnet-edge, #d9aaa4); color: var(--garnet, #8d2f2f); }
     .researcher-chip-row .comm-pending { color: var(--blue-ink, #395d7f); }
     .researcher-chip-row .comm-decided { color: var(--green-ink, #43705a); }
+    .researcher-chip-row .comm-deadline { color: var(--garnet, #8d2f2f); border-color: var(--garnet-edge, #d9aaa4); }
     .researcher-chip-row a.comm-decided:hover { text-decoration: underline; }
   </style>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
@@ -249,6 +250,8 @@
                   Skargi zakomunikowane rządowi, opublikowane przez Trybunał w HUDOC (kolekcja „Communicated cases”): stan faktyczny
                   lub przedmiot sprawy, zarzuty i pytania do stron. Zakomunikowanie nie przesądza o dopuszczalności skargi.
                   HUDOC nie publikuje wszystkich zakomunikowanych skarg. Teksty francuskie przetłumaczono maszynowo (nieoficjalnie).
+                  Zbiór jest aktualizowany co tydzień; przycisk RSS przy wynikach daje kanał z nowymi komunikacjami
+                  (np. przeciwko Polsce). Przy nowych sprawach widać termin na interwencję strony trzeciej.
                 </span>
               </span></p>
             <p class="lang-note comm-note" id="plNote" hidden>Polskie tłumaczenia i streszczenia wyroków i decyzji publikowane w HUDOC (nieoficjalne). Wyszukiwanie obejmuje odmiany wyrazów; fraza w cudzysłowie szuka dokładnie.</p>
@@ -698,7 +701,7 @@
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Powrót na górę" hidden>&uarr;</button>
 
   <script src="assets/i18n-pl.js?v=20261118d"></script>
-  <script src="assets/search-app.js?v=20261118-pl4"></script>
+  <script src="assets/search-app.js?v=20261119-comm6"></script>
   <script src="assets/service-notice.js?v=20261022" charset="utf-8" data-app="HUDOC Researcher"
           data-effect="Do czasu przywrócenia dostępu wyszukiwanie nie obejmuje pełnego zbioru wyroków i decyzji: strona wyszukiwania pokazuje niewielką próbkę offline, a wyszukiwanie semantyczne i konektor MCP są niedostępne."
           data-probe="https://150.254.115.204/echr-api/health"></script>
