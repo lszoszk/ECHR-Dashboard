@@ -287,8 +287,9 @@ const serverSearch = {
   },
 
   /** Fetch full case details from server. */
-  async getCase(caseId, lang = searchLang()) {
-    const r = await fetch(`${API_BASE_URL}/cases/${encodeURIComponent(caseId)}${lang === "fr" ? "?lang=fr" : isComm() ? "?collection=communicated" : isPl() ? "?lang=pl" : ""}`);
+  async getCase(caseId, lang = searchLang(), qs = null) {
+    const q = qs != null ? qs : lang === "fr" ? "?lang=fr" : isComm() ? "?collection=communicated" : isPl() ? "?lang=pl" : "";
+    const r = await fetch(`${API_BASE_URL}/cases/${encodeURIComponent(caseId)}${q}`);
     if (!r.ok) throw new Error(`API ${r.status}`);
     return r.json();
   },
@@ -1921,26 +1922,136 @@ if (UI_PL) {
   }).catch(() => { /* the links are an extra */ });
 }
 
-function plTranslationLink(c, cls) {
-  if (!PL_TRANSLATIONS || !c || c.__isCommunicated || c.__isPolish) return "";
+/* The Polish translation HUDOC publishes for a judgment or decision: [itemid, translator, j|d, alignment, summary]. */
+function plTranslationHit(c) {
+  if (!PL_TRANSLATIONS || !c || c.__isCommunicated || c.__isPolish) return null;
   // the exact original (case_id, from the aligned translations) first, else application number + date
   const keys = [c.case_id, ...String(c.case_no || "").split(/[;,]/).map((a) => {
     const m = /^\s*(\d{1,6})\/(\d{2,4})\s*$/.exec(a);
     return m ? `${Number(m[1])}/${m[2].slice(-2)}|${c.judgment_date}` : "";
   })];
-  for (const key of keys) {
-    const hit = key && PL_TRANSLATIONS[key];
-    if (hit) {
-      const [itemid, by, , align, summary] = hit;
-      const part = !summary && (align === "partial" || align === "extract");
-      const label = summary ? "Streszczenie PL ↗" : part ? "Tłumaczenie PL (część) ↗" : "Tłumaczenie PL ↗";
-      const what = summary ? "Streszczenie po polsku" : part ? "Nieoficjalne tłumaczenie części orzeczenia na język polski"
-        : "Nieoficjalne tłumaczenie na język polski";
-      const title = `${what} opublikowane w HUDOC${by ? ` (${by})` : ""}; tekstem autentycznym jest wersja angielska lub francuska.`;
-      return `<a href="https://hudoc.echr.coe.int/?i=${encodeURIComponent(itemid)}" class="${cls} pl-tr-link" target="_blank" rel="noopener noreferrer" title="${escapeHtml(title)}">${label}</a>`;
+  for (const key of keys) if (key && PL_TRANSLATIONS[key]) return PL_TRANSLATIONS[key];
+  return null;
+}
+
+function plTranslationLink(c, cls, inPane = false) {
+  const hit = plTranslationHit(c);
+  if (!hit) return "";
+  const [itemid, by, , align, summary] = hit;
+  const part = !summary && (align === "partial" || align === "extract");
+  const label = summary ? "Streszczenie PL" : part ? "Tłumaczenie PL (część)" : "Tłumaczenie PL";
+  const what = summary ? "Streszczenie po polsku" : part ? "Nieoficjalne tłumaczenie części orzeczenia na język polski"
+    : "Nieoficjalne tłumaczenie na język polski";
+  const title = `${inPane ? "Otwórz w panelu sprawy, obok oryginału. " : ""}${what} opublikowane w HUDOC${by ? ` (${by})` : ""}; tekstem autentycznym jest wersja angielska lub francuska.`;
+  // On a card it opens the translation in the case pane (a new tab still goes to HUDOC); elsewhere it goes to HUDOC.
+  const act = inPane ? ` data-action="read-pl" data-case-id="${escapeHtml(c.case_id)}"` : "";
+  return `<a href="https://hudoc.echr.coe.int/?i=${encodeURIComponent(itemid)}" class="${cls} pl-tr-link"${act} target="_blank" rel="noopener noreferrer" title="${escapeHtml(title)}">${label}${inPane ? "" : " ↗"}</a>`;
+}
+
+/* Case pane on the Polish page: the Polish translation read beside the original. Two more versions of a text
+ * (readLang): "pl" = the Polish translation of a judgment found in English or French; "orig" = the original
+ * of a Polish translation found in the Polish translations. Each is fetched under its own id. */
+function isPlAltLang(lang) {
+  return lang === "pl" || lang === "orig";
+}
+
+function plAltSource(caseId, lang) {
+  if (!UI_PL || !isPlAltLang(lang)) return null;
+  const c = state.caseById.get(caseId) || state.currentResultsById?.get(caseId)?.case;
+  if (lang === "pl") {
+    const hit = plTranslationHit(c);
+    return hit ? { id: hit[0], qs: "?lang=pl" } : null;
+  }
+  const p = c && c.__polish;
+  return p && p.original_case_id ? { id: p.original_case_id, qs: p.original_lang === "fr" ? "?lang=fr" : "" } : null;
+}
+
+/* The judgment's own paragraph numbering in a text: the longest increasing run of numbers, so that a number
+ * read off a quotation (a statute's "2.", another court's paragraphs) or a separate opinion numbered from 1
+ * again is left out. Returns row index -> number. */
+function mainNumbering(paras) {
+  const at = [], val = [];
+  paras.forEach((p, k) => {
+    const n = p.hudocParaNo != null ? p.hudocParaNo : p.displayParaNo;
+    if (n != null) { at.push(k); val.push(n); }
+  });
+  const tails = [], tailAt = [], prev = [];
+  for (let i = 0; i < val.length; i++) {
+    let lo = 0, hi = tails.length;
+    while (lo < hi) { const mid = (lo + hi) >> 1; if (tails[mid] < val[i]) lo = mid + 1; else hi = mid; }
+    tails[lo] = val[i]; tailAt[lo] = i; prev[i] = lo > 0 ? tailAt[lo - 1] : -1;
+  }
+  const main = new Map();
+  for (let i = tails.length ? tailAt[tails.length - 1] : -1; i >= 0; i = prev[i]) main.set(at[i], val[i]);
+  return main;
+}
+
+/* The paragraph of one version that matches a paragraph of another, by the Court's paragraph number: the same
+ * number, else the nearest lower one. A row without a number goes by the paragraph it belongs to: a heading by
+ * the numbered paragraph after it, a quotation or a continuation by the one before it. A text without numbers
+ * (a summary) opens at its start. Returns the paraIdx in the target version. */
+async function mapParagraphAcross(caseId, fromLang, toLang, paraIdx) {
+  const [from, to] = await Promise.all([loadDossierCase(caseId, fromLang), loadDossierCase(caseId, toLang)]);
+  const fromNo = mainNumbering(from), toNo = mainNumbering(to);
+  const numOf = (map, k) => (map.has(k) ? map.get(k) : null);
+  // the Polish texts mark no headings: a short line not ending a sentence is taken for one
+  const headingLike = (p) => /^heading/.test(p.rowRole || "")
+    || (p.text.trim().length < 150 && !/[.:;,]["”’)]?$/.test(p.text.trim()));
+  const at = from.findIndex((p) => p.paraIdx === paraIdx);
+  let no = at >= 0 ? numOf(fromNo, at) : null;
+  let before = null;
+  for (let k = at; k >= 0 && before == null; k--) before = numOf(fromNo, k);
+  if (no == null && at >= 0 && headingLike(from[at])) {
+    for (let k = at + 1; k < Math.min(from.length, at + 6) && no == null; k++) no = numOf(fromNo, k);
+  }
+  if (no == null) no = before;
+  let lower = -1;
+  if (no != null) {
+    for (const [k, n] of toNo) {
+      if (n === no) return to[k].paraIdx;
+      if (n < no && (lower < 0 || n > toNo.get(lower))) lower = k;
     }
   }
-  return "";
+  if (lower >= 0) return to[lower].paraIdx;
+  return to.length ? to[0].paraIdx : null;
+}
+
+/* The switch between the versions, when a Polish one exists; null leaves the case to caseLangHtml. */
+function casePlLangHtml(c) {
+  const id = escapeHtml(c.case_id);
+  const cur = readLang(c.case_id);
+  const versions = [];
+  let note = "";
+  if (c.__isPolish) {
+    const p = c.__polish || {};
+    if (!p.original_case_id) return null;
+    const home = searchLang();
+    versions.push({ lang: home, label: p.summary ? "Polski · streszczenie" : "Polski · tłumaczenie", pl: true });
+    versions.push({ lang: "orig", label: p.original_lang === "fr" ? "Français · oryginał" : "English · oryginał" });
+    note = cur === "orig"
+      ? `Tekst autentyczny Trybunału (<a href="https://hudoc.echr.coe.int/?i=${encodeURIComponent(p.original_case_id)}" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>).`
+      : `Nieoficjalne tłumaczenie opublikowane w HUDOC${p.translator ? ` (${escapeHtml(p.translator)})` : ""}, nie tekst Trybunału: cytuj oryginał.`;
+  } else {
+    const hit = plTranslationHit(c);
+    if (!hit) return null;
+    const [itemid, by, , align, summary] = hit;
+    const part = !summary && (align === "partial" || align === "extract");
+    const bothFr = (c.__isFrOriginal && c.__translationAvailable) || (c.__isMt && c.__originalAvailable);
+    if (c.__isFrOriginal || bothFr) versions.push({ lang: "fr", label: "Français · oryginał" });
+    if (c.__isMt || bothFr) versions.push({ lang: "en", label: "English · tłumaczenie maszynowe", mt: true });
+    if (!c.__isFrOriginal && !c.__isMt) versions.push({ lang: searchLang(), label: "English · oryginał" });
+    versions.push({ lang: "pl", label: summary ? "Polski · streszczenie" : part ? "Polski · tłumaczenie części" : "Polski · tłumaczenie", pl: true });
+    const src = c.__sourceCaseId || c.source_case_id || c.case_id;
+    note = cur === "pl"
+      ? `Nieoficjalne tłumaczenie opublikowane w HUDOC${by ? ` (${escapeHtml(by)})` : ""}, nie tekst Trybunału: cytuj oryginał (<a href="https://hudoc.echr.coe.int/?i=${encodeURIComponent(itemid)}" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>).`
+      : cur === "en" && (c.__isMt || bothFr)
+        ? `Nieoficjalne tłumaczenie maszynowe, nie tekst Trybunału: cytuj francuski oryginał (<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(src)}" target="_blank" rel="noopener noreferrer">HUDOC ↗</a>).`
+        : "";
+  }
+  const on = versions.some((v) => v.lang === cur) ? cur : versions[0].lang;
+  return `<div class="cn-lang" role="group" aria-label="Wersja tekstu">${versions.map((v) =>
+    `<button type="button" class="cn-lang-btn${v.mt || v.pl ? " is-mt" : ""}${v.lang === on ? " is-on" : ""}" data-action="read-lang" data-lang="${v.lang}" data-case-id="${id}" aria-pressed="${v.lang === on}">${v.label}</button>`).join("")}
+    </div>${note ? `<p class="cn-mt-line">${note}</p>` : ""}`;
 }
 
 const COMM_SECTION_CITE = {
@@ -2044,6 +2155,10 @@ function readLang(caseId) {
 /* Case pane: a two-position switch between the French original and its English machine translation
  * when both exist; the translation, when shown, is marked as unofficial in one line. */
 function caseLangHtml(c) {
+  if (UI_PL) {
+    const pl = casePlLangHtml(c);
+    if (pl != null) return pl;
+  }
   const both = (c.__isFrOriginal && c.__translationAvailable) || (c.__isMt && c.__originalAvailable);
   if (c.__isThirdPartyTr) {
     const fr = c.__sourceCaseId;
@@ -6008,7 +6123,6 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
     <p class="cn-subline">${subline}
       <span class="cn-subline-actions">
         ${c.hudoc_url ? `<a href="${escapeHtml(c.hudoc_url)}" class="cn-action" target="_blank" rel="noopener noreferrer" title="Open this judgment on HUDOC">HUDOC ↗</a>` : ""}
-        ${UI_PL ? plTranslationLink(c, "cn-action") : ""}
         <button type="button" class="cn-action" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}" title="Copy an OSCOLA citation of the judgment">Cite</button>
       </span>
     </p>
@@ -6044,21 +6158,32 @@ function renderCaseContextRail(caseId = state.activeCaseId, opts = {}) {
 
   (async () => {
     try {
-      const paras = await loadDossierCase(caseId);
+      const lang = readLang(caseId);
+      const paras = await loadDossierCase(caseId, lang);
       if (state.activeCaseId !== caseId) return; // selection moved on
       const cn = (state.caseNote && state.caseNote.caseId === caseId)
         ? state.caseNote : { caseId, before: 1, after: 1, paraIdx: null };
       // Anchor: an explicitly-clicked hit row (cn.paraIdx) wins;
       // otherwise the row that actually matched the query — so the
       // centred paragraph carries the keyword and matches the card.
-      const wantIdx = (cn.paraIdx != null) ? cn.paraIdx
+      let wantIdx = (cn.paraIdx != null) ? cn.paraIdx
+        : (cn.homeIdx != null) ? cn.homeIdx
         : (primaryPara.paraIdx != null) ? primaryPara.paraIdx
         : primaryPara.logicalParaIdx;
+      // The search's row belongs to the version it returned; in a Polish version, the paragraph with its number.
+      if (cn.paraIdx == null && wantIdx != null && isPlAltLang(lang)) {
+        wantIdx = await mapParagraphAcross(caseId, searchLang(), lang, wantIdx);
+        if (state.activeCaseId !== caseId) return;
+      }
       let activeIdx = (wantIdx != null)
         ? paras.findIndex((p) => p.paraIdx === wantIdx) : -1;
       if (activeIdx < 0) activeIdx = paras.findIndex((p) => p.hudocParaNo != null);
       if (activeIdx < 0) activeIdx = 0;
       const ctx = getCaseNoteContext(paras, activeIdx, cn.before, cn.after);
+      if (state.caseNote && state.caseNote.caseId === caseId) {
+        state.caseNote.shownIdx = paras[activeIdx] ? paras[activeIdx].paraIdx : null;
+        state.caseNote.shownLang = lang;
+      }
       renderToRails(headHtml + caseNoteContextHtml(ctx, paras, activeIdx));
       if (opts.center) {
         // Centre the active paragraph WITHIN the sidebar scroll only —
@@ -6105,11 +6230,15 @@ function selectCaseParagraph(caseId, paraIdx) {
   if (!caseId || !state.currentResultsById.has(caseId)) return;
   state.activeCaseId = caseId;
   document.body.classList.add("casenote-open");
+  const idx = (paraIdx != null && paraIdx !== "") ? Number(paraIdx) : null;
+  // The hit row belongs to the version the search returned; a Polish version read in the pane maps it by number.
+  const alt = isPlAltLang(readLang(caseId));
   state.caseNote = {
     caseId,
     before: 1,
     after: 1,
-    paraIdx: (paraIdx != null && paraIdx !== "") ? Number(paraIdx) : null,
+    paraIdx: alt ? null : idx,
+    homeIdx: alt ? idx : null,
   };
   el.casesList?.querySelectorAll(".researcher-result.active").forEach((node) => {
     node.classList.remove("active");
@@ -6412,7 +6541,7 @@ function buildCaseCard(caseId, row, rank = 1) {
           ${c.__isMt && c.__sourceCaseId
             ? `<a href="https://hudoc.echr.coe.int/fre?i=${encodeURIComponent(c.__sourceCaseId)}" class="card-act" target="_blank" rel="noopener noreferrer" title="The authentic French text on HUDOC">French original ↗</a>`
             : (c.hudoc_url ? `<a href="${escapeHtml(primaryPara ? paragraphHudocUrl(c, primaryPara) : c.hudoc_url)}"${primaryPara ? passageAttr(c, primaryPara) : ""} class="card-act" target="_blank" rel="noopener noreferrer" title="${primaryPara ? "Open on HUDOC at this paragraph (its opening words are copied, for Find)" : "Open this judgment on HUDOC"}">HUDOC ↗</a>` : "")}
-          ${UI_PL ? plTranslationLink(c, "card-act") : ""}
+          ${UI_PL ? plTranslationLink(c, "card-act", true) : ""}
           <button type="button" class="card-act" data-action="copy-citation" data-case-id="${escapeHtml(caseId)}"
             data-para-idx="${escapeHtml(String(primaryPara && primaryPara.paraIdx != null ? primaryPara.paraIdx : ""))}"
             title="Copy an OSCOLA citation${primaryPara ? " with the paragraph shown" : ""}">Cite</button>
@@ -7953,11 +8082,11 @@ const DOSSIER_MAX_W = 760;
 const DOSSIER_DEFAULT_W = 440;
 const DOSSIER_LS_KEY = "echr.dossierWidth";
 
-async function loadDossierCase(caseId) {
-  const lang = readLang(caseId);
+async function loadDossierCase(caseId, lang = readLang(caseId)) {
   const cacheKey = `${lang}:${caseId}`;   // a French original and its translation share the id
   if (dossierCaseCache.has(cacheKey)) return dossierCaseCache.get(cacheKey);
-  const data = await serverSearch.getCase(caseId, lang);
+  const alt = plAltSource(caseId, lang);   // Polish page: the Polish translation, or the original of one
+  const data = alt ? await serverSearch.getCase(alt.id, lang, alt.qs) : await serverSearch.getCase(caseId, lang);
   // p82 footnotes, grouped by the paragraph whose text carries the reference.
   const notesByPara = new Map();
   for (const n of (data.footnotes || [])) {
@@ -8213,6 +8342,7 @@ function dossierParaNumLabel(p) {
 
 async function openDossier(caseId, paraIdx) {
   if (!caseId) return;
+  if (isPlAltLang(readLang(caseId))) state.readLang.delete(caseId);
   state.dossier = {
     caseId,
     paraIdx: (paraIdx != null && paraIdx !== "") ? Number(paraIdx) : null,
@@ -8871,6 +9001,22 @@ function bindEvents() {
       return;
     }
 
+    // Polish page: "Tłumaczenie PL" on a card reads the Polish translation in the case pane, at the paragraph shown.
+    if (action === "read-pl" && caseId) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey) return;   // a new tab or window: HUDOC
+      e.preventDefault();
+      if (readLang(caseId) !== "pl") {
+        const cn = state.caseNote;
+        if (cn && cn.caseId === caseId) {
+          const shownHome = cn.shownIdx != null && !isPlAltLang(cn.shownLang);
+          state.caseNote = { ...cn, paraIdx: null, homeIdx: shownHome ? cn.shownIdx : cn.homeIdx };
+        }
+        state.readLang.set(caseId, "pl");
+      }
+      selectCase(caseId);
+      return;
+    }
+
     if (action === "copy-paragraph") {
       const text = clickable.getAttribute("data-text") || "";
       navigator.clipboard?.writeText(text).then(() => {
@@ -8970,10 +9116,22 @@ function bindEvents() {
       return;
     }
     if (action === "read-lang" && caseId) {
-      // Same judgment, other version (French original / English machine translation), in place.
+      // Same judgment, other version (French original / English machine translation / Polish translation), in place.
       e.preventDefault();
-      state.readLang.set(caseId, clickable.dataset.lang === "en" ? "en" : "fr");
-      renderCaseContextRail(caseId);
+      const want = clickable.dataset.lang;
+      const to = ["en", "fr", "pl", "orig"].includes(want) ? want : "fr";
+      const from = readLang(caseId);
+      if (to === from) return;
+      state.readLang.set(caseId, to);
+      const cn = state.caseNote;
+      if ((isPlAltLang(from) || isPlAltLang(to)) && cn && cn.caseId === caseId && cn.shownIdx != null) {
+        // a Polish version has its own rows: go to the same paragraph by its number
+        mapParagraphAcross(caseId, cn.shownLang || from, to, cn.shownIdx)
+          .then((idx) => { state.caseNote = { ...cn, paraIdx: idx, before: 1, after: 1 }; renderCaseContextRail(caseId, { center: true }); })
+          .catch(() => renderCaseContextRail(caseId));
+      } else {
+        renderCaseContextRail(caseId);
+      }
       return;
     }
     if (action === "search-appno") {
