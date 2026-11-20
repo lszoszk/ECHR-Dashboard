@@ -44,6 +44,31 @@
       .replace(RX_MON_SHORT, function (m, mo, y) { return MONTH_SHORT[mo] + " " + y; });
   }
 
+  /* Article labels in the notation of the Polish text of the Convention. search-app.js writes them three ways:
+   * HUDOC's tokens in the Article filter ("Art. 6-1", "Art. 5-1-c", "Art. P1-1-1"), the result cards
+   * ("Art 6 §§ 1, 3", "Art P1-1 § 2") and the case details ("Art. 5 § 1 (c)", "Art. 1 of Prot. 1"). They become
+   * "art. 6 ust. 1", "art. 5 ust. 1 lit. c", "art. 6 ust. 1 i 3", "art. 1 ust. 1 Protokołu nr 1". */
+  var ART = "Art\\.? (?:P\\d+-)?\\d+(?:-\\d+(?:-[a-z])?)?(?: §§? \\d+(?:-[a-z])?(?:, \\d+(?:-[a-z])?)*)?(?: \\([a-z]\\))?(?: of Prot\\. \\d+)?";
+  var RX_ART = /^Art\.? (?:P(\d+)-)?(\d+)(?:-(\d+)(?:-([a-z]))?)?(?: §§? (\d+(?:-[a-z])?(?:, \d+(?:-[a-z])?)*))?(?: \(([a-z])\))?(?: of Prot\. (\d+))?$/;
+  function andList(a) { return a.length > 1 ? a.slice(0, -1).join(", ") + " i " + a[a.length - 1] : a[0]; }
+  function plArticle(s) {
+    var m = RX_ART.exec(s);
+    if (!m) return s;
+    var subs = [];                                  // [paragraph, letter]
+    if (m[3]) subs.push([m[3], m[4] || ""]);
+    if (m[5]) m[5].split(", ").forEach(function (x) { var p = x.split("-"); subs.push([p[0], p[1] || ""]); });
+    if (m[6] && subs.length) subs[subs.length - 1][1] = m[6];
+    // "§§ 1-b, 1-c" -> "ust. 1 lit. b i c"
+    var oneUst = subs.length > 1 && subs.every(function (x) { return x[0] === subs[0][0] && x[1]; });
+    var ust = !subs.length ? "" : oneUst
+      ? " ust. " + subs[0][0] + " lit. " + andList(subs.map(function (x) { return x[1]; }))
+      : " ust. " + andList(subs.map(function (x) { return x[0] + (x[1] ? " lit. " + x[1] : ""); }));
+    var prot = m[1] || m[7];
+    return "art. " + m[2] + ust + (prot ? " Protokołu nr " + prot : "");
+  }
+  /* Every article label in a string: "Art 34, Art 35 § 3-a" or "Art. 13 + Art. 8 § 1". */
+  function plArticles(s) { return String(s).replace(new RegExp(ART, "g"), plArticle); }
+
   /* Nouns after a count (nominative: 1 / 2-4 / 5+) and after "z" (genitive: 1 / other). */
   var NOM = {
     passages: ["fragment", "fragmenty", "fragmentów"],
@@ -556,8 +581,9 @@
       function (m, n) { return "Liczby dotyczą całego korpusu: to wyszukiwanie obejmuje ponad " + plNum(n) + " fragmentów — zbyt wiele, by szybko policzyć je według filtrów. Filtry nadal działają."; }],
     // Filter rail
     [/^Clear \((\d+)\)$/, "Wyczyść ($1)"],
-    [/^(\d{4}): ([\d,]+) judgments?$/, function (m, y, n) { return y + ": " + plNum(n) + " " + pick(["wyrok", "wyroki", "wyroków"], toInt(n)); }],
-    [/^(\d{4}), ([\d,]+) judgments?$/, function (m, y, n) { return y + ", " + plNum(n) + " " + pick(["wyrok", "wyroki", "wyroków"], toInt(n)); }],
+    // Year-histogram bars: "2012: 51 cases" (title), "2012, 51 cases" (aria-label)
+    [/^(\d{4})([:,]) ([\d,]+) (judgment|case)s?$/, function (m, y, sep, n, w) {
+      return y + sep + " " + plNum(n) + " " + pick(w === "case" ? NOM.cases : ["wyrok", "wyroki", "wyroków"], toInt(n)); }],
     [/^([\d,]+) judgments?$/, function (m, n) { return plNum(n) + " " + pick(["wyrok", "wyroki", "wyroków"], toInt(n)); }],
     // Active filter chips and the sidebar
     [/^Search in: (.+)$/, function (m, list) { return "Szukaj w: " + list.split(", ").map(sub).join(", "); }],
@@ -569,9 +595,9 @@
       function (m, f) { return DECISION_OF[f] || "Decyzja (" + sub(f) + ")"; }],
     [/^no\. (.+)$/, "nr $1"],
     // Article chips
-    [/^Art\. .* of Prot\. \d+.*$/, function (m) { return m.replace(/ of Prot\. (\d+)/g, " Protokołu nr $1"); }],
-    [/^View ECHR Guide on Article (.+)$/, "Przewodnik ETPC po art. $1 (EN)"],
-    [/^Procedural references: (.+)$/, "Przepisy proceduralne: $1"],
+    [new RegExp("^" + ART + "(?: \\+ " + ART + ")*$"), function (m) { return plArticles(m); }],
+    [/^View ECHR Guide on Article (.+)$/, function (m, a) { return "Przewodnik ETPC po " + plArticle("Art " + a) + " (EN)"; }],
+    [/^Procedural references: (.+)$/, function (m, list) { return "Przepisy proceduralne: " + plArticles(list); }],
     [/^\+([\d,]+) more substantive$/, "+$1 więcej (materialne)"],
     [/^\+([\d,]+) procedural$/, "+$1 przepisy proceduralne"],
     [/^Opening of (.+?) — the paragraph this excerpt belongs to$/, "Początek $1 — paragrafu, z którego pochodzi fragment"],

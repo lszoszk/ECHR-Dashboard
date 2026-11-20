@@ -40,6 +40,23 @@ const COMM_ENABLED = document.documentElement.dataset.comm === "1";
 const UI_PL = document.documentElement.lang === "pl";
 const tr = (en, pl) => (UI_PL ? pl : en);
 
+// Polish page: HUDOC's Polish names of its keywords, from the map the Statistics page uses. The filter value stays
+// the English label, which the API knows; until the map arrives (or for a keyword it lacks) that label shows.
+let keywordsPl = null;
+const keywordLabel = (kw) => (keywordsPl && typeof keywordsPl[kw] === "string" ? keywordsPl[kw] : kw);
+if (UI_PL) {
+  fetch("data/stats-terms-pl.json").then((r) => (r.ok ? r.json() : null)).then((terms) => {
+    if (!terms) return;
+    keywordsPl = terms;
+    el.keywordsFilters?.querySelectorAll('input[data-name="keywords"]').forEach((box) => {
+      const text = box.nextElementSibling?.firstChild;     // <span>label<span class="filter-count">
+      if (text?.nodeType === Node.TEXT_NODE) text.data = keywordLabel(box.value);
+      box.parentElement.title = box.value;
+    });
+    document.querySelectorAll(".filter-chip[data-kw]").forEach((chip) => { chip.textContent = keywordLabel(chip.dataset.kw); });
+  }).catch(() => {});
+}
+
 // hudoc_url is written into href attributes, where escapeHtml does not stop a
 // javascript: URL or an off-site link, so only real HUDOC addresses pass.
 function safeHudocUrl(raw) {
@@ -2921,7 +2938,7 @@ function renderFilters() {
   // value list.
   if (el.keywordsFilters) {
     el.keywordsFilters.innerHTML = state.keywords
-      .map((kw) => makeCheckbox(kw, kw, "keywords", (fc.keywords || {})[kw]))
+      .map((kw) => makeCheckbox(keywordLabel(kw), kw, "keywords", (fc.keywords || {})[kw], { tooltip: UI_PL ? kw : null }))
       .join("");
   }
 
@@ -3251,8 +3268,9 @@ function renderYearHistogram(years) {
   for (let y = first; y <= last; y++) {
     const n = counts.get(y) || 0;
     const unit = isComm() ? ["case", "cases"] : ["judgment", "judgments"];
-    bars.push(`<button type="button" class="year-bar" data-year="${y}" title="${y}: ${fmtInt.format(n)} ${n === 1 ? unit[0] : unit[1]}"
-      aria-label="${y}, ${fmtInt.format(n)} ${unit[1]}"><span style="height:${n ? Math.max(2, Math.round((n / max) * 100)) : 0}%"></span></button>`);
+    const noun = n === 1 ? unit[0] : unit[1];
+    bars.push(`<button type="button" class="year-bar" data-year="${y}" title="${y}: ${fmtInt.format(n)} ${noun}"
+      aria-label="${y}, ${fmtInt.format(n)} ${noun}"><span style="height:${n ? Math.max(2, Math.round((n / max) * 100)) : 0}%"></span></button>`);
   }
   box.innerHTML = bars.join("");
   box.hidden = false;
@@ -3383,7 +3401,8 @@ function attachFilterSearchBoxes() {
         const labels = t.container.querySelectorAll("label.cb-label");
         let visible = 0;
         labels.forEach((lbl) => {
-          const txt = lbl.textContent.toLowerCase();
+          // the value too: a Polish keyword is found by its English label, an Article by its HUDOC token (P1-1)
+          const txt = `${lbl.textContent} ${lbl.querySelector("input")?.value || ""}`.toLowerCase();
           const match = !q || txt.includes(q);
           lbl.style.display = match ? "" : "none";
           if (match) visible++;
@@ -4111,7 +4130,7 @@ function renderActiveFilters(filters) {
   }
   if (filters.keywords) {
     for (const kw of filters.keywords) {
-      chips.push(`<span class="filter-chip" title="HUDOC keyword">${escapeHtml(kw)}</span>`);
+      chips.push(`<span class="filter-chip" title="HUDOC keyword" data-kw="${escapeHtml(kw)}">${escapeHtml(keywordLabel(kw))}</span>`);
     }
   }
   for (const c of filters.countries) {

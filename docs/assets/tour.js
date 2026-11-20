@@ -188,10 +188,11 @@
   }
 
   /* The same tour in Polish (the Polish beta page), with the communicated cases as its second step. Links to the
-     Search page go to pl/; the other pages are in English, marked (EN). */
+     Search and Statistics pages go to pl/; the other pages are in English, marked (EN). */
   function slidesPl(s, frN, from, to, spark) {
     const mtN = s.total_machine_translations || 2460;
     const commN = Number(s.communicated_cases) || 0;
+    const plTrN = COMM ? Number(s.polish_translations) || 0 : 0;   // the "Tłumaczenia PL" collection
     const asOfDate = new Date(`${s.communicated_as_of}T00:00:00Z`);
     const asOf = Number.isNaN(asOfDate.getTime()) ? ""
       : asOfDate.toLocaleDateString("pl-PL", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" });
@@ -247,20 +248,23 @@
            zostaną sprawdzone z treścią wyroków.</span></div></li>
          <li><span class="n">04</span><div><b>Obszar roboczy</b> (EN) <span class="s">— zapisane paragrafy i wyszukiwania</span> <span class="d">— zapisane paragrafy (☆) z Twoimi notatkami
            oraz zapisane wyszukiwania, każde z kanałem RSS nowych wyroków; przechowywane tylko w Twojej przeglądarce, z możliwością eksportu.</span></div></li>
-         <li><span class="n">05</span><div><b>Statystyki</b> (EN) <span class="s">— zbiór na wykresach</span> <span class="d">— zbiór na wykresach: wyroki i rozstrzygnięcia według lat, artykułów i państw, najczęściej cytowane wyroki, tematy HUDOC.</span></div></li>
+         <li><span class="n">05</span><div><b>Statystyki</b> <span class="s">— zbiór na wykresach</span> <span class="d">— zbiór na wykresach: wyroki i rozstrzygnięcia według lat, artykułów i państw, najczęściej cytowane wyroki, tematy HUDOC.</span></div></li>
          <li><span class="n">06</span><div><b>Asystent AI</b> <span class="s">— to samo wyszukiwanie z poziomu Claude</span> <span class="d">— konektor (MCP) dla Claude lub innego asystenta:
            przeszukuje te wyroki i cytuje paragrafy dosłownie, z ich numerami §.</span></div></li>
        </ul>
        <div class="tour-cap" style="margin-top:12px">Jak teksty podzielono, opisano i sprawdzono: Metodologia (EN), na dolnym pasku.</div>`,
       `<div class="tour-kicker">Wyszukiwanie</div>
        <h2 class="tour-h">Od frazy do paragrafu.</h2>
-       <div class="tour-lead">Wpisz słowa lub <code>"frazę"</code> (w języku tekstów, czyli po angielsku), połącz je operatorami
+       <div class="tour-lead">Wpisz słowa lub <code>"frazę"</code> w języku tekstów (w kolekcji <i>English</i> po angielsku), połącz je operatorami
          <code>OR</code> i <code>NOT</code>, a gwiazdka na końcu słowa obejmie wszystkie słowa o tym początku (<code>environment*</code>);
          działają też operatory HUDOC (<code>article:8</code>, <code>cites:hatton</code>, <code>NEAR</code>). Każdy wynik otwiera się
          na paragrafie, z jego numerem i pozostałymi trafieniami w wyroku; <b>Cytuj</b> kopiuje cytowanie OSCOLA, a <b>☆ Zapisz</b>
          dodaje paragraf do Obszaru roboczego.${frN ? `
          <b>Français</b>, w bloku Kolekcja, przeszukuje francuskie teksty ${fmt(frN)} wyroków, które HUDOC publikuje tylko po francusku
-         (akcenty są opcjonalne).` : ""} <b>Decyzje</b>, w lewym panelu, dołączają do wyników decyzje Trybunału. Wypróbuj:</div>
+         (akcenty są opcjonalne).` : ""}${plTrN ? `
+         <b>Tłumaczenia PL</b>, w tym samym bloku, pozwalają szukać po polsku w ${fmt(plTrN)} polskich tłumaczeniach i streszczeniach
+         wyroków i decyzji z HUDOC: wyszukiwanie uwzględnia odmianę wyrazów (<code>aresztowanie</code> znajdzie też „aresztowania”)
+         i działa bez polskich znaków (<code>przewleklosc</code>).` : ""} <b>Decyzje</b>, w lewym panelu, dołączają do wyników decyzje Trybunału. Wypróbuj:</div>
        <div class="tour-chips">${EXAMPLES.map((q) => `<button type="button" data-tour-q="${q.replace(/"/g, "&quot;")}">${q.replace(/</g, "&lt;")}</button>`).join("")}</div>`,
       `<div class="tour-kicker">Do pracy z orzecznictwem</div>
        <h2 class="tour-h">Co obejmuje zbiór.</h2>
@@ -280,7 +284,7 @@
        <div class="tour-go">
          <a href="${HOME}" data-tour-go="search">→ Wyszukaj frazę</a>
          <a href="check.html">→ Sprawdź cytowania w tekście (EN)</a>
-         <a href="analytics.html">→ Zobacz zbiór na wykresach (EN)</a>
+         <a href="pl/statystyki.html">→ Zobacz zbiór na wykresach</a>
          <a href="about.html#mcp">→ Korzystaj z Claude lub innego asystenta AI: konektor i skill (EN)</a>
        </div>
        <div class="tour-cap" style="margin-top:18px">Przewodnik można otworzyć ponownie w każdej chwili: dolny pasek → ✦ przewodnik.</div>`,

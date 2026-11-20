@@ -158,6 +158,34 @@ function truncateLabel(text, limit = 60) {
   return `${value.slice(0, limit - 1)}...`;
 }
 
+/** A label of a horizontal bar chart, fitted to the label column. Chart.js gives that column at most half the
+ *  chart's width and draws a longer label from the bar leftwards, so on a phone its start was lost ("zne
+ *  zadośćuczynienie – ogólnie"). A label too long for the column takes two lines where the bars are far enough
+ *  apart, and otherwise ends in "…"; the tooltip still shows the whole label. */
+function fitAxisLabel(scale, label, count) {
+  const max = scale.chart.width / 2 - 16;   // half the width, less the tick padding (14 px)
+  const font = Chart.helpers.toFont(scale.options.ticks.font);
+  const ctx = scale.ctx;
+  ctx.save();
+  ctx.font = font.string;
+  const fits = (s) => ctx.measureText(s).width <= max;
+  const cut = (s) => {
+    while (s.length > 1 && !fits(`${s}…`)) s = s.slice(0, -1);
+    return `${s.trimEnd()}…`;
+  };
+  let out = String(label);
+  if (!fits(out)) {
+    const words = out.split(" ");
+    let first = words.shift();
+    while (words.length && fits(`${first} ${words[0]}`)) first += ` ${words.shift()}`;
+    const rest = words.join(" ");
+    // two lines need their height plus Chart.js's 3 px between labels, or it hides every other label
+    out = fits(first) && rest && scale.height / count >= 2 * font.lineHeight + 4 ? [first, fits(rest) ? rest : cut(rest)] : cut(out);
+  }
+  ctx.restore();
+  return out;
+}
+
 function citationDisplayLabel(raw, limit = 48) {
   const title = String(raw || "")
     .split(/\s*\[GC\]|,\s*(?:nos?\.|\u00a7|ECHR\b|Series A\b|Reports\b|(?:judgment|decision) of\b|\d{1,2}\s+[A-Z])|\s+(?:judgment|decision) of\b/i)[0]
@@ -1253,7 +1281,7 @@ async function renderDecisions() {
       `would read as a profile of all ${fmtInt.format(decisions)}.`,
       `HUDOC wskazuje konkretną podstawę z art. 35 w ${fmtInt.format(coded)} z ` +
       `${fmtInt.format(decisions)} opublikowanych decyzji (${pct(coded, decisions, 1)}); kolejne decyzje mają tylko ogólne ` +
-      `słowo kluczowe „Admissibility criteria” (kryteria dopuszczalności): ${fmtInt.format((grounds.with_any_tag || 0) - coded)}. ` +
+      `słowo kluczowe „Wymogi dopuszczalności” („Admissibility criteria”): ${fmtInt.format((grounds.with_any_tag || 0) - coded)}. ` +
       `Dlatego podstawy przedstawiono poniżej w tabeli z własnym mianownikiem, a nie na wykresie: słupki ` +
       `sugerowałyby obraz wszystkich ${fmtInt.format(decisions)} decyzji.`);
     const groundRows = grounds.subgrounds || [];
@@ -1320,6 +1348,12 @@ async function loadDashboard() {
   const data = await res.json();
   Chart.defaults.font.family = getComputedStyle(document.documentElement).getPropertyValue("--font-mono").trim() || "Georgia";
   Chart.defaults.color = getComputedStyle(document.documentElement).getPropertyValue("--ink-3").trim() || "#706d72";
+  // Every category label column on the left (the horizontal bar charts) fits its labels; x axes are unchanged.
+  const categoryLabel = Chart.defaults.scales.category.ticks.callback;
+  Chart.defaults.scales.category.ticks.callback = function (value, index, ticks) {
+    const label = categoryLabel.call(this, value, index, ticks);
+    return this.isHorizontal() || typeof label !== "string" ? label : fitAxisLabel(this, label, ticks.length);
+  };
 
   const s = data.summary || {};
   const series = data.series || {};
