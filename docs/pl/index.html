@@ -116,7 +116,7 @@
         <a href="semantic.html" class="nav-link" title="Eksperymentalne; strona po angielsku" id="ragLink">Semantyczne<span class="nav-en">EN</span> <svg class="exp-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 1.5h4M6.7 1.5v4.2L2.6 13a1.2 1.2 0 0 0 1 1.8h8.8a1.2 1.2 0 0 0 1-1.8L9.3 5.7V1.5M4.4 10h7.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="visually-hidden"> (eksperymentalne)</span></a>
         <a href="check.html" class="nav-link" title="Weryfikacja cytowań; strona po angielsku">Weryfikacja<span class="nav-en">EN</span></a>
         <a href="workspace.html" class="nav-link" title="Strona po angielsku">Obszar roboczy<span class="nav-en">EN</span> <span class="ws-count" data-ws-count hidden></span></a>
-        <a href="analytics.html" class="nav-link" title="Strona po angielsku">Statystyki<span class="nav-en">EN</span></a>
+        <a href="pl/statystyki.html" class="nav-link">Statystyki</a>
         <a href="pl/o-projekcie.html" class="nav-link">O projekcie</a>
         <a href="pl/o-projekcie.html#zakres" class="nav-disclaimer">Niezwiązane z ETPC &middot; to nie jest porada prawna</a>
         <a href="./" class="nav-link" lang="en">English</a>
@@ -311,8 +311,8 @@
               <label class="cb-label" title="Stan faktyczny sprawy, ramy prawne, postępowanie">
                 <input type="checkbox" data-name="buckets" value="facts" checked> <span>Stan faktyczny</span>
               </label>
-              <label class="cb-label" title="Rozumowanie Trybunału co do dopuszczalności i meritum">
-                <input type="checkbox" data-name="buckets" value="adm_merits" checked> <span>Dopuszczalność + meritum</span>
+              <label class="cb-label" title="Rozumowanie Trybunału co do dopuszczalności i przedmiotu skargi">
+                <input type="checkbox" data-name="buckets" value="adm_merits" checked> <span>Dopuszczalność + przedmiot skargi</span>
               </label>
               <label class="cb-label" title="Art. 41 — odszkodowanie, koszty i wydatki">
                 <input type="checkbox" data-name="buckets" value="just_satisfaction" checked> <span>Słuszne zadośćuczynienie</span>
@@ -320,8 +320,8 @@
               <label class="cb-label" title="Sentencja — „Stwierdza…”, „Orzeka…”">
                 <input type="checkbox" data-name="buckets" value="operative_part" checked> <span>Sentencja</span>
               </label>
-              <label class="cb-label" title="Zdania zbieżne i odrębne">
-                <input type="checkbox" data-name="buckets" value="individual_opinions" checked> <span>Zdania odrębne</span>
+              <label class="cb-label" title="Opinie odrębne: zbieżne i rozbieżne">
+                <input type="checkbox" data-name="buckets" value="individual_opinions" checked> <span>Opinie odrębne</span>
               </label>
             </div>
             <label class="cb-label cb-footnotes" title="Przeszukuj także przypisy do wyroków. Trafienia w przypisach są wyświetlane osobno, pod wynikami, i nie wpływają na kolejność wyników z tekstu">
@@ -372,7 +372,7 @@
 
               <!-- Importance — HUDOC's four-tier classification. -->
               <div class="filter-group">
-                <h3 class="filter-title">Znaczenie</h3>
+                <h3 class="filter-title">Ważność</h3>
                 <div class="checkbox-grid compact" id="importanceFilters"></div>
               </div>
 
@@ -516,7 +516,7 @@
         </div>
 
         <div class="sidebar-section">
-          <h4>Znaczenie</h4>
+          <h4>Ważność</h4>
           <div class="bar-list" id="analyticsImportance"></div>
         </div>
 
@@ -703,8 +703,8 @@
 
   <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Powrót na górę" hidden>&uarr;</button>
 
-  <script src="assets/i18n-pl.js?v=20261120a"></script>
-  <script src="assets/search-app.js?v=20261120-pl7"></script>
+  <script src="assets/i18n-pl.js?v=20261120b"></script>
+  <script src="assets/search-app.js?v=20261120-pl8"></script>
   <script src="assets/service-notice.js?v=20261022" charset="utf-8" data-app="HUDOC Researcher"
           data-effect="Do czasu przywrócenia dostępu wyszukiwanie nie obejmuje pełnego zbioru wyroków i decyzji: strona wyszukiwania pokazuje niewielką próbkę offline, a wyszukiwanie semantyczne i konektor MCP są niedostępne."
           data-probe="https://150.254.115.204/echr-api/health"></script>

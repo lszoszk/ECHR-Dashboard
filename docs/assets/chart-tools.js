@@ -23,6 +23,9 @@
   "use strict";
 
   const HAS_EXPORT = typeof window.EchrExport !== "undefined";
+  // Polish page (docs/pl/statystyki.html): the same tools worded in Polish. CSV files stay English (data files).
+  const PL = document.documentElement.lang === "pl";
+  const L = (en, pl) => (PL ? pl : en);
 
   // ------------------------------------------------------------------ utils
 
@@ -262,11 +265,11 @@
       bar.className = "chart-tools";
       bar.dataset.canvas = canvas.id;
 
-      const csv = makeButton("CSV", "Download this chart's data as CSV");
+      const csv = makeButton("CSV", L("Download this chart's data as CSV", "Pobierz dane tego wykresu jako CSV"));
       csv.addEventListener("click", () => exportCsv(canvas.id));
-      const png = makeButton("PNG", "Download this chart as a PNG image");
+      const png = makeButton("PNG", L("Download this chart as a PNG image", "Pobierz ten wykres jako obraz PNG"));
       png.addEventListener("click", () => exportPng(canvas.id));
-      const cite = makeButton("CITE", "Copy an academic citation for this chart");
+      const cite = makeButton(L("CITE", "CYTUJ"), L("Copy an academic citation for this chart", "Skopiuj opis bibliograficzny tego wykresu"));
       cite.disabled = false; // citation does not depend on chart data
       cite.addEventListener("click", () => openCiteDialog(canvas));
 
@@ -323,10 +326,13 @@
       const min = Math.min.apply(null, nums);
       const max = Math.max.apply(null, nums);
       const series = (chart.data.datasets || []).length;
-      return title + ". " + type + " chart, " +
+      return L(title + ". " + type + " chart, " +
         (series > 1 ? series + " series, " : "") +
         nums.length + " data points, values from " +
-        min.toLocaleString() + " to " + max.toLocaleString() + ".";
+        min.toLocaleString() + " to " + max.toLocaleString() + ".",
+        title + ". Wykres " + ({ bar: "słupkowy", line: "liniowy", doughnut: "pierścieniowy", pie: "kołowy", bubble: "bąbelkowy" }[type] || type) +
+        (series > 1 ? ", serie: " + series : "") + ", punkty danych: " + nums.length + ", wartości od " +
+        min.toLocaleString("pl-PL") + " do " + max.toLocaleString("pl-PL") + ".");
     } catch (e) {
       return chartTitleFor(chart.canvas);
     }
@@ -349,7 +355,7 @@
     details.className = "chart-data-table";
     details.dataset.canvas = canvas.id;
     const summary = document.createElement("summary");
-    summary.textContent = "View data as a table";
+    summary.textContent = L("View data as a table", "Pokaż dane w tabeli");
     details.appendChild(summary);
     const host = document.createElement("div");
     host.className = "chart-data-wrap";
@@ -371,7 +377,7 @@
     const chart = getChart(canvasId);
     const rows = chart ? chartToRows(chart) : [];
     if (rows.length < 2) {
-      host.textContent = "No data available for this chart.";
+      host.textContent = L("No data available for this chart.", "Brak danych dla tego wykresu.");
       return;
     }
     const table = document.createElement("table");
@@ -380,7 +386,7 @@
     rows[0].forEach((h) => {
       const th = document.createElement("th");
       th.scope = "col";
-      th.textContent = h;
+      th.textContent = L(h, h === "Label" ? "Etykieta" : String(h).replace(/^Series (\d+)$/, "Seria $1"));
       htr.appendChild(th);
     });
     thead.appendChild(htr);
@@ -404,8 +410,9 @@
     if (body.length > TABLE_ROW_CAP) {
       const note = document.createElement("p");
       note.className = "table-note";
-      note.textContent = "Showing the first " + TABLE_ROW_CAP + " of " +
-        body.length.toLocaleString() + " rows — use CSV for the full data.";
+      note.textContent = L("Showing the first " + TABLE_ROW_CAP + " of " +
+        body.length.toLocaleString() + " rows — use CSV for the full data.",
+        "Pokazano pierwsze " + TABLE_ROW_CAP + " z " + body.length.toLocaleString("pl-PL") + " wierszy; pełne dane są w pliku CSV.");
       host.appendChild(note);
     }
   }
@@ -510,7 +517,7 @@
   function copyText(text, btn) {
     const done = () => {
       const old = btn.textContent;
-      btn.textContent = "Copied";
+      btn.textContent = L("Copied", "Skopiowano");
       setTimeout(() => { btn.textContent = old; }, 1400);
     };
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -540,10 +547,10 @@
     box.id = "echr-cite-dialog";
     box.className = "echr-cite";
     if (!supportsDialog) box.setAttribute("role", "dialog");
-    box.setAttribute("aria-label", "Cite this chart");
+    box.setAttribute("aria-label", L("Cite this chart", "Jak cytować ten wykres"));
 
     const h = document.createElement("h3");
-    h.textContent = "Cite this chart";
+    h.textContent = L("Cite this chart", "Jak cytować ten wykres");
 
     const pre = document.createElement("pre");
     pre.className = "echr-cite-text";
@@ -555,13 +562,13 @@
     const copyCit = document.createElement("button");
     copyCit.type = "button";
     copyCit.className = "export-btn";
-    copyCit.textContent = "Copy citation";
+    copyCit.textContent = L("Copy citation", "Kopiuj opis bibliograficzny");
     copyCit.addEventListener("click", () => copyText(pre.textContent, copyCit));
 
     const copyLink = document.createElement("button");
     copyLink.type = "button";
     copyLink.className = "export-btn";
-    copyLink.textContent = "Copy link";
+    copyLink.textContent = L("Copy link", "Kopiuj link");
     copyLink.addEventListener("click", () => copyText(chartPermalink(canvas), copyLink));
 
     const toggle = document.createElement("button");
@@ -572,13 +579,13 @@
     toggle.addEventListener("click", () => {
       showingBibtex = !showingBibtex;
       pre.textContent = showingBibtex ? bibtexText(canvas) : citationText(canvas);
-      toggle.textContent = showingBibtex ? "Plain" : "BibTeX";
+      toggle.textContent = showingBibtex ? L("Plain", "Zwykły tekst") : "BibTeX";
     });
 
     const close = document.createElement("button");
     close.type = "button";
     close.className = "export-btn";
-    close.textContent = "Close";
+    close.textContent = L("Close", "Zamknij");
     close.addEventListener("click", () => {
       if (supportsDialog && box.close) box.close();
       box.remove();

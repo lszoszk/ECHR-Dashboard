@@ -726,7 +726,7 @@ const COMM_OUTCOME_OPTIONS = {
     tooltip: tr("The Court gave a judgment after the communication.", "Po zakomunikowaniu Trybunał wydał wyrok.") },
   comm_decision: { label: tr("Decided by decision", "Zakończona decyzją"),
     tooltip: tr("Ended by a decision: struck out (friendly settlement, unilateral declaration) or inadmissible.",
-      "Zakończona decyzją: skreślenie z listy (ugoda, jednostronna deklaracja) lub niedopuszczalność.") },
+      "Zakończona decyzją: skreślenie z listy (polubowne załatwienie sprawy, deklaracja jednostronna) lub niedopuszczalność.") },
 };
 
 function outcomeCheckboxes() {

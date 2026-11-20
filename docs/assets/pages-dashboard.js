@@ -11,7 +11,24 @@ const PALETTE = [
   "#8d4f78",
 ];
 
-const fmtInt = new Intl.NumberFormat("en-US");
+// Polish page (docs/pl/statystyki.html, <html lang="pl">): the same page worded in Polish. L(en, pl) picks the
+// wording; T(value) gives the Polish term for a value of the data (outcome, formation, State, Article, HUDOC topic)
+// from data/stats-terms-pl.json, which follows the official Polish text of the Convention where there is one.
+const PL = document.documentElement.lang === "pl";
+const L = (en, pl) => (PL ? pl : en);
+// Polish noun after a count: 1 wyrok, 3 wyroki (2–4 but not 12–14), 25 wyroków.
+const plural = (n, one, few, many) => (n === 1 ? one : n % 10 >= 2 && n % 10 <= 4 && !(n % 100 >= 12 && n % 100 <= 14) ? few : many);
+// Decimal comma on the Polish page, for numbers not written through pct().
+const dec = (v) => L(String(v), String(v).replace(".", ","));
+let STATS_TERMS_PL = null;
+const T = (value) => {
+  if (!PL || value == null) return value;
+  const key = String(value);
+  if (STATS_TERMS_PL && STATS_TERMS_PL[key]) return STATS_TERMS_PL[key];
+  return window.I18N_PL ? window.I18N_PL.t(key) : key;
+};
+
+const fmtInt = new Intl.NumberFormat(PL ? "pl-PL" : "en-US");
 
 // One colour per outcome (Okabe–Ito, colour-blind safe), identical in every chart; legends and
 // labels always name the outcome too. Keys read the outcome rows of stats.json.
@@ -32,7 +49,7 @@ const yearOutcome = (r) => ({ v: r[1], nv: r[2], both: r[3], none: r[4] });
 const stateOutcome = (r) => ({ v: r[2], nv: r[3], both: r[4], none: r[5] });
 const outcomeTotal = (o) => o.v + o.nv + o.both + o.none;
 const withViolation = (o) => o.v + o.both;
-const pct = (part, whole, digits = 0) => (whole ? `${(part / whole * 100).toFixed(digits)}%` : "–");
+const pct = (part, whole, digits = 0) => (whole ? `${(part / whole * 100).toFixed(digits).replace(".", PL ? "," : ".")}%` : "–");
 const rateWithN = (part, whole, digits = 0) => `${pct(part, whole, digits)} (n=${fmtInt.format(whole)})`;
 
 function cssVar(name, fallback) {
@@ -61,7 +78,7 @@ function bindToggle(buttons, attribute, onSelect) {
 
 // The catalog's final year is partial unless the cut-off is 31 December.
 let partialYear = "";
-const yearLabels = (years) => years.map((y) => (String(y) === partialYear ? `${y} (partial)` : String(y)));
+const yearLabels = (years) => years.map((y) => (String(y) === partialYear ? `${y} ${L("(partial)", "(niepełny)")}` : String(y)));
 
 /** A short label just past the end of each horizontal (stacked) bar. */
 const barEndLabels = {
@@ -84,9 +101,9 @@ const barEndLabels = {
 
 // Three events marked, sparingly, on the year charts (frac = point in the year).
 const COURT_EVENTS = [
-  { year: "1998", frac: 10 / 12, label: "Protocol No. 11", short: "P11" },
-  { year: "2010", frac: 5 / 12, label: "Protocol No. 14", short: "P14" },
-  { year: "2022", frac: 8.5 / 12, label: "Russia leaves", short: "RU" },
+  { year: "1998", frac: 10 / 12, label: L("Protocol No. 11", "Protokół nr 11"), short: "P11" },
+  { year: "2010", frac: 5 / 12, label: L("Protocol No. 14", "Protokół nr 14"), short: "P14" },
+  { year: "2022", frac: 8.5 / 12, label: L("Russia leaves", "Rosja poza Konwencją"), short: "RU" },
 ];
 const eventLines = {
   id: "eventLines",
@@ -124,7 +141,7 @@ const eventLines = {
 function formatDateForMeta(raw) {
   const dt = new Date(raw);
   if (Number.isNaN(dt.getTime())) return raw || "-";
-  return dt.toLocaleString("en-US", {
+  return dt.toLocaleString(PL ? "pl-PL" : "en-US", {
     year: "numeric",
     month: "short",
     day: "2-digit",
@@ -188,12 +205,12 @@ async function renderJudgmentCitations(scope) {
   const coverageNote = document.getElementById("judgmentCitationCoverage");
   try {
     const response = await fetch("data/judgment-citations.json", { cache: "no-store" });
-    if (!response.ok) throw new Error("Citation snapshot unavailable");
+    if (!response.ok) throw new Error(L("Citation snapshot unavailable", "Brak danych o cytowaniach"));
     const snapshot = await response.json();
     if (snapshot.schema_version !== "judgment-citations-v1" || snapshot.cutoff !== scope.cutoff ||
         snapshot.statistics_scope_sha256 !== scope.catalog_sha256 ||
         (scope.catalog_content_sha256 && snapshot.catalog_content_sha256 !== scope.catalog_content_sha256)) {
-      throw new Error("Citation snapshot scope does not match statistics");
+      throw new Error(L("Citation snapshot scope does not match statistics", "Zakres danych o cytowaniach nie odpowiada statystykom"));
     }
     // Two kinds of evidence, never mixed silently: HUDOC's curated case-law lists, and (when the snapshot
     // has it) the application numbers HUDOC extracted from each judgment's text.
@@ -204,6 +221,7 @@ async function renderJudgmentCitations(scope) {
     let view = views.search || views.curated;
     let ranked = view.ranking || [];
     const citers = () => (view === views.search ? "judgments and decisions" : "judgments");
+    const citersPl = () => (view === views.search ? "wyroki i decyzje" : "wyroki");
     const quality = document.getElementById("judgmentCitationQuality");
     const evidenceSelect = document.getElementById("citationEvidence");
     function describe() {
@@ -211,29 +229,45 @@ async function renderJudgmentCitations(scope) {
       const statuses = c.by_status || {};
       const lines = [];
       if (view === views.search) {
-        coverageNote.textContent = `Counted as in Search: judgments and decisions citing it in their text or in HUDOC's metadata, and judgments HUDOC publishes only in French that cite it according to HUDOC's metadata. ${fmtInt.format(c.citation_pairs)} citation pairs in the corpus, plus ${fmtInt.format(c.french_only_pairs)} from French-only judgments. Snapshot: ${snapshot.cutoff}.`;
+        coverageNote.textContent = L(`Counted as in Search: judgments and decisions citing it in their text or in HUDOC's metadata, and judgments HUDOC publishes only in French that cite it according to HUDOC's metadata. ${fmtInt.format(c.citation_pairs)} citation pairs in the corpus, plus ${fmtInt.format(c.french_only_pairs)} from French-only judgments. Snapshot: ${snapshot.cutoff}.`,
+          `Liczone tak jak w wyszukiwarce: wyroki i decyzje, które cytują wyrok w tekście albo według metadanych HUDOC, oraz wyroki publikowane przez HUDOC tylko po francusku, które cytują go według metadanych HUDOC. Pary cytowań w korpusie: ${fmtInt.format(c.citation_pairs)}; z wyroków dostępnych tylko po francusku: kolejne ${fmtInt.format(c.french_only_pairs)}. Stan danych: ${snapshot.cutoff}.`);
         lines.push(
-          "These are the numbers shown under Cited by on every search result. They count documents, not mentions: a judgment that refers to the case in ten paragraphs counts once.",
-          "Citations by French-only judgments come from HUDOC's metadata alone, so they are minimums and carry no paragraph; the share is shown for each judgment.",
-          "The two other choices of Evidence count HUDOC's metadata alone, for comparison.");
+          L("These are the numbers shown under Cited by on every search result. They count documents, not mentions: a judgment that refers to the case in ten paragraphs counts once.",
+            "To te same liczby, które wyszukiwarka podaje przy każdym wyniku jako „Cytowany przez”. Liczą dokumenty, nie wzmianki: wyrok, który odsyła do sprawy w dziesięciu paragrafach, liczy się raz."),
+          L("Citations by French-only judgments come from HUDOC's metadata alone, so they are minimums and carry no paragraph; the share is shown for each judgment.",
+            "Cytowania w wyrokach dostępnych tylko po francusku pochodzą wyłącznie z metadanych HUDOC, są więc wartościami minimalnymi i nie wskazują paragrafu; ich liczbę podano przy każdym wyroku."),
+          L("The two other choices of Evidence count HUDOC's metadata alone, for comparison.",
+            "Dwa pozostałe warianty źródła danych liczą, dla porównania, wyłącznie metadane HUDOC."));
       } else if (view === views.curated) {
-        coverageNote.textContent = `${fmtInt.format(c.judgments_with_metadata)} / ${fmtInt.format(c.judgments)} judgments have citation metadata; ${fmtInt.format(c.unique_edges)} unique resolved pairs. Snapshot: ${snapshot.cutoff}. Not a full-text ranking.`;
+        coverageNote.textContent = L(`${fmtInt.format(c.judgments_with_metadata)} / ${fmtInt.format(c.judgments)} judgments have citation metadata; ${fmtInt.format(c.unique_edges)} unique resolved pairs. Snapshot: ${snapshot.cutoff}. Not a full-text ranking.`,
+          `Wyroki z metadanymi o cytowaniach: ${fmtInt.format(c.judgments_with_metadata)} / ${fmtInt.format(c.judgments)}; unikalne przypisane pary: ${fmtInt.format(c.unique_edges)}. Stan danych: ${snapshot.cutoff}. To nie jest ranking oparty na pełnym tekście.`);
         lines.push(
-          `Reference observations across both languages: ${fmtInt.format(c.reference_observations)}. These are source entries, not unique citation pairs.`,
-          `Resolved: ${fmtInt.format(statuses.resolved || 0)}; ambiguous: ${fmtInt.format(statuses.ambiguous || 0)}; unresolved: ${fmtInt.format(statuses.unresolved || 0)}.`,
-          `Excluded document types: ${fmtInt.format(statuses.excluded_document_type || 0)}; chronology conflicts: ${fmtInt.format(statuses.chronology_conflict || 0)}; self-references: ${fmtInt.format(statuses.self_reference || 0)}.`,
-          `Identifier conflicts: ${fmtInt.format(statuses.identifier_conflict || 0)}; identity-review references: ${fmtInt.format(statuses.identity_review || 0)}. Neither contributes to the ranking.`,
-          `Metadata versions with citations: ENG ${fmtInt.format(c.metadata_versions_by_language.ENG || 0)}, FRE ${fmtInt.format(c.metadata_versions_by_language.FRE || 0)}; union: ${fmtInt.format(c.judgments_with_metadata)} unique judgment identities.`);
+          L(`Reference observations across both languages: ${fmtInt.format(c.reference_observations)}. These are source entries, not unique citation pairs.`,
+            `Odesłania odnotowane w obu wersjach językowych: ${fmtInt.format(c.reference_observations)}. To wpisy źródłowe, nie unikalne pary cytowań.`),
+          L(`Resolved: ${fmtInt.format(statuses.resolved || 0)}; ambiguous: ${fmtInt.format(statuses.ambiguous || 0)}; unresolved: ${fmtInt.format(statuses.unresolved || 0)}.`,
+            `Przypisane: ${fmtInt.format(statuses.resolved || 0)}; niejednoznaczne: ${fmtInt.format(statuses.ambiguous || 0)}; nieprzypisane: ${fmtInt.format(statuses.unresolved || 0)}.`),
+          L(`Excluded document types: ${fmtInt.format(statuses.excluded_document_type || 0)}; chronology conflicts: ${fmtInt.format(statuses.chronology_conflict || 0)}; self-references: ${fmtInt.format(statuses.self_reference || 0)}.`,
+            `Wyłączone rodzaje dokumentów: ${fmtInt.format(statuses.excluded_document_type || 0)}; sprzeczności chronologiczne: ${fmtInt.format(statuses.chronology_conflict || 0)}; odesłania wyroku do samego siebie: ${fmtInt.format(statuses.self_reference || 0)}.`),
+          L(`Identifier conflicts: ${fmtInt.format(statuses.identifier_conflict || 0)}; identity-review references: ${fmtInt.format(statuses.identity_review || 0)}. Neither contributes to the ranking.`,
+            `Sprzeczne identyfikatory: ${fmtInt.format(statuses.identifier_conflict || 0)}; odesłania do weryfikacji tożsamości: ${fmtInt.format(statuses.identity_review || 0)}. Żadne z nich nie wpływa na ranking.`),
+          L(`Metadata versions with citations: ENG ${fmtInt.format(c.metadata_versions_by_language.ENG || 0)}, FRE ${fmtInt.format(c.metadata_versions_by_language.FRE || 0)}; union: ${fmtInt.format(c.judgments_with_metadata)} unique judgment identities.`,
+            `Wersje metadanych z cytowaniami: ENG ${fmtInt.format(c.metadata_versions_by_language.ENG || 0)}, FRE ${fmtInt.format(c.metadata_versions_by_language.FRE || 0)}; łącznie unikalne tożsamości wyroków: ${fmtInt.format(c.judgments_with_metadata)}.`));
         const identityCounts = {};
         for (const issue of c.identity_issues || []) identityCounts[issue.reason] = (identityCounts[issue.reason] || 0) + 1;
-        lines.push(`Identity warnings: ${Object.entries(identityCounts).map(([key, value]) => `${key.replaceAll("_", " ")}: ${value}`).join("; ") || "none"}. Unpaired French identities are held for review, not counted again. Disagreeing application aliases are not used for secondary matches.`);
+        lines.push(L(`Identity warnings: ${Object.entries(identityCounts).map(([key, value]) => `${key.replaceAll("_", " ")}: ${value}`).join("; ") || "none"}. Unpaired French identities are held for review, not counted again. Disagreeing application aliases are not used for secondary matches.`,
+          `Ostrzeżenia dotyczące tożsamości: ${Object.entries(identityCounts).map(([key, value]) => `${key.replaceAll("_", " ")}: ${value}`).join("; ") || "brak"}. Wersje francuskie bez pary czekają na weryfikację i nie są liczone ponownie. Niezgodne aliasy numerów skarg nie służą do dopasowań pomocniczych.`));
       } else {
-        coverageNote.textContent = `${fmtInt.format(c.judgments_with_metadata)} / ${fmtInt.format(c.judgments)} judgments have citation metadata; ${fmtInt.format(c.unique_edges)} unique resolved pairs, ${fmtInt.format(c.edges_from_curated_list)} from the curated lists and ${fmtInt.format(c.edges_from_extracted_application)} from extracted application numbers (${fmtInt.format(c.edges_in_both)} in both). Snapshot: ${snapshot.cutoff}. HUDOC extracted the numbers from the full text; they carry no citation context.`;
+        coverageNote.textContent = L(`${fmtInt.format(c.judgments_with_metadata)} / ${fmtInt.format(c.judgments)} judgments have citation metadata; ${fmtInt.format(c.unique_edges)} unique resolved pairs, ${fmtInt.format(c.edges_from_curated_list)} from the curated lists and ${fmtInt.format(c.edges_from_extracted_application)} from extracted application numbers (${fmtInt.format(c.edges_in_both)} in both). Snapshot: ${snapshot.cutoff}. HUDOC extracted the numbers from the full text; they carry no citation context.`,
+          `Wyroki z metadanymi o cytowaniach: ${fmtInt.format(c.judgments_with_metadata)} / ${fmtInt.format(c.judgments)}; unikalne przypisane pary: ${fmtInt.format(c.unique_edges)}, w tym z wykazów orzecznictwa HUDOC: ${fmtInt.format(c.edges_from_curated_list)}, z wyodrębnionych numerów skarg: ${fmtInt.format(c.edges_from_extracted_application)} (z obu źródeł: ${fmtInt.format(c.edges_in_both)}). Stan danych: ${snapshot.cutoff}. HUDOC wyodrębnił numery z pełnego tekstu; nie wskazują one kontekstu cytowania.`);
         lines.push(
-          `Application numbers HUDOC extracted from the full text: ${fmtInt.format(c.reference_observations)} across ${fmtInt.format(c.judgments_with_extracted_application_numbers)} judgments.`,
-          `Resolved to one earlier judgment: ${fmtInt.format(statuses.resolved || 0)}; ambiguous (several judgments of the application): ${fmtInt.format(statuses.ambiguous || 0)}; no judgment in the catalog (for example decisions): ${fmtInt.format(statuses.unresolved || 0)}.`,
-          `The judgment's own application numbers: ${fmtInt.format(statuses.self_reference || 0)}; only later judgments: ${fmtInt.format(statuses.chronology_conflict || 0)}. Neither contributes to the ranking.`,
-          `Judgments with at least one resolved citation: ${fmtInt.format(c.judgments_with_resolved_citations)}. An extracted number can also come from a decision cited under the same application, so counts are approximate; against the text of English judgments about 96% of these pairs agree.`);
+          L(`Application numbers HUDOC extracted from the full text: ${fmtInt.format(c.reference_observations)} across ${fmtInt.format(c.judgments_with_extracted_application_numbers)} judgments.`,
+            `Numery skarg wyodrębnione przez HUDOC z pełnego tekstu: ${fmtInt.format(c.reference_observations)} w ${fmtInt.format(c.judgments_with_extracted_application_numbers)} ${plural(c.judgments_with_extracted_application_numbers, "wyroku", "wyrokach", "wyrokach")}.`),
+          L(`Resolved to one earlier judgment: ${fmtInt.format(statuses.resolved || 0)}; ambiguous (several judgments of the application): ${fmtInt.format(statuses.ambiguous || 0)}; no judgment in the catalog (for example decisions): ${fmtInt.format(statuses.unresolved || 0)}.`,
+            `Przypisane do jednego wcześniejszego wyroku: ${fmtInt.format(statuses.resolved || 0)}; niejednoznaczne (kilka wyroków w tej samej skardze): ${fmtInt.format(statuses.ambiguous || 0)}; bez wyroku w katalogu (np. decyzje): ${fmtInt.format(statuses.unresolved || 0)}.`),
+          L(`The judgment's own application numbers: ${fmtInt.format(statuses.self_reference || 0)}; only later judgments: ${fmtInt.format(statuses.chronology_conflict || 0)}. Neither contributes to the ranking.`,
+            `Własne numery skarg danego wyroku: ${fmtInt.format(statuses.self_reference || 0)}; wyłącznie wyroki późniejsze: ${fmtInt.format(statuses.chronology_conflict || 0)}. Żadne z nich nie wpływa na ranking.`),
+          L(`Judgments with at least one resolved citation: ${fmtInt.format(c.judgments_with_resolved_citations)}. An extracted number can also come from a decision cited under the same application, so counts are approximate; against the text of English judgments about 96% of these pairs agree.`,
+            `Wyroki z co najmniej jednym przypisanym cytowaniem: ${fmtInt.format(c.judgments_with_resolved_citations)}. Wyodrębniony numer może też pochodzić z decyzji cytowanej w tej samej skardze, więc liczby są przybliżone; w porównaniu z tekstem wyroków angielskich zgadza się około 96% tych par.`));
       }
       quality.replaceChildren(...lines.map((line) => {
         const p = document.createElement("p"); p.className = "citation-quality-line"; p.textContent = line; return p;
@@ -250,8 +284,10 @@ async function renderJudgmentCitations(scope) {
     if (!ranked.length) return;
     const sayTopCited = () => {
       const [top, next] = ranked;
-      document.getElementById("citationTakeaway").textContent = `${caseNameLabel(top.title, 90)} (${top.date.slice(0, 4)}) is the most cited judgment: ` +
-        `${fmtInt.format(top.cited_by_count)} ${citers()} cite it${next ? `, ahead of ${caseNameLabel(next.title, 90)} (${fmtInt.format(next.cited_by_count)})` : ""}.`;
+      document.getElementById("citationTakeaway").textContent = L(`${caseNameLabel(top.title, 90)} (${top.date.slice(0, 4)}) is the most cited judgment: ` +
+        `${fmtInt.format(top.cited_by_count)} ${citers()} cite it${next ? `, ahead of ${caseNameLabel(next.title, 90)} (${fmtInt.format(next.cited_by_count)})` : ""}.`,
+        `Najczęściej cytowanym wyrokiem jest ${caseNameLabel(top.title, 90)} (${top.date.slice(0, 4)}): cytujące go ${citersPl()} – ${fmtInt.format(top.cited_by_count)}` +
+        `${next ? `; na drugim miejscu ${caseNameLabel(next.title, 90)} (${fmtInt.format(next.cited_by_count)})` : ""}.`);
     };
     sayTopCited();
     const select = document.getElementById("citedJudgmentSelect");
@@ -302,7 +338,8 @@ async function renderJudgmentCitations(scope) {
         name.appendChild(hudocLink(row)); const date = document.createElement("td"); date.textContent = row.date;
         tr.append(name, date); body.appendChild(tr);
       }
-      document.getElementById("citingJudgmentsSummary").textContent = `View ${fmtInt.format(rows.length)} citing ${citers()}, each counted once however often it refers to this one (${Math.min(visible, rows.length)} shown)`;
+      document.getElementById("citingJudgmentsSummary").textContent = L(`View ${fmtInt.format(rows.length)} citing ${citers()}, each counted once however often it refers to this one (${Math.min(visible, rows.length)} shown)`,
+        `Pokaż cytujące ${citersPl()} (${fmtInt.format(rows.length)}); każdy dokument liczy się raz, bez względu na liczbę odesłań (widoczne: ${Math.min(visible, rows.length)})`);
       document.getElementById("moreCitingJudgments").hidden = visible >= rows.length;
     }
     function selectJudgment() {
@@ -310,9 +347,11 @@ async function renderJudgmentCitations(scope) {
       const row = ranked.find((r) => r.case_id === select.value);
       const identity = document.getElementById("citedJudgmentIdentity");
       const split = view === views.extracted
-        ? ` (${fmtInt.format(row.cited_by_curated_list)} via curated lists, ${fmtInt.format(row.cited_by_extracted_application)} via extracted application numbers)`
-        : view === views.search && row.cited_by_french_only ? ` (${fmtInt.format(row.cited_by_french_only)} only in French)` : "";
-      identity.replaceChildren(hudocLink(row), document.createTextNode(` · ${row.date} · ${row.ecli || row.case_id} · ${fmtInt.format(row.cited_by_count)} unique citing ${citers()}${split}`));
+        ? L(` (${fmtInt.format(row.cited_by_curated_list)} via curated lists, ${fmtInt.format(row.cited_by_extracted_application)} via extracted application numbers)`,
+          ` (z wykazów orzecznictwa HUDOC: ${fmtInt.format(row.cited_by_curated_list)}, z wyodrębnionych numerów skarg: ${fmtInt.format(row.cited_by_extracted_application)})`)
+        : view === views.search && row.cited_by_french_only ? L(` (${fmtInt.format(row.cited_by_french_only)} only in French)`, ` (tylko po francusku: ${fmtInt.format(row.cited_by_french_only)})`) : "";
+      identity.replaceChildren(hudocLink(row), document.createTextNode(L(` · ${row.date} · ${row.ecli || row.case_id} · ${fmtInt.format(row.cited_by_count)} unique citing ${citers()}${split}`,
+        ` · ${row.date} · ${row.ecli || row.case_id} · cytujące ${citersPl()} (bez powtórzeń): ${fmtInt.format(row.cited_by_count)}${split}`)));
       renderList();
     }
     select.addEventListener("change", selectJudgment);
@@ -341,7 +380,7 @@ async function renderJudgmentCitations(scope) {
       chartLabels(), ranked.map((row) => row.cited_by_count),
       { horizontal: true, colors: ["#4f83ad"], plugins: [countLabels], configure(cfg) {
         const ds = cfg.data.datasets[0];
-        ds.label = `Citing ${citers()}`;
+        ds.label = L(`Citing ${citers()}`, `Cytujące ${citersPl()}`);
         ds.maxBarThickness = 20;
         ds.borderRadius = 3;
         cfg.options.scales.x.grace = "10%";           // room for the counts
@@ -370,7 +409,7 @@ async function renderJudgmentCitations(scope) {
       if (chart) {
         chart.data.labels = chartLabels();
         chart.data.datasets[0].data = ranked.map((row) => row.cited_by_count);
-        chart.data.datasets[0].label = `Citing ${citers()}`;
+        chart.data.datasets[0].label = L(`Citing ${citers()}`, `Cytujące ${citersPl()}`);
         chart.update();
       }
       selectJudgment();
@@ -378,7 +417,8 @@ async function renderJudgmentCitations(scope) {
     selectJudgment();
   } catch (error) {
     section.dataset.keepEmptyView = "true";
-    coverageNote.textContent = `${error.message}. No judgment-level citation ranking is shown; reference-entry analytics below remain available.`;
+    coverageNote.textContent = L(`${error.message}. No judgment-level citation ranking is shown; reference-entry analytics below remain available.`,
+      `${error.message}. Ranking cytowań na poziomie wyroków nie jest wyświetlany; analizy wpisów źródłowych poniżej pozostają dostępne.`);
     section.querySelectorAll(".chart-controls, details, #citedJudgmentIdentity").forEach((el) => el.remove());
   }
 }
@@ -439,12 +479,12 @@ function createBarChart(ctx, labels, values, options = {}) {
 }
 
 function articleLabel(article) {
-  if (!article.startsWith("P")) return `Art. ${article}`;
+  if (!article.startsWith("P")) return L(`Art. ${article}`, `art. ${article}`);
   const [protocol, number] = article.split("-");
-  return `${protocol}, Art. ${number}`;
+  return L(`${protocol}, Art. ${number}`, `art. ${number} Protokołu nr ${protocol.slice(1)}`);
 }
 
-const listNames = (names) => (names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names.at(-1)}` : names[0] || "");
+const listNames = (names) => (names.length > 1 ? `${names.slice(0, -1).join(", ")} ${L("and", "i")} ${names.at(-1)}` : names[0] || "");
 
 /** Outcomes by Article: one chart of judgments with an outcome tag, the violation share (with n) at each bar's end. */
 function renderArticleAnalytics(analytics) {
@@ -454,18 +494,21 @@ function renderArticleAnalytics(analytics) {
   const rows = tagged.filter((row) => row.with_outcome >= MIN_RATE_N); // payload order is Convention order
   const hidden = tagged.length - rows.length;
   document.getElementById("articleHiddenNote").textContent = hidden
-    ? `${hidden} Article${hidden === 1 ? "" : "s"} with fewer than ${MIN_RATE_N} such judgments ${hidden === 1 ? "is" : "are"} left out.` : "";
+    ? L(`${hidden} Article${hidden === 1 ? "" : "s"} with fewer than ${MIN_RATE_N} such judgments ${hidden === 1 ? "is" : "are"} left out.`,
+      `Pominięto ${hidden} ${plural(hidden, "artykuł", "artykuły", "artykułów")}, których dotyczy mniej niż ${MIN_RATE_N} takich wyroków.`) : "";
   const largest = rows.reduce((a, b) => (b.with_outcome > a.with_outcome ? b : a));
   const rated = rows.filter((row) => row.with_outcome >= 500).sort((a, b) => b.violation_share - a.violation_share);
-  document.getElementById("articleTakeaway").textContent =
+  document.getElementById("articleTakeaway").textContent = L(
     `${articleLabel(largest.article)} has the most judgments with an outcome (n=${fmtInt.format(largest.with_outcome)}; ${pct(largest.with_violation, largest.with_outcome)} with a violation).` +
-    (rated.length > 1 ? ` Among Articles with 500 or more, the violation share runs from ${rateWithN(rated.at(-1).with_violation, rated.at(-1).with_outcome)} under ${articleLabel(rated.at(-1).article)} to ${rateWithN(rated[0].with_violation, rated[0].with_outcome)} under ${articleLabel(rated[0].article)}.` : "");
+    (rated.length > 1 ? ` Among Articles with 500 or more, the violation share runs from ${rateWithN(rated.at(-1).with_violation, rated.at(-1).with_outcome)} under ${articleLabel(rated.at(-1).article)} to ${rateWithN(rated[0].with_violation, rated[0].with_outcome)} under ${articleLabel(rated[0].article)}.` : ""),
+    `Najwięcej wyroków z oznaczonym rozstrzygnięciem dotyczy ${articleLabel(largest.article)} (n=${fmtInt.format(largest.with_outcome)}; ${pct(largest.with_violation, largest.with_outcome)} ze stwierdzonym naruszeniem).` +
+    (rated.length > 1 ? ` Wśród artykułów z co najmniej 500 takimi wyrokami odsetek naruszeń waha się od ${pct(rated.at(-1).with_violation, rated.at(-1).with_outcome)} (${articleLabel(rated.at(-1).article)}; n=${fmtInt.format(rated.at(-1).with_outcome)}) do ${pct(rated[0].with_violation, rated[0].with_outcome)} (${articleLabel(rated[0].article)}; n=${fmtInt.format(rated[0].with_outcome)}).` : ""));
   canvas.parentElement.style.height = `${rows.length * 26 + 90}px`;
   const buckets = [["violation_only", OUTCOME_SERIES[0]], ["mixed", OUTCOME_SERIES[1]], ["non_violation_only", OUTCOME_SERIES[2]]];
   let ordered = rows;
   const chart = new Chart(canvas, {
     type: "bar",
-    data: { labels: [], datasets: buckets.map(([, { label, color }]) => ({ label, data: [], backgroundColor: color, borderWidth: 0, maxBarThickness: 20 })) },
+    data: { labels: [], datasets: buckets.map(([, { label, color }]) => ({ label: T(label), data: [], backgroundColor: color, borderWidth: 0, maxBarThickness: 20 })) },
     options: {
       responsive: true, maintainAspectRatio: false, indexAxis: "y",
       layout: { padding: { right: 92 } },
@@ -480,7 +523,7 @@ function renderArticleAnalytics(analytics) {
           },
           footer(items) {
             const row = ordered[items[0].dataIndex];
-            return `At least one violation: ${rateWithN(row.with_violation, row.with_outcome, 1)}`;
+            return L(`At least one violation: ${rateWithN(row.with_violation, row.with_outcome, 1)}`, `Co najmniej jedno naruszenie: ${rateWithN(row.with_violation, row.with_outcome, 1)}`);
           },
         } },
       },
@@ -590,29 +633,29 @@ function createMultiLineChart(ctx, labels, datasets) {
 function renderStateOutcomeTable(container, rows) {
   if (!container) return;
   if (!rows.length) {
-    container.innerHTML = '<p class="state-outcome-empty">No state-level rows.</p>';
+    container.innerHTML = L('<p class="state-outcome-empty">No state-level rows.</p>', '<p class="state-outcome-empty">Brak danych dla państw.</p>');
     return;
   }
   // The Court's own columns ("Violations by Article and by State"), as far as HUDOC metadata allow.
   const cols = [
-    ["State", (r) => r[0]],
-    ["Judgments", (r) => r[1]],
-    ["≥ 1 violation", (r) => r[2] + r[4]],
-    ["No violation", (r) => r[3]],
-    ["Friendly settlement / struck out", (r) => r[7]],
-    ["Other", (r) => r[5] - r[7]],
-    ["Violation rate", (r) => (r[2] + r[4]) / r[1] * 100],
+    [L("State", "Państwo"), (r) => r[0]],
+    [L("Judgments", "Wyroki"), (r) => r[1]],
+    [L("≥ 1 violation", "≥ 1 naruszenie"), (r) => r[2] + r[4]],
+    [L("No violation", "Brak naruszenia"), (r) => r[3]],
+    [L("Friendly settlement / struck out", "Polubowne załatwienie / skreślenie z listy"), (r) => r[7]],
+    [L("Other", "Inne"), (r) => r[5] - r[7]],
+    [L("Violation rate", "Odsetek naruszeń"), (r) => (r[2] + r[4]) / r[1] * 100],
   ];
   const rateCol = cols.length - 1;
   let sortCol = 1, desc = true;
-  const cell = (row, i) => (i === rateCol ? `${cols[i][1](row).toFixed(1)}%` : fmtInt.format(cols[i][1](row)));
+  const cell = (row, i) => (i === rateCol ? `${dec(cols[i][1](row).toFixed(1))}%` : fmtInt.format(cols[i][1](row)));
   const draw = () => {
     const sorted = rows.slice().sort((a, b) => {
-      const c = sortCol === 0 ? String(a[0]).localeCompare(String(b[0])) : cols[sortCol][1](a) - cols[sortCol][1](b);
+      const c = sortCol === 0 ? String(T(a[0])).localeCompare(String(T(b[0]))) : cols[sortCol][1](a) - cols[sortCol][1](b);
       return desc ? -c : c;
     });
     container.innerHTML = `
-      <div class="state-outcome-scroll" tabindex="0" role="region" aria-label="Outcomes by respondent State">
+      <div class="state-outcome-scroll" tabindex="0" role="region" aria-label="${L("Outcomes by respondent State", "Rozstrzygnięcia według pozwanego państwa")}">
         <table class="state-outcome-table">
           <thead><tr>${cols.map(([label], i) => `
             <th scope="col" aria-sort="${i === sortCol ? (desc ? "descending" : "ascending") : "none"}">
@@ -620,8 +663,8 @@ function renderStateOutcomeTable(container, rows) {
             </th>`).join("")}</tr></thead>
           <tbody>${sorted.map((row) => {
             const few = row[1] < MIN_RATE_N;
-            return `<tr${few ? ' class="few"' : ""}><th scope="row">${row[0]}</th>${cols.slice(1).map((_, j) =>
-              `<td${j + 1 === rateCol && few ? ` title="Fewer than ${MIN_RATE_N} judgments"` : ""}>${cell(row, j + 1)}</td>`).join("")}</tr>`;
+            return `<tr${few ? ' class="few"' : ""}><th scope="row">${T(row[0])}</th>${cols.slice(1).map((_, j) =>
+              `<td${j + 1 === rateCol && few ? ` title="${L(`Fewer than ${MIN_RATE_N} judgments`, `Mniej niż ${MIN_RATE_N} ${plural(MIN_RATE_N, "wyrok", "wyroki", "wyroków")}`)}"` : ""}>${cell(row, j + 1)}</td>`).join("")}</tr>`;
           }).join("")}</tbody>
         </table>
       </div>`;
@@ -643,8 +686,11 @@ function renderStateOutcomeTable(container, rows) {
   const busiest = rows.reduce((a, b) => (b[1] > a[1] ? b : a));
   const rated = rows.filter((r) => r[1] >= MIN_RATE_N).sort((a, b) => cols[rateCol][1](b) - cols[rateCol][1](a));
   const rate = (r) => `${rateWithN(r[2] + r[4], r[1])} in ${r[0]}`;
-  document.getElementById("stateTableTakeaway").textContent = `${busiest[0]} has the most judgments (${fmtInt.format(busiest[1])}).` +
-    (rated.length > 1 ? ` Among the ${rated.length} States with ${MIN_RATE_N} or more, the violation rate runs from ${rate(rated.at(-1))} to ${rate(rated[0])}.` : "");
+  const ratePl = (r) => `${T(r[0])} – ${rateWithN(r[2] + r[4], r[1])}`;
+  document.getElementById("stateTableTakeaway").textContent = L(`${busiest[0]} has the most judgments (${fmtInt.format(busiest[1])}).` +
+    (rated.length > 1 ? ` Among the ${rated.length} States with ${MIN_RATE_N} or more, the violation rate runs from ${rate(rated.at(-1))} to ${rate(rated[0])}.` : ""),
+    `${T(busiest[0])} jest pozwanym państwem w największej liczbie wyroków (${fmtInt.format(busiest[1])}).` +
+    (rated.length > 1 ? ` Wśród ${rated.length} państw z co najmniej ${MIN_RATE_N} wyrokami najniższy odsetek naruszeń ma ${ratePl(rated.at(-1))}, a najwyższy ${ratePl(rated[0])}.` : ""));
 }
 
 /** The 15 States with most judgments plus the rest together: count (bar) and violation rate (label) at once. */
@@ -653,17 +699,17 @@ function renderStateChart(rows, totalJudgments, topShare) {
   if (!canvas || !rows.length) return;
   const sorted = rows.slice().sort((a, b) => b[1] - a[1]);
   const rest = sorted.slice(15);
-  const bars = sorted.slice(0, 15).map((r) => ({ label: r[0], ...stateOutcome(r) }));
+  const bars = sorted.slice(0, 15).map((r) => ({ label: T(r[0]), ...stateOutcome(r) }));
   if (rest.length) {
     const sum = (key) => rest.reduce((total, r) => total + stateOutcome(r)[key], 0);
-    bars.push({ label: `Other ${rest.length}`, title: `Other ${rest.length} States together`, v: sum("v"), nv: sum("nv"), both: sum("both"), none: sum("none") });
+    bars.push({ label: L(`Other ${rest.length}`, `Pozostałe (${rest.length})`), title: L(`Other ${rest.length} States together`, `Pozostałe państwa łącznie (${rest.length})`), v: sum("v"), nv: sum("nv"), both: sum("both"), none: sum("none") });
   }
   canvas.parentElement.style.height = `${bars.length * 28 + 90}px`;
   new Chart(canvas, {
     type: "bar",
     data: {
       labels: bars.map((b) => b.label),
-      datasets: OUTCOME_SERIES.map(({ key, label, color }) => ({ label, data: bars.map((b) => b[key]), backgroundColor: color, borderWidth: 0, maxBarThickness: 20 })),
+      datasets: OUTCOME_SERIES.map(({ key, label, color }) => ({ label: T(label), data: bars.map((b) => b[key]), backgroundColor: color, borderWidth: 0, maxBarThickness: 20 })),
     },
     options: {
       responsive: true, maintainAspectRatio: false, indexAxis: "y",
@@ -674,7 +720,8 @@ function renderStateChart(rows, totalJudgments, topShare) {
         tooltip: { callbacks: {
           title: (items) => bars[items[0].dataIndex].title || items[0].label,
           label: (context) => `${context.dataset.label}: ${fmtInt.format(context.parsed.x)} (${pct(context.parsed.x, outcomeTotal(bars[context.dataIndex]), 1)})`,
-          footer: (items) => `At least one violation: ${rateWithN(withViolation(bars[items[0].dataIndex]), outcomeTotal(bars[items[0].dataIndex]), 1)}`,
+          footer: (items) => L(`At least one violation: ${rateWithN(withViolation(bars[items[0].dataIndex]), outcomeTotal(bars[items[0].dataIndex]), 1)}`,
+            `Co najmniej jedno naruszenie: ${rateWithN(withViolation(bars[items[0].dataIndex]), outcomeTotal(bars[items[0].dataIndex]), 1)}`),
         } },
       },
       scales: {
@@ -686,9 +733,12 @@ function renderStateChart(rows, totalJudgments, topShare) {
   });
   const shown = bars.slice(0, 15).sort((a, b) => withViolation(b) / outcomeTotal(b) - withViolation(a) / outcomeTotal(a));
   const rate = (b) => `${b.label}, ${rateWithN(withViolation(b), outcomeTotal(b))}`;
-  document.getElementById("stateChartTakeaway").textContent =
+  const ratePl = (b) => `${b.label} – ${rateWithN(withViolation(b), outcomeTotal(b))}`;
+  document.getElementById("stateChartTakeaway").textContent = L(
     (topShare?.states?.length ? `${listNames(topShare.states)} are the respondent States in ${pct(topShare.judgments, totalJudgments)} of all judgments (${fmtInt.format(topShare.judgments)} of ${fmtInt.format(totalJudgments)}). ` : "") +
-    `Of the 15 shown, the violation rate is highest for ${rate(shown[0])}, and lowest for ${rate(shown.at(-1))}.`;
+    `Of the 15 shown, the violation rate is highest for ${rate(shown[0])}, and lowest for ${rate(shown.at(-1))}.`,
+    (topShare?.states?.length ? `${listNames(topShare.states.map(T))} to pozwane państwa w ${pct(topShare.judgments, totalJudgments)} wszystkich wyroków (${fmtInt.format(topShare.judgments)} z ${fmtInt.format(totalJudgments)}). ` : "") +
+    `Spośród 15 pokazanych państw najwyższy odsetek naruszeń ma ${ratePl(shown[0])}, a najniższy ${ratePl(shown.at(-1))}.`);
 }
 
 /** State profile: 1–3 States → judgments by year, Articles found violated, most frequent topics. */
@@ -697,8 +747,8 @@ function renderStateProfile(compare, topicsByState) {
   const names = Object.keys(profiles).sort((a, b) => profiles[b].total - profiles[a].total);
   const selects = [1, 2, 3].map((n) => document.getElementById(`compareState${n}`));
   if (!names.length || selects.some((sel) => !sel)) return;
-  const options = names.map((name) => `<option value="${name}">${name} (${fmtInt.format(profiles[name].total)})</option>`).join("");
-  selects.forEach((sel, i) => { sel.innerHTML = (i ? '<option value="">(none)</option>' : "") + options; });
+  const options = names.map((name) => `<option value="${name}">${T(name)} (${fmtInt.format(profiles[name].total)})</option>`).join("");
+  selects.forEach((sel, i) => { sel.innerHTML = (i ? L('<option value="">(none)</option>', '<option value="">(brak)</option>') : "") + options; });
   // ?states= takes ISO codes (POL,TUR) or names.
   const find = (token) => names.find((name) => profiles[name].code === token.toUpperCase() || name.toLowerCase() === token.toLowerCase());
   const fromUrl = [...new Set((pageParams.get("states") || "").split(",").map((t) => find(t.trim())).filter(Boolean))].slice(0, 3);
@@ -709,20 +759,20 @@ function renderStateProfile(compare, topicsByState) {
   const share = (count, state) => Math.round(count / profiles[state].total * 1000) / 10;
   const violationRate = (p) => {
     const text = rateWithN(p.outcomes.violation_only + p.outcomes.both, p.total);
-    return p.total < MIN_RATE_N ? `<span class="few-rate" title="Fewer than ${MIN_RATE_N} judgments">${text}</span>` : text;
+    return p.total < MIN_RATE_N ? `<span class="few-rate" title="${L(`Fewer than ${MIN_RATE_N} judgments`, `Mniej niż ${MIN_RATE_N} ${plural(MIN_RATE_N, "wyrok", "wyroki", "wyroków")}`)}">${text}</span>` : text;
   };
   const metrics = [
-    ["Judgments", (p) => fmtInt.format(p.total)],
-    ["At least one violation", violationRate],
-    ["No violation", (p) => fmtInt.format(p.outcomes.non_violation_only)],
-    ["Friendly settlement / struck out", (p) => fmtInt.format(p.settled)],
-    ["Other", (p) => fmtInt.format(p.outcomes.neither - p.settled)],
-    ["Most often found violated", (p) => (p.articles[0] ? `${articleLabel(p.articles[0][0])} (${fmtInt.format(p.articles[0][1])})` : "–")],
+    [L("Judgments", "Wyroki"), (p) => fmtInt.format(p.total)],
+    [L("At least one violation", "Co najmniej jedno naruszenie"), violationRate],
+    [L("No violation", "Brak naruszenia"), (p) => fmtInt.format(p.outcomes.non_violation_only)],
+    [L("Friendly settlement / struck out", "Polubowne załatwienie / skreślenie z listy"), (p) => fmtInt.format(p.settled)],
+    [L("Other", "Inne"), (p) => fmtInt.format(p.outcomes.neither - p.settled)],
+    [L("Most often found violated", "Najczęściej stwierdzane naruszenie"), (p) => (p.articles[0] ? `${articleLabel(p.articles[0][0])} (${fmtInt.format(p.articles[0][1])})` : "–")],
   ];
   const charts = {};
   const horizontalShare = (chart, tooltipLabel) => {
     if (!chart) return;
-    chart.options.scales.x.ticks = { callback: (v) => `${v}%` };
+    chart.options.scales.x.ticks = { callback: (v) => `${dec(v)}%` };
     chart.options.scales.y.ticks = { autoSkip: false, font: { size: 11 } };
     chart.options.plugins.tooltip = { callbacks: { label: tooltipLabel } };
     chart.update("none");
@@ -730,13 +780,13 @@ function renderStateProfile(compare, topicsByState) {
 
   const render = () => {
     const selected = [...new Set(selects.map((sel) => sel.value).filter((v) => profiles[v]))];
-    document.getElementById("compareSummaryTable").innerHTML = `<table class="compare-summary-table"><thead><tr><th scope="col">Metric</th>${selected
-      .map((s, i) => `<th scope="col"><span class="state-swatch" style="background:${STATE_COLORS[i]}" aria-hidden="true"></span>${s}</th>`).join("")}</tr></thead><tbody>${metrics
+    document.getElementById("compareSummaryTable").innerHTML = `<table class="compare-summary-table"><thead><tr><th scope="col">${L("Metric", "Wskaźnik")}</th>${selected
+      .map((s, i) => `<th scope="col"><span class="state-swatch" style="background:${STATE_COLORS[i]}" aria-hidden="true"></span>${T(s)}</th>`).join("")}</tr></thead><tbody>${metrics
       .map(([label, fn]) => `<tr><th scope="row">${label}</th>${selected.map((s) => `<td>${fn(profiles[s])}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
 
     Object.values(charts).forEach((chart) => chart?.destroy());
     charts.trend = createMultiLineChart(document.getElementById("compareTrendChart"), years, selected.map((state, i) => ({
-      label: state, data: profiles[state].cases_by_year, borderColor: STATE_COLORS[i], backgroundColor: STATE_COLORS[i],
+      label: T(state), data: profiles[state].cases_by_year, borderColor: STATE_COLORS[i], backgroundColor: STATE_COLORS[i],
       fill: false, tension: 0.2, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4,
     })));
 
@@ -745,37 +795,44 @@ function renderStateProfile(compare, topicsByState) {
       .map((a) => [a, Math.max(...selected.map((s) => share((articleCounts[s].get(a) || [0])[0], s)))])
       .sort((x, y) => y[1] - x[1]).slice(0, 8).map(([a]) => a);
     charts.articles = createGroupedBarChart(document.getElementById("compareArticlesChart"), articles.map(articleLabel), selected.map((state, i) => ({
-      label: state, data: articles.map((a) => share((articleCounts[state].get(a) || [0])[0], state)),
+      label: T(state), data: articles.map((a) => share((articleCounts[state].get(a) || [0])[0], state)),
       backgroundColor: STATE_COLORS[i], borderWidth: 0, maxBarThickness: 14,
     })), { horizontal: true });
     horizontalShare(charts.articles, (context) => {
       const state = selected[context.datasetIndex];
       const [violations, tagged] = articleCounts[state].get(articles[context.dataIndex]) || [0, 0];
-      return `${state}: ${fmtInt.format(violations)} of ${fmtInt.format(profiles[state].total)} judgments (${context.parsed.x}%); ` +
-        `violation share under this Article ${rateWithN(violations, tagged)}`;
+      return L(`${state}: ${fmtInt.format(violations)} of ${fmtInt.format(profiles[state].total)} judgments (${context.parsed.x}%); ` +
+        `violation share under this Article ${rateWithN(violations, tagged)}`,
+        `${T(state)}: ${fmtInt.format(violations)} z ${fmtInt.format(profiles[state].total)} wyroków (${dec(context.parsed.x)}%); ` +
+        `odsetek naruszeń w wyrokach dotyczących tego artykułu: ${rateWithN(violations, tagged)}`);
     });
 
     // Topics: each State's top ten are stored; a topic outside a State's top ten has no bar for it.
     const topicCounts = Object.fromEntries(selected.map((s) => [s, new Map(topicsByState[s] || [])]));
     const topics = [...new Set(selected.flatMap((s) => (topicsByState[s] || []).slice(0, 4).map(([t]) => t)))].slice(0, 8);
-    charts.topics = createGroupedBarChart(document.getElementById("thesaurusCountryChart"), topics.map((t) => truncateLabel(t, 34)), selected.map((state, i) => ({
-      label: state, data: topics.map((t) => (topicCounts[state].has(t) ? share(topicCounts[state].get(t), state) : null)),
+    charts.topics = createGroupedBarChart(document.getElementById("thesaurusCountryChart"), topics.map((t) => truncateLabel(T(t), 34)), selected.map((state, i) => ({
+      label: T(state), data: topics.map((t) => (topicCounts[state].has(t) ? share(topicCounts[state].get(t), state) : null)),
       backgroundColor: STATE_COLORS[i], borderWidth: 0, maxBarThickness: 14,
     })), { horizontal: true });
     horizontalShare(charts.topics, (context) => {
       const state = selected[context.datasetIndex];
-      return `${state}: ${fmtInt.format(topicCounts[state].get(topics[context.dataIndex]))} of ${fmtInt.format(profiles[state].total)} judgments (${context.parsed.x}%)`;
+      return L(`${state}: ${fmtInt.format(topicCounts[state].get(topics[context.dataIndex]))} of ${fmtInt.format(profiles[state].total)} judgments (${context.parsed.x}%)`,
+        `${T(state)}: ${fmtInt.format(topicCounts[state].get(topics[context.dataIndex]))} z ${fmtInt.format(profiles[state].total)} wyroków (${dec(context.parsed.x)}%)`);
     });
     syncChartTheme();
 
     const rateOf = (s) => (profiles[s].outcomes.violation_only + profiles[s].outcomes.both) / profiles[s].total;
     const describe = (s) => `${s}, ${rateWithN(profiles[s].outcomes.violation_only + profiles[s].outcomes.both, profiles[s].total)}`;
+    const describePl = (s) => `${T(s)} – ${rateWithN(profiles[s].outcomes.violation_only + profiles[s].outcomes.both, profiles[s].total)}`;
     const byRate = selected.slice().sort((a, b) => rateOf(b) - rateOf(a));
     const top = profiles[selected[0]].articles[0];
     document.getElementById("compareTakeaway").textContent = selected.length > 1
-      ? `Of ${listNames(selected)}, the violation rate is highest for ${describe(byRate[0])}, and lowest for ${describe(byRate.at(-1))}.`
-      : `${selected[0]}: ${fmtInt.format(profiles[selected[0]].total)} judgments, ${pct(profiles[selected[0]].outcomes.violation_only + profiles[selected[0]].outcomes.both, profiles[selected[0]].total)} with at least one violation` +
-        (top ? `; the Article most often found violated is ${articleLabel(top[0])}, in ${pct(top[1], profiles[selected[0]].total)} of its judgments.` : ".");
+      ? L(`Of ${listNames(selected)}, the violation rate is highest for ${describe(byRate[0])}, and lowest for ${describe(byRate.at(-1))}.`,
+        `Spośród wybranych państw (${listNames(selected.map(T))}) najwyższy odsetek naruszeń ma ${describePl(byRate[0])}, a najniższy ${describePl(byRate.at(-1))}.`)
+      : L(`${selected[0]}: ${fmtInt.format(profiles[selected[0]].total)} judgments, ${pct(profiles[selected[0]].outcomes.violation_only + profiles[selected[0]].outcomes.both, profiles[selected[0]].total)} with at least one violation` +
+        (top ? `; the Article most often found violated is ${articleLabel(top[0])}, in ${pct(top[1], profiles[selected[0]].total)} of its judgments.` : "."),
+        `${T(selected[0])}: ${fmtInt.format(profiles[selected[0]].total)} ${plural(profiles[selected[0]].total, "wyrok", "wyroki", "wyroków")}, w tym ${pct(profiles[selected[0]].outcomes.violation_only + profiles[selected[0]].outcomes.both, profiles[selected[0]].total)} z co najmniej jednym naruszeniem` +
+        (top ? `; najczęściej stwierdzano naruszenie ${articleLabel(top[0])}, w ${pct(top[1], profiles[selected[0]].total)} wyroków przeciwko temu państwu.` : "."));
     return selected;
   };
   render();
@@ -812,19 +869,22 @@ function syncChartTheme() {
 function renderFormationTrend(rows, lastFullYear) {
   const names = ["Grand Chamber", "Chamber", "Committee"];
   const chart = createGroupedBarChart(document.getElementById("casesYearChart"), yearLabels(rows.map((r) => r[0])),
-    names.map((label, i) => ({ label, data: rows.map((r) => r[i + 1]), backgroundColor: FORMATION_COLORS[label], borderWidth: 0 })),
+    names.map((label, i) => ({ label: T(label), data: rows.map((r) => r[i + 1]), backgroundColor: FORMATION_COLORS[label], borderWidth: 0 })),
     { stacked: true, plugins: [eventLines] });
   if (!chart) return;
   chart.options.interaction = { mode: "index", intersect: false };
   chart.options.plugins.tooltip = { callbacks: {
-    footer: (items) => `Total: ${fmtInt.format(rows[items[0].dataIndex].slice(1).reduce((a, b) => a + b, 0))} judgments`,
+    footer: (items) => L(`Total: ${fmtInt.format(rows[items[0].dataIndex].slice(1).reduce((a, b) => a + b, 0))} judgments`,
+      `Razem wyroków: ${fmtInt.format(rows[items[0].dataIndex].slice(1).reduce((a, b) => a + b, 0))}`),
   } };
   chart.update("none");
   const row = rows.find((r) => r[0] === lastFullYear);
   if (!row) return;
   const total = row[1] + row[2] + row[3];
-  document.getElementById("formationTakeaway").textContent = `In ${lastFullYear}, Committees delivered ${fmtInt.format(row[3])} of the ${fmtInt.format(total)} judgments ` +
-    `(${pct(row[3], total)}), Chambers ${fmtInt.format(row[2])} and the Grand Chamber ${fmtInt.format(row[1])}.`;
+  document.getElementById("formationTakeaway").textContent = L(`In ${lastFullYear}, Committees delivered ${fmtInt.format(row[3])} of the ${fmtInt.format(total)} judgments ` +
+    `(${pct(row[3], total)}), Chambers ${fmtInt.format(row[2])} and the Grand Chamber ${fmtInt.format(row[1])}.`,
+    `W ${lastFullYear} r. komitety wydały ${fmtInt.format(row[3])} z ${fmtInt.format(total)} wyroków ` +
+    `(${pct(row[3], total)}), izby ${fmtInt.format(row[2])}, a Wielka Izba ${fmtInt.format(row[1])}.`);
 }
 
 /** The rate line's latest value, written beside its last point. */
@@ -869,8 +929,10 @@ function renderOutcomeTrend(series, lastFullYear) {
   };
   const [allV, allN] = yearRate("all"), [coV, coN] = yearRate("committee"), [chV, chN] = yearRate("chamber");
   if (allN) {
-    document.getElementById("outcomeYearTakeaway").textContent = `In ${lastFullYear}, ${pct(allV, allN)} of judgments found at least one violation (n=${fmtInt.format(allN)})` +
-      (coN ? `: ${pct(coV, coN)} of Committee judgments (n=${fmtInt.format(coN)}) against ${pct(chV, chN)} of Chamber and Grand Chamber judgments (n=${fmtInt.format(chN)}).` : ".");
+    document.getElementById("outcomeYearTakeaway").textContent = L(`In ${lastFullYear}, ${pct(allV, allN)} of judgments found at least one violation (n=${fmtInt.format(allN)})` +
+      (coN ? `: ${pct(coV, coN)} of Committee judgments (n=${fmtInt.format(coN)}) against ${pct(chV, chN)} of Chamber and Grand Chamber judgments (n=${fmtInt.format(chN)}).` : "."),
+      `W ${lastFullYear} r. co najmniej jedno naruszenie stwierdzono w ${pct(allV, allN)} wyroków (n=${fmtInt.format(allN)})` +
+      (coN ? `: w ${pct(coV, coN)} wyroków komitetów (n=${fmtInt.format(coN)}) wobec ${pct(chV, chN)} wyroków izb i Wielkiej Izby (n=${fmtInt.format(chN)}).` : "."));
   }
   let chart = null;
   const draw = (formation) => {
@@ -880,11 +942,11 @@ function renderOutcomeTrend(series, lastFullYear) {
     const enough = totals.map((n) => n >= MIN_RATE_N);
     const share = (part, i) => (totals[i] ? Math.round(part / totals[i] * 1000) / 10 : null);
     const datasets = OUTCOME_SERIES.map(({ key, label, color }) => ({
-      label, stack: "outcomes", legendColor: color, data: outcomes.map((o, i) => share(o[key], i)),
+      label: T(label), stack: "outcomes", legendColor: color, data: outcomes.map((o, i) => share(o[key], i)),
       backgroundColor: enough.map((ok) => (ok ? color : `${color}55`)), borderWidth: 0, barPercentage: 1, categoryPercentage: 0.9,
     }));
     datasets.push({
-      type: "line", label: "At least one violation", stack: "rate", inkLine: true, order: -1, // drawn above the bars
+      type: "line", label: L("At least one violation", "Co najmniej jedno naruszenie"), stack: "rate", inkLine: true, order: -1, // drawn above the bars
       data: outcomes.map((o, i) => (enough[i] ? share(withViolation(o), i) : null)),
       borderColor: cssVar("--ink", "#242328"), backgroundColor: cssVar("--ink", "#242328"),
       borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0,
@@ -901,11 +963,11 @@ function renderOutcomeTrend(series, lastFullYear) {
           legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 }, generateLabels: (c) => Chart.defaults.plugins.legend.labels
             .generateLabels(c).map((item) => ({ ...item, fillStyle: c.data.datasets[item.datasetIndex].legendColor || item.fillStyle })) } },
           tooltip: { callbacks: {
-            title: (items) => `${items[0].label} · n=${fmtInt.format(totals[items[0].dataIndex])} judgments`,
+            title: (items) => L(`${items[0].label} · n=${fmtInt.format(totals[items[0].dataIndex])} judgments`, `${items[0].label} · wyroków: ${fmtInt.format(totals[items[0].dataIndex])}`),
             label: (context) => (context.dataset.type === "line"
-              ? `At least one violation: ${context.parsed.y}%`
-              : `${context.dataset.label}: ${context.parsed.y}% (${fmtInt.format(outcomes[context.dataIndex][OUTCOME_SERIES[context.datasetIndex].key])})`),
-            footer: (items) => (enough[items[0].dataIndex] ? "" : `Fewer than ${MIN_RATE_N} judgments: no rate shown`),
+              ? L(`At least one violation: ${context.parsed.y}%`, `Co najmniej jedno naruszenie: ${dec(context.parsed.y)}%`)
+              : `${context.dataset.label}: ${dec(context.parsed.y)}% (${fmtInt.format(outcomes[context.dataIndex][OUTCOME_SERIES[context.datasetIndex].key])})`),
+            footer: (items) => (enough[items[0].dataIndex] ? "" : L(`Fewer than ${MIN_RATE_N} judgments: no rate shown`, `Mniej niż ${MIN_RATE_N} ${plural(MIN_RATE_N, "wyrok", "wyroki", "wyroków")}: odsetka nie pokazano`)),
           } },
         },
         scales: {
@@ -946,7 +1008,7 @@ function renderTopicTrends(thesaurus) {
     const many = shown.length > 5;
     if (chart) chart.destroy();
     chart = createMultiLineChart(canvas, yearLabels(trendYears), shown.map((t, i) => ({
-      label: truncateLabel(t, 40),
+      label: truncateLabel(T(t), 40),
       data: trendSeries[t],
       topicColor: TREND_COLORS[i % TREND_COLORS.length],
       borderColor: many ? grey() : TREND_COLORS[i % TREND_COLORS.length],
@@ -956,7 +1018,8 @@ function renderTopicTrends(thesaurus) {
     let peak = null;
     shown.forEach((t) => trendSeries[t].forEach((n, i) => { if (!peak || n > peak.n) peak = { t, n, year: trendYears[i] }; }));
     document.getElementById("trendTakeaway").textContent = peak
-      ? `Of the topics shown, “${peak.t}” reached the highest yearly count: ${fmtInt.format(peak.n)} judgments in ${peak.year}.` : "";
+      ? L(`Of the topics shown, “${peak.t}” reached the highest yearly count: ${fmtInt.format(peak.n)} judgments in ${peak.year}.`,
+        `Spośród pokazanych tematów najwyższą liczbę wyroków w jednym roku osiągnął temat „${T(peak.t)}”: ${fmtInt.format(peak.n)} w ${peak.year} r.`) : "";
     if (!chart || !many) return;
     let current = -1;
     const highlight = (index) => {
@@ -980,10 +1043,10 @@ function renderTopicTrends(thesaurus) {
   };
   const writeUrl = () => setPageParam("topics", mode === "custom" ? customTopics.join("|") : mode === "10" ? "top10" : "");
   const paintChips = () => {
-    chips.innerHTML = customTopics.map((t, i) => `<span class="topic-chip" style="border-color:${TREND_COLORS[i]}">${t
-      .replace(/</g, "&lt;")}<button type="button" data-remove="${i}" aria-label="Remove ${t.replace(/"/g, "&quot;")}">×</button></span>`).join("");
+    chips.innerHTML = customTopics.map((t, i) => `<span class="topic-chip" style="border-color:${TREND_COLORS[i]}">${T(t)
+      .replace(/</g, "&lt;")}<button type="button" data-remove="${i}" aria-label="${L(`Remove ${t.replace(/"/g, "&quot;")}`, `Usuń: ${T(t).replace(/"/g, "&quot;")}`)}">×</button></span>`).join("");
     input.disabled = customTopics.length >= 10;
-    input.placeholder = customTopics.length >= 10 ? "Ten topics chosen" : "Type a topic, e.g. Article 8 or detention…";
+    input.placeholder = customTopics.length >= 10 ? L("Ten topics chosen", "Wybrano dziesięć tematów") : L("Type a topic, e.g. Article 8 or detention…", "Wpisz temat, np. art. 8 albo pozbawienie wolności…");
   };
   const showMode = (next, focus = true) => {
     mode = next;
@@ -1000,7 +1063,9 @@ function renderTopicTrends(thesaurus) {
     syncChartTheme();
     writeUrl();
   };
-  document.getElementById("topicOptions").innerHTML = Object.keys(trendSeries).map((t) => `<option value="${t.replace(/"/g, "&quot;")}"></option>`).join("");
+  document.getElementById("topicOptions").innerHTML = Object.keys(trendSeries).map((t) => `<option value="${T(t).replace(/"/g, "&quot;")}"></option>`).join("");
+  // On the Polish page the suggestions are Polish; the topic is still found (and put in the URL) by its English key.
+  const topicKey = (text) => (trendSeries[text] ? text : Object.keys(trendSeries).find((k) => T(k) === text) || text);
   controls.addEventListener("click", (e) => {
     const button = e.target.closest("[data-topics]");
     if (button) return showMode(button.dataset.topics);
@@ -1008,7 +1073,7 @@ function renderTopicTrends(thesaurus) {
     if (rm) { customTopics.splice(Number(rm.dataset.remove), 1); paintChips(); draw(customTopics); syncChartTheme(); writeUrl(); }
   });
   const addTopic = () => {
-    const t = input.value.trim();
+    const t = topicKey(input.value.trim());
     if (!trendSeries[t] || customTopics.includes(t) || customTopics.length >= 10) return;
     customTopics.push(t);
     input.value = "";
@@ -1029,31 +1094,31 @@ function renderTopicTrends(thesaurus) {
 
 function renderCoverage(data) {
   const fields = data.quality?.field_completeness || {};
-  const labels = {respondent_state: "Respondent state", ecli: "ECLI identity", article_no: "Convention articles",
-    conclusion: "Conclusion", originating_body: "Judicial collection", importance: "Importance classification",
-    hudoc_kpthesaurus: "Thesaurus topics", strasbourg_caselaw: "HUDOC citation metadata",
-    strasbourg_caselaw_any_language: "HUDOC citation metadata, English or French version",
-    extracted_application_numbers: "Application numbers HUDOC extracted from the text",
-    separate_opinion: "Separate-opinion flag", rules_of_court: "Rules of Court"};
+  const labels = {respondent_state: L("Respondent state", "Pozwane państwo"), ecli: L("ECLI identity", "Identyfikator ECLI"), article_no: L("Convention articles", "Artykuły Konwencji"),
+    conclusion: L("Conclusion", "Rozstrzygnięcie"), originating_body: L("Judicial collection", "Skład orzekający"), importance: L("Importance classification", "Poziom ważności"),
+    hudoc_kpthesaurus: L("Thesaurus topics", "Tematy z tezaurusa HUDOC"), strasbourg_caselaw: L("HUDOC citation metadata", "Metadane HUDOC o cytowaniach"),
+    strasbourg_caselaw_any_language: L("HUDOC citation metadata, English or French version", "Metadane HUDOC o cytowaniach, wersja angielska lub francuska"),
+    extracted_application_numbers: L("Application numbers HUDOC extracted from the text", "Numery skarg wyodrębnione przez HUDOC z tekstu"),
+    separate_opinion: L("Separate-opinion flag", "Oznaczenie opinii odrębnej"), rules_of_court: L("Rules of Court", "Regulamin Trybunału")};
   // Rows for fields a snapshot does not carry (older snapshots) are left out, not shown as 0%.
   const rows = Object.entries(labels).filter(([key]) => key in fields || data.quality?.field_counts?.[key] != null).map(([key, label]) => [label, Number(fields[key] || 0),
     data.quality?.field_counts?.[key] ?? Math.round(Number(fields[key] || 0) * data.summary.total_cases)]);
   const table = document.createElement("table");
   table.className = "coverage-table";
   const head = table.createTHead().insertRow();
-  ["Metadata field", "Populated records", "Coverage"].forEach((label) => {
+  [L("Metadata field", "Pole metadanych"), L("Populated records", "Rekordy z wartością"), L("Coverage", "Pokrycie")].forEach((label) => {
     const th = document.createElement("th"); th.scope = "col"; th.textContent = label; head.appendChild(th);
   });
   const body = table.createTBody();
   rows.forEach(([label, fraction, count]) => {
     const row = body.insertRow();
-    [label, fmtInt.format(count), (fraction * 100).toFixed(2) + "%"]
+    [label, fmtInt.format(count), dec((fraction * 100).toFixed(2)) + "%"]
       .forEach((value) => { row.insertCell().textContent = value; });
   });
   document.getElementById("coverageTable").replaceChildren(table);
   const languages = data.text_coverage?.by_language || {};
-  const languageRows = [["Confirmed English", languages.ENG || 0], ["Confirmed French", languages.FRE || 0],
-    ["Production language not recorded", languages.Unknown || 0]].filter((row) => row[1] > 0);
+  const languageRows = [[L("Confirmed English", "Potwierdzony angielski"), languages.ENG || 0], [L("Confirmed French", "Potwierdzony francuski"), languages.FRE || 0],
+    [L("Production language not recorded", "Język tekstu nieodnotowany"), languages.Unknown || 0]].filter((row) => row[1] > 0);
   createBarChart(document.getElementById("textLanguageChart"),
     languageRows.map((row) => row[0]), languageRows.map((row) => row[1]),
     {horizontal: true, colors: ["#395d7f", "#43705a", "#969197"]});
@@ -1109,40 +1174,43 @@ async function renderDecisions() {
     if (!decisions) throw new Error("Decisions snapshot has no decisions");
 
     const formations = (snap.by_formation || [])
-      .map(([label, count]) => `${label.replace(/^Court \((.*)\)$/, "$1")} (${fmtInt.format(count)})`);
+      .map(([label, count]) => `${T(label.replace(/^Court \((.*)\)$/, "$1"))} (${fmtInt.format(count)})`);
     document.getElementById("decisionFormationNote").textContent =
-      `all ${fmtInt.format(decisions)} are ` +
+      L(`all ${fmtInt.format(decisions)} are `, `skład orzekający wszystkich ${fmtInt.format(decisions)} decyzji: `) +
       (formations.length > 1
-        ? `${formations.slice(0, -1).join(", ")} and ${formations[formations.length - 1]}`
-        : formations.join("")) + " decisions.";
+        ? `${formations.slice(0, -1).join(", ")} ${L("and", "i")} ${formations[formations.length - 1]}`
+        : formations.join("")) + L(" decisions.", ".");
 
     const mix = snap.outcome_mix || [];
     const struck = (mix.find(([label]) => /^struck out/i.test(label)) || [0, 0])[1];
     document.getElementById("decisionKpiGrid").innerHTML = [
-      makeKpi("Published decisions", fmtInt.format(decisions),
-        `of ${fmtInt.format(t.cases_all || 0)} documents in the searchable corpus`),
-      makeKpi("Struck out, not refused", pct(struck, decisions, 1),
-        `${fmtInt.format(struck)} end with the application removed from the list`),
-      makeKpi("Decision text rows", fmtInt.format(t.decision_paragraphs || 0),
-        `median ${fmtInt.format(t.paragraphs_median || 0)} rows per decision`),
-      makeKpi("Cut-off", snap.cutoff || "Unavailable",
-        `${t.first_year}–${t.last_year}; read from the live corpus`),
+      makeKpi(L("Published decisions", "Opublikowane decyzje"), fmtInt.format(decisions),
+        L(`of ${fmtInt.format(t.cases_all || 0)} documents in the searchable corpus`, `z ${fmtInt.format(t.cases_all || 0)} dokumentów w przeszukiwanym korpusie`)),
+      makeKpi(L("Struck out, not refused", "Skreślenie z listy spraw, nie odmowa"), pct(struck, decisions, 1),
+        L(`${fmtInt.format(struck)} end with the application removed from the list`, `${fmtInt.format(struck)} ${plural(struck, "kończy", "kończą", "kończy")} się skreśleniem skargi z listy spraw`)),
+      makeKpi(L("Decision text rows", "Wiersze tekstu decyzji"), fmtInt.format(t.decision_paragraphs || 0),
+        L(`median ${fmtInt.format(t.paragraphs_median || 0)} rows per decision`, `mediana wierszy na decyzję: ${fmtInt.format(t.paragraphs_median || 0)}`)),
+      makeKpi(L("Cut-off", "Stan danych na"), snap.cutoff || L("Unavailable", "Brak danych"),
+        L(`${t.first_year}–${t.last_year}; read from the live corpus`, `${t.first_year}–${t.last_year}; dane z bieżącego korpusu`)),
     ].join("");
 
-    document.getElementById("decisionOutcomeTakeaway").textContent =
+    document.getElementById("decisionOutcomeTakeaway").textContent = L(
       `Half of the published record is a strike-out rather than a refusal: ${fmtInt.format(struck)} decisions ` +
       `(${pct(struck, decisions, 1)}) end with the application removed from the list — a friendly settlement, a ` +
-      `unilateral declaration or a withdrawal — not with a ruling that it was inadmissible.`;
+      `unilateral declaration or a withdrawal — not with a ruling that it was inadmissible.`,
+      `Połowa opublikowanych decyzji to skreślenia z listy spraw, a nie odmowy: ${fmtInt.format(struck)} ${plural(struck, "decyzja", "decyzje", "decyzji")} ` +
+      `(${pct(struck, decisions, 1)}) ${plural(struck, "kończy", "kończą", "kończy")} się skreśleniem skargi z listy spraw – wskutek polubownego załatwienia sprawy, ` +
+      `jednostronnej deklaracji rządu albo wycofania skargi – a nie uznaniem skargi za niedopuszczalną.`);
     createBarChart(
       document.getElementById("decisionOutcomeChart"),
-      mix.map(([label]) => DECISION_OUTCOME_SHORT[label] || label),
+      mix.map(([label]) => L(DECISION_OUTCOME_SHORT[label] || label, T(label))),
       mix.map(([, count]) => count),
       { horizontal: true, colors: mix.map(([label]) => decisionOutcomeColor(label)) }
     );
 
     const early = (snap.by_year || []).filter(([year]) => year < 1999).reduce((sum, [, n]) => sum + n, 0);
     document.getElementById("decisionEarlyNote").textContent =
-      `${fmtInt.format(early)} of ${fmtInt.format(decisions)} predate 1999`;
+      L(`${fmtInt.format(early)} of ${fmtInt.format(decisions)} predate 1999`, `sprzed 1999 r.: ${fmtInt.format(early)} z ${fmtInt.format(decisions)}`);
 
     // The yearly totals ride along as a fourth line: upstream dropped
     // createLineChart in the October redesign, and a second chart for one
@@ -1153,13 +1221,13 @@ async function renderDecisions() {
       document.getElementById("decisionOutcomeTrendChart"),
       trend.map((row) => row[0]),
       [
-        { label: "All published decisions", data: trend.map((r) => byYear.get(r[0]) || 0),
+        { label: L("All published decisions", "Wszystkie opublikowane decyzje"), data: trend.map((r) => byYear.get(r[0]) || 0),
           borderColor: "#8c8c8c", backgroundColor: "transparent", borderDash: [4, 3], tension: 0.2, pointRadius: 0 },
-        { label: "Struck out", data: trend.map((r) => r[1]),
+        { label: L("Struck out", "Skreślenie z listy spraw"), data: trend.map((r) => r[1]),
           borderColor: "#3c8d5a", backgroundColor: "#3c8d5a22", tension: 0.2, pointRadius: 2 },
-        { label: "Inadmissible", data: trend.map((r) => r[2]),
+        { label: L("Inadmissible", "Skarga niedopuszczalna"), data: trend.map((r) => r[2]),
           borderColor: "#b03e45", backgroundColor: "#b03e4522", tension: 0.2, pointRadius: 2 },
-        { label: "Admissible", data: trend.map((r) => r[3]),
+        { label: L("Admissible", "Skarga dopuszczalna"), data: trend.map((r) => r[3]),
           borderColor: "#245ea8", backgroundColor: "#245ea822", tension: 0.2, pointRadius: 2 },
       ]
     );
@@ -1167,7 +1235,7 @@ async function renderDecisions() {
     const byState = (snap.by_state || []).slice(0, 15);
     createBarChart(
       document.getElementById("decisionStateChart"),
-      byState.map(([label]) => truncateLabel(label, 28)),
+      byState.map(([label]) => truncateLabel(T(label), 28)),
       byState.map(([, count]) => count),
       { horizontal: true, colors: ["#4f7ca6"] }
     );
@@ -1177,18 +1245,23 @@ async function renderDecisions() {
     // records would read as a profile of all 28,241.
     const grounds = snap.article35 || {};
     const coded = grounds.with_subground || 0;
-    document.getElementById("decisionGroundsNote").textContent =
+    document.getElementById("decisionGroundsNote").textContent = L(
       `HUDOC records a specific Article 35 sub-ground for ${fmtInt.format(coded)} of the ` +
       `${fmtInt.format(decisions)} published decisions (${pct(coded, decisions, 1)}); a further ` +
       `${fmtInt.format((grounds.with_any_tag || 0) - coded)} carry only an unqualified “Admissibility criteria” ` +
       `tag. That is why the grounds below are a table with their own denominator and not a chart: as bars they ` +
-      `would read as a profile of all ${fmtInt.format(decisions)}.`;
+      `would read as a profile of all ${fmtInt.format(decisions)}.`,
+      `HUDOC wskazuje konkretną podstawę z art. 35 w ${fmtInt.format(coded)} z ` +
+      `${fmtInt.format(decisions)} opublikowanych decyzji (${pct(coded, decisions, 1)}); kolejne decyzje mają tylko ogólne ` +
+      `słowo kluczowe „Admissibility criteria” (kryteria dopuszczalności): ${fmtInt.format((grounds.with_any_tag || 0) - coded)}. ` +
+      `Dlatego podstawy przedstawiono poniżej w tabeli z własnym mianownikiem, a nie na wykresie: słupki ` +
+      `sugerowałyby obraz wszystkich ${fmtInt.format(decisions)} decyzji.`);
     const groundRows = grounds.subgrounds || [];
     if (groundRows.length && coded) {
       const table = document.createElement("table");
       table.className = "coverage-table";
       const head = table.createTHead().insertRow();
-      ["Article 35 ground", "Decisions", `Share of the ${fmtInt.format(coded)} coded`].forEach((label) => {
+      [L("Article 35 ground", "Podstawa z art. 35"), L("Decisions", "Decyzje"), L(`Share of the ${fmtInt.format(coded)} coded`, `Odsetek spośród ${fmtInt.format(coded)} z oznaczoną podstawą`)].forEach((label) => {
         const th = document.createElement("th");
         th.scope = "col";
         th.textContent = label;
@@ -1199,7 +1272,7 @@ async function renderDecisions() {
         const row = body.insertRow();
         const header = document.createElement("th");
         header.scope = "row";
-        header.textContent = label;
+        header.textContent = T(label);
         row.appendChild(header);
         [fmtInt.format(count), pct(count, coded, 1)].forEach((value) => { row.insertCell().textContent = value; });
       });
@@ -1238,8 +1311,12 @@ function pruneEmptyCharts() {
 }
 
 async function loadDashboard() {
+  if (PL && !STATS_TERMS_PL) {
+    STATS_TERMS_PL = await fetch("data/stats-terms-pl.json", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  }
   const res = await fetch("data/stats.json", { cache: "no-store" });
-  if (!res.ok) throw new Error(`Failed to load dashboard data (${res.status})`);
+  if (!res.ok) throw new Error(L(`Failed to load dashboard data (${res.status})`, `Nie udało się pobrać danych statystyk (${res.status})`));
   const data = await res.json();
   Chart.defaults.font.family = getComputedStyle(document.documentElement).getPropertyValue("--font-mono").trim() || "Georgia";
   Chart.defaults.color = getComputedStyle(document.documentElement).getPropertyValue("--ink-3").trim() || "#706d72";
@@ -1262,8 +1339,8 @@ async function loadDashboard() {
     parser_version: data.parser_version,
   };
 
-  document.getElementById("metaSource").textContent = "Verified HUDOC catalog + read-only text inventories";
-  document.getElementById("metaGenerated").textContent = "Built " + formatDateForMeta(data.generated_at);
+  document.getElementById("metaSource").textContent = L("Verified HUDOC catalog + read-only text inventories", "Zweryfikowany katalog HUDOC i spisy tekstów (tylko do odczytu)");
+  document.getElementById("metaGenerated").textContent = L("Built ", "Wygenerowano: ") + formatDateForMeta(data.generated_at);
 
   // Some figures may have been refreshed from the live DB after the snapshot
   // was built (P66 does this for the section counts and corpus totals, which
@@ -1273,7 +1350,8 @@ async function loadDashboard() {
   const prEl = document.getElementById("metaPartialRefresh");
   if (pr && prEl) {
     const fields = (pr.refreshed || []).length;
-    prEl.textContent = `${fields} figure${fields === 1 ? "" : "s"} refreshed from the live corpus since that build — section counts and corpus totals. Yearly series and citation analytics are from the snapshot.`;
+    prEl.textContent = L(`${fields} figure${fields === 1 ? "" : "s"} refreshed from the live corpus since that build — section counts and corpus totals. Yearly series and citation analytics are from the snapshot.`,
+      `Od tamtej pory odświeżono z bieżącego korpusu ${fields} ${plural(fields, "wartość", "wartości", "wartości")}: liczby wierszy w częściach wyroków i łączne liczby dla korpusu. Serie roczne i analizy cytowań pochodzą z migawki danych.`);
     prEl.hidden = false;
   }
 
@@ -1291,21 +1369,24 @@ async function loadDashboard() {
   const latest = perYear.get(lastFullYear);
   const previous = perYear.get(String(Number(lastFullYear) - 1));
   const change = latest && previous
-    ? `${lastFullYear}: ${fmtInt.format(latest)} judgments, ${latest >= previous ? "+" : "−"}${Math.abs((latest / previous - 1) * 100).toFixed(0)}% on ${Number(lastFullYear) - 1}`
-    : "No decisions or press releases";
+    ? L(`${lastFullYear}: ${fmtInt.format(latest)} judgments, ${latest >= previous ? "+" : "−"}${Math.abs((latest / previous - 1) * 100).toFixed(0)}% on ${Number(lastFullYear) - 1}`,
+      `${lastFullYear} r.: ${fmtInt.format(latest)} ${plural(latest, "wyrok", "wyroki", "wyroków")}, ${latest >= previous ? "+" : "−"}${Math.abs((latest / previous - 1) * 100).toFixed(0)}% wobec ${Number(lastFullYear) - 1} r.`)
+    : L("No decisions or press releases", "Bez decyzji i komunikatów prasowych");
   document.getElementById("kpiGrid").innerHTML = [
-    makeKpi("Judgments", fmtInt.format(total), change),
-    makeKpi("Respondent States", fmtInt.format(s.unique_countries || 0), "A judgment against several States counts for each"),
-    makeKpi("At least one violation", total ? pct(violationCount, total, 1) : "Unavailable", `${fmtInt.format(violationCount)} of ${fmtInt.format(total)} judgments`),
-    makeKpi("Committee judgments", pct(s.committee_cases || 0, total), `${fmtInt.format(s.committee_cases || 0)} · Chamber ${fmtInt.format(s.chamber_cases || 0)} · Grand Chamber ${fmtInt.format(s.grand_chamber_cases || 0)}`),
+    makeKpi(L("Judgments", "Wyroki"), fmtInt.format(total), change),
+    makeKpi(L("Respondent States", "Pozwane państwa"), fmtInt.format(s.unique_countries || 0), L("A judgment against several States counts for each", "Wyrok przeciwko kilku państwom liczy się dla każdego z nich")),
+    makeKpi(L("At least one violation", "Co najmniej jedno naruszenie"), total ? pct(violationCount, total, 1) : L("Unavailable", "Brak danych"), L(`${fmtInt.format(violationCount)} of ${fmtInt.format(total)} judgments`, `${fmtInt.format(violationCount)} z ${fmtInt.format(total)} wyroków`)),
+    makeKpi(L("Committee judgments", "Wyroki komitetów"), pct(s.committee_cases || 0, total), L(`${fmtInt.format(s.committee_cases || 0)} · Chamber ${fmtInt.format(s.chamber_cases || 0)} · Grand Chamber ${fmtInt.format(s.grand_chamber_cases || 0)}`,
+      `${fmtInt.format(s.committee_cases || 0)} · Izba ${fmtInt.format(s.chamber_cases || 0)} · Wielka Izba ${fmtInt.format(s.grand_chamber_cases || 0)}`)),
   ].join("");
   if (cutoff) {
-    const cutoffDate = new Date(`${cutoff}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
-    document.getElementById("howCountDate").textContent = `Snapshot: judgments delivered up to ${cutoffDate}.`;
+    const cutoffDate = new Date(`${cutoff}T00:00:00Z`).toLocaleDateString(L("en-GB", "pl-PL"), { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+    document.getElementById("howCountDate").textContent = L(`Snapshot: judgments delivered up to ${cutoffDate}.`, `Stan danych: wyroki wydane do ${cutoffDate} r.`);
   }
-  document.getElementById("scopeCutoff").textContent = "Catalog cut-off: " + (cutoff || "Unavailable") + " · " + (s.date_range_label || "");
+  document.getElementById("scopeCutoff").textContent = L("Catalog cut-off: ", "Stan katalogu HUDOC na dzień: ") + (cutoff || L("Unavailable", "brak danych")) + " · " + T(s.date_range_label || "");
   const caveat = document.getElementById("scopeCaveat");
-  caveat.textContent = (scope.note || "") + " " + (scope.translation_title_warnings?.length || 0) + " translation-title records remain in the literal catalog count.";
+  caveat.textContent = L((scope.note || "") + " " + (scope.translation_title_warnings?.length || 0) + " translation-title records remain in the literal catalog count.",
+    T(scope.note || "") + " " + `Rekordy z tytułem tłumaczenia, które pozostają w dosłownej liczbie z katalogu: ${scope.translation_title_warnings?.length || 0}.`);
 
   // ── 2 · Respondent States ────────────────────────────────────────────
   const stateRows = rowsOrEmpty(rankings.state_outcomes_all);
@@ -1326,13 +1407,15 @@ async function loadDashboard() {
     const ttData = topTerms.slice(0, 25);
     createBarChart(
       document.getElementById("thesaurusTopChart"),
-      ttData.map((d) => truncateLabel(d[0], 50)),
+      ttData.map((d) => truncateLabel(T(d[0]), 50)),
       ttData.map((d) => d[1]),
       { horizontal: true, colors: ["#6c5db5"] }
     );
     const withTopics = Number(thesaurus.cases_with_thesaurus || 0);
-    document.getElementById("topicTakeaway").textContent = `“${topTerms[0][0]}” is the most frequent topic: ${fmtInt.format(topTerms[0][1])} judgments` +
-      (withTopics ? `, ${pct(topTerms[0][1], withTopics)} of the ${fmtInt.format(withTopics)} with HUDOC topics.` : ".");
+    document.getElementById("topicTakeaway").textContent = L(`“${topTerms[0][0]}” is the most frequent topic: ${fmtInt.format(topTerms[0][1])} judgments` +
+      (withTopics ? `, ${pct(topTerms[0][1], withTopics)} of the ${fmtInt.format(withTopics)} with HUDOC topics.` : "."),
+      `Najczęstszy temat to „${T(topTerms[0][0])}”: ${fmtInt.format(topTerms[0][1])} ${plural(topTerms[0][1], "wyrok", "wyroki", "wyroków")}` +
+      (withTopics ? `, czyli ${pct(topTerms[0][1], withTopics)} spośród ${fmtInt.format(withTopics)} wyroków ze słowami kluczowymi HUDOC.` : "."));
   }
   renderTopicTrends(thesaurus);
 
@@ -1343,7 +1426,7 @@ async function loadDashboard() {
   const chamberBreakdown = rowsOrEmpty(series.chamber_breakdown).filter((d) => d[1] > 0);
   createDoughnutChart(
     document.getElementById("chamberChart"),
-    chamberBreakdown.map((d) => d[0]),
+    chamberBreakdown.map((d) => T(d[0])),
     chamberBreakdown.map((d) => d[1]),
     chamberBreakdown.map((d) => FORMATION_COLORS[d[0]] || FORMATION_COLORS.Other)
   );
@@ -1351,7 +1434,7 @@ async function loadDashboard() {
   const importanceDistribution = rowsOrEmpty(rankings.importance_distribution);
   createBarChart(
     document.getElementById("importanceChart"),
-    importanceDistribution.map((d) => d[0]),
+    importanceDistribution.map((d) => T(d[0])),
     importanceDistribution.map((d) => d[1]),
     { colors: ["#6c5db5", "#245ea8", "#d97a2b"] }
   );
@@ -1359,7 +1442,7 @@ async function loadDashboard() {
   const outcomeTotals = { v: s.outcome_violation_only || 0, nv: s.outcome_non_violation_only || 0, both: s.outcome_both || 0, none: s.outcome_neither || 0 };
   createDoughnutChart(
     document.getElementById("outcomesChart"),
-    OUTCOME_SERIES.map((o) => o.label),
+    OUTCOME_SERIES.map((o) => T(o.label)),
     OUTCOME_SERIES.map((o) => outcomeTotals[o.key]),
     OUTCOME_SERIES.map((o) => o.color)
   );
@@ -1371,7 +1454,7 @@ async function loadDashboard() {
       proceduralVsSubstantiveByYear.map((d) => d[0]),
       [
         {
-          label: "Procedural aspect",
+          label: L("Procedural aspect", "Aspekt proceduralny"),
           data: proceduralVsSubstantiveByYear.map((d) => d[1]),
           backgroundColor: "#245ea8CC",
           borderColor: "#245ea8",
@@ -1379,7 +1462,7 @@ async function loadDashboard() {
           borderRadius: 5,
         },
         {
-          label: "Substantive aspect",
+          label: L("Substantive aspect", "Aspekt materialny"),
           data: proceduralVsSubstantiveByYear.map((d) => d[2]),
           backgroundColor: "#d97a2bCC",
           borderColor: "#d97a2b",
@@ -1391,7 +1474,7 @@ async function loadDashboard() {
   } else {
     createDoughnutChart(
       document.getElementById("proceduralSubstantiveChart"),
-      ["Procedural aspect", "Substantive aspect"],
+      [L("Procedural aspect", "Aspekt proceduralny"), L("Substantive aspect", "Aspekt materialny")],
       [s.procedural_aspect_cases || 0, s.substantive_aspect_cases || 0],
       ["#245ea8", "#d97a2b"]
     );
@@ -1400,54 +1483,65 @@ async function loadDashboard() {
   const separateShareByBody = rowsOrEmpty(series.separate_opinion_share_by_body);
   createBarChart(
     document.getElementById("separateByBodyChart"),
-    separateShareByBody.map((d) => `${truncateLabel(d[0], 26)} (n=${fmtInt.format(d[2])})`),
+    separateShareByBody.map((d) => `${truncateLabel(T(d[0]), 26)} (n=${fmtInt.format(d[2])})`),
     separateShareByBody.map((d) => d[1]),
     { horizontal: true, colors: ["#b03e45"] }
   );
   const grandChamberOpinions = separateShareByBody.find((d) => d[0] === "Grand Chamber");
-  document.getElementById("typesTakeaway").textContent = `Committees delivered ${pct(s.committee_cases || 0, total)} of all judgments, Chambers ${pct(s.chamber_cases || 0, total)} ` +
+  document.getElementById("typesTakeaway").textContent = L(`Committees delivered ${pct(s.committee_cases || 0, total)} of all judgments, Chambers ${pct(s.chamber_cases || 0, total)} ` +
     `and the Grand Chamber ${pct(s.grand_chamber_cases || 0, total, 1)}` +
-    (grandChamberOpinions ? `; ${pct(grandChamberOpinions[3], grandChamberOpinions[2])} of Grand Chamber judgments carry a separate opinion (n=${fmtInt.format(grandChamberOpinions[2])}).` : ".");
+    (grandChamberOpinions ? `; ${pct(grandChamberOpinions[3], grandChamberOpinions[2])} of Grand Chamber judgments carry a separate opinion (n=${fmtInt.format(grandChamberOpinions[2])}).` : "."),
+    `Komitety wydały ${pct(s.committee_cases || 0, total)} wszystkich wyroków, izby ${pct(s.chamber_cases || 0, total)}, ` +
+    `a Wielka Izba ${pct(s.grand_chamber_cases || 0, total, 1)}` +
+    (grandChamberOpinions ? `; opinię odrębną zawiera ${pct(grandChamberOpinions[3], grandChamberOpinions[2])} wyroków Wielkiej Izby (n=${fmtInt.format(grandChamberOpinions[2])}).` : "."));
 
   const inadmissibilityGroundsTop = rowsOrEmpty(rankings.inadmissibility_grounds_top);
   if (inadmissibilityGroundsTop.length) {
     const igData = inadmissibilityGroundsTop.slice(0, 12);
     createBarChart(
       document.getElementById("inadmissibilityGroundsChart"),
-      igData.map((d) => truncateLabel(d[0], 45)),
+      igData.map((d) => truncateLabel(T(d[0]), 45)),
       igData.map((d) => d[1]),
       { horizontal: true, colors: ["#6478b4"] }
     );
   }
   const unspecified = (inadmissibilityGroundsTop.find((d) => d[0] === "Other / unspecified") || [0, 0])[1];
-  document.getElementById("inadmissibilityTakeaway").textContent = `${fmtInt.format(s.inadmissible_cases || 0)} judgments (${pct(s.inadmissible_cases || 0, total, 1)}) ` +
+  document.getElementById("inadmissibilityTakeaway").textContent = L(`${fmtInt.format(s.inadmissible_cases || 0)} judgments (${pct(s.inadmissible_cases || 0, total, 1)}) ` +
     `declare part of an application inadmissible and ${fmtInt.format(s.struck_out_cases || 0)} (${pct(s.struck_out_cases || 0, total, 1)}) strike part of it out` +
-    (unspecified ? `; in ${fmtInt.format(unspecified)} of the ${fmtInt.format(s.inadmissible_cases || 0)} the conclusion names no specific ground.` : ".");
+    (unspecified ? `; in ${fmtInt.format(unspecified)} of the ${fmtInt.format(s.inadmissible_cases || 0)} the conclusion names no specific ground.` : "."),
+    `W ${fmtInt.format(s.inadmissible_cases || 0)} ${plural(s.inadmissible_cases || 0, "wyroku", "wyrokach", "wyrokach")} (${pct(s.inadmissible_cases || 0, total, 1)}) ` +
+    `Trybunał uznał część skargi za niedopuszczalną, a w ${fmtInt.format(s.struck_out_cases || 0)} (${pct(s.struck_out_cases || 0, total, 1)}) skreślił część skargi z listy spraw` +
+    (unspecified ? `; w ${fmtInt.format(unspecified)} z tych ${fmtInt.format(s.inadmissible_cases || 0)} konkluzja nie wskazuje konkretnej podstawy.` : "."));
 
   // ── 8 · About the data ───────────────────────────────────────────────
   const sections = rowsOrEmpty(rankings.sections);
   createBarChart(
     document.getElementById("sectionsChart"),
-    sections.map((d) => d[0]),
+    sections.map((d) => T(d[0])),
     sections.map((d) => d[1]),
     { horizontal: true }
   );
   const sectionRows = sections.reduce((sum, d) => sum + d[1], 0);
   if (sections.length > 1) {
-    document.getElementById("paragraphTakeaway").textContent = `${sections[0][0]} rows are the largest part of the ${fmtInt.format(sectionRows)} text rows ` +
-      `(${pct(sections[0][1], sectionRows)}), followed by ${sections[1][0]} (${pct(sections[1][1], sectionRows)}).`;
+    document.getElementById("paragraphTakeaway").textContent = L(`${sections[0][0]} rows are the largest part of the ${fmtInt.format(sectionRows)} text rows ` +
+      `(${pct(sections[0][1], sectionRows)}), followed by ${sections[1][0]} (${pct(sections[1][1], sectionRows)}).`,
+      `Największą część spośród ${fmtInt.format(sectionRows)} wierszy tekstu stanowią wiersze części „${T(sections[0][0])}” ` +
+      `(${pct(sections[0][1], sectionRows)}), a następnie części „${T(sections[1][0])}” (${pct(sections[1][1], sectionRows)}).`);
   }
 
   renderCoverage(data);
   const sourceLanguages = texts.by_language || {};
   const sourceOrigins = texts.by_origin || {};
-  const knownLanguages = [["English", sourceLanguages.ENG], ["French", sourceLanguages.FRE]]
-    .filter((row) => row[1] > 0).map(([label, count]) => fmtInt.format(count) + " " + label).join(", ") || "none recorded";
-  document.getElementById("textCoverageSummary").textContent =
+  const knownLanguages = [[L("English", "angielski"), sourceLanguages.ENG], [L("French", "francuski"), sourceLanguages.FRE]]
+    .filter((row) => row[1] > 0).map(([label, count]) => L(fmtInt.format(count) + " " + label, label + " (" + fmtInt.format(count) + ")")).join(", ") || L("none recorded", "brak danych");
+  document.getElementById("textCoverageSummary").textContent = L(
     fmtInt.format(withText) + " / " + fmtInt.format(total) + " judgment records have inventoried text: " +
     fmtInt.format(s.total_paragraphs || 0) + " text rows, including table and header rows. " +
     "Confirmed source language: " + knownLanguages + "; " + fmtInt.format(sourceLanguages.Unknown || 0) +
-    " not recorded. " + fmtInt.format(sourceOrigins["Local source bundle"] || 0) + " local bundles are staged, not yet in live Search.";
+    " not recorded. " + fmtInt.format(sourceOrigins["Local source bundle"] || 0) + " local bundles are staged, not yet in live Search.",
+    `Rekordy wyroków ze spisanym tekstem: ${fmtInt.format(withText)} / ${fmtInt.format(total)}; wiersze tekstu, łącznie z wierszami tabel i nagłówków: ` +
+    `${fmtInt.format(s.total_paragraphs || 0)}. Potwierdzony język źródłowy: ${knownLanguages}; nieodnotowany: ${fmtInt.format(sourceLanguages.Unknown || 0)}. ` +
+    `Lokalne pakiety przygotowane, ale jeszcze nie w wyszukiwarce: ${fmtInt.format(sourceOrigins["Local source bundle"] || 0)}.`);
 
   // Legacy charts whose canvases are no longer on the page (createBarChart returns null for them).
   const bodiesTop = rowsOrEmpty(rankings.originating_bodies_top);
@@ -1756,18 +1850,27 @@ async function loadDashboard() {
       // charts count 29,357 records. Printing one figure and leaving the other
       // to be discovered is how a reader loses trust in both.
       const mt = Number(live.machine_translations || 0);
-      reconcile.textContent =
+      reconcile.textContent = L(
         `These charts cover ${fmtInt.format(total)} judgment records` +
         (mt ? `, including the ${fmtInt.format(mt)} delivered only in French and read here through unofficial machine translation` : "") +
         (lag > 0 ? ` (this snapshot lags the live corpus by ${fmtInt.format(lag)})` : "") +
         `. Search covers ${fmtInt.format(live.cases_all)} documents — those judgments, ` +
         `${fmtInt.format(live.decisions)} decisions and ${fmtInt.format(live.advisory_opinions)} advisory opinions` +
         (mt ? `; its header counts the translations apart, as ${fmtInt.format(live.judgments_official_english)} judgments and ${fmtInt.format(mt)} translations` : "") +
-        `. Decisions are counted separately below and nowhere above.`;
+        `. Decisions are counted separately below and nowhere above.`,
+        `Wykresy obejmują rekordy wyroków: ${fmtInt.format(total)}` +
+        (mt ? `, w tym wyroki wydane tylko po francusku i czytane tu w nieoficjalnym tłumaczeniu maszynowym: ${fmtInt.format(mt)}` : "") +
+        (lag > 0 ? ` (migawka nie obejmuje jeszcze ${fmtInt.format(lag)} ${plural(lag, "wyroku", "wyroków", "wyroków")} z bieżącego korpusu)` : "") +
+        `. Wyszukiwarka obejmuje ${fmtInt.format(live.cases_all)} ${plural(live.cases_all, "dokument", "dokumenty", "dokumentów")}: te wyroki, ` +
+        `decyzje (${fmtInt.format(live.decisions)}) i opinie doradcze (${fmtInt.format(live.advisory_opinions)})` +
+        (mt ? `; jej nagłówek liczy tłumaczenia osobno – wyroki: ${fmtInt.format(live.judgments_official_english)}, tłumaczenia: ${fmtInt.format(mt)}` : "") +
+        `. Decyzje są liczone osobno w części poniżej i nie ma ich w żadnym wykresie powyżej.`);
     } else {
-      reconcile.textContent =
+      reconcile.textContent = L(
         `These charts cover ${fmtInt.format(total)} judgment records. Search also covers admissibility decisions and ` +
-        `advisory opinions, which are excluded here.`;
+        `advisory opinions, which are excluded here.`,
+        `Wykresy obejmują rekordy wyroków: ${fmtInt.format(total)}. Wyszukiwarka obejmuje także decyzje w przedmiocie dopuszczalności ` +
+        `i opinie doradcze, których tu nie uwzględniono.`);
     }
   }
 
@@ -1799,7 +1902,7 @@ loadDashboard()
     main.setAttribute("aria-busy", "false");
     const error = document.createElement("p");
     error.className = "chart-caveat"; error.setAttribute("role", "alert");
-    error.textContent = "Statistics could not be loaded. Reload this page to retry. " + err.message;
+    error.textContent = L("Statistics could not be loaded. Reload this page to retry. ", "Nie udało się wczytać statystyk. Odśwież stronę, aby spróbować ponownie. ") + err.message;
     main.prepend(error);
   });
 
@@ -1828,7 +1931,7 @@ function scrollToHashIfAny() {
   let id = decodeURIComponent(location.hash.slice(1));
   if (SECTION_ALIASES[id]) {
     id = SECTION_ALIASES[id];
-    history.replaceState(history.state, "", `#${id}`);
+    history.replaceState(history.state, "", `${location.pathname}${location.search}#${id}`);
   }
   const target = document.getElementById(id);
   if (!target) return;
@@ -1895,8 +1998,10 @@ function scrollToHashIfAny() {
     const hash = "#" + id;
     // Repeated clicks on the same entry must not stack duplicate history
     // entries, or Back becomes a no-op the user has to press several times.
-    if (location.hash !== hash) history.pushState({ statsSection: id }, "", hash);
-    else history.replaceState({ statsSection: id }, "", hash);
+    // The full path: on the Polish page <base href="../"> would resolve a bare "#…" to the search page.
+    const url = `${location.pathname}${location.search}${hash}`;
+    if (location.hash !== hash) history.pushState({ statsSection: id }, "", url);
+    else history.replaceState({ statsSection: id }, "", url);
   }
 
   links().forEach((link) => {

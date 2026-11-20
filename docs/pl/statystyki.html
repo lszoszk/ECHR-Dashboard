@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="pl" data-theme="light">
+<head>
+  <base href="../">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Statystyki — HUDOC Researcher (wersja polska)</title>
+  <meta name="description" content="Statystyki około 20 000 wyroków Europejskiego Trybunału Praw Człowieka: według roku, artykułu Konwencji, pozwanego państwa, rozstrzygnięcia, tematu HUDOC i cytowań. Wersja polska (beta).">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>§</text></svg>">
+  <!-- Analytics: cookie-free GoatCounter; GA4 only after consent. See assets/analytics-consent.js -->
+  <script src="assets/analytics-consent.js?v=20261010-gc" defer></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/dashboard.css">
+  <link rel="stylesheet" href="assets/search-app.css">
+  <link rel="stylesheet" href="assets/editorial-redesign.css?v=20261020-try3">
+  <link rel="stylesheet" href="assets/analytics-page.css?v=20261019-decisions-2">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/open-dyslexic-regular.min.css" media="print" onload="this.media='all'">
+  <style>
+    .nav-brand::after { content: "Orzecznictwo ETPC na poziomie paragrafów"; }
+    @media (max-width: 1439px) { .nav-brand::after { display: none; } }
+    /* analytics-page.css sets .statistics-editorial .hero::before, which outranks .hero::before alone */
+    .hero::before, .statistics-editorial .hero::before { content: "Wersja polska · beta"; }
+    .nav-link { white-space: nowrap; }
+    .nav-en { margin-left: 3px; font-size: 0.6em; letter-spacing: 0.06em; vertical-align: super; opacity: 0.6; }
+    @media (max-width: 1100px) { .nav-links { gap: 8px; } .nav-link { font-size: 0.82rem; } }
+    @media (max-width: 860px) { .site-footer #themeToggle::after { content: "Motyw"; } }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1"></script>
+  <script src="assets/tour.js?v=20261104-film" defer></script>
+  <script src="assets/workspace.js?v=20261014-rsscopy"></script>
+  <script src="assets/cite.js?v=20261011-hlink" defer></script>
+</head>
+<body class="statistics-editorial">
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="pl/" class="nav-brand">
+        <span class="brand-icon">§</span>
+        <span class="brand-text">HUDOC Researcher</span>
+        <span class="beta-badge" title="Wersja beta: funkcje i dane mogą się jeszcze zmieniać. Prosimy o zgłaszanie problemów.">Beta</span>
+      </a>
+      <button class="nav-hamburger" id="navHamburger" type="button" aria-label="Pokaż lub ukryj nawigację" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="nav-links">
+        <a href="pl/" class="nav-link">Wyszukiwanie</a>
+        <a href="semantic.html" class="nav-link" title="Eksperymentalne; strona po angielsku">Semantyczne<span class="nav-en">EN</span></a>
+        <a href="check.html" class="nav-link" title="Weryfikacja cytowań; strona po angielsku">Weryfikacja<span class="nav-en">EN</span></a>
+        <a href="workspace.html" class="nav-link" title="Strona po angielsku">Obszar roboczy<span class="nav-en">EN</span> <span class="ws-count" data-ws-count hidden></span></a>
+        <a href="pl/statystyki.html" class="nav-link active" aria-current="page">Statystyki</a>
+        <a href="pl/o-projekcie.html" class="nav-link">O projekcie</a>
+        <a href="pl/o-projekcie.html#zakres" class="nav-disclaimer">Niezwiązane z ETPC &middot; to nie jest porada prawna</a>
+        <a href="analytics.html" class="nav-link" lang="en">English</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <section class="hero">
+      <div class="hero-inner">
+        <h1 class="hero-title">Wyroki w liczbach</h1>
+        <p class="hero-subtitle">Wyroki Trybunału w Strasburgu. Tendencje, rozstrzygnięcia i teksty, z których pochodzą liczby.</p>
+        <div class="analytics-meta">
+          <span id="metaSource">Źródło: -</span>
+          <span id="metaGenerated">Wygenerowano: -</span>
+        </div>
+        <div class="statistics-scope" aria-label="Zakres statystyk">
+          <p><strong>Tylko wyroki.</strong> Wielkiej Izby, Izb i Komitetów. Decyzje, sprawozdania Europejskiej Komisji Praw Człowieka i komunikaty prasowe są pominięte na wszystkich wykresach poniżej.</p>
+          <p>Liczby dotyczą rekordów wyroków, nie skarg. Metadane są angielskie; wersja angielska i francuska tego samego wyroku liczy się raz.</p>
+          <p id="scopeVsCorpus" class="scope-reconcile">Uzgadnianie danych tej strony z Wyszukiwaniem&hellip;</p>
+          <p id="scopeCutoff" class="scope-date">Wczytywanie zweryfikowanego stanu danych…</p>
+          <details>
+            <summary>Dlaczego wykresy obejmują mniej dokumentów niż Wyszukiwanie</summary>
+            <p>Decyzja nie rozstrzyga sprawy co do istoty, więc nie może stwierdzać naruszenia ani zawierać rozstrzygnięcia co do artykułu. Gdyby wliczyć tu decyzje, mianownik każdego odsetka na tej stronie wzrósłby o 96%, a licznik pozostałby bez zmian. Każdy odsetek spadłby mniej więcej o połowę, choć w orzecznictwie Trybunału nic by się nie zmieniło. Dlatego decyzje liczymy osobno, według ich własnych kryteriów.</p>
+            <p><a href="pl/statystyki.html#stats-decisions">Przejdź do części o decyzjach</a> &middot; <a href="methodology.html#why-statistics-counts-fewer-documents-than-search">Pełne wyjaśnienie w Metodologii</a> (po angielsku)</p>
+          </details>
+          <details><summary>Wersja katalogu i ograniczenia językowe</summary><p id="scopeCaveat"></p></details>
+        </div>
+        <p class="snapshot-warning">Stan danych z określonego dnia, a nie bieżące Wyszukiwanie. Pakiety źródłowe tekstów francuskich czekają na wdrożenie.</p>
+        <p class="hero-subtitle" id="metaPartialRefresh" hidden></p>
+      </div>
+    </section>
+
+    <div class="stats-page">
+      <div class="stats-dashboard">
+
+        <!-- ── Sidebar Navigation ────────────────────────────────────── -->
+        <nav class="stats-sidebar" id="statsSidebar" aria-label="Części strony statystyk">
+          <div class="stats-sidebar-inner">
+
+            <div class="sidebar-category">
+              <span class="sidebar-category-label">Przegląd</span>
+              <a class="sidebar-link active" data-target="stats-kpi" href="pl/statystyki.html#stats-kpi">W skrócie</a>
+            </div>
+
+            <div class="sidebar-category">
+              <span class="sidebar-category-label">W czasie</span>
+              <a class="sidebar-link" data-target="stats-cases-year" href="pl/statystyki.html#stats-cases-year">Wyroki według składu orzekającego</a>
+              <a class="sidebar-link" data-target="stats-outcomes-year" href="pl/statystyki.html#stats-outcomes-year">Rozstrzygnięcia i odsetek naruszeń</a>
+            </div>
+
+            <div class="sidebar-category">
+              <span class="sidebar-category-label">Pozwane państwa</span>
+              <a class="sidebar-link" data-target="stats-state-outcomes" href="pl/statystyki.html#stats-state-outcomes">Rozstrzygnięcia według państw</a>
+              <a class="sidebar-link" data-target="stats-country-cases" href="pl/statystyki.html#stats-country-cases">Wyroki i odsetek naruszeń</a>
+              <a class="sidebar-link" data-target="stats-country-compare" href="pl/statystyki.html#stats-country-compare">Profil państwa</a>
+            </div>
+
+            <div class="sidebar-category">
+              <span class="sidebar-category-label">Artykuły Konwencji</span>
+              <a class="sidebar-link" data-target="stats-article-rates" href="pl/statystyki.html#stats-article-rates">Rozstrzygnięcia według artykułów</a>
+            </div>
+
+            <div class="sidebar-category">
+              <span class="sidebar-category-label">Tematy</span>
+              <a class="sidebar-link" data-target="stats-thesaurus-top" href="pl/statystyki.html#stats-thesaurus-top">Najczęstsze tematy</a>
+              <a class="sidebar-link" data-target="stats-thesaurus-trends" href="pl/statystyki.html#stats-thesaurus-trends">Tematy w kolejnych latach</a>
+            </div>
+
+            <div class="sidebar-category">
+              <span class="sidebar-category-label">Cytowania</span>
+              <a class="sidebar-link" data-target="stats-cited-judgments" href="pl/statystyki.html#stats-cited-judgments">Najczęściej cytowane wyroki</a>
+            </div>
+
+            <div class="sidebar-category">
+              <span class="sidebar-category-label">Procedura</span>
+              <a class="sidebar-link" data-target="stats-judgment-types" href="pl/statystyki.html#stats-judgment-types">Rodzaje wyroków</a>
+              <a class="sidebar-link" data-target="stats-inadmissibility" href="pl/statystyki.html#stats-inadmissibility">Niedopuszczalność i skreślenia z listy spraw</a>
+              <a class="sidebar-link" data-target="stats-decisions" href="pl/statystyki.html#stats-decisions">Decyzje (odrębny zakres)</a>
+            </div>
+
+            <div class="sidebar-category">
+              <span class="sidebar-category-label">O danych</span>
+              <a class="sidebar-link" data-target="stats-paragraphs" href="pl/statystyki.html#stats-paragraphs">Rozkład paragrafów</a>
+              <a class="sidebar-link" data-target="stats-coverage" href="pl/statystyki.html#stats-coverage">Kompletność danych i języki</a>
+            </div>
+
+          </div>
+        </nav>
+        <!-- ── End Sidebar ───────────────────────────────────────────── -->
+
+        <!-- ── Main Content ──────────────────────────────────────────── -->
+        <!-- Each chart opens with a one-sentence takeaway (.chart-takeaway), computed
+             from the data in pages-dashboard.js. Outcome colours (Okabe–Ito) and
+             formation colours are fixed there and used identically in every chart. -->
+        <div class="stats-main" id="statsMain" aria-busy="true">
+
+          <!-- 1 · At a glance -->
+          <section class="chart-section" id="stats-kpi">
+            <h2 class="chart-section-title">W skrócie</h2>
+            <div id="kpiGrid" class="kpi-row compact-metrics"></div>
+            <p class="how-we-count"><strong>Jak liczymy.</strong> Każda liczba dotyczy wyroków, nie skarg. Wyrok, który rozstrzyga o kilku artykułach, liczy się przy każdym z nich, więc słupki artykułów nie sumują się do łącznej liczby wyroków. Wyrok przeciwko kilku państwom liczy się raz dla każdego z nich. Wyroki Komitetów są uwzględnione; decyzje nie, w tym 3557 decyzji dostępnych w Wyszukiwaniu. <span id="howCountDate"></span> <a href="methodology.html#scope-judgments-in-english">Metodologia</a> (po angielsku)</p>
+          </section>
+
+          <!-- 2 · Over time -->
+          <section class="chart-section" id="stats-cases-year">
+            <h2 class="chart-section-title">Wyroki według roku i składu orzekającego
+              <button class="section-share-btn" title="Skopiuj link do tej części" onclick="copySectionLink(this, 'stats-cases-year')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Wyroki wydane w poszczególnych latach przez Wielką Izbę, Izby i komitety trzech sędziów. Wysokość słupka to łączna liczba wyroków w danym roku.</p>
+            <p class="chart-takeaway" id="formationTakeaway"></p>
+            <div class="chart-canvas-wrap" style="height:420px"><canvas id="casesYearChart"></canvas></div>
+            <p class="chart-note">Linie przerywane: wejście w życie Protokołu nr 11, 1 listopada 1998 (jednolity, stale działający Trybunał); wejście w życie Protokołu nr 14, 1 czerwca 2010 (Komitety zaczynają wydawać wyroki co do istoty); Rosja przestaje być stroną Konwencji, 16 września 2022. Ostatni rok jest niepełny: katalog obejmuje wyroki do daty jego zamknięcia.</p>
+          </section>
+
+          <section class="chart-section" id="stats-outcomes-year">
+            <h2 class="chart-section-title">Rozstrzygnięcia i odsetek naruszeń według roku
+              <button class="section-share-btn" title="Skopiuj link do tej części" onclick="copySectionLink(this, 'stats-outcomes-year')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Wyroki z każdego roku według rozstrzygnięcia, jako części całości (100%). Linia pokazuje odsetek wyroków stwierdzających co najmniej jedno naruszenie.</p>
+            <div class="chart-controls">
+              <span id="formationLabel">Skład orzekający</span>
+              <div class="seg" role="group" aria-labelledby="formationLabel">
+                <button type="button" data-formation="all" aria-pressed="true">Wszystkie</button>
+                <button type="button" data-formation="chamber" aria-pressed="false">Izba i Wielka Izba</button>
+                <button type="button" data-formation="committee" aria-pressed="false">Komitet</button>
+              </div>
+            </div>
+            <p class="chart-takeaway" id="outcomeYearTakeaway"></p>
+            <div class="chart-canvas-wrap" style="height:440px"><canvas id="outcomesYearChart"></canvas></div>
+            <p class="chart-caveat">Wyroki Komitetów (od 2010 r.) stosują utrwalone orzecznictwo i niemal zawsze stwierdzają naruszenie, więc podnoszą ogólny odsetek. Porównaj składy orzekające przełącznikiem powyżej. Lata, w których wybrany skład wydał mniej niż 20 wyroków, są wyblakłe i nie mają odsetka. Ostatni rok jest niepełny. To nie jest odsetek skarg zakończonych sukcesem. <a href="methodology.html#scope-judgments-in-english">Jak to czytać</a> (po angielsku)</p>
+          </section>
+
+          <!-- 3 · Respondent States -->
+          <section class="chart-section" id="stats-state-outcomes">
+            <h2 class="chart-section-title">Rozstrzygnięcia według pozwanego państwa
+              <button class="section-share-btn" title="Skopiuj link do tej części" onclick="copySectionLink(this, 'stats-state-outcomes')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Wszystkie pozwane państwa, w kolumnach tabeli Trybunału <em>Violations by Article and by State</em> (naruszenia według artykułów i państw), na ile pozwalają metadane HUDOC. Kliknij nagłówek kolumny, aby posortować.</p>
+            <p class="chart-takeaway" id="stateTableTakeaway"></p>
+            <div id="stateOutcomeTable" class="state-outcome-wrap"></div>
+            <p class="chart-caveat">Odsetek naruszeń = wyroki stwierdzające co najmniej jedno naruszenie ÷ wszystkie wyroki przeciwko danemu państwu. <em>Inne</em> = wyroki bez oznaczenia naruszenia ani braku naruszenia, które nie skreślają skargi z listy spraw ani nie odnotowują polubownego załatwienia sprawy: głównie wyroki w przedmiocie słusznego zadośćuczynienia, a także wyroki, których rekord w HUDOC nie ma oznaczenia rozstrzygnięcia. Państwa z mniej niż 20 wyrokami są wyszarzone: ich odsetki opierają się na zbyt małej liczbie spraw.</p>
+          </section>
+
+          <section class="chart-section" id="stats-country-cases">
+            <h2 class="chart-section-title">Wyroki i odsetek naruszeń według państw
+              <button class="section-share-btn" title="Skopiuj link do tej części" onclick="copySectionLink(this, 'stats-country-cases')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Piętnaście państw z największą liczbą wyroków i pozostałe państwa łącznie. Długość słupka to liczba wyroków, kolory dzielą ją według rozstrzygnięcia, a etykieta podaje: liczba wyroków · odsetek wyroków stwierdzających co najmniej jedno naruszenie.</p>
+            <p class="chart-takeaway" id="stateChartTakeaway"></p>
+            <div class="chart-canvas-wrap"><canvas id="countriesChart"></canvas></div>
+          </section>
+
+          <section class="chart-section" id="stats-country-compare">
+            <h2 class="chart-section-title">Profil państwa
+              <button class="section-share-btn" title="Skopiuj link do tej części" onclick="copySectionLink(this, 'stats-country-compare')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Wybierz od jednego do trzech państw. Wykresy pokazują ich wyroki według roku, artykuły, których naruszenie Trybunał stwierdzał najczęściej, i najczęstsze tematy HUDOC. Wartości są odsetkami wyroków przeciwko danemu państwu, aby można było porównywać państwa o różnej liczbie spraw.</p>
+            <div class="chart-controls">
+              <label for="compareState1">Państwo</label>
+              <select id="compareState1" class="chart-select"></select>
+              <label for="compareState2" class="visually-hidden">Drugie państwo</label>
+              <select id="compareState2" class="chart-select"></select>
+              <label for="compareState3" class="visually-hidden">Trzecie państwo</label>
+              <select id="compareState3" class="chart-select"></select>
+            </div>
+            <p class="chart-takeaway" id="compareTakeaway" aria-live="polite"></p>
+            <div id="compareSummaryTable" class="compare-summary-wrap"></div>
+            <div class="compare-charts-grid">
+              <div class="compare-chart-wrap compare-wide">
+                <h3 class="chart-subtitle">Wyroki według roku</h3>
+                <div class="chart-canvas-wrap"><canvas id="compareTrendChart"></canvas></div>
+              </div>
+              <div class="compare-chart-wrap">
+                <h3 class="chart-subtitle">Artykuły, których naruszenie stwierdzono (% wyroków przeciwko państwu)</h3>
+                <div class="chart-canvas-wrap"><canvas id="compareArticlesChart"></canvas></div>
+              </div>
+              <div class="compare-chart-wrap">
+                <h3 class="chart-subtitle">Najczęstsze tematy (% wyroków przeciwko państwu; brak słupka = temat spoza pierwszej dziesiątki tego państwa)</h3>
+                <div class="chart-canvas-wrap"><canvas id="thesaurusCountryChart"></canvas></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 4 · Convention Articles -->
+          <section class="chart-section" id="stats-article-rates">
+            <h2 class="chart-section-title">Rozstrzygnięcia według artykułów Konwencji
+              <button class="section-share-btn" title="Skopiuj link do tej części" onclick="copySectionLink(this, 'stats-article-rates')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Wyroki z oznaczeniem naruszenia albo braku naruszenia dla każdego artykułu (ustępy i litery liczą się przy swoim artykule). Długość słupka to liczba takich wyroków (n), kolory dzielą ją według rozstrzygnięcia, a etykieta podaje: n · odsetek wyroków stwierdzających co najmniej jedno naruszenie.</p>
+            <div class="chart-controls article-controls">
+              <span id="articleSortLabel">Kolejność</span>
+              <div class="seg" role="group" aria-labelledby="articleSortLabel">
+                <button type="button" data-article-sort="count" aria-pressed="true">Według liczby wyroków</button>
+                <button type="button" data-article-sort="convention" aria-pressed="false">Kolejność w Konwencji</button>
+              </div>
+            </div>
+            <p class="chart-takeaway" id="articleTakeaway"></p>
+            <div class="chart-canvas-wrap"><canvas id="articleViolationRateChart"></canvas></div>
+            <details class="article-method">
+              <summary>Dokładne liczby dla tego widoku</summary>
+              <div class="article-table-scroll"><table class="article-outcome-table">
+                <caption>Każdy wyrok liczy się raz przy każdym artykule. Oba rozstrzygnięcia = oznaczenie naruszenia i oznaczenie braku naruszenia dla różnych zarzutów lub aspektów.</caption>
+                <thead><tr><th scope="col">Artykuł</th><th scope="col">Odsetek naruszeń</th><th scope="col">Z rozstrzygnięciem (n)</th><th scope="col">Tylko naruszenie</th><th scope="col">Oba rozstrzygnięcia</th><th scope="col">Tylko brak naruszenia</th><th scope="col">Bez oznaczenia rozstrzygnięcia</th></tr></thead>
+                <tbody id="articleOutcomeRows"></tbody>
+              </table></div>
+            </details>
+            <p class="chart-caveat">Przykład: 6-1 i 6-3-d liczą się raz przy art. 6; P1-1 to art. 1 Protokołu nr 1. Oznaczenia łączone, takie jak 14+8, liczą się przy obu artykułach. Wyroki bez oznaczenia rozstrzygnięcia dla danego artykułu nie wchodzą do n: brak oznaczenia nie znaczy, że nie było naruszenia. <span id="articleHiddenNote"></span> To opis metadanych HUDOC, a nie prawdopodobieństwo uwzględnienia zarzutu. <a href="https://www.echr.coe.int/documents/d/echr/hudoc_manual_eng" target="_blank" rel="noopener">Zasady oznaczeń HUDOC</a> (po angielsku)</p>
+          </section>
+
+          <!-- 5 · Topics -->
+          <section class="chart-section" id="stats-thesaurus-top">
+            <h2 class="chart-section-title">Tematy HUDOC
+              <button class="section-share-btn" title="Skopiuj link do tej części" onclick="copySectionLink(this, 'stats-thesaurus-top')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Dwadzieścia pięć najczęstszych słów kluczowych z tezaurusa HUDOC. Tezaurus to słownik kontrolowany Kancelarii Trybunału, który opisuje zagadnienia prawne, przepisy Konwencji i aspekty proceduralne każdego wyroku.</p>
+            <p class="chart-takeaway" id="topicTakeaway"></p>
+            <div class="chart-canvas-wrap" style="height:680px;">
+              <canvas id="thesaurusTopChart"></canvas>
+            </div>
+          </section>
+
+          <section class="chart-section" id="stats-thesaurus-trends">
+            <h2 class="chart-section-title">Tematy w kolejnych latach
+              <button class="section-share-btn" title="Skopiuj link do tej części" onclick="copySectionLink(this, 'stats-thesaurus-trends')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Liczba wyroków oznaczonych danym tematem HUDOC w poszczególnych latach: pięć najczęstszych tematów, dziesięć najczęstszych albo do dziesięciu wybranych przez Ciebie (zacznij pisać po angielsku, aby zobaczyć dostępne tematy). Przy więcej niż pięciu liniach najedź kursorem na temat w legendzie albo go kliknij, aby wyróżnić jego linię.</p>
+            <div class="chart-controls topic-controls" id="topicControls">
+              <div class="seg" role="group" aria-label="Wyświetlane tematy">
+                <button type="button" data-topics="5" aria-pressed="true">5 najczęstszych</button>
+                <button type="button" data-topics="10" aria-pressed="false">10 najczęstszych</button>
+                <button type="button" data-topics="custom" aria-pressed="false">Własny wybór</button>
+              </div>
+              <div class="topic-picker" id="topicPicker" hidden>
+                <label class="visually-hidden" for="topicInput">Dodaj temat</label>
+                <input type="text" id="topicInput" class="topic-input" list="topicOptions" autocomplete="off">
+                <datalist id="topicOptions"></datalist>
+                <div class="topic-chips" id="topicChips"></div>
+              </div>
+            </div>
+            <p class="chart-takeaway" id="trendTakeaway" aria-live="polite"></p>
+            <div class="chart-canvas-wrap" style="height:460px">
+              <canvas id="thesaurusTrendsChart"></canvas>
+            </div>
+            <p class="chart-note">Ostatni rok jest niepełny: katalog obejmuje wyroki do daty jego zamknięcia.</p>
+          </section>
+
+          <!-- 6 · Citations -->
+          <section class="chart-section" id="stats-cited-judgments">
+            <h2 class="chart-section-title">Najczęściej cytowane wyroki
+              <button class="section-share-btn" title="Skopiuj link do tej części" onclick="copySectionLink(this, 'stats-cited-judgments')">&#x1F517;</button>
+            </h2>
+            <p class="chart-section-desc">Dwadzieścia wyroków najczęściej cytowanych w wyrokach i decyzjach, liczonych tak jak <em>Cytowany przez</em> w Wyszukiwaniu: liczą się dokumenty, nie wzmianki. Wyrok, który powołuje się na sprawę w dziesięciu paragrafach, liczy się raz. Uwzględnione są wyroki, które HUDOC publikuje tylko po francusku. W polu <em>Źródło</em> można dla porównania wybrać ten sam ranking oparty wyłącznie na metadanych cytowań HUDOC.</p>
+            <p class="chart-takeaway" id="citationTakeaway"></p>
+            <p id="judgmentCitationCoverage" class="chart-caveat" aria-live="polite">Wczytywanie danych o cytowaniach…</p>
+            <div class="chart-canvas-wrap judgment-citation-canvas"><canvas id="judgmentCitationsChart"></canvas></div>
+            <div class="chart-controls article-controls">
+              <label for="citationEvidence" hidden>Źródło</label>
+              <select id="citationEvidence" class="chart-select" hidden>
+                <option value="search">Jak w Wyszukiwaniu (tekst i metadane HUDOC, także wyroki tylko po francusku)</option>
+                <option value="curated">Wykazy orzecznictwa w HUDOC</option>
+                <option value="extracted">Wykazy + numery skarg wyodrębnione przez HUDOC</option>
+              </select>
+              <label for="citedJudgmentSelect">Cytowany wyrok</label>
+              <select id="citedJudgmentSelect" class="chart-select" disabled></select>
+              <button id="citationRankingExport" class="export-btn" type="button" disabled>Ranking w CSV z identyfikatorami</button>
+            </div>
+            <p id="citedJudgmentIdentity"></p>
+            <details id="citingJudgmentsDetails" class="article-method">
+              <summary id="citingJudgmentsSummary">Pokaż wyroki cytujące</summary>
+              <div class="citation-list-tools"><button id="citingJudgmentsExport" class="export-btn" type="button" disabled>Wyroki cytujące w CSV</button></div>
+              <div class="article-table-scroll"><table class="article-outcome-table"><thead><tr><th scope="col">Wyrok cytujący</th><th scope="col">Data</th></tr></thead><tbody id="citingJudgmentRows"></tbody></table></div>
+              <button id="moreCitingJudgments" class="export-btn" type="button" hidden>Pokaż więcej</button>
+            </details>
+            <details class="article-method">
+              <summary>Zakres danych, nierozpoznane odwołania i metodologia</summary>
+              <div id="judgmentCitationQuality"></div>
+              <p class="chart-section-desc">To ranking oparty na metadanych, a nie nasze własne liczenie cytowań w pełnych tekstach (numery skarg wyodrębnia HUDOC, bez kontekstu cytowania). Liczby to wartości minimalne, oparte na rozpoznanych odwołaniach; brakujące lub niejednoznaczne odwołania mogą zmienić kolejność. Sam numer skargi nie wystarcza, gdy może chodzić o kilka wyroków. Nierozpoznanych odwołań nie zgadujemy. Dokument cytujący i dokument cytowany muszą być w katalogu wyroków; cytowane decyzje są pominięte.</p>
+            </details>
+          </section>
+
+          <!-- 7 · Procedure -->
+          <section class="chart-section" id="stats-judgment-types">
+            <h2 class="chart-section-title">Rodzaje wyroków</h2>
+            <p class="chart-section-desc">Wyroki według składu orzekającego, poziomu ważności w HUDOC, rozstrzygnięcia i aspektu (proceduralnego lub materialnego) wskazanego w konkluzji wyroku w HUDOC oraz odsetek wyroków z opinią odrębną.</p>
+            <p class="chart-takeaway" id="typesTakeaway"></p>
+            <div class="chart-row">
+              <article class="chart-container">
+                <h3 class="chart-title">Skład orzekający</h3>
+                <canvas id="chamberChart"></canvas>
+              </article>
+              <article class="chart-container">
+                <h3 class="chart-title">Poziom ważności</h3>
+                <canvas id="importanceChart"></canvas>
+              </article>
+            </div>
+            <div class="chart-row" style="margin-top: var(--gap);">
+              <article class="chart-container">
+                <h3 class="chart-title">Rozstrzygnięcie</h3>
+                <canvas id="outcomesChart"></canvas>
+              </article>
+              <article class="chart-container">
+                <h3 class="chart-title">Aspekt proceduralny / materialny w konkluzji</h3>
+                <canvas id="proceduralSubstantiveChart"></canvas>
+              </article>
+            </div>
+            <div class="chart-row" style="margin-top: var(--gap);">
+              <article class="chart-container">
+                <h3 class="chart-title">Odsetek wyroków z opinią odrębną według składu orzekającego</h3>
+                <canvas id="separateByBodyChart"></canvas>
+              </article>
+            </div>
+          </section>
+
+          <section class="chart-section" id="stats-inadmissibility">
+            <h2 class="chart-section-title">Niedopuszczalność i skreślenie skargi z listy spraw w wyrokach</h2>
+            <p class="chart-section-desc">Wyroki, w których konkluzji Trybunał uznaje skargę w części za niedopuszczalną albo skreśla ją z listy spraw, oraz podstawy niedopuszczalności wskazane w konkluzji.</p>
+            <p class="chart-caveat">Liczone są tylko wyroki, więc <strong>nie</strong> jest to wskaźnik selekcji skarg przez Trybunał: większość skarg zostaje uznana za niedopuszczalne albo skreślona z listy spraw decyzją i nigdy nie kończy się wyrokiem. Te decyzje są liczone w części <a href="pl/statystyki.html#stats-decisions">Decyzje</a>, z własnymi mianownikami. <a href="methodology.html#scope-judgments-in-english">Jak to czytać</a> (po angielsku)</p>
+            <p class="chart-takeaway" id="inadmissibilityTakeaway"></p>
+            <div class="chart-canvas-wrap" style="height:420px">
+              <canvas id="inadmissibilityGroundsChart"></canvas>
+            </div>
+          </section>
+
+          <!-- 7b · Decisions: its own corpus, its own denominators -->
+          <section class="chart-section" id="stats-decisions">
+            <h2 class="chart-section-title">Decyzje &mdash; odrębny zakres</h2>
+            <p class="chart-section-desc">Wszystkie wykresy powyżej liczą wyroki. Ta część liczy publikowane w HUDOC <em>decyzje</em> w przedmiocie dopuszczalności skargi i skreślenia jej z listy spraw. Można je przeszukiwać w tym narzędziu, ale nie wchodzą do żadnego z mianowników użytych wyżej: decyzja nie rozstrzyga sprawy co do istoty, więc nie stwierdza naruszenia ani nie zawiera rozstrzygnięcia co do artykułu. Dane pochodzą z bieżącego zbioru, więc ich data zamknięcia różni się od podanej wyżej daty stanu danych. <a href="methodology.html#why-statistics-counts-fewer-documents-than-search">Metodologia</a> (po angielsku)</p>
+            <p class="chart-caveat"><strong>Przeczytaj najpierw.</strong> To decyzje, które HUDOC <em>publikuje</em> &mdash; nie obraz selekcji skarg przez Trybunał. Sędzia orzekający jednoosobowo, który rozpoznaje większość skarg, nie publikuje swoich decyzji, co widać w samych danych: <span id="decisionFormationNote"></span></p>
+            <div id="decisionKpiGrid" class="kpi-row compact-metrics"></div>
+
+            <h3 class="chart-section-subtitle">Co faktycznie rozstrzyga opublikowana decyzja</h3>
+            <p class="chart-takeaway" id="decisionOutcomeTakeaway"></p>
+            <div class="chart-canvas-wrap" style="height:380px"><canvas id="decisionOutcomeChart"></canvas></div>
+            <p class="chart-note">Konkluzje bywają złożone, więc kategorie mieszane tworzą osobne grupy i nie są dzielone między kategorie pojedyncze. Różne sformułowania tego samego rozstrzygnięcia są łączone; błędów pisowni w HUDOC nie poprawiamy i zostają w kategorii &bdquo;Inne&rdquo;.</p>
+
+            <h3 class="chart-section-subtitle">Skreślenia z listy spraw i niedopuszczalność w kolejnych latach</h3>
+            <p class="chart-note">Wykres odzwierciedla praktykę publikacyjną w tym samym stopniu co liczbę spraw. Odrębne decyzje o dopuszczalności stały się rzadkie, gdy Trybunał zaczął rozpatrywać dopuszczalność łącznie z przedmiotem skargi. Dlatego linia <em>Dopuszczalna</em> niemal znika, a nie dlatego, że Trybunał stał się surowszy. Rekordów sprzed 1999 r. jest niewiele (<span id="decisionEarlyNote"></span>), ponieważ do wejścia w życie Protokołu nr 11 o dopuszczalności orzekała dawna Komisja, a jej decyzje są w zbiorze HUDOC, którego ten korpus nie obejmuje. Ostatni rok jest niepełny.</p>
+            <div class="chart-canvas-wrap" style="height:360px"><canvas id="decisionOutcomeTrendChart"></canvas></div>
+
+            <h3 class="chart-section-subtitle">Opublikowane decyzje według pozwanego państwa</h3>
+            <p class="chart-note">To liczba decyzji, a nie ocena państwa. Wysoka liczba odzwierciedla raczej liczbę skarg i liczbę ludności niż to, jak państwo przestrzega Konwencji. Połowa tych dokumentów to skreślenia skargi z listy spraw, a wśród nich są polubowne załatwienia spraw, korzystne dla skarżącego.</p>
+            <div class="chart-canvas-wrap" style="height:440px"><canvas id="decisionStateChart"></canvas></div>
+
+            <h3 class="chart-section-subtitle">Podstawy z Artykułu 35 i dlaczego nie pokazujemy ich na wykresie</h3>
+            <p class="chart-caveat" id="decisionGroundsNote"></p>
+            <div id="decisionGroundsTable" class="coverage-table-wrap"></div>
+          </section>
+
+          <!-- 8 · About the data -->
+          <section class="chart-section about-data" id="stats-paragraphs">
+            <h2 class="chart-section-title">Rozkład paragrafów</h2>
+            <p class="chart-section-desc">Niepuste wiersze tekstu według części wyroku, z tekstów w bazie produkcyjnej oraz lokalnych pakietów źródłowych w języku angielskim i francuskim. Wliczone są wiersze nagłówka i tabel skarżących, więc nie jest to liczba numerowanych paragrafów. <a href="methodology.html">Metodologia</a> (po angielsku)</p>
+            <p class="chart-takeaway" id="paragraphTakeaway"></p>
+            <div class="chart-canvas-wrap" style="height:440px">
+              <canvas id="sectionsChart"></canvas>
+            </div>
+            <p class="chart-note">Teksty francuskie są uwzględnione. Oznaczeń części w nowo przetworzonych pakietach nie sprawdzono jeszcze dokładnie ze źródłem, a tabele skarżących mogą przeważać w liczbie wierszy części &bdquo;Załącznik&rdquo;.</p>
+          </section>
+
+          <section class="chart-section about-data" id="stats-coverage">
+            <h2 class="chart-section-title">Kompletność danych i języki</h2>
+            <p class="chart-section-desc">Ile wyroków ma wypełnione poszczególne pola metadanych i w jakim języku są teksty. To miara dostępności danych, a nie ich poprawności: puste pole nie oznacza, że wyrok nie dotyczy danego zagadnienia. <a href="methodology.html">Metodologia</a> (po angielsku)</p>
+            <p id="textCoverageSummary" class="text-coverage-summary"></p>
+            <div id="coverageTable" class="coverage-table-wrap"></div>
+            <h3 class="chart-section-subtitle">Język zinwentaryzowanych tekstów wyroków</h3>
+            <p class="chart-note">Oznaczenie języka angielskiego w metadanych nie dowodzi, że istnieje tekst angielski. Starsze teksty w bazie produkcyjnej nie mają zapisanego języka źródłowego; oznaczamy go jako nieznany, zamiast zgadywać. Pakiety francuskie to teksty oryginalne, a nie tłumaczenia przygotowane przez to narzędzie.</p>
+            <div class="chart-canvas-wrap" style="height:200px"><canvas id="textLanguageChart"></canvas></div>
+          </section>
+
+        </div>
+        <!-- ── End Main Content ──────────────────────────────────────── -->
+
+      </div><!-- /.stats-dashboard -->
+    </div><!-- /.stats-page -->
+  </main>
+
+  <footer class="footer site-footer site-bar">
+    <div class="sf-left">
+      <span class="sf-name">HUDOC Researcher</span>
+      <span>autorzy: <a href="https://lszoszk.github.io/" target="_blank" rel="noopener"><b>&#321;. Szoszkiewicz</b></a> i <a href="https://prawo.amu.edu.pl/c/administracja/bow/biuro-ds-informatyzacji-wydzialu/p/inz-sebastian-marcisz/" target="_blank" rel="noopener"><b>S. Marcisz</b></a></span>
+      <span class="sf-label">Przy wsparciu</span><span class="sf-sup" title="Uniwersytet im. Adama Mickiewicza w Poznaniu &mdash; instytucja goszcząca projekt">UAM w Poznaniu</span>
+      <span class="sf-sep">&middot;</span>
+      <span>Dane: <a href="https://hudoc.echr.coe.int" target="_blank" rel="noopener">HUDOC</a></span>
+      <span class="sf-sep">&middot;</span>
+      <span class="sf-fine" title="Niezależny projekt badawczy, niezwiązany z Europejskim Trybunałem Praw Człowieka ani z Radą Europy. To nie jest porada prawna.">Niezwiązane z ETPC &middot; to nie jest porada prawna &middot; <a href="pl/o-projekcie.html#zakres">o projekcie</a></span>
+    </div>
+    <div class="sf-right">
+      <button class="sf-btn" id="themeToggle" type="button" title="Przełącz między motywem jasnym a ciemnym" aria-label="Przełącz tryb ciemny"><span class="theme-icon-light">Motyw: jasny</span><span class="theme-icon-dark">Motyw: ciemny</span></button>
+      <button class="sf-btn" id="accessibilityBtn" type="button" title="Rozmiar tekstu, odstępy, kontrast (Alt+A)" aria-label="Ustawienia dostępności">Aa</button>
+      <a class="sf-btn" href="methodology.html">Metodologia (EN)</a>
+      <button class="sf-btn" id="citeSiteBtn" type="button" title="Skopiuj cytowanie HUDOC Researcher (APA); BibTeX na stronie About (po angielsku)">Cytuj</button>
+      <button class="sf-btn sf-tour" id="tourBtn" type="button" title="Minutowy przewodnik po stronie">&#10022; przewodnik</button>
+    </div>
+  </footer>
+
+  <!-- Accessibility Settings Panel -->
+  <div class="a11y-backdrop" id="a11yBackdrop" hidden></div>
+  <div class="a11y-panel" id="accessibilityPanel" hidden>
+    <div class="a11y-panel-header">
+      <h2>Ustawienia dostępności</h2>
+      <button type="button" id="a11yCloseBtn" class="a11y-panel-close" aria-label="Zamknij">&times;</button>
+    </div>
+    <div class="a11y-panel-body">
+      <div class="a11y-group">
+        <label for="a11yTheme">Motyw</label>
+        <select id="a11yTheme" class="a11y-select">
+          <option value="light">Jasny</option>
+          <option value="dark">Ciemny</option>
+        </select>
+      </div>
+      <div class="a11y-group">
+        <label for="a11yFontSize">Rozmiar czcionki</label>
+        <div class="a11y-row">
+          <input type="range" id="a11yFontSize" min="80" max="150" step="5" value="100">
+          <span id="a11yFontSizeValue" class="a11y-value">100%</span>
+        </div>
+      </div>
+      <div class="a11y-group">
+        <label for="a11yLineHeight">Odstęp między wierszami</label>
+        <select id="a11yLineHeight" class="a11y-select">
+          <option value="normal">Normalny</option>
+          <option value="1.6">Wygodny (1,6)</option>
+          <option value="1.8">Swobodny (1,8)</option>
+          <option value="2.0">Szeroki (2,0)</option>
+        </select>
+      </div>
+      <div class="a11y-group">
+        <label class="a11y-check-label">
+          <input type="checkbox" id="a11yHighContrast"> Wysoki kontrast
+        </label>
+      </div>
+      <div class="a11y-group">
+        <label class="a11y-check-label">
+          <input type="checkbox" id="a11yDyslexia"> Czcionka dla osób z dysleksją
+        </label>
+      </div>
+      <div class="a11y-group">
+        <label class="a11y-check-label">
+          <input type="checkbox" id="a11yUnderlineLinks"> Podkreślaj wszystkie linki
+        </label>
+      </div>
+      <div class="a11y-group">
+        <button type="button" id="a11yResetBtn" class="a11y-reset-btn">Przywróć ustawienia domyślne</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="back-to-top" id="backToTopBtn" type="button" aria-label="Powrót na górę" hidden>&uarr;</button>
+
+  <script>
+    function copySectionLink(btn, sectionId) {
+      const url = new URL(window.location.href);
+      url.hash = sectionId;
+      navigator.clipboard.writeText(url.toString()).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = '\u2713';
+        setTimeout(() => { btn.textContent = orig; }, 1500);
+      }).catch(() => {});
+    }
+
+    // Shared accessibility helpers for analytics page
+    const ACCESSIBILITY_DEFAULTS = {
+      theme: "light", fontSize: 100, lineHeight: "normal",
+      highContrast: false, dyslexiaFont: false, underlineLinks: false,
+    };
+
+    function getA11y() {
+      try {
+        const s = localStorage.getItem("echr-accessibility");
+        if (s) return { ...ACCESSIBILITY_DEFAULTS, ...JSON.parse(s) };
+      } catch {}
+      return { ...ACCESSIBILITY_DEFAULTS };
+    }
+
+    function saveA11y(s) {
+      try { localStorage.setItem("echr-accessibility", JSON.stringify(s)); } catch {}
+    }
+
+    function applyA11y(s) {
+      document.documentElement.setAttribute("data-theme", s.theme);
+      document.documentElement.style.setProperty("--a11y-font-scale", (s.fontSize / 100).toFixed(2));
+      document.documentElement.classList.toggle("a11y-high-contrast", !!s.highContrast);
+      document.documentElement.classList.toggle("a11y-dyslexia", !!s.dyslexiaFont);
+      document.documentElement.classList.toggle("a11y-underline-links", !!s.underlineLinks);
+      if (s.lineHeight !== "normal") {
+        document.documentElement.style.setProperty("--a11y-line-height", s.lineHeight);
+      } else {
+        document.documentElement.style.removeProperty("--a11y-line-height");
+      }
+      saveA11y(s);
+    }
+
+    function syncA11yControls() {
+      const s = getA11y();
+      const ids = { a11yTheme: "value", a11yFontSize: "value", a11yLineHeight: "value",
+                    a11yHighContrast: "checked", a11yDyslexia: "checked", a11yUnderlineLinks: "checked" };
+      for (const [id, prop] of Object.entries(ids)) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        if (prop === "checked") el.checked = !!s[{a11yHighContrast:"highContrast",a11yDyslexia:"dyslexiaFont",a11yUnderlineLinks:"underlineLinks"}[id]];
+        else if (id === "a11yTheme") el.value = s.theme;
+        else if (id === "a11yFontSize") el.value = s.fontSize;
+        else if (id === "a11yLineHeight") el.value = s.lineHeight;
+      }
+      const fv = document.getElementById("a11yFontSizeValue");
+      if (fv) fv.textContent = s.fontSize + "%";
+    }
+
+    function onA11yChange() {
+      const s = getA11y();
+      const el = (id) => document.getElementById(id);
+      if (el("a11yTheme")) s.theme = el("a11yTheme").value;
+      if (el("a11yFontSize")) s.fontSize = Number(el("a11yFontSize").value);
+      if (el("a11yLineHeight")) s.lineHeight = el("a11yLineHeight").value;
+      if (el("a11yHighContrast")) s.highContrast = el("a11yHighContrast").checked;
+      if (el("a11yDyslexia")) s.dyslexiaFont = el("a11yDyslexia").checked;
+      if (el("a11yUnderlineLinks")) s.underlineLinks = el("a11yUnderlineLinks").checked;
+      const fv = document.getElementById("a11yFontSizeValue");
+      if (fv) fv.textContent = s.fontSize + "%";
+      applyA11y(s);
+    }
+
+    (function init() {
+      // Apply saved settings
+      const s = getA11y();
+      try {
+        const old = localStorage.getItem("echr-theme");
+        if (old && !localStorage.getItem("echr-accessibility")) s.theme = old;
+      } catch {}
+      // Cross-page interop: honour a light/dark choice made on any other subpage.
+      try {
+        const shared = localStorage.getItem("theme");
+        if (shared === "dark" || shared === "light") s.theme = shared;
+      } catch {}
+      applyA11y(s);
+
+      // Theme toggle button
+      const toggle = document.getElementById("themeToggle");
+      toggle?.addEventListener("click", () => {
+        const cur = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+        const s = getA11y(); s.theme = cur === "dark" ? "light" : "dark"; applyA11y(s);
+        try { localStorage.setItem("theme", s.theme); } catch {}
+        syncA11yControls();
+      });
+
+      // Accessibility panel
+      const btn = document.getElementById("accessibilityBtn");
+      const panel = document.getElementById("accessibilityPanel");
+      const closeBtn = document.getElementById("a11yCloseBtn");
+      const backdrop = document.getElementById("a11yBackdrop");
+      const openPanel = () => { if (panel) { panel.hidden = false; if (backdrop) backdrop.hidden = false; syncA11yControls(); } };
+      const closePanel = () => { if (panel) panel.hidden = true; if (backdrop) backdrop.hidden = true; };
+      if (btn) btn.addEventListener("click", openPanel);
+      if (closeBtn) closeBtn.addEventListener("click", closePanel);
+      if (backdrop) backdrop.addEventListener("click", closePanel);
+
+      const controls = ["a11yTheme","a11yFontSize","a11yLineHeight","a11yHighContrast","a11yDyslexia","a11yUnderlineLinks"];
+      controls.forEach(id => {
+        const c = document.getElementById(id);
+        if (c) { c.addEventListener("input", onA11yChange); c.addEventListener("change", onA11yChange); }
+      });
+
+      const resetBtn = document.getElementById("a11yResetBtn");
+      if (resetBtn) resetBtn.addEventListener("click", () => {
+        const d = { ...ACCESSIBILITY_DEFAULTS };
+        d.theme = document.documentElement.getAttribute("data-theme") || "light";
+        applyA11y(d); syncA11yControls();
+      });
+
+      // Keyboard shortcuts
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && panel && !panel.hidden) { closePanel(); return; }
+        if (e.altKey && (e.key === "a" || e.key === "A")) { e.preventDefault(); panel && !panel.hidden ? closePanel() : openPanel(); }
+      });
+
+      // Hamburger menu
+      const hamburger = document.getElementById("navHamburger");
+      if (hamburger) hamburger.addEventListener("click", () => {
+        const links = document.querySelector(".nav-links");
+        const expanded = hamburger.getAttribute("aria-expanded") === "true";
+        hamburger.setAttribute("aria-expanded", !expanded);
+        links?.classList.toggle("open");
+      });
+
+      // Back to top
+      const backToTop = document.getElementById("backToTopBtn");
+      if (backToTop) {
+        window.addEventListener("scroll", () => {
+          backToTop.hidden = window.scrollY < 400;
+        }, { passive: true });
+        backToTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+      }
+    })();
+  </script>
+
+  <!-- Plain (non-defer) and in this order: chart-tools.js must register its
+       Chart.js plugin before pages-dashboard.js constructs any chart. -->
+  <script src="assets/echr-export-core.js?v=20260802-export"></script>
+  <script src="assets/i18n-pl.js?v=20261120b"></script>
+  <script src="assets/chart-tools.js?v=20261120-pl1"></script>
+  <script src="assets/pages-dashboard.js?v=20261120-pl2"></script>
+</body>
+</html>
