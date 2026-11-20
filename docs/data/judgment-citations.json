@@ -1,9 +1,9 @@
 {
   "schema_version": "judgment-citations-v1",
-  "generated_at": "2026-11-20T02:04:49.944879+00:00",
+  "generated_at": "2026-11-20T17:14:16.141922+00:00",
   "cutoff": "2026-11-20",
   "catalog_sha256": "a9ec4da5f93e1ffbadffdb1d1362a57e7d397662f2b133186e1afee28668c94e",
-  "catalog_content_sha256": "638fba727221b818618a49a5993b04932f6b1dca342723e199fc59a0e884b5bc",
+  "catalog_content_sha256": "246066adda19e0b36b94e1cca1c3c58450c2d524bf679d49b60c99ba3955ddac",
   "edges_sha256": "f62f79c93c8262d3c8f5f298f2eb5483f50217118da7a378d0fd14b0db30c985",
   "statistics_scope_sha256": "0c2e9d50277546539c8921ee8996e344e91ac0f09a506df35047340e2289a1b2",
   "scope": "Judgments only, English-flagged catalog identities with verified French ECLI aliases. Counts use bilingual HUDOC citation metadata, not full-text extraction.",
@@ -139947,8 +139947,8 @@
         "date": "1996-09-16",
         "ecli": "ECLI:CE:ECHR:1996:0916JUD002189393",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 1386,
-        "cited_by_french_only": 100
+        "cited_by_count": 1387,
+        "cited_by_french_only": 101
       },
       {
         "case_id": "001-72925",
@@ -139965,8 +139965,8 @@
         "date": "2012-01-10",
         "ecli": "ECLI:CE:ECHR:2012:0110JUD004252507",
         "collection": "CHAMBER",
-        "cited_by_count": 1254,
-        "cited_by_french_only": 81
+        "cited_by_count": 1255,
+        "cited_by_french_only": 82
       },
       {
         "case_id": "001-72929",
@@ -139983,8 +139983,8 @@
         "date": "2014-07-17",
         "ecli": "ECLI:CE:ECHR:2014:0717JUD004784808",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 1133,
-        "cited_by_french_only": 109
+        "cited_by_count": 1134,
+        "cited_by_french_only": 110
       },
       {
         "case_id": "001-181591",
@@ -139992,7 +139992,7 @@
         "date": "2018-03-20",
         "ecli": "ECLI:CE:ECHR:2018:0320JUD003768510",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 1118,
+        "cited_by_count": 1119,
         "cited_by_french_only": 200
       },
       {
@@ -140046,8 +140046,8 @@
         "date": "1999-10-28",
         "ecli": "ECLI:CE:ECHR:1999:1028JUD002834295",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 938,
-        "cited_by_french_only": 441
+        "cited_by_count": 939,
+        "cited_by_french_only": 442
       },
       {
         "case_id": "001-58735",
@@ -158270,7 +158270,8 @@
         "001-58013",
         "001-58003",
         "001-58066",
-        "001-58067"
+        "001-58067",
+        "001-253840"
       ],
       "001-72925": [
         "001-253224",
@@ -160800,7 +160801,8 @@
         "001-113482",
         "001-113600",
         "001-112420",
-        "001-111837"
+        "001-111837",
+        "001-253840"
       ],
       "001-72929": [
         "001-253449",
@@ -163099,7 +163101,8 @@
         "001-148181",
         "001-148258",
         "001-148067",
-        "001-146393"
+        "001-146393",
+        "001-253840"
       ],
       "001-181591": [
         "001-253534",
@@ -164217,6 +164220,7 @@
         "001-184112",
         "001-183118",
         "001-182871",
+        "001-253840",
         "001-253543",
         "001-253315",
         "001-248082"
@@ -170266,6 +170270,7 @@
         "001-5355",
         "001-58834",
         "001-58595",
+        "001-253840",
         "001-248082"
       ],
       "001-58735": [
@@ -244684,7 +244689,7 @@
         "title": "B.G. v. FRANCE",
         "date": "2026-03-19",
         "ecli": "ECLI:CE:ECHR:2026:0319JUD007094517",
-        "french_only": true
+        "french_only": false
       },
       "001-249416": {
         "title": "DUBJAGO v. LATVIA",
@@ -246911,6 +246916,12 @@
         "date": "2026-10-15",
         "ecli": "ECLI:CE:ECHR:2026:1015DEC000736724",
         "french_only": false
+      },
+      "001-253840": {
+        "title": "",
+        "date": "",
+        "ecli": "",
+        "french_only": true
       },
       "001-4527": {
         "title": "BIFL v. SWITZERLAND",
@@ -294571,9 +294582,9 @@
         }
       ],
       "full_text_analyzed": false,
-      "cited_judgments": 15842,
-      "citation_pairs": 355142,
-      "french_only_pairs": 59458
+      "cited_judgments": 15844,
+      "citation_pairs": 355171,
+      "french_only_pairs": 59475
     }
   }
 }

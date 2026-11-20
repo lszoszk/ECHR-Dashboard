@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-20T02:04:06.960038+00:00",
+  "generated_at": "2026-11-20T17:13:33.173927+00:00",
   "source_file": "Verified HUDOC catalog + production text inventory + local ENG/FRE bundles",
   "schema_version": "echr-dashboard-v2",
   "parser_version": "2.0.0",
@@ -10,13 +10,13 @@
     "input_record_count": 29440,
     "schema_version": "echr-dashboard-v2",
     "parser_version": "2.0.0",
-    "total_paragraphs": 4411674,
+    "total_paragraphs": 4411675,
     "dated_cases": 29440,
     "undated_cases": 0,
     "date_range_label": "14 Nov 1960 \u2013 19 Nov 2026",
     "unique_countries": 47,
     "unique_articles": 287,
-    "avg_paragraphs_per_case": 149.90906928539874,
+    "avg_paragraphs_per_case": 149.90910326548644,
     "median_paragraphs_per_case": 109.0,
     "p90_paragraphs_per_case": 259.0,
     "min_paragraphs_per_case": 2,
@@ -5187,7 +5187,7 @@
       ],
       [
         "2026-03",
-        10717
+        10718
       ],
       [
         "2026-04",
@@ -8017,8 +8017,8 @@
       [
         "2026",
         0,
-        105,
-        620,
+        104,
+        621,
         11
       ]
     ]
@@ -8191,15 +8191,15 @@
     "sections": [
       [
         "Merits",
-        1081461
+        1081460
       ],
       [
         "Circumstances of the Case",
-        896758
+        896672
       ],
       [
         "Appendix",
-        844226
+        844227
       ],
       [
         "Header",
@@ -8215,15 +8215,15 @@
       ],
       [
         "Operative Part",
-        252121
+        252120
       ],
       [
         "Procedure",
-        145835
+        145834
       ],
       [
         "Separate Opinion",
-        78037
+        78036
       ],
       [
         "Admissibility",
@@ -8235,7 +8235,7 @@
       ],
       [
         "Facts (unsegmented)",
-        2616
+        2706
       ],
       [
         "Summary",
@@ -37061,9 +37061,9 @@
     "unit": "HUDOC judgment record, not an application or applicant",
     "since": "1959-01-01",
     "cutoff": "2026-11-20",
-    "catalog_verified_at": "2026-11-20T02:03:07.412332+00:00",
+    "catalog_verified_at": "2026-11-20T17:12:33.757125+00:00",
     "catalog_sha256": "0c2e9d50277546539c8921ee8996e344e91ac0f09a506df35047340e2289a1b2",
-    "catalog_content_sha256": "638fba727221b818618a49a5993b04932f6b1dca342723e199fc59a0e884b5bc",
+    "catalog_content_sha256": "246066adda19e0b36b94e1cca1c3c58450c2d524bf679d49b60c99ba3955ddac",
     "translation_title_warnings": [
       "001-115493",
       "001-120188",
@@ -37079,21 +37079,21 @@
   },
   "text_coverage": {
     "by_language": {
-      "FRE": 9285,
-      "Unknown": 20144
+      "FRE": 9284,
+      "Unknown": 20145
     },
     "by_origin": {
       "Production inventory": 29429,
       "Unavailable": 11
     },
-    "inventory_exported_at": "2026-11-20T02:03:34.614282+00:00",
+    "inventory_exported_at": "2026-11-20T17:12:59.810141+00:00",
     "paragraph_roles": {
       "footer": 29040,
       "signature": 35331,
       "heading": 307781,
       "paragraph": 1977126,
       "metadata": 217932,
-      "quote": 413010,
+      "quote": 413011,
       "operative_list": 205678,
       "heading_h0": 95614,
       "heading_h1": 90956,
