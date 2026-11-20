@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-19T17:14:33.726926+00:00",
+  "generated_at": "2026-11-20T02:04:06.960038+00:00",
   "source_file": "Verified HUDOC catalog + production text inventory + local ENG/FRE bundles",
   "schema_version": "echr-dashboard-v2",
   "parser_version": "2.0.0",
@@ -37060,10 +37060,10 @@
     ],
     "unit": "HUDOC judgment record, not an application or applicant",
     "since": "1959-01-01",
-    "cutoff": "2026-11-19",
-    "catalog_verified_at": "2026-11-19T17:12:55.305388+00:00",
+    "cutoff": "2026-11-20",
+    "catalog_verified_at": "2026-11-20T02:03:07.412332+00:00",
     "catalog_sha256": "0c2e9d50277546539c8921ee8996e344e91ac0f09a506df35047340e2289a1b2",
-    "catalog_content_sha256": "abe9197da82a5a9028aab92ee5ad6d5e5f8f1d01474b4de41fa706fc4b772062",
+    "catalog_content_sha256": "638fba727221b818618a49a5993b04932f6b1dca342723e199fc59a0e884b5bc",
     "translation_title_warnings": [
       "001-115493",
       "001-120188",
@@ -37086,7 +37086,7 @@
       "Production inventory": 29429,
       "Unavailable": 11
     },
-    "inventory_exported_at": "2026-11-19T17:14:00.918656+00:00",
+    "inventory_exported_at": "2026-11-20T02:03:34.614282+00:00",
     "paragraph_roles": {
       "footer": 29040,
       "signature": 35331,
