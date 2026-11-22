@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-22T02:04:43.050596+00:00",
+  "generated_at": "2026-11-22T17:13:38.443515+00:00",
   "source_file": "Verified HUDOC catalog + production text inventory + local ENG/FRE bundles",
   "schema_version": "echr-dashboard-v2",
   "parser_version": "2.0.0",
@@ -37,8 +37,8 @@
     "cases_with_rules_of_court": 886,
     "inadmissible_cases": 3099,
     "struck_out_cases": 1320,
-    "procedural_aspect_cases": 2141,
-    "substantive_aspect_cases": 3877,
+    "procedural_aspect_cases": 2140,
+    "substantive_aspect_cases": 3876,
     "outcome_violation_only": 21923,
     "outcome_non_violation_only": 2312,
     "outcome_both": 2228,
@@ -7203,8 +7203,8 @@
       ],
       [
         "2025",
-        80,
-        137
+        79,
+        136
       ],
       [
         "2026",
@@ -8149,7 +8149,7 @@
       ],
       [
         "8-1",
-        2948
+        2947
       ],
       [
         "29",
@@ -8417,9 +8417,9 @@
       ],
       [
         "8-1",
-        1616,
+        1615,
         470,
-        2086
+        2085
       ],
       [
         "5-3",
@@ -16921,7 +16921,7 @@
       ],
       [
         "(Art. 3) Degrading treatment",
-        3239
+        3238
       ],
       [
         "(Art. 6-1) Fair hearing",
@@ -16949,7 +16949,7 @@
       ],
       [
         "(Art. 3) Inhuman treatment",
-        2179
+        2178
       ],
       [
         "(Art. 35-1) Exhaustion of domestic remedies",
@@ -16969,7 +16969,7 @@
       ],
       [
         "(Art. 8-1) Respect for private life",
-        1606
+        1605
       ],
       [
         "(Art. 10-1) Freedom of expression",
@@ -17047,7 +17047,7 @@
           "(Art. 3) Degrading treatment",
           "(Art. 3) Prohibition of torture"
         ],
-        3239
+        3238
       ],
       [
         [
@@ -20763,7 +20763,7 @@
           296,
           211,
           238,
-          123,
+          122,
           107
         ],
         "(Art. 6-1) Fair hearing": [
@@ -21204,7 +21204,7 @@
           116,
           106,
           86,
-          62,
+          61,
           51
         ],
         "(Art. 35-1) Exhaustion of domestic remedies": [
@@ -21519,7 +21519,7 @@
           135,
           119,
           134,
-          101,
+          100,
           65
         ],
         "(Art. 10-1) Freedom of expression": [
@@ -21897,7 +21897,7 @@
           85,
           72,
           58,
-          53,
+          52,
           34
         ],
         "(Art. 34) Individual applications": [
@@ -22149,7 +22149,7 @@
           57,
           58,
           59,
-          52,
+          51,
           52
         ],
         "#227": [
@@ -36523,7 +36523,7 @@
     "clause_breakdown": [
       [
         "Violation finding",
-        38938
+        38936
       ],
       [
         "Non-pecuniary damage awarded",
@@ -37061,9 +37061,9 @@
     "unit": "HUDOC judgment record, not an application or applicant",
     "since": "1959-01-01",
     "cutoff": "2026-11-22",
-    "catalog_verified_at": "2026-11-22T02:02:37.617197+00:00",
+    "catalog_verified_at": "2026-11-22T17:12:39.978211+00:00",
     "catalog_sha256": "0c2e9d50277546539c8921ee8996e344e91ac0f09a506df35047340e2289a1b2",
-    "catalog_content_sha256": "155d2ee082ae10620bfe772438732ee37bf176687e2148abf1a75e9d559eabbb",
+    "catalog_content_sha256": "d5e38933bc4b94a14de5a1edc764dccca9923545dd44f8d41fb707cbcd98d972",
     "translation_title_warnings": [
       "001-115493",
       "001-120188",
@@ -37086,7 +37086,7 @@
       "Production inventory": 29429,
       "Unavailable": 11
     },
-    "inventory_exported_at": "2026-11-22T02:04:13.050231+00:00",
+    "inventory_exported_at": "2026-11-22T17:13:07.056589+00:00",
     "paragraph_roles": {
       "footer": 29040,
       "signature": 35331,

@@ -1,9 +1,9 @@
 {
   "schema_version": "judgment-citations-v1",
-  "generated_at": "2026-11-22T02:05:25.451645+00:00",
+  "generated_at": "2026-11-22T17:14:21.170541+00:00",
   "cutoff": "2026-11-22",
   "catalog_sha256": "a9ec4da5f93e1ffbadffdb1d1362a57e7d397662f2b133186e1afee28668c94e",
-  "catalog_content_sha256": "155d2ee082ae10620bfe772438732ee37bf176687e2148abf1a75e9d559eabbb",
+  "catalog_content_sha256": "d5e38933bc4b94a14de5a1edc764dccca9923545dd44f8d41fb707cbcd98d972",
   "edges_sha256": "f62f79c93c8262d3c8f5f298f2eb5483f50217118da7a378d0fd14b0db30c985",
   "statistics_scope_sha256": "0c2e9d50277546539c8921ee8996e344e91ac0f09a506df35047340e2289a1b2",
   "scope": "Judgments only, English-flagged catalog identities with verified French ECLI aliases. Counts use bilingual HUDOC citation metadata, not full-text extraction.",
@@ -140037,8 +140037,8 @@
         "date": "2014-03-25",
         "ecli": "ECLI:CE:ECHR:2014:0325JUD001715311",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 961,
-        "cited_by_french_only": 158
+        "cited_by_count": 962,
+        "cited_by_french_only": 159
       },
       {
         "case_id": "001-58337",
@@ -169330,6 +169330,7 @@
         "001-144661",
         "001-144363",
         "001-144138",
+        "001-253891",
         "001-253543"
       ],
       "001-58337": [
@@ -246923,6 +246924,12 @@
         "ecli": "",
         "french_only": true
       },
+      "001-253891": {
+        "title": "",
+        "date": "",
+        "ecli": "",
+        "french_only": true
+      },
       "001-4527": {
         "title": "BIFL v. SWITZERLAND",
         "date": "1999-02-23",
@@ -294582,9 +294589,9 @@
         }
       ],
       "full_text_analyzed": false,
-      "cited_judgments": 15844,
+      "cited_judgments": 15846,
       "citation_pairs": 355171,
-      "french_only_pairs": 59475
+      "french_only_pairs": 59505
     }
   }
 }
