@@ -1,18 +1,18 @@
 {
   "schema_version": "decisions-v1",
-  "generated_at": "2026-11-25T17:16:29.494874+00:00",
+  "generated_at": "2026-11-26T17:16:39.253203+00:00",
   "source_db": "echr_search.db",
-  "cutoff": "22/10/2026",
+  "cutoff": "05/11/2026",
   "totals": {
-    "cases_all": 57784,
-    "judgments": 29434,
-    "judgments_official_english": 20156,
+    "cases_all": 57828,
+    "judgments": 29446,
+    "judgments_official_english": 20168,
     "machine_translations": 9278,
-    "decisions": 28333,
+    "decisions": 28365,
     "advisory_opinions": 17,
-    "decisions_with_text": 28333,
-    "decision_paragraphs": 2009212,
-    "paragraphs_median": 46,
+    "decisions_with_text": 28365,
+    "decision_paragraphs": 2011419,
+    "paragraphs_median": 47,
     "paragraphs_mean": 70.9,
     "first_year": 1986,
     "last_year": 2026
@@ -20,11 +20,11 @@
   "outcome_mix": [
     [
       "Struck out of the list, in whole or in part",
-      14149
+      14172
     ],
     [
       "Inadmissible",
-      9319
+      9327
     ],
     [
       "Partly inadmissible",
@@ -32,7 +32,7 @@
     ],
     [
       "Partly struck out, partly inadmissible",
-      1260
+      1261
     ],
     [
       "Admissible",
@@ -286,8 +286,8 @@
     ],
     [
       2026,
-      387,
-      332,
+      410,
+      340,
       0
     ]
   ],
@@ -446,13 +446,13 @@
     ],
     [
       2026,
-      727
+      759
     ]
   ],
   "by_state": [
     [
       "Poland",
-      3147
+      3152
     ],
     [
       "Russia",
@@ -460,11 +460,11 @@
     ],
     [
       "Turkey",
-      2816
+      2820
     ],
     [
       "Romania",
-      2046
+      2049
     ],
     [
       "Ukraine",
@@ -476,7 +476,7 @@
     ],
     [
       "Hungary",
-      1309
+      1314
     ],
     [
       "Serbia",
@@ -484,7 +484,7 @@
     ],
     [
       "Croatia",
-      1000
+      1003
     ],
     [
       "Slovakia",
@@ -492,7 +492,7 @@
     ],
     [
       "Italy",
-      728
+      729
     ],
     [
       "Bulgaria",
@@ -508,11 +508,11 @@
     ],
     [
       "Azerbaijan",
-      582
+      584
     ],
     [
       "Slovenia",
-      576
+      577
     ],
     [
       "Germany",
@@ -544,7 +544,7 @@
     ],
     [
       "Greece",
-      303
+      307
     ],
     [
       "Portugal",
@@ -560,7 +560,7 @@
     ],
     [
       "Albania",
-      201
+      202
     ],
     [
       "Cyprus",
@@ -620,7 +620,7 @@
     ],
     [
       "Russia, Ukraine",
-      15
+      18
     ],
     [
       "Liechtenstein",
@@ -850,11 +850,11 @@
   "by_formation": [
     [
       "Court (Committee)",
-      15717
+      15748
     ],
     [
       "Court (Chamber)",
-      12584
+      12585
     ],
     [
       "Court (Grand Chamber)",
@@ -864,7 +864,7 @@
   "sections": [
     [
       "Merits",
-      870946
+      871902
     ],
     [
       "Circumstances",
@@ -872,11 +872,11 @@
     ],
     [
       "Header",
-      259514
+      259822
     ],
     [
       "Just Satisfaction",
-      233316
+      233975
     ],
     [
       "Subject Matter",
@@ -888,7 +888,7 @@
     ],
     [
       "Legal Framework",
-      12549
+      12585
     ],
     [
       "Procedure",
@@ -896,7 +896,7 @@
     ],
     [
       "Facts",
-      3236
+      3484
     ],
     [
       "Operative part",
@@ -912,7 +912,7 @@
     ]
   ],
   "article35": {
-    "with_any_tag": 7777,
+    "with_any_tag": 7786,
     "with_subground": 850,
     "subgrounds": [
       [
@@ -963,7 +963,7 @@
   },
   "caveats": {
     "published_only": "HUDOC's published decisions, not the Court's filtering of applications. Single-judge decisions, which dispose of most of the docket, are not published: every record here is a Committee, Chamber or Grand Chamber decision.",
-    "grounds_coverage": "A specific Article 35 sub-ground is coded for 850 of 28333 decisions. The grounds list is not a profile of all of them.",
+    "grounds_coverage": "A specific Article 35 sub-ground is coded for 850 of 28365 decisions. The grounds list is not a profile of all of them.",
     "unit": "HUDOC decision record, not an application or applicant.",
     "live_db": "Built from the live search corpus, not from the judgment catalog snapshot the rest of this page uses, so the two carry different build dates."
   }

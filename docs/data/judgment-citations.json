@@ -1,39 +1,39 @@
 {
   "schema_version": "judgment-citations-v1",
-  "generated_at": "2026-11-26T02:06:14.024772+00:00",
+  "generated_at": "2026-11-26T17:16:02.218353+00:00",
   "cutoff": "2026-11-26",
-  "catalog_sha256": "32082f6d5a7d99773ecd1d715847a3fef83a660b70877c4a03082e3deb981422",
-  "catalog_content_sha256": "f5163066f3a79d4883f684ff2e962c571db5d3b537ae51210d3931e30ef37f85",
-  "edges_sha256": "4c6b2e533479f3bee3d98f513bcf6fe38617f913aec8c5aecdcd7102020d9c31",
-  "statistics_scope_sha256": "dfb246b8beac8d2090e9950f9f7af5979082d29d1b32dc2d082f0f12f19ffa09",
+  "catalog_sha256": "6304fbfb10519245f6176959fd74e7141a5f52e4052d970865b8cd0440b57c17",
+  "catalog_content_sha256": "7a6368cb5aba1291855a6865bb16e596f684950aef2cc26577bf96603f07f67f",
+  "edges_sha256": "e1a772169ebf808f0a147d13879b5371492526c475761f7c222603e9bf95f1fa",
+  "statistics_scope_sha256": "f75bc29ea71f96d950fc681b44daa791d3aae381ae07bca1b7016ffb4c6601ca",
   "scope": "Judgments only, English-flagged catalog identities with verified French ECLI aliases. Counts use bilingual HUDOC citation metadata, not full-text extraction.",
   "coverage": {
-    "judgments": 29446,
-    "judgments_with_metadata": 12567,
+    "judgments": 29462,
+    "judgments_with_metadata": 12569,
     "metadata_versions_by_language": {
-      "ENG": 12096,
-      "FRE": 12354
+      "ENG": 12098,
+      "FRE": 12356
     },
-    "reference_observations": 347890,
+    "reference_observations": 348004,
     "by_status": {
       "ambiguous": 21740,
       "chronology_conflict": 7,
-      "excluded_document_type": 30743,
+      "excluded_document_type": 30759,
       "identifier_conflict": 701,
-      "resolved": 276703,
+      "resolved": 276799,
       "self_reference": 4,
-      "unresolved": 17992
+      "unresolved": 17994
     },
     "by_method": {
-      "application_date": 143127,
-      "application_title": 95791,
-      "explicit_non_judgment": 30743,
+      "application_date": 143215,
+      "application_title": 95797,
+      "explicit_non_judgment": 30759,
       "insufficient_identifiers": 848,
       "multiple_reference_dates": 318,
-      "title_date": 77063
+      "title_date": 77067
     },
-    "unique_edges": 140914,
-    "judgments_with_resolved_citations": 12225,
+    "unique_edges": 140962,
+    "judgments_with_resolved_citations": 12227,
     "identity_issues": [
       {
         "reason": "unpaired_french_identity",
@@ -315,7 +315,7 @@
         "ENG",
         "FRE"
       ],
-      "cited_by_count": 348
+      "cited_by_count": 349
     },
     {
       "judgment_id": "ECLI:CE:ECHR:1982:0923JUD000715175",
@@ -9768,6 +9768,7 @@
       "001-58915"
     ],
     "001-142199": [
+      "001-254009",
       "001-253649",
       "001-253891",
       "001-253534",
@@ -46130,28 +46131,33 @@
       "title": "K\u00d3TAI v. HUNGARY",
       "date": "2026-11-24",
       "ecli": "ECLI:CE:ECHR:2026:1124JUD004993322"
+    },
+    "001-254009": {
+      "title": "GINANNESCHI v. ITALY",
+      "date": "2026-11-26",
+      "ecli": "ECLI:CE:ECHR:2026:1126JUD003816215"
     }
   },
   "with_extracted_appno": {
     "scope": "As above, plus application numbers HUDOC extracted from the full text of each judgment. A number resolves only when one earlier judgment in the catalog has that application; the citing judgment's own numbers are skipped and several judgments of one application stay ambiguous. Counts are lower bounds and the numbers carry no citation context.",
-    "edges_sha256": "5d52f2f8ac41065682aa0a353aa221abd45aff6be01a16ae6ec1759fc99e52e4",
+    "edges_sha256": "475fe0d0aa38b1df543b7303418ff541f038daac1ac70b9336c8a1d2e827ffbb",
     "coverage": {
-      "judgments": 29446,
-      "judgments_with_metadata": 29411,
-      "judgments_with_extracted_application_numbers": 29375,
-      "reference_observations": 455139,
+      "judgments": 29462,
+      "judgments_with_metadata": 29427,
+      "judgments_with_extracted_application_numbers": 29391,
+      "reference_observations": 455419,
       "by_status": {
-        "ambiguous": 54186,
+        "ambiguous": 54217,
         "chronology_conflict": 1349,
-        "resolved": 257644,
-        "self_reference": 73676,
-        "unresolved": 68284
+        "resolved": 257766,
+        "self_reference": 73767,
+        "unresolved": 68320
       },
-      "unique_edges": 281843,
-      "edges_from_curated_list": 140914,
-      "edges_from_extracted_application": 234094,
-      "edges_in_both": 93165,
-      "judgments_with_resolved_citations": 27808,
+      "unique_edges": 281964,
+      "edges_from_curated_list": 140962,
+      "edges_from_extracted_application": 234202,
+      "edges_in_both": 93200,
+      "judgments_with_resolved_citations": 27823,
       "full_text_analyzed": false
     },
     "ranking": [
@@ -46167,9 +46173,9 @@
           "ENG",
           "FRE"
         ],
-        "cited_by_count": 3590,
+        "cited_by_count": 3594,
         "cited_by_curated_list": 1216,
-        "cited_by_extracted_application": 3580
+        "cited_by_extracted_application": 3584
       },
       {
         "judgment_id": "ECLI:CE:ECHR:2000:1026JUD003021096",
@@ -46215,9 +46221,9 @@
           "ENG",
           "FRE"
         ],
-        "cited_by_count": 1371,
+        "cited_by_count": 1372,
         "cited_by_curated_list": 489,
-        "cited_by_extracted_application": 1326
+        "cited_by_extracted_application": 1327
       },
       {
         "judgment_id": "ECLI:CE:ECHR:1999:0728JUD002580394",
@@ -46263,9 +46269,9 @@
           "ENG",
           "FRE"
         ],
-        "cited_by_count": 1046,
+        "cited_by_count": 1049,
         "cited_by_curated_list": 137,
-        "cited_by_extracted_application": 1042
+        "cited_by_extracted_application": 1045
       },
       {
         "judgment_id": "ECLI:CE:ECHR:2014:0717JUD004784808",
@@ -46279,9 +46285,9 @@
           "ENG",
           "FRE"
         ],
-        "cited_by_count": 1023,
+        "cited_by_count": 1027,
         "cited_by_curated_list": 296,
-        "cited_by_extracted_application": 1012
+        "cited_by_extracted_application": 1016
       },
       {
         "judgment_id": "ECLI:CE:ECHR:2002:0507JUD005949800",
@@ -46359,9 +46365,9 @@
           "ENG",
           "FRE"
         ],
-        "cited_by_count": 712,
+        "cited_by_count": 713,
         "cited_by_curated_list": 439,
-        "cited_by_extracted_application": 675
+        "cited_by_extracted_application": 676
       },
       {
         "judgment_id": "ECLI:CE:ECHR:2012:0522JUD000582603",
@@ -46478,6 +46484,10 @@
     ],
     "citing_by_target": {
       "001-58762": [
+        "001-253664",
+        "001-253669",
+        "001-253667",
+        "001-253668",
         "001-253449",
         "001-253157",
         "001-252888",
@@ -54853,6 +54863,7 @@
         "001-58734"
       ],
       "001-58226": [
+        "001-253667",
         "001-252888",
         "001-252894",
         "001-252646",
@@ -58568,6 +58579,9 @@
         "001-58296"
       ],
       "001-108465": [
+        "001-253662",
+        "001-253661",
+        "001-253663",
         "001-253649",
         "001-253969",
         "001-253537",
@@ -59616,6 +59630,10 @@
         "001-111837"
       ],
       "001-145577": [
+        "001-253662",
+        "001-253661",
+        "001-253691",
+        "001-253663",
         "001-253840",
         "001-253533",
         "001-253453",
@@ -63926,6 +63944,7 @@
         "001-78159"
       ],
       "001-58228": [
+        "001-253653",
         "001-251808",
         "001-244014",
         "001-238674",
@@ -139918,6 +139937,51 @@
         "title": "\u00d6ZAK\u00c7A AND G\u00dcLMEN v. T\u00dcRK\u0130YE",
         "date": "2026-11-24",
         "ecli": "ECLI:CE:ECHR:2026:1124JUD004594017"
+      },
+      "001-253668": {
+        "title": "ROSTOMYAN AND OTHERS v. ARMENIA",
+        "date": "2026-11-26",
+        "ecli": "ECLI:CE:ECHR:2026:1126JUD000314223"
+      },
+      "001-253653": {
+        "title": "U\u013bMANS v. LATVIA",
+        "date": "2026-11-26",
+        "ecli": "ECLI:CE:ECHR:2026:1126JUD001543923"
+      },
+      "001-253667": {
+        "title": "BABAYAN v. ARMENIA",
+        "date": "2026-11-26",
+        "ecli": "ECLI:CE:ECHR:2026:1126JUD001822323"
+      },
+      "001-253663": {
+        "title": "VLACHOS AND OTHERS v. GREECE",
+        "date": "2026-11-26",
+        "ecli": "ECLI:CE:ECHR:2026:1126JUD002711518"
+      },
+      "001-253669": {
+        "title": "SAROYAN AND OTHERS v. ARMENIA",
+        "date": "2026-11-26",
+        "ecli": "ECLI:CE:ECHR:2026:1126JUD002987123"
+      },
+      "001-253691": {
+        "title": "ILCHENKO AND OTHERS v. RUSSIA",
+        "date": "2026-11-26",
+        "ecli": "ECLI:CE:ECHR:2026:1126JUD005354718"
+      },
+      "001-253664": {
+        "title": "MADIAS AND OTHERS v. GREECE",
+        "date": "2026-11-26",
+        "ecli": "ECLI:CE:ECHR:2026:1126JUD005580920"
+      },
+      "001-253661": {
+        "title": "MIAH AND OTHERS v. GREECE",
+        "date": "2026-11-26",
+        "ecli": "ECLI:CE:ECHR:2026:1126JUD007857817"
+      },
+      "001-253662": {
+        "title": "CHALKIDIS AND OTHERS v. GREECE",
+        "date": "2026-11-26",
+        "ecli": "ECLI:CE:ECHR:2026:1126JUD008014617"
       }
     }
   },
@@ -139930,7 +139994,7 @@
         "date": "2000-06-27",
         "ecli": "ECLI:CE:ECHR:2000:0627JUD003097996",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 4290,
+        "cited_by_count": 4294,
         "cited_by_french_only": 1037
       },
       {
@@ -139948,7 +140012,7 @@
         "date": "2003-05-06",
         "ecli": "ECLI:CE:ECHR:2003:0506JUD002630795",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 2734,
+        "cited_by_count": 2738,
         "cited_by_french_only": 6
       },
       {
@@ -139975,7 +140039,7 @@
         "date": "1999-03-25",
         "ecli": "ECLI:CE:ECHR:1999:0325JUD002544494",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 1483,
+        "cited_by_count": 1484,
         "cited_by_french_only": 502
       },
       {
@@ -139993,7 +140057,7 @@
         "date": "1996-09-16",
         "ecli": "ECLI:CE:ECHR:1996:0916JUD002189393",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 1387,
+        "cited_by_count": 1388,
         "cited_by_french_only": 101
       },
       {
@@ -140011,7 +140075,7 @@
         "date": "2012-01-10",
         "ecli": "ECLI:CE:ECHR:2012:0110JUD004252507",
         "collection": "CHAMBER",
-        "cited_by_count": 1257,
+        "cited_by_count": 1260,
         "cited_by_french_only": 82
       },
       {
@@ -140029,7 +140093,7 @@
         "date": "2014-07-17",
         "ecli": "ECLI:CE:ECHR:2014:0717JUD004784808",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 1134,
+        "cited_by_count": 1139,
         "cited_by_french_only": 110
       },
       {
@@ -140056,7 +140120,7 @@
         "date": "1999-03-25",
         "ecli": "ECLI:CE:ECHR:1999:0325JUD003110796",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 1027,
+        "cited_by_count": 1028,
         "cited_by_french_only": 717
       },
       {
@@ -140083,7 +140147,7 @@
         "date": "2014-03-25",
         "ecli": "ECLI:CE:ECHR:2014:0325JUD001715311",
         "collection": "GRANDCHAMBER",
-        "cited_by_count": 963,
+        "cited_by_count": 964,
         "cited_by_french_only": 159
       },
       {
@@ -140107,6 +140171,10 @@
     ],
     "citing_by_target": {
       "001-58762": [
+        "001-253669",
+        "001-253668",
+        "001-253667",
+        "001-253664",
         "001-253449",
         "001-253157",
         "001-253162",
@@ -148013,6 +148081,10 @@
         "001-59096"
       ],
       "001-61076": [
+        "001-253984",
+        "001-253976",
+        "001-253975",
+        "001-253958",
         "001-253754",
         "001-253752",
         "001-253438",
@@ -154026,6 +154098,7 @@
         "001-4768"
       ],
       "001-58226": [
+        "001-253667",
         "001-252894",
         "001-252888",
         "001-252664",
@@ -156931,6 +157004,7 @@
         "001-248082"
       ],
       "001-58062": [
+        "001-253999",
         "001-252594",
         "001-252706",
         "001-252864",
@@ -159594,6 +159668,9 @@
         "001-253159"
       ],
       "001-108465": [
+        "001-253663",
+        "001-253662",
+        "001-253661",
         "001-253969",
         "001-253649",
         "001-253537",
@@ -162017,12 +162094,17 @@
         "001-253321"
       ],
       "001-145577": [
+        "001-253691",
+        "001-253663",
+        "001-253662",
+        "001-253661",
         "001-253533",
         "001-253458",
         "001-253454",
         "001-253453",
         "001-253452",
         "001-253445",
+        "001-253974",
         "001-253155",
         "001-252957",
         "001-252901",
@@ -165396,6 +165478,7 @@
         "001-57587"
       ],
       "001-58227": [
+        "001-253691",
         "001-252897",
         "001-253386",
         "003-8648077-12325389",
@@ -168426,6 +168509,7 @@
         "001-253649",
         "001-253535",
         "001-253534",
+        "001-253999",
         "001-253222",
         "001-253221",
         "001-253220",
@@ -246954,6 +247038,54 @@
         "ecli": "ECLI:CE:ECHR:2026:1124JUD004993322",
         "french_only": false
       },
+      "001-253661": {
+        "title": "MIAH AND OTHERS v. GREECE",
+        "date": "2026-11-26",
+        "ecli": "ECLI:CE:ECHR:2026:1126JUD007857817",
+        "french_only": false
+      },
+      "001-253662": {
+        "title": "CHALKIDIS AND OTHERS v. GREECE",
+        "date": "2026-11-26",
+        "ecli": "ECLI:CE:ECHR:2026:1126JUD008014617",
+        "french_only": false
+      },
+      "001-253663": {
+        "title": "VLACHOS AND OTHERS v. GREECE",
+        "date": "2026-11-26",
+        "ecli": "ECLI:CE:ECHR:2026:1126JUD002711518",
+        "french_only": false
+      },
+      "001-253664": {
+        "title": "MADIAS AND OTHERS v. GREECE",
+        "date": "2026-11-26",
+        "ecli": "ECLI:CE:ECHR:2026:1126JUD005580920",
+        "french_only": false
+      },
+      "001-253667": {
+        "title": "BABAYAN v. ARMENIA",
+        "date": "2026-11-26",
+        "ecli": "ECLI:CE:ECHR:2026:1126JUD001822323",
+        "french_only": false
+      },
+      "001-253668": {
+        "title": "ROSTOMYAN AND OTHERS v. ARMENIA",
+        "date": "2026-11-26",
+        "ecli": "ECLI:CE:ECHR:2026:1126JUD000314223",
+        "french_only": false
+      },
+      "001-253669": {
+        "title": "SAROYAN AND OTHERS v. ARMENIA",
+        "date": "2026-11-26",
+        "ecli": "ECLI:CE:ECHR:2026:1126JUD002987123",
+        "french_only": false
+      },
+      "001-253691": {
+        "title": "ILCHENKO AND OTHERS v. RUSSIA",
+        "date": "2026-11-26",
+        "ecli": "ECLI:CE:ECHR:2026:1126JUD005354718",
+        "french_only": false
+      },
       "001-253719": {
         "title": "AGAYEVA v. AZERBAIJAN",
         "date": "2026-10-20",
@@ -247008,10 +247140,46 @@
         "ecli": "ECLI:CE:ECHR:2026:1124JUD001776422",
         "french_only": false
       },
+      "001-253958": {
+        "title": "SHAMIYEV v. AZERBAIJAN",
+        "date": "2026-11-05",
+        "ecli": "ECLI:CE:ECHR:2026:1105DEC002492425",
+        "french_only": false
+      },
       "001-253969": {
         "title": "H.M.M. AND OTHERS v. LATVIA",
         "date": "2026-11-24",
         "ecli": "ECLI:CE:ECHR:2026:1124JUD004216521",
+        "french_only": false
+      },
+      "001-253974": {
+        "title": "ARAT\u00d3 AND OTHERS v. HUNGARY",
+        "date": "2026-11-05",
+        "ecli": "ECLI:CE:ECHR:2026:1105DEC004965422",
+        "french_only": false
+      },
+      "001-253975": {
+        "title": "HOLLENDA v. HUNGARY",
+        "date": "2026-11-05",
+        "ecli": "ECLI:CE:ECHR:2026:1105DEC001091025",
+        "french_only": false
+      },
+      "001-253976": {
+        "title": "BANK\u00d3S v. HUNGARY",
+        "date": "2026-11-05",
+        "ecli": "ECLI:CE:ECHR:2026:1105DEC002388125",
+        "french_only": false
+      },
+      "001-253984": {
+        "title": "\u015aNIADA\u0141A v. POLAND",
+        "date": "2026-11-05",
+        "ecli": "ECLI:CE:ECHR:2026:1105DEC002119725",
+        "french_only": false
+      },
+      "001-253999": {
+        "title": "X AND Y v. SLOVENIA",
+        "date": "2026-11-03",
+        "ecli": "ECLI:CE:ECHR:2026:1103DEC000511223",
         "french_only": false
       },
       "001-4527": {
@@ -294590,32 +294758,32 @@
       }
     },
     "coverage": {
-      "judgments": 29446,
-      "judgments_with_metadata": 12567,
+      "judgments": 29462,
+      "judgments_with_metadata": 12569,
       "metadata_versions_by_language": {
-        "ENG": 12096,
-        "FRE": 12354
+        "ENG": 12098,
+        "FRE": 12356
       },
-      "reference_observations": 347890,
+      "reference_observations": 348004,
       "by_status": {
         "ambiguous": 21740,
         "chronology_conflict": 7,
-        "excluded_document_type": 30743,
+        "excluded_document_type": 30759,
         "identifier_conflict": 701,
-        "resolved": 276703,
+        "resolved": 276799,
         "self_reference": 4,
-        "unresolved": 17992
+        "unresolved": 17994
       },
       "by_method": {
-        "application_date": 143127,
-        "application_title": 95791,
-        "explicit_non_judgment": 30743,
+        "application_date": 143215,
+        "application_title": 95797,
+        "explicit_non_judgment": 30759,
         "insufficient_identifiers": 848,
         "multiple_reference_dates": 318,
-        "title_date": 77063
+        "title_date": 77067
       },
-      "unique_edges": 140914,
-      "judgments_with_resolved_citations": 12225,
+      "unique_edges": 140962,
+      "judgments_with_resolved_citations": 12227,
       "identity_issues": [
         {
           "reason": "unpaired_french_identity",
@@ -294673,8 +294841,8 @@
         }
       ],
       "full_text_analyzed": false,
-      "cited_judgments": 15853,
-      "citation_pairs": 355497,
+      "cited_judgments": 15859,
+      "citation_pairs": 355618,
       "french_only_pairs": 59501
     }
   }
