@@ -1,9 +1,9 @@
 {
   "schema_version": "judgment-citations-v1",
-  "generated_at": "2026-11-27T02:06:28.062404+00:00",
+  "generated_at": "2026-11-27T17:16:06.729858+00:00",
   "cutoff": "2026-11-27",
   "catalog_sha256": "6304fbfb10519245f6176959fd74e7141a5f52e4052d970865b8cd0440b57c17",
-  "catalog_content_sha256": "2c3a8ac13648d9c5d9602cb34034c7e146988addefa772c6dc971cbe45b39880",
+  "catalog_content_sha256": "7cd8009a2099897017aef09e19369449d843e5580a5cb9e5bb630513cc470bbf",
   "edges_sha256": "e1a772169ebf808f0a147d13879b5371492526c475761f7c222603e9bf95f1fa",
   "statistics_scope_sha256": "f75bc29ea71f96d950fc681b44daa791d3aae381ae07bca1b7016ffb4c6601ca",
   "scope": "Judgments only, English-flagged catalog identities with verified French ECLI aliases. Counts use bilingual HUDOC citation metadata, not full-text extraction.",
@@ -294841,9 +294841,9 @@
         }
       ],
       "full_text_analyzed": false,
-      "cited_judgments": 15859,
+      "cited_judgments": 15861,
       "citation_pairs": 355618,
-      "french_only_pairs": 59501
+      "french_only_pairs": 59520
     }
   }
 }
